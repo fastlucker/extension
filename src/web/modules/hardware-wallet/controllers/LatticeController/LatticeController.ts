@@ -1,5 +1,5 @@
 import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
+import { Key } from 'ambire-common/src/interfaces/keystore'
 import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'

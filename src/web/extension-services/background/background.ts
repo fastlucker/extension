@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { Key } from 'ambire-common/src/interfaces/keystore'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
@@ -81,6 +82,7 @@ async function init() {
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
   let fetchPortfolioIntervalId: any
+  const ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean } = {}
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -114,15 +116,25 @@ async function init() {
    * Initializing the listeners only once proofs to be more reliable.
    */
 
-  // Broadcast onUpdate for the main controllers
+  // Broadcast onUpdate for the main controller
+
   mainCtrl.onUpdate(() => {
-    Object.keys(portMessageUIRefs).forEach((key: string) => {
-      portMessageUIRefs[key]?.request({
-        type: 'broadcast',
-        method: 'main',
-        params: mainCtrl
-      })
-    })
+    if (ctrlOnUpdateIsDirtyFlags.main) return
+    ctrlOnUpdateIsDirtyFlags.main = true
+
+    // Debounce multiple emits in the same tick and only execute one if them
+    setTimeout(() => {
+      if (ctrlOnUpdateIsDirtyFlags.main) {
+        Object.keys(portMessageUIRefs).forEach((key: string) => {
+          portMessageUIRefs[key]?.request({
+            type: 'broadcast',
+            method: 'main',
+            params: mainCtrl
+          })
+        })
+      }
+      ctrlOnUpdateIsDirtyFlags.main = false
+    }, 0)
 
     if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
       controllersNestedInMainSubscribe = null
@@ -131,15 +143,23 @@ async function init() {
     if (mainCtrl.isReady && !controllersNestedInMainSubscribe) {
       controllersNestedInMainSubscribe = () => {
         Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
-          // Broadcast onUpdate for nested controllers
+          // Broadcast onUpdate for the nested controllers in main
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            Object.keys(portMessageUIRefs).forEach((key: string) => {
-              portMessageUIRefs[key]?.request({
-                type: 'broadcast',
-                method: ctrl,
-                params: (mainCtrl as any)[ctrl]
-              })
-            })
+            if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
+            ctrlOnUpdateIsDirtyFlags[ctrl] = true
+
+            setTimeout(() => {
+              if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
+                Object.keys(portMessageUIRefs).forEach((key: string) => {
+                  portMessageUIRefs[key]?.request({
+                    type: 'broadcast',
+                    method: ctrl,
+                    params: (mainCtrl as any)[ctrl]
+                  })
+                })
+              }
+              ctrlOnUpdateIsDirtyFlags[ctrl] = false
+            }, 0)
           })
           ;(mainCtrl as any)[ctrl]?.onError(() => {
             const errors = (mainCtrl as any)[ctrl].getErrors()
@@ -162,16 +182,36 @@ async function init() {
       fetchPortfolioData()
     }
   })
-
-  // Broadcast onUpdate for the notification controllers
-  notificationCtrl.onUpdate(() => {
+  mainCtrl.onError(() => {
+    const errors = mainCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
-        type: 'broadcast',
-        method: 'notification',
-        params: notificationCtrl
+        type: 'broadcast-error',
+        method: 'main',
+        params: { errors, controller: 'main' }
       })
     })
+  })
+
+  // Broadcast onUpdate for the notification controller
+  notificationCtrl.onUpdate(() => {
+    if (ctrlOnUpdateIsDirtyFlags.notification) return
+    ctrlOnUpdateIsDirtyFlags.notification = true
+    // Debounce multiple emits in the same tick and only execute one if them
+    setTimeout(() => {
+      if (ctrlOnUpdateIsDirtyFlags.notification) {
+        Object.keys(portMessageUIRefs).forEach((key: string) => {
+          portMessageUIRefs[key]?.request({
+            type: 'broadcast',
+            method: 'notification',
+            params: notificationCtrl
+          })
+        })
+      }
+      ctrlOnUpdateIsDirtyFlags.notification = false
+    }, 0)
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
@@ -182,18 +222,6 @@ async function init() {
         type: 'broadcast-error',
         method: 'notification',
         params: { errors, controller: 'notification' }
-      })
-    })
-  })
-  mainCtrl.onError(() => {
-    const errors = mainCtrl.getErrors()
-    const lastError = errors[errors.length - 1]
-    if (lastError) console.error(lastError.error)
-    Object.keys(portMessageUIRefs).forEach((key: string) => {
-      portMessageUIRefs[key]?.request({
-        type: 'broadcast-error',
-        method: 'main',
-        params: { errors, controller: 'main' }
       })
     })
   })
