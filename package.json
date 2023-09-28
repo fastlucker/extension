@@ -84,7 +84,7 @@
     "@unstoppabledomains/resolution": "^7.1.4",
     "@yfi/sdk": "1.1.1",
     "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e507e75ac4ddbec2aa4a444c675b38ee9d26190c",
-    "ambire-common": "AmbireTech/ambire-common#e93122e52677c305fe545f5d48e864f5d1e48f62",
+    "ambire-common": "AmbireTech/ambire-common#9df29d71565ec367fc1d9e40ee50a36cb9a9fc54",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
     "bip44-constants": "^128.0.0",
