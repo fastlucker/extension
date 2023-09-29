@@ -149,7 +149,7 @@ const AccountsList = ({
             ...spacings.ph0
           }}
         >
-          {/* TODO: impl change derivation */}
+          {/* TODO: impl change derivation and move this into a separate component */}
           {state.accountsLoading ? null : (
             <Pressable style={styles.derivationButton} disabled>
               <View style={styles.derivationButtonInfo}>
