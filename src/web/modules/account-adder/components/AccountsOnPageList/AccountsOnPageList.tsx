@@ -151,7 +151,7 @@ const AccountsList = ({
         >
           {/* TODO: impl change derivation */}
           {state.accountsLoading ? null : (
-            <Pressable style={styles.derivationButton}>
+            <Pressable style={styles.derivationButton} disabled>
               <View style={styles.derivationButtonInfo}>
                 <Text weight="medium" fontSize={14}>
                   {state.derivationPath &&
