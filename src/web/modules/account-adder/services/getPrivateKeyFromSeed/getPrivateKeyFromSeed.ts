@@ -7,8 +7,8 @@ const getPrivateKeyFromSeed = (
   derivationPath: string = BIP44_HD_PATH
 ) => {
   const mnemonic = Mnemonic.fromPhrase(seed)
-  const wallet = HDNodeWallet.fromMnemonic(mnemonic)
-  const keyObj = wallet.derivePath(`${derivationPath}/${keyIndex}`)
+  const wallet = HDNodeWallet.fromMnemonic(mnemonic, derivationPath)
+  const keyObj = wallet.deriveChild(keyIndex)
   if (keyObj) {
     return keyObj.privateKey
   }
