@@ -1,15 +1,16 @@
+import { HD_PATHS, HDPath } from 'ambire-common/src/consts/derivation'
 import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import Button from '@common/components/Button'
-// import Select from '@common/components/Select'
+import NavIconWrapper from '@common/components/NavIconWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
@@ -21,6 +22,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
+
+import styles from './styles'
 
 const LIST_ITEM_HEIGHT = 76
 const LIST_ITEM_GUTTER = 10
@@ -43,10 +46,15 @@ const AccountsList = ({
   setPage: (page: number) => void
 }) => {
   const { t } = useTranslation()
-  // const [value, setValue] = useState('')
   const [emailVaultStep, setEmailVaultStep] = useState(false)
   // const [showUnused, setShowUnused] = useState(false)
   const { dispatch } = useBackgroundService()
+
+  const getDerivationLabel = (_path: HDPath['path']) => {
+    const path = HD_PATHS.find((x) => x.path === _path)
+
+    return path ? path.label : _path
+  }
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -137,31 +145,61 @@ const AccountsList = ({
         )}
         <Wrapper
           contentContainerStyle={{
-            height: LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
-            ...spacings.pt0,
-            ...spacings.phSm
+            ...spacings.pv0,
+            ...spacings.ph0
           }}
         >
-          {state.accountsLoading ? (
-            <View
-              style={[
-                flexbox.alignCenter,
-                flexbox.flex1,
-                flexbox.alignCenter,
-                flexbox.justifyCenter
-              ]}
-            >
-              <Spinner style={{ width: 28, height: 28 }} />
-            </View>
-          ) : (
-            Object.keys(slots).map((key) => {
-              return (
-                <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
-                  {getAccounts(slots[key])}
-                </Slot>
-              )
-            })
+          {/* TODO: impl change derivation and move this into a separate component */}
+          {state.accountsLoading ? null : (
+            <Pressable style={styles.derivationButton} disabled>
+              <View style={styles.derivationButtonInfo}>
+                <Text weight="medium" fontSize={14}>
+                  {state.derivationPath &&
+                    getDerivationLabel(state.derivationPath as HDPath['path'])}{' '}
+                </Text>
+                <Text weight="medium" fontSize={14} color={colors.martinique_65}>
+                  {state.derivationPath}{' '}
+                </Text>
+              </View>
+              <NavIconWrapper
+                onPress={() => null}
+                width={25}
+                height={25}
+                hoverBackground={colors.lightViolet}
+                style={styles.derivationButtonRightIcon}
+              >
+                <RightArrowIcon width={26} height={26} withRect={false} />
+              </NavIconWrapper>
+            </Pressable>
           )}
+          <Wrapper
+            contentContainerStyle={{
+              height: LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
+              ...spacings.pt0,
+              ...spacings.phSm
+            }}
+          >
+            {state.accountsLoading ? (
+              <View
+                style={[
+                  flexbox.alignCenter,
+                  flexbox.flex1,
+                  flexbox.alignCenter,
+                  flexbox.justifyCenter
+                ]}
+              >
+                <Spinner style={{ width: 28, height: 28 }} />
+              </View>
+            ) : (
+              Object.keys(slots).map((key) => {
+                return (
+                  <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
+                    {getAccounts(slots[key])}
+                  </Slot>
+                )
+              })
+            )}
+          </Wrapper>
         </Wrapper>
 
         <View
@@ -228,23 +266,6 @@ const AccountsList = ({
             <RightDoubleArrowIcon />
           </TouchableOpacity>
         </View>
-        {/* TODO: impl custom derivation selector */}
-        {/* {!enableCreateEmailVault && (
-          <Select
-            hasArrow
-            options={[
-              { label: 'Swap', value: 'Swap' },
-              { label: 'Bridge', value: 'Bridge' },
-              { label: 'Top Up Gas Tank', value: 'Top Up Gas Tank' },
-              { label: 'Deposit', value: 'Deposit' }
-            ]}
-            setValue={setValue}
-            value={value}
-            menuPlacement="top"
-            placeholder="Custom Derivation"
-            controlStyle={{ width: 260 }}
-          />
-        )} */}
         <Button
           style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
           onPress={onImportReady}
