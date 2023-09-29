@@ -39,6 +39,10 @@ const TrezorManager: React.FC<{}> = (props) => {
   )
 
   useEffect(() => {
+    updateStepperState(WEB_ROUTES.accountAdder, 'hw')
+  }, [updateStepperState])
+
+  useEffect(() => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
@@ -85,11 +89,9 @@ const TrezorManager: React.FC<{}> = (props) => {
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      updateStepperState(2, 'hw')
-
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
     },
-    [navigate, updateStepperState]
+    [navigate]
   )
 
   useEffect(() => {

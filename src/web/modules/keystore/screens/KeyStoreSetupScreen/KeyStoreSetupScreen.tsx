@@ -1,5 +1,5 @@
 import { isValidPassword } from 'ambire-common/src/services/validations'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -36,15 +36,16 @@ const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { params } = useRoute()
+  const { updateStepperState } = useStepper()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
   const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
-  const { stepperState, updateStepperState } = useStepper()
   const state = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
 
-  const setNextStepperState = useCallback(() => {
-    updateStepperState(stepperState.currentStep + 1, stepperState.currentFlow)
-  }, [stepperState.currentFlow, stepperState.currentStep, updateStepperState])
+  useEffect(() => {
+    if (!params?.flow) return
+    updateStepperState(WEB_ROUTES.keyStoreSetup, params.flow)
+  }, [updateStepperState, params?.flow])
 
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
@@ -73,7 +74,6 @@ const KeyStoreSetupScreen = () => {
       setIsSubmitSuccessful(true)
 
       setTimeout(() => {
-        setNextStepperState()
         if (params?.flow === 'email') {
           navigate(WEB_ROUTES.createEmailVault, {
             state: { backTo: WEB_ROUTES.getStarted }
@@ -91,7 +91,7 @@ const KeyStoreSetupScreen = () => {
         }
       }, 2800)
     }
-  }, [state, navigate, setNextStepperState, dispatch, watch, params?.flow])
+  }, [state, navigate, dispatch, watch, params?.flow])
 
   const handleKeystoreSetup = () => {
     handleSubmit(({ password }) => {

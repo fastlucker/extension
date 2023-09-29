@@ -10,19 +10,10 @@ import styles from './styles'
 interface Props {
   openTab: 'tokens' | 'collectibles'
   setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles'>>
+  handleChangeQuery: (openTab: string) => void
 }
 
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (openTab: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
-}
-
-const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
+const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { t } = useTranslation()
 
   return (

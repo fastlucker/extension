@@ -1,6 +1,5 @@
 import { TREZOR_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
+import { Key, KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
 
 import { delayPromise } from '@common/utils/promises'

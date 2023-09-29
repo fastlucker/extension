@@ -26,7 +26,6 @@ import { delayPromise } from '@common/utils/promises'
 const EmailLoginForm: React.FC<any> = ({
   isPasswordConfirmStep,
   setIsPasswordConfirmStep,
-  setNextStepperState,
   currentFlow
 }) => {
   const { t } = useTranslation()
@@ -48,7 +47,7 @@ const EmailLoginForm: React.FC<any> = ({
 
   const { stepperState } = useStepper()
   // TODO: v2
-  const requiresEmailConfFor = !!stepperState.currentStep
+  const requiresEmailConfFor = !!stepperState?.currentStep
   const pendingLoginAccount = false
 
   const handleFormSubmit = useCallback(() => {
@@ -59,10 +58,9 @@ const EmailLoginForm: React.FC<any> = ({
       await delayPromise(100)
 
       // TODO: v2
-      currentFlow === 'email' && setNextStepperState()
       setIsPasswordConfirmStep(true)
     })()
-  }, [handleSubmit, currentFlow, setIsPasswordConfirmStep, setNextStepperState])
+  }, [handleSubmit, setIsPasswordConfirmStep])
 
   const handleCancelLoginAttempts = useCallback(() => {
     // TODO: v2
@@ -73,11 +71,10 @@ const EmailLoginForm: React.FC<any> = ({
     const delay = 4
     if (isPasswordConfirmStep) {
       setTimeout(() => {
-        currentFlow !== 'legacy' && setNextStepperState()
         navigate(ROUTES.keyStoreSetup)
       }, delay * 1000)
     }
-  }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
+  }, [isPasswordConfirmStep, navigate, currentFlow])
 
   return (
     <>

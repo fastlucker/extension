@@ -37,6 +37,9 @@ const customStyles = {
 const StepperComponent: React.FC<any> = () => {
   const { stepperState, getCurrentFlowSteps } = useStepper()
   const flowSteps = getCurrentFlowSteps()
+
+  if (!stepperState) return null
+
   const { currentStep } = stepperState
 
   const renderStepIndicator = ({ stepStatus }: { stepStatus: string }) =>
