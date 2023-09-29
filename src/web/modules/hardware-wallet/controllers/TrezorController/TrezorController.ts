@@ -4,7 +4,7 @@ import HDKey from 'hdkey'
 import trezorConnect from '@trezor/connect-web'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
-const keyringType = 'Trezor'
+const keyringType = 'trezor'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'support@debank.com/',
