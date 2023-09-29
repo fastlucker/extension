@@ -1,11 +1,11 @@
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
+import { Account } from 'ambire-common/src/interfaces/account'
 import { toUtf8String } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { StyleSheet, TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
-import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
@@ -15,11 +15,12 @@ import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -35,8 +36,8 @@ function getMessageAsText(msg: any) {
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
+  const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
@@ -44,11 +45,6 @@ const SignMessageScreen = () => {
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
-
-  // TODO: Remove these when ready
-  console.log('signMessageState: ', signMessageState)
-  console.log('activityState', activityState)
-  console.log('mainState', mainState)
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -133,37 +129,30 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const keySelectorValues = useMemo(() => {
-    // TODO: Pull keys from the Keystore and match the ones that have the
-    // same address as the associatedKeys for the selected account.
-    return (
-      mainState.accounts
-        .find((acc) => acc.addr === params!.accountAddr)
-        ?.associatedKeys?.map((assocKey: string) => ({ value: assocKey, label: assocKey })) || []
-    )
-  }, [mainState.accounts, params])
+  const selectedAccountFull = mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  )
 
-  const handleChangeSigningKey = (signKey: string) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      // TODO: Handle keys with different types
-      params: { key: signKey, type: 'internal' }
-    })
-  }
+  const handleChangeSigningKey = useCallback(
+    (keyAddr: string, keyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
+        params: { key: keyAddr, type: keyType }
+      })
+    },
+    [dispatch]
+  )
 
+  // Set the first key as the selected key
   useEffect(() => {
-    if (keySelectorValues.length) {
-      handleChangeSigningKey(keySelectorValues[0].value)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keySelectorValues.length])
+    const firstKey = keystoreState.keys.find((key) =>
+      selectedAccountFull?.associatedKeys.includes(key.addr)
+    )
 
-  const keyValue = useMemo(() => {
-    return {
-      value: signMessageState.signingKeyAddr,
-      label: signMessageState.signingKeyAddr
+    if (firstKey) {
+      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
     }
-  }, [signMessageState.signingKeyAddr])
+  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
 
   const handleReject = () => {
     dispatch({
@@ -185,10 +174,6 @@ const SignMessageScreen = () => {
       </View>
     )
   }
-
-  const selectedAccountDetails = mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
-  )
 
   return (
     <Wrapper hasBottomTabNav={false}>
@@ -232,23 +217,12 @@ const SignMessageScreen = () => {
           </View>
         </>
       )}
-      <Select
-        setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={
-          selectedAccountDetails?.label
-            ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
-                accountLabel: selectedAccountDetails?.label,
-                accountAddress: mainState.selectedAccount
-              })
-            : t('Signing with account {{accountAddress}} via key:', {
-                accountAddress: mainState.selectedAccount
-              })
-        }
-        options={keySelectorValues}
-        disabled={!keySelectorValues.length}
-        style={spacings.mb}
-        value={keyValue as {}}
-        defaultValue={keyValue as {}}
+      <SigningKeySelect
+        keystoreKeys={keystoreState.keys}
+        selectedKeyAddr={signMessageState.signingKeyAddr}
+        selectedKeyType={signMessageState.signingKeyType}
+        selectedAccountFull={selectedAccountFull as Account} // should always exist
+        handleChangeSigningKey={handleChangeSigningKey}
       />
       <View style={flexbox.directionRow}>
         <Button
