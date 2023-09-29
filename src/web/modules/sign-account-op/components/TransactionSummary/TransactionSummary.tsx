@@ -2,10 +2,11 @@ import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescripto
 import { IrCall } from 'ambire-common/src/libs/humanizer/interfaces'
 import { formatUnits } from 'ethers'
 import React, { useCallback, useState } from 'react'
-import { Pressable, View, ViewStyle } from 'react-native'
+import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -19,6 +20,7 @@ interface Props {
   style: ViewStyle
   call: IrCall
   networkId: NetworkDescriptor['id']
+  explorerUrl: NetworkDescriptor['explorerUrl']
 }
 
 export function formatFloatTokenAmount(
@@ -46,7 +48,7 @@ export function formatFloatTokenAmount(
   }
 }
 
-const TransactionSummary = ({ style, call, networkId }: Props) => {
+const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const { dispatch } = useBackgroundService()
@@ -76,8 +78,8 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
 
                   {item.address ? (
                     <TokenIcon
-                      width={20}
-                      height={20}
+                      width={24}
+                      height={24}
                       networkId={networkId}
                       address={item.address}
                     />
@@ -99,18 +101,18 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
               return (
                 <Text fontSize={16} weight="medium" color={colors.martinique}>
                   {` ${item.name ? item.name : item.address} `}
-                  {/* {!!item.address && (
+                  {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
+                      disabled={!explorerUrl}
                       onPress={() => {
-                        // TODO: currently there is no explorerUrl in networks
-                        // Linking.openURL(`${explorerUrl}/address/${item.address}`)
+                        Linking.openURL(`${explorerUrl}/address/${item.address}`)
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.openIconWrapper}
+                      style={styles.explorerIcon}
                     >
-                      <OpenIcon width={16} height={16} />
+                      <OpenIcon width={20} height={20} color={colors.martinique_80} />
                     </TouchableOpacity>
-                  )} */}
+                  )}
                 </Text>
               )
 
@@ -149,7 +151,7 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
         </View>
       )
     },
-    [networkId, t]
+    [networkId, explorerUrl, t]
   )
 
   return (
@@ -183,13 +185,24 @@ const TransactionSummary = ({ style, call, networkId }: Props) => {
       {!!isExpanded && (
         <View style={styles.body}>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Interacting with (to):')} {call.to}
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Interacting with (to): ')}
+            </Text>
+            {call.to}
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Value to be sent (value):')} {formatUnits(call.value || '0x0', 18)}
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Value to be sent (value): ')}
+            </Text>
+            {formatUnits(call.value || '0x0', 18)}
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Data')}:{call.data}
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Data: ')}
+            </Text>
+            <Text fontSize={12} style={styles.bodyText}>
+              {call.data}
+            </Text>
           </Text>
         </View>
       )}

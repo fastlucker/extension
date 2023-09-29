@@ -10,6 +10,7 @@ interface Style {
   headerContent: ViewStyle
   body: ViewStyle
   bodyText: TextStyle
+  explorerIcon: ViewStyle
 }
 
 const { isTab } = getUiType()
@@ -27,7 +28,7 @@ const styles = StyleSheet.create<Style>({
     ...flexbox.justifyCenter,
     ...flexbox.justifySpaceBetween,
     paddingHorizontal: 10,
-    paddingVertical: 7
+    paddingVertical: 10
   },
   headerContent: {
     ...flexbox.flex1,
@@ -42,6 +43,9 @@ const styles = StyleSheet.create<Style>({
   bodyText: {
     marginBottom: isTab ? 25 : 5,
     color: colors.martinique
+  },
+  explorerIcon: {
+    marginLeft: -4
   }
 })
 

@@ -220,6 +220,7 @@ const SignAccountOpScreen = () => {
                   style={spacings.mbSm}
                   call={call}
                   networkId={network.id}
+                  explorerUrl={network.explorerUrl}
                 />
               )
             })}
