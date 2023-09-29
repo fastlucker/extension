@@ -283,6 +283,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
+                derivationPath: BIP44_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
