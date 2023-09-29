@@ -15,8 +15,8 @@ import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
@@ -35,8 +35,8 @@ function getMessageAsText(msg: any) {
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
+  const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
@@ -44,11 +44,6 @@ const SignMessageScreen = () => {
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
-
-  // TODO: Remove these when ready
-  console.log('signMessageState: ', signMessageState)
-  console.log('activityState', activityState)
-  console.log('mainState', mainState)
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -134,36 +129,45 @@ const SignMessageScreen = () => {
   }, [dispatch])
 
   const keySelectorValues = useMemo(() => {
-    // TODO: Pull keys from the Keystore and match the ones that have the
+    // Pull keys from the Keystore and match the ones that have the
     // same address as the associatedKeys for the selected account.
-    return (
-      mainState.accounts
-        .find((acc) => acc.addr === params!.accountAddr)
-        ?.associatedKeys?.map((assocKey: string) => ({ value: assocKey, label: assocKey })) || []
-    )
-  }, [mainState.accounts, params])
+    return keystoreState.keys
+      .filter((key) =>
+        mainState.accounts
+          .find((acc) => acc.addr === mainState.selectedAccount)
+          ?.associatedKeys.includes(key.addr)
+      )
+      .map((key) => ({
+        value: `${key.addr}|${key.type}`,
+        label: `${key.label} (${key.addr})`
+      }))
+  }, [keystoreState.keys, mainState.accounts, mainState.selectedAccount])
 
-  const handleChangeSigningKey = (signKey: string) => {
+  const handleChangeSigningKey = (keyAddr: string, keyType: string) => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      // TODO: Handle keys with different types
-      params: { key: signKey, type: 'internal' }
+      params: { key: keyAddr, type: keyType }
     })
   }
 
   useEffect(() => {
     if (keySelectorValues.length) {
-      handleChangeSigningKey(keySelectorValues[0].value)
+      const [keyAddr, keyType] = keySelectorValues[0].value.split('|')
+      handleChangeSigningKey(keyAddr, keyType)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keySelectorValues.length])
 
   const keyValue = useMemo(() => {
+    const key = keystoreState.keys.find(
+      (x) =>
+        x.addr === signMessageState.signingKeyAddr && x.type === signMessageState.signingKeyType
+    )
     return {
-      value: signMessageState.signingKeyAddr,
-      label: signMessageState.signingKeyAddr
+      value: `${signMessageState.signingKeyAddr}|${signMessageState.signingKeyType}`,
+      label: key ? `${key.label} (${key.addr})` : 'Key'
     }
-  }, [signMessageState.signingKeyAddr])
+  }, [keystoreState.keys, signMessageState])
 
   const handleReject = () => {
     dispatch({
@@ -233,7 +237,10 @@ const SignMessageScreen = () => {
         </>
       )}
       <Select
-        setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
+        setValue={(newValue: any) => {
+          const [keyAddr, keyType] = newValue.value.split('|')
+          handleChangeSigningKey(keyAddr, keyType)
+        }}
         label={
           selectedAccountDetails?.label
             ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
