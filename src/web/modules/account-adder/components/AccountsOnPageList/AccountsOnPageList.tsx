@@ -1,4 +1,4 @@
-import { HD_PATHS } from 'ambire-common/src/consts/derivation'
+import { HD_PATHS, HDPath } from 'ambire-common/src/consts/derivation'
 import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import groupBy from 'lodash/groupBy'
@@ -50,8 +50,10 @@ const AccountsList = ({
   // const [showUnused, setShowUnused] = useState(false)
   const { dispatch } = useBackgroundService()
 
-  const getDerivationLabel = (path: string) => {
-    return Object.keys(HD_PATHS).find((label) => HD_PATHS[label] === path)
+  const getDerivationLabel = (_path: HDPath['path']) => {
+    const path = HD_PATHS.find((x) => x.path === _path)
+
+    return path ? path.label : _path
   }
 
   const slots = useMemo(() => {
@@ -152,7 +154,8 @@ const AccountsList = ({
             <Pressable style={styles.derivationButton}>
               <View style={styles.derivationButtonInfo}>
                 <Text weight="medium" fontSize={14}>
-                  {state.derivationPath && getDerivationLabel(state.derivationPath)}{' '}
+                  {state.derivationPath &&
+                    getDerivationLabel(state.derivationPath as HDPath['path'])}{' '}
                 </Text>
                 <Text weight="medium" fontSize={14} color={colors.martinique_65}>
                   {state.derivationPath}{' '}
