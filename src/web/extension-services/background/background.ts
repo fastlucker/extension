@@ -226,6 +226,21 @@ async function init() {
     })
   })
 
+  // Preselected accounts are the one for which we have a key (with the same type) stored.
+  const getPreselectedAccounts = (keyType: 'internal' | 'ledger' | 'trezor' | 'lattice') => {
+    return mainCtrl.accounts.filter((acc) => {
+      const keysForThisAccount = mainCtrl.keystore.keys.filter((key) =>
+        acc.associatedKeys.includes(key.addr)
+      )
+
+      const keysForThisAccountWithTheSameType = keysForThisAccount.some(
+        (key) => key.type === keyType
+      )
+
+      return keysForThisAccountWithTheSameType
+    })
+  }
+
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
@@ -270,7 +285,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: getPreselectedAccounts('ledger')
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
@@ -278,7 +293,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: getPreselectedAccounts('trezor')
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -289,14 +304,14 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: getPreselectedAccounts('lattice')
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts,
+                preselectedAccounts: getPreselectedAccounts('internal'),
                 derivationPath: BIP44_HD_PATH
               })
             }
