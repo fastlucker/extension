@@ -1,11 +1,11 @@
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
+import { Account } from 'ambire-common/src/interfaces/account'
 import { toUtf8String } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { StyleSheet, TextInput, View } from 'react-native'
 
 import Button from '@common/components/Button'
-import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
@@ -20,6 +20,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
@@ -128,46 +129,30 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const keySelectorValues = useMemo(() => {
-    // Pull keys from the Keystore and match the ones that have the
-    // same address as the associatedKeys for the selected account.
-    return keystoreState.keys
-      .filter((key) =>
-        mainState.accounts
-          .find((acc) => acc.addr === mainState.selectedAccount)
-          ?.associatedKeys.includes(key.addr)
-      )
-      .map((key) => ({
-        value: `${key.addr}|${key.type}`,
-        label: `${key.label} (${key.addr})`
-      }))
-  }, [keystoreState.keys, mainState.accounts, mainState.selectedAccount])
+  const selectedAccountFull = mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  )
 
-  const handleChangeSigningKey = (keyAddr: string, keyType: string) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      params: { key: keyAddr, type: keyType }
-    })
-  }
+  const handleChangeSigningKey = useCallback(
+    (keyAddr: string, keyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
+        params: { key: keyAddr, type: keyType }
+      })
+    },
+    [dispatch]
+  )
 
+  // Set the first key as the selected key
   useEffect(() => {
-    if (keySelectorValues.length) {
-      const [keyAddr, keyType] = keySelectorValues[0].value.split('|')
-      handleChangeSigningKey(keyAddr, keyType)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keySelectorValues.length])
-
-  const keyValue = useMemo(() => {
-    const key = keystoreState.keys.find(
-      (x) =>
-        x.addr === signMessageState.signingKeyAddr && x.type === signMessageState.signingKeyType
+    const firstKey = keystoreState.keys.find((key) =>
+      selectedAccountFull?.associatedKeys.includes(key.addr)
     )
-    return {
-      value: `${signMessageState.signingKeyAddr}|${signMessageState.signingKeyType}`,
-      label: key ? `${key.label} (${key.addr})` : 'Key'
+
+    if (firstKey) {
+      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
     }
-  }, [keystoreState.keys, signMessageState])
+  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
 
   const handleReject = () => {
     dispatch({
@@ -189,10 +174,6 @@ const SignMessageScreen = () => {
       </View>
     )
   }
-
-  const selectedAccountDetails = mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
-  )
 
   return (
     <Wrapper hasBottomTabNav={false}>
@@ -236,26 +217,12 @@ const SignMessageScreen = () => {
           </View>
         </>
       )}
-      <Select
-        setValue={(newValue: any) => {
-          const [keyAddr, keyType] = newValue.value.split('|')
-          handleChangeSigningKey(keyAddr, keyType)
-        }}
-        label={
-          selectedAccountDetails?.label
-            ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
-                accountLabel: selectedAccountDetails?.label,
-                accountAddress: mainState.selectedAccount
-              })
-            : t('Signing with account {{accountAddress}} via key:', {
-                accountAddress: mainState.selectedAccount
-              })
-        }
-        options={keySelectorValues}
-        disabled={!keySelectorValues.length}
-        style={spacings.mb}
-        value={keyValue as {}}
-        defaultValue={keyValue as {}}
+      <SigningKeySelect
+        keystoreKeys={keystoreState.keys}
+        selectedKeyAddr={signMessageState.signingKeyAddr}
+        selectedKeyType={signMessageState.signingKeyType}
+        selectedAccountFull={selectedAccountFull as Account} // should always exist
+        handleChangeSigningKey={handleChangeSigningKey}
       />
       <View style={flexbox.directionRow}>
         <Button
