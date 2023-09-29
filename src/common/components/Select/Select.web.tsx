@@ -1,6 +1,12 @@
-import React, { useState } from 'react'
-import { Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
-import Select, { components, DropdownIndicatorProps } from 'react-select'
+import React, { CSSProperties, FC, useState } from 'react'
+import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
+import Select, {
+  components,
+  DropdownIndicatorProps,
+  MenuPlacement,
+  OptionProps,
+  SingleValueProps
+} from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
@@ -12,6 +18,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import NavIconWrapper from '../NavIconWrapper'
 import styles from './styles'
 
+export type OptionType = OptionProps['data']
+
 interface Props {
   value: {} // @TODO: react-native works with object here, we need to find its type
   defaultValue?: {} // @TODO: react-native works with object here, we need to find its type
@@ -19,13 +27,45 @@ interface Props {
   setValue?: (value: any) => void
   placeholder?: string
   label?: string
+  labelStyle?: TextStyle
   disabled?: boolean
-  menuPlacement?: string
+  menuPlacement?: MenuPlacement
   style?: ViewStyle
-  controlStyle?: ViewStyle
+  controlStyle?: CSSProperties
   iconWidth?: number
   iconHeight?: number
+  openMenuOnClick?: boolean
+  onDropdownOpen?: () => void
 }
+
+const Option = ({ data }: { data: any }) => {
+  if (!data) return null
+  return (
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      {!!data?.icon && typeof data?.icon === 'object' && (
+        <View style={styles.optionIcon}>{data.icon}</View>
+      )}
+      {!!data?.icon && typeof data?.icon === 'string' && (
+        <Image source={{ uri: data.icon }} style={styles.optionIcon} />
+      )}
+      {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
+      {typeof data?.label === 'string' ? <Text fontSize={14}>{data.label}</Text> : data?.label}
+    </View>
+  )
+}
+
+const IconOption: FC<OptionProps> = ({ data, ...rest }) => (
+  // @ts-ignore
+  <components.Option data={data} {...rest}>
+    <Option data={data} />
+  </components.Option>
+)
+
+const SingleValueIconOption: FC<SingleValueProps> = ({ data, ...rest }) => (
+  <components.SingleValue data={data} {...rest}>
+    <Option data={data} />
+  </components.SingleValue>
+)
 
 const SelectComponent = ({
   value,
@@ -35,11 +75,14 @@ const SelectComponent = ({
   options,
   placeholder,
   label,
+  labelStyle,
   menuPlacement = 'auto',
   style,
   controlStyle,
   iconWidth = 36,
-  iconHeight = 36
+  iconHeight = 36,
+  openMenuOnClick = true,
+  onDropdownOpen
 }: Props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
@@ -47,7 +90,7 @@ const SelectComponent = ({
     return (
       <components.DropdownIndicator {...props}>
         <NavIconWrapper
-          onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+          onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
           width={iconWidth}
           height={iconHeight}
           hoverBackground={colors.lightViolet}
@@ -59,50 +102,47 @@ const SelectComponent = ({
     )
   }
 
-  // @TODO - Typescript support for `data` property
-  const IconOption = (props: OptionProps) => (
-    <components.Option {...props}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text fontSize={14}>{props.data.label}</Text>
-      </View>
-    </components.Option>
-  )
-  // @TODO - Typescript support for `data` property
-  const SingleValueIconOption = (props: SingleValueProps) => (
-    <components.SingleValue {...props}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {props.data.icon && <View style={styles.optionIcon}>{props.data.icon}</View>}
-        <Text fontSize={14}>{props.data.label}</Text>
-      </View>
-    </components.SingleValue>
-  )
-
   return (
     <>
-      {label && <Text style={[spacings.mbMi]}>{label}</Text>}
+      {!!label && (
+        <Text weight="regular" style={[spacings.mbTy, spacings.mlTy, labelStyle]}>
+          {label}
+        </Text>
+      )}
       <Pressable
-        onPress={() => setIsDropdownOpen(!isDropdownOpen)}
+        onPress={() => {
+          if (!openMenuOnClick) return
+          onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
+        }}
         disabled={disabled}
-        // The element should have a zIndex assigned, otherwise the dropdown menu will overlap with the close element.
-        style={{ zIndex: 1, ...style }}
+        style={style}
       >
         <Select
           options={options}
           defaultValue={defaultValue}
+          menuPortalTarget={document.body}
+          // It fixes z-index/overlapping issue with the next closest element.
+          // If we don't set it, the Select dropdown menu overlaps the next element once we show the menu.
+          menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
-            indicatorSeparator: (styles) => ({ display: 'none' }),
+            dropdownIndicator: (provided) => ({
+              ...provided,
+              ...(flexbox.alignCenter as CSSProperties),
+              padding: 0,
+              margin: 8
+            }),
+            indicatorSeparator: () => ({ display: 'none' }),
             placeholder: (baseStyles) => ({
               ...baseStyles,
-              ...common.borderRadiusPrimary,
+              ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
               color: colors.martinique
             }),
             control: (baseStyles) => ({
               ...baseStyles,
               background: colors.melrose_15,
-              ...common.borderRadiusPrimary,
+              ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
               color: colors.martinique,
               ...controlStyle
@@ -126,6 +166,7 @@ const SelectComponent = ({
           value={value}
           onChange={setValue}
           placeholder={placeholder}
+          openMenuOnClick={openMenuOnClick}
           menuPlacement={menuPlacement}
         />
       </Pressable>

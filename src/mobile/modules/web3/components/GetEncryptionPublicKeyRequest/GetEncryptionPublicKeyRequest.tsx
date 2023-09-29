@@ -2,7 +2,6 @@ import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
@@ -43,58 +42,54 @@ const GetEncryptionPublicKeyRequest = ({
     }
   }, [rejectApproval, closeBottomSheet, t])
 
-  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
-
   return (
-    <GradientWrapper>
-      <Wrapper
-        hasBottomTabNav={false}
-        contentContainerStyle={spacings.pt0}
-        style={isInBottomSheet && spacings.ph0}
-      >
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <DappIcon
-              iconUrl={
-                selectedDapp?.id.includes('search:')
-                  ? tabSessionData?.params?.icon
-                  : selectedDapp?.iconUrl || ''
-              }
-            />
-          </View>
+    <Wrapper
+      hasBottomTabNav={false}
+      contentContainerStyle={spacings.pt0}
+      style={isInBottomSheet && spacings.ph0}
+    >
+      <Panel>
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <DappIcon
+            iconUrl={
+              selectedDapp?.id.includes('search:')
+                ? tabSessionData?.params?.icon
+                : selectedDapp?.iconUrl || ''
+            }
+          />
+        </View>
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {selectedDapp?.id.includes('search:')
-              ? tabSessionData?.params?.name
-              : selectedDapp?.name || approval?.data?.params?.session?.name}
-          </Title>
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {selectedDapp?.id.includes('search:')
+            ? tabSessionData?.params?.name
+            : selectedDapp?.name || approval?.data?.params?.session?.name}
+        </Title>
 
-          <View>
-            <Trans>
-              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                <Text fontSize={14} weight="regular">
-                  {'The dApp '}
-                </Text>
-                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {getHostname(
-                    selectedDapp?.id.includes('search:')
-                      ? tabSessionData?.params?.origin || ''
-                      : selectedDapp?.url || ''
-                  ) ||
-                    approval?.data?.params?.session?.name ||
-                    'webpage'}
-                </Text>
-                <Text fontSize={14} weight="regular">
-                  {
-                    ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
-                  }
-                </Text>
+        <View>
+          <Trans>
+            <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+              <Text fontSize={14} weight="regular">
+                {'The dApp '}
               </Text>
-            </Trans>
-          </View>
-        </Panel>
-      </Wrapper>
-    </GradientWrapper>
+              <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                {getHostname(
+                  selectedDapp?.id.includes('search:')
+                    ? tabSessionData?.params?.origin || ''
+                    : selectedDapp?.url || ''
+                ) ||
+                  approval?.data?.params?.session?.name ||
+                  'webpage'}
+              </Text>
+              <Text fontSize={14} weight="regular">
+                {
+                  ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
+                }
+              </Text>
+            </Text>
+          </Trans>
+        </View>
+      </Panel>
+    </Wrapper>
   )
 }
 

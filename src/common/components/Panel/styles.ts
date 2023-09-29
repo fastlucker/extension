@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
 interface Styles {
@@ -14,7 +15,8 @@ const styles = StyleSheet.create<Styles>({
   },
   innerContainer: {
     borderRadius: 13,
-    flex: 1
+    flex: 1,
+    backgroundColor: colors.melrose_15
   },
   gradient: {
     width: '100%',

@@ -1,5 +1,5 @@
-import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
+import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
+import { Key, KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import * as sigUtil from 'eth-sig-util'
 import {
   bufferToHex,
@@ -13,7 +13,6 @@ import {
 } from 'ethereumjs-util'
 
 import { serialize } from '@ethersproject/transactions'
-import { LEDGER_LIVE_HD_PATH } from '@web/modules/hardware-wallet/constants/hdPaths'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'

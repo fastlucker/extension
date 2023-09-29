@@ -8,6 +8,7 @@ interface Styles {
   highlightPrimary: TextStyle
   center: TextStyle
   right: TextStyle
+  left: TextStyle
   uppercase: TextStyle
   capitalize: TextStyle
   italic: TextStyle
@@ -22,6 +23,9 @@ const textStyles: Styles = {
   },
   right: {
     textAlign: 'right'
+  },
+  left: {
+    textAlign: 'left'
   },
   uppercase: {
     textTransform: 'uppercase'

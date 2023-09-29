@@ -15,10 +15,10 @@ const styles = () =>
       backgroundColor: 'transparent'
     },
     contentContainerStyle: {
-      ...spacings.pbSm,
       flexGrow: 1,
-      ...(isWeb ? spacings.ptSm : {}),
-      ...(isWeb ? spacings.phLg : {})
+      ...(isWeb ? spacings.pt : {}),
+      ...(isWeb ? spacings.phLg : {}),
+      ...spacings.pbSm
     }
   })
 

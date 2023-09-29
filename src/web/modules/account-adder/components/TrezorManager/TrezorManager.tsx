@@ -1,27 +1,26 @@
 /* eslint-disable @typescript-eslint/no-loop-func */
 /* eslint-disable no-await-in-loop */
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
+import { getDefaultSelectedAccount } from '@web/modules/account-adder/helpers/account'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
-interface Props {}
-
-const TrezorManager = (props: Props) => {
+const TrezorManager: React.FC<{}> = (props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
-  const { dispatch, dispatchAsync } = useBackgroundService()
-  const state = useAccountAdderControllerState()
-  const onImportReady = () => {
-    updateStepperState(2, 'hwAuth')
-    navigate(WEB_ROUTES.createKeyStore)
-  }
+  const { dispatch } = useBackgroundService()
+  const accountAdderState = useAccountAdderControllerState()
+  const mainControllerState = useMainControllerState()
+  const keystoreState = useKeystoreControllerState()
 
   const setPage: any = React.useCallback(
     async (page = 1) => {
@@ -40,26 +39,90 @@ const TrezorManager = (props: Props) => {
   )
 
   useEffect(() => {
-    ;(async () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
-        params: {}
-      })
-    })()
-  }, [dispatch, dispatchAsync])
+    updateStepperState(WEB_ROUTES.accountAdder, 'hw')
+  }, [updateStepperState])
 
   useEffect(() => {
-    ;(async () => {
-      if (!state.isInitialized) return
-      setPage()
-    })()
-  }, [state.isInitialized, setPage])
+    if (!mainControllerState.isReady) return
+    if (accountAdderState.isInitialized) return
 
-  if (!Object.keys(state).length) {
-    return
-  }
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
+      params: {}
+    })
+  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady])
+
+  useEffect(() => {
+    if (!accountAdderState.isInitialized) return
+
+    setPage()
+  }, [accountAdderState.isInitialized, setPage])
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
+      const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
+      if (!defaultSelectedAccount) {
+        // TODO: display error toast instead
+        // eslint-disable-next-line no-alert
+        alert(
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+        )
+        return
+      }
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: defaultSelectedAccount.addr }
+      })
+
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+      })
+    }
+  })
+
+  const completeStep = useCallback(
+    (hasAccountsToImport: boolean = true) => {
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+    },
+    [navigate]
+  )
+
+  useEffect(() => {
+    if (
+      keystoreState.status === 'DONE' &&
+      keystoreState.latestMethodCall === 'addKeysExternallyStored'
+    ) {
+      completeStep()
+    }
+  }, [completeStep, keystoreState])
+
+  const onImportReady = useCallback(() => {
+    if (accountAdderState.selectedAccounts.length) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+        params: { accounts: accountAdderState.selectedAccounts }
+      })
+      return
+    }
+
+    completeStep(false)
+  }, [accountAdderState.selectedAccounts, dispatch, completeStep])
+
   return (
-    <AccountsOnPageList state={state} onImportReady={onImportReady} setPage={setPage} {...props} />
+    <AccountsOnPageList
+      isSubmitting={accountAdderState.addAccountsStatus === 'LOADING'}
+      state={accountAdderState}
+      onImportReady={onImportReady}
+      setPage={setPage}
+      {...props}
+    />
   )
 }
 

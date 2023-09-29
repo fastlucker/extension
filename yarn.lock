@@ -6251,6 +6251,20 @@ acorn@^8.1.0, acorn@^8.2.4, acorn@^8.5.0, acorn@^8.7.1, acorn@^8.8.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.2.tgz#1b2f25db02af965399b9776b0c2c391276d37c4a"
   integrity sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==
 
+"adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git":
+  version "5.2.18"
+  resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#4ddebac4109e9709c4cc862ee0708f208dac9ee2"
+  dependencies:
+    "@openzeppelin/test-helpers" "^0.5.10"
+    "@truffle/hdwallet-provider" "^1.4.2"
+    bn.js "^4.11.8"
+    ethereumjs-abi "^0.6.5"
+    ethereumjs-util "^6.1.0"
+    ethers "^5.4.7"
+    js-sha3 "^0.8.0"
+    solc "0.5.13"
+    truffle "^5.4.3"
+
 "adex-protocol-eth@git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e507e75ac4ddbec2aa4a444c675b38ee9d26190c":
   version "5.2.18"
   resolved "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e507e75ac4ddbec2aa4a444c675b38ee9d26190c"
@@ -6350,13 +6364,25 @@ ajv@^8.0.0, ajv@^8.1.0, ajv@^8.6.3, ajv@^8.9.0:
     require-from-string "^2.0.2"
     uri-js "^4.2.2"
 
-"ambire-common@git+ssh://git@github.com/AmbireTech/ambire-common.git#dc96a2000cae6881a868025ca276819897c2d28c":
+ambire-common@AmbireTech/ambire-common#5275626a4553a9f802f388f3b1c6d19d75a2a500:
   version "0.15.0"
-  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#dc96a2000cae6881a868025ca276819897c2d28c"
+  resolved "git+ssh://git@github.com/AmbireTech/ambire-common.git#5275626a4553a9f802f388f3b1c6d19d75a2a500"
   dependencies:
     "@jest/globals" "^29.6.1"
+    aes-js "^3.1.2"
+    ambire-constants "github:AmbireTech/ambire-constants"
     dotenv "^16.3.1"
     ethers "^6.3.0"
+    scrypt-js "^3.0.1"
+
+"ambire-constants@github:AmbireTech/ambire-constants":
+  version "1.0.0"
+  resolved "https://codeload.github.com/AmbireTech/ambire-constants/tar.gz/f76bae5ad85ff06e0b3527300984aedcec7d3718"
+  dependencies:
+    adex-protocol-eth "git+https://git@github.com/AmbireTech/adex-protocol-eth.git"
+    cors "^2.8.5"
+    express "^4.18.2"
+    jsonfile "^6.1.0"
 
 anser@^1.4.9:
   version "1.4.10"
@@ -11364,7 +11390,7 @@ express@4.16.4:
     utils-merge "1.0.1"
     vary "~1.1.2"
 
-express@^4.14.0, express@^4.17.1, express@^4.17.3:
+express@^4.14.0, express@^4.17.1, express@^4.17.3, express@^4.18.2:
   version "4.18.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.18.2.tgz#3fabe08296e930c796c19e3c516979386ba9fd59"
   integrity sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ==
@@ -14978,7 +15004,7 @@ jsonfile@^4.0.0:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jsonfile@^6.0.1:
+jsonfile@^6.0.1, jsonfile@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-6.1.0.tgz#bc55b2634793c679ec6403094eb13698a6ec0aae"
   integrity sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==

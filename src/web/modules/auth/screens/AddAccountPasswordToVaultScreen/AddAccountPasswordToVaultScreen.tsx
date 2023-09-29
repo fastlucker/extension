@@ -1,3 +1,4 @@
+import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Image, Keyboard, View } from 'react-native'
@@ -13,14 +14,13 @@ import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import AnimatedArrows from '@common/modules/auth/components/AnimatedArrows'
-import { isValidPassword } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import spacings, { IS_SCREEN_SIZE_S } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 const AddAccountPasswordToVaultScreen = () => {
   const { t } = useTranslation()
@@ -55,7 +55,7 @@ const AddAccountPasswordToVaultScreen = () => {
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View
           style={[
             flexboxStyles.directionRow,
@@ -125,14 +125,14 @@ const AddAccountPasswordToVaultScreen = () => {
             onPress={handleCancelLoginAttempts}
           />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="regular" color={colors.titan}>
           {t(
             'When you add your account password to the Key Store, you will be able to sign transactions on this device using your passphrase only.'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

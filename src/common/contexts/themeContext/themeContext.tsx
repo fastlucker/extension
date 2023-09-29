@@ -11,7 +11,7 @@ import ThemeColors, {
 } from '@common/styles/themeConfig'
 
 // Change the default theme to `auto` once the light theme is ready
-const DEFAULT_THEME = THEME_TYPES.DARK
+const DEFAULT_THEME = THEME_TYPES.LIGHT
 
 export interface ThemeContextReturnType {
   theme?: ThemeProps

@@ -106,29 +106,22 @@ const Input = ({
           {label}
         </Text>
       )}
-      {!!error && (
-        <Text
-          style={styles.errorText}
-          weight={isWeb ? 'regular' : undefined}
-          fontSize={10}
-          appearance="danger"
-        >
-          {error}
-        </Text>
-      )}
       <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
-          <TextInput
-            placeholderTextColor={theme.buttonPlaceholderText}
-            style={[inputStyles, hasButton ? { width: '100%' } : {}]}
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!disabled}
-            onBlur={handleOnBlur}
-            onFocus={handleOnFocus}
-            {...rest}
-          />
+          {/* TextInput doesn't support border styles so we wrap it in a View */}
+          <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
+            <TextInput
+              placeholderTextColor={theme.buttonPlaceholderText}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!disabled}
+              onBlur={handleOnBlur}
+              onFocus={handleOnFocus}
+              {...rest}
+              style={{ height: '100%' }}
+            />
+          </View>
           {!!hasButton && (
             <TouchableOpacity
               // The `focusable` prop determines whether a component is user-focusable
@@ -151,15 +144,25 @@ const Input = ({
           )}
         </View>
       </View>
+      {!!error && (
+        <Text
+          style={styles.errorText}
+          weight={isWeb ? 'regular' : undefined}
+          fontSize={10}
+          appearance="danger"
+        >
+          {error}
+        </Text>
+      )}
 
       {!!isValid && !!validLabel && !error && (
-        <Text style={[styles.validText]} fontSize={12} color={colors.turquoise}>
+        <Text style={[styles.validText]} weight="regular" fontSize={12} color={colors.greenHaze}>
           {validLabel}
         </Text>
       )}
 
       {!!info && (
-        <Text style={[styles.infoText, infoTextStyle]} fontSize={12}>
+        <Text weight="regular" style={[styles.infoText, infoTextStyle]} fontSize={12}>
           {info}
         </Text>
       )}

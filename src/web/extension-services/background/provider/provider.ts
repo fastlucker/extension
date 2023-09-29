@@ -9,7 +9,7 @@ tab.on('tabRemove', (id) => {
   sessionService.deleteSession(id)
 })
 
-export default async <T = void>(req: ProviderRequest): Promise<T> => {
+export default async (req: ProviderRequest): Promise<any> => {
   const {
     data: { method }
   } = req

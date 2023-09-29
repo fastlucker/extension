@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
-import GradientBackgroundWrapper from '@common/components/GradientBackgroundWrapper'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -125,114 +124,110 @@ const WatchTokenRequest = ({
     !!closeBottomSheet && closeBottomSheet()
   }, [resolveApproval, closeBottomSheet])
 
-  const GradientWrapper = isInBottomSheet ? React.Fragment : GradientBackgroundWrapper
-
   return (
-    <GradientWrapper>
-      <Wrapper
-        hasBottomTabNav={false}
-        contentContainerStyle={spacings.pt0}
-        style={isInBottomSheet && spacings.ph0}
-      >
-        <Panel type="filled">
-          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-            <DappIcon
-              iconUrl={
-                selectedDapp?.id.includes('search:')
-                  ? tabSessionData?.params?.icon
-                  : selectedDapp?.iconUrl || ''
-              }
-            />
+    <Wrapper
+      hasBottomTabNav={false}
+      contentContainerStyle={spacings.pt0}
+      style={isInBottomSheet && spacings.ph0}
+    >
+      <Panel type="filled">
+        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+          <DappIcon
+            iconUrl={
+              selectedDapp?.id.includes('search:')
+                ? tabSessionData?.params?.icon
+                : selectedDapp?.iconUrl || ''
+            }
+          />
+        </View>
+
+        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+          {selectedDapp?.id.includes('search:')
+            ? tabSessionData?.params?.name
+            : selectedDapp?.name || approval?.data?.params?.session?.name}
+        </Title>
+
+        {!loadingTokenDetails && error && (
+          <View>
+            <Text
+              fontSize={14}
+              weight="regular"
+              style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+              appearance="danger"
+            >
+              {error}
+            </Text>
           </View>
+        )}
 
-          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {selectedDapp?.id.includes('search:')
-              ? tabSessionData?.params?.name
-              : selectedDapp?.name || approval?.data?.params?.session?.name}
-          </Title>
+        {loadingTokenDetails && !error && (
+          <View style={flexboxStyles.center}>
+            <Spinner />
+          </View>
+        )}
 
-          {!loadingTokenDetails && error && (
+        {!loadingTokenDetails && !error && (
+          <>
             <View>
-              <Text
-                fontSize={14}
-                weight="regular"
-                style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                appearance="danger"
-              >
-                {error}
-              </Text>
-            </View>
-          )}
-
-          {loadingTokenDetails && !error && (
-            <View style={flexboxStyles.center}>
-              <Spinner />
-            </View>
-          )}
-
-          {!loadingTokenDetails && !error && (
-            <>
-              <View>
-                <Trans values={{ tokenSymbol, tokenAddress }}>
-                  <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                    <Text fontSize={14} weight="regular">
-                      {'The dApp '}
-                    </Text>
-                    <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                      {getHostname(
-                        selectedDapp?.id.includes('search:')
-                          ? tabSessionData?.params?.origin || ''
-                          : selectedDapp?.url || ''
-                      ) ||
-                        approval?.data?.params?.session?.name ||
-                        'webpage'}
-                    </Text>
-                    <Text fontSize={14} weight="regular">
-                      {
-                        ' is requesting to add the {{tokenSymbol}} token {{tokenAddress}} to the Ambire Wallet tokens list.'
-                      }
-                    </Text>
+              <Trans values={{ tokenSymbol, tokenAddress }}>
+                <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                  <Text fontSize={14} weight="regular">
+                    {'The dApp '}
                   </Text>
-                </Trans>
-
-                {!tokenEligibleStatus.isEligible && !!tokenEligibleStatus.reason && (
-                  <Text
-                    fontSize={14}
-                    weight="regular"
-                    style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                  >
-                    {tokenEligibleStatus.reason}
+                  <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                    {getHostname(
+                      selectedDapp?.id.includes('search:')
+                        ? tabSessionData?.params?.origin || ''
+                        : selectedDapp?.url || ''
+                    ) ||
+                      approval?.data?.params?.session?.name ||
+                      'webpage'}
                   </Text>
-                )}
+                  <Text fontSize={14} weight="regular">
+                    {
+                      ' is requesting to add the {{tokenSymbol}} token {{tokenAddress}} to the Ambire Wallet tokens list.'
+                    }
+                  </Text>
+                </Text>
+              </Trans>
 
-                {extraToken && <TokenItem {...extraToken} />}
-              </View>
-
-              {tokenEligibleStatus.isEligible && (
-                <Button
-                  disabled={isAdding || !extraToken}
-                  type="outline"
-                  onPress={handleAddToken}
-                  text={isAdding ? t('Adding...') : t('Add token')}
-                />
-              )}
-              {!tokenEligibleStatus.isEligible && (
-                <Button
-                  disabled={isAdding}
-                  type="outline"
-                  onPress={handleSkipButtonPress}
-                  text={isAdding ? t('Confirming...') : t('Okay')}
-                />
+              {!tokenEligibleStatus.isEligible && !!tokenEligibleStatus.reason && (
+                <Text
+                  fontSize={14}
+                  weight="regular"
+                  style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+                >
+                  {tokenEligibleStatus.reason}
+                </Text>
               )}
 
-              <Text fontSize={14} style={textStyles.center}>
-                {t('Token can be hidden any time from the Ambire extension settings.')}
-              </Text>
-            </>
-          )}
-        </Panel>
-      </Wrapper>
-    </GradientWrapper>
+              {extraToken && <TokenItem {...extraToken} />}
+            </View>
+
+            {tokenEligibleStatus.isEligible && (
+              <Button
+                disabled={isAdding || !extraToken}
+                type="outline"
+                onPress={handleAddToken}
+                text={isAdding ? t('Adding...') : t('Add token')}
+              />
+            )}
+            {!tokenEligibleStatus.isEligible && (
+              <Button
+                disabled={isAdding}
+                type="outline"
+                onPress={handleSkipButtonPress}
+                text={isAdding ? t('Confirming...') : t('Okay')}
+              />
+            )}
+
+            <Text fontSize={14} style={textStyles.center}>
+              {t('Token can be hidden any time from the Ambire extension settings.')}
+            </Text>
+          </>
+        )}
+      </Panel>
+    </Wrapper>
   )
 }
 

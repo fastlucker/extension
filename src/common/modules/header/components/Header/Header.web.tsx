@@ -1,116 +1,106 @@
-import React, { useEffect, useState } from 'react'
-import { ColorValue, Image, View } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Image, Pressable, View } from 'react-native'
 
-import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
-import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
-import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
+import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
-import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import { titleChangeEventStream } from '@common/hooks/useNavigation'
+import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import routesConfig from '@common/modules/router/config/routesConfig'
+import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_SM } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
 interface Props {
-  mode?: 'title' | 'bottom-sheet'
-  backgroundColor?: ColorValue
+  mode?: 'title' | 'controls'
+  withBackButton?: boolean
+  withAmbireLogo?: boolean
 }
 
-const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => {
-  const options = [
-    {
-      label: 'Account name',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpace}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name'
-    },
-    {
-      label: 'Account name2',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpaceDog}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name2'
-    },
-    {
-      label: 'Account name3',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarSpaceRaccoon}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name3'
-    },
-    {
-      label: 'Account name4',
-      icon: (
-        <Image
-          style={{ width: 30, height: 30, borderRadius: 10 }}
-          source={avatarFire}
-          resizeMode="contain"
-        />
-      ),
-      value: 'Account name4'
-    }
-  ]
+const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
+  const mainCtrl = useMainControllerState()
+
   const { path, params } = useRoute()
+  const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const [value, setValue] = useState(options[0])
+  const selectedAccount = mainCtrl.selectedAccount || ''
+  const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
 
   const [title, setTitle] = useState('')
+  const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
 
-  const renderBottomSheetSwitcher = (
+  const uiType = getUiType()
+  const renderHeaderControls = (
     <View
       style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
     >
-      <Select
-        hasArrow
-        value={value}
-        style={{ ...spacings.mrTy }}
-        setValue={(_value) => setValue(_value)}
-        options={options}
-        menuPlacement="bottom"
-        iconWidth={25}
-        iconHeight={25}
-        controlStyle={{ width: 220 }}
-      />
+      <View style={styles.account}>
+        <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
+          <View style={styles.accountButtonInfo}>
+            <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
+            <View style={styles.accountAddressAndLabel}>
+              {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
+              <Text weight="medium" fontSize={14}>
+                {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+              </Text>
+              <Text weight="regular" style={styles.accountButtonInfoText} fontSize={13}>
+                ({shortenAddress(selectedAccount, 14)})
+              </Text>
+            </View>
+          </View>
+          <NavIconWrapper
+            onPress={() => navigate('account-select')}
+            width={25}
+            height={25}
+            hoverBackground={colors.lightViolet}
+            style={styles.accountButtonRightIcon}
+          >
+            <RightArrowIcon width={26} height={26} withRect={false} />
+          </NavIconWrapper>
+        </Pressable>
+        <CopyText text={selectedAccount} style={styles.accountCopyIcon} />
+      </View>
       <View style={[flexboxStyles.directionRow]}>
         <Button
           textStyle={{ fontSize: 14 }}
           size="small"
           text={t('dApps')}
           hasBottomSpacing={false}
-          style={[spacings.mrTy, { width: 85 }]}
+          style={[spacings.mrTy, { width: 85, height: 40 }]}
         />
+
+        {uiType.isPopup && (
+          <NavIconWrapper
+            width={40}
+            height={40}
+            onPress={() => openInTab('tab.html#/dashboard')}
+            style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+          >
+            <MaximizeIcon width={20} height={20} />
+          </NavIconWrapper>
+        )}
         <NavIconWrapper
-          onPress={() => null}
-          style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
+          width={40}
+          height={40}
+          onPress={() => navigate('menu')}
+          style={{ borderColor: colors.scampi_20 }}
         >
-          <MaximizeIcon width={20} height={20} />
-        </NavIconWrapper>
-        <NavIconWrapper onPress={() => null} style={{ borderColor: colors.scampi_20 }}>
           <BurgerIcon width={20} height={20} />
         </NavIconWrapper>
       </View>
@@ -121,7 +111,13 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
   let canGoBack =
     // If you have a location key that means you routed in-app. But if you
     // don't that means you come from outside of the app or you just open it.
-    params?.prevRoute?.key !== 'default' && params?.prevRoute?.pathname !== '/' && navigationEnabled
+    (params?.prevRoute?.key !== 'default' ||
+      /* Because of window.history.pushState, used in the Tabs component, the
+       prevRoute.key gets set to 'default' when you navigate to another route from the dashboard,
+       which hides the back button in the header. */
+      params?.prevRoute?.pathname === `/${ROUTES.dashboard}`) &&
+    params?.prevRoute?.pathname !== '/' &&
+    navigationEnabled
 
   if (isExtension && getUiType().isTab) {
     canGoBack = true
@@ -142,6 +138,23 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
     return () => subscription.unsubscribe()
   }, [])
 
+  const renderBackButton = () => {
+    if (canGoBack) {
+      return (
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
+            <LeftArrowIcon width={36} height={36} />
+          </NavIconWrapper>
+          <Text style={spacings.plTy} fontSize={16} weight="medium">
+            {t('Back')}
+          </Text>
+        </View>
+      )
+    }
+
+    return null
+  }
+
   // Using the `<Header />` from the '@react-navigation/elements' created
   // many complications in terms of styling the UI, calculating the header
   // height and the spacings between the `headerLeftContainerStyle` and the
@@ -150,21 +163,29 @@ const Header: React.FC<Props> = ({ mode = 'bottom-sheet', backgroundColor }) => 
   // in different manner. And styling it was hell. So instead - implement
   // custom components that fully match the design we follow.
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: SPACING_SM,
-          backgroundColor: backgroundColor || colors.wooed
-        }
-      ]}
-    >
-      {mode === 'bottom-sheet' && renderBottomSheetSwitcher}
-
+    <View style={styles.container}>
+      {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
       {mode === 'title' && (
-        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={2}>
-          {title || ''}
-        </Text>
+        <>
+          {!withAmbireLogo && (
+            <View style={styles.sideContainer}>
+              {!!withBackButton && !!canGoBack && renderBackButton()}
+            </View>
+          )}
+          <View style={styles.containerInner}>
+            {!!withAmbireLogo && (
+              <View style={styles.sideContainer}>
+                <AmbireLogo width={104} height={48} />
+              </View>
+            )}
+
+            <Text fontSize={18} weight="medium" style={styles.title} numberOfLines={2}>
+              {title || ''}
+            </Text>
+            {!!withAmbireLogo && <View style={styles.sideContainer} />}
+          </View>
+          {!withAmbireLogo && <View style={styles.sideContainer} />}
+        </>
       )}
     </View>
   )

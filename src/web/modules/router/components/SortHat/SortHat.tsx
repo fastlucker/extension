@@ -1,3 +1,5 @@
+import { networks } from 'ambire-common/src/consts/networks'
+import { toChecksumAddress } from 'ethereumjs-util'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -7,7 +9,9 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useApproval from '@web/hooks/useApproval'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
@@ -15,55 +19,84 @@ import { getUiType } from '@web/utils/uiType'
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
-  const { approval } = useApproval()
-  const { isInNotification, isTab } = getUiType()
+  const { isNotification } = getUiType()
   const { onboardingStatus } = useOnboarding()
-
+  const keystoreState = useKeystoreControllerState()
+  const notificationState = useNotificationControllerState()
+  const mainState = useMainControllerState()
   const loadView = useCallback(async () => {
-    // if (vaultStatus === VAULT_STATUS.LOADING) return
-
-    if (isInNotification && !approval) {
+    if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
       return
     }
 
-    // if (vaultStatus === VAULT_STATUS.NOT_INITIALIZED) {
-    //   // TODO: return navigate(ROUTES.getStarted)
-    //   return navigate(ROUTES.createVault)
-    // }
-
-    // if (vaultStatus === VAULT_STATUS.LOCKED) {
-    //   return navigate(ROUTES.unlockVault)
-    // }
+    if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
+      return navigate(ROUTES.keyStoreUnlock)
+    }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
       return navigate(ROUTES.getStarted)
     }
 
-    // When in tab mode, user should be able to go forward and backward,
-    // therefore - navigate should happen individually, on every screen.
-    if (isTab) return
-
-    if (approval && isInNotification) {
-      if (approval?.data?.approvalComponent === 'PermissionRequest') {
+    if (isNotification && notificationState.currentNotificationRequest) {
+      if (notificationState.currentNotificationRequest?.screen === 'PermissionRequest') {
         return navigate(ROUTES.permissionRequest)
       }
-      if (approval?.data?.approvalComponent === 'SendTransaction') {
-        return navigate(ROUTES.pendingTransactions)
+      if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
+        if (
+          mainState.userRequests.find(
+            (req) => req.id === notificationState.currentNotificationRequest?.id
+          )
+        ) {
+          let accountAddr = mainState.selectedAccount
+          if (notificationState.currentNotificationRequest?.params?.data?.[0]?.from) {
+            accountAddr = notificationState.currentNotificationRequest.params.data[0].from
+          }
+
+          const network = networks.find(
+            (n) => n.id === notificationState.currentNotificationRequest?.networkId
+          )
+
+          if (accountAddr && network) {
+            return navigate(ROUTES.signAccountOp, {
+              state: {
+                accountAddr: toChecksumAddress(accountAddr as string),
+                network
+              }
+            })
+          }
+          // TODO: add here some error handling and dispatch dapp request removal
+        }
       }
-      if (approval?.data?.approvalComponent === 'SignText') {
-        return navigate(ROUTES.signMessage)
+      if (
+        ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest?.screen)
+      ) {
+        let accountAddr = mainState.selectedAccount
+
+        if (
+          notificationState.currentNotificationRequest?.screen === 'SignText' &&
+          notificationState.currentNotificationRequest?.params?.data[1]
+        ) {
+          accountAddr = notificationState.currentNotificationRequest?.params?.data[1]
+        }
+        if (
+          notificationState.currentNotificationRequest?.screen === 'SignTypedData' &&
+          notificationState.currentNotificationRequest?.params?.data[0]
+        ) {
+          accountAddr = notificationState.currentNotificationRequest?.params?.data[0]
+        }
+
+        return navigate(ROUTES.signMessage, {
+          state: {
+            accountAddr: toChecksumAddress(accountAddr as string)
+          }
+        })
       }
-      if (approval?.data?.approvalComponent === 'SignTypedData') {
-        return navigate(ROUTES.signMessage)
-      }
-      // if (approval?.data?.approvalComponent === 'SwitchNetwork') {
-      //   return navigate(ROUTES.switchNetwork)
-      // }
-      if (approval?.data?.approvalComponent === 'WalletWatchAsset') {
+
+      if (notificationState.currentNotificationRequest?.screen === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
-      if (approval?.data?.approvalComponent === 'GetEncryptionPublicKey') {
+      if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
@@ -71,7 +104,16 @@ const SortHat = () => {
         onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
       )
     }
-  }, [isInNotification, approval, authStatus, isTab, navigate, onboardingStatus])
+  }, [
+    isNotification,
+    notificationState.currentNotificationRequest,
+    authStatus,
+    navigate,
+    onboardingStatus,
+    keystoreState,
+    mainState.selectedAccount,
+    mainState.userRequests
+  ])
 
   useEffect(() => {
     loadView()

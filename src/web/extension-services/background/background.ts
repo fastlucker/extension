@@ -1,13 +1,18 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { Key } from 'ambire-common/src/interfaces/keystore'
 import { KeyIterator } from 'ambire-common/src/libs/keyIterator/keyIterator'
+import { KeystoreSigner } from 'ambire-common/src/libs/keystoreSigner/keystoreSigner'
+import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 
-import { areRpcProvidersInitialized, initRpcProviders } from '@common/services/provider'
+import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { INTERNAL_REQUEST_ORIGIN } from '@web/constants/common'
+import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
-import notificationService from '@web/extension-services/background/services/notification'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
@@ -17,33 +22,88 @@ import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeC
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
+import LatticeSigner from '@web/modules/hardware-wallet/libs/LatticeSigner'
 import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
+import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
+import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { controllersMapping } from './types'
+import { controllersNestedInMainMapping } from './types'
 
-// eslint-disable-next-line prettier/prettier
-// eslint-disable-next-line import/newline-after-import
-;(async () => {
-  async function init() {
-    // Initialize rpc providers for all networks
-    const shouldInitProviders = !areRpcProvidersInitialized()
-    if (shouldInitProviders) {
-      initRpcProviders(rpcProviders)
-    }
-
-    await permissionService.init()
+async function init() {
+  // Initialize rpc providers for all networks
+  const shouldInitProviders = !areRpcProvidersInitialized()
+  if (shouldInitProviders) {
+    initRpcProviders(rpcProviders)
   }
 
-  await init()
+  await permissionService.init()
+}
 
-  const mainCtrl = new MainController(storage, fetch, RELAYER_URL)
+;(async () => {
+  await init()
+  const portMessageUIRefs: { [key: string]: PortMessage } = {}
+  let controllersNestedInMainSubscribe: any = null
+  let onResoleDappNotificationRequest: (data: any, id?: number) => void
+  let onRejectDappNotificationRequest: (data: any, id?: number) => void
+
+  const signers = {
+    internal: KeystoreSigner,
+    ledger: LedgerSigner,
+    trezor: TrezorSigner,
+    lattice: LatticeSigner
+  }
+
+  const mainCtrl = new MainController({
+    storage,
+    fetch,
+    relayerUrl: RELAYER_URL,
+    keystoreSigners: signers,
+    onResolveDappRequest: (data, id) => {
+      !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
+    },
+    onRejectDappRequest: (err, id) => {
+      !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
+    },
+    onUpdateDappSelectedAccount: (accountAddr) => {
+      const account = accountAddr ? [accountAddr] : []
+      return sessionService.broadcastEvent('accountsChanged', account)
+    },
+    pinned: pinnedTokens
+  })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   trezorCtrl.init()
   const latticeCtrl = new LatticeController()
+  const notificationCtrl = new NotificationController(mainCtrl)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+
+  let fetchPortfolioIntervalId: any
+  const ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean } = {}
+
+  onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
+  onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
+
+  const fetchPortfolioData = async () => {
+    if (!mainCtrl.selectedAccount) return
+    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+  }
+
+  fetchPortfolioData()
+
+  function setPortfolioFetchInterval() {
+    clearInterval(fetchPortfolioIntervalId) // Clear existing interval
+    fetchPortfolioIntervalId = setInterval(
+      () => fetchPortfolioData(),
+      Object.keys(portMessageUIRefs).length ? 60000 : 600000
+    )
+  }
+
+  // Call it once to initialize the interval
+  setPortfolioFetchInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -55,31 +115,124 @@ import { controllersMapping } from './types'
    * and the `onUpdate` listeners skip emits from controllers (race condition).
    * Initializing the listeners only once proofs to be more reliable.
    */
-  let pmRef: PortMessage
-  Object.keys(controllersMapping).forEach((ctrl: any) => {
-    // Broadcast onUpdate for nested controllers
-    ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-      pmRef.request({
-        type: 'broadcast',
-        method: ctrl,
-        params: (mainCtrl as any)[ctrl]
+
+  // Broadcast onUpdate for the main controller
+
+  mainCtrl.onUpdate(() => {
+    if (ctrlOnUpdateIsDirtyFlags.main) return
+    ctrlOnUpdateIsDirtyFlags.main = true
+
+    // Debounce multiple emits in the same tick and only execute one if them
+    setTimeout(() => {
+      if (ctrlOnUpdateIsDirtyFlags.main) {
+        Object.keys(portMessageUIRefs).forEach((key: string) => {
+          portMessageUIRefs[key]?.request({
+            type: 'broadcast',
+            method: 'main',
+            params: mainCtrl
+          })
+        })
+      }
+      ctrlOnUpdateIsDirtyFlags.main = false
+    }, 0)
+
+    if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = null
+    }
+
+    if (mainCtrl.isReady && !controllersNestedInMainSubscribe) {
+      controllersNestedInMainSubscribe = () => {
+        Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
+          // Broadcast onUpdate for the nested controllers in main
+          ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
+            if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
+            ctrlOnUpdateIsDirtyFlags[ctrl] = true
+
+            setTimeout(() => {
+              if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
+                Object.keys(portMessageUIRefs).forEach((key: string) => {
+                  portMessageUIRefs[key]?.request({
+                    type: 'broadcast',
+                    method: ctrl,
+                    params: (mainCtrl as any)[ctrl]
+                  })
+                })
+              }
+              ctrlOnUpdateIsDirtyFlags[ctrl] = false
+            }, 0)
+          })
+          ;(mainCtrl as any)[ctrl]?.onError(() => {
+            const errors = (mainCtrl as any)[ctrl].getErrors()
+            const lastError = errors[errors.length - 1]
+            if (lastError) console.error(lastError.error)
+            Object.keys(portMessageUIRefs).forEach((key: string) => {
+              portMessageUIRefs[key]?.request({
+                type: 'broadcast-error',
+                method: ctrl,
+                params: { errors, controller: ctrl }
+              })
+            })
+          })
+        })
+      }
+      controllersNestedInMainSubscribe()
+    }
+
+    if (mainCtrl.isReady && mainCtrl.selectedAccount) {
+      fetchPortfolioData()
+    }
+  })
+  mainCtrl.onError(() => {
+    const errors = mainCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'main',
+        params: { errors, controller: 'main' }
       })
     })
   })
-  // Broadcast onUpdate for the main controllers
-  mainCtrl.onUpdate(() => {
-    pmRef?.request({
-      type: 'broadcast',
-      method: 'main',
-      params: mainCtrl
+
+  // Broadcast onUpdate for the notification controller
+  notificationCtrl.onUpdate(() => {
+    if (ctrlOnUpdateIsDirtyFlags.notification) return
+    ctrlOnUpdateIsDirtyFlags.notification = true
+    // Debounce multiple emits in the same tick and only execute one if them
+    setTimeout(() => {
+      if (ctrlOnUpdateIsDirtyFlags.notification) {
+        Object.keys(portMessageUIRefs).forEach((key: string) => {
+          portMessageUIRefs[key]?.request({
+            type: 'broadcast',
+            method: 'notification',
+            params: notificationCtrl
+          })
+        })
+      }
+      ctrlOnUpdateIsDirtyFlags.notification = false
+    }, 0)
+  })
+  notificationCtrl.onError(() => {
+    const errors = notificationCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+    Object.keys(portMessageUIRefs).forEach((key: string) => {
+      portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'notification',
+        params: { errors, controller: 'notification' }
+      })
     })
   })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessage(port)
-      pmRef = pm
+      const id = new Date().getTime().toString()
+      const pm = new PortMessage(port, id)
+      portMessageUIRefs[pm.id] = pm
+      setPortfolioFetchInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -93,6 +246,12 @@ import { controllersMapping } from './types'
                   type: 'broadcast',
                   method: 'main',
                   params: mainCtrl
+                })
+              } else if (data.params.controller === ('notification' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'notification',
+                  params: notificationCtrl
                 })
               } else {
                 pm.request({
@@ -137,6 +296,13 @@ import { controllersMapping } from './types'
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                preselectedAccounts: mainCtrl.accounts,
+                derivationPath: BIP44_HD_PATH
+              })
+            }
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
+              return mainCtrl.accountAdder.init({
+                keyIterator: null,
                 preselectedAccounts: mainCtrl.accounts
               })
             }
@@ -160,6 +326,44 @@ import { controllersMapping } from './types'
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
+              return mainCtrl.addUserRequest(data.params)
+            case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
+              return mainCtrl.removeUserRequest(data.params.id)
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
+              return mainCtrl.signMessage.init({
+                messageToSign: data.params.messageToSign,
+                accounts: data.params.accounts,
+                accountStates: data.params.accountStates
+              })
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
+              return mainCtrl.signMessage.reset()
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
+              return mainCtrl.signMessage.sign()
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
+              return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
+              return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
+            case 'MAIN_CONTROLLER_ACTIVITY_INIT':
+              return mainCtrl.activity.init({
+                filters: data.params.filters
+              })
+            case 'MAIN_CONTROLLER_ACTIVITY_RESET':
+              return mainCtrl.activity.reset()
+
+            case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
+              notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
+              break
+            }
+            case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
+              notificationCtrl.rejectNotificationRequest(data.params.err, data.params.id)
+              break
+            }
+
+            case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
+              return notificationCtrl.reopenCurrentNotificationRequest()
+            case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
+              return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock(data?.params?.hdPath)
@@ -176,8 +380,38 @@ import { controllersMapping } from './types'
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
 
-            case 'WALLET_CONTROLLER_IS_UNLOCKED':
-              return null // TODO: implement in v2
+            case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
+              if (!mainCtrl.selectedAccount) return
+              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+            }
+            case 'KEYSTORE_CONTROLLER_ADD_SECRET':
+              return mainCtrl.keystore.addSecret(
+                data.params.secretId,
+                data.params.secret,
+                data.params.extraEntropy,
+                data.params.leaveUnlocked
+              )
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
+              const { type, model, hdPath } = trezorCtrl
+
+              const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
+                addr: eoaAddress,
+                type: type as Key['type'],
+                label: `Trezor on slot ${slot}`,
+                meta: { model, hdPath }
+              }))
+
+              return mainCtrl.keystore.addKeysExternallyStored(keys)
+            }
+            case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
+              return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
+            case 'KEYSTORE_CONTROLLER_LOCK':
+              return mainCtrl.keystore.lock()
+            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
+              return mainCtrl.keystore.addKeys(data.params.keys)
+            case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
+              return mainCtrl.keystore.resetErrorState()
+
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
@@ -208,40 +442,6 @@ import { controllersMapping } from './types'
               permissionService.removeConnectedSite(data.params.origin)
               break
             }
-            case 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL':
-              return notificationService.activeFirstApproval()
-            case 'WALLET_CONTROLLER_GET_APPROVAL':
-              return notificationService.getApproval()
-            case 'WALLET_CONTROLLER_RESOLVE_APPROVAL':
-              return notificationService.resolveApproval(data.params)
-            case 'WALLET_CONTROLLER_REJECT_APPROVAL':
-              return notificationService.rejectApproval(
-                data.params.err,
-                data.params.stay,
-                data.params.isInternal
-              )
-            case 'WALLET_CONTROLLER_NETWORK_CHANGE':
-              return sessionService.broadcastEvent('chainChanged', {
-                chain: intToHex(data.params.network.chainId),
-                networkVersion: `${data.params.network.chainId}`
-              })
-            case 'WALLET_CONTROLLER_ACCOUNT_CHANGE': {
-              // TODO: changing the selected account will happen in the background
-              // service therefore this should be changed to use the mainCtrl.selectedAccount
-              // and moved to a better place
-              const account = data.params.selectedAcc ? [data.params.selectedAcc] : []
-              return sessionService.broadcastEvent('accountsChanged', account)
-            }
-            case 'WALLET_CONTROLLER_SEND_REQUEST':
-              return provider({
-                data: data.params.data,
-                session: {
-                  name: 'Ambire',
-                  origin: INTERNAL_REQUEST_ORIGIN || '',
-                  icon: '../assets/images/xicon@128.png'
-                },
-                mainCtrl
-              })
 
             default:
               return console.error(
@@ -259,12 +459,16 @@ import { controllersMapping } from './types'
         })
       }
 
-      if (port.name === 'tab' || port.name === 'notification') {
-        port.onDisconnect.addListener(() => {
+      port.onDisconnect.addListener(() => {
+        delete portMessageUIRefs[pm.id]
+        setPortfolioFetchInterval()
+
+        if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
-        })
-      }
+        }
+      })
+
       eventBus.addEventListener('broadcastToUI', broadcastCallback)
       port.onDisconnect.addListener(() => {
         eventBus.removeEventListener('broadcastToUI', broadcastCallback)
@@ -279,12 +483,7 @@ import { controllersMapping } from './types'
 
     const pm = new PortMessage(port)
 
-    pm.listen(async (data) => {
-      // TODO:
-      // if (!appStoreLoaded) {
-      //   throw ethErrors.provider.disconnected()
-      // }
-
+    pm.listen(async (data: any) => {
       const sessionId = port.sender?.tab?.id
       if (sessionId === undefined || !port.sender?.url) {
         return
@@ -303,15 +502,15 @@ import { controllersMapping } from './types'
         return true
       }
 
-      return provider({ ...req, mainCtrl })
+      return provider({ ...req, mainCtrl, notificationCtrl })
     })
   })
-
-  // On first install, open Ambire Extension in new tab to start the login process
-  browser.runtime.onInstalled.addListener(({ reason }) => {
-    if (reason === 'install') {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
-    }
-  })
 })()
+
+// On first install, open Ambire Extension in a new tab to start the login process
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === 'install') {
+    const extensionURL = browser.runtime.getURL('tab.html')
+    browser.tabs.create({ url: extensionURL })
+  }
+})

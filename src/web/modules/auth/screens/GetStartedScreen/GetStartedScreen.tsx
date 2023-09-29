@@ -9,48 +9,55 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useStorage from '@common/hooks/useStorage'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { AuthLayoutWrapperMainContent } from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { storage } from '@web/extension-services/background/webapi/storage'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
-import { TERMS_VERSION } from '@web/modules/auth/screens/Terms/Terms'
 
 import styles from './styles'
 
 const GetStartedScreen = () => {
   const { t } = useTranslation()
-  const { updateStepperState } = useStepper()
-  const [termsState] = useStorage({
-    key: 'termsState',
-    defaultValue: { version: null, acceptedAt: null }
-  })
+  const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const [advanceModeEnabled, setAdvancedModeEnabled] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    (nextRoute: any, state?: any) => {
-      if (
-        nextRoute === WEB_ROUTES.terms &&
-        termsState?.version &&
-        termsState.version === TERMS_VERSION &&
-        state?.state?.nextPage &&
-        state?.state?.nextState
-      ) {
-        updateStepperState(0, state.state.nextState)
-        navigate(state.state.nextPage)
+    async (flow: 'email' | 'hw' | 'legacy' | 'view-only') => {
+      const hasTerms = await storage.get('termsState', false)
 
+      if (!hasTerms) {
+        navigate(WEB_ROUTES.terms, { state: { flow } })
         return
       }
-      navigate(nextRoute, state)
+      if (flow === 'view-only') {
+        navigate(WEB_ROUTES.viewOnlyAccountAdder)
+        return
+      }
+      if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {
+        navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
+        return
+      }
+      if (flow === 'email') {
+        navigate(WEB_ROUTES.createEmailVault)
+        return
+      }
+      if (flow === 'hw') {
+        navigate(WEB_ROUTES.hardwareWalletSelect)
+        return
+      }
+      if (flow === 'legacy') {
+        navigate(WEB_ROUTES.externalSigner)
+      }
     },
-    [navigate, termsState?.version, updateStepperState]
+    [navigate, keystoreState]
   )
   return (
-    <AuthLayoutWrapperMainContent fullWidth>
+    <TabLayoutWrapperMainContent width="md">
       <View style={[flexboxStyles.center]}>
         <Text fontSize={22} weight="medium">
           {t('Welcome to Ambire')}
@@ -66,14 +73,7 @@ const GetStartedScreen = () => {
             style={{
               ...flexboxStyles.flex1
             }}
-            onPress={() => {
-              handleAuthButtonPress(WEB_ROUTES.terms, {
-                state: {
-                  nextState: 'emailAuth',
-                  nextPage: WEB_ROUTES.createEmailVault
-                }
-              })
-            }}
+            onPress={() => handleAuthButtonPress('email')}
             buttonText="Create Email Account"
           />
           <Card
@@ -89,14 +89,7 @@ const GetStartedScreen = () => {
             ]}
             icon={HWIcon}
             buttonText="Import From Hardware Wallet"
-            onPress={() => {
-              handleAuthButtonPress(WEB_ROUTES.terms, {
-                state: {
-                  nextState: 'hwAuth',
-                  nextPage: WEB_ROUTES.hardwareWalletSelect
-                }
-              })
-            }}
+            onPress={() => handleAuthButtonPress('hw')}
           />
           <Card
             title="Legacy Account"
@@ -108,14 +101,7 @@ const GetStartedScreen = () => {
             }
             icon={ImportAccountIcon}
             buttonText="Import Legacy Account"
-            onPress={() => {
-              handleAuthButtonPress(WEB_ROUTES.terms, {
-                state: {
-                  nextState: 'legacyAuth',
-                  nextPage: WEB_ROUTES.externalSigner
-                }
-              })
-            }}
+            onPress={() => handleAuthButtonPress('legacy')}
           />
         </View>
 
@@ -161,7 +147,7 @@ const GetStartedScreen = () => {
                   textStyle={{ fontSize: 14 }}
                   accentColor={colors.violet}
                   text={t('View Mode')}
-                  disabled // temporary disabled until we have this feature
+                  onPress={() => handleAuthButtonPress('view-only')}
                   type="outline"
                   hasBottomSpacing={false}
                   style={[{ minWidth: 190 }, spacings.mrMd]}
@@ -176,7 +162,7 @@ const GetStartedScreen = () => {
           )}
         </View>
       </View>
-    </AuthLayoutWrapperMainContent>
+    </TabLayoutWrapperMainContent>
   )
 }
 

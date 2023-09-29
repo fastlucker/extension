@@ -8,6 +8,7 @@ const webpack = require('webpack')
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
 
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
@@ -52,7 +53,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['browser-polyfill.js', 'background.js'],
+        scripts: ['browser-polyfill.js', 'setimmediate.js', 'background.js'],
         persistent: true
       }
       // Chrome extensions do not respect `browser_specific_settings`
@@ -111,6 +112,14 @@ module.exports = async function (env, argv) {
   // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
 
+  if (config.watchOptions) {
+    if (config.watchOptions.ignored) {
+      const ignored = config.watchOptions.ignored.filter((p) => p !== '**/node_modules/**')
+      ignored.push('**/node_modules/!(ambire-common)/**')
+      config.watchOptions.ignored = ignored
+    }
+  }
+
   config.entry = {
     main: config.entry[0], // the app entry
     background: './src/web/extension-services/background/background.ts', // custom entry needed for the extension
@@ -148,6 +157,7 @@ module.exports = async function (env, argv) {
 
   config.plugins = [
     ...config.plugins,
+    new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
       process: 'process'
@@ -184,6 +194,10 @@ module.exports = async function (env, argv) {
         {
           from: './node_modules/webextension-polyfill/dist/browser-polyfill.js',
           to: 'browser-polyfill.js'
+        },
+        {
+          from: './node_modules/setimmediate/setimmediate.js',
+          to: 'setimmediate.js'
         },
         {
           from: './src/web/public/index.html',

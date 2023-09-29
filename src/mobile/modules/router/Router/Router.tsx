@@ -15,7 +15,7 @@ import AddAccountPasswordToVaultScreen from '@common/modules/auth/screens/AddAcc
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import EmailLoginScreen from '@common/modules/auth/screens/EmailLoginScreen'
 import ExternalSignerScreen from '@common/modules/auth/screens/ExternalSignerScreen'
-import { headerAlpha, headerBeta, headerGamma } from '@common/modules/header/config/headerConfig'
+import { headerControls, headerTitle } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { MOBILE_ROUTES, ROUTES } from '@common/modules/router/constants/common'
@@ -36,8 +36,6 @@ import useOnboardingOnFirstLogin from '@mobile/modules/onboarding/hooks/useOnboa
 import OnboardingOnFirstLoginScreen from '@mobile/modules/onboarding/screens/OnboardingOnFirstLoginScreen'
 import SideNavMenu from '@mobile/modules/router/components/SideNavMenu'
 import { DappsProvider } from '@mobile/modules/web3/contexts/dappsContext'
-import DappsCatalogScreen from '@mobile/modules/web3/screens/DappsCatalogScreen'
-import Web3BrowserScreen from '@mobile/modules/web3/screens/Web3BrowserScreen'
 import { BottomTabBar, createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -61,7 +59,7 @@ const Web3StackScreen = () => {
           component={DappsCatalogScreen}
           options={{
             title: routesConfig[ROUTES.dappsCatalog].title,
-            header: headerAlpha
+            header: headerControls
           }}
         /> */}
         {/* <Web3Stack.Screen
@@ -79,7 +77,7 @@ const Web3StackScreen = () => {
 
 const EmailLoginStackScreen = () => {
   return (
-    <EmailLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+    <EmailLoginStack.Navigator screenOptions={{ header: headerTitle }}>
       <EmailLoginStack.Screen
         name={`${MOBILE_ROUTES.ambireAccountLogin}-screen`}
         options={{ title: routesConfig[ROUTES.ambireAccountLogin].title }}
@@ -96,7 +94,7 @@ const EmailLoginStackScreen = () => {
 
 const JsonLoginStackScreen = () => {
   return (
-    <JsonLoginStack.Navigator screenOptions={{ header: headerBeta }}>
+    <JsonLoginStack.Navigator screenOptions={{ header: headerTitle }}>
       <JsonLoginStack.Screen
         name={`${MOBILE_ROUTES.ambireAccountJsonLogin}-screen`}
         options={{ title: routesConfig[ROUTES.ambireAccountJsonLogin].title }}
@@ -119,7 +117,7 @@ const AuthStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator screenOptions={{ header: headerTitle }}>
       <Stack.Screen
         options={{ title: routesConfig[ROUTES.auth].title }}
         name={`${MOBILE_ROUTES.auth}-screen`}
@@ -153,7 +151,7 @@ const NoConnectionStack = () => {
   }, [])
 
   return (
-    <Stack.Navigator screenOptions={{ header: headerBeta }}>
+    <Stack.Navigator screenOptions={{ header: headerTitle }}>
       <Stack.Screen
         options={{ title: routesConfig[ROUTES.noConnection].title }}
         name={MOBILE_ROUTES.noConnection}
@@ -168,7 +166,7 @@ const TabsScreens = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        header: headerAlpha,
+        header: headerControls,
         tabBarActiveTintColor: colors.heliotrope,
         tabBarInactiveTintColor: colors.titan,
         tabBarActiveBackgroundColor: colors.howl_65,
@@ -258,7 +256,7 @@ const AppStack = () => {
   }, [getItem, hasCompletedOnboarding])
 
   return (
-    <MainStack.Navigator screenOptions={{ header: headerBeta }}>
+    <MainStack.Navigator screenOptions={{ header: headerTitle }}>
       <MainStack.Screen
         name="drawer"
         component={AppDrawer}

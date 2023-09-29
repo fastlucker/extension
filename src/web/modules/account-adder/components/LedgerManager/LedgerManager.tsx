@@ -19,9 +19,12 @@ const LedgerManager = (props: Props) => {
   const { dispatch, dispatchAsync } = useBackgroundService()
   const state = useAccountAdderControllerState()
 
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.accountAdder, 'hw')
+  }, [updateStepperState])
+
   const onImportReady = () => {
-    updateStepperState(2, 'hwAuth')
-    navigate(WEB_ROUTES.createKeyStore)
+    navigate(WEB_ROUTES.accountPersonalize)
   }
 
   const setPage: any = React.useCallback(

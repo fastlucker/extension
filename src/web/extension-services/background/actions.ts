@@ -1,17 +1,23 @@
-import { Account } from 'ambire-common/src/interfaces/account'
+import { Filters } from 'ambire-common/src/controllers/activity/activity'
+import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
+import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
+import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
+import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
+import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
+import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
+import { Key } from 'ambire-common/src/libs/keystore/keystore'
 
-import { NetworkType } from '@common/constants/networks'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
-import { ControllerName } from './types'
+import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
   type: 'INIT_CONTROLLER_STATE'
   params: {
-    controller: ControllerName
+    controller: keyof typeof controllersMapping
   }
 }
 
@@ -48,6 +54,9 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     derivationPath?: string | undefined
   }
 }
+type MainControllerAccountAdderInitViewOnlyAction = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
+}
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
   params: {
@@ -83,6 +92,48 @@ type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
 }
 
+type MainControllerAddUserRequestAction = {
+  type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
+  params: UserRequest
+}
+type MainControllerRemoveUserRequestAction = {
+  type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
+  params: { id: UserRequest['id'] }
+}
+type MainControllerSignMessageInitAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
+  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
+}
+type MainControllerSignMessageResetAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
+}
+type MainControllerSignMessageSignAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
+}
+type MainControllerSignMessageSetSignKeyAction = {
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
+  params: { key: Key['addr']; type: Key['type'] }
+}
+type MainControllerBroadcastSignedMessageAction = {
+  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
+  params: { signedMessage: Message }
+}
+type MainControllerActivityInitAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+  params: { filters: Filters }
+}
+type MainControllerActivityResetAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+}
+
+type NotificationControllerResolveRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
+  params: { data: any; id?: number }
+}
+type NotificationControllerRejectRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
+  params: { err: string; id?: number }
+}
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
   params?: {
@@ -105,9 +156,32 @@ type TrezorControllerUnlockAction = {
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
-type WalletControllerIsUnlockedAction = {
-  type: 'WALLET_CONTROLLER_IS_UNLOCKED'
+type MainControllerUpdateSelectedAccount = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
+
+type KeystoreControllerAddSecretAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
+  params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
+}
+type KeystoreControllerAddKeysExternallyStored = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+}
+type KeystoreControllerUnlockWithSecretAction = {
+  type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
+  params: { secretId: string; secret: string }
+}
+type KeystoreControllerAddKeysAction = {
+  type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
+  params: { keys: { privateKey: string; label: string }[] }
+}
+type KeystoreControllerLockAction = {
+  type: 'KEYSTORE_CONTROLLER_LOCK'
+}
+type KeystoreControllerResetErrorStateAction = {
+  type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
+}
+
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
   params: { origin: string }
@@ -131,31 +205,12 @@ type WalletControllerRemoveConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
-type WalletControllerActiveFirstApprovalAction = {
-  type: 'WALLET_CONTROLLER_ACTIVE_FIRST_APPROVAL'
+type NotificationControllerReopenCurrentNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
 }
-type WalletControllerGetApprovalAction = {
-  type: 'WALLET_CONTROLLER_GET_APPROVAL'
-}
-type WalletControllerResolveApprovalAction = {
-  type: 'WALLET_CONTROLLER_RESOLVE_APPROVAL'
-  params: any
-}
-type WalletControllerRejectApprovalAction = {
-  type: 'WALLET_CONTROLLER_REJECT_APPROVAL'
-  params: { err?: string; stay?: boolean; isInternal?: boolean }
-}
-type WalletControllerNetworkChangeAction = {
-  type: 'WALLET_CONTROLLER_NETWORK_CHANGE'
-  params: { network: NetworkType }
-}
-type WalletControllerAccountChangeAction = {
-  type: 'WALLET_CONTROLLER_ACCOUNT_CHANGE'
-  params: { selectedAcc: Account['addr'] }
-}
-type WalletControllerSendRequestAction = {
-  type: 'WALLET_CONTROLLER_SEND_REQUEST'
-  params: { data: any }
+type NotificationControllerOpenNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
+  params: { id: number }
 }
 
 export type Action =
@@ -164,32 +219,45 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
+  | MainControllerAccountAdderInitViewOnlyAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
+  | MainControllerAddUserRequestAction
+  | MainControllerRemoveUserRequestAction
+  | MainControllerSignMessageInitAction
+  | MainControllerSignMessageResetAction
+  | MainControllerSignMessageSignAction
+  | MainControllerSignMessageSetSignKeyAction
+  | MainControllerBroadcastSignedMessageAction
+  | MainControllerActivityInitAction
+  | MainControllerActivityResetAction
+  | NotificationControllerResolveRequestAction
+  | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
-  | WalletControllerIsUnlockedAction
+  | MainControllerUpdateSelectedAccount
+  | KeystoreControllerAddSecretAction
+  | KeystoreControllerAddKeysExternallyStored
+  | KeystoreControllerUnlockWithSecretAction
+  | KeystoreControllerLockAction
+  | KeystoreControllerAddKeysAction
+  | KeystoreControllerResetErrorStateAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
   | WalletControllerGetCurrentSiteAction
   | WalletControllerRemoveConnectedSiteAction
   | WalletControllerGetConnectedSitesAction
-  | WalletControllerActiveFirstApprovalAction
-  | WalletControllerGetApprovalAction
-  | WalletControllerResolveApprovalAction
-  | WalletControllerRejectApprovalAction
-  | WalletControllerNetworkChangeAction
-  | WalletControllerAccountChangeAction
-  | WalletControllerSendRequestAction
+  | NotificationControllerReopenCurrentNotificationRequestAction
+  | NotificationControllerOpenNotificationRequestAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
@@ -198,8 +266,6 @@ export type Action =
 export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
-  WALLET_CONTROLLER_GET_APPROVAL: ReturnType<WalletController['getApproval']>
-  WALLET_CONTROLLER_REJECT_APPROVAL: ReturnType<WalletController['rejectApproval']>
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>

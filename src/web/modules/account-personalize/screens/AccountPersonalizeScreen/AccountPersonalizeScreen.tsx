@@ -6,21 +6,29 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Card from '@web/modules/account-personalize/components/Card'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { stepperState, updateStepperState } = useStepper()
   const [elementHeights, setElementHeights] = useState({})
   const [totalHeight, setTotalHeight] = useState(300)
+
+  useEffect(() => {
+    if (!stepperState?.currentFlow) return
+
+    updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
+  }, [stepperState?.currentFlow, updateStepperState])
 
   const handleLayout = (index: string, event: any) => {
     const { height } = event.nativeEvent.layout
@@ -44,7 +52,11 @@ const AccountPersonalizeScreen = () => {
   ]
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
+        <Text weight="medium" fontSize={16} style={[flexboxStyles.alignSelfCenter]}>
+          {t('Personalize Your Accounts')}
+        </Text>
+
         <View style={[flexboxStyles.alignCenter, spacings.mtXl]}>
           <View>
             <Wrapper
@@ -59,14 +71,14 @@ const AccountPersonalizeScreen = () => {
               ))}
             </Wrapper>
             <Button
-              onPress={() => navigate(WEB_ROUTES.onboarding)}
+              onPress={() => navigate('/')}
               text={t('Save and Continue')}
               style={[spacings.mtLg, flexboxStyles.alignSelfEnd]}
             />
           </View>
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent>
         <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={16}>
           {t('Account personalization')}
         </Text>
@@ -81,7 +93,7 @@ const AccountPersonalizeScreen = () => {
             'The account label is any arbitrary label that you choose. Both the label and the avatar are only local and for own organizational purposes - none of this will be uploaded on the blockchain or anywhere else.'
           )}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

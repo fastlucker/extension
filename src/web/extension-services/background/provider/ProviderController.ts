@@ -3,19 +3,19 @@
 import 'reflect-metadata'
 
 import { MainController } from 'ambire-common/src/controllers/main/main'
+import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
-import { getProvider } from '@common/services/provider'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
-interface ApprovalRes {
+interface RequestRes {
   type?: string
   address?: string
   uiRequestComponent?: string
@@ -41,18 +41,18 @@ interface Web3WalletPermission {
   date?: number
 }
 
-const handleSignMessage = (approvalRes: ApprovalRes) => {
-  if (approvalRes) {
-    if (approvalRes?.error) {
+const handleSignMessage = (requestRes: RequestRes) => {
+  if (requestRes) {
+    if (requestRes?.error) {
       throw ethErrors.rpc.invalidParams({
-        message: approvalRes?.error
+        message: requestRes?.error
       })
     }
 
-    return approvalRes?.hash
+    return requestRes?.hash
   }
 
-  throw new Error('Internal error: approval result not found', approvalRes)
+  throw new Error('Internal error: request result not found', requestRes)
 }
 
 export class ProviderController {
@@ -107,7 +107,7 @@ export class ProviderController {
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }) => {
+  ethRequestAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       throw ethErrors.provider.unauthorized()
     }
@@ -119,9 +119,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }) => {
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (!permissionService.hasPermission(origin) || !WalletController.isUnlocked()) {
+  ethAccounts = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return []
     }
@@ -129,7 +127,7 @@ export class ProviderController {
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }) => {
+  ethCoinbase = async ({ session: { origin } }: any) => {
     if (!permissionService.hasPermission(origin)) {
       return null
     }
@@ -138,20 +136,21 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async () => {
-    const networkId = await storage.get('networkId')
-    const network = networks.find((n) => n.id === networkId)
-    return intToHex(network?.chainId || networks[0].chainId)
+  ethChainId = async ({ session: { origin } }: any) => {
+    if (permissionService.hasPermission(origin)) {
+      return intToHex(permissionService.getConnectedSite(origin)?.chainId || 1)
+    }
+    return intToHex(1)
   }
 
-  @Reflect.metadata('APPROVAL', ['SendTransaction', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (options: {
     data: {
       $ctx?: any
       params: any
     }
     session: Session
-    approvalRes: ApprovalRes
+    requestRes: RequestRes
     pushed: boolean
     result: any
   }) => {
@@ -161,14 +160,14 @@ export class ProviderController {
       data: {
         params: [txParams]
       },
-      approvalRes
+      requestRes
     } = cloneDeep(options)
 
-    if (approvalRes) {
+    if (requestRes) {
       const txnHistory = (await storage.get('transactionHistory')) || {}
-      txnHistory[approvalRes.hash || ''] = JSON.stringify(txParams)
+      txnHistory[requestRes.hash || ''] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
-      return approvalRes?.hash
+      return requestRes?.hash
     }
 
     throw new Error('Transaction failed!')
@@ -187,37 +186,55 @@ export class ProviderController {
     return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('APPROVAL', ['SignText', false])
-  personalSign = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  personalSign = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignText', false])
-  ethSign = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  ethSign = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedData = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedData = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV1 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV3 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({ approvalRes }: any) => {
-    return handleSignMessage(approvalRes)
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV4 = async ({ requestRes }: any) => {
+    return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', [
+    'AddChain',
+    ({ data, session }: any) => {
+      if (!data.params[0]) {
+        throw ethErrors.rpc.invalidParams('params is required but got []')
+      }
+      if (!data.params[0]?.chainId) {
+        throw ethErrors.rpc.invalidParams('chainId is required')
+      }
+      const connected = permissionService.getConnectedSite(session.origin)
+      if (connected) {
+        const { chainId } = data.params[0]
+        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
+        if (network) {
+          return true
+        }
+      }
+    }
+  ])
   walletAddEthereumChain = ({
     data: {
       params: [chainParams]
@@ -230,7 +247,7 @@ export class ProviderController {
     session: {
       origin: string
     }
-    approvalRes?: {
+    requestRes?: {
       chain: any
       rpcUrl: string
     }
@@ -258,24 +275,42 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['SwitchNetwork', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', [
+    'AddChain',
+    ({ data, session }: any) => {
+      if (!data.params[0]) {
+        throw ethErrors.rpc.invalidParams('params is required but got []')
+      }
+      if (!data.params[0]?.chainId) {
+        throw ethErrors.rpc.invalidParams('chainId is required')
+      }
+      const connected = permissionService.getConnectedSite(session.origin)
+      if (connected) {
+        const { chainId } = data.params[0]
+        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
+        if (network) {
+          return true
+        }
+      }
+    }
+  ])
   walletSwitchEthereumChain = ({
     data: {
       params: [chainParams]
     },
     session: { origin }
-  }) => {
+  }: any) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
-
-    const network = networks.find((n) => n.chainId === chainId)
+    const network = networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
+    permissionService.updateConnectSite(origin, { chainId }, true)
     sessionService.broadcastEvent(
       'chainChanged',
       {
@@ -288,12 +323,12 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('APPROVAL', ['WalletWatchAsset', false])
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
-  @Reflect.metadata('APPROVAL', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = ({ approvalRes }: { approvalRes: string }) => ({
-    result: approvalRes
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
+  ethGetEncryptionPublicKey = ({ requestRes }: { requestRes: string }) => ({
+    result: requestRes
   })
 
   walletRequestPermissions = ({ data: { params: permissions } }) => {
@@ -307,9 +342,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    // TODO: Implement WalletController.isUnlocked() in v2
-    // if (WalletController.isUnlocked() && permissionService.getConnectedSite(origin)) {
-    if (permissionService.getConnectedSite(origin)) {
+    if (permissionService.getConnectedSite(origin) && this.mainCtrl.keystore.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

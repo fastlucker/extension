@@ -1,5 +1,5 @@
 const COMMON_ROUTES = {
-  unlockVault: 'unlock-vault',
+  keyStoreUnlock: 'keystore-unlock',
   resetVault: 'reset-vault',
   getStarted: 'get-started',
   createVault: 'create-vault',
@@ -14,6 +14,7 @@ const COMMON_ROUTES = {
   collectible: 'collectible',
   earn: 'earn',
   transfer: 'transfer',
+  signAccountOp: 'sign-account-op',
   transactions: 'transactions',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',
@@ -25,7 +26,8 @@ const COMMON_ROUTES = {
   menu: 'menu',
   swap: 'swap',
   noConnection: 'no-connection',
-  backup: 'backup'
+  backup: 'backup',
+  accounts: 'accounts'
 }
 
 const MOBILE_ROUTES = {
@@ -47,18 +49,20 @@ const WEB_ROUTES = {
   ...COMMON_ROUTES,
   createEmailVault: 'create-email-vault',
   terms: 'terms',
-  createKeyStore: 'create-key-store',
+  keyStoreSetup: 'keystore-setup',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   permissionRequest: 'permission-request',
-  switchNetwork: 'switch-network',
   watchAsset: 'watch-asset',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
   authEmailAccount: 'auth-email-account',
   authEmailLogin: 'auth-email-login',
   authEmailRegister: 'auth-email-register',
-  accountPersonalize: 'account-personalize'
+  accountPersonalize: 'account-personalize',
+  collection: 'collection',
+  accountSelect: 'account-select',
+  viewOnlyAccountAdder: 'view-only-account-adder'
 }
 
 const ROUTES = {

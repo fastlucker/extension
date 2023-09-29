@@ -9,9 +9,9 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
 import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
 import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
@@ -41,7 +41,7 @@ const AccountAdderScreen = () => {
 
   const { t } = useTranslation()
 
-  const { walletType, privKeyOrSeed }: any = params
+  const { walletType, privKeyOrSeed, label }: any = params
   const isLattice = walletType === HARDWARE_WALLETS.LATTICE
   const isLedger = walletType === HARDWARE_WALLETS.LEDGER
   const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
@@ -61,18 +61,21 @@ const AccountAdderScreen = () => {
     walletManagerProps = {}
   }
   if (isLegacyImport) {
-    title = 'Import Legacy Account'
-    walletManagerProps = { privKeyOrSeed }
+    title = 'Pick Accounts To Import'
+    walletManagerProps = { privKeyOrSeed, label }
   }
 
   return (
     <>
-      <AuthLayoutWrapperMainContent pageTitle={t(title, { name })}>
+      <TabLayoutWrapperMainContent>
+        <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
+          {t(title, { name })}
+        </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <WalletManager {...walletManagerProps} />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text fontSize={16} style={[spacings.mb]} color={colors.zircon} weight="medium">
           {t('Importing accounts')}
         </Text>
@@ -114,7 +117,7 @@ const AccountAdderScreen = () => {
             </Text>
           </>
         )}
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

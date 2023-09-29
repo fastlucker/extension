@@ -1,6 +1,6 @@
 import { isValidPrivateKey } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { Mnemonic } from 'ethers'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
 
@@ -8,14 +8,15 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
-  AuthLayoutWrapperMainContent,
-  AuthLayoutWrapperSideContent
-} from '@web/components/AuthLayoutWrapper/AuthLayoutWrapper'
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 
 import styles from './styles'
 
@@ -29,6 +30,7 @@ function isValidMnemonic(input: string) {
 }
 
 const ExternalSignerLoginScreen = () => {
+  const { updateStepperState } = useStepper()
   const {
     control,
     handleSubmit,
@@ -43,9 +45,13 @@ const ExternalSignerLoginScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.externalSigner, 'legacy')
+  }, [updateStepperState])
+
   const handleFormSubmit = useCallback(() => {
     handleSubmit(({ privKeyOrSeed, label }) => {
-      let formattedPrivKeyOrSeed = privKeyOrSeed
+      let formattedPrivKeyOrSeed = privKeyOrSeed.trim()
 
       if (isValidPrivateKey(privKeyOrSeed)) {
         formattedPrivKeyOrSeed =
@@ -64,6 +70,9 @@ const ExternalSignerLoginScreen = () => {
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
+
+    if (!trimmedValue.length) return ''
+
     const separators = /[\s,;\n]+/
     const words = trimmedValue.split(separators)
 
@@ -87,29 +96,27 @@ const ExternalSignerLoginScreen = () => {
       return 'Invalid private key.'
     }
 
-    return isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue)
+    if (!(isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue))) {
+      return 'Please enter a valid seed phrase or private key.'
+    }
   }
 
   return (
     <>
-      <AuthLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
         <View style={styles.container}>
-          <Text
-            weight="medium"
-            fontSize={16}
-            style={{ marginBottom: 50, ...spacings.mtXl, ...flexbox.alignSelfCenter }}
-          >
+          <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
             {t('Import Legacy Account')}
           </Text>
 
-          <View>
+          <View style={spacings.mb}>
             <Text
               style={[styles.error, { opacity: errors.privKeyOrSeed ? 1 : 0 }]}
               color={colors.radicalRed}
               fontSize={14}
             >
-              {errors?.privKeyOrSeed?.message ||
-                t('Please enter a valid seed phrase or private key.')}
+              {/* empty space to prevent jump */}
+              {errors?.privKeyOrSeed?.message || ' '}
             </Text>
             <Controller
               control={control}
@@ -128,18 +135,13 @@ const ExternalSignerLoginScreen = () => {
                     onBlur={onBlur}
                     style={styles.textarea}
                     placeholderTextColor={colors.martinique_65}
+                    onSubmitEditing={handleFormSubmit}
                   />
                 )
               }}
             />
           </View>
 
-          <Text shouldScale={false} fontSize={12} style={[spacings.mbLg]} color={colors.brownRum}>
-            Legacy Account found {'  '}{' '}
-            <Text shouldScale={false} fontSize={14} color={colors.brownRum} weight="semiBold">
-              0x603f453E4...5a245fB3D34Df
-            </Text>
-          </Text>
           <View style={styles.errorAndLabel}>
             <Text
               style={[spacings.plTy, spacings.mbTy]}
@@ -174,6 +176,7 @@ const ExternalSignerLoginScreen = () => {
                   onBlur={onBlur}
                   style={[styles.textarea, spacings.mbLg]}
                   placeholderTextColor={colors.martinique_65}
+                  onSubmitEditing={handleFormSubmit}
                 />
               )
             }}
@@ -188,8 +191,8 @@ const ExternalSignerLoginScreen = () => {
             disabled={!isValid}
           />
         </View>
-      </AuthLayoutWrapperMainContent>
-      <AuthLayoutWrapperSideContent backgroundType="beta">
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent backgroundType="beta">
         <Text weight="medium" fontSize={16} style={spacings.mb} color={colors.zircon}>
           {t('Importing legacy accounts')}
         </Text>
@@ -205,7 +208,7 @@ const ExternalSignerLoginScreen = () => {
         <Text fontSize={14} shouldScale={false} color={colors.zircon}>
           {t('The key label is any arbitrary name you choose for this key, entirely up to you.')}
         </Text>
-      </AuthLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent>
     </>
   )
 }

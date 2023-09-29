@@ -1,3 +1,4 @@
+import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
@@ -14,7 +15,6 @@ import useTheme from '@common/hooks/useTheme'
 import EmailAnimation from '@common/modules/auth/components/EmailAnimation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { ROUTES } from '@common/modules/router/constants/common'
-import { isEmail } from '@common/services/validations/validate'
 import colors from '@common/styles/colors'
 import { SPACING_MD } from '@common/styles/spacings'
 // import spacings from '@common/styles/spacings'
@@ -26,7 +26,6 @@ import { delayPromise } from '@common/utils/promises'
 const EmailLoginForm: React.FC<any> = ({
   isPasswordConfirmStep,
   setIsPasswordConfirmStep,
-  setNextStepperState,
   currentFlow
 }) => {
   const { t } = useTranslation()
@@ -48,7 +47,7 @@ const EmailLoginForm: React.FC<any> = ({
 
   const { stepperState } = useStepper()
   // TODO: v2
-  const requiresEmailConfFor = !!stepperState.currentStep
+  const requiresEmailConfFor = !!stepperState?.currentStep
   const pendingLoginAccount = false
 
   const handleFormSubmit = useCallback(() => {
@@ -59,10 +58,9 @@ const EmailLoginForm: React.FC<any> = ({
       await delayPromise(100)
 
       // TODO: v2
-      currentFlow === 'emailAuth' && setNextStepperState()
       setIsPasswordConfirmStep(true)
     })()
-  }, [handleSubmit, currentFlow, setIsPasswordConfirmStep, setNextStepperState])
+  }, [handleSubmit, setIsPasswordConfirmStep])
 
   const handleCancelLoginAttempts = useCallback(() => {
     // TODO: v2
@@ -73,11 +71,10 @@ const EmailLoginForm: React.FC<any> = ({
     const delay = 4
     if (isPasswordConfirmStep) {
       setTimeout(() => {
-        currentFlow !== 'legacyAuth' && setNextStepperState()
-        navigate(ROUTES.createKeyStore)
+        navigate(ROUTES.keyStoreSetup)
       }, delay * 1000)
     }
-  }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
+  }, [isPasswordConfirmStep, navigate, currentFlow])
 
   return (
     <>
