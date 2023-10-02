@@ -28,6 +28,7 @@ class TrezorController {
     this.type = keyringType
     this.hdk = new HDKey()
 
+    // TODO: Handle different derivation paths
     this.hdPath = TREZOR_HD_PATH
     this.model = ''
 

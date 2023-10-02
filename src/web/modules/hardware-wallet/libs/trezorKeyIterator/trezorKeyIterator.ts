@@ -25,6 +25,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     this.hdk = _wallet.hdk
   }
 
+  // TODO: Figure out why the BIP44 path is not working, but `TREZOR_PATH_BASE` is.
   async retrieve(from: number, to: number, derivation: string = TREZOR_PATH_BASE) {
     if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
       throw new Error('trezorKeyIterator: invalid or missing arguments')
@@ -32,6 +33,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     const keys: string[] = []
 
     for (let i = from; i <= to; i++) {
+      // TODO: Handle different derivation paths
       const dkey = this.hdk?.derive(`${derivation}/${i}`)
       const key = publicToAddress(dkey?.publicKey, true).toString('hex')
 
