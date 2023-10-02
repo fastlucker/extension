@@ -15,11 +15,7 @@ const Slot = ({ slot, children }: { slot: number; children: any }) => {
   }
   return (
     <View key={slot} style={styles.container}>
-      <Text
-        weight="semiBold"
-        color={colors.martinique}
-        style={{ width: setSlotIndexLabelWidth(), textAlign: 'center' }}
-      >
+      <Text weight="semiBold" style={{ width: setSlotIndexLabelWidth(), textAlign: 'center' }}>
         {slot}
       </Text>
       <View style={[styles.indicator]} />

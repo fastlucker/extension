@@ -87,7 +87,6 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
               <View>
                 <Text
                   style={[styles.text, isTab ? spacings.mbTy : {}]}
-                  color={colors.martinique}
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
                 >
@@ -97,7 +96,6 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                 We won't show the description for now
                 <Text
                   style={styles.text}
-                  color={colors.martinique}
                   weight="regular"
                   fontSize={isTab ? 16 : 12}
                 >
@@ -110,7 +108,7 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                   fontSize={isTab ? 20 : 16}
                   weight="regular"
                   style={[styles.text, isTab ? spacings.mbSm : spacings.mbTy]}
-                  color={colors.violet}
+                  appearance="primary"
                 >
                   {priceIn?.length ? `$${Math.round(priceIn[0].price * 100) / 100}` : '$-'}
                 </Text>

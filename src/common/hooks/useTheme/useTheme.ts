@@ -14,7 +14,8 @@ export default function useTheme<CreateStyles>(createStyles?: CreateStyles) {
   // @ts-ignore
   const styles: ReturnType<CreateStyles> = useMemo(
     () => (typeof createStyles === 'function' ? createStyles(context.theme) : {}),
-    [context?.theme]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [context?.themeType]
   )
 
   return {

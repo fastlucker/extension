@@ -4,7 +4,6 @@ import { Pressable, View } from 'react-native'
 
 import EditIcon from '@common/assets/svg/EditIcon'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
@@ -59,7 +58,7 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
             style={styles.action}
             onPress={() => handleActionPress(action)}
           >
-            <Text color={colors.violet} fontSize={14} weight="regular">
+            <Text appearance="primary" fontSize={14} weight="regular">
               {action.label}
             </Text>
           </Pressable>

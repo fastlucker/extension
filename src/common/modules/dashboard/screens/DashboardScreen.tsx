@@ -86,7 +86,7 @@ const DashboardScreen = () => {
         <View style={[styles.contentContainer]}>
           <View style={styles.overview}>
             <View>
-              <Text color={colors.martinique_65} shouldScale={false} weight="regular" fontSize={16}>
+              <Text appearance="secondaryText" shouldScale={false} weight="regular" fontSize={16}>
                 {t('Balance')}
               </Text>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
@@ -121,7 +121,8 @@ const DashboardScreen = () => {
             styles.contentContainer,
             IS_SCREEN_SIZE_TAB_CONTENT_UP ? spacings.plMd : {},
             flexbox.directionRow,
-            flexbox.justifySpaceBetween
+            flexbox.justifySpaceBetween,
+            flexbox.alignEnd
           ]}
         >
           <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />

@@ -157,7 +157,7 @@ const AccountsList = ({
                   {state.derivationPath &&
                     getDerivationLabel(state.derivationPath as HDPath['path'])}{' '}
                 </Text>
-                <Text weight="medium" fontSize={14} color={colors.martinique_65}>
+                <Text weight="medium" fontSize={14} appearance="secondaryText">
                   {state.derivationPath}{' '}
                 </Text>
               </View>
@@ -211,7 +211,7 @@ const AccountsList = ({
         >
           <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
             <Spinner style={{ width: 16, height: 16 }} />
-            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+            <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
               {t('Looking for linked smart accounts')}
             </Text>
           </View>

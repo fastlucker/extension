@@ -17,53 +17,53 @@ export type ThemeProps = {
 }
 
 const ThemeColors = {
-  backgroundGradient: {
-    [THEME_TYPES.LIGHT]: [colors.white, colors.white],
-    [THEME_TYPES.DARK]: [colors.wooed, colors.clay]
+  primary: {
+    [THEME_TYPES.DARK]: '#6000FF',
+    [THEME_TYPES.LIGHT]: '#6000FF'
+  },
+  primaryLight: {
+    [THEME_TYPES.DARK]: '#8B3DFF',
+    [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   primaryText: {
-    [THEME_TYPES.LIGHT]: colors.martinique,
-    [THEME_TYPES.DARK]: colors.titan
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.martinique
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#54597A'
   },
-  panelBackground: {
-    [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.black
+  primaryBorder: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#767DAD'
   },
-  inputBackground: {
-    [THEME_TYPES.DARK]: colors.howl,
-    [THEME_TYPES.LIGHT]: colors.melrose_15
+  secondaryBorder: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#B8BDE0'
   },
-  inputBorder: {
-    [THEME_TYPES.DARK]: colors.howl,
-    [THEME_TYPES.LIGHT]: colors.scampi_20
+  primaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FFFFFF'
   },
-  inputBorderFocused: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.violet
+  secondaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#F2F3FA'
   },
-  inputBorderValid: {
-    [THEME_TYPES.DARK]: colors.turquoise,
-    [THEME_TYPES.LIGHT]: colors.greenHaze
+  tertiaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
-  inputBorderInvalid: {
-    [THEME_TYPES.DARK]: colors.pink,
-    [THEME_TYPES.LIGHT]: colors.radicalRed
+  accent1: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#007D53'
   },
-  inputIcon: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.martinique_35
+  accent2: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#806E33'
   },
-  buttonText: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.martinique
-  },
-  buttonPlaceholderText: {
-    [THEME_TYPES.DARK]: colors.waikawaGray,
-    [THEME_TYPES.LIGHT]: colors.martinique_65
+  accent3: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#D9024A'
   }
 }
 

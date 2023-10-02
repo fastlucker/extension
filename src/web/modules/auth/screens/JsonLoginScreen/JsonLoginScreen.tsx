@@ -10,11 +10,11 @@ import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
+import styles from '@web/components/TabLayoutWrapper/styles'
 import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import styles from '@web/components/TabLayoutWrapper/styles'
 
 import s from './styles'
 
@@ -69,7 +69,7 @@ const JsonLoginScreen = () => {
                   <Trans>
                     <Text weight="regular" style={text.center}>
                       {'Drop your JSON file here,\nor '}
-                      <Text color={colors.violet} weight="regular">
+                      <Text appearance="primary" weight="regular">
                         upload
                       </Text>
                       <Text weight="regular">{' from your computer.'}</Text>

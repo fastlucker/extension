@@ -72,8 +72,8 @@ const Input = ({
   const inputWrapperStyles = [
     styles.inputWrapper,
     {
-      backgroundColor: theme.inputBackground,
-      borderColor: theme.inputBorder
+      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.secondaryBorder
     },
     disabled && styles.disabled,
     inputWrapperStyle
@@ -83,21 +83,21 @@ const Input = ({
     styles.input,
     !!hasButton && spacings.pr0,
     {
-      color: theme.buttonText,
+      color: theme.secondaryText,
       borderBottomColor: 'transparent'
     },
     inputStyle,
-    !!error && { borderBottomColor: theme.inputBorderInvalid },
-    isFocused && { borderBottomColor: theme.inputBorderFocused },
-    isValid && { borderBottomColor: theme.inputBorderValid }
+    !!error && { borderBottomColor: theme.accent3 },
+    isFocused && { borderBottomColor: theme.primary },
+    isValid && { borderBottomColor: theme.accent1 }
   ]
 
   const buttonStyles = [
     styles.button,
     { borderBottomColor: 'transparent' },
-    !!error && { borderBottomColor: theme.inputBorderInvalid },
-    isFocused && { borderBottomColor: theme.inputBorderFocused },
-    isValid && { borderBottomColor: theme.inputBorderValid }
+    !!error && { borderBottomColor: theme.accent3 },
+    isFocused && { borderBottomColor: theme.primary },
+    isValid && { borderBottomColor: theme.accent1 }
   ]
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -112,7 +112,7 @@ const Input = ({
           {/* TextInput doesn't support border styles so we wrap it in a View */}
           <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
             <TextInput
-              placeholderTextColor={theme.buttonPlaceholderText}
+              placeholderTextColor={theme.secondaryText}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!disabled}

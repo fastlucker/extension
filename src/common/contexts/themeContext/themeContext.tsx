@@ -14,17 +14,18 @@ import ThemeColors, {
 const DEFAULT_THEME = THEME_TYPES.LIGHT
 
 export interface ThemeContextReturnType {
-  theme?: ThemeProps
+  theme: ThemeProps
   themeType: THEME_TYPES
   setThemeType: (item: THEME_TYPES) => void
 }
 
 const ThemeContext = createContext<ThemeContextReturnType>({
   themeType: THEME_TYPES.DARK,
-  setThemeType: () => {}
+  setThemeType: () => {},
+  theme: {} as ThemeProps
 })
 
-const ThemeProvider: React.FC = ({ children }) => {
+const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme()
   const { path } = useRoute()
 
@@ -45,7 +46,7 @@ const ThemeProvider: React.FC = ({ children }) => {
     ) {
       setSessionTheme(themeType as THEME_TYPES)
     }
-  }, [path, themeType, setSessionTheme])
+  }, [path, themeType, setSessionTheme, sessionTheme])
 
   // In Ambire v2.x the theme type was stored wrapped in quotes (by mistake).
   // Since migrating to v3.x we need to remove the quotes from the theme type.
@@ -84,7 +85,7 @@ const ThemeProvider: React.FC = ({ children }) => {
           themeType: sessionTheme,
           setThemeType
         }),
-        [themeType, setThemeType, theme]
+        [setThemeType, theme, sessionTheme]
       )}
     >
       {hasMigrated && children}

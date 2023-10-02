@@ -78,28 +78,18 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
               ) : null}
               {!image || failedImage ? <ImageIcon width={148} height={148} /> : null}
             </View>
-            <Text color={colors.martinique} style={styles.sectionTitle}>
-              {name}
-            </Text>
+            <Text style={styles.sectionTitle}>{name}</Text>
             {description ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Description')}
-                </Text>
-                <Text color={colors.martinique} style={styles.itemValue}>
-                  {description}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Description')}</Text>
+                <Text style={styles.itemValue}>{description}</Text>
               </View>
             ) : null}
             {address ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Contract address')}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Contract address')}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text color={colors.martinique} style={styles.itemValue}>
-                    {address}
-                  </Text>
+                  <Text style={styles.itemValue}>{address}</Text>
                   <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
                     <CopyIcon width={10} height={10} />
                   </Pressable>
@@ -108,9 +98,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
             ) : null}
             {owner ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Owner')}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Owner')}</Text>
                 <View style={styles.ownerContainer}>
                   <Image
                     style={{ width: 34, height: 34, borderRadius: 12 }}
