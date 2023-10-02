@@ -97,7 +97,7 @@ const SelectComponent = ({
           onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
           width={iconWidth}
           height={iconHeight}
-          hoverBackground={colors.lightViolet}
+          hoverBackground={theme.primaryLight}
           style={{ borderColor: 'transparent', borderRadius: 10 }}
         >
           <DownArrowIcon width={26} height={26} isActive={isDropdownOpen} withRect={false} />

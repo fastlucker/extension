@@ -1,7 +1,10 @@
 import React from 'react'
-import { Pressable, ViewStyle, View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
+
+import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
-import styles from './styles'
+
+import getStyles from './styles'
 
 interface Props {
   children: React.ReactNode
@@ -9,12 +12,16 @@ interface Props {
   style?: ViewStyle
 }
 
-const FeeWrapper = ({ children, onPress, style }: Props) => (
-  <Pressable style={[flexbox.flex1, style]} onPress={onPress}>
-    {({ hovered }: any) => (
-      <View style={[styles.container, !!hovered && styles.containerHover]}>{children}</View>
-    )}
-  </Pressable>
-)
+const FeeWrapper = ({ children, onPress, style }: Props) => {
+  const { styles } = useTheme(getStyles)
+
+  return (
+    <Pressable style={[flexbox.flex1, style]} onPress={onPress}>
+      {({ hovered }: any) => (
+        <View style={[styles.container, !!hovered && styles.containerHover]}>{children}</View>
+      )}
+    </Pressable>
+  )
+}
 
 export default FeeWrapper

@@ -43,7 +43,7 @@ const getStyles = (theme: ThemeProps) =>
     addTokenContainer: {
       borderWidth: 1,
       borderStyle: 'dashed',
-      borderColor: colors.violet,
+      borderColor: theme.primary,
       backgroundColor: colors.melrose_15,
       ...flexbox.justifyCenter,
       ...spacings.mt

@@ -4,14 +4,13 @@ import { View } from 'react-native'
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
 const Footer = () => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
@@ -19,7 +18,7 @@ const Footer = () => {
       <View style={[flexbox.directionRow]}>
         <Button
           type="outline"
-          accentColor={colors.violet}
+          accentColor={theme.primary}
           text={t('Add More Transactions')}
           onPress={() => {}}
           style={styles.addMoreTxnButton}

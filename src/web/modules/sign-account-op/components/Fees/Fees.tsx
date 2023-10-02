@@ -5,12 +5,14 @@ import { View } from 'react-native'
 
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 
 import CustomFee from '../CustomFee'
 import Fee from '../Fee/Fee'
-import styles from './styles'
+import getStyles from './styles'
 
 const Fees = ({ tokens, control }: any) => {
+  const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   return (
     <>

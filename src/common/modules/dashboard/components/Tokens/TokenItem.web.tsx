@@ -20,7 +20,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
@@ -175,7 +174,7 @@ const TokenItem = ({
               text={t('Send')}
               hasBottomSpacing={false}
             >
-              <SendIcon width={20} height={20} color={colors.violet} />
+              <SendIcon width={20} height={20} color={theme.primary} />
             </Button>
           )}
         </div>

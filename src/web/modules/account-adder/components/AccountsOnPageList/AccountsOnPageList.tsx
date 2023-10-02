@@ -16,6 +16,7 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -45,6 +46,7 @@ const AccountsList = ({
   onCreateEmailVaultStep?: () => void
   setPage: (page: number) => void
 }) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const [emailVaultStep, setEmailVaultStep] = useState(false)
   // const [showUnused, setShowUnused] = useState(false)
@@ -165,7 +167,7 @@ const AccountsList = ({
                 onPress={() => null}
                 width={25}
                 height={25}
-                hoverBackground={colors.lightViolet}
+                hoverBackground={theme.primaryLight}
                 style={styles.derivationButtonRightIcon}
               >
                 <RightArrowIcon width={26} height={26} withRect={false} />
