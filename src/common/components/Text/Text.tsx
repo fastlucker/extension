@@ -22,7 +22,7 @@ export interface Props extends TextProps {
   weight?: TextWeight
   appearance?: TextAppearance
   fontSize?: number
-  color?: string
+  color?: ColorValue
   shouldScale?: boolean
 }
 
