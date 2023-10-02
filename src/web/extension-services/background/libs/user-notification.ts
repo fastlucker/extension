@@ -46,7 +46,7 @@ class UserNotification {
         kind: 'message',
         message: msg[0]
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       forceNonce: null
     }
@@ -119,7 +119,7 @@ class UserNotification {
         message: typedData.message,
         primaryType: typedData.primaryType
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       forceNonce: null
     }

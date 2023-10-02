@@ -1,6 +1,6 @@
 import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
-import { toUtf8String } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
+import { IrMessage } from 'ambire-common/src/libs/humanizer/interfaces'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { StyleSheet, TextInput, View } from 'react-native'
 
@@ -20,17 +20,11 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
+import { getMessageAsText } from '@web/modules/sign-message/utils'
 import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
-
-function getMessageAsText(msg: any) {
-  try {
-    return toUtf8String(msg)
-  } catch (_) {
-    return msg
-  }
-}
 
 const SignMessageScreen = () => {
   const { t } = useTranslation()
@@ -186,9 +180,69 @@ const SignMessageScreen = () => {
     )
   }
 
-  const selectedAccountDetails = mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
+  const selectedAccountDetails = useMemo(
+    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
+    [mainState.accounts, mainState.selectedAccount]
   )
+
+  const network = useMemo(
+    () =>
+      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
+  )
+
+  const humanizedVisualization = useCallback(
+    (message: IrMessage) => {
+      return (
+        <MessageSummary
+          message={message}
+          networkId={network?.id}
+          explorerUrl={network?.explorerUrl}
+        />
+      )
+    },
+    [network?.explorerUrl, network?.id]
+  )
+
+  const fallbackVisualization = useCallback(() => {
+    return (
+      <>
+        {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
+          <>
+            <Text style={spacings.mbMi}>
+              {t('A typed data signature (EIP-712) has been requested. Message:')}
+            </Text>
+            <TextInput
+              value={JSON.stringify(
+                {
+                  domain: signMessageState.messageToSign?.content.domain,
+                  types: signMessageState.messageToSign?.content.types,
+                  message: signMessageState.messageToSign?.content.message
+                },
+                null,
+                4
+              )}
+              multiline
+              numberOfLines={16}
+              editable={false}
+              style={[styles.textarea, spacings.mb]}
+            />
+          </>
+        )}
+        {signMessageState.messageToSign?.content.kind === 'message' && (
+          <>
+            <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
+            <View style={spacings.pv}>
+              <Text weight="semiBold">
+                {getMessageAsText(signMessageState.messageToSign?.content.message) ||
+                  t('(Empty message)')}
+              </Text>
+            </View>
+          </>
+        )}
+      </>
+    )
+  }, [signMessageState.messageToSign?.content, t])
 
   return (
     <Wrapper hasBottomTabNav={false}>
@@ -198,40 +252,9 @@ const SignMessageScreen = () => {
           <Text>is requesting your signature.</Text>
         </Text>
       </Trans>
-
-      {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
-        <>
-          <Text style={spacings.mbMi}>
-            {t('A typed data signature (EIP-712) has been requested. Message:')}
-          </Text>
-          <TextInput
-            value={JSON.stringify(
-              {
-                domain: signMessageState.messageToSign?.content.domain,
-                types: signMessageState.messageToSign?.content.types,
-                message: signMessageState.messageToSign?.content.message
-              },
-              null,
-              4
-            )}
-            multiline
-            numberOfLines={16}
-            editable={false}
-            style={[styles.textarea, spacings.mb]}
-          />
-        </>
-      )}
-      {signMessageState.messageToSign?.content.kind === 'message' && (
-        <>
-          <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
-          <View style={spacings.pv}>
-            <Text weight="semiBold">
-              {getMessageAsText(signMessageState.messageToSign?.content.message) ||
-                t('(Empty message)')}
-            </Text>
-          </View>
-        </>
-      )}
+      {signMessageState.humanReadable
+        ? humanizedVisualization(signMessageState.humanReadable)
+        : fallbackVisualization()}
       <Select
         setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
         label={
