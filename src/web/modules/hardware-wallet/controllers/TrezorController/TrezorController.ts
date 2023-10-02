@@ -4,7 +4,7 @@ import HDKey from 'hdkey'
 import trezorConnect from '@trezor/connect-web'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
-const keyringType = 'Trezor'
+const keyringType = 'trezor'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'support@debank.com/',
@@ -20,18 +20,16 @@ class TrezorController {
 
   model: string
 
-  trezorConnectInitiated: boolean
-
   accountDetails: any
 
   constructor() {
     this.type = keyringType
     this.hdk = new HDKey()
 
+    // TODO: Handle different derivation paths
     this.hdPath = TREZOR_HD_PATH
     this.model = ''
 
-    this.trezorConnectInitiated = false
     this.accountDetails = {}
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
@@ -39,13 +37,8 @@ class TrezorController {
         this.model = event.payload.features.model
       }
     })
-  }
 
-  init() {
-    if (!this.trezorConnectInitiated) {
-      trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
-      this.trezorConnectInitiated = true
-    }
+    trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
   }
 
   getModel() {

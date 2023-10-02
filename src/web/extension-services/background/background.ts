@@ -18,6 +18,7 @@ import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
+import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -75,7 +76,6 @@ async function init() {
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
-  trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -270,7 +270,11 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: getPreselectedAccounts(
+                  mainCtrl.accounts,
+                  mainCtrl.keystore.keys,
+                  'ledger'
+                )
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
@@ -278,7 +282,12 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                derivationPath: BIP44_HD_PATH,
+                preselectedAccounts: getPreselectedAccounts(
+                  mainCtrl.accounts,
+                  mainCtrl.keystore.keys,
+                  'trezor'
+                )
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -289,14 +298,22 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts
+                preselectedAccounts: getPreselectedAccounts(
+                  mainCtrl.accounts,
+                  mainCtrl.keystore.keys,
+                  'lattice'
+                )
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: mainCtrl.accounts,
+                preselectedAccounts: getPreselectedAccounts(
+                  mainCtrl.accounts,
+                  mainCtrl.keystore.keys,
+                  'internal'
+                ),
                 derivationPath: BIP44_HD_PATH
               })
             }
