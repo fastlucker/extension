@@ -76,7 +76,6 @@ async function init() {
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
-  trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

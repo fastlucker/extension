@@ -20,8 +20,6 @@ class TrezorController {
 
   model: string
 
-  trezorConnectInitiated: boolean
-
   accountDetails: any
 
   constructor() {
@@ -32,7 +30,6 @@ class TrezorController {
     this.hdPath = TREZOR_HD_PATH
     this.model = ''
 
-    this.trezorConnectInitiated = false
     this.accountDetails = {}
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
@@ -40,13 +37,8 @@ class TrezorController {
         this.model = event.payload.features.model
       }
     })
-  }
 
-  init() {
-    if (!this.trezorConnectInitiated) {
-      trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
-      this.trezorConnectInitiated = true
-    }
+    trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
   }
 
   getModel() {
