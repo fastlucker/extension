@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
+import humanizerJSON from 'ambire-common/src/consts/humanizerInfo.json'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { Key } from 'ambire-common/src/interfaces/keystore'
@@ -37,6 +38,12 @@ async function init() {
   const shouldInitProviders = !areRpcProvidersInitialized()
   if (shouldInitProviders) {
     initRpcProviders(rpcProviders)
+  }
+
+  // Initialize humanizer in storage
+  const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
+  if (!Object.keys(humanizerMetaInStorage).length) {
+    await storage.set('HumanizerMeta', humanizerJSON)
   }
 
   await permissionService.init()

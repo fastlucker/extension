@@ -1,5 +1,6 @@
 import { networks } from 'ambire-common/src/consts/networks'
 import { Account } from 'ambire-common/src/interfaces/account'
+import { IrCall } from 'ambire-common/src/libs/humanizer/interfaces'
 import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -188,7 +189,12 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
-  if (!signAccountOpState.accountOp) {
+  const callsToVisualize: IrCall[] = useMemo(() => {
+    if (signAccountOpState.humanReadable) return signAccountOpState.humanReadable
+    return signAccountOpState.accountOp?.calls || []
+  }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
+
+  if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
         <Spinner />
@@ -207,12 +213,14 @@ const SignAccountOpScreen = () => {
         <View style={styles.transactionsContainer}>
           <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
           <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-            {signAccountOpState.accountOp.calls.map((call) => {
+            {callsToVisualize.map((call) => {
               return (
                 <TransactionSummary
                   key={call.data + call.fromUserRequestId}
                   style={spacings.mbSm}
                   call={call}
+                  networkId={network.id}
+                  explorerUrl={network.explorerUrl}
                 />
               )
             })}
