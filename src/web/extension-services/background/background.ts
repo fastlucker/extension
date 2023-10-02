@@ -76,7 +76,6 @@ async function init() {
   })
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
-  trezorCtrl.init()
   const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -283,6 +282,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 ...data.params,
                 keyIterator,
+                derivationPath: BIP44_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
