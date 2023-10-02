@@ -4,14 +4,16 @@ import { Pressable, View } from 'react-native'
 
 import EditIcon from '@common/assets/svg/EditIcon'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
+  const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
 
   const handleActionPress = useCallback(
