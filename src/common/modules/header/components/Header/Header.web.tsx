@@ -14,6 +14,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -25,7 +26,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   mode?: 'title' | 'controls'
@@ -34,6 +35,7 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
+  const { theme, styles } = useTheme(getStyles)
   const mainCtrl = useMainControllerState()
 
   const { path, params } = useRoute()
@@ -68,7 +70,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
             onPress={() => navigate('account-select')}
             width={25}
             height={25}
-            hoverBackground={colors.lightViolet}
+            hoverBackground={theme.primaryLight}
             style={styles.accountButtonRightIcon}
           >
             <RightArrowIcon width={26} height={26} withRect={false} />

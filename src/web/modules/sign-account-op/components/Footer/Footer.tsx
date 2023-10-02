@@ -1,13 +1,17 @@
 import React from 'react'
 import { View } from 'react-native'
-import flexbox from '@common/styles/utils/flexbox'
-import colors from '@common/styles/colors'
+
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
-import styles from './styles'
+import useTheme from '@common/hooks/useTheme'
+import colors from '@common/styles/colors'
+import flexbox from '@common/styles/utils/flexbox'
+
+import getStyles from './styles'
 
 const Footer = () => {
   const { t } = useTranslation()
+  const { styles } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>

@@ -9,16 +9,16 @@ import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import CollectibleTransfer from '../../components/CollectibleTransfer'
-import styles from './styles'
+import getStyles from './styles'
 
 interface State {
   image: string
@@ -29,6 +29,7 @@ interface State {
 }
 
 const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { state } = useRoute()
   const { addToast } = useToast()
@@ -50,7 +51,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
   return (
     <View style={styles.view}>
       <TabHeader
-        style={{ backgroundColor: colors.zircon }}
+        style={{ backgroundColor: theme.secondaryBackground }}
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)

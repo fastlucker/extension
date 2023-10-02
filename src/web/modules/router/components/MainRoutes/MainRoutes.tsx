@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import useTheme from '@common/hooks/useTheme'
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
@@ -11,7 +12,6 @@ import {
 } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
@@ -43,12 +43,17 @@ import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScre
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
-const headerControls = (
-  <>
-    {defaultHeaderControls({ backgroundColor: colors.zircon })}
-    <Outlet />
-  </>
-)
+const HeaderControls = () => {
+  const {
+    theme: { secondaryBackground }
+  } = useTheme()
+  return (
+    <>
+      {defaultHeaderControls({ backgroundColor: secondaryBackground })}
+      <Outlet />
+    </>
+  )
+}
 
 const headerTitle = (
   <>
@@ -149,7 +154,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
           <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
         </Route>
-        <Route element={headerControls}>
+        <Route element={<HeaderControls />}>
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         </Route>
       </Route>

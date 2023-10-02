@@ -1,8 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
-import flexbox from '@common/styles/utils/flexbox'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -17,25 +17,26 @@ const button = {
   marginBottom: 0
 }
 
-const styles = StyleSheet.create<Style>({
-  container: {
-    ...flexbox.directionRow,
-    ...flexbox.justifySpaceBetween,
-    ...spacings.phLg,
-    backgroundColor: colors.zircon,
-    paddingVertical: 20
-  },
-  rejectButton: {
-    ...button,
-    backgroundColor: colors.zircon
-  },
-  addMoreTxnButton: {
-    ...button,
-    marginRight: 24
-  },
-  signButton: {
-    ...button
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      ...flexbox.directionRow,
+      ...flexbox.justifySpaceBetween,
+      ...spacings.phLg,
+      backgroundColor: theme.secondaryBackground,
+      paddingVertical: 20
+    },
+    rejectButton: {
+      ...button,
+      backgroundColor: theme.secondaryBackground
+    },
+    addMoreTxnButton: {
+      ...button,
+      marginRight: 24
+    },
+    signButton: {
+      ...button
+    }
+  })
 
-export default styles
+export default getStyles

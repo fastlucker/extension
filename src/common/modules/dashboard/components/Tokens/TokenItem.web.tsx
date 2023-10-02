@@ -26,7 +26,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import animationWallets from './animation-wallets.json'
-import styles from './styles'
+import getStyles from './styles'
 
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
@@ -40,7 +40,7 @@ const TokenItem = ({
   onGasTank,
   rewardsType
 }: any) => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
