@@ -7,11 +7,14 @@ import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-nat
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import Label from '@common/components/Label'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import styles from './styles'
@@ -52,6 +55,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const { dispatch } = useBackgroundService()
+  console.log(call)
 
   const handleRemoveCall = useCallback(() => {
     dispatch({
@@ -205,6 +209,11 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
               <DeleteIcon width={18} height={20} />
             </NavIconWrapper>
           )}
+        </View>
+        <View style={[flexbox.alignSelfStart, spacings.phTy]}>
+          {call.warnings?.map((warning) => {
+            return <Label text={warning.content} type="warning" />
+          })}
         </View>
       </Pressable>
       {!!isExpanded && (

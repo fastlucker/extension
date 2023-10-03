@@ -83,7 +83,7 @@ const Card = ({ handleLayout, account, index }: any) => {
             shouldScale={false}
             fontSize={14}
             weight="medium"
-            color={account.smartAccount ? colors.brownRum : colors.greenHaze}
+            color={account.smartAccount ? colors.husk : colors.greenHaze}
           >
             {account.address}
           </Text>
@@ -92,7 +92,7 @@ const Card = ({ handleLayout, account, index }: any) => {
           shouldScale={false}
           fontSize={14}
           weight="regular"
-          color={account.smartAccount ? colors.brownRum : colors.greenHaze}
+          color={account.smartAccount ? colors.husk : colors.greenHaze}
         >
           {t(account.smartAccount ? 'Smart Account' : 'Legacy Account')}
         </Text>

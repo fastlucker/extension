@@ -12,7 +12,7 @@ interface Styles {
 }
 
 export const BORDER_RADIUS_PRIMARY = 12
-export const BORDER_RADIUS_SECONDARY = 2
+export const BORDER_RADIUS_SECONDARY = 6
 
 const commonStyles: Styles = {
   shadowPrimary: {
