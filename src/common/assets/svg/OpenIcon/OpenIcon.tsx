@@ -7,7 +7,7 @@ import colors from '@common/styles/colors'
 interface Props extends SvgProps {
   width?: number
   height?: number
-  color: ColorValue
+  color?: ColorValue
 }
 
 const OpenIcon: React.FC<Props> = ({ width = 24, height = 24, color }) => (

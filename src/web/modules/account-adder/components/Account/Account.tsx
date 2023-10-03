@@ -1,5 +1,6 @@
 import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
+import { isAmbireV1LinkedAccount } from 'ambire-common/src/libs/account/account'
 import React from 'react'
 import { View } from 'react-native'
 
@@ -58,9 +59,6 @@ const Account = ({
     )
   }
 
-  const isV1LinedAccount = (factoryAddr?: string) =>
-    factoryAddr === '0xBf07a0Df119Ca234634588fbDb5625594E2a5BCA'
-
   const toggleSelectedState = () => {
     if (isSelected) {
       !!onDeselect && onDeselect(account)
@@ -99,7 +97,7 @@ const Account = ({
                 {unused && setLabel('unused', 'grey')}
                 {type === 'linked' && setLabel('linked', 'green')}
                 {type === 'linked' &&
-                  isV1LinedAccount(account.creation?.factoryAddr) &&
+                  isAmbireV1LinkedAccount(account.creation?.factoryAddr) &&
                   setLabel('v1', 'green')}
               </View>
             )}

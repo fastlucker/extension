@@ -60,6 +60,25 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
     })
   }, [call.fromUserRequestId, dispatch])
 
+  const fallbackVisualization = useCallback(() => {
+    return (
+      <View style={styles.headerContent}>
+        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+          {t(' Interacting with (to): ')}
+        </Text>
+        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+          {` ${call.to} `}
+        </Text>
+        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+          {t(' Value to be sent (value): ')}
+        </Text>
+        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+          {` ${formatUnits(call.value || '0x0', 18)} `}
+        </Text>
+      </View>
+    )
+  }, [call, t])
+
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
       return (
@@ -72,7 +91,10 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                 <>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={16} weight="medium" color={colors.martinique}>
-                      {` ${formatUnits(item.amount || '0x0', 18)} `}
+                      {` ${
+                        item.readableAmount ||
+                        formatUnits(item.amount || '0x0', item.decimals || 18)
+                      } `}
                     </Text>
                   ) : null}
 
@@ -165,7 +187,10 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
           >
             <DownArrowIcon width={36} height={36} isActive={isExpanded} withRect />
           </NavIconWrapper>
-          {humanizedVisualization(call.fullVisualization)}
+
+          {call.fullVisualization
+            ? humanizedVisualization(call.fullVisualization)
+            : fallbackVisualization()}
           {!!call.fromUserRequestId && (
             <NavIconWrapper
               hoverBackground={colors.lightViolet}

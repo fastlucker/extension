@@ -190,7 +190,7 @@ const SignAccountOpScreen = () => {
   }, [navigate])
 
   const callsToVisualize: IrCall[] = useMemo(() => {
-    if (signAccountOpState.humanReadable) return signAccountOpState.humanReadable
+    if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
   }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
 

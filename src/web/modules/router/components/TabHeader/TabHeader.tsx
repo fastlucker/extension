@@ -81,7 +81,7 @@ const TabHeader: React.FC<Props> = ({
       {!!shouldDisplayStepper && <Stepper step={flowStep} />}
       {!shouldDisplayStepper && (!!title || !!pageTitle) && (
         <View style={styles.content}>
-          {image && (
+          {!!image && (
             <Image style={{ width: 40, height: 40, borderRadius: 12 }} source={{ uri: image }} />
           )}
           {typeof pageTitle !== 'object' && (

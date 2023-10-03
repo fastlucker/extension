@@ -6,7 +6,7 @@ import * as SDK from 'gridplus-sdk'
 
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
-const keyringType = 'GridPlus'
+const keyringType = 'lattice'
 const HARDENED_OFFSET = 0x80000000
 
 const SDK_TIMEOUT = 120000
