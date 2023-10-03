@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { BIP44_HD_PATH } from 'ambire-common/src/consts/derivation'
+import { BIP44_HD_PATH, LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
 import { networks } from 'ambire-common/src/consts/networks'
 import { MainController } from 'ambire-common/src/controllers/main/main'
 import { Key } from 'ambire-common/src/interfaces/keystore'
@@ -274,7 +274,8 @@ async function init() {
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
                   'ledger'
-                )
+                ),
+                derivationPath: LEDGER_LIVE_HD_PATH
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
