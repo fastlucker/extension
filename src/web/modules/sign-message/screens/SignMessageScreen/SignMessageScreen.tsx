@@ -36,7 +36,7 @@ const SignMessageScreen = () => {
   const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
   const { navigate } = useNavigation()
-  console.log(signMessageState)
+
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
