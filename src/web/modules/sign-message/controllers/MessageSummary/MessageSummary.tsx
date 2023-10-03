@@ -17,6 +17,7 @@ interface Props {
   message: IrMessage
   networkId?: NetworkDescriptor['id']
   explorerUrl?: NetworkDescriptor['explorerUrl']
+  kind: IrMessage['content']['kind']
 }
 
 export function formatFloatTokenAmount(
@@ -44,8 +45,19 @@ export function formatFloatTokenAmount(
   }
 }
 
-const MessageSummary = ({ message, networkId, explorerUrl }: Props) => {
+const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
   const { t } = useTranslation()
+
+  const visualizeContent = useCallback(
+    (content?: string) => {
+      if ((kind === 'message' && content === '') || content === '0x') {
+        return ' Empty message '
+      }
+
+      return ` ${getMessageAsText(content).replace('\n', '')} `
+    },
+    [kind]
+  )
 
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrMessage['fullVisualization'] = []) => {
@@ -124,7 +136,9 @@ const MessageSummary = ({ message, networkId, explorerUrl }: Props) => {
                       ? colors.greenHaze
                       : colors.martinique
                   }
-                >{` ${getMessageAsText(item.content).replace('\n', '')} `}</Text>
+                >
+                  {visualizeContent(item.content)}
+                </Text>
               )
             }
 
@@ -133,7 +147,7 @@ const MessageSummary = ({ message, networkId, explorerUrl }: Props) => {
         </View>
       )
     },
-    [networkId, explorerUrl, t]
+    [networkId, explorerUrl, visualizeContent, t]
   )
 
   return (
