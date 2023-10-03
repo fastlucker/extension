@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react'
 import fetchCollectible from './helpers/fetchCollectible'
 import getUrlWithGateway from './helpers/getUrlWithGateway'
 import handleCollectibleUri from './helpers/handleCollectibleUri'
-import replaceGateway from './helpers/replaceGateway'
 import { CollectibleData } from './types'
 
 interface Props {
@@ -35,7 +34,7 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
     const contract = new Contract(address, ERC721ABI.abi, provider)
 
     Promise.all([
-      contract.ownerOf(id),
+      contract.ownerOf(id).catch(() => ''),
       contract
         .tokenURI(id)
         .then((uri: string): MaybeUri => ({ uri }))
@@ -50,32 +49,15 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
 
       if (!url) throw new Error('Failed to fetch collectible')
 
+      // 1. We fetch the collectible data from ipfs
       const urlWithGateway = getUrlWithGateway(url)
 
       fetchCollectible(urlWithGateway)
         .then(async (fetchedData: CollectibleData | null) => {
           if (!fetchedData) throw new Error('Failed to fetch collectible')
 
-          setData({ ...fetchedData, image: handleCollectibleUri(fetchedData.image), owner })
-        })
-        .catch(() => {
-          const urlWithDifferentGateway = replaceGateway(urlWithGateway)
-
-          fetchCollectible(urlWithDifferentGateway)
-            .then(async (fetchedData: CollectibleData | null) => {
-              if (!fetchedData) throw new Error('Failed to fetch collectible')
-
-              setData({ ...fetchedData, image: handleCollectibleUri(fetchedData.image), owner })
-            })
-            .catch(() => {
-              setData({
-                owner,
-                name: '',
-                description: '',
-                image: ''
-              })
-              setError(true)
-            })
+          // 2. We fetch the image from Ambire's proxy
+          setData({ ...fetchedData, image: handleCollectibleUri(url), owner })
         })
         .catch(() => setError(true))
     })
