@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import fetchCollectible from './helpers/fetchCollectible'
 import getUrlWithGateway from './helpers/getUrlWithGateway'
 import handleCollectibleUri from './helpers/handleCollectibleUri'
+import replaceGateway from './helpers/replaceGateway'
 import { CollectibleData } from './types'
 
 interface Props {
@@ -59,7 +60,29 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
           // 2. We fetch the image from Ambire's proxy
           setData({ ...fetchedData, image: handleCollectibleUri(url), owner })
         })
-        .catch(() => setError(true))
+        .catch(() => {
+          const urlWithDifferentGateway = replaceGateway(urlWithGateway)
+
+          fetchCollectible(urlWithDifferentGateway)
+            .then(async (fetchedData: CollectibleData | null) => {
+              if (!fetchedData) throw new Error('Failed to fetch collectible')
+
+              setData({
+                ...fetchedData,
+                image: handleCollectibleUri(urlWithDifferentGateway),
+                owner
+              })
+            })
+            .catch(() => {
+              setData({
+                owner,
+                name: '',
+                description: '',
+                image: ''
+              })
+              setError(true)
+            })
+        })
     })
   }, [address, id, networkId])
 
