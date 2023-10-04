@@ -154,7 +154,6 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     }
   })
 
-  // TODO: Move
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
@@ -162,18 +161,15 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     [navigate]
   )
 
-  // TODO: Move
   useEffect(() => {
     if (
       keystoreState.status === 'DONE' &&
-      // TODO: variable
-      keystoreState.latestMethodCall === 'addKeysExternallyStored'
+      keystoreState.latestMethodCall === (type === 'legacy' ? 'addKeys' : 'addKeysExternallyStored')
     ) {
       completeStep()
     }
   }, [completeStep, keystoreState])
 
-  // TODO: Move
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
