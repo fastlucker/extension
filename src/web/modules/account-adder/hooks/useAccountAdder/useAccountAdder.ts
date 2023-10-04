@@ -19,7 +19,7 @@ type Type = 'legacy' | 'ledger' | 'trezor' | 'lattice'
 interface Props {
   stepperFlow: keyof typeof STEPPER_FLOWS
   type: Type
-  keyLabel? string
+  keyLabel?: string
   privKeyOrSeed?: string
 }
 
@@ -130,7 +130,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
 
             return {
               privateKey,
-              label: `${{keyLabel}} for the account on slot ${acc.slot}`
+              label: `${{ keyLabel }} for the account on slot ${acc.slot}`
             }
           })
 
@@ -141,11 +141,11 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
         } catch (error: any) {
           console.error(error)
           // TODO: display error toast
+          // eslint-disable-next-line no-alert
           alert(
             'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.'
           )
         }
-
       } else {
         dispatch({
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
@@ -168,7 +168,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     ) {
       completeStep()
     }
-  }, [completeStep, keystoreState])
+  }, [completeStep, keystoreState, type])
 
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {
