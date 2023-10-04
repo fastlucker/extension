@@ -22,6 +22,7 @@ const TrezorManager: React.FC<{}> = (props) => {
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
 
+  // TODO: Move
   const setPage: any = React.useCallback(
     async (page = 1) => {
       try {
@@ -38,32 +39,39 @@ const TrezorManager: React.FC<{}> = (props) => {
     [dispatch, createTask]
   )
 
+  // TODO: Move
   useEffect(() => {
+    // TODO: variable
     updateStepperState(WEB_ROUTES.accountAdder, 'hw')
   }, [updateStepperState])
 
+  // TODO: Move
   useEffect(() => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
     dispatch({
+      // TODO: variable
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
       params: {}
     })
   }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady])
 
+  // TODO: Move
   useEffect(() => {
     if (!accountAdderState.isInitialized) return
 
     setPage()
   }, [accountAdderState.isInitialized, setPage])
 
+  // TODO: Move
   useEffect(() => {
     return () => {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
     }
   }, [dispatch])
 
+  // TODO: Move?
   useEffect(() => {
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
@@ -87,6 +95,7 @@ const TrezorManager: React.FC<{}> = (props) => {
     }
   })
 
+  // TODO: Move
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
@@ -94,15 +103,18 @@ const TrezorManager: React.FC<{}> = (props) => {
     [navigate]
   )
 
+  // TODO: Move
   useEffect(() => {
     if (
       keystoreState.status === 'DONE' &&
+      // TODO: variable
       keystoreState.latestMethodCall === 'addKeysExternallyStored'
     ) {
       completeStep()
     }
   }, [completeStep, keystoreState])
 
+  // TODO: Move
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
