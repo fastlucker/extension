@@ -3,7 +3,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import useRoute from '@common/hooks/useRoute'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
-const STEPPER_FLOWS = {
+export const STEPPER_FLOWS = {
   email: {
     [WEB_ROUTES.keyStoreSetup]: 'Setup Key\nStore',
     [WEB_ROUTES.createEmailVault]: 'Create Email\nVault',
@@ -24,7 +24,7 @@ const STEPPER_FLOWS = {
   }
 }
 
-/* 
+/*
   Adding a route here makes the stepper show in that route. This is an edge case, because
   this route is the step 'connect-hardware-wallet' of the flow 'hw', but is not the only trigger,
   because the other HW wallet are not routes and instead open in a popup.
