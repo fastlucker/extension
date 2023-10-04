@@ -1,12 +1,12 @@
 import './styles.css'
 
-import { networks } from 'ambire-common/src/consts/networks'
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import { formatUnits } from 'ethers'
 import LottieView from 'lottie-react'
 import React from 'react'
 import { View } from 'react-native'
 
+import { networks } from '@ambire-common/consts/networks'
+import { TokenResult as TokenResultInterface } from '@ambire-common/libs/portfolio/interfaces'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon/InformationIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'

@@ -1,8 +1,8 @@
-// import accountPresets from 'ambire-common/src/constants/accountPresets'
-import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
 import React, { useMemo } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+// import accountPresets from '@ambire-common/constants/accountPresets'
+import { isKnownTokenOrContract, isValidAddress } from '@ambire-common/services/address'
 import AddIcon from '@common/assets/svg/AddIcon'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'

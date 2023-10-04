@@ -1,15 +1,15 @@
 import erc20Abi from 'adex-protocol-eth/abi/ERC20.json'
-import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
-import { isKnownTokenOrContract, isValidAddress } from 'ambire-common/src/services/address'
-import { getBip44Items, resolveENSDomain } from 'ambire-common/src/services/ensDomains'
-import { resolveUDomain } from 'ambire-common/src/services/unstoppableDomains'
-import {
-  validateSendTransferAddress,
-  validateSendTransferAmount
-} from 'ambire-common/src/services/validations'
 import { formatUnits, Interface, parseUnits } from 'ethers'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { isKnownTokenOrContract, isValidAddress } from '@ambire-common/services/address'
+import { getBip44Items, resolveENSDomain } from '@ambire-common/services/ensDomains'
+import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
+import {
+  validateSendTransferAddress,
+  validateSendTransferAmount
+} from '@ambire-common/services/validations'
 import networks from '@common/constants/networks'
 import useConstants from '@common/hooks/useConstants'
 import useIsScreenFocused from '@common/hooks/useIsScreenFocused/useIsScreenFocused'
