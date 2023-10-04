@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import { Mnemonic } from 'ethers'
+import React, { useCallback, useEffect } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
@@ -11,16 +12,18 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
+import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
 type Type = 'legacy' | 'ledger' | 'trezor' | 'lattice'
 
 interface Props {
   stepperFlow: keyof typeof STEPPER_FLOWS
   type: Type
+  keyLabel? string
   privKeyOrSeed?: string
 }
 
-const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed }: Props) => {
+const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
@@ -91,7 +94,6 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed }: Props) => {
     }
   }, [dispatch])
 
-  // TODO: Move?
   useEffect(() => {
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
@@ -109,9 +111,46 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed }: Props) => {
         params: { accountAddr: defaultSelectedAccount.addr }
       })
 
-      dispatch({
-        type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-      })
+      if (type === 'legacy') {
+        try {
+          if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
+
+          const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
+            let privateKey = privKeyOrSeed
+
+            // in case props.privKeyOrSeed is a seed the private keys have to be extracted
+            if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
+              privateKey = getPrivateKeyFromSeed(
+                privKeyOrSeed,
+                // The slot is the key index from the derivation path
+                acc.slot - 1,
+                accountAdderState.derivationPath
+              )
+            }
+
+            return {
+              privateKey,
+              label: `${{keyLabel}} for the account on slot ${acc.slot}`
+            }
+          })
+
+          dispatch({
+            type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
+            params: { keys: keysToAddToKeystore }
+          })
+        } catch (error: any) {
+          console.error(error)
+          // TODO: display error toast
+          alert(
+            'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.'
+          )
+        }
+
+      } else {
+        dispatch({
+          type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+        })
+      }
     }
   })
 
