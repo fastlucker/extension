@@ -181,7 +181,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   )
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, !!call.warnings?.length && styles.warningContainer, style]}>
       <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
         <View style={styles.header}>
           <NavIconWrapper

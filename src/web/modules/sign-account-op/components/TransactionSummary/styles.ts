@@ -6,6 +6,7 @@ import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   container: ViewStyle
+  warningContainer: ViewStyle
   header: ViewStyle
   headerContent: ViewStyle
   body: ViewStyle
@@ -21,6 +22,10 @@ const styles = StyleSheet.create<Style>({
     borderWidth: 1,
     borderRadius: 12,
     borderColor: colors.chetwode_50
+  },
+  warningContainer: {
+    borderWidth: 1,
+    borderColor: colors.pirateGold
   },
   header: {
     ...flexbox.directionRow,
