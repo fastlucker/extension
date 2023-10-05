@@ -1,5 +1,5 @@
-import { Storage } from 'ambire-common/src/interfaces/storage'
-import { parse, stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
+import { Storage } from '@ambire-common/interfaces/storage'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 
 export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null as any)

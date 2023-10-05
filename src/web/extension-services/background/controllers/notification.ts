@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-shadow */
-import { networks } from 'ambire-common/src/consts/networks'
-import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
-import { MainController } from 'ambire-common/src/controllers/main/main'
-import { Account } from 'ambire-common/src/interfaces/account'
-import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
 
+/* eslint-disable @typescript-eslint/no-shadow */
+import { networks } from '@ambire-common/consts/networks'
+import EventEmitter from '@ambire-common/controllers/eventEmitter'
+import { MainController } from '@ambire-common/controllers/main/main'
+import { Account } from '@ambire-common/interfaces/account'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { isDev } from '@common/config/env'
 import { IS_CHROME, IS_LINUX } from '@web/constants/common'
 import userNotification from '@web/extension-services/background/libs/user-notification'

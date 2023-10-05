@@ -1,9 +1,9 @@
-import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
-import { Account } from 'ambire-common/src/interfaces/account'
-import { Key } from 'ambire-common/src/interfaces/keystore'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { Account } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
 import Select from '@common/components/Select'
 import spacings from '@common/styles/spacings'
 

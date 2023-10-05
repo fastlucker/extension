@@ -1,6 +1,7 @@
-import { networks } from 'ambire-common/src/consts/networks'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import { JsonRpcProvider, WebSocketProvider } from 'ethers'
+
+import { networks } from '@ambire-common/consts/networks'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 
 // @ts-ignore
 const rpcProviders: { [key in NetworkDescriptor['id']]: any } = {}

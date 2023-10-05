@@ -1,8 +1,8 @@
-import { Account } from 'ambire-common/src/interfaces/account'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
 import React from 'react'
 import { Image, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import EthereumLogo from '@common/assets/svg/EthereumLogo'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'

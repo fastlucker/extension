@@ -12,6 +12,8 @@ First run:
 
 ```bash
 yarn install
+git submodule init
+git submodule update
 ```
 
 - iOS: Then run:

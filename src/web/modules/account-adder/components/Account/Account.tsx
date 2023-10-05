@@ -1,9 +1,9 @@
-import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import { isAmbireV1LinkedAccount } from 'ambire-common/src/libs/account/account'
 import React from 'react'
 import { View } from 'react-native'
 
+import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import Checkbox from '@common/components/Checkbox'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'

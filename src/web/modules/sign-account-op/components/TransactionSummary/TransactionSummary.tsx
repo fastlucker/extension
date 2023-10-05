@@ -1,9 +1,9 @@
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import { IrCall } from 'ambire-common/src/libs/humanizer/interfaces'
 import { formatUnits } from 'ethers'
 import React, { useCallback, useState } from 'react'
 import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'

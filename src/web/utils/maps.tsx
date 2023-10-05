@@ -1,7 +1,7 @@
-import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { View } from 'react-native'
 
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import networks from '@common/constants/networks'

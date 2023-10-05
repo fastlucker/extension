@@ -1,8 +1,8 @@
-import { networks } from 'ambire-common/src/consts/networks'
 import { toChecksumAddress } from 'ethereumjs-util'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
+import { networks } from '@ambire-common/consts/networks'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'

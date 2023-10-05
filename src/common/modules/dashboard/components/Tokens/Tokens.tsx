@@ -1,7 +1,7 @@
-import { TokenResult as TokenResultInterface } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
+import { TokenResult as TokenResultInterface } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
