@@ -268,7 +268,6 @@ async function init() {
                 app: ledgerCtrl.app
               })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
@@ -281,7 +280,6 @@ async function init() {
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
                 derivationPath: BIP44_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
@@ -410,13 +408,30 @@ async function init() {
                 data.params.leaveUnlocked
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { type, model, hdPath } = trezorCtrl
+              const { keyType } = data.params
+              const models: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: ledgerCtrl.model,
+                trezor: trezorCtrl.model,
+                lattice: latticeCtrl.model
+              }
+
+              const hdPaths: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: ledgerCtrl.hdPath,
+                trezor: trezorCtrl.hdPath,
+                lattice: latticeCtrl.hdPath
+              }
+
+              const keyWalletNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: 'Ledger',
+                trezor: 'Trezor',
+                lattice: 'Lattice'
+              }
 
               const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
                 addr: eoaAddress,
-                type: type as Key['type'],
-                label: `Trezor on slot ${slot}`,
-                meta: { model, hdPath }
+                type: keyType,
+                label: `${keyWalletNames[keyType]} on slot ${slot}`,
+                meta: { model: models[keyType], hdPath: hdPaths[keyType] }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)

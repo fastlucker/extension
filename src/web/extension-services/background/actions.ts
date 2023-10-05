@@ -1,11 +1,7 @@
 import { Filters } from 'ambire-common/src/controllers/activity/activity'
 import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
+import { Key } from 'ambire-common/src/interfaces/keystore'
 import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
-import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
-import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
-import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
 
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -23,19 +19,9 @@ type InitControllerStateAction = {
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitTrezorAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
@@ -49,9 +35,6 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
   }
 }
 type MainControllerAccountAdderInitViewOnlyAction = {
@@ -166,6 +149,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddKeysExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+  params: { keyType: Exclude<Key['type'], 'internal'> }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'

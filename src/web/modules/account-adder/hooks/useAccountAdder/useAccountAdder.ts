@@ -27,7 +27,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
-  const { dispatch } = useBackgroundService()
+  const { dispatch, dispatchAsync } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -66,12 +66,25 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
         })
       },
       trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR', params: {} }),
-      ledger: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER', params: {} }),
+      ledger: async () => {
+        // Ensures account adder is initialized with unlocked key iterator
+        await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
+
+        dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
+      },
       lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE', params: {} })
     }
 
     init[type]()
-  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady, privKeyOrSeed, type])
+  }, [
+    accountAdderState.isInitialized,
+    createTask,
+    dispatch,
+    dispatchAsync,
+    mainControllerState.isReady,
+    privKeyOrSeed,
+    type
+  ])
 
   useEffect(() => {
     if (!accountAdderState.isInitialized) return
@@ -139,7 +152,8 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
         }
       } else {
         dispatch({
-          type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+          type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
+          params: { keyType: type }
         })
       }
     }
