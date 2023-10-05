@@ -153,10 +153,8 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
   )
 
   useEffect(() => {
-    if (
-      keystoreState.status === 'DONE' &&
-      keystoreState.latestMethodCall === (type === 'legacy' ? 'addKeys' : 'addKeysExternallyStored')
-    ) {
+    const latestMethodCall = type === 'legacy' ? 'addKeys' : 'addKeysExternallyStored'
+    if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === latestMethodCall) {
       completeStep()
     }
   }, [completeStep, keystoreState, type])
