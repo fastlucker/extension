@@ -65,24 +65,9 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
           params: { privKeyOrSeed }
         })
       },
-      trezor: () => {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
-          params: {}
-        })
-      },
-      ledger: () => {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
-          params: {}
-        })
-      },
-      lattice: () => {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE',
-          params: {}
-        })
-      }
+      trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR', params: {} }),
+      ledger: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER', params: {} }),
+      lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE', params: {} })
     }
 
     init[type]()
