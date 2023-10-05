@@ -40,6 +40,7 @@ module.exports = function (api) {
           ],
           alias: {
             // absolute imports
+            '@ambire-common': './src/ambire-common/src',
             '@common': './src/common',
             '@mobile': './src/mobile',
             '@web': './src/web'
@@ -81,6 +82,7 @@ module.exports = function (api) {
             buffer: '@craftzdog/react-native-buffer',
 
             // absolute imports
+            '@ambire-common': './src/ambire-common/src',
             '@common': './src/common',
             '@mobile': './src/mobile',
             '@web': './src/web'

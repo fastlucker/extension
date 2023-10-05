@@ -1,7 +1,7 @@
-import { KeystoreController } from 'ambire-common/src/controllers/keystore/keystore'
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'

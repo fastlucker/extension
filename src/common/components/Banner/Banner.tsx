@@ -1,7 +1,7 @@
-import { Action, Banner as BannerType } from 'ambire-common/src/interfaces/banner'
 import { FC, useCallback } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'

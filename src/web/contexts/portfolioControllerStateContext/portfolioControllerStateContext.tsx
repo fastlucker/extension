@@ -1,14 +1,14 @@
-import { PortfolioController } from 'ambire-common/src/controllers/portfolio/portfolio'
+import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
+
+import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import {
   AccountState,
   CollectionResult as CollectionResultInterface,
   PortfolioController as PortfolioControllerState,
   PortfolioGetResult,
   TokenResult as TokenResultInterface
-} from 'ambire-common/src/libs/portfolio/interfaces'
-import { calculateAccountPortfolio } from 'ambire-common/src/libs/portfolio/portfolioView'
-import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
-
+} from '@ambire-common/libs/portfolio/interfaces'
+import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'

@@ -1,9 +1,9 @@
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import { IrMessage } from 'ambire-common/src/libs/humanizer/interfaces'
 import { formatUnits } from 'ethers'
 import React, { useCallback } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'

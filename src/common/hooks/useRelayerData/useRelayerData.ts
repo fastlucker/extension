@@ -1,5 +1,4 @@
-import { relayerCall } from 'ambire-common/src/libs/relayerCall/relayerCall'
-
+import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import { RELAYER_URL } from '@env'
 
 const callRelayer = relayerCall.bind({ url: RELAYER_URL, fetch })

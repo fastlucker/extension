@@ -1,5 +1,5 @@
-import { Account } from 'ambire-common/src/interfaces/account'
-import { Key } from 'ambire-common/src/interfaces/keystore'
+import { Account } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
 
 export const getDefaultSelectedAccount = (accounts: Account[]) => {
   if (accounts.length === 0) return null
