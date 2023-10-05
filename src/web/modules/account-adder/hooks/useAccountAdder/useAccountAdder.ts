@@ -56,30 +56,36 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
-    switch (type) {
-      case 'legacy': {
+    const init = {
+      legacy: () => {
         if (!privKeyOrSeed) return
 
-        return dispatch({
+        dispatch({
           type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
           params: { privKeyOrSeed }
         })
-      }
-      case 'trezor':
-        return dispatch({
+      },
+      trezor: () => {
+        dispatch({
           type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR',
           params: {}
         })
-      case 'ledger':
-        return dispatch({
+      },
+      ledger: () => {
+        dispatch({
           type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER',
           params: {}
         })
-      case 'lattice':
-      default:
-        // TODO
-        return null
+      },
+      lattice: () => {
+        dispatch({
+          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE',
+          params: {}
+        })
+      }
     }
+
+    init[type]()
   }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady, privKeyOrSeed, type])
 
   useEffect(() => {
