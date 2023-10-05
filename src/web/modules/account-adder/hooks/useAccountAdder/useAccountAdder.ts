@@ -182,7 +182,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     completeStep(false)
   }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 
-  return { onImportReady }
+  return { setPage, onImportReady }
 }
 
 export default useAccountAdder

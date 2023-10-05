@@ -60,7 +60,7 @@ const ExternalSignerLoginScreen = () => {
 
       navigate(WEB_ROUTES.accountAdder, {
         state: {
-          walletType: 'legacyImport',
+          walletType: 'legacy',
           privKeyOrSeed: formattedPrivKeyOrSeed,
           label: label || DEFAULT_IMPORT_LABEL
         }

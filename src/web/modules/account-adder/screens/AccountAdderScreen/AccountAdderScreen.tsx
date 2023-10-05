@@ -12,11 +12,12 @@ import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
-import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
-import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
-import TrezorManager from '@web/modules/account-adder/components/TrezorManager'
-import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+// import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
+// import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
+// import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
+import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
+import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 
 export interface Account {
   type: string
@@ -28,51 +29,66 @@ export interface Account {
   balance?: number
 }
 
-const WALLET_MAP = {
-  [HARDWARE_WALLETS.LEDGER]: LedgerManager,
-  [HARDWARE_WALLETS.TREZOR]: TrezorManager,
-  [HARDWARE_WALLETS.LATTICE]: LatticeManager,
-  legacyImport: LegacyImportManager
-}
+// const WALLET_MAP = {
+//   [HARDWARE_WALLETS.LEDGER]: LedgerManager,
+//   [HARDWARE_WALLETS.TREZOR]: TrezorManager,
+//   [HARDWARE_WALLETS.LATTICE]: LatticeManager,
+//   legacyImport: LegacyImportManager
+// }
 
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
-
   const { t } = useTranslation()
+  const accountAdderState = useAccountAdderControllerState()
 
   const { walletType, privKeyOrSeed, label }: any = params
-  const isLattice = walletType === HARDWARE_WALLETS.LATTICE
-  const isLedger = walletType === HARDWARE_WALLETS.LEDGER
-  const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
 
-  const isLegacyImport = walletType === 'legacyImport'
+  const { onImportReady, setPage } = useAccountAdder({
+    stepperFlow: walletType === 'legacy' ? 'legacy' : 'hw',
+    type: walletType,
+    privKeyOrSeed,
+    keyLabel: label
+  })
+
+  // const isLattice = walletType === HARDWARE_WALLETS.LATTICE
+  // const isLedger = walletType === HARDWARE_WALLETS.LEDGER
+  // const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
+
+  const isLegacyImport = walletType === 'legacy'
 
   useEffect(() => {
     if (!walletType) goBack()
   }, [walletType, goBack])
 
-  const WalletManager: any = WALLET_MAP[walletType]
-  let walletManagerProps = {}
-  const name = walletType
-  let title = ''
-  if (isLedger || isTrezor || isLattice) {
-    title = 'Import Account From {{name}}'
-    walletManagerProps = {}
-  }
-  if (isLegacyImport) {
-    title = 'Pick Accounts To Import'
-    walletManagerProps = { privKeyOrSeed, label }
-  }
+  // const WalletManager: any = WALLET_MAP[walletType]
+  // let walletManagerProps = {}
+  // const name = walletType
+  // let title = ''
+  // if (isLedger || isTrezor || isLattice) {
+  //   title = 'Import Account From {{name}}'
+  //   walletManagerProps = {}
+  // }
+  // if (isLegacyImport) {
+  //   title = 'Pick Accounts To Import'
+  //   walletManagerProps = { privKeyOrSeed, label }
+  // }
 
   return (
     <>
       <TabLayoutWrapperMainContent>
         <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
-          {t(title, { name })}
+          {walletType === 'legacy'
+            ? t('Pick Accounts To Import')
+            : t('Import Account From {{ walletType }}', { walletType })}
         </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
-          <WalletManager {...walletManagerProps} />
+          <AccountsOnPageList
+            isSubmitting={accountAdderState.addAccountsStatus === 'LOADING'}
+            state={accountAdderState}
+            onImportReady={onImportReady}
+            setPage={setPage}
+          />
         </View>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent backgroundType="beta">
