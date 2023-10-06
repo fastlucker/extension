@@ -1,4 +1,4 @@
-import { DappManifestData, UseDappsReturnType } from 'ambire-common/v1/hooks/useDapps'
+import { DappManifestData, UseDappsReturnType } from '@ambire-common-v1/hooks/useDapps'
 
 export type DappsContextData = {
   addCustomDapp: UseDappsReturnType['addCustomDapp']

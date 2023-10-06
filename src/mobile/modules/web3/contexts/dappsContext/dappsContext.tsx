@@ -1,6 +1,6 @@
-import useDapps from 'ambire-common/v1/hooks/useDapps'
 import React, { createContext, useMemo } from 'react'
 
+import useDapps from '@ambire-common-v1/hooks/useDapps'
 import useStorage from '@common/hooks/useStorage'
 import isValidHostname from '@common/utils/isValidHostname'
 

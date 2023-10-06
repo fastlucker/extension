@@ -2,7 +2,7 @@ import {
   fetchCaught as commonFetchCaught,
   fetchGet as commonFetchGet,
   fetchPost as commonFetchPost
-} from 'ambire-common/v1/services/fetch'
+} from '@ambire-common-v1/services/fetch'
 
 export const fetchPost = (url: string, body: any) => commonFetchPost(fetch, url, body)
 
