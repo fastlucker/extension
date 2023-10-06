@@ -1,7 +1,7 @@
-import { MainController } from 'ambire-common/src/controllers/main/main'
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { MainController } from '@ambire-common/controllers/main/main'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 

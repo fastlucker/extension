@@ -1,10 +1,10 @@
-import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
-import { Account } from 'ambire-common/src/interfaces/account'
-import { IrMessage } from 'ambire-common/src/libs/humanizer/interfaces'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { StyleSheet, TextInput, View } from 'react-native'
 
+import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { Account } from '@ambire-common/interfaces/account'
+import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'

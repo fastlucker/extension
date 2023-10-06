@@ -1,8 +1,8 @@
-import { Collectible as CollectibleType } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'

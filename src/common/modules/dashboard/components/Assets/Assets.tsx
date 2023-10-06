@@ -1,7 +1,7 @@
-import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { ScrollView, View, ViewStyle } from 'react-native'
 
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import AfterInteractions from '@common/components/AfterInteractions'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'

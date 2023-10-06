@@ -1,7 +1,7 @@
-import { TokenResult } from 'ambire-common/src/libs/portfolio'
 import React from 'react'
 import { View } from 'react-native'
 
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'

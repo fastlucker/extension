@@ -1,8 +1,7 @@
-import { Filters } from 'ambire-common/src/controllers/activity/activity'
-import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
-import { Key } from 'ambire-common/src/interfaces/keystore'
-import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
-
+import { Filters } from '@ambire-common/controllers/activity/activity'
+import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
+import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'

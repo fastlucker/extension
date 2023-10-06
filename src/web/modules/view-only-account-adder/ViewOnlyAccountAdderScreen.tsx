@@ -1,8 +1,8 @@
-import { isValidAddress } from 'ambire-common/src/services/address'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
+import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'

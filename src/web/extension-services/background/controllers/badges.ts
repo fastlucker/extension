@@ -1,5 +1,4 @@
-import { MainController } from 'ambire-common/src/controllers/main/main'
-
+import { MainController } from '@ambire-common/controllers/main/main'
 import colors from '@common/styles/colors'
 import {
   NotificationController,

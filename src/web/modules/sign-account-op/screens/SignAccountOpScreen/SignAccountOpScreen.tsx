@@ -1,7 +1,7 @@
-import { Account } from 'ambire-common/src/interfaces/account'
-import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { useEffect } from 'react'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'

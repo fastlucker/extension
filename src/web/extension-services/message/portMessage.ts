@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { parse, stringify } from 'ambire-common/src/libs/bigintJson/bigintJson'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 
 import Message from './baseMessage'
 
