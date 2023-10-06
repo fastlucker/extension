@@ -11,7 +11,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 
 import HardwareWalletSelectorItem from '../../components/HardwareWalletSelectorItem'
 import getOptions from './options'
@@ -32,7 +31,7 @@ const HardwareWalletSelectorScreen = () => {
       await updateStepperState('connect-hardware-wallet', 'hw')
       await dispatchAsync({ type: 'TREZOR_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
-        state: { walletType: HARDWARE_WALLETS.TREZOR }
+        state: { keyType: 'trezor' }
       })
     } catch (error: any) {
       addToast(error.message, { error: true })
@@ -51,7 +50,7 @@ const HardwareWalletSelectorScreen = () => {
 
       await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
-        state: { walletType: HARDWARE_WALLETS.LATTICE }
+        state: { keyType: 'lattice' }
       })
     } catch (error: any) {
       addToast(error.message, { error: true })

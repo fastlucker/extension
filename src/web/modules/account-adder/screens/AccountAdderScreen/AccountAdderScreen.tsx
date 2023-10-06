@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { Key } from '@ambire-common/interfaces/keystore'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -13,9 +14,6 @@ import {
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-// import LatticeManager from '@web/modules/account-adder/components/LatticeManager'
-// import LedgerManager from '@web/modules/account-adder/components/LedgerManager'
-// import LegacyImportManager from '@web/modules/account-adder/components/LegacyImportManager'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 
@@ -29,58 +27,35 @@ export interface Account {
   balance?: number
 }
 
-// const WALLET_MAP = {
-//   [HARDWARE_WALLETS.LEDGER]: LedgerManager,
-//   [HARDWARE_WALLETS.TREZOR]: TrezorManager,
-//   [HARDWARE_WALLETS.LATTICE]: LatticeManager,
-//   legacyImport: LegacyImportManager
-// }
-
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
   const { t } = useTranslation()
   const accountAdderState = useAccountAdderControllerState()
 
-  const { walletType, privKeyOrSeed, label }: any = params
+  const { keyType, privKeyOrSeed, label } = params as {
+    keyType: Key['type']
+    privKeyOrSeed?: string
+    label?: string
+  }
 
   const { onImportReady, setPage } = useAccountAdder({
-    stepperFlow: walletType === 'legacy' ? 'legacy' : 'hw',
-    type: walletType,
+    keyType,
     privKeyOrSeed,
     keyLabel: label
   })
 
-  // const isLattice = walletType === HARDWARE_WALLETS.LATTICE
-  // const isLedger = walletType === HARDWARE_WALLETS.LEDGER
-  // const isTrezor = walletType === HARDWARE_WALLETS.TREZOR
-
-  const isLegacyImport = walletType === 'legacy'
-
   useEffect(() => {
-    if (!walletType) goBack()
-  }, [walletType, goBack])
-
-  // const WalletManager: any = WALLET_MAP[walletType]
-  // let walletManagerProps = {}
-  // const name = walletType
-  // let title = ''
-  // if (isLedger || isTrezor || isLattice) {
-  //   title = 'Import Account From {{name}}'
-  //   walletManagerProps = {}
-  // }
-  // if (isLegacyImport) {
-  //   title = 'Pick Accounts To Import'
-  //   walletManagerProps = { privKeyOrSeed, label }
-  // }
+    if (!keyType) goBack()
+  }, [keyType, goBack])
 
   return (
     <>
       <TabLayoutWrapperMainContent>
         <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
-          {walletType === 'legacy'
+          {keyType === 'internal'
             ? t('Pick Accounts To Import')
-            : t('Import Account From {{ walletType }}', { walletType })}
+            : t('Import Account From {{ keyType }}', { keyType })}
         </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <AccountsOnPageList
@@ -121,7 +96,7 @@ const AccountAdderScreen = () => {
           )}
         </Text>
 
-        {isLegacyImport && (
+        {keyType === 'internal' && (
           <>
             <Text fontSize={16} style={[spacings.mb]} weight="regular" color={colors.zircon}>
               {t('Email Recovery')}

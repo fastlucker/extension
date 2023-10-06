@@ -1,8 +1,8 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
+import { Key } from '@ambire-common/interfaces/keystore'
 import useNavigation from '@common/hooks/useNavigation'
-import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
@@ -14,16 +14,13 @@ import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 import { getDefaultSelectedAccount } from '../../helpers/account'
 import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
-type Type = 'legacy' | 'ledger' | 'trezor' | 'lattice'
-
 interface Props {
-  stepperFlow: keyof typeof STEPPER_FLOWS
-  type: Type
+  keyType: Key['type']
   keyLabel?: string
   privKeyOrSeed?: string
 }
 
-const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) => {
+const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
@@ -49,15 +46,16 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
   )
 
   useEffect(() => {
-    updateStepperState(WEB_ROUTES.accountAdder, stepperFlow)
-  }, [stepperFlow, updateStepperState])
+    const step = keyType === 'internal' ? 'legacy' : 'hw'
+    updateStepperState(WEB_ROUTES.accountAdder, step)
+  }, [keyType, updateStepperState])
 
   useEffect(() => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
     const init = {
-      legacy: () => {
+      internal: () => {
         if (!privKeyOrSeed) return
 
         dispatch({
@@ -65,7 +63,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
           params: { privKeyOrSeed }
         })
       },
-      trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR', params: {} }),
+      trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
       ledger: async () => {
         // Ensures account adder is initialized with unlocked key iterator
         await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
@@ -75,7 +73,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
       lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE', params: {} })
     }
 
-    init[type]()
+    init[keyType]()
   }, [
     accountAdderState.isInitialized,
     createTask,
@@ -83,7 +81,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
     dispatchAsync,
     mainControllerState.isReady,
     privKeyOrSeed,
-    type
+    keyType
   ])
 
   useEffect(() => {
@@ -115,7 +113,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
         params: { accountAddr: defaultSelectedAccount.addr }
       })
 
-      if (type === 'legacy') {
+      if (keyType === 'internal') {
         try {
           if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
 
@@ -153,7 +151,7 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
       } else {
         dispatch({
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
-          params: { keyType: type }
+          params: { keyType }
         })
       }
     }
@@ -167,11 +165,11 @@ const useAccountAdder = ({ stepperFlow, type, privKeyOrSeed, keyLabel }: Props) 
   )
 
   useEffect(() => {
-    const latestMethodCall = type === 'legacy' ? 'addKeys' : 'addKeysExternallyStored'
+    const latestMethodCall = keyType === 'internal' ? 'addKeys' : 'addKeysExternallyStored'
     if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === latestMethodCall) {
       completeStep()
     }
-  }, [completeStep, keystoreState, type])
+  }, [completeStep, keystoreState, keyType])
 
   const onImportReady = useCallback(() => {
     if (accountAdderState.selectedAccounts.length) {
