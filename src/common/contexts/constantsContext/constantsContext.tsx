@@ -1,8 +1,8 @@
-import useConstants, { UseConstantsReturnType } from 'ambire-common/v1/hooks/useConstants'
 import * as SplashScreen from 'expo-splash-screen'
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import useConstants, { UseConstantsReturnType } from '@ambire-common-v1/hooks/useConstants'
 import Satellite from '@common/assets/svg/Satellite'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'

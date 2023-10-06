@@ -1,7 +1,7 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useCallback } from 'react'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import StarIcon from '@common/assets/svg/StarIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'

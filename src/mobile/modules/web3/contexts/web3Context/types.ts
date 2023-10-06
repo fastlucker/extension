@@ -1,5 +1,4 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
-
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import { Approval } from '@mobile/modules/web3/services/webview-background/services/notification'
 
 export const APPROVAL_REQUESTS_STORAGE_KEY = 'approval_requests_state'
