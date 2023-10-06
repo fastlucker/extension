@@ -1,6 +1,6 @@
-import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
 import HDKey from 'hdkey'
 
+import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
