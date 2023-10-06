@@ -1,7 +1,7 @@
 module.exports = function (api) {
   api.cache(true)
 
-  const absolutePaths = {
+  const pathAliases = {
     '@ambire-common': './src/ambire-common/src',
     '@contracts': './src/ambire-common/contracts',
     // v1 is legacy and should be removed when v1 imports are replaced with @ambire-common
@@ -48,7 +48,7 @@ module.exports = function (api) {
             '.js',
             '.json'
           ],
-          alias: absolutePaths
+          alias: pathAliases
         }
       ]
     ]
@@ -86,7 +86,7 @@ module.exports = function (api) {
             buffer: '@craftzdog/react-native-buffer',
 
             // absolute imports
-            ...absolutePaths
+            ...pathAliases
           }
         }
       ]
