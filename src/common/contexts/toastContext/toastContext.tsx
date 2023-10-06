@@ -1,4 +1,3 @@
-import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/v1/hooks/useToasts'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Linking, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -21,12 +20,12 @@ import styles from './styles'
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
 const ADDITIONAL_TOP_SPACING_WEB = SPACING_MD
 
-const ToastContext = React.createContext<UseToastsReturnType>({
+const ToastContext = React.createContext({
   addToast: () => -1,
   removeToast: () => {}
 })
 
-const defaultOptions: Partial<UseToastsOptions> = {
+const defaultOptions = {
   timeout: 8000,
   error: false,
   sticky: false
@@ -35,16 +34,16 @@ const defaultOptions: Partial<UseToastsOptions> = {
 let id = 0
 
 const ToastProvider: React.FC = ({ children }) => {
-  const [toasts, setToasts] = useState<ToastType[]>([])
+  const [toasts, setToasts] = useState<any[]>([])
   const insets = useSafeAreaInsets()
 
-  const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
+  const removeToast = useCallback((tId) => {
     setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
   }, [])
 
-  const addToast = useCallback<UseToastsReturnType['addToast']>(
+  const addToast = useCallback(
     (text, options) => {
-      const toast: ToastType = {
+      const toast = {
         id: id++,
         text,
         ...defaultOptions,
@@ -61,7 +60,7 @@ const ToastProvider: React.FC = ({ children }) => {
   )
 
   const onToastPress = useCallback(
-    (_id: ToastType['id'], onClick?: ToastType['onClick'], url?: ToastType['url']) => {
+    (_id, onClick?, url?) => {
       if (url) Linking.openURL(url)
       onClick ? onClick() : removeToast(_id)
     },

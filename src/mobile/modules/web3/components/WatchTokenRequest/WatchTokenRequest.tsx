@@ -1,8 +1,8 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
-import { Token, UsePortfolioReturnType } from 'ambire-common/v1/hooks/usePortfolio'
 import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
+import { Token, UsePortfolioReturnType } from '@ambire-common-v1/hooks/usePortfolio'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'

@@ -8,6 +8,9 @@
     "types": ["chrome", "firefox-webext-browser", "reflect-metadata", "jest"],
     "paths": {
       "@ambire-common/*": ["src/ambire-common/src/*"],
+      "@contracts/*": ["src/ambire-common/contracts/*"],
+      "@ambire-common-v1/*": ["src/ambire-common/v1/*"],
+
       "@common/*": ["src/common/*"],
       "@mobile/*": ["src/mobile/*"],
       "@web/*": ["src/web/*"]
