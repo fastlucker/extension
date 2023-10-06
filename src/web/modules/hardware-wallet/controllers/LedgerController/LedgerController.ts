@@ -89,7 +89,7 @@ class LedgerController {
 
         return address
       } catch (e: any) {
-        throw new Error('ledgerController: ledger device not available ', e.message)
+        throw new Error(e)
       }
     }
 

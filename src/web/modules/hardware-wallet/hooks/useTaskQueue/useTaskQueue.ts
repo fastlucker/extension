@@ -17,7 +17,10 @@ const useTaskQueue = () => {
 
   React.useEffect(() => {
     queueRef.current.on('error', (e) => {
-      addToast('Unable to connect to Hardware wallet. Please try to re-connect.', { error: true })
+      addToast('Please make sure your ledger is unlocked and running the Ethereum app.', {
+        error: true
+      })
+
       goBack()
     })
 

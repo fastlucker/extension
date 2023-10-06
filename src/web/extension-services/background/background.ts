@@ -382,7 +382,7 @@ async function init() {
               return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock(data?.params?.hdPath)
+              return ledgerCtrl.unlock(LEDGER_LIVE_HD_PATH)
             case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
               return ledgerCtrl._getPathForIndex(data.params)
             case 'LEDGER_CONTROLLER_APP':

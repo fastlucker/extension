@@ -119,9 +119,6 @@ type NotificationControllerRejectRequestAction = {
 }
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
-  params?: {
-    hdPath?: string
-  }
 }
 type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
