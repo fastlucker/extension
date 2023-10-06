@@ -62,10 +62,9 @@ class LedgerController {
         this.transport = await TransportWebHID.create()
         this.app = new LedgerEth(this.transport as Transport)
 
-        // TODO: model!
-        const deviceInfo = await this.transport?.send(0xe0, 0x01, 0x00, 0x00)
-        this.model = 'TODO'
-        console.log('deviceInfo', deviceInfo)
+        if (this.transport) {
+          this.model = this.transport.deviceModel?.id || 'unknown'
+        }
       } catch (e: any) {
         Promise.reject(new Error('ledgerController: permission rejected'))
       }
