@@ -4,8 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { Account } from '@ambire-common/interfaces/account'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import { PortfolioControllerState, TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Select from '@common/components/Select/'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -18,10 +19,12 @@ import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/Ta
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import Heading from '@web/modules/sign-account-op/components/Heading'
+import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { mapTokenOptions } from '@web/utils/maps'
 import { getUiType } from '@web/utils/uiType'
@@ -64,15 +67,65 @@ const mapAccountOptions = (values: Account[]) =>
     icon: value.pfp
   }))
 
+export type PendingToken = TokenResult & {
+  amountToSend: TokenResult['amount']
+  type: 'send' | 'receive' | null
+}
+
+function calculateTokensPendingState(
+  selectedAccount: string,
+  network: NetworkDescriptor,
+  state: { pending: PortfolioControllerState }
+): PendingToken[] {
+  const pendingData = state.pending[selectedAccount][network.id]
+
+  if (!pendingData || !pendingData.isReady || !pendingData.result) {
+    return []
+  }
+
+  const { tokens } = pendingData.result
+
+  const tokensWithChangedAmounts = tokens.filter((token) => {
+    if (!token.amountPostSimulation) return false
+    if (token.amount !== token.amountPostSimulation) {
+      return true
+    }
+    return false
+  })
+
+  return tokensWithChangedAmounts.map((token) => {
+    let type: PendingToken['type'] = null
+    const amountToSend =
+      token.amount - token.amountPostSimulation! >= 0n
+        ? token.amount - token.amountPostSimulation!
+        : token.amountPostSimulation! - token.amount!
+
+    if (token.amount > token.amountPostSimulation!) {
+      type = 'send'
+    }
+
+    if (token.amount < token.amountPostSimulation!) {
+      type = 'receive'
+    }
+
+    return {
+      ...token,
+      amountToSend,
+      type
+    }
+  })
+}
+
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
+  const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-
+  console.log(portfolioState)
   const accounts = mapAccountOptions(ACCOUNTS as Account[])
   const tokens = mapTokenOptions(TOKENS as TokenResult[])
 
@@ -202,6 +255,12 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const pendingTokens = calculateTokensPendingState(
+    signAccountOpState.accountOp.accountAddr,
+    network,
+    portfolioState.state
+  )
+
   return (
     <TabLayoutWrapperMainContent
       width="full"
@@ -210,21 +269,37 @@ const SignAccountOpScreen = () => {
       footer={<Footer onReject={handleRejectAccountOp} onAddToCart={handleAddToCart} />}
     >
       <View style={styles.container}>
-        <View style={styles.transactionsContainer}>
-          <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
-          <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-            {callsToVisualize.map((call) => {
-              return (
-                <TransactionSummary
-                  key={call.data + call.fromUserRequestId}
-                  style={spacings.mbSm}
-                  call={call}
-                  networkId={network.id}
-                  explorerUrl={network.explorerUrl}
-                />
-              )
-            })}
-          </ScrollView>
+        <View style={styles.leftSideContainer}>
+          <View style={styles.transactionsContainer}>
+            <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
+            <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+              {callsToVisualize.map((call) => {
+                return (
+                  <TransactionSummary
+                    key={call.data + call.fromUserRequestId}
+                    style={spacings.mbSm}
+                    call={call}
+                    networkId={network.id}
+                    explorerUrl={network.explorerUrl}
+                  />
+                )
+              })}
+            </ScrollView>
+          </View>
+          <View style={styles.transactionsContainer}>
+            <View style={styles.separatorHorizontal}>
+              <View style={styles.pendingTokensHeadingWrapper}>
+                <Text weight="medium" fontSize={16}>
+                  {t('Balance changes')}
+                </Text>
+              </View>
+            </View>
+            <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
+              {pendingTokens.map((token) => {
+                return <PendingTokenSummary token={token} networkId={network.id} />
+              })}
+            </ScrollView>
+          </View>
         </View>
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>

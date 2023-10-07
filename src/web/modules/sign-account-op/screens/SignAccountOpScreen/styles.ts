@@ -7,9 +7,14 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  leftSideContainer: ViewStyle
   transactionsContainer: ViewStyle
   transactionsHeading: ViewStyle
   transactionsScrollView: ViewStyle
+  pendingTokensContainer: ViewStyle
+  separatorHorizontal: ViewStyle
+  pendingTokensHeadingWrapper: ViewStyle
+  pendingTokensScrollView: ViewStyle
   separator: ViewStyle
   estimationContainer: ViewStyle
   estimationHeading: ViewStyle
@@ -22,14 +27,36 @@ const styles = StyleSheet.create<Style>({
     ...flexbox.flex1,
     ...flexbox.directionRow
   },
+  leftSideContainer: {
+    flexBasis: '60%'
+  },
   transactionsContainer: {
-    flexBasis: '60%',
-    height: '100%'
+    flex: 1
   },
   transactionsHeading: {
     marginBottom: 40
   },
   transactionsScrollView: {
+    height: '100%',
+    paddingRight: 22
+  },
+  pendingTokensContainer: {
+    flex: 1
+  },
+  separatorHorizontal: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    overflow: 'visible',
+    height: 1,
+    backgroundColor: 'black',
+    marginBottom: 40
+  },
+  pendingTokensHeadingWrapper: {
+    backgroundColor: colors.white,
+    ...spacings.ph
+  },
+  pendingTokensScrollView: {
     height: '100%',
     paddingRight: 22
   },
