@@ -29,7 +29,7 @@ const getInfoFromSearch = (search: string | undefined) => {
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { constants } = useConstants()
-  const [state, setState] = useState(null)
+  const [state, setState] = useState<any>(null)
   const mainCtrl = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
@@ -78,7 +78,9 @@ const TransferScreen = () => {
   return (
     <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
       <View style={styles.container}>
-        {state ? <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} /> : null}
+        {state && state?.isInitialized ? (
+          <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
+        ) : null}
         <View style={styles.separator} />
         <AddressBookSection />
       </View>
