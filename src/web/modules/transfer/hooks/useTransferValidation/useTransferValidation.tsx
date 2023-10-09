@@ -34,8 +34,8 @@ const useTransferValidation = ({
   amount: string
   selectedAsset: TokenResult | null
   recipientAddress: string
-  recipientUDAddress: string | null
-  recipientEnsAddress: string | null
+  recipientUDAddress: string
+  recipientEnsAddress: string
   isRecipientAddressUnknown: boolean
   isRecipientAddressUnknownAgreed: boolean
   isRecipientSWRestricted: boolean

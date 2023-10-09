@@ -13,8 +13,8 @@ import styles from './styles'
 interface Props extends InputProps {
   setAddress: (text: string) => void
   address: string
-  uDAddress: string | null
-  ensAddress: string | null
+  uDAddress: string
+  ensAddress: string
   addressValidationMsg: string
   control: Control<any>
   isRecipientSmartContract: boolean
