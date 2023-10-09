@@ -87,8 +87,15 @@ class LedgerController {
         this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
         return address
-      } catch (e: any) {
-        throw new Error(e)
+      } catch (error: any) {
+        if (error?.statusCode === 25871 || error?.statusCode === 27404) {
+          throw new Error('Please make sure your ledger is unlocked and running the Ethereum app.')
+        }
+
+        console.error(error)
+        throw new Error(
+          'Could not connect with your ledger device. Please make sure it is connected.'
+        )
       }
     }
 
