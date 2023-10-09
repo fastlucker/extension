@@ -13,7 +13,6 @@ import { useTranslation } from '@common/config/localization'
 import useDebounce from '@common/hooks/useDebounce'
 import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 
 import useTransferValidation from '../../hooks/useTransferValidation'
@@ -68,13 +67,7 @@ const getSelectProps = ({
     selectDisabled
   }
 }
-const SendForm = ({ state }: any) => {
-  const {
-    // When we dispatch the new transaction the main controller updates
-    // which sets the tokens to null and isAllReady to false. This results in blinking in the UI
-    // so we have to check if the portfolio is loading and show a loading state if it is.
-    accountPortfolio: { tokens, isAllReady }
-  } = usePortfolioControllerState()
+const SendForm = ({ state, isAllReady = false }: any) => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const {
@@ -87,7 +80,8 @@ const SendForm = ({ state }: any) => {
     userRequest,
     isRecipientAddressUnknown,
     isRecipientSWRestricted,
-    isRecipientSmartContract
+    isRecipientSmartContract,
+    tokens
   } = state
 
   const { t } = useTranslation()
