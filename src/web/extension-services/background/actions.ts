@@ -24,11 +24,6 @@ type MainControllerAccountAdderInitTrezorAction = {
 }
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'

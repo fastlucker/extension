@@ -30,17 +30,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const keystoreState = useKeystoreControllerState()
 
   const setPage: any = React.useCallback(
-    async (page = 1) => {
-      try {
-        createTask(() =>
-          dispatch({
-            type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE',
-            params: { page }
-          })
-        )
-      } catch (e: any) {
-        console.error(e.message)
-      }
+    (page = 1) => {
+      createTask(() =>
+        dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE', params: { page } })
+      )
     },
     [dispatch, createTask]
   )
@@ -70,7 +63,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
         dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
       },
-      lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE', params: {} })
+      lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
     }
 
     init[keyType]()
