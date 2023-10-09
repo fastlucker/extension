@@ -366,7 +366,27 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
-
+            case 'MAIN_CONTROLLER_TRANSFER_INIT':
+              return mainCtrl.transfer.init({
+                selectedAccount: data.params.selectedAccount,
+                tokens: data.params.tokens,
+                humanizerInfo: data.params.humanizerInfo,
+                preSelectedAsset: data.params?.preSelectedAsset
+              })
+            case 'MAIN_CONTROLLER_TRANSFER_RESET':
+              return mainCtrl.transfer.reset()
+            case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
+              return mainCtrl.transfer.buildUserRequest()
+            case 'MAIN_CONTROLLER_TRANSFER_SET_RECIPIENT_ADDRESS':
+              return mainCtrl.transfer.setRecipientAddress(data.params.recipientAddress)
+            case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
+              return mainCtrl.transfer.onRecipientAddressChange()
+            case 'MAIN_CONTROLLER_TRANSFER_SET_AMOUNT':
+              return mainCtrl.transfer.setAmount(data.params.amount)
+            case 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT':
+              return mainCtrl.transfer.setMaxAmount()
+            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_ASSET_CHANGE':
+              return mainCtrl.transfer.handleAssetChange(data.params.assetAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break

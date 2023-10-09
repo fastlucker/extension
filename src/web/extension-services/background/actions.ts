@@ -1,3 +1,5 @@
+import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
+
 import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -6,6 +8,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { Key } from '@ambire-common/libs/keystore/keystore'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -125,6 +128,49 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
+type MainControllerTransferInitAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_INIT'
+  params: {
+    selectedAccount: string
+    tokens: TokenResult[]
+    humanizerInfo: HumanizerInfoType
+    preSelectedAsset?: string
+  }
+}
+
+type MainControllerTransferResetAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+}
+
+type MainControllerTransferBuildUserRequestAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
+}
+
+type MainControllerTransferSetRecipientAddressAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_SET_RECIPIENT_ADDRESS'
+  params: { recipientAddress: string }
+}
+
+type MainControllerTransferOnRecipientAddressChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+}
+
+type MainControllerTransferSetAmountAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_SET_AMOUNT'
+  params: { amount: string }
+}
+
+type MainControllerTransferSetMaxAmountAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT'
+}
+
+type MainControllerTransferHandleAssetChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_ASSET_CHANGE'
+  params: {
+    assetAddressAndNetwork: string
+  }
+}
+
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
   params: { data: any; id?: number }
@@ -234,6 +280,14 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerTransferInitAction
+  | MainControllerTransferResetAction
+  | MainControllerTransferBuildUserRequestAction
+  | MainControllerTransferSetRecipientAddressAction
+  | MainControllerTransferOnRecipientAddressChangeAction
+  | MainControllerTransferSetAmountAction
+  | MainControllerTransferSetMaxAmountAction
+  | MainControllerTransferHandleAssetChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
