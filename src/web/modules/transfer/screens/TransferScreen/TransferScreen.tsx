@@ -37,7 +37,7 @@ const TransferScreen = () => {
   const tokens = accountPortfolio?.tokens
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
 
-  const preSelectedAsset = useMemo(() => {
+  const preSelectedToken = useMemo(() => {
     if (!selectedTokenFromUrl && tokens && tokens?.length > 0)
       return `${tokens[0].address}-${tokens[0].networkId}`
     if (!selectedTokenFromUrl && !tokens) return null
@@ -60,10 +60,10 @@ const TransferScreen = () => {
         selectedAccount: mainCtrl.selectedAccount,
         tokens,
         humanizerInfo: constants.humanizerInfo,
-        preSelectedAsset: preSelectedAsset || undefined
+        preSelectedToken: preSelectedToken || undefined
       }
     })
-  }, [constants, dispatch, mainCtrl.isReady, mainCtrl.selectedAccount, preSelectedAsset, tokens])
+  }, [constants, dispatch, mainCtrl.isReady, mainCtrl.selectedAccount, preSelectedToken, tokens])
 
   useEffect(() => {
     const onUpdate = (newState: any) => {

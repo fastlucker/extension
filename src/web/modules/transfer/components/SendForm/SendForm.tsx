@@ -20,7 +20,7 @@ import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
-const LOADING_ASSETS_ITEMS = [
+const LOADING_TOKENS_ITEMS = [
   {
     value: 'loading',
     label: <Text weight="medium">Loading...</Text>,
@@ -39,11 +39,11 @@ const NO_TOKENS_ITEMS = [
 const getSelectProps = ({
   tokens,
   isAllReady,
-  asset
+  token
 }: {
   tokens: TokenResult[]
   isAllReady: boolean
-  asset: string
+  token: string
 }) => {
   let options: any = []
   let value = null
@@ -51,14 +51,14 @@ const getSelectProps = ({
 
   if (isAllReady && tokens?.length > 0) {
     options = mapTokenOptions(tokens)
-    value = options.find((item: any) => item.value === asset) || options[0]
+    value = options.find((item: any) => item.value === token) || options[0]
     selectDisabled = false
   } else if (isAllReady && !(tokens?.length > 0)) {
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
   } else if (!isAllReady) {
-    value = LOADING_ASSETS_ITEMS[0]
-    options = LOADING_ASSETS_ITEMS
+    value = LOADING_TOKENS_ITEMS[0]
+    options = LOADING_TOKENS_ITEMS
   }
 
   return {
@@ -73,7 +73,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   const {
     amount,
     maxAmount,
-    selectedAsset,
+    selectedToken,
     recipientUDAddress,
     recipientEnsAddress,
     recipientAddress,
@@ -85,12 +85,12 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   } = state
 
   const { t } = useTranslation()
-  const asset = `${selectedAsset?.address}-${selectedAsset?.networkId}`
+  const token = `${selectedToken?.address}-${selectedToken?.networkId}`
   const {
     value: tokenSelectValue,
     options,
     selectDisabled
-  } = getSelectProps({ tokens, isAllReady, asset })
+  } = getSelectProps({ tokens, isAllReady, token })
   const { control, watch } = useForm({
     defaultValues: {
       isRecipientAddressUnknownAgreed: false,
@@ -107,12 +107,12 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     isRecipientSWRestrictedAgreed
   })
 
-  const handleChangeAsset = useCallback(
+  const handleChangeToken = useCallback(
     (value: string) =>
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_ASSET_CHANGE',
+        type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE',
         params: {
-          assetAddressAndNetwork: value
+          tokenAddressAndNetwork: value
         }
       }),
     [dispatch]
@@ -182,7 +182,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   return (
     <View style={styles.container}>
       <Select
-        setValue={({ value }) => handleChangeAsset(value)}
+        setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
         options={options}
         value={tokenSelectValue}
@@ -191,7 +191,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
       />
       <InputSendToken
         amount={amount}
-        selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || t('Unknown') : ''}
+        selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
         errorMessage={validationFormMsgs?.messages?.amount || ''}
         onAmountChange={setAmount}
         setMaxAmount={setMaxAmount}
@@ -224,7 +224,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
                       'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
                       {
                         platforms: unsupportedSWPlatforms.join(' / '),
-                        token: selectedAsset?.symbol
+                        token: selectedToken?.symbol
                       }
                     ) as string
                   }

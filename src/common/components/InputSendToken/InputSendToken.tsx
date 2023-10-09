@@ -10,10 +10,10 @@ import styles from './styles'
 
 const MaxAmount = ({
   maxAmount,
-  selectedAssetSymbol
+  selectedTokenSymbol
 }: {
   maxAmount: number | null
-  selectedAssetSymbol: string
+  selectedTokenSymbol: string
 }) => {
   const { t } = useTranslation()
 
@@ -28,7 +28,7 @@ const MaxAmount = ({
           <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
             {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
           </Text>
-          {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
+          {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
         </View>
       ) : null}
     </View>
@@ -37,7 +37,7 @@ const MaxAmount = ({
 
 interface Props {
   amount: string
-  selectedAssetSymbol: string
+  selectedTokenSymbol: string
   maxAmount: number | null
   errorMessage: string
   onAmountChange: (value: any) => void
@@ -46,7 +46,7 @@ interface Props {
 
 const InputSendToken = ({
   amount,
-  selectedAssetSymbol,
+  selectedTokenSymbol,
   onAmountChange,
   setMaxAmount,
   maxAmount,
@@ -68,7 +68,7 @@ const InputSendToken = ({
 
   return (
     <>
-      <MaxAmount maxAmount={maxAmount} selectedAssetSymbol={selectedAssetSymbol} />
+      <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
       <View style={styles.inputWrapper}>
         <NumberInput
           onChangeText={handleOnTokenAmountChange}

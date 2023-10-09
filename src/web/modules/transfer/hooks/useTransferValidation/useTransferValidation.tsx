@@ -22,7 +22,7 @@ const DEFAULT_VALIDATION_FORM_MSGS = {
 
 const useTransferValidation = ({
   amount,
-  selectedAsset,
+  selectedToken,
   recipientAddress,
   recipientUDAddress,
   recipientEnsAddress,
@@ -32,7 +32,7 @@ const useTransferValidation = ({
   isRecipientSWRestrictedAgreed
 }: {
   amount: string
-  selectedAsset: TokenResult | null
+  selectedToken: TokenResult | null
   recipientAddress: string
   recipientUDAddress: string
   recipientEnsAddress: string
@@ -59,8 +59,8 @@ const useTransferValidation = ({
   const timer = useRef<any>(null)
 
   useEffect(() => {
-    if (isFocused && selectedAccount && selectedAsset && recipientAddress) {
-      const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedAsset)
+    if (isFocused && selectedAccount && selectedToken && recipientAddress) {
+      const isValidSendTransferAmount = validateSendTransferAmount(amount, selectedToken)
 
       if (recipientAddress.startsWith('0x') && recipientAddress.indexOf('.') === -1) {
         const isValidRecipientAddress = validateSendTransferAddress(
@@ -137,7 +137,7 @@ const useTransferValidation = ({
     recipientEnsAddress,
     recipientUDAddress,
     selectedAccount,
-    selectedAsset,
+    selectedToken,
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
     isFocused,

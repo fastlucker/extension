@@ -134,7 +134,7 @@ type MainControllerTransferInitAction = {
     selectedAccount: string
     tokens: TokenResult[]
     humanizerInfo: HumanizerInfoType
-    preSelectedAsset?: string
+    preSelectedToken?: string
   }
 }
 
@@ -164,10 +164,10 @@ type MainControllerTransferSetMaxAmountAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT'
 }
 
-type MainControllerTransferHandleAssetChangeAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_ASSET_CHANGE'
+type MainControllerTransferHandleTokenChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE'
   params: {
-    assetAddressAndNetwork: string
+    tokenAddressAndNetwork: string
   }
 }
 
@@ -287,7 +287,7 @@ export type Action =
   | MainControllerTransferOnRecipientAddressChangeAction
   | MainControllerTransferSetAmountAction
   | MainControllerTransferSetMaxAmountAction
-  | MainControllerTransferHandleAssetChangeAction
+  | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

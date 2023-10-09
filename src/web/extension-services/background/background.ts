@@ -371,7 +371,7 @@ async function init() {
                 selectedAccount: data.params.selectedAccount,
                 tokens: data.params.tokens,
                 humanizerInfo: data.params.humanizerInfo,
-                preSelectedAsset: data.params?.preSelectedAsset
+                preSelectedToken: data.params?.preSelectedToken
               })
             case 'MAIN_CONTROLLER_TRANSFER_RESET':
               return mainCtrl.transfer.reset()
@@ -385,8 +385,8 @@ async function init() {
               return mainCtrl.transfer.setAmount(data.params.amount)
             case 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT':
               return mainCtrl.transfer.setMaxAmount()
-            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_ASSET_CHANGE':
-              return mainCtrl.transfer.handleAssetChange(data.params.assetAddressAndNetwork)
+            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
+              return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
