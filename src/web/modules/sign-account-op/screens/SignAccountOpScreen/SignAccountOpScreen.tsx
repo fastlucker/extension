@@ -4,9 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { Account } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { PortfolioControllerState, TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Select from '@common/components/Select/'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -66,55 +66,6 @@ const mapAccountOptions = (values: Account[]) =>
     label: <Text weight="medium">{value.label}</Text>,
     icon: value.pfp
   }))
-
-export type PendingToken = TokenResult & {
-  amountToSend: TokenResult['amount']
-  type: 'send' | 'receive' | null
-}
-
-function calculateTokensPendingState(
-  selectedAccount: string,
-  network: NetworkDescriptor,
-  state: { pending: PortfolioControllerState }
-): PendingToken[] {
-  const pendingData = state.pending[selectedAccount][network.id]
-
-  if (!pendingData || !pendingData.isReady || !pendingData.result) {
-    return []
-  }
-
-  const { tokens } = pendingData.result
-
-  const tokensWithChangedAmounts = tokens.filter((token) => {
-    if (!token.amountPostSimulation) return false
-    if (token.amount !== token.amountPostSimulation) {
-      return true
-    }
-    return false
-  })
-
-  return tokensWithChangedAmounts.map((token) => {
-    let type: PendingToken['type'] = null
-    const amountToSend =
-      token.amount - token.amountPostSimulation! >= 0n
-        ? token.amount - token.amountPostSimulation!
-        : token.amountPostSimulation! - token.amount!
-
-    if (token.amount > token.amountPostSimulation!) {
-      type = 'send'
-    }
-
-    if (token.amount < token.amountPostSimulation!) {
-      type = 'receive'
-    }
-
-    return {
-      ...token,
-      amountToSend,
-      type
-    }
-  })
-}
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()

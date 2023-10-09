@@ -3,12 +3,12 @@ import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { PendingToken } from '@ambire-common/libs/portfolio/portfolioView'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-import { PendingToken } from '../../screens/SignAccountOpScreen/SignAccountOpScreen'
 import styles from './styles'
 
 interface Props {
