@@ -78,9 +78,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
       <View style={styles.container}>
-        {state && state?.isInitialized ? (
-          <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
-        ) : null}
+        {state ? <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} /> : null}
         <View style={styles.separator} />
         <AddressBookSection />
       </View>
