@@ -1,4 +1,5 @@
 import React from 'react'
+import { Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -12,11 +13,12 @@ import styles from './styles'
 interface Props extends InputProps {
   setAddress: (text: string) => void
   address: string
-  uDAddress: string
-  ensAddress: string
+  uDAddress: string | null
+  ensAddress: string | null
   addressValidationMsg: string
-  setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
-  addressConfirmed: boolean
+  control: Control<any>
+  isRecipientSmartContract: boolean
+  isRecipientAddressUnknown: boolean
 }
 
 const Recipient: React.FC<Props> = ({
@@ -25,8 +27,9 @@ const Recipient: React.FC<Props> = ({
   uDAddress,
   ensAddress,
   addressValidationMsg,
-  setAddressConfirmed,
-  addressConfirmed
+  control,
+  isRecipientSmartContract,
+  isRecipientAddressUnknown
 }) => {
   const { t } = useTranslation()
 
@@ -50,11 +53,10 @@ const Recipient: React.FC<Props> = ({
         </Text>
 
         <ConfirmAddress
-          address={address}
-          uDAddress={uDAddress}
-          ensAddress={ensAddress}
-          addressConfirmed={addressConfirmed}
-          setAddressConfirmed={setAddressConfirmed}
+          control={control}
+          isRecipientSmartContract={isRecipientSmartContract}
+          isRecipientAddressUnknown={isRecipientAddressUnknown}
+          // @TODO: Address book
           onAddToAddressBook={() => {}}
         />
       </View>

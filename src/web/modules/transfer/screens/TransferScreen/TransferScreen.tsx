@@ -1,27 +1,84 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import useConstants from '@common/hooks/useConstants'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import eventBus from '@web/extension-services/event/eventBus'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import AddressBookSection from '../../components/AddressBookSection'
 import SendForm from '../../components/SendForm/SendForm'
-import useRequestTransaction from '../../hooks/useRequestTransaction'
 import styles from './styles'
 
+const getInfoFromSearch = (search: string | undefined) => {
+  if (!search || !search?.includes('networkId') || !search?.includes('address')) return null
+
+  const params = new URLSearchParams(search)
+
+  // Remove the search params from the url
+  window.history.replaceState(null, '', `${window.location.pathname}#/transfer`)
+
+  return `${params.get('address')}-${params.get('networkId')}`
+}
+
 const TransferScreen = () => {
-  const requestTransactionState = useRequestTransaction()
+  const { dispatch } = useBackgroundService()
+  const { constants } = useConstants()
+  const [state, setState] = useState(null)
+  const mainCtrl = useMainControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
+  const { search } = useRoute()
+  const tokens = accountPortfolio?.tokens
+  const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
+
+  const preSelectedAsset = useMemo(() => {
+    if (!selectedTokenFromUrl && tokens && tokens?.length > 0)
+      return `${tokens[0].address}-${tokens[0].networkId}`
+    if (!selectedTokenFromUrl && !tokens) return null
+
+    return selectedTokenFromUrl
+  }, [selectedTokenFromUrl, tokens])
 
   const onBack = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate])
+  }, [navigate, dispatch])
+
+  useEffect(() => {
+    if (!constants || !mainCtrl.selectedAccount || !tokens || !mainCtrl.isReady) return
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_INIT',
+      params: {
+        selectedAccount: mainCtrl.selectedAccount,
+        tokens,
+        humanizerInfo: constants.humanizerInfo,
+        preSelectedAsset: preSelectedAsset || undefined
+      }
+    })
+  }, [constants, dispatch, mainCtrl.isReady, mainCtrl.selectedAccount, preSelectedAsset, tokens])
+
+  useEffect(() => {
+    const onUpdate = (newState: any) => {
+      setState(newState)
+    }
+
+    eventBus.addEventListener('transfer', onUpdate)
+
+    return () => eventBus.removeEventListener('transfer', onUpdate)
+  }, [mainCtrl.selectedAccount])
 
   return (
     <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
       <View style={styles.container}>
-        <SendForm requestTransactionState={requestTransactionState} />
+        {state ? <SendForm state={state} /> : null}
         <View style={styles.separator} />
         <AddressBookSection />
       </View>

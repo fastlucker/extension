@@ -36,7 +36,7 @@ const MaxAmount = ({
 }
 
 interface Props {
-  amount: number
+  amount: string
   selectedAssetSymbol: string
   maxAmount: number | null
   errorMessage: string
@@ -73,7 +73,7 @@ const InputSendToken = ({
         <NumberInput
           onChangeText={handleOnTokenAmountChange}
           containerStyle={styles.inputContainerStyle}
-          value={amount.toString()}
+          value={amount}
           placeholder={t('0')}
           error={errorMessage || undefined}
           button={maxAmount ? t('MAX') : null}
