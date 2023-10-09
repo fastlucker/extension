@@ -247,6 +247,17 @@ const SignAccountOpScreen = () => {
     return signAccountOpState.accountOp?.calls || []
   }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
 
+  const pendingTokens = useMemo(() => {
+    if (signAccountOpState.accountOp && network) {
+      return calculateTokensPendingState(
+        signAccountOpState.accountOp.accountAddr,
+        network,
+        portfolioState.state
+      )
+    }
+    return []
+  }, [network, portfolioState.state, signAccountOpState.accountOp])
+
   if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -254,12 +265,6 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
-
-  const pendingTokens = calculateTokensPendingState(
-    signAccountOpState.accountOp.accountAddr,
-    network,
-    portfolioState.state
-  )
 
   return (
     <TabLayoutWrapperMainContent
@@ -286,8 +291,9 @@ const SignAccountOpScreen = () => {
               })}
             </ScrollView>
           </View>
-          <View style={styles.transactionsContainer}>
-            <View style={styles.separatorHorizontal}>
+          <View style={styles.pendingTokensContainer}>
+            <View style={styles.pendingTokensSeparatorContainer}>
+              <View style={styles.separatorHorizontal} />
               <View style={styles.pendingTokensHeadingWrapper}>
                 <Text weight="medium" fontSize={16}>
                   {t('Balance changes')}

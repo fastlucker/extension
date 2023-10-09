@@ -13,6 +13,7 @@ interface Style {
   transactionsScrollView: ViewStyle
   pendingTokensContainer: ViewStyle
   separatorHorizontal: ViewStyle
+  pendingTokensSeparatorContainer: ViewStyle
   pendingTokensHeadingWrapper: ViewStyle
   pendingTokensScrollView: ViewStyle
   separator: ViewStyle
@@ -31,7 +32,7 @@ const styles = StyleSheet.create<Style>({
     flexBasis: '60%'
   },
   transactionsContainer: {
-    flex: 1
+    flex: 1.5
   },
   transactionsHeading: {
     marginBottom: 40
@@ -44,13 +45,18 @@ const styles = StyleSheet.create<Style>({
     flex: 1
   },
   separatorHorizontal: {
+    position: 'absolute',
+    width: '100%',
+    height: 1,
+    backgroundColor: 'black'
+  },
+  pendingTokensSeparatorContainer: {
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
-    overflow: 'visible',
-    height: 1,
-    backgroundColor: 'black',
-    marginBottom: 40
+    ...spacings.pvTy,
+    ...spacings.mbLg,
+    width: '100%'
   },
   pendingTokensHeadingWrapper: {
     backgroundColor: colors.white,
