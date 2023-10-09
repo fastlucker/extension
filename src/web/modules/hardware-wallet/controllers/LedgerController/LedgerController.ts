@@ -94,7 +94,7 @@ class LedgerController {
 
         console.error(error)
         throw new Error(
-          'Could not connect with your ledger device. Please make sure it is connected.'
+          'Could not connect to your ledger device. Please make sure it is connected.'
         )
       }
     }
