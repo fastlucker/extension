@@ -79,8 +79,8 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     recipientAddress,
     userRequest,
     isRecipientAddressUnknown,
-    isRecipientSWRestricted,
     isRecipientSmartContract,
+    isSWWarningVisible,
     tokens
   } = state
 
@@ -94,17 +94,17 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   const { control, watch } = useForm({
     defaultValues: {
       isRecipientAddressUnknownAgreed: false,
-      isRecipientSWRestrictedAgreed: false
+      isSWWarningAgreed: false
     }
   })
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
   const isRecipientAddressUnknownAgreed = watch('isRecipientAddressUnknownAgreed')
-  const isRecipientSWRestrictedAgreed = watch('isRecipientSWRestrictedAgreed')
+  const isSWWarningAgreed = watch('isSWWarningAgreed')
   const { disabled, validationFormMsgs } = useTransferValidation({
     ...state,
     recipientAddress: debouncedRecipientAddress,
     isRecipientAddressUnknownAgreed,
-    isRecipientSWRestrictedAgreed
+    isSWWarningAgreed
   })
 
   const handleChangeToken = useCallback(
@@ -209,16 +209,17 @@ const SendForm = ({ state, isAllReady = false }: any) => {
           isRecipientAddressUnknown={isRecipientAddressUnknown}
         />
 
-        {isRecipientSWRestricted ? (
+        {isSWWarningVisible ? (
           <Controller
-            name="isRecipientSWRestrictedAgreed"
+            name="isSWWarningAgreed"
+            control={control}
             render={({ field: { onChange, value } }) => (
               <Checkbox
                 style={styles.sWAddressWarningCheckbox}
                 value={value}
                 onValueChange={onChange}
               >
-                <Text fontSize={12} onPress={onChange}>
+                <Text fontSize={12} onPress={() => onChange(!value)}>
                   {
                     t(
                       'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
