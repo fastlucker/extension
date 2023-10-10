@@ -24,7 +24,7 @@ export const WINDOW_SIZE = {
 const createFullScreenWindow = ({ url, ...rest }: any) => {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
-      const ratio = 0.85
+      const ratio = 0.9
 
       const screenWidth = window.screen.width
       const screenHeight = window.screen.height
