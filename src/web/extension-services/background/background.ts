@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { BIP44_HD_PATH, LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
+import {
+  BIP44_HD_PATH,
+  LATTICE_STANDARD_HD_PATH,
+  LEDGER_LIVE_HD_PATH
+} from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -294,8 +298,8 @@ async function init() {
                 getHDPathIndices: latticeCtrl._getHDPathIndices
               })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
+                derivationPath: LATTICE_STANDARD_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
