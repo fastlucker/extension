@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import {
@@ -29,7 +29,8 @@ const useTransferValidation = ({
   isRecipientAddressUnknown,
   isRecipientAddressUnknownAgreed,
   isSWWarningVisible,
-  isSWWarningAgreed
+  isSWWarningAgreed,
+  isRecipientDomainResolving
 }: {
   amount: string
   selectedToken: TokenResult | null
@@ -40,6 +41,7 @@ const useTransferValidation = ({
   isRecipientAddressUnknownAgreed: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  isRecipientDomainResolving: boolean
 }) => {
   const isFocused = useIsScreenFocused()
 
@@ -69,7 +71,8 @@ const useTransferValidation = ({
         isRecipientAddressUnknown,
         constants!.humanizerInfo,
         isUDAddress,
-        isEnsAddress
+        isEnsAddress,
+        isRecipientDomainResolving
       )
 
       setValidationFormMsgs({

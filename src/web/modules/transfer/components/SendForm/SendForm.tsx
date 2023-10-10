@@ -80,6 +80,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     userRequest,
     isRecipientAddressUnknown,
     isRecipientSmartContract,
+    isRecipientDomainResolving,
     isSWWarningVisible,
     tokens
   } = state
@@ -207,6 +208,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
           control={control}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
+          isRecipientDomainResolving={isRecipientDomainResolving}
         />
 
         {isSWWarningVisible ? (

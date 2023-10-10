@@ -19,6 +19,7 @@ interface Props extends InputProps {
   control: Control<any>
   isRecipientSmartContract: boolean
   isRecipientAddressUnknown: boolean
+  isRecipientDomainResolving: boolean
 }
 
 const Recipient: React.FC<Props> = ({
@@ -29,7 +30,8 @@ const Recipient: React.FC<Props> = ({
   addressValidationMsg,
   control,
   isRecipientSmartContract,
-  isRecipientAddressUnknown
+  isRecipientAddressUnknown,
+  isRecipientDomainResolving
 }) => {
   const { t } = useTranslation()
 
@@ -44,6 +46,7 @@ const Recipient: React.FC<Props> = ({
         error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
+        isRecipientDomainResolving={isRecipientDomainResolving}
       />
       <View style={styles.inputBottom}>
         <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>
