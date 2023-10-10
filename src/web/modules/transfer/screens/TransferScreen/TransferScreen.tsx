@@ -52,8 +52,24 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate, dispatch])
 
+  const handleReset = useCallback(
+    () =>
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+      }),
+    [dispatch]
+  )
+
   useEffect(() => {
-    if (!constants || !mainCtrl.selectedAccount || !tokens || !mainCtrl.isReady) return
+    if (
+      !constants ||
+      !mainCtrl.selectedAccount ||
+      !tokens ||
+      !mainCtrl.isReady ||
+      state?.isInitialized
+    )
+      return
+
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_INIT',
       params: {
@@ -63,6 +79,12 @@ const TransferScreen = () => {
         preSelectedToken: preSelectedToken || undefined
       }
     })
+
+    window.addEventListener('beforeunload', handleReset)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleReset)
+    }
   }, [constants, dispatch, mainCtrl.isReady, mainCtrl.selectedAccount, preSelectedToken, tokens])
 
   useEffect(() => {
