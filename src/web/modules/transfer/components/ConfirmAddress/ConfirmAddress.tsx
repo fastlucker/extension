@@ -1,5 +1,4 @@
 import React from 'react'
-import { Control, Controller } from 'react-hook-form'
 import { TouchableOpacity, View } from 'react-native'
 
 import AddIcon from '@common/assets/svg/AddIcon'
@@ -11,16 +10,18 @@ import styles from './styles'
 
 type Props = {
   onAddToAddressBook: () => any
-  control: Control<any>
   isRecipientSmartContract: boolean
   isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: boolean
+  onRecipientAddressUnknownCheckboxClick: () => void
 }
 
 const ConfirmAddress = ({
   onAddToAddressBook,
-  control,
+  onRecipientAddressUnknownCheckboxClick,
   isRecipientSmartContract,
-  isRecipientAddressUnknown
+  isRecipientAddressUnknown,
+  isRecipientAddressUnknownAgreed
 }: Props) => {
   const { t } = useTranslation()
   // const { isKnownAddress } = useAddressBook()
@@ -28,16 +29,10 @@ const ConfirmAddress = ({
   // @TODO: Removed check:  && address !== accountPresets.feeCollector
   return !isRecipientSmartContract && !!isRecipientAddressUnknown ? (
     <View>
-      <Controller
-        name="isRecipientAddressUnknownAgreed"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <Checkbox
-            value={value}
-            onValueChange={onChange}
-            label={t('Confirm sending to a previously unknown address')}
-          />
-        )}
+      <Checkbox
+        value={isRecipientAddressUnknownAgreed}
+        onValueChange={onRecipientAddressUnknownCheckboxClick}
+        label={t('Confirm sending to a previously unknown address')}
       />
       <TouchableOpacity
         onPress={onAddToAddressBook}

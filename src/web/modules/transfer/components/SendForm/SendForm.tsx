@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -83,7 +82,9 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     isSWWarningVisible,
     tokens,
     isFormValid,
-    validationFormMsgs
+    validationFormMsgs,
+    isSWWarningAgreed,
+    isRecipientAddressUnknownAgreed
   } = state
 
   const { t } = useTranslation()
@@ -93,15 +94,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     options,
     selectDisabled
   } = getSelectProps({ tokens, isAllReady, token })
-  const { control, watch } = useForm({
-    defaultValues: {
-      isRecipientAddressUnknownAgreed: false,
-      isSWWarningAgreed: false
-    }
-  })
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
-  const isRecipientAddressUnknownAgreed = watch('isRecipientAddressUnknownAgreed')
-  const isSWWarningAgreed = watch('isSWWarningAgreed')
 
   const handleChangeToken = useCallback(
     (value: string) =>
@@ -149,6 +142,14 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     [updateTransferCtrlProperty]
   )
 
+  const onSWWarningCheckboxClick = useCallback(() => {
+    updateTransferCtrlProperty('isSWWarningAgreed', true)
+  }, [updateTransferCtrlProperty])
+
+  const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
+    updateTransferCtrlProperty('isRecipientAddressUnknownAgreed', true)
+  }, [updateTransferCtrlProperty])
+
   useEffect(() => {
     try {
       if (!userRequest) return
@@ -170,18 +171,9 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   useEffect(() => {
     if (!debouncedRecipientAddress) return
     dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE',
-      params: {
-        isRecipientAddressUnknownAgreed
-      }
+      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
     })
-  }, [debouncedRecipientAddress, dispatch, isRecipientAddressUnknownAgreed])
-
-  console.log(
-    !isFormValid,
-    !isSWWarningAgreed && isSWWarningVisible,
-    !isRecipientAddressUnknownAgreed && isRecipientAddressUnknown
-  )
+  }, [debouncedRecipientAddress, dispatch])
 
   return (
     <View style={styles.container}>
@@ -208,36 +200,31 @@ const SendForm = ({ state, isAllReady = false }: any) => {
           uDAddress={recipientUDAddress}
           ensAddress={recipientEnsAddress}
           addressValidationMsg={validationFormMsgs.address.message}
-          control={control}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientDomainResolving={isRecipientDomainResolving}
+          isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
         />
 
         {isSWWarningVisible ? (
-          <Controller
-            name="isSWWarningAgreed"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Checkbox
-                style={styles.sWAddressWarningCheckbox}
-                value={value}
-                onValueChange={onChange}
-              >
-                <Text fontSize={12} onPress={() => onChange(!value)}>
+          <Checkbox
+            style={styles.sWAddressWarningCheckbox}
+            value={isSWWarningAgreed}
+            onValueChange={onSWWarningCheckboxClick}
+          >
+            <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
+              {
+                t(
+                  'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
                   {
-                    t(
-                      'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
-                      {
-                        platforms: unsupportedSWPlatforms.join(' / '),
-                        token: selectedToken?.symbol
-                      }
-                    ) as string
+                    platforms: unsupportedSWPlatforms.join(' / '),
+                    token: selectedToken?.symbol
                   }
-                </Text>
-              </Checkbox>
-            )}
-          />
+                ) as string
+              }
+            </Text>
+          </Checkbox>
         ) : null}
       </View>
 
@@ -248,11 +235,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
         disabledStyle={{ opacity: 0.6 }}
         style={styles.button}
         onPress={sendTransaction}
-        disabled={
-          !isFormValid ||
-          (!isSWWarningAgreed && isSWWarningVisible) ||
-          (!isRecipientAddressUnknownAgreed && isRecipientAddressUnknown)
-        }
+        disabled={!isFormValid}
       />
     </View>
   )

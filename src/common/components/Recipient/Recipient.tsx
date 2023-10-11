@@ -1,5 +1,4 @@
 import React from 'react'
-import { Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -16,9 +15,10 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  control: Control<any>
   isRecipientSmartContract: boolean
   isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: boolean
+  onRecipientAddressUnknownCheckboxClick: () => void
   isRecipientDomainResolving: boolean
 }
 
@@ -28,7 +28,8 @@ const Recipient: React.FC<Props> = ({
   uDAddress,
   ensAddress,
   addressValidationMsg,
-  control,
+  isRecipientAddressUnknownAgreed,
+  onRecipientAddressUnknownCheckboxClick,
   isRecipientSmartContract,
   isRecipientAddressUnknown,
   isRecipientDomainResolving
@@ -56,9 +57,10 @@ const Recipient: React.FC<Props> = ({
         </Text>
 
         <ConfirmAddress
-          control={control}
+          onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
+          isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
           // @TODO: Address book
           onAddToAddressBook={() => {}}
         />

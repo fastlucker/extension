@@ -152,14 +152,13 @@ type MainControllerTransferUpdateAction = {
     recipientAddress?: string
     amount?: string
     setMaxAmount?: boolean
+    isSWWarningAgreed?: boolean
+    isRecipientAddressUnknownAgreed?: boolean
   }
 }
 
 type MainControllerTransferOnRecipientAddressChangeAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-  params: {
-    isRecipientAddressUnknownAgreed: boolean
-  }
 }
 
 type MainControllerTransferHandleTokenChangeAction = {
