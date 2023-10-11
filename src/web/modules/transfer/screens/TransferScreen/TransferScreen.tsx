@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import useConstants from '@common/hooks/useConstants'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -29,7 +30,7 @@ const getInfoFromSearch = (search: string | undefined) => {
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { constants } = useConstants()
-  const [state, setState] = useState<any>(null)
+  const [state, setState] = useState<TransferControllerState | null>(null)
   const mainCtrl = useMainControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()

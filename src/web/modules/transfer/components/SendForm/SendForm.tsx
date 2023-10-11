@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
+import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -65,7 +66,13 @@ const getSelectProps = ({
     selectDisabled
   }
 }
-const SendForm = ({ state, isAllReady = false }: any) => {
+const SendForm = ({
+  state,
+  isAllReady = false
+}: {
+  state: TransferControllerState
+  isAllReady?: boolean
+}) => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const {
@@ -199,7 +206,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
           address={recipientAddress}
           uDAddress={recipientUDAddress}
           ensAddress={recipientEnsAddress}
-          addressValidationMsg={validationFormMsgs.address.message}
+          addressValidationMsg={validationFormMsgs.recipientAddress.message}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientDomainResolving={isRecipientDomainResolving}
