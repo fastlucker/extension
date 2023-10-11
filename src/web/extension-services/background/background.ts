@@ -357,8 +357,12 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
-            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
+              if (mainCtrl.signMessage.signingKeyType === 'ledger')
+                return mainCtrl.signMessage.sign(ledgerCtrl)
+
               return mainCtrl.signMessage.sign()
+            }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
               return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
