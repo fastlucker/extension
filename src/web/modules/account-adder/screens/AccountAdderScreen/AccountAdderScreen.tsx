@@ -17,6 +17,12 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 
+const hwDeviceNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+  ledger: 'Ledger',
+  trezor: 'Trezor',
+  lattice: 'GridPlus Lattice1'
+}
+
 export interface Account {
   type: string
   address: string
@@ -55,7 +61,7 @@ const AccountAdderScreen = () => {
         <Text weight="medium" fontSize={16} style={[flexbox.alignSelfCenter]}>
           {keyType === 'internal'
             ? t('Pick Accounts To Import')
-            : t('Import Account From {{ keyType }}', { keyType })}
+            : t('Import Account From {{ hwDeviceName }}', { hwDeviceName: hwDeviceNames[keyType] })}
         </Text>
         <View style={[spacings.mh, spacings.pv, flexbox.justifyCenter]}>
           <AccountsOnPageList
