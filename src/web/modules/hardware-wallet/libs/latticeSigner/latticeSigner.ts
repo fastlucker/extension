@@ -1,8 +1,8 @@
-import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key, KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import { addHexPrefix } from 'ethereumjs-util'
 import * as SDK from 'gridplus-sdk'
 
+import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
+import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { Transaction } from '@ethereumjs/tx'
 import { serialize } from '@ethersproject/transactions'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
