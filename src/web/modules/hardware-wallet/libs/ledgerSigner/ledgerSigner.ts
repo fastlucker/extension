@@ -53,7 +53,7 @@ class LedgerSigner implements KeystoreSigner {
       const serializedUnsigned = serialize(unsignedTxObj)
 
       // @ts-ignore
-      const rsvRes = await this.controller!.app!.signTransaction(
+      const rsvRes = await this.controller.app.signTransaction(
         this._getDerivationPath(this.key.meta!.index),
         serializedUnsigned.substr(2)
       )
@@ -151,8 +151,11 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const rsvRes = await this.controller!.app!.signPersonalMessage(
-        this._getDerivationPath(this.key.meta!.index),
+        this.key.meta?.hdPath || LEDGER_LIVE_HD_PATH,
         stripHexPrefix(hash)
+        // TODO: data for testing
+        // "m/44'/60'/1'/0/0",
+        // Buffer.from('test').toString('hex')
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
@@ -165,12 +168,13 @@ class LedgerSigner implements KeystoreSigner {
 
       // TODO: check signers matching
       // Check if we can do this with verifyMessage
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
+      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
         throw new Error("ledgerSigner: the signature doesn't match the right address")
       }
 
       return signature
     } catch (e: any) {
+      console.error(e)
       throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
     }
   }
