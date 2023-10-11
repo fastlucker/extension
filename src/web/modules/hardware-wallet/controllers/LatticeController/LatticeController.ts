@@ -33,8 +33,8 @@ class LatticeController extends EventEmitter {
 
   network: any
 
-  // TODO:
-  model = 'unknown'
+  // There is only one Grid+ device
+  model = 'lattice'
 
   constructor() {
     super()
