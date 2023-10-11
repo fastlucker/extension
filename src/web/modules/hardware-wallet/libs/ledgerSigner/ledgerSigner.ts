@@ -72,6 +72,7 @@ class LedgerSigner implements KeystoreSigner {
         v: intV
       })
 
+      // TODO: validate the signature - check if the address of the signature matches the address of the key
       return signature
     } catch (e: any) {
       throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
@@ -162,6 +163,8 @@ class LedgerSigner implements KeystoreSigner {
       const sender = publicToAddress(publicKey)
       const signedWithKey = bufferToHex(sender)
 
+      // TODO: check signers matching
+      // Check if we can do this with verifyMessage
       if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
         throw new Error("ledgerSigner: the signature doesn't match the right address")
       }
