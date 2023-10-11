@@ -86,7 +86,16 @@ const TransferScreen = () => {
     return () => {
       window.removeEventListener('beforeunload', handleReset)
     }
-  }, [constants, dispatch, mainCtrl.isReady, mainCtrl.selectedAccount, preSelectedToken, tokens])
+  }, [
+    constants,
+    dispatch,
+    handleReset,
+    mainCtrl.isReady,
+    mainCtrl.selectedAccount,
+    preSelectedToken,
+    state?.isInitialized,
+    tokens
+  ])
 
   useEffect(() => {
     const onUpdate = (newState: any) => {
