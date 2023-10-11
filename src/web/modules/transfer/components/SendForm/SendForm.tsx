@@ -119,40 +119,39 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     [dispatch]
   )
 
-  const setAmount = useCallback(
-    (value: string) =>
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_SET_AMOUNT',
-        params: {
-          amount: value
-        }
-      }),
-    [dispatch]
-  )
-
-  const setMaxAmount = useCallback(
-    () =>
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT'
-      }),
-    [dispatch]
-  )
-
   const sendTransaction = useCallback(async () => {
     await dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
   }, [dispatch])
 
-  const setRecipientAddress = useCallback(
-    (value: string) =>
+  const updateTransferCtrlProperty = useCallback(
+    (key: string, value: string | boolean) =>
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_SET_RECIPIENT_ADDRESS',
+        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
         params: {
-          recipientAddress: value
+          [key]: value
         }
       }),
     [dispatch]
+  )
+
+  const onAmountChange = useCallback(
+    (newAmount: string) => {
+      updateTransferCtrlProperty('amount', newAmount)
+    },
+    [updateTransferCtrlProperty]
+  )
+
+  const setMaxAmount = useCallback(() => {
+    updateTransferCtrlProperty('setMaxAmount', true)
+  }, [updateTransferCtrlProperty])
+
+  const setRecipientAddress = useCallback(
+    (text: string) => {
+      updateTransferCtrlProperty('recipientAddress', text)
+    },
+    [updateTransferCtrlProperty]
   )
 
   useEffect(() => {
@@ -194,7 +193,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
         amount={amount}
         selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
         errorMessage={validationFormMsgs?.messages?.amount || ''}
-        onAmountChange={setAmount}
+        onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />

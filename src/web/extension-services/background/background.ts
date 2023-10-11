@@ -377,14 +377,10 @@ async function init() {
               return mainCtrl.transfer.reset()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
-            case 'MAIN_CONTROLLER_TRANSFER_SET_RECIPIENT_ADDRESS':
-              return mainCtrl.transfer.setRecipientAddress(data.params.recipientAddress)
+            case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
+              return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
               return mainCtrl.transfer.onRecipientAddressChange()
-            case 'MAIN_CONTROLLER_TRANSFER_SET_AMOUNT':
-              return mainCtrl.transfer.setAmount(data.params.amount)
-            case 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT':
-              return mainCtrl.transfer.setMaxAmount()
             case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
               return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {

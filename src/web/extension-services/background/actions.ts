@@ -146,22 +146,17 @@ type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
 }
 
-type MainControllerTransferSetRecipientAddressAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_SET_RECIPIENT_ADDRESS'
-  params: { recipientAddress: string }
+type MainControllerTransferUpdateAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
+  params: {
+    recipientAddress?: string
+    amount?: string
+    setMaxAmount?: boolean
+  }
 }
 
 type MainControllerTransferOnRecipientAddressChangeAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-}
-
-type MainControllerTransferSetAmountAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_SET_AMOUNT'
-  params: { amount: string }
-}
-
-type MainControllerTransferSetMaxAmountAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_SET_MAX_AMOUNT'
 }
 
 type MainControllerTransferHandleTokenChangeAction = {
@@ -283,10 +278,8 @@ export type Action =
   | MainControllerTransferInitAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
-  | MainControllerTransferSetRecipientAddressAction
+  | MainControllerTransferUpdateAction
   | MainControllerTransferOnRecipientAddressChangeAction
-  | MainControllerTransferSetAmountAction
-  | MainControllerTransferSetMaxAmountAction
   | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
