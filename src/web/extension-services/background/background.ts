@@ -380,7 +380,9 @@ async function init() {
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
-              return mainCtrl.transfer.onRecipientAddressChange()
+              return mainCtrl.transfer.onRecipientAddressChange({
+                isRecipientAddressUnknownAgreed: data.params.isRecipientAddressUnknownAgreed
+              })
             case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
               return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {

@@ -15,7 +15,6 @@ import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { mapTokenOptions } from '@web/utils/maps'
 
-import useTransferValidation from '../../hooks/useTransferValidation'
 import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
@@ -82,7 +81,9 @@ const SendForm = ({ state, isAllReady = false }: any) => {
     isRecipientSmartContract,
     isRecipientDomainResolving,
     isSWWarningVisible,
-    tokens
+    tokens,
+    isFormValid,
+    validationFormMsgs
   } = state
 
   const { t } = useTranslation()
@@ -101,12 +102,6 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
   const isRecipientAddressUnknownAgreed = watch('isRecipientAddressUnknownAgreed')
   const isSWWarningAgreed = watch('isSWWarningAgreed')
-  const { disabled, validationFormMsgs } = useTransferValidation({
-    ...state,
-    recipientAddress: debouncedRecipientAddress,
-    isRecipientAddressUnknownAgreed,
-    isSWWarningAgreed
-  })
 
   const handleChangeToken = useCallback(
     (value: string) =>
@@ -175,9 +170,18 @@ const SendForm = ({ state, isAllReady = false }: any) => {
   useEffect(() => {
     if (!debouncedRecipientAddress) return
     dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE',
+      params: {
+        isRecipientAddressUnknownAgreed
+      }
     })
-  }, [debouncedRecipientAddress, dispatch])
+  }, [debouncedRecipientAddress, dispatch, isRecipientAddressUnknownAgreed])
+
+  console.log(
+    !isFormValid,
+    !isSWWarningAgreed && isSWWarningVisible,
+    !isRecipientAddressUnknownAgreed && isRecipientAddressUnknown
+  )
 
   return (
     <View style={styles.container}>
@@ -192,7 +196,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
       <InputSendToken
         amount={amount}
         selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
-        errorMessage={validationFormMsgs?.messages?.amount || ''}
+        errorMessage={validationFormMsgs.amount.message}
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
@@ -203,7 +207,7 @@ const SendForm = ({ state, isAllReady = false }: any) => {
           address={recipientAddress}
           uDAddress={recipientUDAddress}
           ensAddress={recipientEnsAddress}
-          addressValidationMsg={validationFormMsgs?.messages?.address || ''}
+          addressValidationMsg={validationFormMsgs.address.message}
           control={control}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
@@ -244,7 +248,11 @@ const SendForm = ({ state, isAllReady = false }: any) => {
         disabledStyle={{ opacity: 0.6 }}
         style={styles.button}
         onPress={sendTransaction}
-        disabled={disabled}
+        disabled={
+          !isFormValid ||
+          (!isSWWarningAgreed && isSWWarningVisible) ||
+          (!isRecipientAddressUnknownAgreed && isRecipientAddressUnknown)
+        }
       />
     </View>
   )
