@@ -19,10 +19,8 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
 
   useEffect(() => {
-    if (!state?.isInitialized) {
-      initializeController()
-    }
-  }, [state?.isInitialized])
+    initializeController()
+  }, [initializeController])
 
   const handleReset = useCallback(
     () =>
