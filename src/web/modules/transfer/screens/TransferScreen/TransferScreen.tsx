@@ -38,7 +38,9 @@ const TransferScreen = () => {
   }, [navigate, dispatch])
 
   useEffect(() => {
+    window.addEventListener('beforeunload', handleReset)
     return () => {
+      window.removeEventListener('beforeunload', handleReset)
       handleReset()
     }
   }, [handleReset])
