@@ -439,7 +439,7 @@ async function init() {
                 addr: eoaAddress,
                 type: keyType,
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
-                meta: { model: models[keyType], hdPath: getHdPath(derivations[keyType], slot) }
+                meta: { model: models[keyType], hdPath: getHdPath(derivations[keyType], slot - 1) }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)
