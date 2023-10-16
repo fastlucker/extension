@@ -149,6 +149,10 @@ type MainControllerTransferBuildUserRequestAction = {
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: {
+    selectedAccount?: string
+    preSelectedToken?: string
+    humanizerInfo?: HumanizerInfoType
+    tokens?: TokenResult[]
     recipientAddress?: string
     amount?: string
     setMaxAmount?: boolean

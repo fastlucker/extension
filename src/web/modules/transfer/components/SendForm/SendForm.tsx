@@ -195,7 +195,7 @@ const SendForm = ({
       <InputSendToken
         amount={amount}
         selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
-        errorMessage={validationFormMsgs.amount.message}
+        errorMessage={validationFormMsgs?.amount.message}
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
@@ -206,7 +206,7 @@ const SendForm = ({
           address={recipientAddress}
           uDAddress={recipientUDAddress}
           ensAddress={recipientEnsAddress}
-          addressValidationMsg={validationFormMsgs.recipientAddress.message}
+          addressValidationMsg={validationFormMsgs?.recipientAddress.message}
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientDomainResolving={isRecipientDomainResolving}
