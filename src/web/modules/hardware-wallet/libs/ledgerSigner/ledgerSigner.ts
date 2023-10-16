@@ -152,15 +152,13 @@ class LedgerSigner implements KeystoreSigner {
     try {
       const rsvRes = await this.controller!.app!.signPersonalMessage(
         this.key.meta?.hdPath || LEDGER_LIVE_HD_PATH,
-        stripHexPrefix(hash)
-        // TODO: data for testing
-        // "m/44'/60'/1'/0/0",
-        // Buffer.from('test').toString('hex')
+        stripHexPrefix(hash) || Buffer.from('0x').toString('hex')
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
       const sigParams = fromRpcSig(toBuffer(signature) as any)
-      const message = toBuffer(hash)
+      // FIXME: empty message case outputs different address in the signature and fails the validation
+      const message = stripHexPrefix(hash) ? toBuffer(hash) : Buffer.from('0x', 'hex')
       const msgHash = hashPersonalMessage(message)
       const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
       const sender = publicToAddress(publicKey)
