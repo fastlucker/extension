@@ -169,13 +169,20 @@ class LedgerSigner implements KeystoreSigner {
       // TODO: check signers matching
       // Check if we can do this with verifyMessage
       if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
-        throw new Error("ledgerSigner: the signature doesn't match the right address")
+        console.error("ledgerSigner: address in signature doesn't match the key address")
+
+        throw new Error(
+          "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
+        )
       }
 
       return signature
     } catch (e: any) {
       console.error(e)
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(
+        e?.message ||
+          'Signing the message failed. Please try again or contact Ambire support if issue persists.'
+      )
     }
   }
 
