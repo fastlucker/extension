@@ -14,6 +14,7 @@ type Props = {
   isRecipientAddressUnknown: boolean
   isRecipientAddressUnknownAgreed: boolean
   onRecipientAddressUnknownCheckboxClick: () => void
+  addressValidationMsg: string
 }
 
 const ConfirmAddress = ({
@@ -21,13 +22,16 @@ const ConfirmAddress = ({
   onRecipientAddressUnknownCheckboxClick,
   isRecipientSmartContract,
   isRecipientAddressUnknown,
-  isRecipientAddressUnknownAgreed
+  isRecipientAddressUnknownAgreed,
+  addressValidationMsg
 }: Props) => {
   const { t } = useTranslation()
   // const { isKnownAddress } = useAddressBook()
 
   // @TODO: Removed check:  && address !== accountPresets.feeCollector
-  return !isRecipientSmartContract && !!isRecipientAddressUnknown ? (
+  return !isRecipientSmartContract &&
+    !!isRecipientAddressUnknown &&
+    addressValidationMsg !== 'Invalid address.' ? (
     <View>
       <Checkbox
         value={isRecipientAddressUnknownAgreed}

@@ -61,6 +61,7 @@ const Recipient: React.FC<Props> = ({
           isRecipientSmartContract={isRecipientSmartContract}
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          addressValidationMsg={addressValidationMsg}
           // @TODO: Address book
           onAddToAddressBook={() => {}}
         />
