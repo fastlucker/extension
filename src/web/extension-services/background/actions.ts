@@ -128,16 +128,6 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
-type MainControllerTransferInitAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_INIT'
-  params: {
-    selectedAccount: string
-    tokens: TokenResult[]
-    humanizerInfo: HumanizerInfoType
-    preSelectedToken?: string
-  }
-}
-
 type MainControllerTransferResetAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_RESET'
 }
@@ -281,7 +271,6 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
-  | MainControllerTransferInitAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction

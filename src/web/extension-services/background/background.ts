@@ -366,19 +366,12 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
-            case 'MAIN_CONTROLLER_TRANSFER_INIT':
-              return mainCtrl.transfer.init({
-                selectedAccount: data.params.selectedAccount,
-                tokens: data.params.tokens,
-                humanizerInfo: data.params.humanizerInfo,
-                preSelectedToken: data.params?.preSelectedToken
-              })
+            case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
+              return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET':
               return mainCtrl.transfer.reset()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
-            case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
-              return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
               return mainCtrl.transfer.onRecipientAddressChange()
             case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
