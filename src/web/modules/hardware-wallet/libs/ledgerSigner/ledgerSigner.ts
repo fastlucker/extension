@@ -11,7 +11,7 @@ import {
 } from 'ethereumjs-util'
 
 import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -20,11 +20,11 @@ import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-si
 const EIP_155_CONSTANT = 35
 
 class LedgerSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: LedgerController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
@@ -39,7 +39,7 @@ class LedgerSigner implements KeystoreSigner {
 
     await this.controller._reconnect()
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
+    await this.controller.unlock(this.key.meta.hdPath)
 
     try {
       const unsignedTxObj = {
@@ -54,8 +54,8 @@ class LedgerSigner implements KeystoreSigner {
 
       // @ts-ignore
       const rsvRes = await this.controller.app.signTransaction(
-        this._getDerivationPath(this.key.meta!.index),
-        serializedUnsigned.substr(2)
+        this.key.meta.hdPath,
+        serializedUnsigned.substr(2) // TODO: maybe use stripHexPrefix instead
       )
 
       const intV = parseInt(rsvRes.v, 16)
@@ -86,10 +86,12 @@ class LedgerSigner implements KeystoreSigner {
     primaryType?: string
   ) {
     if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
+    await this.controller.unlock(this.key.meta.hdPath)
 
     if (!types.EIP712Domain) {
       throw new Error('ledgerSigner: only EIP712 messages are supported')
@@ -116,7 +118,7 @@ class LedgerSigner implements KeystoreSigner {
       ).toString('hex')
 
       const rsvRes = await this.controller!.app!.signEIP712HashedMessage(
-        this._getDerivationPath(this.key.meta!.index),
+        this.key.meta.hdPath,
         domainSeparator,
         hashStructMessage
       )
@@ -161,10 +163,10 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
+    await this.controller.unlock(this.key.meta.hdPath)
 
     try {
-      const rsvRes = await this.controller!.app!.signPersonalMessage(
+      const rsvRes = await this.controller.app!.signPersonalMessage(
         this.key.meta?.hdPath || LEDGER_LIVE_HD_PATH,
         stripHexPrefix(hash)
       )
@@ -190,15 +192,6 @@ class LedgerSigner implements KeystoreSigner {
           'Signing the message failed. Please try again or contact Ambire support if issue persists.'
       )
     }
-  }
-
-  _getDerivationPath(keyIndex?: number) {
-    if (!this.controller) return LEDGER_LIVE_HD_PATH
-
-    if (keyIndex) {
-      return this.controller!._getPathForIndex(keyIndex)
-    }
-    return this.controller!.hdPath
   }
 }
 
