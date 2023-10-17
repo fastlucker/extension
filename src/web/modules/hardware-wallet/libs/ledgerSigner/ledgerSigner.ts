@@ -144,7 +144,9 @@ class LedgerSigner implements KeystoreSigner {
 
   async signMessage(hash: string | Uint8Array) {
     if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (hash instanceof Uint8Array) {
@@ -176,7 +178,6 @@ class LedgerSigner implements KeystoreSigner {
       const signedWithKey = bufferToHex(sender)
 
       if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
-        console.error("ledgerSigner: address in signature doesn't match the key address")
         throw new Error(
           "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
         )
@@ -184,7 +185,6 @@ class LedgerSigner implements KeystoreSigner {
 
       return signature
     } catch (e: any) {
-      console.error(e)
       throw new Error(
         e?.message ||
           'Signing the message failed. Please try again or contact Ambire support if issue persists.'
