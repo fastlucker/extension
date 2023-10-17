@@ -54,18 +54,16 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
-  const signers = {
-    internal: KeystoreSigner,
-    ledger: LedgerSigner,
-    trezor: TrezorSigner,
-    lattice: LatticeSigner
-  }
-
   const mainCtrl = new MainController({
     storage,
     fetch,
     relayerUrl: RELAYER_URL,
-    keystoreSigners: signers,
+    keystoreSigners: {
+      internal: KeystoreSigner,
+      ledger: LedgerSigner,
+      trezor: TrezorSigner,
+      lattice: LatticeSigner
+    },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
     },
