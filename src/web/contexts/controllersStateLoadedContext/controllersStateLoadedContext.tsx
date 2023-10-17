@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -19,6 +20,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const notificationState = useNotificationControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
+  const emailVaultState = useEmailVaultControllerState()
 
   useEffect(() => {
     // Initially we set all controller states to empty object
@@ -26,13 +28,15 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // state data has been returned from the background service
     // so we update the isStateLoaded to true
     if (
-      !Object.keys(mainState).length &&
-      !Object.keys(accountAdderState).length &&
-      !Object.keys(keystoreState).length &&
-      !Object.keys(signMessageState).length &&
-      !Object.keys(notificationState).length &&
-      !Object.keys(portfolioState).length &&
-      !Object.keys(activityState).length
+      Object.keys(mainState).length &&
+      Object.keys(accountAdderState).length &&
+      Object.keys(keystoreState).length &&
+      Object.keys(signMessageState).length &&
+      Object.keys(notificationState).length &&
+      Object.keys(portfolioState).length &&
+      Object.keys(activityState).length &&
+      Object.keys(emailVaultState).length &&
+      emailVaultState.isReady
     ) {
       setIsStateLoaded(true)
     }
@@ -43,7 +47,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     signMessageState,
     notificationState,
     portfolioState,
-    activityState
+    activityState,
+    emailVaultState
   ])
 
   return (

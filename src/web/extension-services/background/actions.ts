@@ -157,6 +157,15 @@ type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
 }
 
+type EmailVaultControllerGetInfoAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
+  params: { email: string }
+}
+type EmailVaultControllerUploadKeystoreSecretAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
+  params: { email: string }
+}
+
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
   params: { origin: string }
@@ -225,6 +234,8 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
+  | EmailVaultControllerGetInfoAction
+  | EmailVaultControllerUploadKeystoreSecretAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction

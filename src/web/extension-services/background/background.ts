@@ -448,6 +448,11 @@ async function init() {
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
 
+            case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
+              return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
+              return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':

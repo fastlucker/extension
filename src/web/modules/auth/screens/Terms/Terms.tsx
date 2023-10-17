@@ -57,7 +57,7 @@ const Terms = () => {
       return
     }
     if (flow === 'email') {
-      navigate(WEB_ROUTES.createEmailVault, {
+      navigate(WEB_ROUTES.emailVault, {
         state: { backTo: WEB_ROUTES.getStarted, flow: 'email' }
       })
       return

@@ -47,7 +47,7 @@ const MOBILE_ROUTES = {
 
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
-  createEmailVault: 'create-email-vault',
+  emailVault: 'email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',

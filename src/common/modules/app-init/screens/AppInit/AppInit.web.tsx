@@ -24,6 +24,7 @@ import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderC
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
+import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
@@ -54,7 +55,8 @@ const AppInit = () => {
               <SignMessageControllerStateProvider>
                 <ActivityControllerStateProvider>
                   <NotificationControllerStateProvider>
-                      <PortfolioControllerStateProvider>
+                    <PortfolioControllerStateProvider>
+                      <EmailVaultControllerStateProvider>
                         <ControllersStateLoadedProvider>
                           <PortalProvider>
                             <LoaderProvider>
@@ -87,7 +89,8 @@ const AppInit = () => {
                             </LoaderProvider>
                           </PortalProvider>
                         </ControllersStateLoadedProvider>
-                      </PortfolioControllerStateProvider>
+                      </EmailVaultControllerStateProvider>
+                    </PortfolioControllerStateProvider>
                   </NotificationControllerStateProvider>
                 </ActivityControllerStateProvider>
               </SignMessageControllerStateProvider>

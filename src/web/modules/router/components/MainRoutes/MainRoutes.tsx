@@ -27,7 +27,7 @@ import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
-import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
+import EmailVaultScreen from '@web/modules/emailVault/screens/EmailVaultScreen'
 import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -84,7 +84,7 @@ const MainRoutes = () => {
 
             <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
-            <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
+            <Route path={WEB_ROUTES.emailVault} element={<EmailVaultScreen />} />
             <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
             <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
             <Route

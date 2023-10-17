@@ -64,8 +64,8 @@ const routesConfig: {
     route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store')
   },
-  [ROUTES.createEmailVault]: {
-    route: ROUTES.createEmailVault
+  [ROUTES.emailVault]: {
+    route: ROUTES.emailVault
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,

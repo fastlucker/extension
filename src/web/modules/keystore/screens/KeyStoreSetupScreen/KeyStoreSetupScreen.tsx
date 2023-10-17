@@ -3,13 +3,10 @@ import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { isValidPassword } from '@ambire-common/services/validations'
-import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 import Button from '@common/components/Button'
-import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
@@ -19,7 +16,7 @@ import useRoute from '@common/hooks/useRoute'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG, SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import styles from '@web/components/TabLayoutWrapper/styles'
@@ -38,7 +35,6 @@ const KeyStoreSetupScreen = () => {
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false)
-  const [enableEmailRecovery, onEnableEmailRecoveryChange] = useState(false)
   const state = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
 
@@ -75,7 +71,7 @@ const KeyStoreSetupScreen = () => {
 
       setTimeout(() => {
         if (params?.flow === 'email') {
-          navigate(WEB_ROUTES.createEmailVault, {
+          navigate(WEB_ROUTES.emailVault, {
             state: { backTo: WEB_ROUTES.getStarted }
           })
           return
@@ -173,13 +169,6 @@ const KeyStoreSetupScreen = () => {
                 )}
                 name="confirmPassword"
               />
-              {params?.flow === 'email' && (
-                <Checkbox
-                  value={enableEmailRecovery}
-                  onValueChange={() => onEnableEmailRecoveryChange((prev) => !prev)}
-                  label={t('Key store recovery by email')}
-                />
-              )}
 
               <Button
                 textStyle={{ fontSize: 14 }}
