@@ -1,4 +1,3 @@
-import * as sigUtil from 'eth-sig-util'
 import {
   bufferToHex,
   ecrecover,
@@ -9,14 +8,13 @@ import {
   toBuffer,
   toChecksumAddress
 } from 'ethereumjs-util'
+import { TypedDataEncoder, verifyTypedData } from 'ethers'
 
 import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 
 const EIP_155_CONSTANT = 35
 
@@ -99,44 +97,50 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
+    // To resolve the "ambiguous primary types or unused types" error, remove
+    // the `EIP712Domain` from `types` object. The domain type is inbuilt in
+    // the EIP712 standard and hence TypedDataEncoder so you do not need to
+    // specify it in the types, see:
+    // {@link https://ethereum.stackexchange.com/a/151930}
+    if (types.EIP712Domain) {
+      // eslint-disable-next-line no-param-reassign
+      delete types.EIP712Domain
+    }
+
     try {
-      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
-        'EIP712Domain',
-        domain,
-        types,
-        true
-      ).toString('hex')
-      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-        Object.keys(types)[0], // primary type
-        message,
-        types,
-        true
-      ).toString('hex')
+      const domainSeparatorHex = TypedDataEncoder.hashDomain(domain)
+      const hashStructMessageHex = TypedDataEncoder.hash(domain, types, message)
 
       const rsvRes = await this.controller.app!.signEIP712HashedMessage(
         this.key.meta.hdPath,
         domainSeparatorHex,
         hashStructMessageHex
       )
-      let v: any = rsvRes.v - 27
-      v = v.toString(16)
-      if (v.length < 2) {
-        v = `0${v}`
-      }
 
-      const signature = `0x${rsvRes.r}${rsvRes.s}${v}`
-      const signedWithKey = sigUtil.recoverTypedSignature_v4({
-        data: { types, domain, message, primaryType },
-        sig: signature
-      })
+      // TODO: That's not needed.
+      // Compute the signature
+      // let v: any = rsvRes.v - 27
+      // v = v.toString(16)
+      // if (v.length < 2) {
+      //   v = `0${v}`
+      // }
 
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
-        throw new Error("ledgerSigner: the signature doesn't match the right key")
+      const signature = `0x${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`
+
+      // FIXME: Figure out why `signedWithKey` does not match `this.key.addr`
+      const signedWithKey = verifyTypedData(domain, types, message, signature)
+      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
+        throw new Error(
+          "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
+        )
       }
 
       return signature
     } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(
+        e?.message ||
+          'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.'
+      )
     }
   }
 
