@@ -147,28 +147,30 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
+    if (!stripHexPrefix(hash)) {
+      throw new Error(
+        'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
+      )
+    }
+
     await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
 
     try {
       const rsvRes = await this.controller!.app!.signPersonalMessage(
         this.key.meta?.hdPath || LEDGER_LIVE_HD_PATH,
-        stripHexPrefix(hash) || Buffer.from('0x').toString('hex')
+        stripHexPrefix(hash)
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
       const sigParams = fromRpcSig(toBuffer(signature) as any)
-      // FIXME: empty message case outputs different address in the signature and fails the validation
-      const message = stripHexPrefix(hash) ? toBuffer(hash) : Buffer.from('0x', 'hex')
+      const message = toBuffer(hash)
       const msgHash = hashPersonalMessage(message)
       const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
       const sender = publicToAddress(publicKey)
       const signedWithKey = bufferToHex(sender)
 
-      // TODO: check signers matching
-      // Check if we can do this with verifyMessage
       if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
         console.error("ledgerSigner: address in signature doesn't match the key address")
-
         throw new Error(
           "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
         )
