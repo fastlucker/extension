@@ -12,6 +12,7 @@ import {
 
 import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -79,12 +80,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
+  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -104,23 +100,23 @@ class LedgerSigner implements KeystoreSigner {
     }
 
     try {
-      const domainSeparator = sigUtil.TypedDataUtils.hashStruct(
+      const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
         'EIP712Domain',
         domain,
         types,
         true
       ).toString('hex')
-      const hashStructMessage = sigUtil.TypedDataUtils.hashStruct(
-        Object.keys(types)[2],
+      const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+        Object.keys(types)[0], // primary type
         message,
         types,
         true
       ).toString('hex')
 
-      const rsvRes = await this.controller!.app!.signEIP712HashedMessage(
+      const rsvRes = await this.controller.app!.signEIP712HashedMessage(
         this.key.meta.hdPath,
-        domainSeparator,
-        hashStructMessage
+        domainSeparatorHex,
+        hashStructMessageHex
       )
       let v: any = rsvRes.v - 27
       v = v.toString(16)
