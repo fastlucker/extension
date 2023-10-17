@@ -183,7 +183,7 @@ module.exports = async function (env, argv) {
           to: 'browser-polyfill.js'
         },
         {
-          from: './node_modules/setimmediate/setimmediate.js',
+          from: './node_modules/setimmediate/setImmediate.js',
           to: 'setimmediate.js'
         },
         {
