@@ -142,9 +142,15 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signMessage(hash: string) {
+  async signMessage(hash: string | Uint8Array) {
     if (!this.controller) {
       throw new Error('ledgerSigner: ledgerController not initialized')
+    }
+
+    if (hash instanceof Uint8Array) {
+      throw new Error(
+        "Request for signing a Uint8Array detected. That's not a typical sign message request and it is disallowed with Ambire."
+      )
     }
 
     if (!stripHexPrefix(hash)) {
