@@ -8,7 +8,7 @@ import {
   toBuffer,
   toChecksumAddress
 } from 'ethereumjs-util'
-import { TypedDataEncoder, verifyTypedData } from 'ethers'
+import { verifyTypedData } from 'ethers'
 
 import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
@@ -97,38 +97,29 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    // To resolve the "ambiguous primary types or unused types" error, remove
-    // the `EIP712Domain` from `types` object. The domain type is inbuilt in
-    // the EIP712 standard and hence TypedDataEncoder so you do not need to
-    // specify it in the types, see:
-    // {@link https://ethereum.stackexchange.com/a/151930}
-    if (types.EIP712Domain) {
-      // eslint-disable-next-line no-param-reassign
-      delete types.EIP712Domain
-    }
-
     try {
-      const domainSeparatorHex = TypedDataEncoder.hashDomain(domain)
-      const hashStructMessageHex = TypedDataEncoder.hash(domain, types, message)
-
-      const rsvRes = await this.controller.app!.signEIP712HashedMessage(
-        this.key.meta.hdPath,
-        domainSeparatorHex,
-        hashStructMessageHex
-      )
-
-      // TODO: That's not needed.
-      // Compute the signature
-      // let v: any = rsvRes.v - 27
-      // v = v.toString(16)
-      // if (v.length < 2) {
-      //   v = `0${v}`
-      // }
+      const rsvRes = await this.controller.app!.signEIP712Message(this.key.meta.hdPath, {
+        domain,
+        types,
+        message,
+        primaryType
+      })
 
       const signature = `0x${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`
 
-      // FIXME: Figure out why `signedWithKey` does not match `this.key.addr`
-      const signedWithKey = verifyTypedData(domain, types, message, signature)
+      // To resolve the "ambiguous primary types or unused types" error, remove
+      // the `EIP712Domain` from `types` object. The domain type is inbuilt in
+      // the EIP712 standard and hence TypedDataEncoder so you do not need to
+      // specify it in the types, see:
+      // {@link https://ethereum.stackexchange.com/a/151930}
+      const typesWithoutEIP712Domain = { ...types }
+      if (typesWithoutEIP712Domain.EIP712Domain) {
+        // eslint-disable-next-line no-param-reassign
+        delete typesWithoutEIP712Domain.EIP712Domain
+      }
+
+      // TODO: Double-check if this is needed
+      const signedWithKey = verifyTypedData(domain, typesWithoutEIP712Domain, message, signature)
       if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
         throw new Error(
           "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
