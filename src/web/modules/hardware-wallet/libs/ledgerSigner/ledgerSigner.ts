@@ -1,14 +1,4 @@
-import {
-  bufferToHex,
-  ecrecover,
-  fromRpcSig,
-  hashPersonalMessage,
-  publicToAddress,
-  stripHexPrefix,
-  toBuffer,
-  toChecksumAddress
-} from 'ethereumjs-util'
-import { verifyTypedData } from 'ethers'
+import { stripHexPrefix } from 'ethereumjs-util'
 
 import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
@@ -88,12 +78,14 @@ class LedgerSigner implements KeystoreSigner {
     await this.controller.unlock(this.key.meta.hdPath)
 
     if (!types.EIP712Domain) {
-      throw new Error('ledgerSigner: only EIP712 messages are supported')
+      throw new Error(
+        'Ambire only supports signing EIP712 typed data messages. Please try again with a valid EIP712 message.'
+      )
     }
 
     if (!primaryType) {
       throw new Error(
-        'ledgerSigner: primaryType is missing but required for signing typed data with a ledger device'
+        'The primaryType is missing in the typed data message incoming. Please try again with a valid EIP712 message.'
       )
     }
 
@@ -106,26 +98,6 @@ class LedgerSigner implements KeystoreSigner {
       })
 
       const signature = `0x${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`
-
-      // To resolve the "ambiguous primary types or unused types" error, remove
-      // the `EIP712Domain` from `types` object. The domain type is inbuilt in
-      // the EIP712 standard and hence TypedDataEncoder so you do not need to
-      // specify it in the types, see:
-      // {@link https://ethereum.stackexchange.com/a/151930}
-      const typesWithoutEIP712Domain = { ...types }
-      if (typesWithoutEIP712Domain.EIP712Domain) {
-        // eslint-disable-next-line no-param-reassign
-        delete typesWithoutEIP712Domain.EIP712Domain
-      }
-
-      // TODO: Double-check if this is needed
-      const signedWithKey = verifyTypedData(domain, typesWithoutEIP712Domain, message, signature)
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
-        throw new Error(
-          "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
-        )
-      }
-
       return signature
     } catch (e: any) {
       throw new Error(
@@ -163,19 +135,6 @@ class LedgerSigner implements KeystoreSigner {
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
-      const sigParams = fromRpcSig(toBuffer(signature) as any)
-      const message = toBuffer(hash)
-      const msgHash = hashPersonalMessage(message)
-      const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
-      const sender = publicToAddress(publicKey)
-      const signedWithKey = bufferToHex(sender)
-
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.addr)) {
-        throw new Error(
-          "Signature validation failed. Address in signature doesn't match key address. Please try again or contact Ambire support if issue persists."
-        )
-      }
-
       return signature
     } catch (e: any) {
       throw new Error(
