@@ -33,6 +33,9 @@ class LatticeController extends EventEmitter {
 
   network: any
 
+  // There is only one Grid+ device
+  model = 'lattice'
+
   constructor() {
     super()
     this.appName = 'Ambire Wallet Extension'

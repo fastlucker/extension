@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { BIP44_HD_PATH } from '@ambire-common/consts/derivation'
+import {
+  BIP44_HD_PATH,
+  LATTICE_STANDARD_HD_PATH,
+  LEDGER_LIVE_HD_PATH
+} from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -267,19 +271,18 @@ async function init() {
                 app: ledgerCtrl.app
               })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
                   'ledger'
-                )
+                ),
+                derivationPath: LEDGER_LIVE_HD_PATH
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
                 derivationPath: BIP44_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
@@ -295,8 +298,8 @@ async function init() {
                 getHDPathIndices: latticeCtrl._getHDPathIndices
               })
               return mainCtrl.accountAdder.init({
-                ...data.params,
                 keyIterator,
+                derivationPath: LATTICE_STANDARD_HD_PATH,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -391,7 +394,7 @@ async function init() {
               return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock(data?.params?.hdPath)
+              return ledgerCtrl.unlock(LEDGER_LIVE_HD_PATH)
             case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
               return ledgerCtrl._getPathForIndex(data.params)
             case 'LEDGER_CONTROLLER_APP':
@@ -417,13 +420,30 @@ async function init() {
                 data.params.leaveUnlocked
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { type, model, hdPath } = trezorCtrl
+              const { keyType } = data.params
+              const models: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: ledgerCtrl.model,
+                trezor: trezorCtrl.model,
+                lattice: latticeCtrl.model
+              }
+
+              const hdPaths: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: ledgerCtrl.hdPath,
+                trezor: trezorCtrl.hdPath,
+                lattice: latticeCtrl.hdPath
+              }
+
+              const keyWalletNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+                ledger: 'Ledger',
+                trezor: 'Trezor',
+                lattice: 'Lattice'
+              }
 
               const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
                 addr: eoaAddress,
-                type: type as Key['type'],
-                label: `Trezor on slot ${slot}`,
-                meta: { model, hdPath }
+                type: keyType,
+                label: `${keyWalletNames[keyType]} on slot ${slot}`,
+                meta: { model: models[keyType], hdPath: hdPaths[keyType] }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)

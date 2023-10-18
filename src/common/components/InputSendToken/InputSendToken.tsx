@@ -23,10 +23,10 @@ const MaxAmount = ({
         {t('Available Amount:')}
       </Text>
 
-      {maxAmount ? (
+      {maxAmount !== undefined && maxAmount !== null ? (
         <View style={styles.maxAmountValueWrapper}>
           <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
-            {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+            {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
           </Text>
           {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
         </View>
