@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
+import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
@@ -45,13 +46,17 @@ const TransferScreen = () => {
 
   return (
     <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
-      <View style={styles.container}>
-        {state?.isInitialized ? (
+      {state?.isInitialized ? (
+        <View style={styles.container}>
           <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
-        ) : null}
-        <View style={styles.separator} />
-        <AddressBookSection />
-      </View>
+          <View style={styles.separator} />
+          <AddressBookSection />
+        </View>
+      ) : (
+        <View style={styles.spinnerContainer}>
+          <Spinner />
+        </View>
+      )}
     </TabLayoutWrapperMainContent>
   )
 }
