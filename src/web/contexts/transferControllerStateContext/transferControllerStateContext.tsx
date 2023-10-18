@@ -56,14 +56,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
         preSelectedToken: preSelectedToken || undefined
       }
     })
-  }, [
-    constants,
-    dispatch,
-    mainState.isReady,
-    mainState.selectedAccount,
-    state?.isInitialized,
-    tokens
-  ])
+  }, [constants, dispatch, mainState.isReady, mainState.selectedAccount, preSelectedToken, tokens])
 
   useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {
