@@ -167,7 +167,7 @@ const SendForm = ({
       })
 
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
       })
     } catch (e: any) {
       console.error(e)
