@@ -1,6 +1,5 @@
 import { stripHexPrefix } from 'ethereumjs-util'
 
-import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { serialize } from '@ethersproject/transactions'
@@ -129,7 +128,7 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const rsvRes = await this.controller.app!.signPersonalMessage(
-        this.key.meta?.hdPath || LEDGER_LIVE_HD_PATH,
+        this.key.meta.hdPath,
         stripHexPrefix(hash)
       )
 
