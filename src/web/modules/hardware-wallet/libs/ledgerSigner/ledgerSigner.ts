@@ -61,7 +61,6 @@ class LedgerSigner implements KeystoreSigner {
         v: intV
       })
 
-      // TODO: validate the signature - check if the address of the signature matches the address of the key
       return signature
     } catch (e: any) {
       throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
