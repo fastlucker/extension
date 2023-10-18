@@ -33,7 +33,7 @@ const TransferScreen = () => {
   const onBack = useCallback(() => {
     handleReset()
     navigate(ROUTES.dashboard)
-  }, [navigate, dispatch])
+  }, [navigate, handleReset])
 
   useEffect(() => {
     window.addEventListener('beforeunload', handleReset)
