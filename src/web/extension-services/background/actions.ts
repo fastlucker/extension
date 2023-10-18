@@ -1,7 +1,10 @@
+import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
+
 import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -101,6 +104,44 @@ type MainControllerActivityInitAction = {
 }
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
+}
+
+type MainControllerTransferResetAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+}
+
+type MainControllerTransferResetFormAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+}
+
+type MainControllerTransferBuildUserRequestAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
+}
+
+type MainControllerTransferUpdateAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
+  params: {
+    selectedAccount?: string
+    preSelectedToken?: string
+    humanizerInfo?: HumanizerInfoType
+    tokens?: TokenResult[]
+    recipientAddress?: string
+    amount?: string
+    setMaxAmount?: boolean
+    isSWWarningAgreed?: boolean
+    isRecipientAddressUnknownAgreed?: boolean
+  }
+}
+
+type MainControllerTransferOnRecipientAddressChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+}
+
+type MainControllerTransferHandleTokenChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE'
+  params: {
+    tokenAddressAndNetwork: string
+  }
 }
 
 type NotificationControllerResolveRequestAction = {
@@ -210,6 +251,12 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerTransferResetAction
+  | MainControllerTransferResetFormAction
+  | MainControllerTransferBuildUserRequestAction
+  | MainControllerTransferUpdateAction
+  | MainControllerTransferOnRecipientAddressChangeAction
+  | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

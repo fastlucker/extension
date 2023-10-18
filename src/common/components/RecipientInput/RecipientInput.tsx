@@ -19,6 +19,7 @@ import styles from './styles'
 interface Props extends InputProps {
   isValidUDomain?: boolean
   isValidEns?: boolean
+  isRecipientDomainResolving?: boolean
   label?: string
 }
 
@@ -26,6 +27,7 @@ const RecipientInput: React.FC<Props> = ({
   onChangeText,
   isValidUDomain,
   isValidEns,
+  isRecipientDomainResolving,
   label,
   ...rest
 }) => {
@@ -33,6 +35,9 @@ const RecipientInput: React.FC<Props> = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const setValidationLabel = useMemo(() => {
+    if (isRecipientDomainResolving) {
+      return t('Resolving domain...')
+    }
     if (isValidUDomain) {
       return t('Valid Unstoppable domainsⓇ domain')
     }
