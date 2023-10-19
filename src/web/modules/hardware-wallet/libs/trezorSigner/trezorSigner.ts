@@ -1,7 +1,7 @@
 import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
 
 import { TREZOR_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
@@ -14,11 +14,11 @@ const DELAY_BETWEEN_POPUPS = 1000
 const EIP_155_CONSTANT = 35
 
 class TrezorSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: TrezorController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
@@ -117,7 +117,7 @@ class TrezorSigner implements KeystoreSigner {
     throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
   }
 
-  async signMessage(hash: string) {
+  async signMessage(hash: string | Uint8Array) {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
     }
@@ -125,20 +125,17 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const res: any = await trezorConnect.ethereumSignMessage({
-      path: this._getDerivationPath(),
+    const res = await trezorConnect.ethereumSignMessage({
+      path: this.key.meta.hdPath,
       message: stripHexPrefix(hash),
       hex: true
     })
 
-    if (res.success) {
-      if (res.payload.address !== toChecksumAddress(this.key.id)) {
-        throw new Error("trezorSigner: the signature doesn't match the right address")
-      }
-      return `0x${res.payload.signature}`
+    if (!res.success) {
+      throw new Error(res.payload.error || 'trezorSigner: unknown error')
     }
 
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
+    return `0x${res.payload.signature}`
   }
 
   _getDerivationPath() {
