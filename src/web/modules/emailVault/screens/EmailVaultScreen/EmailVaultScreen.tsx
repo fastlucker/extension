@@ -11,6 +11,7 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import EmailAnimation from '@common/modules/auth/components/EmailAnimation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -26,16 +27,22 @@ import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import { getDefaultSelectedAccount } from '@web/modules/account-adder/helpers/account'
 
 const EmailVaultScreen = () => {
   const emailVaultState = useEmailVaultControllerState()
+  const accountAdderState = useAccountAdderControllerState()
   const { updateStepperState } = useStepper()
   const { params } = useRoute()
   const { hideStepper, hideFormTitle }: any = params
   const { t } = useTranslation()
   const [enableKeyRecovery, onEnableKeyRecoveryChange] = useState(false)
+  const { navigate } = useNavigation()
+  const keystoreState = useKeystoreControllerState()
 
   const { dispatch } = useBackgroundService()
   const {
@@ -59,9 +66,47 @@ const EmailVaultScreen = () => {
       ) &&
       emailVaultState.latestMethodStatus === 'DONE'
     ) {
-      console.log('in', emailVaultState)
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EMAIL_ACCOUNT',
+        params: {
+          email,
+          recoveryKey: emailVaultState?.emailVaultStates?.email?.[email]?.recoveryKey
+        }
+      })
     }
-  }, [emailVaultState])
+  }, [emailVaultState, email, dispatch])
+
+  useEffect(() => {
+    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
+      const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
+      if (!defaultSelectedAccount) {
+        // TODO: display error toast instead
+        // eslint-disable-next-line no-alert
+        alert(
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+        )
+        return
+      }
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: defaultSelectedAccount.addr }
+      })
+    }
+  }, [accountAdderState.addAccountsStatus, accountAdderState.readyToAddAccounts, dispatch])
+
+  const completeStep = useCallback(
+    (hasAccountsToImport: boolean = true) => {
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+    },
+    [navigate]
+  )
+
+  useEffect(() => {
+    if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === 'addKeys') {
+      completeStep()
+    }
+  }, [completeStep, keystoreState])
 
   const handleFormSubmit = useCallback(() => {
     !isWeb && Keyboard.dismiss()

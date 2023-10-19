@@ -91,8 +91,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainCtrl.selectedAccount, state])
 
   useEffect(() => {
-    if (Object.keys(state?.latest || {}).length) {
-      Object.values(state?.latest[mainCtrl?.selectedAccount as string]).forEach((network: any) => {
+    if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {
+      Object.values(state?.latest[mainCtrl.selectedAccount as string]).forEach((network: any) => {
         if (
           network?.result?.updateStarted &&
           (!startedLoading || network?.result?.updateStarted < startedLoading)

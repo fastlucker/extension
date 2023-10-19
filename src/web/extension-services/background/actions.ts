@@ -65,6 +65,13 @@ type MainControllerAccountAdderAddAccounts = {
     accounts: Account[]
   }
 }
+type MainControllerAccountAdderAddEmailAccount = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EMAIL_ACCOUNT'
+  params: {
+    email: string
+    recoveryKey: string
+  }
+}
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
 }
@@ -210,6 +217,7 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
+  | MainControllerAccountAdderAddEmailAccount
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction

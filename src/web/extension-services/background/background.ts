@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
+import { hexlify, randomBytes } from 'ethers'
+
 import {
   BIP44_HD_PATH,
   LATTICE_STANDARD_HD_PATH,
@@ -345,6 +347,32 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EMAIL_ACCOUNT': {
+              const randomPrivateKey = hexlify(randomBytes(32))
+              const keyIterator = new KeyIterator(randomPrivateKey)
+
+              mainCtrl.accountAdder.init({
+                keyIterator,
+                preselectedAccounts: []
+              })
+
+              await mainCtrl.accountAdder.addEmailAccount(
+                data.params.email,
+                data.params.recoveryKey
+              )
+
+              if (mainCtrl.accountAdder.readyToAddAccounts.length) {
+                mainCtrl.keystore.addKeys([
+                  {
+                    privateKey: randomPrivateKey,
+                    label: `Key for account with email: ${data.params.email}`
+                  }
+                ])
+              }
+
+              break
+            }
+
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
