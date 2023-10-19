@@ -2,6 +2,7 @@ import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
 
 import { TREZOR_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
@@ -68,12 +69,7 @@ class TrezorSigner implements KeystoreSigner {
     throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
+  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
     }
@@ -93,7 +89,7 @@ class TrezorSigner implements KeystoreSigner {
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
     const res: any = await trezorConnect.ethereumSignTypedData({
-      path: this._getDerivationPath(),
+      path: this.key.meta.hdPath,
       data: {
         types,
         message,
@@ -106,15 +102,11 @@ class TrezorSigner implements KeystoreSigner {
       message_hash
     } as any)
 
-    if (res.success) {
-      if (res.payload.address !== toChecksumAddress(this.key.id)) {
-        throw new Error("trezorSigner: signature doesn't match the right address")
-      }
-
-      return res.payload.signature
+    if (!res.success) {
+      throw new Error(res.payload.error || 'trezorSigner: unknown error')
     }
 
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
+    return res.payload.signature
   }
 
   async signMessage(hash: string | Uint8Array) {
