@@ -16,7 +16,7 @@ class LedgerSigner implements KeystoreSigner {
     this.key = _key
   }
 
-  init(_controller: any) {
+  init(_controller: LedgerController) {
     this.controller = _controller
   }
 
