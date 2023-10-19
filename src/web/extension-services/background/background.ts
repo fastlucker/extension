@@ -60,6 +60,7 @@ async function init() {
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
+      // TODO: there is a mismatch in hw signer types, it's not a big deal
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
