@@ -94,20 +94,14 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signMessage(hash: string | Uint8Array) {
+  async signMessage(hex: string) {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
       )
     }
 
-    if (hash instanceof Uint8Array) {
-      throw new Error(
-        "Request for signing a Uint8Array detected. That's not a typical sign message request and it is disallowed with Ambire."
-      )
-    }
-
-    if (!stripHexPrefix(hash)) {
+    if (!stripHexPrefix(hex)) {
       throw new Error(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
       )
@@ -118,7 +112,7 @@ class LedgerSigner implements KeystoreSigner {
     try {
       const rsvRes = await this.controller.app!.signPersonalMessage(
         this.key.meta.hdPath,
-        stripHexPrefix(hash)
+        stripHexPrefix(hex)
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
