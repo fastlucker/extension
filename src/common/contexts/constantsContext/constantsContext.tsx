@@ -22,7 +22,7 @@ const ConstantsContext = createContext<{
 
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
-  const { constants, isLoading, retryFetch, hasError } = useConstants({
+  const { constants, isLoading, retryFetch, hasError }: UseConstantsReturnType['constants'] = useConstants({
     fetch,
     endpoint: CONFIG.CONSTANTS_ENDPOINT
   })
