@@ -1,11 +1,10 @@
+import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
+
 import { Filters } from '@ambire-common/controllers/activity/activity'
-import {Account, AccountId, AccountStates} from '@ambire-common/interfaces/account'
-import {NetworkDescriptor, NetworkId} from '@ambire-common/interfaces/networkDescriptor'
+import { Account, AccountStates, AccountId } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
-import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
-import { Key } from '@ambire-common/libs/keystore/keystore'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -22,35 +21,17 @@ type InitControllerStateAction = {
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitTrezorAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
   }
 }
 type MainControllerAccountAdderInitViewOnlyAction = {
@@ -125,6 +106,44 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
+type MainControllerTransferResetAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+}
+
+type MainControllerTransferResetFormAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+}
+
+type MainControllerTransferBuildUserRequestAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
+}
+
+type MainControllerTransferUpdateAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
+  params: {
+    selectedAccount?: string
+    preSelectedToken?: string
+    humanizerInfo?: HumanizerInfoType
+    tokens?: TokenResult[]
+    recipientAddress?: string
+    amount?: string
+    setMaxAmount?: boolean
+    isSWWarningAgreed?: boolean
+    isRecipientAddressUnknownAgreed?: boolean
+  }
+}
+
+type MainControllerTransferOnRecipientAddressChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+}
+
+type MainControllerTransferHandleTokenChangeAction = {
+  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE'
+  params: {
+    tokenAddressAndNetwork: string
+  }
+}
+
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
   params: { data: any; id?: number }
@@ -135,9 +154,6 @@ type NotificationControllerRejectRequestAction = {
 }
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
-  params?: {
-    hdPath?: string
-  }
 }
 type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
@@ -198,6 +214,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddKeysExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+  params: { keyType: Exclude<Key['type'], 'internal'> }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
@@ -272,6 +289,12 @@ export type Action =
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpResetAction
+  | MainControllerTransferResetAction
+  | MainControllerTransferResetFormAction
+  | MainControllerTransferBuildUserRequestAction
+  | MainControllerTransferUpdateAction
+  | MainControllerTransferOnRecipientAddressChangeAction
+  | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction

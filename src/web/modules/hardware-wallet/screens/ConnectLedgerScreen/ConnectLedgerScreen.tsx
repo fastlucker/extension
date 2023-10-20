@@ -16,7 +16,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import { HARDWARE_WALLETS } from '@web/modules/hardware-wallet/constants/common'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 
 const ConnectLedgerScreen = () => {
@@ -37,14 +36,14 @@ const ConnectLedgerScreen = () => {
     if (!supportWebHID) {
       navigate(WEB_ROUTES.accountAdder, {
         state: {
-          walletType: HARDWARE_WALLETS.LEDGER,
+          keyType: 'ledger',
           isWebHID: false
         }
       })
     } else if (hasConnectedLedger) {
       navigate(WEB_ROUTES.accountAdder, {
         state: {
-          walletType: HARDWARE_WALLETS.LEDGER,
+          keyType: 'ledger',
           isWebHID: true
         }
       })
@@ -56,7 +55,7 @@ const ConnectLedgerScreen = () => {
 
         navigate(WEB_ROUTES.accountAdder, {
           state: {
-            walletType: HARDWARE_WALLETS.LEDGER,
+            keyType: 'ledger',
             isWebHID: true
           }
         })

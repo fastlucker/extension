@@ -255,7 +255,8 @@ const SignMessageScreen = () => {
           onPress={handleReject}
         />
         <Button
-          text="Sign"
+          text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+          disabled={signMessageState.status === 'LOADING'}
           type="primary"
           style={{ width: 230, height: 66 }}
           onPress={handleSign}

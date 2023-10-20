@@ -1,3 +1,3 @@
 module.exports = {
-  ...require("./src/ambire-common/.prettierrc.js"),
-};
+  ...require('./src/ambire-common/.prettierrc.js')
+}

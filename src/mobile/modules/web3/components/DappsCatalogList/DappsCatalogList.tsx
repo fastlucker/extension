@@ -1,7 +1,7 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import Spinner from '@common/components/Spinner'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'

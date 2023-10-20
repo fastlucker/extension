@@ -1,7 +1,7 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useEffect } from 'react'
 import { View } from 'react-native'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'

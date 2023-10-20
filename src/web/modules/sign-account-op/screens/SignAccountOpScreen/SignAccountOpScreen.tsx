@@ -3,9 +3,8 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
-import Select from '@common/components/Select/'
+import Text from '@common/components/Text/'
 import Spinner from '@common/components/Spinner'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -241,7 +240,7 @@ const SignAccountOpScreen = () => {
             <View style={styles.pendingTokensSeparatorContainer}>
               <View style={styles.separatorHorizontal} />
               <View style={styles.pendingTokensHeadingWrapper}>
-                <Text weight="medium" fontSize={16}>
+                <Text fontSize={16}>
                   {t('Balance changes')}
                 </Text>
               </View>

@@ -1,7 +1,7 @@
-import { TREZOR_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key, KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
 
+import { TREZOR_HD_PATH } from '@ambire-common/consts/derivation'
+import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
