@@ -84,7 +84,7 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const res: any = await trezorConnect.ethereumSignTypedData({
+    const res = await trezorConnect.ethereumSignTypedData({
       path: this.key.meta.hdPath,
       data: {
         types,
@@ -99,7 +99,10 @@ class TrezorSigner implements KeystoreSigner {
     } as any)
 
     if (!res.success) {
-      throw new Error(res.payload.error || 'trezorSigner: unknown error')
+      throw new Error(
+        res.payload.error ||
+          'Something went wrong when signing the typed data message. Please try again or contact support if the problem persists.'
+      )
     }
 
     return res.payload.signature
