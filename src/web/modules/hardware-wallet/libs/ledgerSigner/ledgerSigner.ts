@@ -76,18 +76,6 @@ class LedgerSigner implements KeystoreSigner {
 
     await this.controller.unlock(this.key.meta.hdPath)
 
-    if (!types.EIP712Domain) {
-      throw new Error(
-        'Ambire only supports signing EIP712 typed data messages. Please try again with a valid EIP712 message.'
-      )
-    }
-
-    if (!primaryType) {
-      throw new Error(
-        'The primaryType is missing in the typed data message incoming. Please try again with a valid EIP712 message.'
-      )
-    }
-
     try {
       const rsvRes = await this.controller.app!.signEIP712Message(this.key.meta.hdPath, {
         domain,
