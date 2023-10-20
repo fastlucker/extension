@@ -11,9 +11,10 @@ import styles from './styles'
 type Props = {
   onReject: () => void
   onAddToCart: () => void
+  onSign: () => void
 }
 
-const Footer = ({ onReject, onAddToCart }: Props) => {
+const Footer = ({ onReject, onAddToCart, onSign }: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -27,7 +28,7 @@ const Footer = ({ onReject, onAddToCart }: Props) => {
           onPress={onAddToCart}
           style={styles.addMoreTxnButton}
         />
-        <Button type="primary" text={t('Sign')} onPress={() => {}} style={styles.signButton} />
+        <Button type="primary" text={t('Sign')} onPress={onSign} style={styles.signButton} />
       </View>
     </View>
   )

@@ -5,7 +5,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  containerHover: ViewStyle
+  active: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -19,7 +19,7 @@ const styles = StyleSheet.create<Style>({
     borderWidth: 1,
     borderColor: 'transparent'
   },
-  containerHover: {
+  active: {
     backgroundColor: colors.lightViolet,
     borderStyle: 'solid',
     borderColor: colors.violet

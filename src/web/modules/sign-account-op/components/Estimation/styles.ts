@@ -14,6 +14,7 @@ interface Style {
   feesContainer: ViewStyle
   feeContainer: ViewStyle
   fee: TextStyle
+  selectedFee: ViewStyle
   feeUsd: TextStyle
   gasTankContainer: ViewStyle
   gasTankText: TextStyle
@@ -51,6 +52,11 @@ const styles = StyleSheet.create<Style>({
   fee: {
     fontFamily: FONT_FAMILIES.MEDIUM,
     fontSize: 16
+  },
+  selectedFee: {
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: colors.violet
   },
   feeUsd: {
     color: colors.violet,

@@ -13,6 +13,7 @@ interface Style {
   separator: ViewStyle
   estimationContainer: ViewStyle
   estimationHeading: ViewStyle
+  spinner: ViewStyle
   accountSelect: ViewStyle
   accountSelectLabel: ViewStyle
 }
@@ -43,6 +44,9 @@ const styles = StyleSheet.create<Style>({
   },
   estimationHeading: {
     marginBottom: 20
+  },
+  spinner: {
+    alignSelf: 'center'
   },
   accountSelect: {
     ...spacings.mb

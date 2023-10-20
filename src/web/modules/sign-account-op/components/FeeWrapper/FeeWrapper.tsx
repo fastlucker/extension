@@ -5,14 +5,16 @@ import styles from './styles'
 
 interface Props {
   children: React.ReactNode
-  onPress: () => void
+  type: string
+  onPress: (type: string) => void
   style?: ViewStyle
+  isSelected: boolean
 }
 
-const FeeWrapper = ({ children, onPress, style }: Props) => (
-  <Pressable style={[flexbox.flex1, style]} onPress={onPress}>
+const FeeWrapper = ({ children, type, onPress, style, isSelected }: Props) => (
+  <Pressable style={[flexbox.flex1, style]} onPress={() => onPress(type)}>
     {({ hovered }: any) => (
-      <View style={[styles.container, !!hovered && styles.containerHover]}>{children}</View>
+      <View style={[styles.container, (!!hovered || isSelected) && styles.active]}>{children}</View>
     )}
   </Pressable>
 )

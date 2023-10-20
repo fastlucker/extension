@@ -1,14 +1,9 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Controller, useForm } from 'react-hook-form'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
-import { Account } from '@ambire-common/interfaces/account'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
-import Select from '@common/components/Select/'
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -23,46 +18,10 @@ import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import Heading from '@web/modules/sign-account-op/components/Heading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
-import { mapTokenOptions } from '@web/utils/maps'
 import { getUiType } from '@web/utils/uiType'
-
-import Fees from '../../components/Fees/Fees'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import styles from './styles'
-
-// @TODO: - get accounts from controller
-const ACCOUNTS = [
-  {
-    addr: '0xe1B0aB5DfBbBb7eAeC1FfBfE3B5e4FfFfFfFfFfF',
-    label: 'Account.Name.eth',
-    pfp: 'https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600'
-  },
-  {
-    addr: '0x2',
-    label: '0x2.eth',
-    pfp: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTiA3zMVkqgS_qHXKNkxgDs4IYwc387AMfesyPxHerLdt0dLiu7Zs8UfCsEmz7wSLqfz4&usqp=CAU'
-  }
-]
-
-// @TODO: - get tokens from portfolio based on currently selected account
-const TOKENS = [
-  {
-    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-    symbol: 'USDC',
-    networkId: 'ethereum'
-  },
-  {
-    address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
-    symbol: 'MATIC',
-    networkId: 'polygon'
-  }
-]
-
-const mapAccountOptions = (values: Account[]) =>
-  values.map((value) => ({
-    value: value.addr,
-    label: <Text weight="medium">{value.label}</Text>,
-    icon: value.pfp
-  }))
+import Estimation from '../../components/Estimation/Estimation'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
@@ -70,25 +29,13 @@ const SignAccountOpScreen = () => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
+  const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
 
-  const accounts = mapAccountOptions(ACCOUNTS as Account[])
-  const tokens = mapTokenOptions(TOKENS as TokenResult[])
-
-  const { control } = useForm({
-    reValidateMode: 'onChange',
-    defaultValues: {
-      account: accounts[0] || {},
-      token: tokens[0] || {}
-    }
-  })
-
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      navigate('/')
-    }
-  }, [params?.accountAddr, params?.network, navigate])
+  const selectedAccountFull = useMemo(() => mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  ), [mainState.accounts, mainState.selectedAccount])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -96,32 +43,23 @@ const SignAccountOpScreen = () => {
     }
 
     const accountOpToBeSigned: any =
-      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id] || []
+      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
     if (accountOpToBeSigned) {
-      if (!signAccountOpState.accountOp) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-          params: {
-            accounts: mainState.accounts,
-            accountStates: mainState.accountStates,
-            networks,
-            estimation: accountOpToBeSigned.estimation,
-            accountOp: accountOpToBeSigned.accountOp
-            // gasPrices
-            // feeTokenAddr
-          }
-        })
-      }
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS',
+        params: {
+          accounts: mainState.accounts,
+          accountStates: mainState.accountStates,
+          networks
+        }
+      })
     }
   }, [
     params,
     dispatch,
-    mainState.messagesToBeSigned,
-    mainState.selectedAccount,
     mainState.accounts,
     mainState.accountStates,
-    mainState.accountOpsToBeSigned,
-    signAccountOpState.accountOp
+    mainState.accountOpsToBeSigned
   ])
 
   useEffect(() => {
@@ -129,13 +67,35 @@ const SignAccountOpScreen = () => {
       return
     }
 
+    const estimateAccountOp = () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE',
+        params: {
+          accountAddr: params.accountAddr,
+          networkId: params.network.id
+        }
+      })
+    }
+
+    estimateAccountOp()
+    const interval = setInterval(estimateAccountOp, 60000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
     const accountOpToBeSigned: any =
-      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id] || []
+      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
       params: {
-        estimation: accountOpToBeSigned.estimation,
         accountOp: accountOpToBeSigned.accountOp
       }
     })
@@ -189,6 +149,33 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
+  const handleChangeSigningKey = useCallback(
+    (signingKeyAddr: string, signingKeyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: { signingKeyAddr, signingKeyType }
+      })
+    },
+    [dispatch]
+  )
+
+  // Set the first key as the selected key
+  useEffect(() => {
+    const firstKey = keystoreState.keys.find((key) =>
+      selectedAccountFull?.associatedKeys.includes(key.addr)
+    )
+
+    if (firstKey) {
+      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
+    }
+  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
+
+  const handleSign = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+    })
+  }, [dispatch])
+
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
@@ -207,7 +194,13 @@ const SignAccountOpScreen = () => {
       width="full"
       forceCanGoBack
       pageTitle={<Header account={account} network={network} />}
-      footer={<Footer onReject={handleRejectAccountOp} onAddToCart={handleAddToCart} />}
+      footer={
+        <Footer
+          onReject={handleRejectAccountOp}
+          onAddToCart={handleAddToCart}
+          onSign={handleSign}
+        />
+      }
     >
       <View style={styles.container}>
         <View style={styles.transactionsContainer}>
@@ -229,22 +222,11 @@ const SignAccountOpScreen = () => {
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
           <Heading text={t('Estimation')} style={styles.estimationHeading} />
-          <Controller
-            name="account"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Select
-                setValue={onChange}
-                label={t('Fee paid by')}
-                options={accounts}
-                style={styles.accountSelect}
-                labelStyle={styles.accountSelectLabel}
-                value={value}
-                defaultValue={value}
-              />
-            )}
-          />
-          <Fees control={control} tokens={tokens} />
+          {signAccountOpState.availableFeeOptions.length ? (
+            <Estimation networkId={network.id} />
+          ) : (
+            <Spinner style={styles.spinner} />
+          )}
         </View>
       </View>
     </TabLayoutWrapperMainContent>

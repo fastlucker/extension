@@ -1,6 +1,6 @@
 import { Filters } from '@ambire-common/controllers/activity/activity'
-import { Account, AccountStates } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import {Account, AccountId, AccountStates} from '@ambire-common/interfaces/account'
+import {NetworkDescriptor, NetworkId} from '@ambire-common/interfaces/networkDescriptor'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -158,17 +158,35 @@ type LatticeControllerUnlockAction = {
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
-type MainControllerSignAccountOpUpdateAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+type MainControllerSignAccountOpEstimateAction = {
+  params: {
+    accountAddr: AccountId
+    networkId: NetworkId
+  }
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE'
+}
+type MainControllerSignAccountOpUpdateMainDepsAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
     accounts?: Account[]
     networks?: NetworkDescriptor[]
     accountStates?: AccountStates
+  }
+}
+type MainControllerSignAccountOpUpdateAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: EstimateResult
     feeTokenAddr?: string
+    paidBy?: string
+    signingKeyAddr?: string
+    signingKeyType?: string
   }
+}
+type MainControllerSignAccountOpSignAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
 }
 type MainControllerSignAccountOpResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
@@ -249,6 +267,9 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerSignAccountOpEstimateAction
+  | MainControllerSignAccountOpUpdateMainDepsAction
+  | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpResetAction
   | NotificationControllerResolveRequestAction
