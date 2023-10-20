@@ -30,6 +30,7 @@ import { MainControllerStateProvider } from '@web/contexts/mainControllerStateCo
 import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
+import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
@@ -54,18 +55,19 @@ const AppInit = () => {
               <SignMessageControllerStateProvider>
                 <ActivityControllerStateProvider>
                   <NotificationControllerStateProvider>
-                      <PortfolioControllerStateProvider>
-                        <ControllersStateLoadedProvider>
-                          <PortalProvider>
-                            <LoaderProvider>
-                              <StorageProvider>
-                                <OnboardingProvider>
-                                  <ThemeProvider>
-                                    <SafeAreaProvider>
-                                      <KeyboardProvider>
-                                        <NetInfoProvider>
-                                          <ToastProvider>
-                                            <ConstantsProvider>
+                    <PortfolioControllerStateProvider>
+                      <ControllersStateLoadedProvider>
+                        <PortalProvider>
+                          <LoaderProvider>
+                            <StorageProvider>
+                              <OnboardingProvider>
+                                <ThemeProvider>
+                                  <SafeAreaProvider>
+                                    <KeyboardProvider>
+                                      <NetInfoProvider>
+                                        <ToastProvider>
+                                          <ConstantsProvider>
+                                            <TransferControllerStateProvider>
                                               <AuthProvider>
                                                 <ExtensionProvider>
                                                   <BiometricsProvider>
@@ -76,18 +78,19 @@ const AppInit = () => {
                                                   </BiometricsProvider>
                                                 </ExtensionProvider>
                                               </AuthProvider>
-                                            </ConstantsProvider>
-                                          </ToastProvider>
-                                        </NetInfoProvider>
-                                      </KeyboardProvider>
-                                    </SafeAreaProvider>
-                                  </ThemeProvider>
-                                </OnboardingProvider>
-                              </StorageProvider>
-                            </LoaderProvider>
-                          </PortalProvider>
-                        </ControllersStateLoadedProvider>
-                      </PortfolioControllerStateProvider>
+                                            </TransferControllerStateProvider>
+                                          </ConstantsProvider>
+                                        </ToastProvider>
+                                      </NetInfoProvider>
+                                    </KeyboardProvider>
+                                  </SafeAreaProvider>
+                                </ThemeProvider>
+                              </OnboardingProvider>
+                            </StorageProvider>
+                          </LoaderProvider>
+                        </PortalProvider>
+                      </ControllersStateLoadedProvider>
+                    </PortfolioControllerStateProvider>
                   </NotificationControllerStateProvider>
                 </ActivityControllerStateProvider>
               </SignMessageControllerStateProvider>
