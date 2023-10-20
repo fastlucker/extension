@@ -108,7 +108,7 @@ class TrezorSigner implements KeystoreSigner {
     return res.payload.signature
   }
 
-  async signMessage(hash: string | Uint8Array) {
+  async signMessage(hex: string) {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -120,7 +120,7 @@ class TrezorSigner implements KeystoreSigner {
 
     const res = await trezorConnect.ethereumSignMessage({
       path: this.key.meta.hdPath,
-      message: stripHexPrefix(hash),
+      message: stripHexPrefix(hex),
       hex: true
     })
 
