@@ -42,7 +42,7 @@ class TrezorSigner implements KeystoreSigner {
     delete unsignedTxObj.gas
 
     const res: any = await trezorConnect.ethereumSignTransaction({
-      path: this._getDerivationPath(),
+      path: this.key.meta.hdPath,
       transaction: unsignedTxObj
     })
 
@@ -125,15 +125,13 @@ class TrezorSigner implements KeystoreSigner {
     })
 
     if (!res.success) {
-      throw new Error(res.payload.error || 'trezorSigner: unknown error')
+      throw new Error(
+        res.payload.error ||
+          'Something went wrong when signing the message. Please try again or contact support if the problem persists.'
+      )
     }
 
     return `0x${res.payload.signature}`
-  }
-
-  _getDerivationPath() {
-    // @ts-ignore
-    return this.key?.meta!.derivationPath || `${TREZOR_HD_PATH}/${this.key.meta!.index}`
   }
 }
 
