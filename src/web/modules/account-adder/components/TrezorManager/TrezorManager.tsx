@@ -71,7 +71,7 @@ const TrezorManager: React.FC<{}> = (props) => {
         // TODO: display error toast instead
         // eslint-disable-next-line no-alert
         alert(
-          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persists, please contact support.'
         )
         return
       }

@@ -3,6 +3,9 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
+import Select from '@common/components/Select/'
 import Spinner from '@common/components/Spinner'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -13,10 +16,12 @@ import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/Ta
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import Heading from '@web/modules/sign-account-op/components/Heading'
+import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -29,6 +34,7 @@ const SignAccountOpScreen = () => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
+  const portfolioState = usePortfolioControllerState()
   const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -181,6 +187,17 @@ const SignAccountOpScreen = () => {
     return signAccountOpState.accountOp?.calls || []
   }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
 
+  const pendingTokens = useMemo(() => {
+    if (signAccountOpState.accountOp && network) {
+      return calculateTokensPendingState(
+        signAccountOpState.accountOp.accountAddr,
+        network,
+        portfolioState.state
+      )
+    }
+    return []
+  }, [network, portfolioState.state, signAccountOpState.accountOp])
+
   if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -203,21 +220,38 @@ const SignAccountOpScreen = () => {
       }
     >
       <View style={styles.container}>
-        <View style={styles.transactionsContainer}>
-          <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
-          <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-            {callsToVisualize.map((call) => {
-              return (
-                <TransactionSummary
-                  key={call.data + call.fromUserRequestId}
-                  style={spacings.mbSm}
-                  call={call}
-                  networkId={network.id}
-                  explorerUrl={network.explorerUrl}
-                />
-              )
-            })}
-          </ScrollView>
+        <View style={styles.leftSideContainer}>
+          <View style={styles.transactionsContainer}>
+            <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
+            <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+              {callsToVisualize.map((call) => {
+                return (
+                  <TransactionSummary
+                    key={call.data + call.fromUserRequestId}
+                    style={spacings.mbSm}
+                    call={call}
+                    networkId={network.id}
+                    explorerUrl={network.explorerUrl}
+                  />
+                )
+              })}
+            </ScrollView>
+          </View>
+          <View style={styles.pendingTokensContainer}>
+            <View style={styles.pendingTokensSeparatorContainer}>
+              <View style={styles.separatorHorizontal} />
+              <View style={styles.pendingTokensHeadingWrapper}>
+                <Text weight="medium" fontSize={16}>
+                  {t('Balance changes')}
+                </Text>
+              </View>
+            </View>
+            <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
+              {pendingTokens.map((token) => {
+                return <PendingTokenSummary token={token} networkId={network.id} />
+              })}
+            </ScrollView>
+          </View>
         </View>
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>

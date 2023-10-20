@@ -55,7 +55,6 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const { dispatch } = useBackgroundService()
-  console.log(call)
 
   const handleRemoveCall = useCallback(() => {
     dispatch({
