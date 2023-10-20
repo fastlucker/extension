@@ -10,6 +10,7 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
+import { getHdPath } from '@ambire-common/utils/hdPath'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
@@ -53,18 +54,17 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
-  const signers = {
-    internal: KeystoreSigner,
-    ledger: LedgerSigner,
-    trezor: TrezorSigner,
-    lattice: LatticeSigner
-  }
-
   const mainCtrl = new MainController({
     storage,
     fetch,
     relayerUrl: RELAYER_URL,
-    keystoreSigners: signers,
+    keystoreSigners: {
+      internal: KeystoreSigner,
+      // TODO: there is a mismatch in hw signer types, it's not a big deal
+      ledger: LedgerSigner,
+      trezor: TrezorSigner,
+      lattice: LatticeSigner
+    },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
     },
@@ -357,8 +357,12 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
-            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN':
+            case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
+              if (mainCtrl.signMessage.signingKeyType === 'ledger')
+                return mainCtrl.signMessage.sign(ledgerCtrl)
+
               return mainCtrl.signMessage.sign()
+            }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
               return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
@@ -429,7 +433,7 @@ async function init() {
                 lattice: latticeCtrl.model
               }
 
-              const hdPaths: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+              const derivations: { [key in Exclude<Key['type'], 'internal'>]: string } = {
                 ledger: ledgerCtrl.hdPath,
                 trezor: trezorCtrl.hdPath,
                 lattice: latticeCtrl.hdPath
@@ -445,7 +449,7 @@ async function init() {
                 addr: eoaAddress,
                 type: keyType,
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
-                meta: { model: models[keyType], hdPath: hdPaths[keyType] }
+                meta: { model: models[keyType], hdPath: getHdPath(derivations[keyType], slot - 1) }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)
