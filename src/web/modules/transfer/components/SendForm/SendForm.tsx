@@ -49,12 +49,10 @@ const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: strin
 }
 const SendForm = ({
   state,
-  isAllReady = false,
-  preSelectedToken
+  isAllReady = false
 }: {
   state: TransferControllerState
   isAllReady?: boolean
-  preSelectedToken: string | null
 }) => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
