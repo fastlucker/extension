@@ -20,9 +20,6 @@ const getInfoFromSearch = (search: string | undefined) => {
 
   const params = new URLSearchParams(search)
 
-  // Remove the search params from the url
-  window.history.replaceState(null, '', `${window.location.pathname}#/transfer`)
-
   return `${params.get('address')}-${params.get('networkId')}`
 }
 
@@ -45,7 +42,14 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [selectedTokenFromUrl, tokens])
 
   const initializeController = useCallback(async () => {
-    if (!constants || !mainState.selectedAccount || !tokens || !mainState.isReady) return
+    if (
+      !constants ||
+      !mainState.selectedAccount ||
+      !tokens ||
+      !mainState.isReady ||
+      state?.isInitialized
+    )
+      return
 
     await dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
@@ -56,7 +60,15 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
         preSelectedToken: preSelectedToken || undefined
       }
     })
-  }, [constants, dispatch, mainState.isReady, mainState.selectedAccount, preSelectedToken, tokens])
+  }, [
+    constants,
+    dispatch,
+    mainState.isReady,
+    mainState.selectedAccount,
+    preSelectedToken,
+    tokens,
+    state?.isInitialized
+  ])
 
   useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {
@@ -65,7 +77,9 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
     eventBus.addEventListener('transfer', onUpdate)
 
-    return () => eventBus.removeEventListener('transfer', onUpdate)
+    return () => {
+      eventBus.removeEventListener('transfer', onUpdate)
+    }
   }, [])
 
   return (
