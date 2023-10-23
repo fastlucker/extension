@@ -54,7 +54,7 @@ const SendForm = ({
 }: {
   state: TransferControllerState
   isAllReady?: boolean
-  preSelectedToken?: string | null
+  preSelectedToken: string | null
 }) => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
@@ -155,7 +155,7 @@ const SendForm = ({
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [userRequest, addToast, dispatch])
+  }, [userRequest, addToast, dispatch, preSelectedToken])
 
   useEffect(() => {
     if (!debouncedRecipientAddress) return

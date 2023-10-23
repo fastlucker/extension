@@ -128,6 +128,7 @@ type MainControllerTransferUpdateAction = {
     preSelectedToken?: string
     humanizerInfo?: HumanizerInfoType
     tokens?: TokenResult[]
+    updateTokensWithoutChangingSelectedToken?: boolean
     recipientAddress?: string
     amount?: string
     setMaxAmount?: boolean
