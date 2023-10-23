@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -5,15 +6,15 @@ import { View } from 'react-native'
 
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
-
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
+import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
+import Fee from '@web/modules/sign-account-op/components/Fee'
+
 import styles from './styles'
-import Fee from '../Fee/Fee'
-import CustomFee from '../CustomFee'
-import PayOption from './components/PayOption'
 
 const Estimation = ({ networkId }: any) => {
   const signAccountOpState = useSignAccountOpControllerState()
@@ -36,7 +37,12 @@ const Estimation = ({ networkId }: any) => {
         token
       }
     })
-  }, [signAccountOpState.availableFeeOptions, mainState.accounts, portfolioState.accountPortfolio])
+  }, [
+    signAccountOpState.availableFeeOptions,
+    mainState.accounts,
+    portfolioState.accountPortfolio,
+    networkId
+  ])
 
   const { control, watch } = useForm({
     reValidateMode: 'onChange',
@@ -64,8 +70,8 @@ const Estimation = ({ networkId }: any) => {
     () =>
       signAccountOpState.feeSpeeds.find(
         (speed) => speed.type === signAccountOpState.selectedFeeSpeed
-      ),
-    [signAccountOpState.selectedFeeSpeed]
+      ) || {},
+    [signAccountOpState.selectedFeeSpeed, signAccountOpState.feeSpeeds]
   )
 
   const onFeeSelect = useCallback(
@@ -102,6 +108,7 @@ const Estimation = ({ networkId }: any) => {
         <View style={styles.feesContainer}>
           {signAccountOpState.feeSpeeds.map((fee) => (
             <Fee
+              key={fee.amount + fee.type}
               label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
               type={fee.type}
               amount={fee.amountFormatted}

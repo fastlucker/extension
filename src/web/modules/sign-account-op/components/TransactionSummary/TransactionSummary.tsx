@@ -1,5 +1,6 @@
+/* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { useCallback, useState } from 'react'
+import React, { Fragment, useCallback, useState } from 'react'
 import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -86,12 +87,12 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
       return (
         <View style={styles.headerContent}>
-          {dataToVisualize.map((item) => {
+          {dataToVisualize.map((item, i) => {
             if (!item) return null
 
             if (item.type === 'token') {
               return (
-                <>
+                <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={16} weight="medium" color={colors.martinique}>
                       {` ${
@@ -118,13 +119,18 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                       {t(' units of unknown token ')}
                     </Text>
                   ) : null}
-                </>
+                </Fragment>
               )
             }
 
             if (item.type === 'address')
               return (
-                <Text fontSize={16} weight="medium" color={colors.martinique}>
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={16}
+                  weight="medium"
+                  color={colors.martinique}
+                >
                   {` ${item.name ? item.name : item.address} `}
                   {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
@@ -143,7 +149,12 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
 
             if (item.type === 'nft') {
               return (
-                <Text fontSize={16} weight="medium" color={colors.martinique}>
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={16}
+                  weight="medium"
+                  color={colors.martinique}
+                >
                   {` ${item.name || item.address} `}
                 </Text>
               )
@@ -152,6 +163,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
             if (item.content) {
               return (
                 <Text
+                  key={Number(item.id) || i}
                   fontSize={16}
                   weight={
                     item.type === 'label'
@@ -211,7 +223,9 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
         </View>
         <View style={[flexbox.alignSelfStart, spacings.phTy]}>
           {call.warnings?.map((warning) => {
-            return <Label text={warning.content} type="warning" />
+            return (
+              <Label key={warning.content + warning.level} text={warning.content} type="warning" />
+            )
           })}
         </View>
       </Pressable>

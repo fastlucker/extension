@@ -4,8 +4,8 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { networks } from '@ambire-common/consts/networks'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
-import Text from '@common/components/Text/'
 import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -14,18 +14,19 @@ import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import Heading from '@web/modules/sign-account-op/components/Heading'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+
 import styles from './styles'
-import Estimation from '../../components/Estimation/Estimation'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
@@ -38,9 +39,10 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
 
-  const selectedAccountFull = useMemo(() => mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
-  ), [mainState.accounts, mainState.selectedAccount])
+  const selectedAccountFull = useMemo(
+    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
+    [mainState.accounts, mainState.selectedAccount]
+  )
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -240,14 +242,14 @@ const SignAccountOpScreen = () => {
             <View style={styles.pendingTokensSeparatorContainer}>
               <View style={styles.separatorHorizontal} />
               <View style={styles.pendingTokensHeadingWrapper}>
-                <Text fontSize={16}>
-                  {t('Balance changes')}
-                </Text>
+                <Text fontSize={16}>{t('Balance changes')}</Text>
               </View>
             </View>
             <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
               {pendingTokens.map((token) => {
-                return <PendingTokenSummary token={token} networkId={network.id} />
+                return (
+                  <PendingTokenSummary key={token.address} token={token} networkId={network.id} />
+                )
               })}
             </ScrollView>
           </View>
@@ -255,7 +257,7 @@ const SignAccountOpScreen = () => {
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
           <Heading text={t('Estimation')} style={styles.estimationHeading} />
-          {signAccountOpState.availableFeeOptions.length ? (
+          {signAccountOpState.availableFeeOptions?.length ? (
             <Estimation networkId={network.id} />
           ) : (
             <Spinner style={styles.spinner} />
