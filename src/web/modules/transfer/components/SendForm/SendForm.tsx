@@ -49,10 +49,12 @@ const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: strin
 }
 const SendForm = ({
   state,
-  isAllReady = false
+  isAllReady = false,
+  preSelectedToken
 }: {
   state: TransferControllerState
   isAllReady?: boolean
+  preSelectedToken?: string | null
 }) => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
@@ -144,7 +146,10 @@ const SendForm = ({
       })
 
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM',
+        params: {
+          preSelectedToken
+        }
       })
     } catch (e: any) {
       console.error(e)

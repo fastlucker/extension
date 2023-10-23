@@ -15,7 +15,7 @@ import styles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
-  const { state, initializeController } = useTransferControllerState()
+  const { state, initializeController, preSelectedToken } = useTransferControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
 
@@ -48,7 +48,11 @@ const TransferScreen = () => {
     <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
       {state?.isInitialized ? (
         <View style={styles.container}>
-          <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
+          <SendForm
+            preSelectedToken={preSelectedToken}
+            state={state}
+            isAllReady={accountPortfolio?.isAllReady}
+          />
           <View style={styles.separator} />
           <AddressBookSection />
         </View>

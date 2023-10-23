@@ -112,6 +112,9 @@ type MainControllerTransferResetAction = {
 
 type MainControllerTransferResetFormAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+  params: {
+    preSelectedToken: string | null
+  }
 }
 
 type MainControllerTransferBuildUserRequestAction = {

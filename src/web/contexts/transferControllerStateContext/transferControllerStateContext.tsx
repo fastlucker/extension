@@ -11,6 +11,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 type ContextReturn = {
   state: TransferControllerState
   initializeController: () => void
+  preSelectedToken: string | null
 }
 
 const TransferControllerStateContext = createContext<ContextReturn>({} as ContextReturn)
@@ -84,7 +85,10 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   return (
     <TransferControllerStateContext.Provider
-      value={useMemo(() => ({ state, initializeController }), [state, initializeController])}
+      value={useMemo(
+        () => ({ state, initializeController, preSelectedToken }),
+        [state, initializeController, preSelectedToken]
+      )}
     >
       {children}
     </TransferControllerStateContext.Provider>
