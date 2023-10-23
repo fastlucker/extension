@@ -51,7 +51,12 @@ const SignAccountOpScreen = () => {
 
     const accountOpToBeSigned: any =
       mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
-    if (accountOpToBeSigned) {
+
+    if (
+      accountOpToBeSigned &&
+      mainState.accounts &&
+      Object.keys(mainState.accountStates || {}).length
+    ) {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS',
         params: {
@@ -90,7 +95,7 @@ const SignAccountOpScreen = () => {
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  }, [params, dispatch])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -100,12 +105,14 @@ const SignAccountOpScreen = () => {
     const accountOpToBeSigned: any =
       mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-      params: {
-        accountOp: accountOpToBeSigned.accountOp
-      }
-    })
+    if (accountOpToBeSigned) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: {
+          accountOp: accountOpToBeSigned.accountOp
+        }
+      })
+    }
   }, [mainState.accountOpsToBeSigned, params, dispatch])
 
   useEffect(() => {
