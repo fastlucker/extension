@@ -36,6 +36,7 @@ class TrezorKeyIterator implements KeyIteratorInterface {
 
     for (let i = from; i <= to; i++) {
       // TODO: Figure out why different derivation paths fail to derive keys
+      // TODO: Try with getHdPathFromTemplate(derivation, i) and pass derivation as BIP44
       const dkey = this.hdk?.derive(`${derivation}/${i}`)
       const key = publicToAddress(dkey?.publicKey, true).toString('hex')
 

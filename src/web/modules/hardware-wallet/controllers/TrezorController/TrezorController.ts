@@ -1,14 +1,16 @@
 import HDKey from 'hdkey'
 
-import { TREZOR_HD_PATH, TREZOR_PATH_BASE } from '@ambire-common/consts/derivation'
+import { BIP44_TREZOR_TEMPLATE, DERIVATION } from '@ambire-common/consts/derivation'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect from '@trezor/connect-web'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
 const keyringType = 'trezor'
 
 const TREZOR_CONNECT_MANIFEST = {
-  email: 'support@debank.com/',
-  appUrl: 'https://debank.com/'
+  email: 'contactus@ambire.com',
+  appUrl: 'https://wallet.ambire.com' // TODO: extension url?
 }
 
 class TrezorController {
@@ -16,21 +18,19 @@ class TrezorController {
 
   hdk: any
 
-  hdPath: string
+  derivation: ExternalKey['meta']['derivation']
 
-  model: string
+  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
 
-  accountDetails: any
+  model: string = 'unknown'
 
   constructor() {
     this.type = keyringType
     this.hdk = new HDKey()
 
-    // TODO: Handle different derivation paths
-    this.hdPath = TREZOR_HD_PATH
-    this.model = ''
-
-    this.accountDetails = {}
+    // TODO: Handle different derivation
+    this.derivation = DERIVATION.BIP44
+    this.hdPathTemplate = BIP44_TREZOR_TEMPLATE
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
       if (event && event.payload && event.payload.features) {
@@ -67,7 +67,7 @@ class TrezorController {
     return new Promise((resolve, reject) => {
       trezorConnect
         .getPublicKey({
-          path: this.hdPath,
+          path: getHdPathFromTemplate(this.hdPathTemplate, 0),
           coin: 'ETH'
         })
         .then((response) => {
@@ -92,7 +92,7 @@ class TrezorController {
           const iterator = new TrezorKeyIterator({
             hdk: this.hdk
           })
-          const keys = await iterator.retrieve(from, to, TREZOR_PATH_BASE)
+          const keys = await iterator.retrieve(from, to)
 
           resolve(keys)
         })
