@@ -146,16 +146,13 @@ const SendForm = ({
       })
 
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM',
-        params: {
-          preSelectedToken
-        }
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
       })
     } catch (e: any) {
       console.error(e)
       addToast(`Error: ${e.message || e}`, { error: true })
     }
-  }, [userRequest, addToast, dispatch, preSelectedToken])
+  }, [userRequest, addToast, dispatch])
 
   useEffect(() => {
     if (!debouncedRecipientAddress) return

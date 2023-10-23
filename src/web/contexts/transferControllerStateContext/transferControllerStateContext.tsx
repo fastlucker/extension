@@ -43,8 +43,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [selectedTokenFromUrl, tokens])
 
   const initializeController = useCallback(async () => {
-    if (!constants || !mainState.selectedAccount || !mainState.isReady || state?.isInitialized)
-      return
+    if (!constants || !mainState.selectedAccount || !mainState.isReady) return
 
     await dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
@@ -55,33 +54,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
         preSelectedToken: preSelectedToken || undefined
       }
     })
-  }, [
-    constants,
-    dispatch,
-    mainState.isReady,
-    mainState.selectedAccount,
-    tokens,
-    preSelectedToken,
-    state?.isInitialized
-  ])
-
-  /*
-    We need to update tokens in case of adding new token to the portfolio, but without
-    actually changing the selected token in the UI. 
-  */
-  useEffect(() => {
-    // Skip if the controller is not initialized. Prevents from updating twice(because we update them
-    // in the initializeController function).
-    if (!state?.isInitialized) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        tokens,
-        updateTokensWithoutChangingSelectedToken: true
-      }
-    })
-  }, [tokens, dispatch, state?.isInitialized])
+  }, [constants, dispatch, mainState.isReady, mainState.selectedAccount, tokens, preSelectedToken])
 
   useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {

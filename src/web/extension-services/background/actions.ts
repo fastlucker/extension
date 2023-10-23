@@ -112,9 +112,6 @@ type MainControllerTransferResetAction = {
 
 type MainControllerTransferResetFormAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-  params: {
-    preSelectedToken: string | null
-  }
 }
 
 type MainControllerTransferBuildUserRequestAction = {
@@ -128,7 +125,6 @@ type MainControllerTransferUpdateAction = {
     preSelectedToken?: string
     humanizerInfo?: HumanizerInfoType
     tokens?: TokenResult[]
-    updateTokensWithoutChangingSelectedToken?: boolean
     recipientAddress?: string
     amount?: string
     setMaxAmount?: boolean
