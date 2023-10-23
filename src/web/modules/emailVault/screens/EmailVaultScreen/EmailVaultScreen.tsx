@@ -4,6 +4,8 @@ import { Trans } from 'react-i18next'
 import { Keyboard, View } from 'react-native'
 
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
+import { Account } from '@ambire-common/interfaces/account'
+import { EmailVaultAccountInfo } from '@ambire-common/interfaces/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
@@ -44,6 +46,7 @@ const EmailVaultScreen = () => {
   const { navigate } = useNavigation()
   const keystoreState = useKeystoreControllerState()
 
+  console.log('emailVaultState', emailVaultState)
   const { dispatch } = useBackgroundService()
   const {
     control,
@@ -66,13 +69,39 @@ const EmailVaultScreen = () => {
       ) &&
       emailVaultState.latestMethodStatus === 'DONE'
     ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EMAIL_ACCOUNT',
-        params: {
-          email,
-          recoveryKey: emailVaultState?.emailVaultStates?.email?.[email]?.recoveryKey
-        }
-      })
+      const hasAccountsAddedToEmailVault = Object.keys(
+        emailVaultState?.emailVaultStates?.email?.[email]?.availableAccounts || {}
+      ).length
+      if (hasAccountsAddedToEmailVault) {
+        const emailVaultAccounts: { [addr: string]: EmailVaultAccountInfo } =
+          emailVaultState?.emailVaultStates?.email?.[email]?.availableAccounts
+
+        const accountsToAdd: Account[] = Object.keys(emailVaultAccounts).map((addr) => {
+          const accountData = emailVaultAccounts.addr
+          return {
+            addr: accountData.addr,
+            label: '',
+            pfp: '',
+            associatedKeys: [], // TODO: ?
+            initialPrivileges: [], // TODO: ?
+            creation: accountData.creation
+          }
+        })
+        dispatch({
+          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EXISTING_EMAIL_ACCOUNTS',
+          params: {
+            accounts: accountsToAdd
+          }
+        })
+      } else {
+        dispatch({
+          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT',
+          params: {
+            email,
+            recoveryKey: emailVaultState?.emailVaultStates?.email?.[email]?.recoveryKey
+          }
+        })
+      }
     }
   }, [emailVaultState, email, dispatch])
 

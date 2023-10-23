@@ -347,7 +347,7 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EMAIL_ACCOUNT': {
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT': {
               const randomPrivateKey = hexlify(randomBytes(32))
               const keyIterator = new KeyIterator(randomPrivateKey)
 
@@ -356,7 +356,7 @@ async function init() {
                 preselectedAccounts: []
               })
 
-              await mainCtrl.accountAdder.addEmailAccount(
+              await mainCtrl.accountAdder.createAndAddEmailAccount(
                 data.params.email,
                 data.params.recoveryKey
               )
@@ -372,7 +372,11 @@ async function init() {
 
               break
             }
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EXISTING_EMAIL_ACCOUNTS': {
+              mainCtrl.accountAdder.addExistingEmailAccounts(data.params.accounts)
 
+              break
+            }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
