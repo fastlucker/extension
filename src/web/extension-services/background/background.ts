@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
   BIP44_HD_PATH,
+  BIP44_LATTICE_TEMPLATE,
+  BIP44_LEDGER_LIVE_TEMPLATE,
+  BIP44_TREZOR_TEMPLATE,
+  DERIVATION,
   LATTICE_STANDARD_HD_PATH,
   LEDGER_LIVE_HD_PATH
 } from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, Key } from '@ambire-common/interfaces/keystore'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -431,19 +435,19 @@ async function init() {
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
               const { keyType } = data.params
-              const models: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+              const models: { [key in ExternalKey['type']]: string } = {
                 ledger: ledgerCtrl.model,
                 trezor: trezorCtrl.model,
                 lattice: latticeCtrl.model
               }
 
-              const derivations: { [key in Exclude<Key['type'], 'internal'>]: string } = {
-                ledger: ledgerCtrl.hdPath,
-                trezor: trezorCtrl.hdPath,
-                lattice: latticeCtrl.hdPath
+              const hdPathTemplates: { [key in ExternalKey['type']]: string } = {
+                ledger: BIP44_LEDGER_LIVE_TEMPLATE,
+                trezor: BIP44_TREZOR_TEMPLATE,
+                lattice: BIP44_LATTICE_TEMPLATE
               }
 
-              const keyWalletNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+              const keyWalletNames: { [key in ExternalKey['type']]: string } = {
                 ledger: 'Ledger',
                 trezor: 'Trezor',
                 lattice: 'Lattice'
@@ -453,7 +457,12 @@ async function init() {
                 addr: eoaAddress,
                 type: keyType,
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
-                meta: { model: models[keyType], hdPath: getHdPath(derivations[keyType], slot - 1) }
+                meta: {
+                  model: models[keyType],
+                  derivation: DERIVATION.BIP44,
+                  hdPathTemplate: hdPathTemplates[keyType],
+                  index: slot - 1
+                }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)
