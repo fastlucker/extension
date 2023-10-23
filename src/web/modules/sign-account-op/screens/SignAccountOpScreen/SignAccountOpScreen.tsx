@@ -44,6 +44,8 @@ const SignAccountOpScreen = () => {
     [mainState.accounts, mainState.selectedAccount]
   )
 
+  const hasEstimation = useMemo(() => !!mainState.accountOpsToBeSigned?.[params?.accountAddr]?.[params?.network.id]?.estimation, [mainState.accountOpsToBeSigned, params])
+
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
       return
@@ -264,7 +266,7 @@ const SignAccountOpScreen = () => {
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
           <Heading text={t('Estimation')} style={styles.estimationHeading} />
-          {signAccountOpState.availableFeeOptions?.length ? (
+          {hasEstimation ? (
             <Estimation networkId={network.id} />
           ) : (
             <Spinner style={styles.spinner} />
