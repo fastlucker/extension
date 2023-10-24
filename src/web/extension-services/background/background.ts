@@ -1,20 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
-  BIP44_HD_PATH,
   BIP44_LATTICE_TEMPLATE,
   BIP44_LEDGER_LIVE_TEMPLATE,
   BIP44_TREZOR_TEMPLATE,
-  DERIVATION,
-  LATTICE_STANDARD_HD_PATH,
   LEDGER_LIVE_HD_PATH
 } from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { ExternalKey, Key } from '@ambire-common/interfaces/keystore'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
-import { getHdPath } from '@ambire-common/utils/hdPath'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
@@ -281,14 +277,14 @@ async function init() {
                   mainCtrl.keystore.keys,
                   'ledger'
                 ),
-                derivationPath: LEDGER_LIVE_HD_PATH
+                hdPathTemplate: BIP44_LEDGER_LIVE_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                derivationPath: BIP44_HD_PATH,
+                hdPathTemplate: BIP44_TREZOR_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -303,7 +299,7 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                derivationPath: LATTICE_STANDARD_HD_PATH,
+                hdPathTemplate: BIP44_LATTICE_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -319,8 +315,7 @@ async function init() {
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
                   'internal'
-                ),
-                derivationPath: BIP44_HD_PATH
+                )
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
@@ -459,7 +454,6 @@ async function init() {
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
                 meta: {
                   model: models[keyType],
-                  derivation: DERIVATION.BIP44,
                   hdPathTemplate: hdPathTemplates[keyType],
                   index: slot - 1
                 }
