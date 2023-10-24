@@ -2,8 +2,7 @@
 import {
   BIP44_LATTICE_TEMPLATE,
   BIP44_LEDGER_LIVE_TEMPLATE,
-  BIP44_TREZOR_TEMPLATE,
-  LEDGER_LIVE_HD_PATH
+  BIP44_TREZOR_TEMPLATE
 } from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -403,9 +402,7 @@ async function init() {
               return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock(LEDGER_LIVE_HD_PATH)
-            case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
-              return ledgerCtrl._getPathForIndex(data.params)
+              return ledgerCtrl.unlock()
             case 'LEDGER_CONTROLLER_APP':
               return ledgerCtrl.app
             case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':

@@ -1,6 +1,8 @@
 import HDKey from 'hdkey'
 
-import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
+import { BIP44_LEDGER_LIVE_TEMPLATE } from '@ambire-common/consts/derivation'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
@@ -22,7 +24,7 @@ class LedgerController {
 
   accounts: any
 
-  hdPath: string = LEDGER_LIVE_HD_PATH
+  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
 
   isWebHID: boolean
 
@@ -41,18 +43,20 @@ class LedgerController {
     this.isWebHID = true
     this.transport = null
     this.app = null
+    // TODO: Handle different derivation
+    this.hdPathTemplate = BIP44_LEDGER_LIVE_TEMPLATE
   }
 
   isUnlocked() {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  setHdPath(hdPath: string) {
+  setHdPath(hdPathTemplate: ExternalKey['meta']['hdPathTemplate']) {
     // Reset HDKey if the path changes
-    if (this.hdPath !== hdPath) {
+    if (this.hdPathTemplate !== hdPathTemplate) {
       this.hdk = new HDKey()
     }
-    this.hdPath = hdPath
+    this.hdPathTemplate = hdPathTemplate
   }
 
   async makeApp() {
@@ -71,16 +75,19 @@ class LedgerController {
     }
   }
 
-  async unlock(hdPath?: string) {
-    if (this.isUnlocked() && !hdPath) {
+  async unlock(path?: string) {
+    if (this.isUnlocked()) {
       return 'ledgerController: already unlocked'
     }
 
-    const path = hdPath ? this._toLedgerPath(hdPath) : this.hdPath
     if (this.isWebHID) {
       try {
         await this.makeApp()
-        const res = await this.app!.getAddress(path, false, true)
+        const res = await this.app!.getAddress(
+          path || getHdPathFromTemplate(this.hdPathTemplate, 0),
+          false,
+          true
+        )
         const { address, publicKey, chainCode } = res
 
         this.hdk.publicKey = Buffer.from(publicKey, 'hex')
@@ -112,7 +119,7 @@ class LedgerController {
       const unlockPromises = []
 
       for (let i = from; i <= to; i++) {
-        const path = this._getPathForIndex(i)
+        const path = getHdPathFromTemplate(this.hdPathTemplate, i)
         unlockPromises.push(this.unlock(path))
       }
 
@@ -122,7 +129,7 @@ class LedgerController {
             hdk: this.hdk,
             app: this.app
           })
-          const keys = await iterator.retrieve(from, to)
+          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
           resolve(keys)
         })
@@ -139,16 +146,9 @@ class LedgerController {
     this.hdk = new HDKey()
   }
 
-  _getPathForIndex(index: number) {
-    return this._isLedgerLiveHdPath() ? `m/44'/60'/${index}'/0/0` : `${this.hdPath}/${index}`
-  }
-
+  // TODO: remove?
   _toLedgerPath(path: string) {
     return path.toString().replace('m/', '')
-  }
-
-  _isLedgerLiveHdPath() {
-    return this.hdPath === LEDGER_LIVE_HD_PATH
   }
 
   async _reconnect() {

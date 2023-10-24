@@ -155,10 +155,6 @@ type NotificationControllerRejectRequestAction = {
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
 }
-type LedgerControllerGetPathForIndexAction = {
-  type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
-  params: any // TODO
-}
 type LedgerControllerAppAction = {
   type: 'LEDGER_CONTROLLER_APP'
 }

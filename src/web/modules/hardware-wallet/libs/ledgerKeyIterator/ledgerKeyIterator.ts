@@ -1,6 +1,8 @@
 import HDKey from 'hdkey'
 
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 
 // DOCS
@@ -32,15 +34,15 @@ class LedgerKeyIterator implements KeyIteratorInterface {
     this.app = _wallet.app
   }
 
-  async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
-    if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
+  async retrieve(from: number, to: number, hdPathTemplate?: ExternalKey['meta']['hdPathTemplate']) {
+    if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
       throw new Error('ledgerKeyIterator: invalid or missing arguments')
 
     const keys: string[] = []
 
     for (let i = from; i <= to; i++) {
       // eslint-disable-next-line no-await-in-loop
-      const key = await this.app!.getAddress(`44'/60'/${i}'/0/0`, false, true)
+      const key = await this.app!.getAddress(getHdPathFromTemplate(hdPathTemplate, i), false, true)
 
       !!key && keys.push(key.address)
     }
