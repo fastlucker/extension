@@ -44,7 +44,7 @@ const SignAccountOpScreen = () => {
     [mainState.accounts, mainState.selectedAccount]
   )
 
-  const hasEstimation = useMemo(() => !!mainState.accountOpsToBeSigned?.[params?.accountAddr]?.[params?.network.id]?.estimation, [mainState.accountOpsToBeSigned, params])
+  const hasEstimation = useMemo(() => !!signAccountOpState.availableFeeOptions.length, [signAccountOpState.availableFeeOptions])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -207,6 +207,18 @@ const SignAccountOpScreen = () => {
     }
     return []
   }, [network, portfolioState.state, signAccountOpState.accountOp])
+
+  useEffect(() => {
+    const reset = () => {
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET' })
+    }
+    window.addEventListener('beforeunload', reset)
+
+    return () => {
+      reset()
+      window.removeEventListener('beforeunload', reset)
+    }
+  }, [dispatch])
 
   if (!signAccountOpState.accountOp || !network) {
     return (
