@@ -46,7 +46,7 @@ class LatticeSigner implements KeystoreSigner {
     const data: any = {}
     data.payload = this.getLegacyTxReq(tx)
     data.chainId = params.chainId
-    data.signerPath = getHDPathIndices(this.controller.hdPathTemplate, this.key.meta.index)
+    data.signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
 
     const res = await this.controller.sdkSession!.sign({ currency: 'ETH', data })
 
@@ -122,7 +122,7 @@ class LatticeSigner implements KeystoreSigner {
       data: {
         protocol,
         payload,
-        signerPath: getHDPathIndices(this.controller.hdPathTemplate, this.key.meta.index)
+        signerPath: getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
       }
     }
 
