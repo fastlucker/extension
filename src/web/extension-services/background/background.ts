@@ -490,6 +490,8 @@ async function init() {
               return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
             case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
               return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
+              return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
 
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)

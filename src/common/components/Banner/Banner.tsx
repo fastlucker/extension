@@ -32,6 +32,13 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
           })
         })
       }
+
+      if (action.actionName === 'sync-keys' && topic === 'ANNOUNCEMENT') {
+        dispatch({
+          type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
+          params: { email: action.meta.email, keys: action.meta.keys }
+        })
+      }
     },
     [dispatch, topic]
   )

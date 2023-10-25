@@ -178,6 +178,10 @@ type EmailVaultControllerUploadKeystoreSecretAction = {
   type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
   params: { email: string }
 }
+type EmailVaultControllerRequestKeysSyncAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
+  params: { email: string; keys: string[] }
+}
 
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
@@ -251,6 +255,7 @@ export type Action =
   | KeystoreControllerResetErrorStateAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
+  | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
