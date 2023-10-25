@@ -193,7 +193,7 @@ const AccountsList = ({
             ) : (
               Object.keys(slots).map((key) => {
                 return (
-                  <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
+                  <Slot key={key} slot={+key}>
                     {getAccounts(slots[key])}
                   </Slot>
                 )
