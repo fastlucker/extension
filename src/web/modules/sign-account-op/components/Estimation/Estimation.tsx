@@ -13,6 +13,7 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 
 import styles from './styles'
 
@@ -133,9 +134,9 @@ const Estimation = ({ networkId }: any) => {
         {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
         {/* </View> */}
       </View>
-      {!!signAccountOpState.accountOp?.signature && (
+      {signAccountOpState!.status?.type === SigningStatus.Done && (
         <View style={{ marginTop: 20 }}>
-          <Text>Signature: {signAccountOpState.accountOp.signature}</Text>
+          <Text>Signature: {signAccountOpState!.accountOp!.signature}</Text>
         </View>
       )}
     </>
