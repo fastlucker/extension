@@ -1,7 +1,7 @@
 import { Client } from 'gridplus-sdk'
 
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 
 // DOCS
@@ -26,7 +26,7 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     this.sdkSession = _wallet.sdkSession
   }
 
-  async retrieve(from: number, to: number, hdPathTemplate?: ExternalKey['meta']['hdPathTemplate']) {
+  async retrieve(from: number, to: number, hdPathTemplate?: HD_PATH_TEMPLATE_TYPE) {
     if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
       throw new Error('latticeKeyIterator: invalid or missing arguments')
 

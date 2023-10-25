@@ -1,7 +1,9 @@
 import HDKey from 'hdkey'
 
-import { BIP44_LEDGER_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import {
+  BIP44_LEDGER_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
@@ -24,7 +26,7 @@ class LedgerController {
 
   accounts: any
 
-  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   isWebHID: boolean
 
@@ -53,7 +55,7 @@ class LedgerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  setHdPath(hdPathTemplate: ExternalKey['meta']['hdPathTemplate']) {
+  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
     // Reset HDKey if the path changes
     if (this.hdPathTemplate !== hdPathTemplate) {
       this.hdk = new HDKey()

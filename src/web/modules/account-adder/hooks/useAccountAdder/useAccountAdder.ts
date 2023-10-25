@@ -119,7 +119,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
                 privKeyOrSeed,
                 // The slot is the key index from the derivation path
                 acc.slot - 1,
-                accountAdderState.derivationPath
+                accountAdderState.hdPathTemplate
               )
             }
 

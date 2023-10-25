@@ -1,7 +1,9 @@
 import HDKey from 'hdkey'
 
-import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import {
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect from '@trezor/connect-web'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
@@ -18,7 +20,7 @@ class TrezorController {
 
   hdk: any
 
-  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   deviceModel = 'unknown'
 

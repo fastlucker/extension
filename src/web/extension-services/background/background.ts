@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
-  BIP44_STANDARD_DERIVATION_TEMPLATE
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -308,6 +309,7 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -452,8 +454,7 @@ async function init() {
                   deviceId: deviceIds[keyType],
                   deviceModel: deviceModels[keyType],
                   // always defined in the case of external keys
-                  hdPathTemplate: mainCtrl.accountAdder
-                    .hdPathTemplate as ExternalKey['meta']['hdPathTemplate'],
+                  hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
                   index: slot - 1
                 }
               }))

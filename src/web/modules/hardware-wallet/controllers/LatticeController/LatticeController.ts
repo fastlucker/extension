@@ -2,7 +2,10 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
+import {
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
@@ -16,7 +19,7 @@ class LatticeController extends EventEmitter {
 
   type: string
 
-  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   sdkSession?: SDK.Client | null
 
@@ -43,7 +46,7 @@ class LatticeController extends EventEmitter {
     this._resetDefaults()
   }
 
-  setHdPath(hdPathTemplate: ExternalKey['meta']['hdPathTemplate']) {
+  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
     this.hdPathTemplate = hdPathTemplate
   }
 
