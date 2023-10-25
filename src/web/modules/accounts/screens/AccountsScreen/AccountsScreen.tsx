@@ -1,21 +1,34 @@
 import React from 'react'
+import { View } from 'react-native'
 
-import Button from '@common/components/Button'
+import Account from '@common/components/Account/Account'
+import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
-import useNavigation from '@common/hooks/useNavigation'
-import spacings from '@common/styles/spacings'
-import text from '@common/styles/utils/text'
+import useAccounts from '@common/hooks/useAccounts/useAccounts'
+import SettingsPage from '@web/components/SettingsPage'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const AccountsScreen = () => {
-  const { navigate } = useNavigation()
+  const { accounts, control } = useAccounts()
+  const mainCtrl = useMainControllerState()
   return (
-    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-      <Text style={text.center} fontSize={20}>
-        Accounts
-      </Text>
-      <Button text="Add Account" onPress={() => navigate('get-started')} />
-    </Wrapper>
+    <SettingsPage currentPage="accounts">
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 }}>
+        <Text fontSize={20} weight="medium">
+          Accounts
+        </Text>
+        <Search control={control} />
+      </View>
+      <View>
+        {accounts.map((account) => (
+          <Account
+            selectedAccount={mainCtrl.selectedAccount}
+            key={account.addr}
+            account={account}
+          />
+        ))}
+      </View>
+    </SettingsPage>
   )
 }
 
