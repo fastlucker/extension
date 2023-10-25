@@ -53,17 +53,57 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
-  accent1: {
+  // Success
+  successText: {
     [THEME_TYPES.DARK]: colors.greenHaze,
-    [THEME_TYPES.LIGHT]: '#007D53'
+    [THEME_TYPES.LIGHT]: '#006D3F'
   },
-  accent2: {
+  successDecorative: {
     [THEME_TYPES.DARK]: colors.greenHaze,
-    [THEME_TYPES.LIGHT]: '#806E33'
+    [THEME_TYPES.LIGHT]: '#018649'
   },
-  accent3: {
+  successBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
-    [THEME_TYPES.LIGHT]: '#D9024A'
+    [THEME_TYPES.LIGHT]: '#EBF5F0'
+  },
+  // Info
+  infoText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#35058E'
+  },
+  infoDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#8B3DFF'
+  },
+  infoBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#F6F0FF'
+  },
+  // Warning
+  warningText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#944901'
+  },
+  warningDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#CA7E04'
+  },
+  warningBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FBF5EB'
+  },
+  // Error
+  errorText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#A10119'
+  },
+  errorDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#EA0129'
+  },
+  errorBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FEEBEE'
   }
 }
 

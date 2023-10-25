@@ -242,7 +242,7 @@ const KeyStoreSetupScreen = () => {
             </Text>
           </li>
         </ol>
-        <Text shouldScale={false} weight="regular" appearance="accent3" fontSize={14}>
+        <Text shouldScale={false} weight="regular" appearance="errorText" fontSize={14}>
           {t(
             'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}

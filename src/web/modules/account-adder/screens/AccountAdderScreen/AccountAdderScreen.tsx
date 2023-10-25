@@ -87,13 +87,13 @@ const AccountAdderScreen = () => {
             'Here you can choose which accounts to import. For every individual key, there exists both a legacy account and a smart account that you can individually choose to import.'
           )}
         </Text>
-        <Text fontSize={16} appearance="accent1" style={[spacings.mb]} weight="regular">
+        <Text fontSize={16} appearance="successText" style={[spacings.mb]} weight="regular">
           {t('Linked Smart Accounts')}
         </Text>
         <Text
           shouldScale={false}
           fontSize={14}
-          appearance="accent1"
+          appearance="successText"
           weight="regular"
           style={[spacings.mbMd]}
         >

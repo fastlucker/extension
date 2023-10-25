@@ -12,9 +12,9 @@ type TextAppearance =
   | 'primary'
   | 'primaryText'
   | 'secondaryText'
-  | 'accent1'
-  | 'accent2'
-  | 'accent3'
+  | 'successText'
+  | 'warningText'
+  | 'errorText'
 
 export interface Props extends TextProps {
   underline?: boolean
@@ -59,9 +59,9 @@ const Text: React.FC<Props> = ({
     primary: theme.primary,
     primaryText: theme.primaryText,
     secondaryText: theme.secondaryText,
-    accent1: theme.accent1,
-    accent2: theme.accent2,
-    accent3: theme.accent3
+    successText: theme.successText,
+    warningText: theme.warningText,
+    errorText: theme.errorText
   }
 
   return (

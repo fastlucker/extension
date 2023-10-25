@@ -30,15 +30,15 @@ const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: 
           style={[
             styles.webCheckbox,
             {
-              borderColor: value ? theme.accent1 : theme.primaryBorder
+              borderColor: value ? theme.successDecorative : theme.primaryBorder
             },
-            !!value && { backgroundColor: theme.accent1 }
+            !!value && { backgroundColor: theme.successDecorative }
           ]}
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}
         >
-          {!!value && <CheckIcon color={theme.accent1} />}
+          {!!value && <CheckIcon color={theme.successDecorative} />}
         </TouchableOpacity>
       </View>
       <View style={flexboxStyles.flex1}>

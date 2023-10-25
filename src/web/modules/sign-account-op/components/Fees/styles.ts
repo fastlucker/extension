@@ -62,7 +62,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.justifySpaceBetween
     },
     gasTankText: {
-      color: theme.accent1,
+      color: theme.successText,
       fontSize: isTab ? 14 : 12
     },
     mr10: spacings.mrTy

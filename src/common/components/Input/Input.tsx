@@ -87,17 +87,17 @@ const Input = ({
       borderBottomColor: 'transparent'
     },
     inputStyle,
-    !!error && { borderBottomColor: theme.accent3 },
+    !!error && { borderBottomColor: theme.errorDecorative },
     isFocused && { borderBottomColor: theme.primary },
-    isValid && { borderBottomColor: theme.accent1 }
+    isValid && { borderBottomColor: theme.successDecorative }
   ]
 
   const buttonStyles = [
     styles.button,
     { borderBottomColor: 'transparent' },
-    !!error && { borderBottomColor: theme.accent3 },
+    !!error && { borderBottomColor: theme.errorDecorative },
     isFocused && { borderBottomColor: theme.primary },
-    isValid && { borderBottomColor: theme.accent1 }
+    isValid && { borderBottomColor: theme.successDecorative }
   ]
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -149,7 +149,7 @@ const Input = ({
           style={styles.errorText}
           weight={isWeb ? 'regular' : undefined}
           fontSize={10}
-          appearance="danger"
+          appearance="errorText"
         >
           {error}
         </Text>

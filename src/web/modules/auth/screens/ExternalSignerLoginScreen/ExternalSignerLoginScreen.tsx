@@ -112,7 +112,7 @@ const ExternalSignerLoginScreen = () => {
           <View style={spacings.mb}>
             <Text
               style={[styles.error, { opacity: errors.privKeyOrSeed ? 1 : 0 }]}
-              appearance="accent3"
+              appearance="errorText"
               fontSize={14}
             >
               {/* empty space to prevent jump */}
@@ -153,7 +153,7 @@ const ExternalSignerLoginScreen = () => {
             </Text>
             <Text
               style={[styles.error, { opacity: errors.label ? 1 : 0, marginLeft: 10 }]}
-              appearance="accent3"
+              appearance="errorText"
               fontSize={14}
             >
               {t('Key labels must be 6-24 characters long.')}
