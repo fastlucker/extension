@@ -28,13 +28,15 @@ class LedgerController {
 
   isWebHID: boolean
 
-  transport: Transport | null
+  transport: TransportWebHID | null
 
   app: null | LedgerEth
 
   type = 'ledger'
 
-  model = 'unknown'
+  deviceModel = 'unknown'
+
+  deviceId = ''
 
   constructor() {
     this.hdk = new HDKey()
@@ -67,7 +69,10 @@ class LedgerController {
         this.app = new LedgerEth(this.transport as Transport)
 
         if (this.transport?.deviceModel?.id) {
-          this.model = this.transport.deviceModel.id
+          this.deviceModel = this.transport.deviceModel.id
+        }
+        if (this.transport?.device?.productId) {
+          this.deviceId = this.transport.device.productId.toString()
         }
       } catch (e: any) {
         Promise.reject(new Error('ledgerController: permission rejected'))

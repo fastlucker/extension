@@ -3,7 +3,7 @@ import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
 import { BIP44_LATTICE_TEMPLATE } from '@ambire-common/consts/derivation'
-import { ExternalKey, Key } from '@ambire-common/interfaces/keystore'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
@@ -29,12 +29,12 @@ class LatticeController extends EventEmitter {
 
   isLocked: boolean = true
 
-  walletUID: any
-
   network: any
 
+  deviceId = ''
+
   // There is only one Grid+ device
-  model = 'lattice'
+  deviceModel = 'lattice'
 
   constructor() {
     super()
@@ -149,7 +149,7 @@ class LatticeController extends EventEmitter {
       password: null,
       endpoint: null
     }
-    this.walletUID = null
+    this.deviceId = ''
     this.sdkSession = null
     this.unlockedAccount = 0
     this.network = null
@@ -274,6 +274,7 @@ class LatticeController extends EventEmitter {
       // 2 minutes for that to happen.
       this.sdkSession.timeout = CONNECT_TIMEOUT
       await this.sdkSession.connect(this.creds.deviceID)
+      this.deviceId = this._getCurrentWalletUID()
     } finally {
       // Reset to normal timeout no matter what
       this.sdkSession.timeout = SDK_TIMEOUT
@@ -331,17 +332,16 @@ class LatticeController extends EventEmitter {
 
   _getCurrentWalletUID() {
     if (!this.sdkSession) {
-      return null
+      return ''
     }
     const activeWallet = this.sdkSession.getActiveWallet()
     if (!activeWallet || !activeWallet.uid) {
-      return null
+      return ''
     }
     return activeWallet.uid.toString('hex')
   }
 
-  async _keyIdxInCurrentWallet(key: Key) {
-    const walletUID = key.meta!.walletUID
+  async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
     const activeWallet = this.sdkSession!.getActiveWallet()
     if (!activeWallet) {
@@ -350,7 +350,7 @@ class LatticeController extends EventEmitter {
     }
     const activeUID = activeWallet.uid.toString('hex')
     // If this is already the active wallet we don't need to make a request
-    if (walletUID.toString('hex') === activeUID) {
+    if (key.meta.deviceId === activeUID) {
       return key.meta!.index
     }
     return null

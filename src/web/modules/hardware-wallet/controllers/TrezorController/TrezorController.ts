@@ -20,7 +20,9 @@ class TrezorController {
 
   hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
 
-  model: string = 'unknown'
+  deviceModel = 'unknown'
+
+  deviceId = ''
 
   constructor() {
     this.type = keyringType
@@ -30,8 +32,12 @@ class TrezorController {
     this.hdPathTemplate = BIP44_TREZOR_TEMPLATE
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
-      if (event && event.payload && event.payload.features) {
-        this.model = event.payload.features.model
+      if (event?.payload?.features?.model) {
+        this.deviceModel = event.payload.features.model
+      }
+      // The device ID could be retrieved from both places
+      if (event?.payload?.features?.device_id || event?.payload?.id) {
+        this.deviceId = event.payload.features.device_id || event.payload.id
       }
     })
 
@@ -39,7 +45,7 @@ class TrezorController {
   }
 
   getModel() {
-    return this.model
+    return this.deviceModel
   }
 
   dispose() {

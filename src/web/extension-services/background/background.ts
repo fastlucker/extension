@@ -427,10 +427,17 @@ async function init() {
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
               const { keyType } = data.params
-              const models: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.model,
-                trezor: trezorCtrl.model,
-                lattice: latticeCtrl.model
+
+              const deviceIds: { [key in ExternalKey['type']]: string } = {
+                ledger: ledgerCtrl.deviceId,
+                trezor: trezorCtrl.deviceId,
+                lattice: latticeCtrl.deviceId
+              }
+
+              const deviceModels: { [key in ExternalKey['type']]: string } = {
+                ledger: ledgerCtrl.deviceModel,
+                trezor: trezorCtrl.deviceModel,
+                lattice: latticeCtrl.deviceModel
               }
 
               const hdPathTemplates: { [key in ExternalKey['type']]: string } = {
@@ -450,7 +457,8 @@ async function init() {
                 type: keyType,
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
                 meta: {
-                  model: models[keyType],
+                  deviceId: deviceIds[keyType],
+                  deviceModel: deviceModels[keyType],
                   hdPathTemplate: hdPathTemplates[keyType],
                   index: slot - 1
                 }
