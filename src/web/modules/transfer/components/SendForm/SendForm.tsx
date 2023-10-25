@@ -19,14 +19,6 @@ import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
-const LOADING_TOKENS_ITEMS = [
-  {
-    value: 'loading',
-    label: <Text weight="medium">Loading...</Text>,
-    icon: null
-  }
-]
-
 const NO_TOKENS_ITEMS = [
   {
     value: 'noTokens',
@@ -35,29 +27,18 @@ const NO_TOKENS_ITEMS = [
   }
 ]
 
-const getSelectProps = ({
-  tokens,
-  isAllReady,
-  token
-}: {
-  tokens: TokenResult[]
-  isAllReady: boolean
-  token: string
-}) => {
+const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: string }) => {
   let options: any = []
   let value = null
   let selectDisabled = true
 
-  if (isAllReady && tokens?.length > 0) {
+  if (tokens?.length === 0) {
+    value = NO_TOKENS_ITEMS[0]
+    options = NO_TOKENS_ITEMS
+  } else {
     options = mapTokenOptions(tokens)
     value = options.find((item: any) => item.value === token) || options[0]
     selectDisabled = false
-  } else if (isAllReady && !(tokens?.length > 0)) {
-    value = NO_TOKENS_ITEMS[0]
-    options = NO_TOKENS_ITEMS
-  } else if (!isAllReady) {
-    value = LOADING_TOKENS_ITEMS[0]
-    options = LOADING_TOKENS_ITEMS
   }
 
   return {
@@ -96,11 +77,7 @@ const SendForm = ({
 
   const { t } = useTranslation()
   const token = `${selectedToken?.address}-${selectedToken?.networkId}`
-  const {
-    value: tokenSelectValue,
-    options,
-    selectDisabled
-  } = getSelectProps({ tokens, isAllReady, token })
+  const { value: tokenSelectValue, options, selectDisabled } = getSelectProps({ tokens, token })
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
 
   const handleChangeToken = useCallback(
