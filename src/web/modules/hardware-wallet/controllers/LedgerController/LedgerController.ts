@@ -1,6 +1,6 @@
 import HDKey from 'hdkey'
 
-import { BIP44_LEDGER_LIVE_TEMPLATE } from '@ambire-common/consts/derivation'
+import { BIP44_LEDGER_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
@@ -46,7 +46,7 @@ class LedgerController {
     this.transport = null
     this.app = null
     // TODO: Handle different derivation
-    this.hdPathTemplate = BIP44_LEDGER_LIVE_TEMPLATE
+    this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
   }
 
   isUnlocked() {

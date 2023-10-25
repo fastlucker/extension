@@ -2,12 +2,11 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { BIP44_LATTICE_TEMPLATE } from '@ambire-common/consts/derivation'
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
-const HARDENED_OFFSET = 0x80000000
 
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
@@ -40,7 +39,7 @@ class LatticeController extends EventEmitter {
     super()
     this.appName = 'Ambire Wallet Extension'
     this.type = keyringType
-    this.hdPathTemplate = BIP44_LATTICE_TEMPLATE
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
 
@@ -95,8 +94,7 @@ class LatticeController extends EventEmitter {
     return new Promise((resolve) => {
       ;(async () => {
         const iterator = new LatticeKeyIterator({
-          sdkSession: this.sdkSession,
-          getHDPathIndices: this._getHDPathIndices
+          sdkSession: this.sdkSession
         })
 
         const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
@@ -108,37 +106,6 @@ class LatticeController extends EventEmitter {
 
   forgetDevice() {
     this._resetDefaults()
-  }
-
-  _getHDPathIndices(hdPathTemplate: string, insertIdx = 0) {
-    const path = hdPathTemplate.split('/').slice(1)
-    const indices = []
-    let usedX = false
-    path.forEach((_idx) => {
-      const isHardened = _idx[_idx.length - 1] === "'"
-      let idx = isHardened ? HARDENED_OFFSET : 0
-      // If there is an `x` in the path string, we will use it to insert our
-      // index. This is useful for e.g. Ledger Live path. Most paths have the
-      // changing index as the last one, so having an `x` in the path isn't
-      // usually necessary.
-      if (_idx.indexOf('<account>') > -1) {
-        idx += insertIdx
-        usedX = true
-      } else if (isHardened) {
-        idx += Number(_idx.slice(0, _idx.length - 1))
-      } else {
-        idx += Number(_idx)
-      }
-      indices.push(idx)
-    })
-    // If this path string does not include an `x`, we just append the index
-    // to the end of the extracted set
-    if (usedX === false) {
-      indices.push(insertIdx)
-    }
-    // Sanity check -- Lattice firmware will throw an error for large paths
-    if (indices.length > 5) throw new Error('Only HD paths with up to 5 indices are allowed.')
-    return indices
   }
 
   _resetDefaults() {
@@ -153,7 +120,7 @@ class LatticeController extends EventEmitter {
     this.sdkSession = null
     this.unlockedAccount = 0
     this.network = null
-    this.hdPathTemplate = BIP44_LATTICE_TEMPLATE
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
   async _openConnectorTab(url) {

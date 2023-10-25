@@ -1,6 +1,6 @@
 import HDKey from 'hdkey'
 
-import { BIP44_TREZOR_TEMPLATE } from '@ambire-common/consts/derivation'
+import { BIP44_STANDARD_DERIVATION_TEMPLATE } from '@ambire-common/consts/derivation'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect from '@trezor/connect-web'
@@ -29,7 +29,7 @@ class TrezorController {
     this.hdk = new HDKey()
 
     // TODO: Handle different derivation
-    this.hdPathTemplate = BIP44_TREZOR_TEMPLATE
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
       if (event?.payload?.features?.model) {
@@ -95,7 +95,7 @@ class TrezorController {
           const iterator = new TrezorKeyIterator({
             hdk: this.hdk
           })
-          const keys = await iterator.retrieve(from, to, BIP44_TREZOR_TEMPLATE)
+          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
           resolve(keys)
         })

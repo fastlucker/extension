@@ -2,6 +2,7 @@ import { Client } from 'gridplus-sdk'
 
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
@@ -13,26 +14,16 @@ import { ExternalKey } from '@ambire-common/interfaces/keystore'
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type WALLET_TYPE = {
   sdkSession?: Client | null
-  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
 }
 
 class LatticeKeyIterator implements KeyIteratorInterface {
   sdkSession?: Client | null
 
-  getHDPathIndices: (
-    hdPathTemplate: ExternalKey['meta']['hdPathTemplate'],
-    insertIdx?: number
-  ) => number[]
-
   constructor(_wallet: WALLET_TYPE) {
-    if (
-      !Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession') ||
-      !Object.prototype.hasOwnProperty.call(_wallet, 'getHDPathIndices')
-    )
+    if (!Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession'))
       throw new Error('latticeKeyIterator: invalid props passed to the constructor')
 
     this.sdkSession = _wallet.sdkSession
-    this.getHDPathIndices = _wallet.getHDPathIndices
   }
 
   async retrieve(from: number, to: number, hdPathTemplate?: ExternalKey['meta']['hdPathTemplate']) {
@@ -42,7 +33,7 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     const keys: string[] = []
 
     const keyData = {
-      startPath: this.getHDPathIndices(hdPathTemplate, from),
+      startPath: getHDPathIndices(hdPathTemplate, from),
       n: to - from + 1
     }
 

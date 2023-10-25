@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
-  BIP44_LATTICE_TEMPLATE,
-  BIP44_LEDGER_LIVE_TEMPLATE,
-  BIP44_TREZOR_TEMPLATE
+  BIP44_LEDGER_DERIVATION_TEMPLATE,
+  BIP44_STANDARD_DERIVATION_TEMPLATE
 } from '@ambire-common/consts/derivation'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -276,14 +275,14 @@ async function init() {
                   mainCtrl.keystore.keys,
                   'ledger'
                 ),
-                hdPathTemplate: BIP44_LEDGER_LIVE_TEMPLATE
+                hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_TREZOR_TEMPLATE,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -293,12 +292,11 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
               const keyIterator = new LatticeKeyIterator({
-                sdkSession: latticeCtrl.sdkSession,
-                getHDPathIndices: latticeCtrl._getHDPathIndices
+                sdkSession: latticeCtrl.sdkSession
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_LATTICE_TEMPLATE,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -440,12 +438,6 @@ async function init() {
                 lattice: latticeCtrl.deviceModel
               }
 
-              const hdPathTemplates: { [key in ExternalKey['type']]: string } = {
-                ledger: BIP44_LEDGER_LIVE_TEMPLATE,
-                trezor: BIP44_TREZOR_TEMPLATE,
-                lattice: BIP44_LATTICE_TEMPLATE
-              }
-
               const keyWalletNames: { [key in ExternalKey['type']]: string } = {
                 ledger: 'Ledger',
                 trezor: 'Trezor',
@@ -459,7 +451,9 @@ async function init() {
                 meta: {
                   deviceId: deviceIds[keyType],
                   deviceModel: deviceModels[keyType],
-                  hdPathTemplate: hdPathTemplates[keyType],
+                  // always defined in the case of external keys
+                  hdPathTemplate: mainCtrl.accountAdder
+                    .hdPathTemplate as ExternalKey['meta']['hdPathTemplate'],
                   index: slot - 1
                 }
               }))
