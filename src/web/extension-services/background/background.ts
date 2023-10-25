@@ -367,6 +367,10 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
               if (mainCtrl.signMessage.signingKeyType === 'ledger')
                 return mainCtrl.signMessage.sign(ledgerCtrl)
+              if (mainCtrl.signMessage.signingKeyType === 'trezor')
+                return mainCtrl.signMessage.sign(trezorCtrl)
+              if (mainCtrl.signMessage.signingKeyType === 'lattice')
+                return mainCtrl.signMessage.sign(latticeCtrl)
 
               return mainCtrl.signMessage.sign()
             }

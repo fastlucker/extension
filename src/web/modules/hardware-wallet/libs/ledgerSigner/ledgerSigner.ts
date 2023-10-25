@@ -76,18 +76,6 @@ class LedgerSigner implements KeystoreSigner {
 
     await this.controller.unlock(this.key.meta.hdPath)
 
-    if (!types.EIP712Domain) {
-      throw new Error(
-        'Ambire only supports signing EIP712 typed data messages. Please try again with a valid EIP712 message.'
-      )
-    }
-
-    if (!primaryType) {
-      throw new Error(
-        'The primaryType is missing in the typed data message incoming. Please try again with a valid EIP712 message.'
-      )
-    }
-
     try {
       const rsvRes = await this.controller.app!.signEIP712Message(this.key.meta.hdPath, {
         domain,
@@ -106,20 +94,14 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signMessage(hash: string | Uint8Array) {
+  async signMessage(hex: string) {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
       )
     }
 
-    if (hash instanceof Uint8Array) {
-      throw new Error(
-        "Request for signing a Uint8Array detected. That's not a typical sign message request and it is disallowed with Ambire."
-      )
-    }
-
-    if (!stripHexPrefix(hash)) {
+    if (!stripHexPrefix(hex)) {
       throw new Error(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
       )
@@ -130,7 +112,7 @@ class LedgerSigner implements KeystoreSigner {
     try {
       const rsvRes = await this.controller.app!.signPersonalMessage(
         this.key.meta.hdPath,
-        stripHexPrefix(hash)
+        stripHexPrefix(hex)
       )
 
       const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
