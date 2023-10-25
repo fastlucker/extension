@@ -46,7 +46,6 @@ const EmailVaultScreen = () => {
   const { navigate } = useNavigation()
   const keystoreState = useKeystoreControllerState()
 
-  console.log('emailVaultState', emailVaultState)
   const { dispatch } = useBackgroundService()
   const {
     control,
@@ -62,6 +61,14 @@ const EmailVaultScreen = () => {
 
   const email = watch('email')
 
+  // add keys only for newly generated account
+  const shouldAddKeysToKeystore = useMemo(() => {
+    // checks whether there is account already added
+    // and returned from the email vault for this email
+    return !Object.keys(emailVaultState?.emailVaultStates?.email?.[email]?.availableAccounts || {})
+      .length
+  }, [email, emailVaultState?.emailVaultStates?.email])
+
   useEffect(() => {
     if (
       ['uploadKeyStoreSecret', 'getEmailVaultInfo'].includes(
@@ -72,18 +79,22 @@ const EmailVaultScreen = () => {
       const hasAccountsAddedToEmailVault = Object.keys(
         emailVaultState?.emailVaultStates?.email?.[email]?.availableAccounts || {}
       ).length
+
       if (hasAccountsAddedToEmailVault) {
         const emailVaultAccounts: { [addr: string]: EmailVaultAccountInfo } =
           emailVaultState?.emailVaultStates?.email?.[email]?.availableAccounts
 
         const accountsToAdd: Account[] = Object.keys(emailVaultAccounts).map((addr) => {
-          const accountData = emailVaultAccounts.addr
+          const accountData = emailVaultAccounts[addr]
           return {
             addr: accountData.addr,
             label: '',
             pfp: '',
-            associatedKeys: [], // TODO: ?
-            initialPrivileges: [], // TODO: ?
+            associatedKeys: accountData.associatedKeys,
+            // not returned by getEmailVaultInfo
+            // if needed should be added but mainly initialPrivileges
+            // are needed only in the relayer
+            initialPrivileges: [],
             creation: accountData.creation
           }
         })
@@ -105,6 +116,14 @@ const EmailVaultScreen = () => {
     }
   }, [emailVaultState, email, dispatch])
 
+  // on this screen there will always be account to be imported
+  const completeStep = useCallback(
+    (hasAccountsToImport: boolean = true) => {
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+    },
+    [navigate]
+  )
+
   useEffect(() => {
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
@@ -121,15 +140,17 @@ const EmailVaultScreen = () => {
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: defaultSelectedAccount.addr }
       })
+      if (!shouldAddKeysToKeystore) {
+        completeStep()
+      }
     }
-  }, [accountAdderState.addAccountsStatus, accountAdderState.readyToAddAccounts, dispatch])
-
-  const completeStep = useCallback(
-    (hasAccountsToImport: boolean = true) => {
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
-    },
-    [navigate]
-  )
+  }, [
+    accountAdderState.addAccountsStatus,
+    accountAdderState.readyToAddAccounts,
+    shouldAddKeysToKeystore,
+    completeStep,
+    dispatch
+  ])
 
   useEffect(() => {
     if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === 'addKeys') {
@@ -150,8 +171,10 @@ const EmailVaultScreen = () => {
       }
 
       if (enableKeyRecovery) {
+        // uploadKeyStoreSecret func calls getEmailVaultInfo in the emailVault ctrl
         dispatch({ type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET', params: { email } })
       } else {
+        // only call getEmailVaultInfo without uploadKeyStoreSecret
         dispatch({ type: 'EMAIL_VAULT_CONTROLLER_GET_INFO', params: { email } })
       }
     })()

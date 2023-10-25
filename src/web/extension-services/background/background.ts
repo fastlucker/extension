@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { hexlify, randomBytes } from 'ethers'
 
 import {
   BIP44_HD_PATH,
@@ -24,6 +23,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
+import getPrivateKeyFromSeed from '@web/modules/account-adder/services/getPrivateKeyFromSeed'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -348,26 +348,32 @@ async function init() {
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
               return mainCtrl.accountAdder.addAccounts(data.params.accounts)
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT': {
-              const randomPrivateKey = hexlify(randomBytes(32))
-              const keyIterator = new KeyIterator(randomPrivateKey)
+              try {
+                await mainCtrl.keystore.generateEmailVaultSeed(data.params.email)
+                const seed = await mainCtrl.keystore.getEmailVaultSeed(data.params.email)
+                const privateKey = getPrivateKeyFromSeed(seed, 1, BIP44_HD_PATH)
+                const keyIterator = new KeyIterator(privateKey)
 
-              mainCtrl.accountAdder.init({
-                keyIterator,
-                preselectedAccounts: []
-              })
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  preselectedAccounts: []
+                })
 
-              await mainCtrl.accountAdder.createAndAddEmailAccount(
-                data.params.email,
-                data.params.recoveryKey
-              )
+                await mainCtrl.accountAdder.createAndAddEmailAccount(
+                  data.params.email,
+                  data.params.recoveryKey
+                )
 
-              if (mainCtrl.accountAdder.readyToAddAccounts.length) {
-                mainCtrl.keystore.addKeys([
-                  {
-                    privateKey: randomPrivateKey,
-                    label: `Key for account with email: ${data.params.email}`
-                  }
-                ])
+                if (mainCtrl.accountAdder.readyToAddAccounts.length) {
+                  mainCtrl.keystore.addKeys([
+                    {
+                      privateKey,
+                      label: `Key for account with email: ${data.params.email}`
+                    }
+                  ])
+                }
+              } catch (error) {
+                console.error(error)
               }
 
               break

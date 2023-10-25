@@ -86,6 +86,7 @@
     "adex-protocol-eth": "git+https://git@github.com/AmbireTech/adex-protocol-eth.git#e507e75ac4ddbec2aa4a444c675b38ee9d26190c",
     "babel-plugin-module-resolver": "4.1.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
+    "bip39": "^3.1.0",
     "bip44-constants": "^128.0.0",
     "browserify-zlib": "~0.1.4",
     "buffer": "^6.0.3",
