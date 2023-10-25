@@ -26,7 +26,9 @@ class LatticeSigner implements KeystoreSigner {
 
   async signRawTransaction(params: any) {
     if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (!this.key) {
@@ -108,7 +110,9 @@ class LatticeSigner implements KeystoreSigner {
 
   async _signMsgRequest(payload: any, protocol: 'signPersonal' | 'eip712') {
     if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (!this.key) {
