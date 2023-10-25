@@ -2,12 +2,11 @@ import { addHexPrefix } from 'ethereumjs-util'
 import * as SDK from 'gridplus-sdk'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import { Transaction } from '@ethereumjs/tx'
 import { serialize } from '@ethersproject/transactions'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 
 const EIP_155_CONSTANT = 35
 
@@ -91,12 +90,7 @@ class LatticeSigner implements KeystoreSigner {
     return signature
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
+  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
     if (!types.EIP712Domain) {
       throw new Error('latticeSigner: only EIP712 messages are supported')
     }
