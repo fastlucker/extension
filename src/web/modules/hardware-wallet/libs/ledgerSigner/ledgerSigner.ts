@@ -1,5 +1,3 @@
-import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key, KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
 import * as sigUtil from 'eth-sig-util'
 import {
   bufferToHex,
@@ -12,6 +10,8 @@ import {
   toChecksumAddress
 } from 'ethereumjs-util'
 
+import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
+import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 

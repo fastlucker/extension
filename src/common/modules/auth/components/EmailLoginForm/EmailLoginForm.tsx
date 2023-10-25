@@ -1,9 +1,9 @@
-import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard } from 'react-native'
 
+import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'

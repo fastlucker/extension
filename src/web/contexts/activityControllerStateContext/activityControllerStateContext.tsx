@@ -1,7 +1,7 @@
-import { ActivityController } from 'ambire-common/src/controllers/activity/activity'
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'

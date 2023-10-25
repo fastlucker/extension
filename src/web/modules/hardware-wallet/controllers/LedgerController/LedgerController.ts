@@ -1,6 +1,6 @@
-import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
 import HDKey from 'hdkey'
 
+import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
@@ -30,6 +30,10 @@ class LedgerController {
 
   app: null | LedgerEth
 
+  type = 'ledger'
+
+  model = 'unknown'
+
   constructor() {
     this.hdk = new HDKey()
     this.hasHIDPermission = null
@@ -57,6 +61,10 @@ class LedgerController {
         // @ts-ignore
         this.transport = await TransportWebHID.create()
         this.app = new LedgerEth(this.transport as Transport)
+
+        if (this.transport?.deviceModel?.id) {
+          this.model = this.transport.deviceModel.id
+        }
       } catch (e: any) {
         Promise.reject(new Error('ledgerController: permission rejected'))
       }
@@ -79,8 +87,15 @@ class LedgerController {
         this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
         return address
-      } catch (e: any) {
-        throw new Error('ledgerController: ledger device not available ', e.message)
+      } catch (error: any) {
+        if (error?.statusCode === 25871 || error?.statusCode === 27404) {
+          throw new Error('Please make sure your ledger is unlocked and running the Ethereum app.')
+        }
+
+        console.error(error)
+        throw new Error(
+          'Could not connect to your ledger device. Please make sure it is connected.'
+        )
       }
     }
 

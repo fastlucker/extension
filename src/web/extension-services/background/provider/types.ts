@@ -1,5 +1,4 @@
-import { MainController } from 'ambire-common/src/controllers/main/main'
-
+import { MainController } from '@ambire-common/controllers/main/main'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 
 export type ProviderRequest<TMethod = string> = {

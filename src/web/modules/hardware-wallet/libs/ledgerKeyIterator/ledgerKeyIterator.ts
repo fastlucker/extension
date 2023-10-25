@@ -1,6 +1,6 @@
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
 import HDKey from 'hdkey'
 
+import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 
 // DOCS

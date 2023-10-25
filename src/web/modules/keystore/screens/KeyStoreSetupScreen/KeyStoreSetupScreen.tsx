@@ -1,8 +1,8 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { isValidPassword } from '@ambire-common/services/validations'
 import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'

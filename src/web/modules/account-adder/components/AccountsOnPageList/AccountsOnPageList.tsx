@@ -1,10 +1,10 @@
-import { HD_PATHS, HDPath } from 'ambire-common/src/consts/derivation'
-import AccountAdderController from 'ambire-common/src/controllers/accountAdder/accountAdder'
-import { Account as AccountInterface } from 'ambire-common/src/interfaces/account'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 
+import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'

@@ -1,6 +1,6 @@
-import { networks } from 'ambire-common/src/consts/networks'
-import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
-import { parse } from 'ambire-common/src/libs/bigintJson/bigintJson'
+import { networks } from '@ambire-common/consts/networks'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
 
 import permission from '../services/permission'
 
@@ -46,7 +46,7 @@ class UserNotification {
         kind: 'message',
         message: msg[0]
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       forceNonce: null
     }
@@ -119,7 +119,7 @@ class UserNotification {
         message: typedData.message,
         primaryType: typedData.primaryType
       },
-      networkId: network?.id,
+      networkId: network.id,
       accountAddr: selectedAccount,
       forceNonce: null
     }

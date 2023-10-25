@@ -1,8 +1,8 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import { serializeError } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import networks, { NetworkType } from '@common/constants/networks'
 import useAccounts from '@common/hooks/useAccounts'

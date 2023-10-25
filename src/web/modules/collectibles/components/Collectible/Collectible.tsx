@@ -1,8 +1,8 @@
-import { Collectible as CollectibleType } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View, ViewStyle } from 'react-native'
 
+import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import SendIcon from '@common/assets/svg/SendIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -94,7 +94,7 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                 >
                   {data?.name ? data.name.slice(0, 10) : t('Unknown name')}
                 </Text>
-                {/* 
+                {/*
                 We won't show the description for now
                 <Text
                   style={styles.text}

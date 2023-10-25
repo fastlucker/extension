@@ -1,9 +1,9 @@
-import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key } from 'ambire-common/src/interfaces/keystore'
 import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
+import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
+import { Key } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
@@ -32,6 +32,9 @@ class LatticeController extends EventEmitter {
   walletUID: any
 
   network: any
+
+  // There is only one Grid+ device
+  model = 'lattice'
 
   constructor() {
     super()

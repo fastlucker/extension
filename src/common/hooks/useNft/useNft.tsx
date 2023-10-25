@@ -1,7 +1,8 @@
-import ERC721ABI from 'ambire-common/contracts/compiled/IERC721.json'
-import { getProvider } from 'ambire-common/src/services/provider'
 import { Contract } from 'ethers'
 import { useEffect, useState } from 'react'
+
+import { getProvider } from '@ambire-common/services/provider'
+import ERC721ABI from '@contracts/compiled/IERC721.json'
 
 import fetchCollectible from './helpers/fetchCollectible'
 import getUrlWithGateway from './helpers/getUrlWithGateway'

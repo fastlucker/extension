@@ -1,12 +1,7 @@
-import { Filters } from 'ambire-common/src/controllers/activity/activity'
-import { Account, AccountStates } from 'ambire-common/src/interfaces/account'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import { Message, UserRequest } from 'ambire-common/src/interfaces/userRequest'
-import { AccountOp } from 'ambire-common/src/libs/accountOp/accountOp'
-import { EstimateResult } from 'ambire-common/src/libs/estimate/estimate'
-import { GasRecommendation } from 'ambire-common/src/libs/gasPrice/gasPrice'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
-
+import { Filters } from '@ambire-common/controllers/activity/activity'
+import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
+import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
@@ -23,35 +18,17 @@ type InitControllerStateAction = {
 
 type MainControllerAccountAdderInitLedgerAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitTrezorAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitLatticeAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE'
-  params: {
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
-  }
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
-    page?: number | undefined
-    pageSize?: number | undefined
-    derivationPath?: string | undefined
   }
 }
 type MainControllerAccountAdderInitViewOnlyAction = {
@@ -136,9 +113,6 @@ type NotificationControllerRejectRequestAction = {
 }
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
-  params?: {
-    hdPath?: string
-  }
 }
 type LedgerControllerGetPathForIndexAction = {
   type: 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX'
@@ -166,6 +140,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddKeysExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
+  params: { keyType: Exclude<Key['type'], 'internal'> }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'

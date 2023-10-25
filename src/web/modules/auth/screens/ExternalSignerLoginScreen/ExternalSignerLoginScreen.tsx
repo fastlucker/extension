@@ -1,9 +1,9 @@
-import { isValidPrivateKey } from 'ambire-common/src/libs/keyIterator/keyIterator'
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput, View } from 'react-native'
 
+import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -60,7 +60,7 @@ const ExternalSignerLoginScreen = () => {
 
       navigate(WEB_ROUTES.accountAdder, {
         state: {
-          walletType: 'legacyImport',
+          keyType: 'internal',
           privKeyOrSeed: formattedPrivKeyOrSeed,
           label: label || DEFAULT_IMPORT_LABEL
         }

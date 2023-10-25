@@ -1,6 +1,6 @@
-import { ErrorRef } from 'ambire-common/src/controllers/eventEmitter'
 import React, { createContext, useEffect, useMemo } from 'react'
 
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import alert from '@common/services/alert'
 import { isExtension } from '@web/constants/browserapi'
 import {

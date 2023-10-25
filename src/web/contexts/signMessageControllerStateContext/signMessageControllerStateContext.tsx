@@ -1,7 +1,7 @@
-import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'

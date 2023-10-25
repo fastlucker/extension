@@ -69,26 +69,11 @@ const GetStartedScreen = () => {
         </Text>
         <View style={[flexboxStyles.directionRow]}>
           <Card
-            title="Email account"
-            text="Create a smart account with email and password. This account will be recoverable via your email address."
-            icon={EmailIcon}
-            style={{
-              ...flexboxStyles.flex1
-            }}
-            onPress={() => handleAuthButtonPress('email')}
-            buttonText="Create Email Account"
-          />
-          <Card
             title="Hardware wallet"
             text={
               'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
             }
-            style={[
-              spacings.mhSm,
-              {
-                ...flexboxStyles.flex1
-              }
-            ]}
+            style={flexboxStyles.flex1}
             icon={HWIcon}
             buttonText="Import From Hardware Wallet"
             onPress={() => handleAuthButtonPress('hw')}
@@ -96,7 +81,8 @@ const GetStartedScreen = () => {
           <Card
             title="Legacy Account"
             style={{
-              ...flexboxStyles.flex1
+              ...flexboxStyles.flex1,
+              ...spacings.mhSm
             }}
             text={
               'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
@@ -104,6 +90,14 @@ const GetStartedScreen = () => {
             icon={ImportAccountIcon}
             buttonText="Import Legacy Account"
             onPress={() => handleAuthButtonPress('legacy')}
+          />
+          <Card
+            title="Email account"
+            text="Create a smart account with email and password. This account will be recoverable via your email address."
+            icon={EmailIcon}
+            style={flexboxStyles.flex1}
+            onPress={() => handleAuthButtonPress('email')}
+            buttonText="Create Email Account"
           />
         </View>
 

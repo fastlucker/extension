@@ -9,6 +9,7 @@ const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+const FileManagerPlugin = require('filemanager-webpack-plugin')
 
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
@@ -101,24 +102,10 @@ module.exports = async function (env, argv) {
   }
   locations.template = templatePaths
 
-  const config = await createExpoWebpackConfigAsync(
-    {
-      ...env,
-      babel: { dangerouslyAddModulePathsToTranspile: ['ambire-common'] }
-    },
-    argv
-  )
+  const config = await createExpoWebpackConfigAsync(env, argv)
 
   // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
-
-  if (config.watchOptions) {
-    if (config.watchOptions.ignored) {
-      const ignored = config.watchOptions.ignored.filter((p) => p !== '**/node_modules/**')
-      ignored.push('**/node_modules/!(ambire-common)/**')
-      config.watchOptions.ignored = ignored
-    }
-  }
 
   config.entry = {
     main: config.entry[0], // the app entry
@@ -196,7 +183,7 @@ module.exports = async function (env, argv) {
           to: 'browser-polyfill.js'
         },
         {
-          from: './node_modules/setimmediate/setimmediate.js',
+          from: './node_modules/setimmediate/setImmediate.js',
           to: 'setimmediate.js'
         },
         {
@@ -216,6 +203,21 @@ module.exports = async function (env, argv) {
           to: 'trezor-usb-permissions.html'
         }
       ]
+    }),
+    new FileManagerPlugin({
+      events: {
+        onStart: {
+          delete: [
+            {
+              source: path.join(__dirname, 'src/ambire-common/node_modules/').replaceAll('\\', '/'),
+              options: {
+                force: true,
+                recursive: true
+              }
+            }
+          ]
+        }
+      }
     })
   ]
 

@@ -1,8 +1,8 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
+import { isValidPassword } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
