@@ -1,6 +1,7 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -109,6 +110,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       if (keyType === 'internal') {
         try {
           if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
+          if (!accountAdderState.hdPathTemplate)
+            throw new Error(
+              'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+            )
 
           const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
             let privateKey = privKeyOrSeed
@@ -119,13 +124,14 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
                 privKeyOrSeed,
                 // The slot is the key index from the derivation path
                 acc.slot - 1,
-                accountAdderState.hdPathTemplate
+                // should always be provided, otherwise it would have thrown an error above
+                accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
             }
 
             return {
               privateKey,
-              label: `${{ keyLabel }} for the account on slot ${acc.slot}`
+              label: `${keyLabel} for the account on slot ${acc.slot}`
             }
           })
 
