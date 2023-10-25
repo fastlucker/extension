@@ -1,7 +1,7 @@
 import { Client } from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 
 // DOCS
 // - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
@@ -19,7 +19,10 @@ type WALLET_TYPE = {
 class LatticeKeyIterator implements KeyIteratorInterface {
   sdkSession?: Client | null
 
-  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
+  getHDPathIndices: (
+    hdPathTemplate: ExternalKey['meta']['hdPathTemplate'],
+    insertIdx?: number
+  ) => number[]
 
   constructor(_wallet: WALLET_TYPE) {
     if (
@@ -32,14 +35,14 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     this.getHDPathIndices = _wallet.getHDPathIndices
   }
 
-  async retrieve(from: number, to: number, derivation: string = LATTICE_STANDARD_HD_PATH) {
-    if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
+  async retrieve(from: number, to: number, hdPathTemplate?: ExternalKey['meta']['hdPathTemplate']) {
+    if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
       throw new Error('latticeKeyIterator: invalid or missing arguments')
 
     const keys: string[] = []
 
     const keyData = {
-      startPath: this.getHDPathIndices(derivation, from),
+      startPath: this.getHDPathIndices(hdPathTemplate, from),
       n: to - from + 1
     }
 

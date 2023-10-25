@@ -1,8 +1,8 @@
 import { addHexPrefix } from 'ethereumjs-util'
 import * as SDK from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { BIP44_LATTICE_TEMPLATE } from '@ambire-common/consts/derivation'
+import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { Transaction } from '@ethereumjs/tx'
 import { serialize } from '@ethersproject/transactions'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -12,11 +12,11 @@ import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-si
 const EIP_155_CONSTANT = 35
 
 class LatticeSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: LatticeController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
@@ -46,10 +46,7 @@ class LatticeSigner implements KeystoreSigner {
     const data: any = {}
     data.payload = this.getLegacyTxReq(tx)
     data.chainId = params.chainId
-    data.signerPath = this.controller._getHDPathIndices(
-      LATTICE_STANDARD_HD_PATH,
-      this.key.meta!.index
-    )
+    data.signerPath = this.controller._getHDPathIndices(BIP44_LATTICE_TEMPLATE, this.key.meta.index)
 
     const res = await this.controller.sdkSession!.sign({ currency: 'ETH', data })
 
@@ -125,10 +122,7 @@ class LatticeSigner implements KeystoreSigner {
       data: {
         protocol,
         payload,
-        signerPath: this.controller._getHDPathIndices(
-          LATTICE_STANDARD_HD_PATH,
-          this.key.meta!.index
-        )
+        signerPath: this.controller._getHDPathIndices(BIP44_LATTICE_TEMPLATE, this.key.meta.index)
       }
     }
 

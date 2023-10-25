@@ -2,8 +2,8 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { BIP44_LATTICE_TEMPLATE } from '@ambire-common/consts/derivation'
+import { ExternalKey, Key } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
@@ -17,7 +17,7 @@ class LatticeController extends EventEmitter {
 
   type: string
 
-  hdPath: string
+  hdPathTemplate: ExternalKey['meta']['hdPathTemplate']
 
   sdkSession?: SDK.Client | null
 
@@ -40,12 +40,12 @@ class LatticeController extends EventEmitter {
     super()
     this.appName = 'Ambire Wallet Extension'
     this.type = keyringType
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_LATTICE_TEMPLATE
     this._resetDefaults()
   }
 
-  setHdPath() {
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+  setHdPath(hdPathTemplate: ExternalKey['meta']['hdPathTemplate']) {
+    this.hdPathTemplate = hdPathTemplate
   }
 
   // Deterimine if we have a connection to the Lattice and an existing wallet UID
@@ -99,7 +99,7 @@ class LatticeController extends EventEmitter {
           getHDPathIndices: this._getHDPathIndices
         })
 
-        const keys = await iterator.retrieve(from, to)
+        const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
         resolve(keys)
       })()
@@ -110,8 +110,8 @@ class LatticeController extends EventEmitter {
     this._resetDefaults()
   }
 
-  _getHDPathIndices(hdPath, insertIdx = 0) {
-    const path = hdPath.split('/').slice(1)
+  _getHDPathIndices(hdPathTemplate: string, insertIdx = 0) {
+    const path = hdPathTemplate.split('/').slice(1)
     const indices = []
     let usedX = false
     path.forEach((_idx) => {
@@ -121,7 +121,7 @@ class LatticeController extends EventEmitter {
       // index. This is useful for e.g. Ledger Live path. Most paths have the
       // changing index as the last one, so having an `x` in the path isn't
       // usually necessary.
-      if (_idx.indexOf('x') > -1) {
+      if (_idx.indexOf('<account>') > -1) {
         idx += insertIdx
         usedX = true
       } else if (isHardened) {
@@ -153,7 +153,7 @@ class LatticeController extends EventEmitter {
     this.sdkSession = null
     this.unlockedAccount = 0
     this.network = null
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_LATTICE_TEMPLATE
   }
 
   async _openConnectorTab(url) {
