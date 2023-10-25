@@ -153,11 +153,6 @@ class LedgerController {
     this.hdk = new HDKey()
   }
 
-  // TODO: remove?
-  _toLedgerPath(path: string) {
-    return path.toString().replace('m/', '')
-  }
-
   async _reconnect() {
     if (this.isWebHID) {
       await this.cleanUp()
