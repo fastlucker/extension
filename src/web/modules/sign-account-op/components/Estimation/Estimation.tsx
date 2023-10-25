@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -41,31 +40,25 @@ const Estimation = ({ networkId }: any) => {
   }, [
     signAccountOpState.availableFeeOptions,
     mainState.accounts,
-    portfolioState.accountPortfolio,
+    portfolioState.accountPortfolio?.tokens,
     networkId
   ])
 
-  const { control, watch } = useForm({
-    reValidateMode: 'onChange',
-    defaultValues: {
-      pay: payOptions.find(
-        ({ value }: any) =>
-          value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
-      )
-    }
-  })
+  const defaultPayOption = useMemo(() => payOptions.find(
+      ({ value }: any) => value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!),
+      [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
 
-  const pay = watch('pay')
+  const [payValue, setPayValue] = useState(defaultPayOption)
 
   useEffect(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
       params: {
-        feeTokenAddr: pay.token.address,
-        paidBy: pay.paidBy
+        feeTokenAddr: payValue.token.address,
+        paidBy: payValue.paidBy
       }
     })
-  }, [dispatch, pay])
+  }, [dispatch, payValue])
 
   const selectedFee = useMemo(
     () =>
@@ -89,20 +82,14 @@ const Estimation = ({ networkId }: any) => {
 
   return (
     <>
-      <Controller
-        name="pay"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <Select
-            setValue={onChange}
-            label={t('Pay fee with')}
-            options={payOptions}
-            style={styles.tokenSelect}
-            labelStyle={styles.tokenSelectLabel}
-            value={value}
-            defaultValue={value}
-          />
-        )}
+      <Select
+          setValue={setPayValue}
+          label={t('Pay fee with')}
+          options={payOptions}
+          style={styles.tokenSelect}
+          labelStyle={styles.tokenSelectLabel}
+          value={payValue}
+          defaultValue={payValue}
       />
       <View style={styles.transactionSpeedContainer}>
         <Text style={styles.transactionSpeedLabel}>Transaction speed</Text>
@@ -124,7 +111,7 @@ const Estimation = ({ networkId }: any) => {
       <View>
         <View style={styles.feeContainer}>
           <Text style={styles.fee}>
-            {t('Fee')}: {selectedFee.amountFormatted} {pay.token.symbol}
+            {t('Fee')}: {selectedFee.amountFormatted} {payValue.token.symbol}
           </Text>
           <Text style={styles.feeUsd}>~ ${Number(selectedFee.amountUsd).toFixed(4)}</Text>
         </View>
