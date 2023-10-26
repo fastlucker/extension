@@ -138,11 +138,6 @@ const Estimation = ({ networkId }: any) => {
         {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
         {/* </View> */}
       </View>
-      {signAccountOpState!.status?.type === SigningStatus.Done && (
-        <View style={{ marginTop: 20 }}>
-          <Text>Signature: {signAccountOpState!.accountOp!.signature}</Text>
-        </View>
-      )}
     </>
   )
 }
