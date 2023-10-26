@@ -156,11 +156,10 @@ const AccountsList = ({
             <Pressable style={styles.derivationButton} disabled>
               <View style={styles.derivationButtonInfo}>
                 <Text weight="medium" fontSize={14}>
-                  {state.derivationPath &&
-                    getDerivationLabel(state.derivationPath as HDPath['path'])}{' '}
+                  {state.hdPathTemplate && getDerivationLabel(state.hdPathTemplate)}{' '}
                 </Text>
                 <Text weight="medium" fontSize={14} appearance="secondaryText">
-                  {state.derivationPath}{' '}
+                  {state.hdPathTemplate}{' '}
                 </Text>
               </View>
               <NavIconWrapper
