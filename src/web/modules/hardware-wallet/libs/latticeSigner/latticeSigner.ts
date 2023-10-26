@@ -23,6 +23,7 @@ class LatticeSigner implements KeystoreSigner {
     this.controller = _controller
   }
 
+  // TODO: That's a blueprint for the future implementation
   async signRawTransaction(params: any) {
     if (!this.controller) {
       throw new Error(

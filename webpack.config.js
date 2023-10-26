@@ -31,6 +31,8 @@ module.exports = async function (env, argv) {
     //   but also things like inline script event handlers (onclick) and XSLT
     //   stylesheets which can trigger script execution. Must include at least
     //   the 'self' keyword and may only contain secure sources.
+    //   'wasm-eval' needed, otherwise the GridPlus SDK fires errors
+    //   (GridPlus needs to allow inline Web Assembly (wasm))
     //   2. The "object-src" directive may be required in some browsers that
     //   support obsolete plugins and should be set to a secure source such as
     //   'none' when needed. This may be necessary for browsers up until 2022.
@@ -38,7 +40,7 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self'; object-src 'self'; frame-ancestors 'none';"
+    const csp = "script-src 'self' 'wasm-eval'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
       manifest.content_security_policy = { extension_pages: csp }
