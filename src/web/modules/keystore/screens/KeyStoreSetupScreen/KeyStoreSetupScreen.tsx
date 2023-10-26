@@ -52,9 +52,9 @@ const KeyStoreSetupScreen = () => {
     control,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -183,12 +183,7 @@ const KeyStoreSetupScreen = () => {
 
               <Button
                 textStyle={{ fontSize: 14 }}
-                disabled={
-                  isSubmitting ||
-                  isKeystoreSetupLoading ||
-                  !watch('password', '') ||
-                  !watch('confirmPassword', '')
-                }
+                disabled={isSubmitting || isKeystoreSetupLoading || !isValid}
                 text={
                   isSubmitting || isKeystoreSetupLoading
                     ? t('Setting Up Your Key Store...')

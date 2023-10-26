@@ -22,9 +22,6 @@ const AddressBookSection = () => {
         style={styles.button}
         // @TODO: implement address book
         disabled
-        disabledStyle={{
-          opacity: 0.6
-        }}
         textStyle={styles.buttonText}
         text="Add Address"
       />
