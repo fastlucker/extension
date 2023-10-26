@@ -16,6 +16,7 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -45,6 +46,7 @@ const AccountsList = ({
   onCreateEmailVaultStep?: () => void
   setPage: (page: number) => void
 }) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const [emailVaultStep, setEmailVaultStep] = useState(false)
   // const [showUnused, setShowUnused] = useState(false)
@@ -156,7 +158,7 @@ const AccountsList = ({
                 <Text weight="medium" fontSize={14}>
                   {state.hdPathTemplate && getDerivationLabel(state.hdPathTemplate)}{' '}
                 </Text>
-                <Text weight="medium" fontSize={14} color={colors.martinique_65}>
+                <Text weight="medium" fontSize={14} appearance="secondaryText">
                   {state.hdPathTemplate}{' '}
                 </Text>
               </View>
@@ -164,7 +166,7 @@ const AccountsList = ({
                 onPress={() => null}
                 width={25}
                 height={25}
-                hoverBackground={colors.lightViolet}
+                hoverBackground={theme.primaryLight}
                 style={styles.derivationButtonRightIcon}
               >
                 <RightArrowIcon width={26} height={26} withRect={false} />
@@ -210,7 +212,7 @@ const AccountsList = ({
         >
           <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
             <Spinner style={{ width: 16, height: 16 }} />
-            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
+            <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
               {t('Looking for linked smart accounts')}
             </Text>
           </View>

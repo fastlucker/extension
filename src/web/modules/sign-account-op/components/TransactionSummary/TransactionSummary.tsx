@@ -6,7 +6,7 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 
 import styles from './styles'
 
@@ -15,6 +15,7 @@ interface Props {
 }
 
 const TransactionSummary = ({ style }: Props) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -23,7 +24,7 @@ const TransactionSummary = ({ style }: Props) => {
       <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
         <View style={styles.header}>
           <NavIconWrapper
-            hoverBackground={colors.lightViolet}
+            hoverBackground={theme.primaryLight}
             style={{ borderColor: 'transparent', borderRadius: 10 }}
             onPress={() => setIsExpanded((prevState) => !prevState)}
           >
@@ -53,8 +54,8 @@ const TransactionSummary = ({ style }: Props) => {
             </Text>
           </View>
           <NavIconWrapper
-            hoverBackground={colors.lightViolet}
-            hoverBorderColor={colors.violet}
+            hoverBackground={theme.primaryLight}
+            hoverBorderColor={theme.primary}
             style={{ borderRadius: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}
             onPress={() => null}
           >

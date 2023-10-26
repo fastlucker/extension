@@ -4,10 +4,10 @@ import { Pressable, View } from 'react-native'
 import { TokenResult as TokenResultInterface } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import getStyles from './styles'
 import TokenItem from './TokenItem'
 
 // TODO: correct props once connected with portfolio controller
@@ -17,6 +17,7 @@ interface Props {
 }
 
 const Tokens = ({ tokens, searchValue }: Props) => {
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
   let sortedTokens = [...tokens]
@@ -85,13 +86,13 @@ const Tokens = ({ tokens, searchValue }: Props) => {
               styles.addTokenContainer,
               spacings.pvTy,
               hovered && {
-                backgroundColor: colors.lightViolet,
+                backgroundColor: theme.primaryLight,
                 borderStyle: 'solid',
-                borderColor: colors.violet
+                borderColor: theme.primary
               }
             ]}
           >
-            <Text shouldScale={false} color={colors.violet} weight="medium" fontSize={16}>
+            <Text shouldScale={false} appearance="primary" weight="medium" fontSize={16}>
               {t('+ Add Custom')}
             </Text>
           </View>

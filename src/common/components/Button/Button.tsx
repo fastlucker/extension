@@ -118,7 +118,7 @@ const Button = ({
   disabled = false,
   hasBottomSpacing = true,
   children,
-  disabledStyle = {},
+  disabledStyle,
   ...rest
 }: Props) => {
   const animated = new Animated.Value(1)

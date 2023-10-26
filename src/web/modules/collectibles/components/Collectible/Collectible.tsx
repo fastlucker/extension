@@ -8,6 +8,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useNft from '@common/hooks/useNft'
+import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -46,6 +47,7 @@ const containerStyle: ViewStyle[] = [
 ]
 
 const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
+  const { theme } = useTheme()
   const [imageFailed, setImageFailed] = useState(false)
   const { t } = useTranslation()
   const { data, error, isLoading } = useNft({
@@ -87,7 +89,6 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
               <View>
                 <Text
                   style={[styles.text, isTab ? spacings.mbTy : {}]}
-                  color={colors.martinique}
                   fontSize={isTab ? 24 : 20}
                   weight="medium"
                 >
@@ -97,7 +98,6 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                 We won't show the description for now
                 <Text
                   style={styles.text}
-                  color={colors.martinique}
                   weight="regular"
                   fontSize={isTab ? 16 : 12}
                 >
@@ -110,7 +110,7 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                   fontSize={isTab ? 20 : 16}
                   weight="regular"
                   style={[styles.text, isTab ? spacings.mbSm : spacings.mbTy]}
-                  color={colors.violet}
+                  appearance="primary"
                 >
                   {priceIn?.length ? `$${Math.round(priceIn[0].price * 100) / 100}` : '$-'}
                 </Text>
@@ -119,12 +119,12 @@ const Collectible: FC<Props> = ({ id, collectionData, priceIn }) => {
                   disabledStyle={{}}
                   type="outline"
                   size="small"
-                  accentColor={colors.violet}
+                  accentColor={theme.primary}
                   style={styles.button}
                   text={t('Send')}
                   hasBottomSpacing={false}
                 >
-                  <SendIcon width={20} height={20} color={colors.violet} />
+                  <SendIcon width={20} height={20} color={theme.primary} />
                 </Button>
               </View>
             </View>
