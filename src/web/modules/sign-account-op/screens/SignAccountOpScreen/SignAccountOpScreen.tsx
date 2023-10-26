@@ -44,7 +44,10 @@ const SignAccountOpScreen = () => {
     [mainState.accounts, mainState.selectedAccount]
   )
 
-  const hasEstimation = useMemo(() => !!signAccountOpState.availableFeeOptions.length, [signAccountOpState.availableFeeOptions])
+  const hasEstimation = useMemo(
+    () => !!signAccountOpState.availableFeeOptions.length,
+    [signAccountOpState.availableFeeOptions]
+  )
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {

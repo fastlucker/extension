@@ -384,6 +384,7 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS':
               return mainCtrl.signAccountOp.updateMainDeps(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
@@ -391,9 +392,15 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
               return mainCtrl.signAccountOp.sign()
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-              return mainCtrl.reestimateAndUpdatePrices(data.params.accountAddr, data.params.networkId)
+              return mainCtrl.reestimateAndUpdatePrices(
+                data.params.accountAddr,
+                data.params.networkId
+              )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
               return mainCtrl.signAccountOp.reset()
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
+              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET':

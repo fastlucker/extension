@@ -3,7 +3,7 @@ import { Image, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import EthereumLogo from '@common/assets/svg/EthereumLogo'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -41,7 +41,7 @@ const Header = ({ account, network }: Props) => {
         <Text fontSize={14} style={styles.networkText}>
           {t('on')}
         </Text>
-        <EthereumLogo />
+        <NetworkIcon name={network.id as any} />
         <Text fontSize={14} style={styles.networkText}>
           {network.name}
         </Text>
