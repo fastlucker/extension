@@ -9,6 +9,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -21,6 +22,7 @@ import Card from '@web/modules/auth/components/Card'
 import styles from './styles'
 
 const GetStartedScreen = () => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
@@ -127,7 +129,7 @@ const GetStartedScreen = () => {
                   hasBottomSpacing={false}
                   style={[{ minWidth: 190 }, spacings.mrMd]}
                   textStyle={{ fontSize: 14 }}
-                  accentColor={colors.violet}
+                  accentColor={theme.primary}
                   onPress={() => handleAuthButtonPress(WEB_ROUTES.ambireAccountJsonLogin)}
                 />
                 <Text shouldScale={false} fontSize={12} weight="regular">
@@ -139,7 +141,7 @@ const GetStartedScreen = () => {
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
                 <Button
                   textStyle={{ fontSize: 14 }}
-                  accentColor={colors.violet}
+                  accentColor={theme.primary}
                   text={t('View Mode')}
                   onPress={() => handleAuthButtonPress('view-only')}
                   type="outline"

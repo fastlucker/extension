@@ -10,13 +10,14 @@ import Select, {
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 import NavIconWrapper from '../NavIconWrapper'
-import styles from './styles'
+import getStyles from './styles'
 
 export type OptionType = OptionProps['data']
 
@@ -39,6 +40,8 @@ interface Props {
 }
 
 const Option = ({ data }: { data: any }) => {
+  const { styles } = useTheme(getStyles)
+
   if (!data) return null
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -84,6 +87,7 @@ const SelectComponent = ({
   openMenuOnClick = true,
   onDropdownOpen
 }: Props) => {
+  const { theme } = useTheme()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
@@ -93,7 +97,7 @@ const SelectComponent = ({
           onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
           width={iconWidth}
           height={iconHeight}
-          hoverBackground={colors.lightViolet}
+          hoverBackground={theme.primaryLight}
           style={{ borderColor: 'transparent', borderRadius: 10 }}
         >
           <DownArrowIcon width={26} height={26} isActive={isDropdownOpen} withRect={false} />
@@ -137,28 +141,28 @@ const SelectComponent = ({
               ...baseStyles,
               ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
-              color: colors.martinique
+              color: theme.primaryText
             }),
             control: (baseStyles) => ({
               ...baseStyles,
               background: colors.melrose_15,
               ...(common.borderRadiusPrimary as CSSProperties),
               fontSize: 14,
-              color: colors.martinique,
+              color: theme.primaryText,
               ...controlStyle
             }),
             option: (baseStyles) => ({
               ...baseStyles,
               fontSize: 14,
               cursor: 'pointer',
-              color: colors.martinique
+              color: theme.primaryText
             })
           }}
-          theme={(theme) => ({
-            ...theme,
+          theme={(incomingTheme) => ({
+            ...incomingTheme,
             borderRadius: 0,
             colors: {
-              ...theme.colors,
+              ...incomingTheme.colors,
               primary25: colors.melrose_15,
               primary: colors.melrose
             }

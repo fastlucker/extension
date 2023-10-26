@@ -6,14 +6,15 @@ import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/in
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import Collectible from '@web/modules/collectibles/components/Collectible/Collectible'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const CollectionScreen = () => {
   const route = useRoute()
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
   if (!route.state) return null
@@ -23,7 +24,7 @@ const CollectionScreen = () => {
   return (
     <>
       <TabHeader
-        style={{ backgroundColor: colors.zircon }}
+        style={{ backgroundColor: theme.secondaryBackground }}
         pageTitle={route.state.name}
         image={state.image}
       />

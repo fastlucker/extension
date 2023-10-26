@@ -149,7 +149,7 @@ const EmailLoginForm: React.FC<any> = ({
           <Text
             fontSize={14}
             style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
-            color={colors.violet}
+            appearance="primary"
           >
             {t('Waiting Email Confirmation')}
           </Text>

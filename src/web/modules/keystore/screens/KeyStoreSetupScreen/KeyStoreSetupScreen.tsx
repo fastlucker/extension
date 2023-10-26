@@ -125,7 +125,7 @@ const KeyStoreSetupScreen = () => {
             ]}
           />
           {isSubmitSuccessful && (
-            <Text color={colors.martinique} style={text.center} weight="medium" fontSize={20}>
+            <Text style={text.center} weight="medium" fontSize={20}>
               {t('Your Ambire Key Store\nis ready!')}
             </Text>
           )}
@@ -237,7 +237,7 @@ const KeyStoreSetupScreen = () => {
             </Text>
           </li>
         </ol>
-        <Text shouldScale={false} weight="regular" color={colors.radicalRed} fontSize={14}>
+        <Text shouldScale={false} weight="regular" appearance="errorText" fontSize={14}>
           {t(
             'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}

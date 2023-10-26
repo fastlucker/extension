@@ -46,7 +46,7 @@ const NavMenu = () => {
                 style={[styles.menuItem]}
               >
                 {!!Icon && <Icon color={colors.black} />}
-                <Text style={spacings.mlTy} color={colors.black}>
+                <Text style={spacings.mlTy} appearance="primaryText">
                   {name}
                 </Text>
               </TouchableOpacity>

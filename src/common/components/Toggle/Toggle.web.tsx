@@ -22,7 +22,7 @@ const Toggle: React.FC<ToggleProps> = ({ id, isOn, onToggle, label }) => {
         onChange={handleOnToggle}
       />
       <div className="toggle__fill" />
-      <Text fontSize={12} weight="medium" color={colors.martinique}>
+      <Text fontSize={12} weight="medium">
         {label}
       </Text>
     </label>

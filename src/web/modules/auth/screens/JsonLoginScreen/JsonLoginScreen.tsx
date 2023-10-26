@@ -7,19 +7,21 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { Trans, useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import text from '@common/styles/utils/text'
+import getStyles from '@web/components/TabLayoutWrapper/styles'
 import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import styles from '@web/components/TabLayoutWrapper/styles'
 
 import s from './styles'
 
 const JsonLoginScreen = () => {
   const { t } = useTranslation()
+  const { styles } = useTheme(getStyles)
 
   const [file, setFile] = useState<any>(null)
   const onDrop = useCallback(async (res: any) => {
@@ -69,7 +71,7 @@ const JsonLoginScreen = () => {
                   <Trans>
                     <Text weight="regular" style={text.center}>
                       {'Drop your JSON file here,\nor '}
-                      <Text color={colors.violet} weight="regular">
+                      <Text appearance="primary" weight="regular">
                         upload
                       </Text>
                       <Text weight="regular">{' from your computer.'}</Text>
