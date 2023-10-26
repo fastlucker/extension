@@ -190,7 +190,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = () => this.getDappNetwork().chainId
+  netVersion = () => this.getDappNetwork().chainId.toString()
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {
