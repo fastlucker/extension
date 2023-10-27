@@ -7,13 +7,13 @@ interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
 }
 
-export const SPACING_MI: number = 5
-export const SPACING_TY: number = 10
-export const SPACING_SM: number = 15
-export const SPACING: number = 20
-export const SPACING_MD: number = 25
-export const SPACING_LG: number = 30
-export const SPACING_XL: number = 35
+export const SPACING_MI: number = 4
+export const SPACING_TY: number = 8
+export const SPACING_SM: number = 12
+export const SPACING: number = 16
+export const SPACING_MD: number = 20
+export const SPACING_LG: number = 24
+export const SPACING_XL: number = 32
 
 // In sync with the `min-width` in `web/style.css`
 const WEB_DEVICE_WIDTH = 600
