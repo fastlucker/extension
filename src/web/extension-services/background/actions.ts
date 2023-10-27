@@ -1,9 +1,13 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
 import { Filters } from '@ambire-common/controllers/activity/activity'
-import { Account, AccountStates, AccountId } from '@ambire-common/interfaces/account'
+import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
+import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -207,6 +211,10 @@ type MainControllerSignAccountOpSignAction = {
 type MainControllerSignAccountOpResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
 }
+type MainControllerBroadcastSignedAccountOpAction = {
+  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP'
+  params: { accountOp: AccountOp }
+}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
@@ -289,6 +297,7 @@ export type Action =
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
   | MainControllerSignAccountOpResetAction
+  | MainControllerBroadcastSignedAccountOpAction
   | MainControllerTransferResetAction
   | MainControllerTransferResetFormAction
   | MainControllerTransferBuildUserRequestAction

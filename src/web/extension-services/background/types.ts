@@ -16,7 +16,8 @@ export const controllersNestedInMainMapping = {
   activity: ActivityController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController
-  // Add other controllers here:
+
+  // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
 }

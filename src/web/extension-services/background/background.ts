@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
   BIP44_HD_PATH,
@@ -81,6 +82,9 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
+    },
+    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+      notifyForSuccessfulBroadcast(type)
     },
     pinned: pinnedTokens
   })
@@ -384,6 +388,7 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS':
               return mainCtrl.signAccountOp.updateMainDeps(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
@@ -391,9 +396,15 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
               return mainCtrl.signAccountOp.sign()
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-              return mainCtrl.reestimateAndUpdatePrices(data.params.accountAddr, data.params.networkId)
+              return mainCtrl.reestimateAndUpdatePrices(
+                data.params.accountAddr,
+                data.params.networkId
+              )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
               return mainCtrl.signAccountOp.reset()
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
+              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET':
@@ -586,3 +597,26 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     browser.tabs.create({ url: extensionURL })
   }
 })
+
+const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+  const title = 'Successfully signed'
+  let message = ''
+  if (type === 'message') {
+    message = 'Message was successfully signed'
+  }
+  if (type === 'typed-data') {
+    message = 'TypedData was successfully signed'
+  }
+  if (type === 'account-op') {
+    message = 'Your transaction was successfully signed and broadcasted to the network'
+  }
+
+  const id = new Date().getTime()
+  browser.notifications.create(id.toString(), {
+    type: 'basic',
+    iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+    title,
+    message,
+    priority: 2
+  })
+}
