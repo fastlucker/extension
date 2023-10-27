@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
   BIP44_HD_PATH,
@@ -81,6 +82,9 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
+    },
+    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+      notifyForSuccessfulBroadcast(type)
     },
     pinned: pinnedTokens
   })
@@ -593,3 +597,26 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     browser.tabs.create({ url: extensionURL })
   }
 })
+
+const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+  const title = 'Successfully signed'
+  let message = ''
+  if (type === 'message') {
+    message = 'Message was successfully signed'
+  }
+  if (type === 'typed-data') {
+    message = 'TypedData was successfully signed'
+  }
+  if (type === 'account-op') {
+    message = 'Your transaction was successfully signed and broadcasted to the network'
+  }
+
+  const id = new Date().getTime()
+  browser.notifications.create(id.toString(), {
+    type: 'basic',
+    iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+    title,
+    message,
+    priority: 2
+  })
+}
