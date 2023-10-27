@@ -9,16 +9,16 @@ import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import TabHeader from '@web/modules/router/components/TabHeader'
 
 import CollectibleTransfer from '../../components/CollectibleTransfer'
-import styles from './styles'
+import getStyles from './styles'
 
 interface State {
   image: string
@@ -29,6 +29,7 @@ interface State {
 }
 
 const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { state } = useRoute()
   const { addToast } = useToast()
@@ -50,7 +51,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
   return (
     <View style={styles.view}>
       <TabHeader
-        style={{ backgroundColor: colors.zircon }}
+        style={{ backgroundColor: theme.secondaryBackground }}
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
         // collectibles to <CollectionScreen /> from <CollectibleScreen />)
@@ -78,28 +79,18 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
               ) : null}
               {!image || failedImage ? <ImageIcon width={148} height={148} /> : null}
             </View>
-            <Text color={colors.martinique} style={styles.sectionTitle}>
-              {name}
-            </Text>
+            <Text style={styles.sectionTitle}>{name}</Text>
             {description ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Description')}
-                </Text>
-                <Text color={colors.martinique} style={styles.itemValue}>
-                  {description}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Description')}</Text>
+                <Text style={styles.itemValue}>{description}</Text>
               </View>
             ) : null}
             {address ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Contract address')}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Contract address')}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text color={colors.martinique} style={styles.itemValue}>
-                    {address}
-                  </Text>
+                  <Text style={styles.itemValue}>{address}</Text>
                   <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
                     <CopyIcon width={10} height={10} />
                   </Pressable>
@@ -108,9 +99,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
             ) : null}
             {owner ? (
               <View style={styles.infoItem}>
-                <Text color={colors.martinique} style={styles.sectionSubtitle}>
-                  {t('Owner')}
-                </Text>
+                <Text style={styles.sectionSubtitle}>{t('Owner')}</Text>
                 <View style={styles.ownerContainer}>
                   <Image
                     style={{ width: 34, height: 34, borderRadius: 12 }}

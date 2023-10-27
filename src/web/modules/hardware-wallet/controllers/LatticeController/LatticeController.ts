@@ -2,12 +2,14 @@ import crypto from 'crypto'
 import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key } from '@ambire-common/interfaces/keystore'
+import {
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
-const HARDENED_OFFSET = 0x80000000
 
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
@@ -17,7 +19,7 @@ class LatticeController extends EventEmitter {
 
   type: string
 
-  hdPath: string
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   sdkSession?: SDK.Client | null
 
@@ -29,23 +31,23 @@ class LatticeController extends EventEmitter {
 
   isLocked: boolean = true
 
-  walletUID: any
-
   network: any
 
+  deviceId = ''
+
   // There is only one Grid+ device
-  model = 'lattice'
+  deviceModel = 'lattice'
 
   constructor() {
     super()
     this.appName = 'Ambire Wallet Extension'
     this.type = keyringType
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
 
-  setHdPath() {
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
+    this.hdPathTemplate = hdPathTemplate
   }
 
   // Deterimine if we have a connection to the Lattice and an existing wallet UID
@@ -95,11 +97,10 @@ class LatticeController extends EventEmitter {
     return new Promise((resolve) => {
       ;(async () => {
         const iterator = new LatticeKeyIterator({
-          sdkSession: this.sdkSession,
-          getHDPathIndices: this._getHDPathIndices
+          sdkSession: this.sdkSession
         })
 
-        const keys = await iterator.retrieve(from, to)
+        const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
         resolve(keys)
       })()
@@ -110,37 +111,6 @@ class LatticeController extends EventEmitter {
     this._resetDefaults()
   }
 
-  _getHDPathIndices(hdPath, insertIdx = 0) {
-    const path = hdPath.split('/').slice(1)
-    const indices = []
-    let usedX = false
-    path.forEach((_idx) => {
-      const isHardened = _idx[_idx.length - 1] === "'"
-      let idx = isHardened ? HARDENED_OFFSET : 0
-      // If there is an `x` in the path string, we will use it to insert our
-      // index. This is useful for e.g. Ledger Live path. Most paths have the
-      // changing index as the last one, so having an `x` in the path isn't
-      // usually necessary.
-      if (_idx.indexOf('x') > -1) {
-        idx += insertIdx
-        usedX = true
-      } else if (isHardened) {
-        idx += Number(_idx.slice(0, _idx.length - 1))
-      } else {
-        idx += Number(_idx)
-      }
-      indices.push(idx)
-    })
-    // If this path string does not include an `x`, we just append the index
-    // to the end of the extracted set
-    if (usedX === false) {
-      indices.push(insertIdx)
-    }
-    // Sanity check -- Lattice firmware will throw an error for large paths
-    if (indices.length > 5) throw new Error('Only HD paths with up to 5 indices are allowed.')
-    return indices
-  }
-
   _resetDefaults() {
     this.accountIndices = []
     this.isLocked = true
@@ -149,11 +119,11 @@ class LatticeController extends EventEmitter {
       password: null,
       endpoint: null
     }
-    this.walletUID = null
+    this.deviceId = ''
     this.sdkSession = null
     this.unlockedAccount = 0
     this.network = null
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
   async _openConnectorTab(url) {
@@ -274,6 +244,7 @@ class LatticeController extends EventEmitter {
       // 2 minutes for that to happen.
       this.sdkSession.timeout = CONNECT_TIMEOUT
       await this.sdkSession.connect(this.creds.deviceID)
+      this.deviceId = this._getCurrentWalletUID()
     } finally {
       // Reset to normal timeout no matter what
       this.sdkSession.timeout = SDK_TIMEOUT
@@ -331,17 +302,16 @@ class LatticeController extends EventEmitter {
 
   _getCurrentWalletUID() {
     if (!this.sdkSession) {
-      return null
+      return ''
     }
     const activeWallet = this.sdkSession.getActiveWallet()
     if (!activeWallet || !activeWallet.uid) {
-      return null
+      return ''
     }
     return activeWallet.uid.toString('hex')
   }
 
-  async _keyIdxInCurrentWallet(key: Key) {
-    const walletUID = key.meta!.walletUID
+  async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
     const activeWallet = this.sdkSession!.getActiveWallet()
     if (!activeWallet) {
@@ -350,7 +320,7 @@ class LatticeController extends EventEmitter {
     }
     const activeUID = activeWallet.uid.toString('hex')
     // If this is already the active wallet we don't need to make a request
-    if (walletUID.toString('hex') === activeUID) {
+    if (key.meta.deviceId === activeUID) {
       return key.meta!.index
     }
     return null

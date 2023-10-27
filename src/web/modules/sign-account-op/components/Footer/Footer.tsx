@@ -3,10 +3,10 @@ import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
 
-import styles from './styles'
+import getStyles from './styles'
 
 type Props = {
   onReject: () => void
@@ -16,6 +16,7 @@ type Props = {
 
 const Footer = ({ onReject, onAddToCart, onSign }: Props) => {
   const { t } = useTranslation()
+  const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
@@ -23,7 +24,7 @@ const Footer = ({ onReject, onAddToCart, onSign }: Props) => {
       <View style={[flexbox.directionRow]}>
         <Button
           type="outline"
-          accentColor={colors.violet}
+          accentColor={theme.primary}
           text={t('Add to Cart')}
           onPress={onAddToCart}
           style={styles.addMoreTxnButton}

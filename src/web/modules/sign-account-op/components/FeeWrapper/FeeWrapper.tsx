@@ -1,6 +1,8 @@
 import React from 'react'
-import { Pressable, ViewStyle, View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
+
 import flexbox from '@common/styles/utils/flexbox'
+
 import styles from './styles'
 
 interface Props {

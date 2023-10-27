@@ -32,7 +32,7 @@ const KeyStoreUnlockScreen = () => {
     setError,
     formState: { errors, isSubmitting }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       password: ''
     }
@@ -114,7 +114,9 @@ const KeyStoreUnlockScreen = () => {
             <View style={spacings.ptMd}>
               <Button
                 disabled={
-                  isSubmitting || keystoreState.status === 'LOADING' || !watch('password', '')
+                  isSubmitting ||
+                  keystoreState.status === 'LOADING' ||
+                  watch('password', '').length < 8
                 }
                 text={
                   isSubmitting || keystoreState.status === 'LOADING'

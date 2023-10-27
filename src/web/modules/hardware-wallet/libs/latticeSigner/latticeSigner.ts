@@ -1,22 +1,21 @@
 import { addHexPrefix } from 'ethereumjs-util'
 import * as SDK from 'gridplus-sdk'
 
-import { LATTICE_STANDARD_HD_PATH } from '@ambire-common/consts/derivation'
-import { Key, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import { Transaction } from '@ethereumjs/tx'
 import { serialize } from '@ethersproject/transactions'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
-
 const EIP_155_CONSTANT = 35
 
 class LatticeSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: LatticeController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
@@ -24,9 +23,12 @@ class LatticeSigner implements KeystoreSigner {
     this.controller = _controller
   }
 
+  // TODO: That's a blueprint for the future implementation
   async signRawTransaction(params: any) {
     if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (!this.key) {
@@ -46,10 +48,7 @@ class LatticeSigner implements KeystoreSigner {
     const data: any = {}
     data.payload = this.getLegacyTxReq(tx)
     data.chainId = params.chainId
-    data.signerPath = this.controller._getHDPathIndices(
-      LATTICE_STANDARD_HD_PATH,
-      this.key.meta!.index
-    )
+    data.signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
 
     const res = await this.controller.sdkSession!.sign({ currency: 'ETH', data })
 
@@ -92,12 +91,7 @@ class LatticeSigner implements KeystoreSigner {
     return signature
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
+  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
     if (!types.EIP712Domain) {
       throw new Error('latticeSigner: only EIP712 messages are supported')
     }
@@ -111,7 +105,9 @@ class LatticeSigner implements KeystoreSigner {
 
   async _signMsgRequest(payload: any, protocol: 'signPersonal' | 'eip712') {
     if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (!this.key) {
@@ -125,10 +121,7 @@ class LatticeSigner implements KeystoreSigner {
       data: {
         protocol,
         payload,
-        signerPath: this.controller._getHDPathIndices(
-          LATTICE_STANDARD_HD_PATH,
-          this.key.meta!.index
-        )
+        signerPath: getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
       }
     }
 

@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
-  BIP44_HD_PATH,
-  LATTICE_STANDARD_HD_PATH,
-  LEDGER_LIVE_HD_PATH
+  BIP44_LEDGER_DERIVATION_TEMPLATE,
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
-import { getHdPath } from '@ambire-common/utils/hdPath'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
@@ -288,14 +287,14 @@ async function init() {
                   mainCtrl.keystore.keys,
                   'ledger'
                 ),
-                derivationPath: LEDGER_LIVE_HD_PATH
+                hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                derivationPath: BIP44_HD_PATH,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -305,12 +304,11 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
               const keyIterator = new LatticeKeyIterator({
-                sdkSession: latticeCtrl.sdkSession,
-                getHDPathIndices: latticeCtrl._getHDPathIndices
+                sdkSession: latticeCtrl.sdkSession
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                derivationPath: LATTICE_STANDARD_HD_PATH,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
@@ -322,12 +320,12 @@ async function init() {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
                   mainCtrl.keystore.keys,
                   'internal'
-                ),
-                derivationPath: BIP44_HD_PATH
+                )
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY': {
@@ -432,9 +430,7 @@ async function init() {
               return notificationCtrl.openNotificationRequest(data.params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock(LEDGER_LIVE_HD_PATH)
-            case 'LEDGER_CONTROLLER_GET_PATH_FOR_INDEX':
-              return ledgerCtrl._getPathForIndex(data.params)
+              return ledgerCtrl.unlock()
             case 'LEDGER_CONTROLLER_APP':
               return ledgerCtrl.app
             case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
@@ -459,19 +455,20 @@ async function init() {
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
               const { keyType } = data.params
-              const models: { [key in Exclude<Key['type'], 'internal'>]: string } = {
-                ledger: ledgerCtrl.model,
-                trezor: trezorCtrl.model,
-                lattice: latticeCtrl.model
+
+              const deviceIds: { [key in ExternalKey['type']]: string } = {
+                ledger: ledgerCtrl.deviceId,
+                trezor: trezorCtrl.deviceId,
+                lattice: latticeCtrl.deviceId
               }
 
-              const derivations: { [key in Exclude<Key['type'], 'internal'>]: string } = {
-                ledger: ledgerCtrl.hdPath,
-                trezor: trezorCtrl.hdPath,
-                lattice: latticeCtrl.hdPath
+              const deviceModels: { [key in ExternalKey['type']]: string } = {
+                ledger: ledgerCtrl.deviceModel,
+                trezor: trezorCtrl.deviceModel,
+                lattice: latticeCtrl.deviceModel
               }
 
-              const keyWalletNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
+              const keyWalletNames: { [key in ExternalKey['type']]: string } = {
                 ledger: 'Ledger',
                 trezor: 'Trezor',
                 lattice: 'Lattice'
@@ -481,7 +478,13 @@ async function init() {
                 addr: eoaAddress,
                 type: keyType,
                 label: `${keyWalletNames[keyType]} on slot ${slot}`,
-                meta: { model: models[keyType], hdPath: getHdPath(derivations[keyType], slot - 1) }
+                meta: {
+                  deviceId: deviceIds[keyType],
+                  deviceModel: deviceModels[keyType],
+                  // always defined in the case of external keys
+                  hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                  index: slot - 1
+                }
               }))
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)
@@ -591,10 +594,13 @@ async function init() {
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process
+
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    const extensionURL = browser.runtime.getURL('tab.html')
-    browser.tabs.create({ url: extensionURL })
+    setTimeout(() => {
+      const extensionURL = browser.runtime.getURL('tab.html')
+      browser.tabs.create({ url: extensionURL })
+    }, 500)
   }
 })
 

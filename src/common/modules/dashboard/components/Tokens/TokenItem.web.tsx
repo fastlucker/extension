@@ -17,15 +17,15 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import animationWallets from './animation-wallets.json'
-import styles from './styles'
+import getStyles from './styles'
 
 // TODO: customize token component for gas token, wallet rewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
@@ -39,6 +39,7 @@ const TokenItem = ({
   onGasTank,
   rewardsType
 }: any) => {
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   // TODO: navigate to the routes onPress once they are ready or hide the ones we wont need for epic 1
@@ -111,7 +112,7 @@ const TokenItem = ({
                   {vesting && t('claimable early supporters vesting')}
                   {!rewards && !vesting && t('on')}
                 </Text>
-                {onGasTank && <GasTankIcon width={18} height={18} color={colors.violet} />}
+                {onGasTank && <GasTankIcon width={18} height={18} color={theme.primary} />}
                 {!onGasTank && !rewards && !vesting && (
                   <NetworkIcon name={networkId} style={{ width: 25, height: 25 }} />
                 )}
@@ -119,7 +120,7 @@ const TokenItem = ({
                   {onGasTank && t('Gas Tank')}
                   {!onGasTank && !rewards && !vesting && networkData?.name}
                 </Text>
-                <InformationIcon color={colors.martinique_65} />
+                <InformationIcon color={theme.secondaryText} />
               </View>
             </View>
             <Text fontSize={14} weight="regular" style={textStyles.highlightPrimary}>
@@ -154,7 +155,7 @@ const TokenItem = ({
             <Button
               type="outline"
               size="small"
-              accentColor={colors.violet}
+              accentColor={theme.primary}
               text={t('Claim')}
               style={{ width: 80 }}
               hasBottomSpacing={false}
@@ -165,7 +166,7 @@ const TokenItem = ({
             <Button
               type="outline"
               size="small"
-              accentColor={colors.violet}
+              accentColor={theme.primary}
               onPress={() =>
                 navigate(`${WEB_ROUTES.transfer}?address=${address}&networkId=${networkId}`)
               }
@@ -173,7 +174,7 @@ const TokenItem = ({
               text={t('Send')}
               hasBottomSpacing={false}
             >
-              <SendIcon width={20} height={20} color={colors.violet} />
+              <SendIcon width={20} height={20} color={theme.primary} />
             </Button>
           )}
         </div>

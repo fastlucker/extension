@@ -2,11 +2,12 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const Slot = ({ slot, children }: { slot: number; children: any }) => {
+  const { styles } = useTheme(getStyles)
   const setSlotIndexLabelWidth = () => {
     if (slot <= 99) return 28
     if (slot > 99 && slot <= 999) return 36
@@ -15,11 +16,7 @@ const Slot = ({ slot, children }: { slot: number; children: any }) => {
   }
   return (
     <View key={slot} style={styles.container}>
-      <Text
-        weight="semiBold"
-        color={colors.martinique}
-        style={{ width: setSlotIndexLabelWidth(), textAlign: 'center' }}
-      >
+      <Text weight="semiBold" style={{ width: setSlotIndexLabelWidth(), textAlign: 'center' }}>
         {slot}
       </Text>
       <View style={[styles.indicator]} />

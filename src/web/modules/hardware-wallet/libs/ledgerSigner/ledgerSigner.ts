@@ -2,6 +2,7 @@ import { stripHexPrefix } from 'ethereumjs-util'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -28,7 +29,9 @@ class LedgerSigner implements KeystoreSigner {
 
     await this.controller._reconnect()
 
-    await this.controller.unlock(this.key.meta.hdPath)
+    await this.controller.unlock(
+      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    )
 
     try {
       const unsignedTxObj = {
@@ -43,7 +46,7 @@ class LedgerSigner implements KeystoreSigner {
 
       // @ts-ignore
       const rsvRes = await this.controller.app.signTransaction(
-        this.key.meta.hdPath,
+        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
         serializedUnsigned.substr(2) // TODO: maybe use stripHexPrefix instead
       )
 
@@ -74,15 +77,20 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(this.key.meta.hdPath)
+    await this.controller.unlock(
+      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    )
 
     try {
-      const rsvRes = await this.controller.app!.signEIP712Message(this.key.meta.hdPath, {
-        domain,
-        types,
-        message,
-        primaryType
-      })
+      const rsvRes = await this.controller.app!.signEIP712Message(
+        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+        {
+          domain,
+          types,
+          message,
+          primaryType
+        }
+      )
 
       const signature = `0x${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`
       return signature
@@ -107,11 +115,13 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(this.key.meta.hdPath)
+    await this.controller.unlock(
+      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    )
 
     try {
       const rsvRes = await this.controller.app!.signPersonalMessage(
-        this.key.meta.hdPath,
+        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
         stripHexPrefix(hex)
       )
 

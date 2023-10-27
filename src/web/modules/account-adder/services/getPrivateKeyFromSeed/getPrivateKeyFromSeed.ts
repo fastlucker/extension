@@ -1,17 +1,20 @@
 import { HDNodeWallet, Mnemonic } from 'ethers'
 
-import { BIP44_HD_PATH } from '@ambire-common/consts/derivation'
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 
 const getPrivateKeyFromSeed = (
   seed: string,
   keyIndex: number,
-  derivationPath: string = BIP44_HD_PATH
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 ) => {
   const mnemonic = Mnemonic.fromPhrase(seed)
-  const wallet = HDNodeWallet.fromMnemonic(mnemonic, derivationPath)
-  const keyObj = wallet.deriveChild(keyIndex)
-  if (keyObj) {
-    return keyObj.privateKey
+  const wallet = HDNodeWallet.fromMnemonic(
+    mnemonic,
+    getHdPathFromTemplate(hdPathTemplate, keyIndex)
+  )
+  if (wallet) {
+    return wallet.privateKey
   }
 
   throw new Error('Getting the private key from the seed phrase failed.')

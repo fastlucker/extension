@@ -28,14 +28,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // state data has been returned from the background service
     // so we update the isStateLoaded to true
     if (
-      !Object.keys(mainState).length &&
-      !Object.keys(accountAdderState).length &&
-      !Object.keys(keystoreState).length &&
-      !Object.keys(signMessageState).length &&
-      !Object.keys(notificationState).length &&
-      !Object.keys(portfolioState).length &&
-      !Object.keys(activityState).length &&
-      !Object.keys(signAccountOpState).length
+      Object.keys(mainState).length &&
+      Object.keys(accountAdderState).length &&
+      Object.keys(keystoreState).length &&
+      Object.keys(signMessageState).length &&
+      Object.keys(notificationState).length &&
+      Object.keys(portfolioState).length &&
+      Object.keys(activityState).length &&
+      Object.keys(signAccountOpState).length
     ) {
       setIsStateLoaded(true)
     }

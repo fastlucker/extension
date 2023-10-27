@@ -3,11 +3,13 @@ import { View } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const AddressBookSection = () => {
+  const { styles } = useTheme(getStyles)
   return (
     <View>
       <Text style={styles.title} fontSize={16} weight="regular">
@@ -22,9 +24,6 @@ const AddressBookSection = () => {
         style={styles.button}
         // @TODO: implement address book
         disabled
-        disabledStyle={{
-          opacity: 0.6
-        }}
         textStyle={styles.buttonText}
         text="Add Address"
       />
