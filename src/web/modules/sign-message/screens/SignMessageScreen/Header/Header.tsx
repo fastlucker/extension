@@ -26,7 +26,7 @@ const Header: FC<Props> = ({ networkName, networkId, selectedAccountAddr }) => {
       <View style={styles.content}>
         <Image style={styles.avatar} source={avatarSpace} resizeMode="contain" />
         <Text appearance="secondaryText" weight="medium" fontSize={16}>
-          Account label{' '}
+          {t('Account label')}{' '}
         </Text>
         <Text appearance="primaryText" weight="medium" fontSize={16}>
           ({selectedAccountAddr}){' '}

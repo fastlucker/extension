@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -14,6 +14,7 @@ interface Props {
 }
 
 const Info: FC<Props> = ({ kindOfMessage }) => {
+  const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { currentNotificationRequest } = useNotificationControllerState()
   return (
@@ -30,7 +31,7 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
               {'{{name}} '}
             </Text>
             <Text fontSize={20} appearance="secondaryText">
-              is requesting your signature.
+              {t('is requesting your signature')}.
             </Text>
           </Text>
         </Trans>
@@ -41,8 +42,8 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
             color={theme.infoText}
             style={styles.kindOfMessageText}
           >
-            {kindOfMessage === 'typedMessage' ? 'EIP-712' : 'Standard'}
-            {' Type'}
+            {kindOfMessage === 'typedMessage' ? 'EIP-712 ' : 'Standard '}
+            {t('Type')}
           </Text>
           <InfoIcon color={theme.infoDecorative as string} />
         </View>
