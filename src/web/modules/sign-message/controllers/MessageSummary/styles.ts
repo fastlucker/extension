@@ -18,12 +18,13 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...flexbox.directionRow,
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
       borderColor: theme.secondaryBorder,
-      minHeight: 52
+      minHeight: 52,
+      ...flexbox.flex1,
+      ...spacings.ph
     },
     icon: { ...spacings.pl, ...spacings.ptTy },
     content: { ...flexbox.flex1 },
@@ -35,11 +36,10 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...flexbox.justifySpaceBetween,
-      ...spacings.pr,
-      ...spacings.pvSm
+      ...spacings.ptSm,
+      ...spacings.pb
     },
     rawMessage: {
-      ...spacings.pr,
       ...spacings.pbSm
     },
     rawMessageTitle: {
