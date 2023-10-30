@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import Button from '@common/components/Button'
@@ -200,7 +200,7 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <Header
         networkId={networkData?.id}
         networkName={networkData?.name}
@@ -251,7 +251,7 @@ const SignMessageScreen = () => {
       {isChooseSignerShown ? (
         <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
       ) : null}
-    </ScrollView>
+    </View>
   )
 }
 

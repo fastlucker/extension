@@ -7,27 +7,43 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  icon: ViewStyle
   header: ViewStyle
+  content: ViewStyle
+  nonExpandableContent: ViewStyle
+  rawMessage: ViewStyle
+  rawMessageTitle: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
+      ...flexbox.directionRow,
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
       borderColor: theme.secondaryBorder,
-      ...spacings.mb,
-      minHeight: 52,
-      justifyContent: 'center'
+      minHeight: 52
+    },
+    icon: { ...spacings.pl, ...spacings.ptTy },
+    content: { ...flexbox.flex1 },
+    nonExpandableContent: {
+      ...spacings.pl
     },
     header: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
       ...flexbox.justifySpaceBetween,
-      ...spacings.ph,
+      ...spacings.pr,
       ...spacings.pvSm
+    },
+    rawMessage: {
+      ...spacings.pr,
+      ...spacings.pbSm
+    },
+    rawMessageTitle: {
+      ...spacings.mb
     }
   })
 
