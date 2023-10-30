@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Spinner from '@common/components/Spinner'
@@ -240,6 +241,12 @@ const SignAccountOpScreen = () => {
         <Footer
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
+          isSignLoading={
+            signAccountOpState.status?.type === SigningStatus.InProgress ||
+            signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
+            signAccountOpState.status?.type === SigningStatus.Done ||
+            mainState.broadcastStatus === 'LOADING'
+          }
           onSign={handleSign}
         />
       }

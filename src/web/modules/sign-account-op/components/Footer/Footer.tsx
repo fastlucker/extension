@@ -12,9 +12,10 @@ type Props = {
   onReject: () => void
   onAddToCart: () => void
   onSign: () => void
+  isSignLoading: boolean
 }
 
-const Footer = ({ onReject, onAddToCart, onSign }: Props) => {
+const Footer = ({ onReject, onAddToCart, onSign, isSignLoading }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
@@ -29,7 +30,13 @@ const Footer = ({ onReject, onAddToCart, onSign }: Props) => {
           onPress={onAddToCart}
           style={styles.addMoreTxnButton}
         />
-        <Button type="primary" text={t('Sign')} onPress={onSign} style={styles.signButton} />
+        <Button
+          type="primary"
+          disabled={isSignLoading}
+          text={isSignLoading ? t('Signing...') : t('Sign')}
+          onPress={onSign}
+          style={styles.signButton}
+        />
       </View>
     </View>
   )
