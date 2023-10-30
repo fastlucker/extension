@@ -1,30 +1,27 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { StyleSheet, TextInput, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { Account } from '@ambire-common/interfaces/account'
-import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
-import { getMessageAsText } from '@web/modules/sign-message/utils'
 import { getUiType } from '@web/utils/uiType'
 
+import FallbackVisualization from './FallbackVisualization'
+import Header from './Header/Header'
+import Info from './Info'
 import styles from './styles'
 
 const SignMessageScreen = () => {
@@ -33,12 +30,22 @@ const SignMessageScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const networkData =
+    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
+
+  const selectedAccountFull = mainState.accounts.find(
+    (acc) => acc.addr === mainState.selectedAccount
+  )
+
+  const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
+    selectedAccountFull?.associatedKeys.includes(key.addr)
+  )
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -123,10 +130,6 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const selectedAccountFull = mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
-  )
-
   const handleChangeSigningKey = useCallback(
     (keyAddr: string, keyType: string) => {
       dispatch({
@@ -137,17 +140,6 @@ const SignMessageScreen = () => {
     [dispatch]
   )
 
-  // Set the first key as the selected key
-  useEffect(() => {
-    const firstKey = keystoreState.keys.find((key) =>
-      selectedAccountFull?.associatedKeys.includes(key.addr)
-    )
-
-    if (firstKey) {
-      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
-    }
-  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
-
   const handleReject = () => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
@@ -155,11 +147,30 @@ const SignMessageScreen = () => {
     })
   }
 
-  const handleSign = () => {
+  const handleSign = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
     })
-  }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (
+      signMessageState.isInitialized &&
+      signMessageState.status === 'INITIAL' &&
+      signMessageState.signingKeyAddr &&
+      signMessageState.signingKeyType &&
+      signMessageState.messageToSign
+    ) {
+      handleSign()
+    }
+  }, [
+    handleSign,
+    signMessageState.isInitialized,
+    signMessageState.status,
+    signMessageState.signingKeyAddr,
+    signMessageState.signingKeyType,
+    signMessageState.messageToSign
+  ])
 
   if (!Object.keys(signMessageState).length) {
     return (
@@ -175,94 +186,72 @@ const SignMessageScreen = () => {
     [mainState.settings.networks, signMessageState.messageToSign?.networkId]
   )
 
-  const humanizedVisualization = useCallback(
-    (message: IrMessage) => {
-      return (
-        <MessageSummary
-          message={message}
-          networkId={network?.id}
-          explorerUrl={network?.explorerUrl}
-          kind={signMessageState.messageToSign?.content.kind}
-        />
+  const onSignButtonClick = () => {
+    // If the account has only one signer, we don't need to show the select signer overlay
+    if (selectedAccountKeyStoreKeys.length !== 1) {
+      handleChangeSigningKey(
+        selectedAccountKeyStoreKeys[0].addr,
+        selectedAccountKeyStoreKeys[0].type
       )
-    },
-    [network?.explorerUrl, network?.id, signMessageState.messageToSign?.content.kind]
-  )
+      return
+    }
 
-  const fallbackVisualization = useCallback(() => {
-    return (
-      <>
-        {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
-          <>
-            <Text style={spacings.mbMi}>
-              {t('A typed data signature (EIP-712) has been requested. Message:')}
-            </Text>
-            <TextInput
-              value={JSON.stringify(
-                {
-                  domain: signMessageState.messageToSign?.content.domain,
-                  types: signMessageState.messageToSign?.content.types,
-                  message: signMessageState.messageToSign?.content.message
-                },
-                null,
-                4
-              )}
-              multiline
-              numberOfLines={16}
-              editable={false}
-              style={[styles.textarea, spacings.mb]}
-            />
-          </>
-        )}
-        {signMessageState.messageToSign?.content.kind === 'message' && (
-          <>
-            <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
-            <View style={spacings.pv}>
-              <Text weight="semiBold">
-                {getMessageAsText(signMessageState.messageToSign?.content.message) ||
-                  t('(Empty message)')}
-              </Text>
-            </View>
-          </>
-        )}
-      </>
-    )
-  }, [signMessageState.messageToSign?.content, t])
+    setIsChooseSignerShown(true)
+  }
 
   return (
-    <Wrapper hasBottomTabNav={false}>
-      <Trans values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}>
-        <Text style={spacings.mb}>
-          <Text weight="semiBold">{'{{name}} '}</Text>
-          <Text>is requesting your signature.</Text>
-        </Text>
-      </Trans>
-      {signMessageState.humanReadable
-        ? humanizedVisualization(signMessageState.humanReadable)
-        : fallbackVisualization()}
-      <SigningKeySelect
-        keystoreKeys={keystoreState.keys}
-        selectedKeyAddr={signMessageState.signingKeyAddr}
-        selectedKeyType={signMessageState.signingKeyType}
-        selectedAccountFull={selectedAccountFull as Account} // should always exist
-        handleChangeSigningKey={handleChangeSigningKey}
+    <ScrollView contentContainerStyle={styles.container}>
+      <Header
+        networkId={networkData?.id}
+        networkName={networkData?.name}
+        selectedAccountAddr={selectedAccountFull?.addr}
       />
-      <View style={flexbox.directionRow}>
-        <Button
-          text="Reject"
-          type="danger"
-          style={{ width: 230, height: 66, marginRight: 20 }}
-          onPress={handleReject}
-        />
-        <Button
-          text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-          disabled={signMessageState.status === 'LOADING'}
-          type="primary"
-          style={{ width: 230, height: 66 }}
-          onPress={handleSign}
-        />
+      <View style={styles.content}>
+        <Text weight="medium" fontSize={20} style={styles.title}>
+          {t('Sign message')}
+        </Text>
+        <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+        {signMessageState.humanReadable &&
+        network &&
+        signMessageState.messageToSign?.content.kind ? (
+          <MessageSummary
+            message={signMessageState.humanReadable}
+            networkId={network?.id}
+            explorerUrl={network?.explorerUrl}
+            kind={signMessageState.messageToSign?.content.kind}
+          />
+        ) : (
+          <FallbackVisualization messageToSign={signMessageState.messageToSign} />
+        )}
       </View>
-    </Wrapper>
+      <View style={styles.buttonsContainer}>
+        <Button text="Reject" type="danger" style={styles.rejectButton} onPress={handleReject} />
+
+        {/* 
+          zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
+          when we show the select signer overlay
+        */}
+        {/* @ts-ignore  */}
+        <View style={styles.signButtonContainer}>
+          {isChooseSignerShown ? (
+            <SigningKeySelect
+              selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+              handleChangeSigningKey={handleChangeSigningKey}
+            />
+          ) : null}
+          <Button
+            text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+            disabled={signMessageState.status === 'LOADING'}
+            type="primary"
+            style={styles.signButton}
+            onPress={onSignButtonClick}
+          />
+        </View>
+      </View>
+      {isChooseSignerShown ? (
+        <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
+      ) : null}
+    </ScrollView>
   )
 }
 
