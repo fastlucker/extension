@@ -10,6 +10,7 @@ interface Style {
   title: TextStyle
   buttonsContainer: ViewStyle
   rejectButton: ViewStyle
+  rejectButtonText: TextStyle
   signButtonContainer: ViewStyle
   signButton: ViewStyle
   overlay: ViewStyle
@@ -37,6 +38,7 @@ const styles = StyleSheet.create<Style>({
     zIndex: 'unset'
   },
   rejectButton: { width: 130, height: 56 },
+  rejectButtonText: spacings.mrSm,
   // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
   // when we show the select signer overlay
   // @ts-ignore

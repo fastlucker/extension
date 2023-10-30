@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -10,6 +11,7 @@ import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -25,6 +27,7 @@ import Info from './Info'
 import styles from './styles'
 
 const SignMessageScreen = () => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
@@ -233,7 +236,15 @@ const SignMessageScreen = () => {
         )}
       </View>
       <View style={styles.buttonsContainer}>
-        <Button text="Reject" type="danger" style={styles.rejectButton} onPress={handleReject} />
+        <Button
+          text="Reject"
+          type="danger"
+          style={styles.rejectButton}
+          textStyle={styles.rejectButtonText}
+          onPress={handleReject}
+        >
+          <CloseIcon color={theme.errorDecorative} withRect={false} width={24} height={24} />
+        </Button>
 
         {isScrollToBottomForced ? (
           <Text appearance="errorText">{t('Please read the message before signing.')}</Text>
