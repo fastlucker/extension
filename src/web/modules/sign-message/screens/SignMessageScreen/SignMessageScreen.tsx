@@ -51,6 +51,8 @@ const SignMessageScreen = () => {
     selectedAccountFull?.associatedKeys.includes(key.addr)
   )
 
+  const isViewOnly = selectedAccountKeyStoreKeys.length === 0
+
   const isScrollToBottomForced =
     signMessageState.messageToSign?.content.kind === 'typedMessage' && !hasReachedBottom
 
@@ -246,10 +248,14 @@ const SignMessageScreen = () => {
           <CloseIcon color={theme.errorDecorative} withRect={false} width={24} height={24} />
         </Button>
 
-        {isScrollToBottomForced ? (
+        {isScrollToBottomForced && !isViewOnly ? (
           <Text appearance="errorText">{t('Please read the message before signing.')}</Text>
         ) : null}
-
+        {isViewOnly ? (
+          <Text appearance="errorText">
+            {t("You can't sign messages with view only accounts.")}
+          </Text>
+        ) : null}
         {/* 
           zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
           when we show the select signer overlay
@@ -264,7 +270,7 @@ const SignMessageScreen = () => {
           ) : null}
           <Button
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING' || !hasReachedBottom}
+            disabled={signMessageState.status === 'LOADING' || !hasReachedBottom || isViewOnly}
             type="primary"
             style={styles.signButton}
             onPress={onSignButtonClick}
