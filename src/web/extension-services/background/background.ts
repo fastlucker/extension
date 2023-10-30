@@ -446,18 +446,20 @@ async function init() {
                 lattice: 'Lattice'
               }
 
-              const keys = mainCtrl.accountAdder.selectedAccounts.map(({ eoaAddress, slot }) => ({
-                addr: eoaAddress,
-                type: keyType,
-                label: `${keyWalletNames[keyType]} on slot ${slot}`,
-                meta: {
-                  deviceId: deviceIds[keyType],
-                  deviceModel: deviceModels[keyType],
-                  // always defined in the case of external keys
-                  hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                  index: slot - 1
-                }
-              }))
+              const keys = mainCtrl.accountAdder.selectedAccounts.map(
+                ({ eoaAddress, slot, index }) => ({
+                  addr: eoaAddress,
+                  type: keyType,
+                  label: `${keyWalletNames[keyType]} on slot ${slot}`,
+                  meta: {
+                    deviceId: deviceIds[keyType],
+                    deviceModel: deviceModels[keyType],
+                    // always defined in the case of external keys
+                    hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                    index
+                  }
+                })
+              )
 
               return mainCtrl.keystore.addKeysExternallyStored(keys)
             }
