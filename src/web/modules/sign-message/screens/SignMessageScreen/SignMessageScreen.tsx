@@ -27,6 +27,7 @@ import styles from './styles'
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
+  const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
@@ -46,6 +47,9 @@ const SignMessageScreen = () => {
   const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
     selectedAccountFull?.associatedKeys.includes(key.addr)
   )
+
+  const isScrollToBottomForced =
+    signMessageState.messageToSign?.content.kind === 'typedMessage' && !hasReachedBottom
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -188,7 +192,7 @@ const SignMessageScreen = () => {
 
   const onSignButtonClick = () => {
     // If the account has only one signer, we don't need to show the select signer overlay
-    if (selectedAccountKeyStoreKeys.length !== 1) {
+    if (selectedAccountKeyStoreKeys.length === 1) {
       handleChangeSigningKey(
         selectedAccountKeyStoreKeys[0].addr,
         selectedAccountKeyStoreKeys[0].type
@@ -219,13 +223,21 @@ const SignMessageScreen = () => {
             networkId={network?.id}
             explorerUrl={network?.explorerUrl}
             kind={signMessageState.messageToSign?.content.kind}
+            setHasReachedBottom={setHasReachedBottom}
           />
         ) : (
-          <FallbackVisualization messageToSign={signMessageState.messageToSign} />
+          <FallbackVisualization
+            setHasReachedBottom={setHasReachedBottom}
+            messageToSign={signMessageState.messageToSign}
+          />
         )}
       </View>
       <View style={styles.buttonsContainer}>
         <Button text="Reject" type="danger" style={styles.rejectButton} onPress={handleReject} />
+
+        {isScrollToBottomForced ? (
+          <Text appearance="errorText">{t('Please read the message before signing.')}</Text>
+        ) : null}
 
         {/* 
           zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
@@ -241,7 +253,7 @@ const SignMessageScreen = () => {
           ) : null}
           <Button
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING'}
+            disabled={signMessageState.status === 'LOADING' || !hasReachedBottom}
             type="primary"
             style={styles.signButton}
             onPress={onSignButtonClick}

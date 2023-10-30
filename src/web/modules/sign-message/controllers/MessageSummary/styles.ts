@@ -23,7 +23,6 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       borderColor: theme.secondaryBorder,
       minHeight: 52,
-      ...flexbox.flex1,
       ...spacings.ph
     },
     icon: { ...spacings.pl, ...spacings.ptTy },

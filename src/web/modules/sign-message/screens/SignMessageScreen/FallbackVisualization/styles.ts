@@ -3,6 +3,7 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
@@ -18,7 +19,8 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderColor: theme.warningDecorative,
       ...spacings.pvSm, // Same as MessageSummary
-      ...spacings.ph
+      ...spacings.ph,
+      ...flexbox.flex1
     },
     header: {
       ...spacings.mb,

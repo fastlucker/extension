@@ -1,5 +1,5 @@
-import React from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { NativeScrollEvent, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -15,6 +15,7 @@ interface Props {
   networkId?: NetworkDescriptor['id']
   explorerUrl?: NetworkDescriptor['explorerUrl']
   kind: IrMessage['content']['kind']
+  setHasReachedBottom: (hasReachedBottom: boolean) => void
 }
 
 export function formatFloatTokenAmount(
@@ -42,11 +43,29 @@ export function formatFloatTokenAmount(
   }
 }
 
-const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
+export const isCloseToBottom = ({
+  layoutMeasurement,
+  contentOffset,
+  contentSize
+}: NativeScrollEvent) => {
+  const paddingToBottom = 20
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+}
+
+const MessageSummary = ({ message, networkId, explorerUrl, kind, setHasReachedBottom }: Props) => {
   const { styles } = useTheme(getStyles)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
+  const isTypedMessage = kind === 'typedMessage'
+
+  useEffect(() => {
+    const isScrollNotVisible = contentHeight < containerHeight
+
+    setHasReachedBottom(isScrollNotVisible)
+  }, [contentHeight, containerHeight, setHasReachedBottom])
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isTypedMessage ? { flex: 1 } : {}]}>
       <View style={styles.header}>
         <HumanizedVisualization
           data={message.fullVisualization}
@@ -55,19 +74,33 @@ const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
           kind={kind}
         />
       </View>
-      <ScrollView contentContainerStyle={styles.rawMessage}>
-        <Text
-          appearance="secondaryText"
-          fontSize={14}
-          weight="regular"
-          style={styles.rawMessageTitle}
+      {isTypedMessage && (
+        <ScrollView
+          onScroll={(e) => {
+            if (isCloseToBottom(e.nativeEvent)) setHasReachedBottom(true)
+          }}
+          onLayout={(e) => {
+            setContainerHeight(e.nativeEvent.layout.height)
+          }}
+          onContentSizeChange={(_, height) => {
+            setContentHeight(height)
+          }}
+          scrollEventThrottle={400}
+          contentContainerStyle={styles.rawMessage}
         >
-          Raw message:
-        </Text>
-        <Text appearance="secondaryText" fontSize={14} weight="regular">
-          {JSON.stringify(message.content, null, 4)}
-        </Text>
-      </ScrollView>
+          <Text
+            appearance="secondaryText"
+            fontSize={14}
+            weight="regular"
+            style={styles.rawMessageTitle}
+          >
+            Raw message:
+          </Text>
+          <Text appearance="secondaryText" fontSize={14} weight="regular">
+            {JSON.stringify(message.content, null, 4)}
+          </Text>
+        </ScrollView>
+      )}
     </View>
   )
 }
