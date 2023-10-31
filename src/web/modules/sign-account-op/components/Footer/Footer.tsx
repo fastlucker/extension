@@ -8,22 +8,35 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
-const Footer = () => {
+type Props = {
+  onReject: () => void
+  onAddToCart: () => void
+  onSign: () => void
+  isSignLoading: boolean
+}
+
+const Footer = ({ onReject, onAddToCart, onSign, isSignLoading }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <Button type="danger" text={t('Reject')} onPress={() => {}} style={styles.rejectButton} />
+      <Button type="danger" text={t('Reject')} onPress={onReject} style={styles.rejectButton} />
       <View style={[flexbox.directionRow]}>
         <Button
           type="outline"
           accentColor={theme.primary}
-          text={t('Add More Transactions')}
-          onPress={() => {}}
+          text={t('Add to Cart')}
+          onPress={onAddToCart}
           style={styles.addMoreTxnButton}
         />
-        <Button type="primary" text={t('Sign')} onPress={() => {}} style={styles.signButton} />
+        <Button
+          type="primary"
+          disabled={isSignLoading}
+          text={isSignLoading ? t('Signing...') : t('Sign')}
+          onPress={onSign}
+          style={styles.signButton}
+        />
       </View>
     </View>
   )

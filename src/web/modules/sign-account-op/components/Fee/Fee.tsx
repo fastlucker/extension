@@ -7,13 +7,15 @@ import styles from './styles'
 
 interface Props {
   label: string
-  amount: number
-  onPress: () => void
+  type: string
+  amount: string
+  onPress: (fee: string) => void
   style?: ViewStyle
+  isSelected: boolean
 }
 
-const Fee = ({ label, amount, onPress, style }: Props) => (
-  <FeeWrapper onPress={onPress} style={style}>
+const Fee = ({ label, type, amount, onPress, style, isSelected }: Props) => (
+  <FeeWrapper onPress={onPress} style={style} type={type} isSelected={isSelected}>
     <Text fontSize={16} weight="medium" style={styles.label}>
       {label}
     </Text>

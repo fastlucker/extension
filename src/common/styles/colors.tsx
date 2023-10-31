@@ -23,6 +23,10 @@ const colors = {
   mustard: '#FFBC00',
   darkMustard: '#8C6800',
   husk: '#B89C4B',
+  brown: '#944901',
+  pirateGold: '#ca7e04',
+  pirateGold_08: '#ca7e0414',
+  linen: '#FBF5EB',
 
   lightPink: '#FF7C95',
   pink: '#FF4367',
@@ -67,7 +71,6 @@ const colors = {
   melrose_15: '#B6B9FF26',
   scampi_20: '#6770B333',
   quartz: '#d7daf0',
-  brownRum: '#B89C4B',
 
   white: '#FFFFFF',
   black: '#000000'
