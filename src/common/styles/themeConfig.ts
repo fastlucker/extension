@@ -107,6 +107,10 @@ const ThemeColors = {
   }
 }
 
+export const iconColors = {
+  warning: '#CA7E04'
+}
+
 export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
