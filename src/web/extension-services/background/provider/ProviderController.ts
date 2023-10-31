@@ -9,7 +9,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
-import networks from '@common/constants/networks'
+import networks, { NETWORKS } from '@common/constants/networks'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
@@ -62,13 +62,29 @@ export class ProviderController {
     this.mainCtrl = mainCtrl
   }
 
+  getDappNetwork = () => {
+    const defaultNetwork = networks.find((n) => n.id === NETWORKS.ethereum)
+    if (!defaultNetwork)
+      throw new Error(
+        'Missing default network data, which should never happen. Please contact support.'
+      )
+
+    const dappChainId = permissionService.getConnectedSite(origin)?.chainId
+    if (!dappChainId) return defaultNetwork
+
+    return (
+      this.mainCtrl.settings.networks.find((n) => n.chainId === BigInt(dappChainId)) ||
+      defaultNetwork
+    )
+  }
+
   ethRpc = async (req) => {
     const {
       data: { method, params },
       session: { origin }
     } = req
 
-    const networkId = await storage.get('networkId')
+    const networkId = this.getDappNetwork().id
     const provider = getProvider(networkId)
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
@@ -174,12 +190,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = async () => {
-    const networkId = await storage.get('networkId')
-    const network = networks.find((n) => n.id === networkId)
-
-    return network?.chainId ? network?.chainId.toString() : '1'
-  }
+  netVersion = () => this.getDappNetwork().chainId.toString()
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {

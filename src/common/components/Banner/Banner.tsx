@@ -4,15 +4,16 @@ import { Pressable, View } from 'react-native'
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
+  const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
 
   const handleActionPress = useCallback(
@@ -66,7 +67,7 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
             style={styles.action}
             onPress={() => handleActionPress(action)}
           >
-            <Text color={colors.violet} fontSize={14} weight="regular">
+            <Text appearance="primary" fontSize={14} weight="regular">
               {action.label}
             </Text>
           </Pressable>

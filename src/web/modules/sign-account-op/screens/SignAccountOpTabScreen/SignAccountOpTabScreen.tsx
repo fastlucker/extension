@@ -24,7 +24,7 @@ const SignAccountOpTabScreen: FC<Props> = ({ tokens, accounts }) => {
   const { t } = useTranslation()
 
   const { control } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       account: accounts[0] || {},
       token: tokens[0] || {}

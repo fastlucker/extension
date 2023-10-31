@@ -4,6 +4,7 @@ import { Image, ImageProps, ImageStyle, Pressable, ViewProps } from 'react-nativ
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -25,6 +26,7 @@ interface Props {
 }
 
 const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress, buttonText }) => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
 
   return (
@@ -32,13 +34,13 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
       onPress={onPress}
       style={({ hovered }: any) => [
         styles.container,
-        { borderWidth: 1, borderColor: hovered ? colors.violet : colors.melrose_15 },
+        { borderWidth: 1, borderColor: hovered ? theme.primary : colors.melrose_15 },
         style
       ]}
     >
       {({ hovered }: any) => (
         <>
-          {Icon && <Icon color={hovered ? colors.violet : colors.melrose} />}
+          {Icon && <Icon color={hovered ? theme.primary : colors.melrose} />}
           {image && <Image source={image.source} style={image.style} resizeMode="contain" />}
           {title && (
             <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={16}>

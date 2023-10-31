@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 
 import styles from './styles'
 
@@ -15,6 +15,7 @@ interface Props {
 
 const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
 
   return (
     <View style={styles.container}>
@@ -27,14 +28,14 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         {/* todo: add the border radius here */}
         <View
           style={{
-            borderBottomColor: openTab === 'tokens' ? colors.violet : 'transparent',
+            borderBottomColor: openTab === 'tokens' ? theme.primary : 'transparent',
             ...styles.toggleItem
           }}
         >
           <Text
             shouldScale={false}
             weight="regular"
-            color={openTab === 'tokens' ? colors.violet : colors.martinique_65}
+            appearance={openTab === 'tokens' ? 'primary' : 'secondaryText'}
             fontSize={16}
             style={styles.tabItemText}
           >
@@ -50,14 +51,14 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
       >
         <View
           style={{
-            borderBottomColor: openTab === 'collectibles' ? colors.violet : 'transparent',
+            borderBottomColor: openTab === 'collectibles' ? theme.primary : 'transparent',
             ...styles.toggleItem
           }}
         >
           <Text
             shouldScale={false}
             weight="regular"
-            color={openTab === 'collectibles' ? colors.violet : colors.martinique_65}
+            appearance={openTab === 'collectibles' ? 'primary' : 'secondaryText'}
             fontSize={16}
             style={styles.tabItemText}
           >

@@ -10,12 +10,14 @@ import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 const Routes = () => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
@@ -39,11 +41,11 @@ const Routes = () => {
               navigate(routeItem.route)
               console.log(`Navigating to: ${routeItem.route}`)
             }}
-            hoverBackground={colors.violet}
+            hoverBackground={theme.primary}
             hoverColor={colors.white}
             style={{
               backgroundColor: colors.melrose_35,
-              borderColor: colors.violet,
+              borderColor: theme.primary,
               ...spacings.mbMi
             }}
           >

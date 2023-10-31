@@ -48,9 +48,9 @@ const KeyStoreSetupScreen = () => {
     control,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -121,7 +121,7 @@ const KeyStoreSetupScreen = () => {
             ]}
           />
           {isSubmitSuccessful && (
-            <Text color={colors.martinique} style={text.center} weight="medium" fontSize={20}>
+            <Text style={text.center} weight="medium" fontSize={20}>
               {t('Your Ambire Key Store\nis ready!')}
             </Text>
           )}
@@ -172,12 +172,7 @@ const KeyStoreSetupScreen = () => {
 
               <Button
                 textStyle={{ fontSize: 14 }}
-                disabled={
-                  isSubmitting ||
-                  isKeystoreSetupLoading ||
-                  !watch('password', '') ||
-                  !watch('confirmPassword', '')
-                }
+                disabled={isSubmitting || isKeystoreSetupLoading || !isValid}
                 text={
                   isSubmitting || isKeystoreSetupLoading
                     ? t('Setting Up Your Key Store...')
@@ -231,7 +226,7 @@ const KeyStoreSetupScreen = () => {
             </Text>
           </li>
         </ol>
-        <Text shouldScale={false} weight="regular" color={colors.radicalRed} fontSize={14}>
+        <Text shouldScale={false} weight="regular" appearance="errorText" fontSize={14}>
           {t(
             'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
           )}
