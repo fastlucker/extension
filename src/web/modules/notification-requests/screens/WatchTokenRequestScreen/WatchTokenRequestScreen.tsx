@@ -126,7 +126,7 @@ const WatchTokenRequestScreen = () => {
                 fontSize={14}
                 weight="regular"
                 style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                appearance="danger"
+                appearance="errorText"
               >
                 {error}
               </Text>

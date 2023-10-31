@@ -55,7 +55,7 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
           {buttonText && (
             <Button
               textStyle={{ fontSize: 14 }}
-              containerStyle={{ width: '100%' }}
+              style={{ width: '100%' }}
               text={t(buttonText)}
               onPress={onPress}
               hasBottomSpacing={false}
