@@ -56,7 +56,11 @@ const PendingTokenSummary = ({ token, networkId }: Props) => {
         {`${amountToSendSign}${formatUnits(token.amountToSend, token.decimals || 18)}`}
         <Text fontSize={16} weight="medium">{` ${token.symbol}`}</Text>
       </Text>
-      {!!priceInUsd && <Text fontSize={16} weight="medium">{` ($${priceInUsd}) `}</Text>}
+      {!!priceInUsd && (
+        <Text fontSize={16} weight="medium">{` ($${
+          Number(priceInUsd) > 0.00099 ? priceInUsd : '0.00'
+        }) `}</Text>
+      )}
     </View>
   )
 }
