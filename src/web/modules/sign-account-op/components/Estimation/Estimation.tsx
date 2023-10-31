@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -16,7 +17,11 @@ import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import styles from './styles'
 
-const Estimation = ({ networkId }: any) => {
+type Props = {
+  networkId: NetworkDescriptor['id']
+}
+
+const Estimation = ({ networkId }: Props) => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const portfolioState = usePortfolioControllerState()
@@ -56,15 +61,18 @@ const Estimation = ({ networkId }: any) => {
   const [payValue, setPayValue] = useState(defaultPayOption)
 
   useEffect(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-      params: {
-        feeTokenAddr: payValue.token.address,
-        paidBy: payValue.paidBy
-      }
-    })
+    if (payValue && payValue.token) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: {
+          feeTokenAddr: payValue.token.address,
+          paidBy: payValue.paidBy
+        }
+      })
+    }
   }, [dispatch, payValue])
 
+  // Signing is ready therefore broadcast transaction
   useEffect(() => {
     if (
       signAccountOpState.accountOp?.signature &&
@@ -81,12 +89,12 @@ const Estimation = ({ networkId }: any) => {
     () =>
       signAccountOpState.feeSpeeds.find(
         (speed) => speed.type === signAccountOpState.selectedFeeSpeed
-      ) || {},
+      ),
     [signAccountOpState.selectedFeeSpeed, signAccountOpState.feeSpeeds]
   )
 
   const onFeeSelect = useCallback(
-    (speed) => {
+    (speed: string) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
@@ -105,7 +113,7 @@ const Estimation = ({ networkId }: any) => {
         options={payOptions}
         style={styles.tokenSelect}
         labelStyle={styles.tokenSelectLabel}
-        value={payValue}
+        value={payValue || {}}
         defaultValue={payValue}
       />
       <View style={styles.transactionSpeedContainer}>
@@ -126,13 +134,15 @@ const Estimation = ({ networkId }: any) => {
         </View>
       </View>
       <View>
-        <View style={styles.feeContainer}>
-          <Text style={styles.fee}>
-            {t('Fee')}: {selectedFee.amountFormatted} {payValue.token.symbol}
-          </Text>
-          <Text style={styles.feeUsd}>~ ${Number(selectedFee.amountUsd).toFixed(4)}</Text>
-        </View>
-        {/* // TODO - once we clear out the gas tank functionality, here we need to render what gas it saves */}
+        {!!selectedFee && !!payValue && (
+          <View style={styles.feeContainer}>
+            <Text style={styles.fee}>
+              {t('Fee')}: {selectedFee.amountFormatted} {payValue.token?.symbol}
+            </Text>
+            <Text style={styles.feeUsd}>~ ${Number(selectedFee.amountUsd).toFixed(4)}</Text>
+          </View>
+        )}
+        {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
         {/* <View style={styles.gasTankContainer}> */}
         {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
         {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
