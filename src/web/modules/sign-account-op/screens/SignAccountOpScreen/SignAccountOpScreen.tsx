@@ -22,7 +22,6 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
-import Heading from '@web/modules/sign-account-op/components/Heading'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
@@ -236,7 +235,14 @@ const SignAccountOpScreen = () => {
     <TabLayoutWrapperMainContent
       width="full"
       forceCanGoBack
-      pageTitle={<Header account={account} network={network} />}
+      header={
+        <Header
+          networkId={network.id as any}
+          networkName={network.name}
+          selectedAccountAddr={selectedAccountFull?.addr}
+          selectedAccountLabel={selectedAccountFull?.label}
+        />
+      }
       footer={
         <Footer
           onReject={handleRejectAccountOp}
@@ -254,13 +260,15 @@ const SignAccountOpScreen = () => {
       <View style={styles.container}>
         <View style={styles.leftSideContainer}>
           <View style={styles.transactionsContainer}>
-            <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
+            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              {t('Waiting Transactions')}
+            </Text>
             <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-              {callsToVisualize.map((call) => {
+              {callsToVisualize.map((call, i) => {
                 return (
                   <TransactionSummary
                     key={call.data + call.fromUserRequestId}
-                    style={spacings.mbSm}
+                    style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                     call={call}
                     networkId={network.id}
                     explorerUrl={network.explorerUrl}
@@ -271,12 +279,15 @@ const SignAccountOpScreen = () => {
           </View>
           {!!pendingTokens.length && (
             <View style={styles.pendingTokensContainer}>
-              <View style={styles.pendingTokensSeparatorContainer}>
-                <View style={styles.separatorHorizontal} />
-                <View style={styles.pendingTokensHeadingWrapper}>
-                  <Text fontSize={16}>{t('Balance changes')}</Text>
+              <View style={spacings.pr}>
+                <View style={styles.pendingTokensSeparatorContainer}>
+                  <View style={styles.separatorHorizontal} />
+                  <View style={styles.pendingTokensHeadingWrapper}>
+                    <Text fontSize={16}>{t('Balance changes')}</Text>
+                  </View>
                 </View>
               </View>
+
               <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
                 {pendingTokens.map((token) => {
                   return (
@@ -289,7 +300,9 @@ const SignAccountOpScreen = () => {
         </View>
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
-          <Heading text={t('Estimation')} style={styles.estimationHeading} />
+          <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+            {t('Estimation')}
+          </Text>
           {hasEstimation ? (
             <Estimation networkId={network.id} />
           ) : (

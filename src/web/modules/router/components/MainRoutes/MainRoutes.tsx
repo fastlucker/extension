@@ -142,9 +142,9 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
         <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
 
+        <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
         <Route element={headerTitle}>
           <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-          <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
           <Route
             path={WEB_ROUTES.getEncryptionPublicKeyRequest}
             element={<GetEncryptionPublicKeyRequestScreen />}

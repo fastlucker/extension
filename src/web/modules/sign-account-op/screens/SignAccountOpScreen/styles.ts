@@ -40,7 +40,7 @@ const styles = StyleSheet.create<Style>({
   },
   transactionsScrollView: {
     height: '100%',
-    paddingRight: 22
+    ...spacings.pr
   },
   pendingTokensContainer: {
     flex: 1
@@ -55,7 +55,8 @@ const styles = StyleSheet.create<Style>({
     backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    ...spacings.pvTy,
+    ...spacings.pbTy,
+    ...spacings.ptSm,
     ...spacings.mbLg,
     width: '100%'
   },
@@ -65,18 +66,19 @@ const styles = StyleSheet.create<Style>({
   },
   pendingTokensScrollView: {
     height: '100%',
-    paddingRight: 22
+    ...spacings.pr
   },
   separator: {
     width: 1,
-    marginHorizontal: 35,
-    backgroundColor: colors.chetwode_50
+    backgroundColor: colors.chetwode_50,
+    ...spacings.mr3Xl,
+    ...spacings.ml2Xl
   },
   estimationContainer: {
     ...flexbox.flex1
   },
   estimationHeading: {
-    marginBottom: 20
+    ...spacings.mbLg
   },
   spinner: {
     alignSelf: 'center'
