@@ -16,8 +16,14 @@ interface Props {
   networkName?: string
   networkId?: NetworkIconNameType
   selectedAccountAddr?: string
+  selectedAccountLabel?: string
 }
-const Header: FC<Props> = ({ networkName, networkId, selectedAccountAddr }) => {
+const Header: FC<Props> = ({
+  networkName,
+  networkId,
+  selectedAccountAddr,
+  selectedAccountLabel
+}) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
 
@@ -26,7 +32,7 @@ const Header: FC<Props> = ({ networkName, networkId, selectedAccountAddr }) => {
       <View style={styles.content}>
         <Image style={styles.avatar} source={avatarSpace} resizeMode="contain" />
         <Text appearance="secondaryText" weight="medium" fontSize={16}>
-          {t('Account label')}{' '}
+          {selectedAccountLabel}{' '}
         </Text>
         <Text appearance="primaryText" weight="medium" fontSize={16}>
           ({selectedAccountAddr}){' '}

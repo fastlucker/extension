@@ -214,6 +214,7 @@ const SignMessageScreen = () => {
         networkId={networkData?.id}
         networkName={networkData?.name}
         selectedAccountAddr={selectedAccountFull?.addr}
+        selectedAccountLabel={selectedAccountFull?.label}
       />
       <View style={styles.content}>
         <Text weight="medium" fontSize={20} style={styles.title}>
@@ -249,10 +250,12 @@ const SignMessageScreen = () => {
         </Button>
 
         {isScrollToBottomForced && !isViewOnly ? (
-          <Text appearance="errorText">{t('Please read the message before signing.')}</Text>
+          <Text appearance="errorText" weight="medium">
+            {t('Please read the message before signing.')}
+          </Text>
         ) : null}
         {isViewOnly ? (
-          <Text appearance="errorText">
+          <Text appearance="errorText" weight="medium">
             {t("You can't sign messages with view only accounts.")}
           </Text>
         ) : null}
