@@ -269,21 +269,23 @@ const SignAccountOpScreen = () => {
               })}
             </ScrollView>
           </View>
-          <View style={styles.pendingTokensContainer}>
-            <View style={styles.pendingTokensSeparatorContainer}>
-              <View style={styles.separatorHorizontal} />
-              <View style={styles.pendingTokensHeadingWrapper}>
-                <Text fontSize={16}>{t('Balance changes')}</Text>
+          {!!pendingTokens.length && (
+            <View style={styles.pendingTokensContainer}>
+              <View style={styles.pendingTokensSeparatorContainer}>
+                <View style={styles.separatorHorizontal} />
+                <View style={styles.pendingTokensHeadingWrapper}>
+                  <Text fontSize={16}>{t('Balance changes')}</Text>
+                </View>
               </View>
+              <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
+                {pendingTokens.map((token) => {
+                  return (
+                    <PendingTokenSummary key={token.address} token={token} networkId={network.id} />
+                  )
+                })}
+              </ScrollView>
             </View>
-            <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
-              {pendingTokens.map((token) => {
-                return (
-                  <PendingTokenSummary key={token.address} token={token} networkId={network.id} />
-                )
-              })}
-            </ScrollView>
-          </View>
+          )}
         </View>
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
