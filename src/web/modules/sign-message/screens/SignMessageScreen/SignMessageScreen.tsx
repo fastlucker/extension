@@ -270,7 +270,7 @@ const SignMessageScreen = () => {
           ) : null}
           <Button
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING' || !hasReachedBottom || isViewOnly}
+            disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
             type="primary"
             style={styles.signButton}
             onPress={onSignButtonClick}
