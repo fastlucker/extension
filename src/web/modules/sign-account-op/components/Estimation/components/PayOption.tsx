@@ -19,7 +19,7 @@ const PayOption = ({ account, token }: any) => {
         }}
       />
       <Text weight="medium">{shortenAddress(account.addr, 11)}</Text>
-      <Text> - </Text>
+      <Text weight="medium"> - </Text>
       <TokenIcon
         containerHeight={32}
         containerWidth={32}
