@@ -1,14 +1,14 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
-  web: 90,
+  web: 40 + SPACING + SPACING_LG,
   default: 60
 })
 
@@ -27,6 +27,7 @@ interface Styles {
   accountButtonInfoText: TextStyle
   accountAddressAndLabel: ViewStyle
   accountCopyIcon: ViewStyle
+  maximizeAndMenu: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -36,10 +37,10 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: theme.secondaryBackground,
-      ...spacings.ph,
-      ...spacings.pv,
-      ...(isWeb ? { height: 90 } : {})
+      ...spacings.phLg,
+      ...spacings.ptLg,
+      ...spacings.pb,
+      ...(isWeb ? { height: HEADER_HEIGHT } : {})
     },
     containerInner: {
       flexDirection: 'row',
@@ -65,7 +66,8 @@ const getStyles = (theme: ThemeProps) =>
     // Account
     account: {
       ...flexbox.directionRow,
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      ...flexbox.flex1
     },
     accountButton: {
       flexDirection: 'row',
@@ -73,18 +75,23 @@ const getStyles = (theme: ThemeProps) =>
       justifyContent: 'space-between',
       height: 40,
       ...spacings.phMi,
-      backgroundColor: '#B6B9FF26',
+      backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
-      borderColor: '#6770B333',
-      borderRadius: 12,
-      minWidth: 180
+      borderColor: theme.secondaryBorder,
+      ...common.borderRadiusPrimary,
+      ...flexbox.flex1
     },
-    accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
+    accountButtonRightIcon: { borderColor: 'transparent', ...common.borderRadiusPrimary },
     accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
-    accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
+    accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
     accountButtonInfoText: { ...spacings.mlMi },
-    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
-    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
+    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mlTy },
+    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' },
+    maximizeAndMenu: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...spacings.mlLg
+    }
   })
 
 export default getStyles
