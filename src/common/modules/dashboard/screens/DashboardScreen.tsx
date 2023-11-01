@@ -15,6 +15,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import Assets from '../components/Assets'
+import DAppFooter from '../components/DAppFooter'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
 import getStyles from './styles'
@@ -148,6 +149,7 @@ const DashboardScreen = () => {
       <View style={[styles.contentContainer, flexbox.flex1]}>
         {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
       </View>
+      <DAppFooter />
     </View>
   )
 }
