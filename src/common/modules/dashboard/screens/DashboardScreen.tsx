@@ -146,7 +146,7 @@ const DashboardScreen = () => {
         </View>
       </View>
       <View style={[styles.contentContainer, flexbox.flex1]}>
-        <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />
+        {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
       </View>
     </View>
   )
