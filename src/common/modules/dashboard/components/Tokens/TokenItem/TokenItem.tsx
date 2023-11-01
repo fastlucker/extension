@@ -65,13 +65,7 @@ const TokenItem = ({
           )}
         </View>
         <View>
-          <Text
-            style={[spacings.mrTy]}
-            fontSize={16}
-            shouldScale={false}
-            weight="semiBold"
-            numberOfLines={1}
-          >
+          <Text style={[spacings.mrTy]} fontSize={16} weight="number_bold" numberOfLines={1}>
             {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
           </Text>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -99,10 +93,10 @@ const TokenItem = ({
           </View>
         </View>
       </View>
-      <Text fontSize={16} weight="regular" style={{ flex: 0.7 }}>
+      <Text fontSize={16} weight="number_regular" style={{ flex: 0.7 }}>
         ${price.toFixed(price < 1 ? 4 : 2)}
       </Text>
-      <Text fontSize={16} weight="semiBold" style={{ flex: 0.8, textAlign: 'right' }}>
+      <Text fontSize={16} weight="number_bold" style={{ flex: 0.8, textAlign: 'right' }}>
         ${balanceUSD.toFixed(balanceUSD < 1 ? 4 : 2)}
       </Text>
     </Pressable>

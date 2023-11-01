@@ -103,7 +103,7 @@ const DashboardScreen = () => {
                     fontSize={32}
                     shouldScale={false}
                     style={{ lineHeight: 34 }}
-                    weight="semiBold"
+                    weight="number_bold"
                   >
                     {t('$')}
                     {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
@@ -145,7 +145,7 @@ const DashboardScreen = () => {
           ]}
         >
           <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-          <Search control={control} placeholder="Search for tokens" />
+          <Search control={control} height={32} placeholder="Search for tokens" />
         </View>
       </View>
       <View style={[styles.contentContainer, flexbox.flex1]}>

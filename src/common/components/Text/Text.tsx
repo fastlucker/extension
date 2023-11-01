@@ -1,13 +1,22 @@
 import React from 'react'
 import { ColorValue, StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import { FONT_FAMILIES, ROBOTO_FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 
 import styles, { TEXT_SCALE } from './styles'
 
 type TextTypes = 'regular' | 'small' | 'caption' | 'info'
-type TextWeight = 'light' | 'regular' | 'medium' | 'semiBold'
+type TextWeight =
+  | 'light'
+  | 'regular'
+  | 'medium'
+  | 'semiBold'
+  | 'number_light'
+  | 'number_regular'
+  | 'number_medium'
+  | 'number_bold'
+  | 'number_black'
 type TextAppearance =
   | 'primary'
   | 'primaryText'
@@ -37,7 +46,12 @@ const textWeights: { [key in TextWeight]: string } = {
   light: FONT_FAMILIES.LIGHT,
   regular: FONT_FAMILIES.REGULAR,
   medium: FONT_FAMILIES.MEDIUM,
-  semiBold: FONT_FAMILIES.SEMI_BOLD
+  semiBold: FONT_FAMILIES.SEMI_BOLD,
+  number_light: ROBOTO_FONT_FAMILIES.LIGHT,
+  number_regular: ROBOTO_FONT_FAMILIES.REGULAR,
+  number_medium: ROBOTO_FONT_FAMILIES.MEDIUM,
+  number_bold: ROBOTO_FONT_FAMILIES.BOLD,
+  number_black: ROBOTO_FONT_FAMILIES.BLACK
 }
 
 const Text: React.FC<Props> = ({
@@ -69,7 +83,9 @@ const Text: React.FC<Props> = ({
       style={StyleSheet.flatten([
         { color: theme.primaryText },
         textStyles[type],
-        { fontFamily: textWeights[weight] },
+        {
+          fontFamily: textWeights[weight]
+        },
         !!underline && styles.underline,
         !!fontSize && {
           fontSize,
