@@ -52,7 +52,9 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 0
     },
     buttonContainerSecondary: {
-      backgroundColor: colors.howl
+      backgroundColor: theme.secondaryBackground,
+      borderWidth: 1,
+      borderColor: theme.primary
     },
     buttonContainerDanger: {
       borderColor: theme.errorDecorative
@@ -97,7 +99,7 @@ const getStyles = (theme: ThemeProps) =>
       color: colors.titan
     },
     buttonTextSecondary: {
-      color: colors.titan
+      color: theme.primary
     },
     buttonTextDanger: {
       color: theme.errorDecorative
