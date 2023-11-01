@@ -6,8 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  addMoreTxnButton: ViewStyle
-  signButton: ViewStyle
+  signButtonContainer: ViewStyle
 }
 
 const getStyles = () =>
@@ -28,7 +27,8 @@ const getStyles = () =>
       // when we show the select signer overlay
       // @ts-ignore
       zIndex: 'unset'
-    }
+    },
+    signButtonContainer: { position: 'relative', zIndex: 'unset' }
   })
 
 export default getStyles

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -40,6 +40,7 @@ const SignAccountOpScreen = () => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
 
   const hasEstimation = useMemo(
     () => !!signAccountOpState.availableFeeOptions.length,
@@ -175,21 +176,6 @@ const SignAccountOpScreen = () => {
     [dispatch]
   )
 
-  // Set the first key as the selected key
-  useEffect(() => {
-    const firstKey = keystoreState.keys.find((key) => account?.associatedKeys.includes(key.addr))
-
-    if (firstKey) {
-      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
-    }
-  }, [handleChangeSigningKey, keystoreState.keys, account?.associatedKeys])
-
-  const handleSign = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
-    })
-  }, [dispatch])
-
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
@@ -217,6 +203,46 @@ const SignAccountOpScreen = () => {
       window.removeEventListener('beforeunload', reset)
     }
   }, [dispatch])
+
+  const handleSign = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+    })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (
+      signAccountOpState.isInitialized &&
+      signAccountOpState.status?.type === SigningStatus.ReadyToSign &&
+      signAccountOpState.accountOp?.signingKeyAddr &&
+      signAccountOpState.accountOp?.signingKeyType
+    ) {
+      handleSign()
+    }
+  }, [
+    handleSign,
+    signAccountOpState.accountOp?.signingKeyAddr,
+    signAccountOpState.accountOp?.signingKeyType,
+    signAccountOpState.isInitialized,
+    signAccountOpState.status?.type
+  ])
+
+  const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
+    account?.associatedKeys.includes(key.addr)
+  )
+
+  const onSignButtonClick = () => {
+    // If the account has only one signer, we don't need to show the select signer overlay
+    if (selectedAccountKeyStoreKeys.length === 1) {
+      handleChangeSigningKey(
+        selectedAccountKeyStoreKeys[0].addr,
+        selectedAccountKeyStoreKeys[0].type
+      )
+      return
+    }
+
+    setIsChooseSignerShown(true)
+  }
 
   if (!signAccountOpState.accountOp || !network) {
     return (
@@ -248,7 +274,10 @@ const SignAccountOpScreen = () => {
             signAccountOpState.status?.type === SigningStatus.Done ||
             mainState.broadcastStatus === 'LOADING'
           }
-          onSign={handleSign}
+          isChooseSignerShown={isChooseSignerShown}
+          handleChangeSigningKey={handleChangeSigningKey}
+          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          onSign={onSignButtonClick}
         />
       }
     >

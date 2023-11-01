@@ -90,7 +90,7 @@ const SelectComponent = ({
   return (
     <>
       {!!label && (
-        <Text fontSize={16} color={theme.secondaryText} style={[spacings.mbTy, labelStyle]}>
+        <Text fontSize={16} appearance="secondaryText" style={[spacings.mbTy, labelStyle]}>
           {label}
         </Text>
       )}
@@ -130,6 +130,11 @@ const SelectComponent = ({
                 outline: 'none',
                 ...controlStyle
               } as any),
+            menu: (baseStyles) => ({
+              ...baseStyles,
+              borderRadius: 6,
+              overflow: 'hidden'
+            }),
             option: (baseStyles) =>
               ({
                 ...baseStyles,
