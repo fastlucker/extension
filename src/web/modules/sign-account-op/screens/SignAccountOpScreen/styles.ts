@@ -1,6 +1,5 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -9,9 +8,7 @@ interface Style {
   container: ViewStyle
   leftSideContainer: ViewStyle
   transactionsContainer: ViewStyle
-  transactionsHeading: ViewStyle
   transactionsScrollView: ViewStyle
-  pendingTokensContainer: ViewStyle
   separatorHorizontal: ViewStyle
   pendingTokensSeparatorContainer: ViewStyle
   pendingTokensHeadingWrapper: ViewStyle
@@ -21,7 +18,6 @@ interface Style {
   estimationHeading: ViewStyle
   spinner: ViewStyle
   accountSelect: ViewStyle
-  accountSelectLabel: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -36,21 +32,15 @@ const getStyles = (theme: ThemeProps) =>
     transactionsContainer: {
       flex: 1.5
     },
-    transactionsHeading: {
-      marginBottom: 40
-    },
     transactionsScrollView: {
       height: '100%',
       ...spacings.pr
-    },
-    pendingTokensContainer: {
-      flex: 1
     },
     separatorHorizontal: {
       position: 'absolute',
       width: '100%',
       height: 1,
-      backgroundColor: theme.tertiaryBorder
+      backgroundColor: theme.secondaryBorder
     },
     pendingTokensSeparatorContainer: {
       backgroundColor: theme.primaryBackground,
@@ -71,7 +61,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     separator: {
       width: 1,
-      backgroundColor: theme.tertiaryBorder,
+      backgroundColor: theme.secondaryBorder,
       ...spacings.mr3Xl,
       ...spacings.ml2Xl
     },
@@ -86,11 +76,6 @@ const getStyles = (theme: ThemeProps) =>
     },
     accountSelect: {
       ...spacings.mb
-    },
-    accountSelectLabel: {
-      fontSize: 16,
-      fontFamily: FONT_FAMILIES.MEDIUM,
-      marginLeft: 12
     }
   })
 

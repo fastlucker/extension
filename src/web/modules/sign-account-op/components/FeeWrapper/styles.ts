@@ -20,7 +20,7 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       borderWidth: 1,
       backgroundColor: theme.secondaryBackground,
-      borderColor: theme.tertiaryBorder
+      borderColor: theme.secondaryBorder
     },
     active: {
       borderColor: theme.primary

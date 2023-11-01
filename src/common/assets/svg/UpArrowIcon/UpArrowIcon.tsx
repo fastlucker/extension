@@ -1,12 +1,14 @@
 import React from 'react'
 import Svg, { Path, SvgProps } from 'react-native-svg'
 
+import { iconColors } from '@common/styles/themeConfig'
+
 interface Props extends SvgProps {
   width?: number
   height?: number
 }
 
-const UpArrowIcon: React.FC<Props> = ({ width = 15, height = 9, color = '#54597a' }) => (
+const UpArrowIcon: React.FC<Props> = ({ width = 15, height = 9, color = iconColors.primary }) => (
   <Svg width={width} height={height} viewBox="0 0 14.879 8.466">
     <Path
       d="M-5813.015-21729.285l-6.348,6.373,6.348,6.385"

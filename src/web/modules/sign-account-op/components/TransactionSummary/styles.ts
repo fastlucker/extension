@@ -18,7 +18,7 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
-      borderColor: theme.tertiaryBorder
+      borderColor: theme.secondaryBorder
     },
     warningContainer: {
       borderWidth: 1,

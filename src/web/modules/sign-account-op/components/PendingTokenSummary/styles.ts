@@ -14,7 +14,7 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       borderWidth: 1,
       height: 36,
-      borderColor: theme.tertiaryBorder,
+      borderColor: theme.secondaryBorder,
       ...common.borderRadiusPrimary,
       ...flexbox.alignCenter,
       ...flexbox.directionRow,

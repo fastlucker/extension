@@ -302,7 +302,7 @@ const SignAccountOpScreen = () => {
             </ScrollView>
           </View>
           {!!pendingTokens.length && (
-            <View style={styles.pendingTokensContainer}>
+            <View style={flexbox.flex1}>
               <View style={spacings.pr}>
                 <View style={styles.pendingTokensSeparatorContainer}>
                   <View style={styles.separatorHorizontal} />

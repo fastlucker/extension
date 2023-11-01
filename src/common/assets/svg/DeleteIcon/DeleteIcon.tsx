@@ -2,12 +2,14 @@ import React from 'react'
 import { ColorValue } from 'react-native'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
+import { iconColors } from '@common/styles/themeConfig'
+
 interface Props extends SvgProps {
   width?: number
   height?: number
   color?: ColorValue
 }
-const DeleteIcon: React.FC<Props> = ({ width = 20, height = 22, color = '#54597a' }) => (
+const DeleteIcon: React.FC<Props> = ({ width = 20, height = 22, color = iconColors.primary }) => (
   <Svg width={width} height={height} viewBox="0 0 19.64 21.5">
     <G transform="translate(0.82 0.75)">
       <Path

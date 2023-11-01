@@ -23,10 +23,10 @@ const getStyles = (theme: ThemeProps) =>
     selectedFee: {
       borderWidth: 1,
       borderStyle: 'solid',
-      borderColor: colors.violet
+      borderColor: theme.primary
     },
     feeUsd: {
-      color: colors.violet,
+      color: theme.primary,
       fontSize: isTab ? 16 : 14
     },
     gasTankContainer: {
@@ -39,7 +39,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     finalFeeValueContainer: {
       borderWidth: 3,
-      borderColor: '#6000FF4D',
+      borderColor: colors.lightViolet,
       borderRadius: 9,
       ...spacings.mhTy
     },
