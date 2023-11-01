@@ -10,9 +10,10 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_TAB_CONTENT_UP } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import DAppFooter from '../components/DAppFooter'
@@ -29,6 +30,8 @@ const handleChangeQuery = (openTab: string) => {
 
   window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
 }
+
+const { isPopup } = getUiType()
 
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
@@ -135,7 +138,6 @@ const DashboardScreen = () => {
         <View
           style={[
             styles.contentContainer,
-            IS_SCREEN_SIZE_TAB_CONTENT_UP ? spacings.plMd : {},
             flexbox.directionRow,
             flexbox.justifySpaceBetween,
             flexbox.alignCenter,
@@ -149,7 +151,7 @@ const DashboardScreen = () => {
       <View style={[styles.contentContainer, flexbox.flex1]}>
         {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
       </View>
-      <DAppFooter />
+      {isPopup && <DAppFooter />}
     </View>
   )
 }

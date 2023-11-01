@@ -5,6 +5,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import AfterInteractions from '@common/components/AfterInteractions'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
 import Tokens from '../Tokens'
@@ -15,10 +16,11 @@ interface Props {
   searchValue: string
 }
 
+const { isPopup } = getUiType()
 // We do this instead of unmounting the component to prevent
 // component rerendering when switching tabs.
 const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
-const VISIBLE_STYLE: ViewStyle = { flex: 1, ...spacings.phLg }
+const VISIBLE_STYLE: ViewStyle = { flex: 1, ...(isPopup ? spacings.phLg : spacings.prSm) }
 
 const Assets = ({ tokens, openTab, searchValue }: Props) => {
   return (

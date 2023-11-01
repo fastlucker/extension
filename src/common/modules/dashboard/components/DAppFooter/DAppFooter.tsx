@@ -23,7 +23,7 @@ const DAppFooter = () => {
         <View style={styles.currentDApp}>
           <Pressable
             onPress={() => {
-              if (!site?.origin) return
+              if (!site?.origin || !site?.isConnected) return
 
               disconnectDapp(site?.origin)
             }}

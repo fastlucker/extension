@@ -19,7 +19,6 @@ interface Styles {
   title: TextStyle
   sideContainer: ViewStyle
   // Account
-  account: ViewStyle
   accountButton: ViewStyle
   accountButtonRightIcon: ViewStyle
   accountButtonInfo: ViewStyle
@@ -64,16 +63,11 @@ const getStyles = (theme: ThemeProps) =>
       minWidth: isWeb ? 180 : 120
     },
     // Account
-    account: {
+    accountButton: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
-      ...flexbox.flex1
-    },
-    accountButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
       height: 40,
+      maxWidth: 464,
       ...spacings.phMi,
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,

@@ -52,35 +52,30 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
     <View
       style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
     >
-      <View style={styles.account}>
-        <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
-          <View style={styles.accountButtonInfo}>
-            <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
-            <View style={styles.accountAddressAndLabel}>
-              {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
-              <Text weight="semiBold" fontSize={16}>
-                {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
-              </Text>
-              <Text weight="medium" style={styles.accountButtonInfoText} fontSize={16}>
-                ({shortenAddress(selectedAccount, 24)})
-              </Text>
-            </View>
+      <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
+        <View style={styles.accountButtonInfo}>
+          <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
+          <View style={styles.accountAddressAndLabel}>
+            {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
+            <Text weight="semiBold" fontSize={16}>
+              {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+            </Text>
+            <Text weight="medium" style={styles.accountButtonInfoText} fontSize={16}>
+              ({shortenAddress(selectedAccount, 24)})
+            </Text>
           </View>
-          <CopyText
-            iconHeight={20}
-            iconWidth={20}
-            text={selectedAccount}
-            style={styles.accountCopyIcon}
-            iconColor={theme.secondaryText}
-          />
-          <Pressable
-            onPress={() => navigate('account-select')}
-            style={styles.accountButtonRightIcon}
-          >
-            <RightArrowIcon width={30} height={30} color={theme.secondaryText} withRect={false} />
-          </Pressable>
+        </View>
+        <CopyText
+          iconHeight={20}
+          iconWidth={20}
+          text={selectedAccount}
+          style={styles.accountCopyIcon}
+          iconColor={theme.secondaryText}
+        />
+        <Pressable onPress={() => navigate('account-select')} style={styles.accountButtonRightIcon}>
+          <RightArrowIcon width={30} height={30} color={theme.secondaryText} withRect={false} />
         </Pressable>
-      </View>
+      </Pressable>
       <View style={styles.maximizeAndMenu}>
         {uiType.isPopup && (
           <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
