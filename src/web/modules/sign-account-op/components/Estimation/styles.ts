@@ -1,9 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
@@ -12,8 +10,6 @@ interface Style {
   feeUsd: TextStyle
   gasTankContainer: ViewStyle
   gasTankText: TextStyle
-  finalFeeValueContainer: ViewStyle
-  finalFeeValueWrapper: ViewStyle
 }
 
 const isTab = getUiType().isTab
@@ -36,19 +32,6 @@ const getStyles = (theme: ThemeProps) =>
     gasTankText: {
       color: colors.greenHaze,
       fontSize: isTab ? 14 : 12
-    },
-    finalFeeValueContainer: {
-      borderWidth: 3,
-      borderColor: colors.lightViolet,
-      borderRadius: 9,
-      ...spacings.mhTy
-    },
-    finalFeeValueWrapper: {
-      ...spacings.pvMi,
-      ...spacings.phMi,
-      ...common.borderRadiusPrimary,
-      borderWidth: 1,
-      borderColor: theme.primary
     }
   })
 

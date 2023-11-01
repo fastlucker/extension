@@ -142,16 +142,12 @@ const Estimation = ({ networkId }: Props) => {
         {!!selectedFee && !!payValue && (
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={16} weight="medium">
+              <Text fontSize={16} weight="medium" style={spacings.mrTy}>
                 {t('Fee')}:
               </Text>
-              <View style={styles.finalFeeValueContainer}>
-                <View style={styles.finalFeeValueWrapper}>
-                  <Text fontSize={16} weight="medium">
-                    {selectedFee.amountFormatted} {payValue.token?.symbol}
-                  </Text>
-                </View>
-              </View>
+              <Text fontSize={16} weight="medium">
+                {selectedFee.amountFormatted} {payValue.token?.symbol}
+              </Text>
             </View>
             <Text weight="medium" style={styles.feeUsd}>
               ~ ${Number(selectedFee.amountUsd).toFixed(4)}
