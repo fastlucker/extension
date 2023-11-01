@@ -53,7 +53,6 @@ async function init() {
 
   await permissionService.init()
 }
-
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
@@ -63,7 +62,7 @@ async function init() {
 
   const mainCtrl = new MainController({
     storage,
-    fetch,
+    fetch: window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
