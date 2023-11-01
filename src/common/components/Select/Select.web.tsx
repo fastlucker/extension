@@ -1,12 +1,6 @@
 import React, { CSSProperties, FC, useState } from 'react'
 import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
-import Select, {
-  components,
-  DropdownIndicatorProps,
-  MenuPlacement,
-  OptionProps,
-  SingleValueProps
-} from 'react-select'
+import Select, { components, MenuPlacement, OptionProps, SingleValueProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
@@ -16,7 +10,6 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-import NavIconWrapper from '../NavIconWrapper'
 import getStyles from './styles'
 
 export type OptionType = OptionProps['data']
@@ -33,8 +26,6 @@ interface Props {
   menuPlacement?: MenuPlacement
   style?: ViewStyle
   controlStyle?: CSSProperties
-  iconWidth?: number
-  iconHeight?: number
   openMenuOnClick?: boolean
   onDropdownOpen?: () => void
 }
@@ -82,34 +73,24 @@ const SelectComponent = ({
   menuPlacement = 'auto',
   style,
   controlStyle,
-  iconWidth = 36,
-  iconHeight = 36,
   openMenuOnClick = true,
   onDropdownOpen
 }: Props) => {
   const { theme } = useTheme()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
-  const DropdownIndicator = (props: DropdownIndicatorProps<any>) => {
+  const DropdownIndicator = () => {
     return (
-      <components.DropdownIndicator {...props}>
-        <NavIconWrapper
-          onPress={() => (onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen))}
-          width={iconWidth}
-          height={iconHeight}
-          hoverBackground={theme.primaryLight}
-          style={{ borderColor: 'transparent', borderRadius: 10 }}
-        >
-          <DownArrowIcon width={26} height={26} isActive={isDropdownOpen} withRect={false} />
-        </NavIconWrapper>
-      </components.DropdownIndicator>
+      <View style={spacings.mrSm}>
+        <DownArrowIcon />
+      </View>
     )
   }
 
   return (
     <>
       {!!label && (
-        <Text weight="regular" style={[spacings.mbTy, spacings.mlTy, labelStyle]}>
+        <Text fontSize={16} appearance="secondaryText" style={[spacings.mbTy, labelStyle]}>
           {label}
         </Text>
       )}
@@ -130,33 +111,37 @@ const SelectComponent = ({
           menuPosition="fixed"
           components={{ DropdownIndicator, Option: IconOption, SingleValue: SingleValueIconOption }}
           styles={{
-            dropdownIndicator: (provided) => ({
-              ...provided,
-              ...(flexbox.alignCenter as CSSProperties),
-              padding: 0,
-              margin: 8
-            }),
             indicatorSeparator: () => ({ display: 'none' }),
-            placeholder: (baseStyles) => ({
+            placeholder: (baseStyles) =>
+              ({
+                ...baseStyles,
+                ...common.borderRadiusPrimary,
+                fontSize: 14,
+                color: theme.primaryText
+              } as any),
+            control: (baseStyles) =>
+              ({
+                ...baseStyles,
+                height: 48,
+                background: theme.secondaryBackground,
+                ...common.borderRadiusPrimary,
+                fontSize: 14,
+                color: theme.primaryText,
+                outline: 'none',
+                ...controlStyle
+              } as any),
+            menu: (baseStyles) => ({
               ...baseStyles,
-              ...(common.borderRadiusPrimary as CSSProperties),
-              fontSize: 14,
-              color: theme.primaryText
+              borderRadius: 6,
+              overflow: 'hidden'
             }),
-            control: (baseStyles) => ({
-              ...baseStyles,
-              background: colors.melrose_15,
-              ...(common.borderRadiusPrimary as CSSProperties),
-              fontSize: 14,
-              color: theme.primaryText,
-              ...controlStyle
-            }),
-            option: (baseStyles) => ({
-              ...baseStyles,
-              fontSize: 14,
-              cursor: 'pointer',
-              color: theme.primaryText
-            })
+            option: (baseStyles) =>
+              ({
+                ...baseStyles,
+                fontSize: 14,
+                cursor: 'pointer',
+                color: theme.primaryText
+              } as any)
           }}
           theme={(incomingTheme) => ({
             ...incomingTheme,

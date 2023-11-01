@@ -14,7 +14,7 @@ const colors = {
   darkHeliotrope: '#60358C',
   heliotrope_40: '#AE60FF61',
 
-  lightViolet: '#6000FF1A',
+  lightViolet: '#6000FF4D',
   violet: '#6000FF',
   darkViolet: '#35008C',
   electricViolet: '#923DFF',

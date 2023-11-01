@@ -196,7 +196,7 @@ const SignMessageScreen = () => {
   )
 
   const onSignButtonClick = () => {
-    // If the account has only one signer, we don't need to show the select signer overlay
+    // If the account has only one signer, we don't need to show the keys select
     if (selectedAccountKeyStoreKeys.length === 1) {
       handleChangeSigningKey(
         selectedAccountKeyStoreKeys[0].addr,
@@ -259,7 +259,7 @@ const SignMessageScreen = () => {
             {t("You can't sign messages with view only accounts.")}
           </Text>
         ) : null}
-        {/* 
+        {/*
           zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
           when we show the select signer overlay
         */}

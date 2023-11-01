@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -10,6 +10,7 @@ import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
@@ -22,12 +23,11 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
-import Heading from '@web/modules/sign-account-op/components/Heading'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
@@ -39,11 +39,8 @@ const SignAccountOpScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-
-  const selectedAccountFull = useMemo(
-    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
-    [mainState.accounts, mainState.selectedAccount]
-  )
+  const { styles, theme } = useTheme(getStyles)
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
 
   const hasEstimation = useMemo(
     () => !!signAccountOpState.availableFeeOptions.length,
@@ -179,23 +176,6 @@ const SignAccountOpScreen = () => {
     [dispatch]
   )
 
-  // Set the first key as the selected key
-  useEffect(() => {
-    const firstKey = keystoreState.keys.find((key) =>
-      selectedAccountFull?.associatedKeys.includes(key.addr)
-    )
-
-    if (firstKey) {
-      handleChangeSigningKey(firstKey?.addr, firstKey?.type)
-    }
-  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
-
-  const handleSign = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
-    })
-  }, [dispatch])
-
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
@@ -224,6 +204,46 @@ const SignAccountOpScreen = () => {
     }
   }, [dispatch])
 
+  const handleSign = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+    })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (
+      signAccountOpState.isInitialized &&
+      signAccountOpState.status?.type === SigningStatus.ReadyToSign &&
+      signAccountOpState.accountOp?.signingKeyAddr &&
+      signAccountOpState.accountOp?.signingKeyType
+    ) {
+      handleSign()
+    }
+  }, [
+    handleSign,
+    signAccountOpState.accountOp?.signingKeyAddr,
+    signAccountOpState.accountOp?.signingKeyType,
+    signAccountOpState.isInitialized,
+    signAccountOpState.status?.type
+  ])
+
+  const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
+    account?.associatedKeys.includes(key.addr)
+  )
+
+  const onSignButtonClick = () => {
+    // If the account has only one signer, we don't need to show the select signer overlay
+    if (selectedAccountKeyStoreKeys.length === 1) {
+      handleChangeSigningKey(
+        selectedAccountKeyStoreKeys[0].addr,
+        selectedAccountKeyStoreKeys[0].type
+      )
+      return
+    }
+
+    setIsChooseSignerShown(true)
+  }
+
   if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -236,7 +256,14 @@ const SignAccountOpScreen = () => {
     <TabLayoutWrapperMainContent
       width="full"
       forceCanGoBack
-      pageTitle={<Header account={account} network={network} />}
+      header={
+        <Header
+          networkId={network.id as any}
+          networkName={network.name}
+          selectedAccountAddr={account?.addr}
+          selectedAccountLabel={account?.label}
+        />
+      }
       footer={
         <Footer
           onReject={handleRejectAccountOp}
@@ -247,20 +274,25 @@ const SignAccountOpScreen = () => {
             signAccountOpState.status?.type === SigningStatus.Done ||
             mainState.broadcastStatus === 'LOADING'
           }
-          onSign={handleSign}
+          isChooseSignerShown={isChooseSignerShown}
+          handleChangeSigningKey={handleChangeSigningKey}
+          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          onSign={onSignButtonClick}
         />
       }
     >
       <View style={styles.container}>
         <View style={styles.leftSideContainer}>
           <View style={styles.transactionsContainer}>
-            <Heading text={t('Waiting Transactions')} style={styles.transactionsHeading} />
+            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              {t('Waiting Transactions')}
+            </Text>
             <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-              {callsToVisualize.map((call) => {
+              {callsToVisualize.map((call, i) => {
                 return (
                   <TransactionSummary
                     key={call.data + call.fromUserRequestId}
-                    style={spacings.mbSm}
+                    style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                     call={call}
                     networkId={network.id}
                     explorerUrl={network.explorerUrl}
@@ -270,13 +302,18 @@ const SignAccountOpScreen = () => {
             </ScrollView>
           </View>
           {!!pendingTokens.length && (
-            <View style={styles.pendingTokensContainer}>
-              <View style={styles.pendingTokensSeparatorContainer}>
-                <View style={styles.separatorHorizontal} />
-                <View style={styles.pendingTokensHeadingWrapper}>
-                  <Text fontSize={16}>{t('Balance changes')}</Text>
+            <View style={flexbox.flex1}>
+              <View style={spacings.pr}>
+                <View style={styles.pendingTokensSeparatorContainer}>
+                  <View style={styles.separatorHorizontal} />
+                  <View style={styles.pendingTokensHeadingWrapper}>
+                    <Text fontSize={16} color={theme.secondaryText} weight="medium">
+                      {t('Balance changes')}
+                    </Text>
+                  </View>
                 </View>
               </View>
+
               <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
                 {pendingTokens.map((token) => {
                   return (
@@ -289,11 +326,15 @@ const SignAccountOpScreen = () => {
         </View>
         <View style={styles.separator} />
         <View style={styles.estimationContainer}>
-          <Heading text={t('Estimation')} style={styles.estimationHeading} />
+          <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+            {t('Estimation')}
+          </Text>
           {hasEstimation ? (
             <Estimation networkId={network.id} />
           ) : (
-            <Spinner style={styles.spinner} />
+            <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+              <Spinner style={styles.spinner} />
+            </View>
           )}
         </View>
       </View>

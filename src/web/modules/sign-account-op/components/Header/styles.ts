@@ -1,48 +1,51 @@
-import { StyleSheet, ViewStyle, ImageStyle, TextStyle } from 'react-native'
+import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import text from '@common/styles/utils/text'
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import colors from '@common/styles/colors'
 
 interface Style {
   container: ViewStyle
-  image: ImageStyle
-  addressContainer: ViewStyle
-  address: TextStyle
-  addressLabel: TextStyle
+  content: ViewStyle
+  avatar: ImageStyle
   network: ViewStyle
-  networkText: TextStyle
+  networkIcon: ViewStyle
+  networkName: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  container: {
-    ...flexbox.directionRow,
-    ...flexbox.alignCenter
-  },
-  image: {
-    width: 46,
-    height: 46,
-    marginRight: 14,
-    borderRadius: 12
-  },
-  addressContainer: {
-    marginRight: 23
-  },
-  address: {
-    ...text.left,
-    color: colors.greenHaze
-  },
-  addressLabel: {
-    ...text.left,
-    color: colors.martinique
-  },
-  network: {
-    ...flexbox.directionRow,
-    ...flexbox.alignCenter
-  },
-  networkText: {
-    color: colors.martinique_65
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      ...flexbox.directionRow,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.alignCenter,
+      ...spacings.ph3Xl,
+      ...spacings.pv,
+      backgroundColor: theme.secondaryBackground,
+      borderBottomColor: theme.secondaryBorder,
+      borderBottomWidth: 1
+    },
+    content: { ...flexbox.directionRow, ...flexbox.alignCenter },
+    avatar: {
+      width: 40,
+      height: 40,
+      ...common.borderRadiusPrimary,
+      ...spacings.mrTy
+    },
+    network: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...spacings.mlTy
+    },
+    networkIcon: {
+      width: 40,
+      height: 40,
+      ...common.borderRadiusPrimary,
+      backgroundColor: theme.tertiaryBackground,
+      ...spacings.mlTy
+    },
+    networkName: spacings.mrMi
+  })
 
-export default styles
+export default getStyles

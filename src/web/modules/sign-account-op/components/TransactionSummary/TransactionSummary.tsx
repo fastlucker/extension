@@ -8,17 +8,18 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Label from '@common/components/Label'
-import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   style: ViewStyle
@@ -56,6 +57,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const { dispatch } = useBackgroundService()
+  const { styles } = useTheme(getStyles)
 
   const handleRemoveCall = useCallback(() => {
     dispatch({
@@ -66,7 +68,15 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
 
   const fallbackVisualization = useCallback(() => {
     return (
-      <View style={styles.headerContent}>
+      <View
+        style={[
+          flexbox.flex1,
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.wrap,
+          spacings.mhSm
+        ]}
+      >
         <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
           {t(' Interacting with (to): ')}
         </Text>
@@ -86,7 +96,15 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
       return (
-        <View style={styles.headerContent}>
+        <View
+          style={[
+            flexbox.flex1,
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.wrap,
+            spacings.mhSm
+          ]}
+        >
           {dataToVisualize.map((item, i) => {
             if (!item) return null
 
@@ -188,40 +206,30 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
         </View>
       )
     },
-    [networkId, explorerUrl, t]
+    [networkId, explorerUrl, styles.explorerIcon, t]
   )
 
   return (
     <View style={[styles.container, !!call.warnings?.length && styles.warningContainer, style]}>
       <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
-        <View style={styles.header}>
-          <NavIconWrapper
-            hoverBackground={colors.lightViolet}
-            style={{ borderColor: 'transparent', borderRadius: 10 }}
-            onPress={() => setIsExpanded((prevState) => !prevState)}
-          >
-            <DownArrowIcon width={36} height={36} isActive={isExpanded} withRect />
-          </NavIconWrapper>
-
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
+          <TouchableOpacity onPress={() => setIsExpanded((prevState) => !prevState)}>
+            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
+          </TouchableOpacity>
           {call.fullVisualization
             ? humanizedVisualization(call.fullVisualization)
             : fallbackVisualization()}
           {!!call.fromUserRequestId && (
-            <NavIconWrapper
-              hoverBackground={colors.lightViolet}
-              hoverBorderColor={colors.violet}
-              style={{
-                borderRadius: 10,
-                backgroundColor: 'transparent',
-                borderColor: 'transparent'
-              }}
-              onPress={handleRemoveCall}
-            >
-              <DeleteIcon width={18} height={20} />
-            </NavIconWrapper>
+            <TouchableOpacity onPress={handleRemoveCall}>
+              <DeleteIcon />
+            </TouchableOpacity>
           )}
         </View>
-        <View style={[flexbox.alignSelfStart, spacings.phTy]}>
+        <View
+          style={{
+            paddingHorizontal: 42 // magic number
+          }}
+        >
           {call.warnings?.map((warning) => {
             return (
               <Label key={warning.content + warning.level} text={warning.content} type="warning" />

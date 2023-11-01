@@ -39,7 +39,7 @@ const ThemeColors = {
   },
   secondaryBorder: {
     [THEME_TYPES.DARK]: colors.greenHaze,
-    [THEME_TYPES.LIGHT]: '#B8BDE0'
+    [THEME_TYPES.LIGHT]: '#CACDE6'
   },
   primaryBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
@@ -108,7 +108,8 @@ const ThemeColors = {
 }
 
 export const iconColors = {
-  warning: '#CA7E04'
+  warning: '#CA7E04',
+  primary: '#54597A'
 }
 
 export const lightOnlyRoutesOnMobile = []
