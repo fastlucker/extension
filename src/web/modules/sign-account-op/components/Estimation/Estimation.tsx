@@ -33,11 +33,13 @@ const Estimation = ({ networkId }: Props) => {
   const { theme, styles } = useTheme(getStyles)
 
   const payOptions = useMemo(() => {
-    return signAccountOpState.availableFeeOptions.map((feeOption) => {
+    const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
       const token = portfolioState.accountPortfolio?.tokens.find(
         (t) => t.address === feeOption.address && t.networkId === networkId
       )
+      // TODO: validate - should never happen but there are some cases in which account is undefined
+      if (!account || !token) return undefined
 
       return {
         value: feeOption.paidBy + feeOption.address,
@@ -46,6 +48,8 @@ const Estimation = ({ networkId }: Props) => {
         token
       }
     })
+
+    return opts.filter((opt) => opt)
   }, [
     signAccountOpState.availableFeeOptions,
     mainState.accounts,
@@ -53,14 +57,14 @@ const Estimation = ({ networkId }: Props) => {
     networkId
   ])
 
-  const defaultPayOption = useMemo(
-    () =>
-      payOptions.find(
-        ({ value }: any) =>
-          value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
-      ),
-    [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr]
-  )
+  const defaultPayOption = useMemo(() => {
+    if (!payOptions) return undefined
+
+    return payOptions.find(
+      ({ value }: any) =>
+        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
+    )
+  }, [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
 
   const [payValue, setPayValue] = useState(defaultPayOption)
 
