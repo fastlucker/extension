@@ -10,6 +10,7 @@ import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
@@ -26,7 +27,7 @@ import PendingTokenSummary from '@web/modules/sign-account-op/components/Pending
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
@@ -38,6 +39,7 @@ const SignAccountOpScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const { styles, theme } = useTheme(getStyles)
 
   const selectedAccountFull = useMemo(
     () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
@@ -283,7 +285,9 @@ const SignAccountOpScreen = () => {
                 <View style={styles.pendingTokensSeparatorContainer}>
                   <View style={styles.separatorHorizontal} />
                   <View style={styles.pendingTokensHeadingWrapper}>
-                    <Text fontSize={16}>{t('Balance changes')}</Text>
+                    <Text fontSize={16} color={theme.secondaryText} weight="medium">
+                      {t('Balance changes')}
+                    </Text>
                   </View>
                 </View>
               </View>

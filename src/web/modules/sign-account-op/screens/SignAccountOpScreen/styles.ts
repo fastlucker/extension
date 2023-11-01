@@ -24,73 +24,74 @@ interface Style {
   accountSelectLabel: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  container: {
-    ...flexbox.flex1,
-    ...flexbox.directionRow
-  },
-  leftSideContainer: {
-    flexBasis: '60%'
-  },
-  transactionsContainer: {
-    flex: 1.5
-  },
-  transactionsHeading: {
-    marginBottom: 40
-  },
-  transactionsScrollView: {
-    height: '100%',
-    ...spacings.pr
-  },
-  pendingTokensContainer: {
-    flex: 1
-  },
-  separatorHorizontal: {
-    position: 'absolute',
-    width: '100%',
-    height: 1,
-    backgroundColor: 'black'
-  },
-  pendingTokensSeparatorContainer: {
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...spacings.pbTy,
-    ...spacings.ptSm,
-    ...spacings.mbLg,
-    width: '100%'
-  },
-  pendingTokensHeadingWrapper: {
-    backgroundColor: colors.white,
-    ...spacings.ph
-  },
-  pendingTokensScrollView: {
-    height: '100%',
-    ...spacings.pr
-  },
-  separator: {
-    width: 1,
-    backgroundColor: colors.chetwode_50,
-    ...spacings.mr3Xl,
-    ...spacings.ml2Xl
-  },
-  estimationContainer: {
-    ...flexbox.flex1
-  },
-  estimationHeading: {
-    ...spacings.mbLg
-  },
-  spinner: {
-    alignSelf: 'center'
-  },
-  accountSelect: {
-    ...spacings.mb
-  },
-  accountSelectLabel: {
-    fontSize: 16,
-    fontFamily: FONT_FAMILIES.MEDIUM,
-    marginLeft: 12
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      ...flexbox.flex1,
+      ...flexbox.directionRow
+    },
+    leftSideContainer: {
+      flexBasis: '60%'
+    },
+    transactionsContainer: {
+      flex: 1.5
+    },
+    transactionsHeading: {
+      marginBottom: 40
+    },
+    transactionsScrollView: {
+      height: '100%',
+      ...spacings.pr
+    },
+    pendingTokensContainer: {
+      flex: 1
+    },
+    separatorHorizontal: {
+      position: 'absolute',
+      width: '100%',
+      height: 1,
+      backgroundColor: theme.tertiaryBorder
+    },
+    pendingTokensSeparatorContainer: {
+      backgroundColor: theme.primaryBackground,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...spacings.pbTy,
+      ...spacings.ptSm,
+      ...spacings.mbTy,
+      width: '100%'
+    },
+    pendingTokensHeadingWrapper: {
+      backgroundColor: theme.primaryBackground,
+      ...spacings.ph
+    },
+    pendingTokensScrollView: {
+      height: '100%',
+      ...spacings.pr
+    },
+    separator: {
+      width: 1,
+      backgroundColor: theme.tertiaryBorder,
+      ...spacings.mr3Xl,
+      ...spacings.ml2Xl
+    },
+    estimationContainer: {
+      ...flexbox.flex1
+    },
+    estimationHeading: {
+      ...spacings.mbLg
+    },
+    spinner: {
+      alignSelf: 'center'
+    },
+    accountSelect: {
+      ...spacings.mb
+    },
+    accountSelectLabel: {
+      fontSize: 16,
+      fontFamily: FONT_FAMILIES.MEDIUM,
+      marginLeft: 12
+    }
+  })
 
-export default styles
+export default getStyles

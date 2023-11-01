@@ -5,6 +5,7 @@ import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import Spinner from '@common/components/Spinner'
 import { getTokenIcon } from '@common/services/icons'
 import colors from '@common/styles/colors'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
@@ -61,7 +62,7 @@ const TokenIcon: React.FC<Props> = ({
           width: containerWidth,
           height: containerHeight,
           backgroundColor: colors.white,
-          borderRadius: 10,
+          ...common.borderRadiusPrimary,
           ...flexbox.alignCenter,
           ...flexbox.justifyCenter
         }

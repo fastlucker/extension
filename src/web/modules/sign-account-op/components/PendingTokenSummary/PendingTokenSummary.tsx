@@ -6,10 +6,11 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { PendingToken } from '@ambire-common/libs/portfolio/portfolioView'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   token: PendingToken
@@ -17,6 +18,8 @@ interface Props {
 }
 
 const PendingTokenSummary = ({ token, networkId }: Props) => {
+  const { styles } = useTheme(getStyles)
+
   const priceInUsd = useMemo(() => {
     if (!token.decimals) return null
 

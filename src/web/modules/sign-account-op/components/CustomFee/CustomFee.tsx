@@ -20,7 +20,7 @@ const CustomFee = ({ onPress, style }: Props) => {
       <View style={styles.icon}>
         <EditIcon width={21} height={21} />
       </View>
-      <Text fontSize={14} numberOfLines={1}>
+      <Text fontSize={14} weight="medium" numberOfLines={1}>
         {t('Custom')}
       </Text>
     </FeeWrapper>
