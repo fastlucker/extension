@@ -68,13 +68,13 @@ const getStyles = (theme: ThemeProps) =>
 
     // Button sizes (large/regular/small)
     buttonContainerStylesSizeLarge: {
-      minHeight: 50,
+      minHeight: 56,
       ...spacings.pvMi,
       ...spacings.phXl,
       ...spacings.mb
     },
     buttonContainerStylesSizeRegular: {
-      minHeight: 50,
+      minHeight: 56,
       ...spacings.pvMi,
       ...spacings.phSm,
       ...spacings.mb

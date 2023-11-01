@@ -41,11 +41,6 @@ const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
-  const selectedAccountFull = useMemo(
-    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
-    [mainState.accounts, mainState.selectedAccount]
-  )
-
   const hasEstimation = useMemo(
     () => !!signAccountOpState.availableFeeOptions.length,
     [signAccountOpState.availableFeeOptions]
@@ -182,14 +177,12 @@ const SignAccountOpScreen = () => {
 
   // Set the first key as the selected key
   useEffect(() => {
-    const firstKey = keystoreState.keys.find((key) =>
-      selectedAccountFull?.associatedKeys.includes(key.addr)
-    )
+    const firstKey = keystoreState.keys.find((key) => account?.associatedKeys.includes(key.addr))
 
     if (firstKey) {
       handleChangeSigningKey(firstKey?.addr, firstKey?.type)
     }
-  }, [handleChangeSigningKey, keystoreState.keys, selectedAccountFull?.associatedKeys])
+  }, [handleChangeSigningKey, keystoreState.keys, account?.associatedKeys])
 
   const handleSign = useCallback(() => {
     dispatch({
@@ -241,8 +234,8 @@ const SignAccountOpScreen = () => {
         <Header
           networkId={network.id as any}
           networkName={network.name}
-          selectedAccountAddr={selectedAccountFull?.addr}
-          selectedAccountLabel={selectedAccountFull?.label}
+          selectedAccountAddr={account?.addr}
+          selectedAccountLabel={account?.label}
         />
       }
       footer={
@@ -310,7 +303,9 @@ const SignAccountOpScreen = () => {
           {hasEstimation ? (
             <Estimation networkId={network.id} />
           ) : (
-            <Spinner style={styles.spinner} />
+            <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+              <Spinner style={styles.spinner} />
+            </View>
           )}
         </View>
       </View>

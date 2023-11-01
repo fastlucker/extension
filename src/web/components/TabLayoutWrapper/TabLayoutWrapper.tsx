@@ -89,7 +89,7 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
           {children}
         </View>
       </Wrapper>
-      {footer}
+      <View style={styles.footerContainer}>{footer}</View>
     </View>
   )
 }

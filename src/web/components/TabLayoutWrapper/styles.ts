@@ -9,6 +9,7 @@ interface Style {
   informationCircle: ViewStyle
   amebaAlpha: ViewStyle
   amebaBeta: ViewStyle
+  footerContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -46,6 +47,10 @@ const styles = StyleSheet.create<Style>({
     bottom: -1050,
     marginRight: -825,
     zIndex: -1
+  },
+  footerContainer: {
+    maxHeight: 128,
+    flex: 1
   }
 })
 

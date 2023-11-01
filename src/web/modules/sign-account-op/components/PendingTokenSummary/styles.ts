@@ -13,11 +13,12 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       borderWidth: 1,
-      ...common.borderRadiusPrimary,
+      height: 36,
       borderColor: theme.tertiaryBorder,
+      ...common.borderRadiusPrimary,
+      ...flexbox.alignCenter,
       ...flexbox.directionRow,
       ...spacings.phTy,
-      ...spacings.pvMi,
       ...spacings.mbTy
     }
   })

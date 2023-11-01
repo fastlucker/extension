@@ -1,8 +1,8 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
