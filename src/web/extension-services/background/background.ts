@@ -62,6 +62,8 @@ async function init() {
 
   const mainCtrl = new MainController({
     storage,
+    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
+    // binding window to fetch provides the correct context
     fetch: window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
