@@ -36,8 +36,8 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome'),
-      web: ''
+      default: i18n.t('Welcome to Ambire'),
+      web: i18n.t('Welcome to Ambire')
     })
   },
   [ROUTES.terms]: {

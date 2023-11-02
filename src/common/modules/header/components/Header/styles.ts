@@ -1,7 +1,6 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -37,7 +36,7 @@ const getStyles = (theme: ThemeProps) =>
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: theme.secondaryBackground,
-      ...spacings.ph,
+      ...spacings.ph4Xl,
       ...spacings.pv,
       ...(isWeb ? { height: 90 } : {})
     },

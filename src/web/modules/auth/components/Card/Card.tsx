@@ -7,6 +7,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
@@ -38,17 +39,17 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
         style
       ]}
     >
-      {({ hovered }: any) => (
+      {() => (
         <>
-          {Icon && <Icon color={hovered ? theme.primary : colors.melrose} />}
+          {Icon && <Icon color={iconColors.primary} />}
           {image && <Image source={image.source} style={image.style} resizeMode="contain" />}
           {title && (
-            <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={16}>
+            <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={18}>
               {t(title)}
             </Text>
           )}
           {text && (
-            <Text style={[spacings.mb, flexbox.flex1]} fontSize={12}>
+            <Text style={[spacings.mb, flexbox.flex1]} fontSize={14} appearance="secondaryText">
               <Trans>{text}</Trans>
             </Text>
           )}

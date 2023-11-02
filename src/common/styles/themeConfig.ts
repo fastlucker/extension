@@ -109,7 +109,8 @@ const ThemeColors = {
 
 export const iconColors = {
   warning: '#CA7E04',
-  primary: '#54597A'
+  primary: '#54597A',
+  secondary: colors.martinique
 }
 
 export const lightOnlyRoutesOnMobile = []

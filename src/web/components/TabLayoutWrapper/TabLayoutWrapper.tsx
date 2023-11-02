@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import React, { createContext, useContext } from 'react'
-import { View, ViewProps } from 'react-native'
+import { ColorValue, View, ViewProps } from 'react-native'
 import { Outlet } from 'react-router-dom'
 
 import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -27,6 +28,7 @@ type Width = 'sm' | 'md' | 'lg' | 'full'
 
 interface Props {
   width?: Width
+  backgroundColor?: ColorValue
   hideStepper?: boolean
   hideHeader?: boolean
   pageTitle?: string | React.ReactNode
@@ -46,6 +48,7 @@ const widthConf = {
 
 export const TabLayoutWrapperMainContent: React.FC<Props> = ({
   width = 'sm',
+  backgroundColor,
   hideStepper = false,
   hideHeader = false,
   pageTitle = '',
@@ -56,13 +59,13 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
   footer
 }: Props) => {
   const context = useContext(TabLayoutWrapperContext)
-
+  const { theme } = useTheme()
   if (!context) {
     throw new Error('Should be used in AuthLayoutWrapper component!')
   }
 
   return (
-    <View style={[flexbox.flex1, { backgroundColor: colors.white }]}>
+    <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
       {!hideHeader &&
         (header || (
           <TabHeader
@@ -89,7 +92,7 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
           {children}
         </View>
       </Wrapper>
-      <View style={styles.footerContainer}>{footer}</View>
+      {!!footer && <View style={styles.footerContainer}>{footer}</View>}
     </View>
   )
 }
