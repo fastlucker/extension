@@ -447,8 +447,8 @@ async function init() {
               }
 
               const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ eoaAddress, slot, index }) => ({
-                  addr: eoaAddress,
+                ({ accountKeyAddr, slot, index }) => ({
+                  addr: accountKeyAddr,
                   type: keyType,
                   label: `${keyWalletNames[keyType]} on slot ${slot}`,
                   meta: {
