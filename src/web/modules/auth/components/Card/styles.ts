@@ -12,6 +12,7 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     width: 290,
+    minHeight: 368,
     backgroundColor: colors.melrose_15,
     ...flexbox.alignCenter,
     borderRadius: 12,

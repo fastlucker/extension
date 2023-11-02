@@ -1,6 +1,6 @@
-import grid from '@common/assets/images/GRID-Lattice.png'
-import ledger from '@common/assets/images/ledger.png'
-import trezor from '@common/assets/images/trezor.png'
+import LatticeIcon from '@common/assets/svg/LatticeIcon'
+import LedgerIcon from '@common/assets/svg/LedgerIcon'
+import TrezorIcon from '@common/assets/svg/TrezorIcon'
 
 type Props = {
   onTrezorPress: () => void
@@ -12,19 +12,19 @@ const getOptions = ({ onTrezorPress, onLedgerPress, onGridPlusPress }: Props) =>
   {
     title: 'Trezor',
     text: 'Trezor Model T, Trezor One',
-    image: trezor,
+    image: () => <TrezorIcon height={80} />,
     onPress: onTrezorPress
   },
   {
     title: 'Ledger',
     text: 'Ledger Nano, Ledger Nano X, Ledger Nano S Plus, Ledger Stax',
-    image: ledger,
+    image: () => <LedgerIcon height={80} />,
     onPress: onLedgerPress
   },
   {
     title: 'GRID+',
     text: 'GRID+ Lattice',
-    image: grid,
+    image: () => <LatticeIcon height={80} />,
     onPress: onGridPlusPress
   }
 ]

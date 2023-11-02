@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
-import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
@@ -21,7 +20,6 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -30,12 +28,18 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 interface Props {
-  mode?: 'title' | 'controls'
+  mode?: 'title' | 'controls' | 'custom' | 'custom-inner-content'
   withBackButton?: boolean
   withAmbireLogo?: boolean
+  children?: any
 }
 
-const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, withAmbireLogo }) => {
+const Header: React.FC<Props> = ({
+  mode = 'controls',
+  withBackButton = true,
+  withAmbireLogo,
+  children
+}) => {
   const { theme, styles } = useTheme(getStyles)
   const mainCtrl = useMainControllerState()
 
@@ -111,20 +115,20 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   )
 
   const navigationEnabled = !getUiType().isNotification
-  let canGoBack =
-    // If you have a location key that means you routed in-app. But if you
-    // don't that means you come from outside of the app or you just open it.
-    (params?.prevRoute?.key !== 'default' ||
+
+  const canGoBack =
+    (params?.prevRoute?.key !== 'default' || // default is the initial value for key
       /* Because of window.history.pushState, used in the Tabs component, the
        prevRoute.key gets set to 'default' when you navigate to another route from the dashboard,
        which hides the back button in the header. */
       params?.prevRoute?.pathname === `/${ROUTES.dashboard}`) &&
     params?.prevRoute?.pathname !== '/' &&
+    path !== '/get-started' &&
     navigationEnabled
 
-  if (isExtension && getUiType().isTab) {
-    canGoBack = true
-  }
+  // if (isExtension && getUiType().isTab) {
+  //   canGoBack = true
+  // }
 
   useEffect(() => {
     if (!path) return
@@ -142,20 +146,16 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
   }, [])
 
   const renderBackButton = () => {
-    if (canGoBack) {
-      return (
-        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
-            <LeftArrowIcon width={36} height={36} />
-          </NavIconWrapper>
-          <Text style={spacings.plTy} fontSize={16} weight="medium">
-            {t('Back')}
-          </Text>
-        </View>
-      )
-    }
-
-    return null
+    return (
+      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+        <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
+          <LeftArrowIcon width={36} height={36} />
+        </NavIconWrapper>
+        <Text style={spacings.plTy} fontSize={16} weight="medium">
+          {t('Back')}
+        </Text>
+      </View>
+    )
   }
 
   // Using the `<Header />` from the '@react-navigation/elements' created
@@ -170,25 +170,31 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
       {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
       {mode === 'title' && (
         <>
-          {!withAmbireLogo && (
-            <View style={styles.sideContainer}>
-              {!!withBackButton && !!canGoBack && renderBackButton()}
-            </View>
-          )}
+          <View style={styles.sideContainer}>
+            {!!withBackButton && !!canGoBack && renderBackButton()}
+          </View>
           <View style={styles.containerInner}>
-            {!!withAmbireLogo && <View style={styles.sideContainer} />}
             <Text fontSize={30} style={styles.title} numberOfLines={2}>
               {title || ''}
             </Text>
-            {!!withAmbireLogo && (
-              <View style={[styles.sideContainer, flexboxStyles.alignEnd]}>
-                <AmbireLogoHorizontal width={72} />
-              </View>
-            )}
           </View>
-          {!withAmbireLogo && <View style={styles.sideContainer} />}
+          <View style={[styles.sideContainer, flexboxStyles.alignEnd]}>
+            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+          </View>
         </>
       )}
+      {mode === 'custom-inner-content' && (
+        <>
+          <View style={styles.sideContainer}>
+            {!!withBackButton && !!canGoBack && renderBackButton()}
+          </View>
+          <View style={styles.containerInner}>{children}</View>
+          <View style={[styles.sideContainer, flexboxStyles.alignEnd]}>
+            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+          </View>
+        </>
+      )}
+      {mode === 'custom' && children}
     </View>
   )
 }

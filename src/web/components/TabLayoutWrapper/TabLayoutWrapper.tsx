@@ -6,7 +6,6 @@ import { Outlet } from 'react-router-dom'
 import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import Ameba from '@web/components/TabLayoutWrapper/Ameba'
@@ -39,7 +38,7 @@ interface Props {
   footer?: React.ReactNode
 }
 
-const widthConf = {
+export const tabLayoutWidths = {
   sm: 770,
   md: 900,
   lg: 1000,
@@ -86,7 +85,7 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
             // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
             // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
             // This should not have any impact on the other screens.
-            { maxWidth: widthConf[width], width: '100%', height: '100%' }
+            { maxWidth: tabLayoutWidths[width], width: '100%', height: '100%' }
           ]}
         >
           {children}

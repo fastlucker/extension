@@ -1,16 +1,22 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
-import Text from '@common/components/Text'
+import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import {
+  tabLayoutWidths,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import Stepper from '@web/modules/router/components/Stepper'
 
 import HardwareWalletSelectorItem from '../../components/HardwareWalletSelectorItem'
 import getOptions from './options'
@@ -21,6 +27,7 @@ const HardwareWalletSelectorScreen = () => {
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
+  const { theme } = useTheme()
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
@@ -64,15 +71,20 @@ const HardwareWalletSelectorScreen = () => {
   )
 
   return (
-    <TabLayoutWrapperMainContent width="md">
-      <View style={[flexbox.center]}>
-        <Text fontSize={16} style={[spacings.mvLg, flexbox.alignSelfCenter]} weight="medium">
-          {t('Choose Hardware Wallet')}
-        </Text>
+    <TabLayoutWrapperMainContent
+      width="lg"
+      backgroundColor={theme.secondaryBackground}
+      header={
+        <Header mode="custom-inner-content" withBackButton withAmbireLogo>
+          <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
+        </Header>
+      }
+    >
+      <Panel title={t('Choose Hardware Wallet')}>
         <View style={[flexbox.directionRow]}>
           {options.map((option, index) => (
             <HardwareWalletSelectorItem
-              style={index === 1 ? spacings.mhSm : {}}
+              style={[flexbox.flex1, index === 1 ? spacings.mh : {}]}
               key={option.title}
               title={option.title}
               text={option.text}
@@ -81,7 +93,7 @@ const HardwareWalletSelectorScreen = () => {
             />
           ))}
         </View>
-      </View>
+      </Panel>
     </TabLayoutWrapperMainContent>
   )
 }

@@ -76,7 +76,7 @@ const GetStartedScreen = () => {
             )}
             style={flexboxStyles.flex1}
             icon={HWIcon}
-            buttonText={t('"Import From Hardware Wallet')}
+            buttonText={t('Import From Hardware Wallet')}
             onPress={() => handleAuthButtonPress('hw')}
           />
           <Card

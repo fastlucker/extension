@@ -58,8 +58,8 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phTy
     },
     sideContainer: {
-      width: isWeb ? 180 : 120,
-      minWidth: isWeb ? 180 : 120
+      width: 120,
+      minWidth: 120
     },
     // Account
     account: {

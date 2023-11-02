@@ -1,6 +1,6 @@
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Image, ImageProps, ImageStyle, Pressable, ViewProps } from 'react-native'
+import { Pressable, TextStyle, ViewStyle } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -14,19 +14,24 @@ import textStyles from '@common/styles/utils/text'
 import styles from './styles'
 
 interface Props {
-  style?: ViewProps['style']
+  style?: ViewStyle | ViewStyle[]
   text?: string | React.ReactNode
+  textStyle?: TextStyle | TextStyle[]
   title?: string
   icon?: any
-  image?: {
-    source: ImageProps['source']
-    style: ImageStyle
-  }
   onPress?: () => void
   buttonText?: string
 }
 
-const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress, buttonText }) => {
+const Card: React.FC<Props> = ({
+  style,
+  text,
+  title,
+  textStyle,
+  icon: Icon,
+  onPress,
+  buttonText
+}) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
 
@@ -41,19 +46,22 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
     >
       {() => (
         <>
-          {Icon && <Icon color={iconColors.primary} />}
-          {image && <Image source={image.source} style={image.style} resizeMode="contain" />}
-          {title && (
+          {!!Icon && <Icon color={iconColors.primary} />}
+          {!!title && (
             <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={18}>
               {t(title)}
             </Text>
           )}
-          {text && (
-            <Text style={[spacings.mb, flexbox.flex1]} fontSize={14} appearance="secondaryText">
+          {!!text && (
+            <Text
+              style={[spacings.mb, flexbox.flex1, textStyle]}
+              fontSize={14}
+              appearance="secondaryText"
+            >
               <Trans>{text}</Trans>
             </Text>
           )}
-          {buttonText && (
+          {!!buttonText && (
             <Button
               textStyle={{ fontSize: 14 }}
               style={{ width: '100%' }}
