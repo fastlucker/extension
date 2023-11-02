@@ -67,7 +67,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
       height: 40,
-      maxWidth: 464,
+      maxWidth: 412,
       ...spacings.phMi,
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,

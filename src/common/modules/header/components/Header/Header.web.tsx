@@ -57,11 +57,11 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
           <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
           <View style={styles.accountAddressAndLabel}>
             {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
-            <Text weight="semiBold" fontSize={16}>
+            <Text weight="number_bold" fontSize={14}>
               {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
             </Text>
-            <Text weight="medium" style={styles.accountButtonInfoText} fontSize={16}>
-              ({shortenAddress(selectedAccount, 24)})
+            <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
+              ({shortenAddress(selectedAccount, 27)})
             </Text>
           </View>
         </View>
