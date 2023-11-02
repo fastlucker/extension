@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -118,12 +119,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
             let privateKey = privKeyOrSeed
 
-            // in case props.privKeyOrSeed is a seed the private keys have to be extracted
-            if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
+            // In case it is a seed, the private keys have to be extracted
+            const isSeed =
+              !isValidPrivateKey(privKeyOrSeed) && Mnemonic.isValidMnemonic(privKeyOrSeed)
+            if (isSeed) {
               privateKey = getPrivateKeyFromSeed(
                 privKeyOrSeed,
-                // The slot is the key index from the derivation path
-                acc.slot - 1,
+                acc.index,
                 // should always be provided, otherwise it would have thrown an error above
                 accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
