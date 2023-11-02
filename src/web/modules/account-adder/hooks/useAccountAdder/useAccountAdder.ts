@@ -1,9 +1,15 @@
-import { Mnemonic } from 'ethers'
+import { ethers, Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
-import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import {
+  HD_PATH_TEMPLATE_TYPE,
+  SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+} from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
+import {
+  derivePrivateKeyFromAnotherPrivateKey,
+  isValidPrivateKey
+} from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -120,15 +126,21 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             let privateKey = privKeyOrSeed
 
             // In case it is a seed, the private keys have to be extracted
-            const isSeed =
-              !isValidPrivateKey(privKeyOrSeed) && Mnemonic.isValidMnemonic(privKeyOrSeed)
-            if (isSeed) {
+            if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
               privateKey = getPrivateKeyFromSeed(
                 privKeyOrSeed,
                 acc.index,
                 // should always be provided, otherwise it would have thrown an error above
                 accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
+            }
+
+            // Private keys for accounts used as smart account keys should be derived
+            const isPrivateKeyThatShouldBeDerived =
+              isValidPrivateKey(privKeyOrSeed) &&
+              acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+            if (isPrivateKeyThatShouldBeDerived) {
+              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
             return {
