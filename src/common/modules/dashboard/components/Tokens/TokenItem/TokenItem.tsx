@@ -43,7 +43,6 @@ const TokenItem = ({
 
   return (
     <Pressable
-      // className={rewards || vesting ? 'rewards-token-container' : 'token-container'}
       style={({ hovered }: any) => [styles.container, hovered ? styles.containerHovered : {}]}
     >
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
