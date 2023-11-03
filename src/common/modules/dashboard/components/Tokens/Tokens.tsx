@@ -107,32 +107,15 @@ const Tokens = ({ tokens, searchValue }: Props) => {
                 USD VALUE
               </Text>
             </View>
-            {sortedTokens.map(
-              ({
-                address,
-                amount,
-                decimals,
-                networkId,
-                priceIn,
-                symbol,
-                flags: { onGasTank, rewardsType, canTopUpGasTank, isFeeToken }
-              }: TokenResult) => (
-                <TokenItem
-                  key={`${address}-${networkId}-${onGasTank ? 'gas-tank' : 'token'}`}
-                  address={address}
-                  amount={amount}
-                  decimals={decimals}
-                  networkId={networkId}
-                  priceIn={priceIn}
-                  symbol={symbol}
-                  onGasTank={onGasTank}
-                  rewardsType={rewardsType}
-                  canTopUpGasTank={canTopUpGasTank}
-                  isFeeToken={isFeeToken}
-                  handleTokenSelect={handleSelectToken}
-                />
-              )
-            )}
+            {sortedTokens.map((token: TokenResult) => (
+              <TokenItem
+                key={`${token?.address}-${token?.networkId}-${
+                  token?.flags?.onGasTank ? 'gas-tank' : 'token'
+                }`}
+                token={token}
+                handleTokenSelect={handleSelectToken}
+              />
+            ))}
           </View>
         )}
       </View>

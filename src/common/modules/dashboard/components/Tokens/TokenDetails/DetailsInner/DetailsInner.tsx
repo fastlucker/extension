@@ -1,4 +1,3 @@
-import { formatUnits } from 'ethers'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
@@ -15,10 +14,10 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
-import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
+import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
@@ -92,23 +91,20 @@ const DetailsInner = ({
   if (!token) return null
 
   const {
-    flags: { rewardsType, onGasTank },
+    flags: { onGasTank },
     networkId,
-    priceIn,
-    amount,
-    decimals,
     symbol,
     address
   } = token
 
-  const rewards = rewardsType === 'wallet-rewards'
-  const vesting = rewardsType === 'wallet-vesting'
-  const networkData = networks.find(({ id }) => networkId === id)
-
-  const balance = parseFloat(formatUnits(amount, decimals))
-  const price =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
-  const balanceUSD = balance * price
+  const {
+    balanceFormatted,
+    priceUSDFormatted,
+    balanceUSDFormatted,
+    isRewards,
+    isVesting,
+    networkData
+  } = getTokenDetails(token)
 
   return (
     <View>
@@ -137,29 +133,29 @@ const DetailsInner = ({
             </Text>
             <View style={styles.network}>
               <Text weight="regular" shouldScale={false} fontSize={16}>
-                {rewards && t('rewards for claim')}
-                {vesting && t('claimable early supporters vesting')}
-                {!rewards && !vesting && t('on')}{' '}
+                {isRewards && t('rewards for claim')}
+                {isVesting && t('claimable early supporters vesting')}
+                {!isRewards && !isVesting && t('on')}{' '}
               </Text>
               <Text weight="regular" style={spacings.mrMi} fontSize={16}>
                 {onGasTank && t('Gas Tank')}
-                {!onGasTank && !rewards && !vesting && networkData?.name}
+                {!onGasTank && !isRewards && !isVesting && networkData?.name}
               </Text>
               {onGasTank && <GasTankIcon width={20} height={20} color={theme.primary} />}
-              {!onGasTank && !rewards && !vesting && (
+              {!onGasTank && !isRewards && !isVesting && (
                 <NetworkIcon name={networkId} style={styles.networkIcon} />
               )}
             </View>
           </View>
           <View style={styles.balance}>
             <Text style={spacings.mrMi} fontSize={16} weight="number_bold" numberOfLines={1}>
-              {balance.toFixed(balance < 1 ? 8 : 4)} {symbol}
+              {balanceFormatted} {symbol}
             </Text>
             <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
-              ≈ ${balanceUSD.toFixed(balanceUSD < 1 ? 4 : 2)}
+              ≈ ${balanceUSDFormatted}
             </Text>
             <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-              (1 ${symbol} ≈ ${price.toFixed(price < 1 ? 4 : 2)})
+              (1 ${symbol} ≈ ${priceUSDFormatted})
             </Text>
           </View>
         </View>
