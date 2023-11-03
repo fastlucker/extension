@@ -5,8 +5,7 @@ import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import { getTokenIcon } from '@common/services/icons'
-import colors from '@common/styles/colors'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
@@ -64,7 +63,7 @@ const TokenIcon: React.FC<Props> = ({
           width: containerWidth,
           height: containerHeight,
           backgroundColor: theme.secondaryBackground,
-          borderRadius: BORDER_RADIUS_PRIMARY,
+          ...common.borderRadiusPrimary,
           ...flexbox.alignCenter,
           ...flexbox.justifyCenter
         }

@@ -99,7 +99,7 @@ const AccountSelectScreen = () => {
                       <Text
                         fontSize={12}
                         weight="regular"
-                        color={account.creation ? colors.greenHaze : colors.brownRum}
+                        color={account.creation ? colors.greenHaze : colors.husk}
                       >
                         {shortenAddress(account.addr, 25)}
                       </Text>
@@ -112,7 +112,7 @@ const AccountSelectScreen = () => {
                         weight="regular"
                         fontSize={10}
                         numberOfLines={1}
-                        color={account.creation ? colors.greenHaze : colors.brownRum}
+                        color={account.creation ? colors.greenHaze : colors.husk}
                       >
                         {account.creation ? 'Smart Account' : 'Legacy Account'}
                       </Text>

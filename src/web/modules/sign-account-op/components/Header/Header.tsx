@@ -1,39 +1,58 @@
-import React from 'react'
+import React, { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
-import EthereumLogo from '@common/assets/svg/EthereumLogo'
+// @ts-ignore
+import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import NetworkIcon from '@common/components/NetworkIcon'
+import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
-import shortenAddress from '@web/utils/shortenAddress'
+import useTheme from '@common/hooks/useTheme'
 
-import styles from './styles'
+import getStyles from './styles'
 
-const Header = () => {
+interface Props {
+  networkName?: string
+  networkId?: NetworkIconNameType
+  selectedAccountAddr?: string
+  selectedAccountLabel?: string
+}
+const Header: FC<Props> = ({
+  networkName,
+  networkId,
+  selectedAccountAddr,
+  selectedAccountLabel
+}) => {
   const { t } = useTranslation()
+  const { styles } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: 'https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600' }}
-        style={styles.image}
-      />
-      <View style={styles.addressContainer}>
-        <Text fontSize={16} style={styles.address}>
-          {shortenAddress('0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F', 27)}
+      <View style={styles.content}>
+        <Image style={styles.avatar} source={avatarSpace} resizeMode="contain" />
+        <Text appearance="secondaryText" weight="medium" fontSize={16}>
+          {selectedAccountLabel}{' '}
         </Text>
-        <Text fontSize={16} weight="semiBold" style={styles.addressLabel}>
-          Account.Label.eth
+        <Text appearance="primaryText" weight="medium" fontSize={16}>
+          ({selectedAccountAddr}){' '}
         </Text>
+        <View style={styles.network}>
+          <Text appearance="secondaryText" weight="regular" fontSize={16}>
+            {t('on')}{' '}
+          </Text>
+          <Text
+            appearance="secondaryText"
+            weight="regular"
+            style={styles.networkName}
+            fontSize={16}
+          >
+            {networkName || t('Unknown network')}
+          </Text>
+          {networkId ? <NetworkIcon name={networkId} style={styles.networkIcon} /> : null}
+        </View>
       </View>
-      <View style={styles.network}>
-        <Text fontSize={14} style={styles.networkText}>
-          {t('on')}
-        </Text>
-        <EthereumLogo />
-        <Text fontSize={14} style={styles.networkText}>
-          Ethereum
-        </Text>
-      </View>
+      <AmbireLogoHorizontal />
     </View>
   )
 }

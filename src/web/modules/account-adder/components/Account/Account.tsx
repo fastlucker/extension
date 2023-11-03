@@ -86,7 +86,7 @@ const Account = ({
             <Text
               weight="regular"
               fontSize={12}
-              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
+              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.husk}
               style={[spacings.mbMi, flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
@@ -106,7 +106,7 @@ const Account = ({
             <Text
               fontSize={14}
               weight="semiBold"
-              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}
+              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.husk}
               style={[flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >

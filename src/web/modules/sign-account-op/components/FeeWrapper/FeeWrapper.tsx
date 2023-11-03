@@ -8,17 +8,21 @@ import getStyles from './styles'
 
 interface Props {
   children: React.ReactNode
-  onPress: () => void
+  type: string
+  onPress: (type: string) => void
   style?: ViewStyle
+  isSelected: boolean
 }
 
-const FeeWrapper = ({ children, onPress, style }: Props) => {
+const FeeWrapper = ({ children, type, onPress, style, isSelected }: Props) => {
   const { styles } = useTheme(getStyles)
 
   return (
-    <Pressable style={[flexbox.flex1, style]} onPress={onPress}>
+    <Pressable style={[flexbox.flex1, style]} onPress={() => onPress(type)}>
       {({ hovered }: any) => (
-        <View style={[styles.container, !!hovered && styles.containerHover]}>{children}</View>
+        <View style={[styles.container, (!!hovered || isSelected) && styles.active]}>
+          {children}
+        </View>
       )}
     </Pressable>
   )
