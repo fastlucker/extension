@@ -25,7 +25,8 @@ const TokenItem = ({
   address,
   networkId,
   onGasTank,
-  rewardsType
+  rewardsType,
+  handleTokenSelect
 }: any) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -43,6 +44,7 @@ const TokenItem = ({
 
   return (
     <Pressable
+      onPress={() => handleTokenSelect({ address, networkId, flags: { onGasTank } })}
       style={({ hovered }: any) => [styles.container, hovered ? styles.containerHovered : {}]}
     >
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
