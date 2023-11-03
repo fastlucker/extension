@@ -30,8 +30,8 @@ const getStyles = (theme: ThemeProps) =>
     balance: { ...flexbox.directionRow },
     network: { ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.mlSm },
     networkIcon: {
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       backgroundColor: theme.secondaryBackground,
       borderRadius: 12
     },

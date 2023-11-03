@@ -11,6 +11,7 @@ import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
@@ -70,8 +71,13 @@ const actions = [
       onPress: () => {},
       isDisabled: true
     },
+    {
+      text: 'Withdraw',
+      icon: WithdrawIcon,
+      onPress: () => {},
+      isDisabled: true
+    },
     // Empty buttons to fill the space
-    null,
     null
   ]
 ]
