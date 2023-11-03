@@ -19,7 +19,7 @@ import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -41,13 +41,13 @@ const actions = [
       text: 'Swap',
       icon: SwapIcon,
       onPress: ({ networkId, address }: TokenResult) =>
-        openInTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+        createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
       isDisabled: false
     },
     {
       text: 'Bridge',
       icon: BridgeIcon,
-      onPress: () => openInTab('https://www.bungee.exchange/'),
+      onPress: () => createTab('https://www.bungee.exchange/'),
       isDisabled: false
     },
     {
@@ -98,6 +98,7 @@ const DetailsInner = ({
   } = token
 
   const {
+    balance,
     balanceFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
@@ -189,8 +190,11 @@ const DetailsInner = ({
 
             return (
               <Button
-                disabled={isDisabled}
-                onPress={() => onPress({ ...token, navigate })}
+                disabled={isDisabled || balance === 0}
+                onPress={() => {
+                  onPress({ ...token, navigate })
+                  handleClose()
+                }}
                 text={text}
                 size={isTab ? 'regular' : 'small'}
                 type="secondary"

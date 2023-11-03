@@ -13,7 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { openInTab } from '@web/extension-services/background/webapi/tab'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 
 const Routes = () => {
   const { theme } = useTheme()
@@ -42,7 +42,7 @@ const Routes = () => {
           <NavIconWrapper
             onPress={() => {
               if (routeItem.isExternal) {
-                openInTab(routeItem.route)
+                createTab(routeItem.route)
                 return
               }
               navigate(routeItem.route)

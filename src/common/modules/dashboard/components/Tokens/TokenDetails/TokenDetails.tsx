@@ -28,6 +28,7 @@ const TokenDetails = ({
 
   const { styles } = useTheme(getStyles)
 
+  // If we don't debounce the token the exit animation won't work properly.
   useEffect(() => {
     if (!debouncedToken && token) {
       setDebouncedToken(token)
