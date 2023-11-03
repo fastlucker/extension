@@ -5,20 +5,24 @@ import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 import Button from '@common/components/Button'
+import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 
-const ConnectLedgerScreen = () => {
+type Props = {
+  isOpen: boolean
+  onClose: () => void
+}
+
+const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
@@ -29,7 +33,7 @@ const ConnectLedgerScreen = () => {
     updateStepperState('connect-hardware-wallet', 'hw')
   }, [updateStepperState])
 
-  const onSubmit = async () => {
+  const onPressNext = async () => {
     const supportWebHID = await TransportWebHID.isSupported()
     const hasConnectedLedger = await hasConnectedLedgerDevice()
 
@@ -59,57 +63,36 @@ const ConnectLedgerScreen = () => {
             isWebHID: true
           }
         })
-      } catch (e) {}
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
   return (
-    <TabLayoutWrapperMainContent width="md">
-      <Text weight="medium" fontSize={16} style={[spacings.mvLg, flexbox.alignSelfCenter]}>
-        {t('Login with Hardware Wallet')}
-      </Text>
-
-      <View style={[flexbox.flex1]}>
-        <View
-          style={{
-            backgroundColor: colors.melrose_15,
-            paddingTop: 50,
-            paddingBottom: 50,
-            borderRadius: 12
-          }}
-        >
-          <Text weight="medium" style={[spacings.mbSm, flexbox.alignSelfCenter]} fontSize={20}>
-            {t('Connect your HW wallet')}
-          </Text>
-          <View style={{ minWidth: 420, ...flexbox.alignSelfCenter }}>
-            <Text weight="regular" style={spacings.mbTy} fontSize={14}>
-              {t('1. Plug your Trezor / Ledger wallet into your computer')}
-            </Text>
-            <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
-              {t('2. Unlock Trezor / Ledger and open the Ambire extension')}
-            </Text>
-          </View>
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignSelfCenter,
-              flexbox.alignCenter,
-              spacings.mbLg
-            ]}
-          >
-            <DriveIcon style={spacings.mrLg} />
-            <LeftPointerArrowIcon style={spacings.mrLg} />
-            <AmbireDevice />
-          </View>
-          <Button
-            text="Next"
-            style={{ width: 264, ...flexbox.alignSelfCenter }}
-            onPress={onSubmit}
-          />
-        </View>
+    <Modal title={t('Connect your HW wallet')} isOpen={isOpen} onClose={onClose}>
+      <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
+        <Text weight="regular" style={spacings.mbTy} fontSize={14}>
+          {t('1. Plug your Ledger device into your computer')}
+        </Text>
+        <Text weight="regular" fontSize={14} style={{ marginBottom: 40 }}>
+          {t('2. Unlock your Ledger and open the Ethereum app')}
+        </Text>
       </View>
-    </TabLayoutWrapperMainContent>
+      <View
+        style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mb3Xl]}
+      >
+        <DriveIcon style={spacings.mrLg} />
+        <LeftPointerArrowIcon style={spacings.mrLg} />
+        <AmbireDevice />
+      </View>
+      <Button
+        text={t('Next')}
+        style={{ width: 264, ...flexbox.alignSelfCenter }}
+        onPress={onPressNext}
+      />
+    </Modal>
   )
 }
 
-export default ConnectLedgerScreen
+export default LedgerConnectModal

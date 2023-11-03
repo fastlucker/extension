@@ -28,7 +28,6 @@ import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
-import ConnectLedgerScreen from '@web/modules/hardware-wallet/screens/ConnectLedgerScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
@@ -107,13 +106,10 @@ const MainRoutes = () => {
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
             />
-            <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
-
             <Route
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
             />
-            <Route path={WEB_ROUTES.hardwareWalletLedger} element={<ConnectLedgerScreen />} />
             <Route
               path={WEB_ROUTES.viewOnlyAccountAdder}
               element={<ViewOnlyAccountAdderScreen />}

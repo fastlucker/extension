@@ -1,7 +1,7 @@
 import React from 'react'
-import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 interface Props extends SvgProps {
   width?: number
@@ -12,9 +12,9 @@ interface Props extends SvgProps {
 }
 
 const LeftArrowIcon: React.FC<Props> = ({
-  width = 40,
-  height = 40,
-  color = colors.violet,
+  width = 36,
+  height = 36,
+  color = iconColors.primary,
   disabled = false,
   ...props
 }) => (

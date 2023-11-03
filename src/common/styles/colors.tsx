@@ -73,7 +73,11 @@ const colors = {
   quartz: '#d7daf0',
 
   white: '#FFFFFF',
-  black: '#000000'
+  black: '#000000',
+
+  // TODO: move all new palette below and remove the rest of redundant colors
+  comet: '#54597A',
+  comet_80: '#54597ACC'
 }
 
 export default colors

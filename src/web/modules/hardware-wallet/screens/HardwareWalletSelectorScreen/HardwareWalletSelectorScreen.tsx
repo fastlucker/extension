@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import Panel from '@common/components/Panel'
@@ -19,6 +19,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
 import HardwareWalletSelectorItem from '../../components/HardwareWalletSelectorItem'
+import LedgerConnectModal from '../../components/LedgerConnectModal'
 import getOptions from './options'
 
 const HardwareWalletSelectorScreen = () => {
@@ -28,6 +29,7 @@ const HardwareWalletSelectorScreen = () => {
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
   const { theme } = useTheme()
+  const [ledgerModalOpened, setLedgerModalOpened] = useState(false)
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
@@ -48,8 +50,9 @@ const HardwareWalletSelectorScreen = () => {
 
   const onLedgerPress = useCallback(async () => {
     await updateStepperState('connect-hardware-wallet', 'hw')
-    navigate(WEB_ROUTES.hardwareWalletLedger)
-  }, [navigate, updateStepperState])
+    // navigate(WEB_ROUTES.hardwareWalletLedger)
+    setLedgerModalOpened(true)
+  }, [setLedgerModalOpened, updateStepperState])
 
   const onGridPlusPress = useCallback(async () => {
     try {
@@ -94,6 +97,7 @@ const HardwareWalletSelectorScreen = () => {
           ))}
         </View>
       </Panel>
+      <LedgerConnectModal isOpen={ledgerModalOpened} onClose={() => setLedgerModalOpened(false)} />
     </TabLayoutWrapperMainContent>
   )
 }

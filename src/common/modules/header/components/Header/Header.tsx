@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, TouchableOpacity, View } from 'react-native'
 
+// @ts-ignore
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -118,53 +119,39 @@ const Header: React.FC<Props> = ({
 
   const canGoBack =
     (params?.prevRoute?.key !== 'default' || // default is the initial value for key
-      /* Because of window.history.pushState, used in the Tabs component, the
-       prevRoute.key gets set to 'default' when you navigate to another route from the dashboard,
-       which hides the back button in the header. */
-      params?.prevRoute?.pathname === `/${ROUTES.dashboard}`) &&
-    params?.prevRoute?.pathname !== '/' &&
-    path !== '/get-started' &&
+      // Because of window.history.pushState, used in the Tabs component, the prevRoute.key
+      // gets set to 'default' when you navigate to another route from the dashboard, which hides the back button in the header.
+      params?.prevRoute?.pathname === `/${ROUTES.dashboard}` ||
+      params?.prevRoute?.pathname !== '/' ||
+      path !== '/get-started') &&
     navigationEnabled
-
-  // if (isExtension && getUiType().isTab) {
-  //   canGoBack = true
-  // }
 
   useEffect(() => {
     if (!path) return
 
     const nextRoute = path?.substring(1)
-    setTitle(routesConfig[nextRoute]?.title || '')
+    setTitle((routesConfig as any)?.[nextRoute]?.title || '')
   }, [path])
 
   useEffect(() => {
-    const subscription = titleChangeEventStream!.subscribe({
-      next: (v) => setTitle(v)
-    })
-
+    const subscription = titleChangeEventStream!.subscribe({ next: (v) => setTitle(v) })
     return () => subscription.unsubscribe()
   }, [])
 
   const renderBackButton = () => {
     return (
-      <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-        <NavIconWrapper onPress={handleGoBack} style={styles.navIconContainerRegular}>
-          <LeftArrowIcon width={36} height={36} />
-        </NavIconWrapper>
-        <Text style={spacings.plTy} fontSize={16} weight="medium">
+      <TouchableOpacity
+        style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
+        onPress={handleGoBack}
+      >
+        <LeftArrowIcon width={32} height={32} />
+        <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
           {t('Back')}
         </Text>
-      </View>
+      </TouchableOpacity>
     )
   }
 
-  // Using the `<Header />` from the '@react-navigation/elements' created
-  // many complications in terms of styling the UI, calculating the header
-  // height and the spacings between the `headerLeftContainerStyle` and the
-  // `headerRightContainerStyle`. The calculations never match.
-  // Probably due to the fact the box model of the `<Header />` behaves
-  // in different manner. And styling it was hell. So instead - implement
-  // custom components that fully match the design we follow.
   return (
     <View style={styles.container}>
       {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
