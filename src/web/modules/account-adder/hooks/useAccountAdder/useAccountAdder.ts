@@ -1,4 +1,4 @@
-import { ethers, Mnemonic } from 'ethers'
+import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
 import {
@@ -8,6 +8,7 @@ import {
 import { Key } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
+  getPrivateKeyFromSeed,
   isValidPrivateKey
 } from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
@@ -20,7 +21,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
-import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
 interface Props {
   keyType: Key['type']
