@@ -1,42 +1,14 @@
-import { LinearGradient } from 'expo-linear-gradient'
-import React, { createContext, useContext } from 'react'
+import React from 'react'
 import { ColorValue, View, ViewProps } from 'react-native'
-import { Outlet } from 'react-router-dom'
 
-import InformationCircleIcon from '@common/assets/svg/InformationCircleIcon'
 import Wrapper from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import Ameba from '@web/components/TabLayoutWrapper/Ameba'
-import TabHeader from '@web/modules/router/components/TabHeader'
 
-import styles from './styles'
-
-const TabLayoutWrapperContext = createContext(true)
-
-const TabLayoutWrapper = (
-  <TabLayoutWrapperContext.Provider value>
-    <View style={[flexbox.directionRow, flexbox.flex1]}>
-      <Outlet />
-    </View>
-  </TabLayoutWrapperContext.Provider>
-)
+import getStyles from './styles'
 
 type Width = 'sm' | 'md' | 'lg' | 'full'
-
-interface Props {
-  width?: Width
-  backgroundColor?: ColorValue
-  hideStepper?: boolean
-  hideHeader?: boolean
-  pageTitle?: string | React.ReactNode
-  children: React.ReactNode
-  forceCanGoBack?: boolean
-  onBack?: () => void
-  header?: React.ReactNode
-  footer?: React.ReactNode
-}
 
 export const tabLayoutWidths = {
   sm: 770,
@@ -45,92 +17,78 @@ export const tabLayoutWidths = {
   full: '100%'
 }
 
-export const TabLayoutWrapperMainContent: React.FC<Props> = ({
-  width = 'sm',
-  backgroundColor,
-  hideStepper = false,
-  hideHeader = false,
-  pageTitle = '',
-  children,
-  forceCanGoBack,
-  onBack,
-  header,
-  footer
-}: Props) => {
-  const context = useContext(TabLayoutWrapperContext)
-  const { theme } = useTheme()
-  if (!context) {
-    throw new Error('Should be used in AuthLayoutWrapper component!')
-  }
+type TabLayoutContainerProps = {
+  backgroundColor?: ColorValue
+  header?: React.ReactNode
+  footer?: React.ReactNode
+  width?: Width
+  children: any
+}
 
+export const TabLayoutContainer = ({
+  backgroundColor,
+  header,
+  footer,
+  width = 'full',
+  children
+}: TabLayoutContainerProps) => {
+  const { theme, styles } = useTheme(getStyles)
   return (
-    <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
-      {!hideHeader &&
-        (header || (
-          <TabHeader
-            pageTitle={pageTitle}
-            hideStepper={hideStepper}
-            forceCanGoBack={forceCanGoBack}
-            onBack={onBack}
-          />
-        ))}
-      <Wrapper
-        style={[flexbox.flex1]}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
+    <View
+      style={[
+        flexbox.flex1,
+        width !== 'full' && flexbox.alignCenter,
+        { backgroundColor: backgroundColor || theme.primaryBackground }
+      ]}
+    >
+      {!!header && header}
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.flex1,
+          width === 'full' ? spacings.ph3Xl : {},
+          {
+            backgroundColor: backgroundColor || theme.primaryBackground,
+            maxWidth: tabLayoutWidths[width]
+          }
+        ]}
       >
-        <View
-          style={[
-            flexbox.alignSelfCenter,
-            // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
-            // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
-            // This should not have any impact on the other screens.
-            { maxWidth: tabLayoutWidths[width], width: '100%', height: '100%' }
-          ]}
-        >
-          {children}
-        </View>
-      </Wrapper>
+        {children}
+      </View>
       {!!footer && <View style={styles.footerContainer}>{footer}</View>}
     </View>
   )
 }
 
-interface TabLayoutWrapperSideContentProps extends ViewProps {
-  backgroundType?: 'alpha' | 'beta'
+interface TabLayoutWrapperMainContentProps {
+  children: React.ReactNode
 }
 
-export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentProps> = ({
-  backgroundType = 'alpha',
-  children,
-  style,
-  ...rest
-}) => {
-  const context = useContext(TabLayoutWrapperContext)
-
-  if (!context) {
-    throw new Error('Should be used in AuthLayoutWrapper component!')
-  }
+export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentProps> = ({
+  children
+}: TabLayoutWrapperMainContentProps) => {
+  const { styles } = useTheme(getStyles)
 
   return (
-    <LinearGradient
-      colors={['#2CC6A7', '#420C9F', '#292150']}
-      start={{ x: 1, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      locations={[0, 0.53, 1]}
-      style={[styles.sideContentContainer, style]}
-      {...rest}
-    >
-      <Wrapper
-        contentContainerStyle={[spacings.ph0, { flexGrow: 1 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <InformationCircleIcon style={styles.informationCircle} />
-        {children}
-      </Wrapper>
-      <Ameba style={backgroundType === 'alpha' ? styles.amebaAlpha : styles.amebaBeta} />
-    </LinearGradient>
+    <Wrapper contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+      {children}
+    </Wrapper>
   )
 }
 
-export default TabLayoutWrapper
+interface TabLayoutWrapperSideContentProps extends ViewProps {}
+
+export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentProps> = ({
+  children,
+  style
+}: TabLayoutWrapperSideContentProps) => {
+  const { styles } = useTheme(getStyles)
+
+  return (
+    <View style={[styles.sideContentContainer, style]}>
+      <Wrapper contentContainerStyle={[spacings.ph0]} showsVerticalScrollIndicator={false}>
+        {children}
+      </Wrapper>
+    </View>
+  )
+}

@@ -12,6 +12,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
+  TabLayoutContainer,
   tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
@@ -50,7 +51,6 @@ const HardwareWalletSelectorScreen = () => {
 
   const onLedgerPress = useCallback(async () => {
     await updateStepperState('connect-hardware-wallet', 'hw')
-    // navigate(WEB_ROUTES.hardwareWalletLedger)
     setLedgerModalOpened(true)
   }, [setLedgerModalOpened, updateStepperState])
 
@@ -74,7 +74,7 @@ const HardwareWalletSelectorScreen = () => {
   )
 
   return (
-    <TabLayoutWrapperMainContent
+    <TabLayoutContainer
       width="lg"
       backgroundColor={theme.secondaryBackground}
       header={
@@ -83,22 +83,27 @@ const HardwareWalletSelectorScreen = () => {
         </Header>
       }
     >
-      <Panel title={t('Choose Hardware Wallet')}>
-        <View style={[flexbox.directionRow]}>
-          {options.map((option, index) => (
-            <HardwareWalletSelectorItem
-              style={[flexbox.flex1, index === 1 ? spacings.mh : {}]}
-              key={option.title}
-              title={option.title}
-              text={option.text}
-              image={option.image}
-              onPress={option.onPress}
-            />
-          ))}
-        </View>
-      </Panel>
-      <LedgerConnectModal isOpen={ledgerModalOpened} onClose={() => setLedgerModalOpened(false)} />
-    </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent>
+        <Panel title={t('Choose Hardware Wallet')}>
+          <View style={[flexbox.directionRow]}>
+            {options.map((option, index) => (
+              <HardwareWalletSelectorItem
+                style={[flexbox.flex1, index === 1 ? spacings.mh : {}]}
+                key={option.title}
+                title={option.title}
+                text={option.text}
+                image={option.image}
+                onPress={option.onPress}
+              />
+            ))}
+          </View>
+        </Panel>
+        <LedgerConnectModal
+          isOpen={ledgerModalOpened}
+          onClose={() => setLedgerModalOpened(false)}
+        />
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

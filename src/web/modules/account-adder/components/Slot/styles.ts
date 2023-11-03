@@ -14,7 +14,8 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...flexbox.directionRow,
       ...spacings.mbTy,
-      alignItems: 'center'
+      alignItems: 'center',
+      width: '100%'
     },
     indicator: {
       width: 3,

@@ -12,7 +12,6 @@ import {
 } from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import TabLayoutWrapper from '@web/components/TabLayoutWrapper'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
@@ -78,54 +77,49 @@ const MainRoutes = () => {
   return (
     <Routes>
       <Route element={stepperProvider}>
-        <Route element={TabLayoutWrapper}>
-          <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
-          <Route element={<TabOnlyRoute />}>
-            <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
-            <Route path={WEB_ROUTES.terms} element={<Terms />} />
-            <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
-            <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
+        <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
+        <Route element={<TabOnlyRoute />}>
+          <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
+          <Route path={WEB_ROUTES.terms} element={<Terms />} />
+          <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
+          <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
-            <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
+          <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
-            <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
-            <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
-            <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-            <Route
-              path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
-              element={<AddAccountPasswordToVaultScreen />}
-            />
+          <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
+          <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
+          <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
+          <Route
+            path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
+            element={<AddAccountPasswordToVaultScreen />}
+          />
 
-            <Route path={WEB_ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
-            <Route
-              path={WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm}
-              element={<AddAccountPasswordToVaultScreen />}
-            />
+          <Route path={WEB_ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
+          <Route
+            path={WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm}
+            element={<AddAccountPasswordToVaultScreen />}
+          />
 
-            <Route
-              path={WEB_ROUTES.hardwareWalletSelect}
-              element={<HardwareWalletSelectorScreen />}
-            />
-            <Route
-              path={WEB_ROUTES.hardwareWalletSelect}
-              element={<HardwareWalletSelectorScreen />}
-            />
-            <Route
-              path={WEB_ROUTES.viewOnlyAccountAdder}
-              element={<ViewOnlyAccountAdderScreen />}
-            />
+          <Route
+            path={WEB_ROUTES.hardwareWalletSelect}
+            element={<HardwareWalletSelectorScreen />}
+          />
+          <Route
+            path={WEB_ROUTES.hardwareWalletSelect}
+            element={<HardwareWalletSelectorScreen />}
+          />
+          <Route path={WEB_ROUTES.viewOnlyAccountAdder} element={<ViewOnlyAccountAdderScreen />} />
 
-            <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
+          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
 
-            <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
-            <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
-            <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+          <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
+          <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
+          <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
-            <Route element={<PrivateRoute />}>
-              <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
-              <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
-              <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
-            </Route>
+          <Route element={<PrivateRoute />}>
+            <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
+            <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
           </Route>
         </Route>
       </Route>

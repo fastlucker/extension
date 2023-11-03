@@ -8,7 +8,6 @@ import Wrapper from '@common/components/Wrapper'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import Collectible from '@web/modules/collectibles/components/Collectible/Collectible'
-import TabHeader from '@web/modules/router/components/TabHeader'
 
 import getStyles from './styles'
 
@@ -23,11 +22,12 @@ const CollectionScreen = () => {
 
   return (
     <>
-      <TabHeader
+      {/* TODO: */}
+      {/* <TabHeader
         style={{ backgroundColor: theme.secondaryBackground }}
         pageTitle={route.state.name}
         image={state.image}
-      />
+      /> */}
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           {state?.collectibles?.length ? (

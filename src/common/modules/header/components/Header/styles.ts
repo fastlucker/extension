@@ -1,10 +1,11 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
 
 export const HEADER_HEIGHT = Platform.select({
   web: 90,
@@ -28,6 +29,8 @@ interface Styles {
   accountCopyIcon: ViewStyle
 }
 
+const isTab = getUiType().isTab
+
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
@@ -35,8 +38,8 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
+      paddingHorizontal: isTab ? SPACING_3XL : SPACING_LG,
       backgroundColor: theme.secondaryBackground,
-      ...spacings.ph4Xl,
       ...spacings.pv,
       ...(isWeb ? { height: 90 } : {})
     },

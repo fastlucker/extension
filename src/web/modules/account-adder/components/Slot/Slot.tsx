@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
@@ -20,7 +21,7 @@ const Slot = ({ slot, children }: { slot: number; children: any }) => {
         {slot}
       </Text>
       <View style={[styles.indicator]} />
-      <View>{children}</View>
+      <View style={flexbox.flex1}>{children}</View>
     </View>
   )
 }

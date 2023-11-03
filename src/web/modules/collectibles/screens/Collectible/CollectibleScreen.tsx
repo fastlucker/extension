@@ -15,7 +15,6 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import TabHeader from '@web/modules/router/components/TabHeader'
 
 import CollectibleTransfer from '../../components/CollectibleTransfer'
 import getStyles from './styles'
@@ -50,7 +49,8 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
 
   return (
     <View style={styles.view}>
-      <TabHeader
+      {/* TODO: */}
+      {/* <TabHeader
         style={{ backgroundColor: theme.secondaryBackground }}
         // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
         // and has to fetch them, so the back button here leads to that screen.(since we can't pass
@@ -65,7 +65,7 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
         forceCanGoBack
         pageTitle={name || t('Unknown collection')}
         image={image}
-      />
+      /> */}
       <Wrapper style={styles.container}>
         <View style={styles.contentContainer}>
           <View style={[styles.section, styles.info]}>

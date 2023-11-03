@@ -1,57 +1,43 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_MD } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  mainContentWrapper: ViewStyle
   contentContainer: ViewStyle
   sideContentContainer: ViewStyle
   informationCircle: ViewStyle
-  amebaAlpha: ViewStyle
-  amebaBeta: ViewStyle
   footerContainer: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  mainContentWrapper: {
-    width: 290,
-    alignSelf: 'center',
-    paddingTop: 70,
-    flex: 1
-  },
-  contentContainer: {
-    height: '100%',
-    ...spacings.pbLg,
-    ...spacings.ph3Xl
-  },
-  sideContentContainer: {
-    width: '35%',
-    ...spacings.ptMd,
-    paddingHorizontal: SPACING_MD * 3,
-    overflow: 'hidden'
-  },
-  informationCircle: {
-    alignSelf: 'center',
-    ...spacings.pbLg
-  },
-  amebaAlpha: {
-    position: 'absolute',
-    right: '50%',
-    bottom: -910,
-    marginRight: -825,
-    zIndex: -1
-  },
-  amebaBeta: {
-    position: 'absolute',
-    right: '50%',
-    bottom: -1050,
-    marginRight: -825,
-    zIndex: -1
-  },
-  footerContainer: {
-    maxHeight: 128,
-    flex: 1
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    contentContainer: {
+      height: '100%',
+      ...spacings.pbLg,
+      ...spacings.ph0,
+      ...flexbox.flex1
+    },
+    sideContentContainer: {
+      ...spacings.ph0,
+      ...spacings.ptMd,
+      ...spacings.plXl,
+      maxWidth: 582,
+      minWidth: 392,
+      width: '30%',
+      overflow: 'hidden'
+    },
+    informationCircle: {
+      alignSelf: 'center',
+      ...spacings.pbLg
+    },
+    footerContainer: {
+      maxHeight: 128,
+      flex: 1,
+      ...spacings.ph3Xl,
+      backgroundColor: theme.primaryBackground
+    }
+  })
 
-export default styles
+export default getStyles

@@ -4,16 +4,18 @@ import { View } from 'react-native'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Checkbox from '@common/components/Checkbox'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import shortenAddress from '@web/utils/shortenAddress'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const Account = ({
   account,
@@ -35,6 +37,7 @@ const Account = ({
   isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
+  const { styles, theme } = useTheme(getStyles)
 
   if (!account.addr) return
 
@@ -44,20 +47,46 @@ const Account = ({
     return ''
   }
 
-  const setLabel = (label: string, labelType: 'grey' | 'green') => {
-    return (
-      <View style={labelType === 'grey' ? styles.greyLabel : styles.greenLabel}>
-        <Text
-          weight="regular"
-          fontSize={12}
-          numberOfLines={1}
-          color={labelType === 'grey' ? colors.martinique_80 : colors.greenHaze}
-        >
-          {label}
-        </Text>
-      </View>
-    )
-  }
+  const setPrimaryLabel = (text: string) => (
+    <View style={styles.primaryLabel}>
+      <Text weight="regular" fontSize={12} numberOfLines={1} appearance="primary">
+        {text}
+      </Text>
+    </View>
+  )
+
+  const setSuccessLabel = (text: string) => (
+    <View style={[styles.successLabel, flexbox.directionRow, flexbox.alignCenter]}>
+      <Text
+        weight="regular"
+        fontSize={12}
+        numberOfLines={1}
+        appearance="successText"
+        style={spacings.mrMi}
+      >
+        {text}
+      </Text>
+
+      <InfoIcon color={theme.successDecorative as any} width={16} height={16} />
+    </View>
+  )
+
+  const setDefaultLabel = (text: string) => (
+    <View style={styles.defaultLabel}>
+      <Text weight="regular" fontSize={12} numberOfLines={1} appearance="secondaryText">
+        {text}
+      </Text>
+    </View>
+  )
+
+  const setWarningLabel = (text: string) => (
+    <View style={[styles.warningLabel, flexbox.directionRow, flexbox.alignCenter]}>
+      <Text weight="regular" fontSize={12} numberOfLines={1} color="#5C4E22" style={spacings.mrMi}>
+        {text}
+      </Text>
+      <InfoIcon color="#B89C4B " width={16} height={16} />
+    </View>
+  )
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -75,13 +104,31 @@ const Account = ({
       <View style={styles.container}>
         <Checkbox
           style={{ marginBottom: 0 }}
-          // label={<View />}
           value={isSelected}
           onValueChange={toggleSelectedState}
           isDisabled={isDisabled}
         />
 
         <View style={[flexbox.flex1]}>
+          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+            <Text
+              fontSize={16}
+              appearance="primaryText"
+              style={[flexbox.flex1]}
+              onPress={isDisabled ? undefined : toggleSelectedState}
+            >
+              {shortenAddress(account.addr, 34)}
+            </Text>
+            {(!!unused || type === 'linked') && (
+              <View style={[flexbox.directionRow, spacings.mbTy]}>
+                {unused && setDefaultLabel('unused')}
+                {type === 'linked' && setPrimaryLabel('linked')}
+                {type === 'linked' &&
+                  isAmbireV1LinkedAccount(account.creation?.factoryAddr) &&
+                  setPrimaryLabel('v1')}
+              </View>
+            )}
+          </View>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <Text
               weight="regular"
@@ -90,27 +137,9 @@ const Account = ({
               style={[spacings.mbMi, flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
-              {getAccountTypeLabel(type, account.creation)}
-            </Text>
-            {(!!unused || type === 'linked') && (
-              <View style={[flexbox.directionRow, spacings.mbTy]}>
-                {unused && setLabel('unused', 'grey')}
-                {type === 'linked' && setLabel('linked', 'green')}
-                {type === 'linked' &&
-                  isAmbireV1LinkedAccount(account.creation?.factoryAddr) &&
-                  setLabel('v1', 'green')}
-              </View>
-            )}
-          </View>
-          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <Text
-              fontSize={14}
-              weight="semiBold"
-              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.husk}
-              style={[flexbox.flex1]}
-              onPress={isDisabled ? undefined : toggleSelectedState}
-            >
-              {shortenAddress(account.addr, 30)}
+              {type === 'legacy'
+                ? setWarningLabel(getAccountTypeLabel(type, account.creation))
+                : setSuccessLabel(getAccountTypeLabel(type, account.creation))}
             </Text>
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>

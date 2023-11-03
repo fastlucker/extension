@@ -3,10 +3,12 @@ import { View, ViewStyle } from 'react-native'
 import StepIndicator from 'react-native-step-indicator'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 
 import styles from './styles'
 
@@ -55,6 +57,25 @@ const StepperComponent = ({ containerStyle }: Props) => {
       <CheckIcon width={18} height={18} color={theme.successDecorative} />
     ) : null
 
+  const renderLabel = ({
+    label,
+    stepStatus
+  }: {
+    position: number
+    stepStatus: string
+    label: string
+    currentPosition: number
+  }) => (
+    <Text
+      fontSize={10}
+      style={[text.center, spacings.phMi]}
+      appearance={stepStatus === 'finished' ? 'successText' : 'secondaryText'}
+      numberOfLines={2}
+    >
+      {label}
+    </Text>
+  )
+
   return (
     <View
       style={[
@@ -70,6 +91,7 @@ const StepperComponent = ({ containerStyle }: Props) => {
         customStyles={customStyles}
         currentPosition={currentStep}
         renderStepIndicator={renderStepIndicator}
+        renderLabel={renderLabel}
         stepCount={flowSteps.length}
         labels={flowSteps}
       />
