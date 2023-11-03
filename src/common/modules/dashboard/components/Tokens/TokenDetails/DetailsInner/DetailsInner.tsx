@@ -19,7 +19,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_SM } from '@common/styles/spacings'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
@@ -168,13 +168,13 @@ const DetailsInner = ({
         </View>
       </View>
       {actions.map((actionRow, actionRowIndex) => (
-        <View style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? 16 : 0 }]}>
+        <View style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? SPACING : 0 }]}>
           {actionRow.map((button, index) => {
             // Empty buttons to fill the space
             if (button === null) {
               const buttonStyle = {
                 ...styles.emptyButton,
-                marginLeft: index !== 0 ? 12 : 0
+                marginLeft: index !== 0 ? SPACING_SM : 0
               }
 
               return (
@@ -191,7 +191,7 @@ const DetailsInner = ({
 
             const buttonStyle = {
               ...styles.button,
-              marginLeft: index !== 0 ? 12 : 0
+              marginLeft: index !== 0 ? SPACING_SM : 0
             }
 
             return (
