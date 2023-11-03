@@ -1,6 +1,5 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -21,7 +20,7 @@ const getStyles = (theme: ThemeProps) =>
     contentContainer: commonWebStyles.contentContainer,
     container: {
       ...flexbox.flex1,
-      backgroundColor: colors.white
+      backgroundColor: theme.primaryBackground
     },
     overview: {
       backgroundColor: theme.secondaryBackground,
