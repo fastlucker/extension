@@ -13,6 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 
 const Routes = () => {
   const { theme } = useTheme()
@@ -20,10 +21,15 @@ const Routes = () => {
   const { navigate } = useNavigation()
 
   const routeItems = [
-    { icon: SendIcon, label: t('Send'), route: WEB_ROUTES.transfer },
-    { icon: ReceiveIcon, label: t('Receive'), route: 'receiveRoute' },
-    { icon: SwapIcon, label: t('Swap'), route: 'swapRoute' },
-    { icon: BridgeIcon, label: t('Bridge'), route: 'bridgeRoute' }
+    { icon: SendIcon, label: t('Send'), route: WEB_ROUTES.transfer, isExternal: false },
+    { icon: ReceiveIcon, label: t('Receive'), route: 'receiveRoute', isExternal: false },
+    { icon: SwapIcon, label: t('Swap'), route: 'https://app.uniswap.org/swap', isExternal: true },
+    {
+      icon: BridgeIcon,
+      label: t('Bridge'),
+      route: 'https://www.bungee.exchange/',
+      isExternal: true
+    }
   ]
 
   return (
@@ -35,8 +41,11 @@ const Routes = () => {
         >
           <NavIconWrapper
             onPress={() => {
+              if (routeItem.isExternal) {
+                openInTab(routeItem.route)
+                return
+              }
               navigate(routeItem.route)
-              console.log(`Navigating to: ${routeItem.route}`)
             }}
             hoverBackground="transparent"
             hoverColor={theme.primary}
