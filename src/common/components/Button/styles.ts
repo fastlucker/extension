@@ -52,7 +52,7 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 0
     },
     buttonContainerSecondary: {
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor: 'transparent',
       borderWidth: 1,
       borderColor: theme.primary
     },
