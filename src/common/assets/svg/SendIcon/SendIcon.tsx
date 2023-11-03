@@ -9,15 +9,18 @@ interface Props extends SvgProps {
 }
 
 const SendIcon: React.FC<Props> = ({
-  width = 31,
+  width = 30,
   height = 30,
   color = colors.martinique,
   ...rest
 }) => (
-  <Svg width={width} height={height} {...rest} viewBox="0 0 30.554 30">
-    <G fill="none" stroke={color} strokeLinecap="round" strokeWidth="2">
-      <Path d="M13.298 19.685 23.41 9.573l-.003 8.877" />
-      <Path d="M6.436 19.546 16.547 9.434l-8.875.004" />
+  <Svg width={width} height={height} viewBox="0 0 19.312 16" {...rest}>
+    <G fill="none">
+      <Path d="M1.281 16V0h16v16z" />
+      <G stroke={color} strokeLinecap="round" strokeWidth="1.5">
+        <Path d="m8.275 11.158 6.26-6.26-.003 5.496" />
+        <Path d="m4.026 11.071 6.26-6.259-5.495.002" />
+      </G>
     </G>
   </Svg>
 )
