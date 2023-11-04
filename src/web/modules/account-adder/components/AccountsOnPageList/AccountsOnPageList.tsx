@@ -1,6 +1,6 @@
 import groupBy from 'lodash/groupBy'
-import React, { useCallback, useMemo, useState } from 'react'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useMemo } from 'react'
+import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native'
 
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -8,15 +8,11 @@ import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -38,21 +34,14 @@ const hwDeviceNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
 
 const AccountsList = ({
   state,
-  enableCreateEmailVault,
-  onCreateEmailVaultStep,
   setPage,
   keyType
 }: {
   state: AccountAdderController
-  enableCreateEmailVault?: boolean
-  onCreateEmailVaultStep?: () => void
   setPage: (page: number) => void
   keyType: string
 }) => {
-  const { theme } = useTheme()
   const { t } = useTranslation()
-  const [emailVaultStep, setEmailVaultStep] = useState(false)
-  // const [showUnused, setShowUnused] = useState(false)
   const { dispatch } = useBackgroundService()
 
   const getDerivationLabel = (_path: HDPath['path']) => {
@@ -137,19 +126,9 @@ const AccountsList = ({
 
   return (
     <View>
-      {!!enableCreateEmailVault && (
-        <Toggle
-          isOn={emailVaultStep}
-          onToggle={() => {
-            setEmailVaultStep(true)
-            onCreateEmailVaultStep && onCreateEmailVaultStep()
-          }}
-          label={t('Enable email recovery for new Smart Accounts')}
-        />
-      )}
       <View
         style={[
-          spacings.mbXl,
+          spacings.mbLg,
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.justifySpaceBetween,
@@ -182,8 +161,12 @@ const AccountsList = ({
         )}
       </View>
       <Wrapper
+        style={spacings.mbLg}
         contentContainerStyle={{
-          height: LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
+          height:
+            Dimensions.get('window').height < 810 // TODO: this is a temp solution
+              ? LIST_ITEM_HEIGHT * 4 + LIST_ITEM_GUTTER * 3
+              : LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
           ...spacings.pt0,
           ...spacings.pl0,
           ...spacings.prSm
@@ -206,38 +189,29 @@ const AccountsList = ({
         )}
       </Wrapper>
 
-      <View
-        style={[
-          flexbox.alignCenter,
-          spacings.ptSm,
-          { opacity: state.linkedAccountsLoading ? 1 : 0 }
-        ]}
-      >
-        <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-          <Spinner style={{ width: 16, height: 16 }} />
-          <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
-            {t('Looking for linked smart accounts')}
-          </Text>
-        </View>
-      </View>
-
-      <View style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}>
+      <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
         <TouchableOpacity
           onPress={handleLargePageStepDecrement}
           disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
-          style={state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.6 }}
+          style={[
+            spacings.mrLg,
+            state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.4 }
+          ]}
         >
-          <LeftDoubleArrowIcon />
+          <View style={flexbox.directionRow}>
+            <LeftArrowIcon />
+            <LeftArrowIcon />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSmallPageStepDecrement}
           disabled={state.page === 1 || disablePagination}
-          style={(state.page === 1 || disablePagination) && { opacity: 0.6 }}
+          style={(state.page === 1 || disablePagination) && { opacity: 0.4 }}
         >
-          <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
+          <LeftArrowIcon />
         </TouchableOpacity>
-        <Text style={spacings.ph}>
-          {state.page > 2 && <Text>{'...  '}</Text>}
+        <Text style={spacings.phLg}>
+          {state.page > 2 && <Text>...</Text>}
           {state.page === 1 && (
             <Text>
               <Text weight="semiBold">{state.page}</Text>
@@ -254,18 +228,21 @@ const AccountsList = ({
           <Text>{'  ...'}</Text>
         </Text>
         <TouchableOpacity
-          style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+          style={[spacings.mrLg, (state.accountsLoading || disablePagination) && { opacity: 0.4 }]}
           disabled={state.accountsLoading || disablePagination}
           onPress={handleSmallPageStepIncrement}
         >
-          <RightArrowIcon style={[spacings.mrTy]} />
+          <RightArrowIcon />
         </TouchableOpacity>
         <TouchableOpacity
-          style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+          style={(state.accountsLoading || disablePagination) && { opacity: 0.4 }}
           disabled={state.accountsLoading || disablePagination}
           onPress={handleLargePageStepIncrement}
         >
-          <RightDoubleArrowIcon />
+          <View style={flexbox.directionRow}>
+            <RightArrowIcon />
+            <RightArrowIcon />
+          </View>
         </TouchableOpacity>
       </View>
     </View>

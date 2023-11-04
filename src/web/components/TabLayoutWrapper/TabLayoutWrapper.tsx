@@ -92,3 +92,22 @@ export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentPr
     </View>
   )
 }
+
+interface TabLayoutWrapperSideContentItemProps extends ViewProps {
+  type?: 'primary' | 'info' | 'error'
+  children: any
+}
+
+export const TabLayoutWrapperSideContentItem = ({
+  type = 'primary',
+  children,
+  ...rest
+}: TabLayoutWrapperSideContentItemProps) => {
+  const { styles } = useTheme(getStyles)
+
+  return (
+    <View style={type === 'primary' && styles.primarySideItem} {...rest}>
+      {children}
+    </View>
+  )
+}

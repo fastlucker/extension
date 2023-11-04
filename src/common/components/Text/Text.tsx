@@ -15,6 +15,7 @@ type TextAppearance =
   | 'successText'
   | 'warningText'
   | 'errorText'
+  | 'infoText'
 
 export interface Props extends TextProps {
   underline?: boolean
@@ -61,7 +62,8 @@ const Text: React.FC<Props> = ({
     secondaryText: theme.secondaryText,
     successText: theme.successText,
     warningText: theme.warningText,
-    errorText: theme.errorText
+    errorText: theme.errorText,
+    infoText: theme.infoText
   }
 
   return (

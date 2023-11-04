@@ -36,7 +36,8 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.secondaryBorder,
       width: '100%',
       flex: 1,
-      maxHeight: 78
+      maxHeight: 78,
+      height: 78
     },
     primaryLabel: {
       ...label,

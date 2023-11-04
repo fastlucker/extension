@@ -1,7 +1,8 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { Dimensions, StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -9,6 +10,7 @@ interface Style {
   sideContentContainer: ViewStyle
   informationCircle: ViewStyle
   footerContainer: ViewStyle
+  primarySideItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -21,11 +23,10 @@ const getStyles = (theme: ThemeProps) =>
     },
     sideContentContainer: {
       ...spacings.ph0,
-      ...spacings.ptMd,
       ...spacings.plXl,
       maxWidth: 582,
-      minWidth: 392,
-      width: '30%',
+      minWidth: 300,
+      width: Dimensions.get('window').width < 1300 ? 300 : '30%', // TODO: this is a temp solution
       overflow: 'hidden'
     },
     informationCircle: {
@@ -33,10 +34,18 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbLg
     },
     footerContainer: {
-      maxHeight: 128,
+      maxHeight: 120,
       flex: 1,
       ...spacings.ph3Xl,
       backgroundColor: theme.primaryBackground
+    },
+    primarySideItem: {
+      borderColor: theme.primaryLight,
+      borderWidth: 1,
+      backgroundColor: '#F6F0FF',
+      ...common.borderRadiusPrimary,
+      ...spacings.phXl,
+      ...spacings.pvXl
     }
   })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -106,6 +106,7 @@ const Account = ({
           style={{ marginBottom: 0 }}
           value={isSelected}
           onValueChange={toggleSelectedState}
+          uncheckedBorderColor={theme.primaryText}
           isDisabled={isDisabled}
         />
 
@@ -117,7 +118,9 @@ const Account = ({
               style={[flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
-              {shortenAddress(account.addr, 34)}
+              {Dimensions.get('window').width < 1300 // TODO: this is a temp solution
+                ? shortenAddress(account.addr, 32)
+                : account.addr}
             </Text>
             {(!!unused || type === 'linked') && (
               <View style={[flexbox.directionRow, spacings.mbTy]}>
