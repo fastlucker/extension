@@ -117,6 +117,7 @@ const AccountAdderScreen = () => {
           </View>
           <Button
             hasBottomSpacing={false}
+            textStyle={{ fontSize: 14 }}
             onPress={onImportReady}
             disabled={
               accountAdderState.accountsLoading ||

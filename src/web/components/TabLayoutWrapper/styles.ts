@@ -37,7 +37,15 @@ const getStyles = (theme: ThemeProps) =>
       maxHeight: 120,
       flex: 1,
       ...spacings.ph3Xl,
-      backgroundColor: theme.primaryBackground
+      backgroundColor: theme.primaryBackground,
+      shadowColor: '#B8BDE080',
+      shadowOffset: {
+        width: 0,
+        height: -2
+      },
+      shadowOpacity: 1,
+      shadowRadius: 4,
+      elevation: 7
     },
     primarySideItem: {
       borderColor: theme.primaryLight,

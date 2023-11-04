@@ -34,18 +34,13 @@ export const TabLayoutContainer = ({
 }: TabLayoutContainerProps) => {
   const { theme, styles } = useTheme(getStyles)
   return (
-    <View
-      style={[
-        flexbox.flex1,
-        width !== 'full' && flexbox.alignCenter,
-        { backgroundColor: backgroundColor || theme.primaryBackground }
-      ]}
-    >
+    <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
       {!!header && header}
       <View
         style={[
           flexbox.directionRow,
           flexbox.flex1,
+          width !== 'full' ? flexbox.alignSelfCenter : {},
           width === 'full' ? spacings.ph3Xl : {},
           {
             backgroundColor: backgroundColor || theme.primaryBackground,
