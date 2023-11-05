@@ -1,5 +1,5 @@
 import React from 'react'
-import { ColorValue, View, ViewProps } from 'react-native'
+import { ColorValue, View, ViewProps, ViewStyle } from 'react-native'
 
 import Wrapper from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
@@ -91,17 +91,26 @@ export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentPr
 interface TabLayoutWrapperSideContentItemProps extends ViewProps {
   type?: 'primary' | 'info' | 'error'
   children: any
+  style: ViewStyle
 }
 
 export const TabLayoutWrapperSideContentItem = ({
   type = 'primary',
   children,
+  style,
   ...rest
 }: TabLayoutWrapperSideContentItemProps) => {
   const { styles } = useTheme(getStyles)
 
   return (
-    <View style={type === 'primary' && styles.primarySideItem} {...rest}>
+    <View
+      style={[
+        type === 'primary' && styles.primarySideItem,
+        type === 'error' && styles.errorSideItem,
+        style
+      ]}
+      {...rest}
+    >
       {children}
     </View>
   )

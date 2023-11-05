@@ -10,7 +10,7 @@ import getStyles from './styles'
 
 type Props = {
   isOpen: boolean
-  onClose: () => void
+  onClose?: () => void
   title?: string
   modalStyle?: ViewStyle | ViewStyle[]
   children: any
@@ -23,9 +23,11 @@ const Modal = ({ isOpen, onClose, title, modalStyle, children }: Props) => {
     <RNModal animationType="fade" transparent visible={isOpen} onRequestClose={onClose}>
       <View style={styles.container}>
         <View style={[styles.modal, modalStyle]}>
-          <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-            <CloseIcon />
-          </TouchableOpacity>
+          {!!onClose && (
+            <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+              <CloseIcon />
+            </TouchableOpacity>
+          )}
           {!!title && (
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {title}

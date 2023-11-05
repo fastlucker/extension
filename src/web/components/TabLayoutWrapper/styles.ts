@@ -11,6 +11,7 @@ interface Style {
   informationCircle: ViewStyle
   footerContainer: ViewStyle
   primarySideItem: ViewStyle
+  errorSideItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -51,6 +52,14 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.primaryLight,
       borderWidth: 1,
       backgroundColor: '#F6F0FF',
+      ...common.borderRadiusPrimary,
+      ...spacings.phXl,
+      ...spacings.pvXl
+    },
+    errorSideItem: {
+      borderColor: theme.errorDecorative,
+      borderWidth: 1,
+      backgroundColor: theme.errorBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phXl,
       ...spacings.pvXl
