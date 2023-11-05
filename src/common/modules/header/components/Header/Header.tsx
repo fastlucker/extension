@@ -140,7 +140,7 @@ const Header: React.FC<Props> = ({
         style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
         onPress={handleGoBack}
       >
-        <LeftArrowIcon width={32} height={32} />
+        <LeftArrowIcon />
         <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
           {t('Back')}
         </Text>
