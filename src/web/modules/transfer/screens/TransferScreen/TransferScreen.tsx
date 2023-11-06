@@ -3,8 +3,12 @@ import { View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
+import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
@@ -45,19 +49,24 @@ const TransferScreen = () => {
   }, [handleReset])
 
   return (
-    <TabLayoutWrapperMainContent width="lg" forceCanGoBack onBack={onBack}>
-      {state?.isInitialized ? (
-        <View style={styles.container}>
-          <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
-          <View style={styles.separator} />
-          <AddressBookSection />
-        </View>
-      ) : (
-        <View style={styles.spinnerContainer}>
-          <Spinner />
-        </View>
-      )}
-    </TabLayoutWrapperMainContent>
+    <TabLayoutContainer
+      width="lg"
+      header={<Header mode="title" withAmbireLogo forceBack onGoBackPress={onBack} />}
+    >
+      <TabLayoutWrapperMainContent>
+        {state?.isInitialized ? (
+          <View style={styles.container}>
+            <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
+            <View style={styles.separator} />
+            <AddressBookSection />
+          </View>
+        ) : (
+          <View style={styles.spinnerContainer}>
+            <Spinner />
+          </View>
+        )}
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Image, Pressable, TouchableOpacity, View } from 'react-native'
+import { ColorValue, Image, Pressable, TouchableOpacity, View } from 'react-native'
 
 // @ts-ignore
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
@@ -32,13 +32,19 @@ interface Props {
   withBackButton?: boolean
   withAmbireLogo?: boolean
   children?: any
+  backgroundColor?: ColorValue
+  forceBack?: boolean
+  onGoBackPress?: () => void
 }
 
 const Header: React.FC<Props> = ({
   mode = 'controls',
   withBackButton = true,
   withAmbireLogo,
-  children
+  children,
+  backgroundColor,
+  forceBack,
+  onGoBackPress
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const mainCtrl = useMainControllerState()
@@ -78,7 +84,7 @@ const Header: React.FC<Props> = ({
             hoverBackground={theme.primaryLight}
             style={styles.accountButtonRightIcon}
           >
-            <RightArrowIcon width={26} height={26} withRect={false} />
+            <RightArrowIcon />
           </NavIconWrapper>
         </Pressable>
         <CopyText text={selectedAccount} style={styles.accountCopyIcon} />
@@ -138,7 +144,7 @@ const Header: React.FC<Props> = ({
     return (
       <TouchableOpacity
         style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}
-        onPress={handleGoBack}
+        onPress={onGoBackPress || handleGoBack}
       >
         <LeftArrowIcon />
         <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
@@ -149,12 +155,12 @@ const Header: React.FC<Props> = ({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !!backgroundColor && { backgroundColor }]}>
       {mode === 'controls' && <View style={styles.containerInner}>{renderHeaderControls}</View>}
       {mode === 'title' && (
         <>
           <View style={styles.sideContainer}>
-            {!!withBackButton && !!canGoBack && renderBackButton()}
+            {!!withBackButton && (!!canGoBack || !!forceBack) && renderBackButton()}
           </View>
           <View style={styles.containerInner}>
             <Text fontSize={30} style={styles.title} numberOfLines={2}>

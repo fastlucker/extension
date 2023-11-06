@@ -23,11 +23,10 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     inputContainer: {
-      ...spacings.mbSm,
-      marginLeft: -3 // because of the borderWrapper that is invisible when unfocused
+      ...spacings.mbSm
     },
     borderWrapper: {
-      borderWidth: 3,
+      borderWidth: 2,
       borderRadius: 9,
       borderColor: 'transparent',
       ...common.hidden
