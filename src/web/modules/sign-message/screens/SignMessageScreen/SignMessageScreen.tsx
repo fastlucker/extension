@@ -246,7 +246,7 @@ const SignMessageScreen = () => {
           textStyle={styles.rejectButtonText}
           onPress={handleReject}
         >
-          <CloseIcon color={theme.errorDecorative} withRect={false} width={24} height={24} />
+          <CloseIcon color={theme.errorDecorative} />
         </Button>
 
         {isScrollToBottomForced && !isViewOnly ? (

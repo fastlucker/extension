@@ -45,7 +45,7 @@ const Footer = ({
         style={spacings.phLg}
       >
         <View style={spacings.plSm}>
-          <CloseIcon color={theme.errorDecorative} withRect={false} width={24} height={24} />
+          <CloseIcon color={theme.errorDecorative} />
         </View>
       </Button>
       <View style={[flexbox.directionRow]}>
