@@ -3,20 +3,23 @@ import { useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import Banners from '@common/components/Banners'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useRoute from '@common/hooks/useRoute'
-import colors from '@common/styles/colors'
-import spacings, { IS_SCREEN_SIZE_TAB_CONTENT_UP } from '@common/styles/spacings'
+import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
+import DAppFooter from '../components/DAppFooter'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
-import styles from './styles'
+import getStyles from './styles'
 
 // We want to change the query param without refreshing the page.
 const handleChangeQuery = (openTab: string) => {
@@ -28,7 +31,10 @@ const handleChangeQuery = (openTab: string) => {
   window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
 }
 
+const { isPopup } = getUiType()
+
 const DashboardScreen = () => {
+  const { styles } = useTheme(getStyles)
   const route = useRoute()
   const { control, watch } = useForm({
     mode: 'all',
@@ -48,7 +54,6 @@ const DashboardScreen = () => {
 
   const { t } = useTranslation()
 
-  // const tokens = accountPortfolio?.tokens || []
   const tokens = useMemo(
     () =>
       accountPortfolio?.tokens.filter((token) => {
@@ -62,6 +67,12 @@ const DashboardScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [accountPortfolio?.tokens?.length, searchValue]
   )
+
+  const networksWithAssets = useMemo(() => {
+    const nonZeroBalanceTokens = tokens?.filter((token) => token.amount !== 0n)
+
+    return [...new Set(nonZeroBalanceTokens?.map((token) => token.networkId) || [])]
+  }, [tokens])
 
   useEffect(() => {
     if (searchValue.length > 0 && openTab === 'collectibles') {
@@ -86,52 +97,61 @@ const DashboardScreen = () => {
         <View style={[styles.contentContainer]}>
           <View style={styles.overview}>
             <View>
-              <Text appearance="secondaryText" shouldScale={false} weight="regular" fontSize={16}>
-                {t('Balance')}
-              </Text>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                <>
+                <Text style={spacings.mbTy}>
                   <Text
-                    fontSize={30}
+                    fontSize={32}
                     shouldScale={false}
                     style={{ lineHeight: 34 }}
-                    weight="regular"
+                    weight="number_bold"
                   >
-                    {t('$')}{' '}
+                    {t('$')}
                     {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
                       'en-US'
                     )}
                   </Text>
-                  <Text fontSize={20} shouldScale={false} weight="regular">
+                  <Text fontSize={20} shouldScale={false} weight="semiBold">
                     {t('.')}
                     {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
                   </Text>
-                </>
+                </Text>
+              </View>
+              <View style={styles.networks}>
+                {networksWithAssets.map((networkId, index) => (
+                  <View
+                    key={networkId}
+                    style={[
+                      styles.networkIconContainer,
+                      { zIndex: networksWithAssets.length - index }
+                    ]}
+                  >
+                    <NetworkIcon style={styles.networkIcon} name={networkId} />
+                  </View>
+                ))}
               </View>
             </View>
             <Routes />
           </View>
 
-          <View style={styles.banners}>
-            <Banners />
-          </View>
+          <Banners />
         </View>
         <View
           style={[
             styles.contentContainer,
-            IS_SCREEN_SIZE_TAB_CONTENT_UP ? spacings.plMd : {},
             flexbox.directionRow,
             flexbox.justifySpaceBetween,
-            flexbox.alignEnd
+            flexbox.alignCenter,
+            spacings.mbMd
           ]}
         >
           <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-          <Search control={control} placeholder="Search for tokens" />
+          <Search control={control} height={32} placeholder="Search for tokens" />
         </View>
       </View>
       <View style={[styles.contentContainer, flexbox.flex1]}>
-        <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />
+        {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
       </View>
+      {isPopup && <DAppFooter />}
     </View>
   )
 }

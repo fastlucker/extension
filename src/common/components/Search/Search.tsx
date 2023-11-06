@@ -4,17 +4,18 @@ import { ViewProps } from 'react-native'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 
 import Input from '../Input'
-import styles from './styles'
 
 type Props = {
   placeholder?: string
   style?: ViewProps
   control: Control<{ search: string }, any>
+  height?: number
 }
 
-const Search = ({ placeholder = 'Search', style, control }: Props) => {
+const Search = ({ placeholder = 'Search', style, control, height = 40 }: Props) => {
   const { theme } = useTheme()
   return (
     <Controller
@@ -22,12 +23,12 @@ const Search = ({ placeholder = 'Search', style, control }: Props) => {
       name="search"
       render={({ field: { onChange, onBlur, value } }) => (
         <Input
-          containerStyle={styles.inputContainer}
+          containerStyle={spacings.mb0}
           leftIcon={() => <SearchIcon color={theme.secondaryText} />}
           placeholder={placeholder}
           style={style}
-          inputWrapperStyle={styles.input}
-          inputStyle={styles.input}
+          inputWrapperStyle={{ height }}
+          inputStyle={{ height }}
           placeholderTextColor={theme.secondaryText}
           onBlur={onBlur}
           onChange={onChange}

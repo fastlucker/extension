@@ -8,14 +8,17 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const TopUpIcon: React.FC<Props> = ({ width = 27, height = 27, color = colors.martinique }) => (
-  <Svg width={width} height={height} viewBox="0 0 26.414 26.414">
-    <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
-      <Path d="M9.362 15.962a2.489 2.489 0 0 0 2.43 2.546h2.735a2.166 2.166 0 0 0 2.11-2.226 1.922 1.922 0 0 0-1.44-2.11l-4.379-1.528a1.912 1.912 0 0 1-1.44-2.11 2.176 2.176 0 0 1 2.11-2.226h2.735a2.489 2.489 0 0 1 2.43 2.546" />
-      <Path d="M12.999 6.867v13.095" />
-      <Path d="M25 13.414a12 12 0 1 1-12-12" />
-      <Path d="M19 2.614v4.8h4.8" />
-      <Path d="m25 1.414-6 6" />
+const TopUpIcon: React.FC<Props> = ({ width = 30, height = 30, color = colors.martinique }) => (
+  <Svg width={width} height={height} viewBox="0 0 16 16">
+    <G fill="none">
+      <G stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+        <Path d="M5.777 9.556a1.52 1.52 0 0 0 1.484 1.555h1.671a1.323 1.323 0 0 0 1.289-1.36 1.174 1.174 0 0 0-.88-1.289l-2.675-.933a1.168 1.168 0 0 1-.88-1.289 1.329 1.329 0 0 1 1.291-1.358h1.671a1.52 1.52 0 0 1 1.484 1.555" />
+        <Path d="M7.999 4.002v8" />
+        <Path d="M14.5 8A6.5 6.5 0 1 1 8 1.5" />
+        <Path d="M11.641 2.072v2.287h2.288" />
+        <Path d="m14.5 1.5-2.859 2.859" />
+      </G>
+      <Path d="M0 16V0h16v16z" />
     </G>
   </Svg>
 )

@@ -36,9 +36,9 @@ const handleOnReady = () => {
 }
 
 const AppInit = () => {
-  const { fontsLoaded } = useFonts()
+  const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded) return null
+  if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <NavigationContainer
