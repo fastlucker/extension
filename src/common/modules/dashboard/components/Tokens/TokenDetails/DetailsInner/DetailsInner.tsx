@@ -15,6 +15,7 @@ import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
@@ -48,7 +49,7 @@ const actions = [
     {
       text: 'Bridge',
       icon: BridgeIcon,
-      onPress: () => createTab('https://www.bungee.exchange/'),
+      onPress: () => createTab(BRIDGE_URL),
       isDisabled: false
     },
     {

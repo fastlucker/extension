@@ -8,6 +8,7 @@ import SwapIcon from '@common/assets/svg/SwapIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -27,7 +28,7 @@ const Routes = () => {
     {
       icon: BridgeIcon,
       label: t('Bridge'),
-      route: 'https://www.bungee.exchange/',
+      route: BRIDGE_URL,
       isExternal: true
     }
   ]
