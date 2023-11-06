@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
 import ConnectionStatusIcon from '@common/assets/svg/ConnectionStatusIcon'
@@ -13,6 +14,7 @@ import useExtension from '@web/hooks/useExtension'
 import getStyles from './styles'
 
 const DAppFooter = () => {
+  const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { site, disconnectDapp } = useExtension()
   const siteNetwork = networks.find((network) => network.chainId === site?.chainId)
@@ -56,7 +58,7 @@ const DAppFooter = () => {
         <View style={styles.currentDApp}>
           <DAppsIcon width={24} height={24} color={theme.secondaryText} />
           <Text fontSize={14} appearance="secondaryText" weight="regular" style={spacings.mlTy}>
-            No DApp found
+            {t('No DApp found')}
           </Text>
         </View>
       )}
