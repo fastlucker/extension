@@ -80,7 +80,7 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
             <MaximizeIcon width={20} height={20} />
           </Pressable>
         )}
-        <Pressable style={{ marginLeft: 24 }} onPress={() => navigate('menu')}>
+        <Pressable style={{ ...spacings.mlLg, ...spacings.mrTy }} onPress={() => navigate('menu')}>
           <BurgerIcon width={20} height={20} />
         </Pressable>
       </View>
