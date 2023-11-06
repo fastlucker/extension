@@ -1,7 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
-import spacings, { SPACING_LG, SPACING_MD, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import commonStyles from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -10,39 +10,35 @@ interface Style {
   wrapper: ViewStyle
   pinExtension: ViewStyle
   videoBackground: ViewStyle
-  link: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
   wrapper: {
     maxWidth: 480,
     height: '100%',
-    justifyContent: 'space-between',
-    ...spacings.ph
+    ...spacings.pl4Xl
   },
   title: {
     textAlign: 'center',
     position: 'relative',
-    marginBottom: SPACING_XL * 2
+    ...spacings.mt,
+    ...spacings.mb4Xl
   },
   pinExtension: {
     // @ts-ignore-next-line web only property
     position: 'fixed',
-    right: 110,
-    top: -20,
+    right: 50,
+    top: -10,
     zIndex: 10
   },
   videoBackground: {
     backgroundColor: colors.melrose_15,
     width: 440,
     height: 300,
-    marginBottom: SPACING_MD * 2,
+    ...spacings.mb4Xl,
     ...flexbox.alignCenter,
     ...flexbox.justifyCenter,
     ...commonStyles.borderRadiusPrimary
-  },
-  link: {
-    marginBottom: SPACING_LG
   }
 })
 
