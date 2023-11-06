@@ -93,12 +93,12 @@ const DashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={spacings.phLg}>
+      <View style={spacings.ph}>
         <View style={[styles.contentContainer]}>
           <View style={styles.overview}>
             <View>
               <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                <Text style={{ marginBottom: 8 }}>
+                <Text style={spacings.mbTy}>
                   <Text
                     fontSize={32}
                     shouldScale={false}

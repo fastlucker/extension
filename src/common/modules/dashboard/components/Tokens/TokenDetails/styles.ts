@@ -37,8 +37,8 @@ const getStyles = (theme: ThemeProps) =>
       borderBottomLeftRadius: isTab ? BORDER_RADIUS_PRIMARY : 0,
       borderBottomRightRadius: isTab ? BORDER_RADIUS_PRIMARY : 0,
       zIndex: 100,
-      ...spacings.phLg,
-      ...spacings.pvLg,
+      ...spacings.ph,
+      ...spacings.pv,
       // @ts-ignore removes the hover effect on web
       ...(isWeb ? { cursor: 'default' } : {})
     }

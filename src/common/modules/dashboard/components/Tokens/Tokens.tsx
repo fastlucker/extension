@@ -91,7 +91,7 @@ const Tokens = ({ tokens, searchValue }: Props) => {
         {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
         {!!sortedTokens.length && (
           <View>
-            <View style={{ flexDirection: 'row', marginBottom: 8, paddingHorizontal: 8 }}>
+            <View style={{ flexDirection: 'row', ...spacings.mbTy, ...spacings.phTy }}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 ASSET/AMOUNT
               </Text>

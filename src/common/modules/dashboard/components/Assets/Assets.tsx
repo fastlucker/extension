@@ -20,7 +20,7 @@ const { isPopup } = getUiType()
 // We do this instead of unmounting the component to prevent
 // component rerendering when switching tabs.
 const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
-const VISIBLE_STYLE: ViewStyle = { flex: 1, ...(isPopup ? spacings.phLg : spacings.prSm) }
+const VISIBLE_STYLE: ViewStyle = { flex: 1, ...(isPopup ? spacings.ph : spacings.prSm) }
 
 const Assets = ({ tokens, openTab, searchValue }: Props) => {
   return (

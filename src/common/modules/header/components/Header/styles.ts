@@ -36,8 +36,8 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      ...spacings.phLg,
-      ...spacings.ptLg,
+      ...spacings.ph,
+      ...spacings.pt,
       ...spacings.pb,
       ...(isWeb ? { height: HEADER_HEIGHT } : {})
     },
