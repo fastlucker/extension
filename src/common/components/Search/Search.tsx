@@ -4,6 +4,7 @@ import { ViewProps } from 'react-native'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 
 import Input from '../Input'
 
@@ -22,7 +23,7 @@ const Search = ({ placeholder = 'Search', style, control, height = 40 }: Props) 
       name="search"
       render={({ field: { onChange, onBlur, value } }) => (
         <Input
-          containerStyle={{ marginBottom: 0 }}
+          containerStyle={spacings.mb0}
           leftIcon={() => <SearchIcon color={theme.secondaryText} />}
           placeholder={placeholder}
           style={style}
