@@ -21,6 +21,7 @@ interface Props {
   icon?: any
   onPress?: () => void
   buttonText?: string
+  isDisabled?: boolean
 }
 
 const Card: React.FC<Props> = ({
@@ -30,6 +31,7 @@ const Card: React.FC<Props> = ({
   textStyle,
   icon: Icon,
   onPress,
+  isDisabled,
   buttonText
 }) => {
   const { theme } = useTheme()
@@ -37,10 +39,11 @@ const Card: React.FC<Props> = ({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={!isDisabled ? onPress : () => {}}
       style={({ hovered }: any) => [
         styles.container,
         { borderWidth: 1, borderColor: hovered ? theme.primary : colors.melrose_15 },
+        isDisabled && { opacity: 0.7 },
         style
       ]}
     >
@@ -63,10 +66,11 @@ const Card: React.FC<Props> = ({
           )}
           {!!buttonText && (
             <Button
+              disabled={isDisabled}
               textStyle={{ fontSize: 14 }}
               style={{ width: '100%' }}
               text={t(buttonText)}
-              onPress={onPress}
+              onPress={!isDisabled ? onPress : () => {}}
               hasBottomSpacing={false}
             />
           )}

@@ -105,6 +105,7 @@ const GetStartedScreen = () => {
               style={flexboxStyles.flex1}
               onPress={() => handleAuthButtonPress('email')}
               buttonText={t('Create Email Account')}
+              isDisabled
             />
           </View>
         </Panel>
