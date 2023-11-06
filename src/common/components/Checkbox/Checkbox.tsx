@@ -7,6 +7,7 @@ import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
+import { StrategiesMetadata } from '@yfi/sdk'
 
 interface Props {
   label?: ReactNode
@@ -15,6 +16,7 @@ interface Props {
   children?: any
   style?: ViewProps['style']
   isDisabled?: boolean
+  TestId?: string
 }
 
 const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: Props) => {

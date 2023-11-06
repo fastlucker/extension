@@ -22,6 +22,7 @@ interface Props {
   }
   onPress?: () => void
   buttonText?: string
+  testId?: string
 }
 
 const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress, buttonText }) => {
@@ -52,6 +53,7 @@ const Card: React.FC<Props> = ({ style, text, title, icon: Icon, image, onPress,
           )}
           {buttonText && (
             <Button
+              testID='button'
               textStyle={{ fontSize: 14 }}
               containerStyle={{ width: '100%' }}
               text={t(buttonText)}

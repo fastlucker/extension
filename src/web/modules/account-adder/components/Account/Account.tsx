@@ -84,6 +84,7 @@ const Account = ({
         <View style={[flexbox.flex1]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <Text
+              testID='account-checkbox'
               weight="regular"
               fontSize={12}
               color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.brownRum}

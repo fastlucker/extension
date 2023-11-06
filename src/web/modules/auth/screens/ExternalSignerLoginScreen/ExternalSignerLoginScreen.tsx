@@ -189,6 +189,7 @@ const ExternalSignerLoginScreen = () => {
             style={[flexbox.alignSelfCenter]}
             onPress={handleFormSubmit}
             disabled={!isValid}
+            testID='button-ext-sighner-login-screen'
           />
         </View>
       </TabLayoutWrapperMainContent>
