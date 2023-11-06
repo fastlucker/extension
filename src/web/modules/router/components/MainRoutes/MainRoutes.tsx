@@ -1,28 +1,19 @@
 import React from 'react'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
-import useTheme from '@common/hooks/useTheme'
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
-import AuthScreen from '@common/modules/auth/screens/AuthScreen'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
-import {
-  headerControls as defaultHeaderControls,
-  headerTitle as defaultHeaderTitle,
-  headerTitleWithAmbireLogo as defaultHeaderTitleWithAmbireLogo
-} from '@common/modules/header/config/headerConfig'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
 import AccountsScreen from '@web/modules/accounts/screens/AccountsScreen'
-import AddAccountPasswordToVaultScreen from '@web/modules/auth/screens/AddAccountPasswordToVaultScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
-import JsonLoginScreen from '@web/modules/auth/screens/JsonLoginScreen'
 import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
@@ -41,32 +32,6 @@ import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScre
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
-const HeaderControls = () => {
-  const {
-    theme: { secondaryBackground }
-  } = useTheme()
-  return (
-    <>
-      {defaultHeaderControls({ backgroundColor: secondaryBackground })}
-      <Outlet />
-    </>
-  )
-}
-
-const headerTitle = (
-  <>
-    {defaultHeaderTitle({})}
-    <Outlet />
-  </>
-)
-
-const headerTitleWithAmbireLogo = (
-  <>
-    {defaultHeaderTitleWithAmbireLogo({})}
-    <Outlet />
-  </>
-)
-
 const stepperProvider = (
   <StepperProvider>
     <Outlet />
@@ -82,23 +47,12 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.getStarted} element={<GetStartedScreen />} />
           <Route path={WEB_ROUTES.terms} element={<Terms />} />
           <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
-          <Route path={WEB_ROUTES.auth} element={<AuthScreen />} />
 
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
           <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-          <Route
-            path={WEB_ROUTES.ambireAccountLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
-          />
-
-          <Route path={WEB_ROUTES.ambireAccountJsonLogin} element={<JsonLoginScreen />} />
-          <Route
-            path={WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm}
-            element={<AddAccountPasswordToVaultScreen />}
-          />
 
           <Route
             path={WEB_ROUTES.hardwareWalletSelect}
@@ -124,29 +78,22 @@ const MainRoutes = () => {
         </Route>
       </Route>
 
-      <Route element={headerTitleWithAmbireLogo}>
-        <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
-      </Route>
+      <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
 
       <Route element={<PrivateRoute />}>
         <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
         <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
-
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-        <Route element={headerTitle}>
-          <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
-          <Route
-            path={WEB_ROUTES.getEncryptionPublicKeyRequest}
-            element={<GetEncryptionPublicKeyRequestScreen />}
-          />
-        </Route>
-        <Route element={headerTitle}>
-          <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
-          <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
-        </Route>
-        <Route element={<HeaderControls />}>
-          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
-        </Route>
+
+        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+        <Route
+          path={WEB_ROUTES.getEncryptionPublicKeyRequest}
+          element={<GetEncryptionPublicKeyRequestScreen />}
+        />
+
+        <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
+        <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
+        <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
       </Route>
     </Routes>
   )

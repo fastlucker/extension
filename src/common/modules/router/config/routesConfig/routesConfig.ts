@@ -81,27 +81,6 @@ const routesConfig: {
       web: ''
     })
   },
-  [ROUTES.ambireAccountLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
-  [ROUTES.ambireAccountJsonLogin]: {
-    route: ROUTES.ambireAccountJsonLogin,
-    title: Platform.select({
-      web: i18n.t('Import From JSON File'),
-      default: i18n.t('Import From File')
-    })
-  },
-  [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
   [ROUTES.hardwareWallet]: {
     route: ROUTES.hardwareWallet,
     title: Platform.select({
