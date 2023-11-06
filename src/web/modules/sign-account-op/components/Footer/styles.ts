@@ -15,14 +15,7 @@ const getStyles = () =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
-      ...spacings.ph3Xl,
       ...flexbox.flex1,
-      ...common.shadowPrimary,
-      shadowOpacity: 0.1,
-      shadowOffset: {
-        width: 0,
-        height: -3
-      },
       // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
       // when we show the select signer overlay
       // @ts-ignore

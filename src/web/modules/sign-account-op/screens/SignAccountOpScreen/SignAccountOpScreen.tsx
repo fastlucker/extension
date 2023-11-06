@@ -13,7 +13,10 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -253,9 +256,8 @@ const SignAccountOpScreen = () => {
   }
 
   return (
-    <TabLayoutWrapperMainContent
+    <TabLayoutContainer
       width="full"
-      forceCanGoBack
       header={
         <Header
           networkId={network.id as any}
@@ -281,64 +283,70 @@ const SignAccountOpScreen = () => {
         />
       }
     >
-      <View style={styles.container}>
-        <View style={styles.leftSideContainer}>
-          <View style={styles.transactionsContainer}>
-            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
-              {t('Waiting Transactions')}
-            </Text>
-            <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-              {callsToVisualize.map((call, i) => {
-                return (
-                  <TransactionSummary
-                    key={call.data + call.fromUserRequestId}
-                    style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-                    call={call}
-                    networkId={network.id}
-                    explorerUrl={network.explorerUrl}
-                  />
-                )
-              })}
-            </ScrollView>
-          </View>
-          {!!pendingTokens.length && (
-            <View style={flexbox.flex1}>
-              <View style={spacings.pr}>
-                <View style={styles.pendingTokensSeparatorContainer}>
-                  <View style={styles.separatorHorizontal} />
-                  <View style={styles.pendingTokensHeadingWrapper}>
-                    <Text fontSize={16} color={theme.secondaryText} weight="medium">
-                      {t('Balance changes')}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
-                {pendingTokens.map((token) => {
+      <TabLayoutWrapperMainContent>
+        <View style={styles.container}>
+          <View style={styles.leftSideContainer}>
+            <View style={styles.transactionsContainer}>
+              <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+                {t('Waiting Transactions')}
+              </Text>
+              <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+                {callsToVisualize.map((call, i) => {
                   return (
-                    <PendingTokenSummary key={token.address} token={token} networkId={network.id} />
+                    <TransactionSummary
+                      key={call.data + call.fromUserRequestId}
+                      style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                      call={call}
+                      networkId={network.id}
+                      explorerUrl={network.explorerUrl}
+                    />
                   )
                 })}
               </ScrollView>
             </View>
-          )}
+            {!!pendingTokens.length && (
+              <View style={flexbox.flex1}>
+                <View style={spacings.pr}>
+                  <View style={styles.pendingTokensSeparatorContainer}>
+                    <View style={styles.separatorHorizontal} />
+                    <View style={styles.pendingTokensHeadingWrapper}>
+                      <Text fontSize={16} color={theme.secondaryText} weight="medium">
+                        {t('Balance changes')}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
+                  {pendingTokens.map((token) => {
+                    return (
+                      <PendingTokenSummary
+                        key={token.address}
+                        token={token}
+                        networkId={network.id}
+                      />
+                    )
+                  })}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+          <View style={styles.separator} />
+          <View style={styles.estimationContainer}>
+            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              {t('Estimation')}
+            </Text>
+            {hasEstimation ? (
+              <Estimation networkId={network.id} />
+            ) : (
+              <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+                <Spinner style={styles.spinner} />
+              </View>
+            )}
+          </View>
         </View>
-        <View style={styles.separator} />
-        <View style={styles.estimationContainer}>
-          <Text fontSize={20} weight="medium" style={spacings.mbXl}>
-            {t('Estimation')}
-          </Text>
-          {hasEstimation ? (
-            <Estimation networkId={network.id} />
-          ) : (
-            <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-              <Spinner style={styles.spinner} />
-            </View>
-          )}
-        </View>
-      </View>
-    </TabLayoutWrapperMainContent>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 
