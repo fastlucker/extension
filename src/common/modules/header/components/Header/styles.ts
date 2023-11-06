@@ -1,14 +1,14 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings, { SPACING, SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 
 export const HEADER_HEIGHT = Platform.select({
-  web: 40 + SPACING + SPACING_LG,
+  web: 40 + SPACING * 2,
   default: 60
 })
 
