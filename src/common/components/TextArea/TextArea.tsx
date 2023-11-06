@@ -24,9 +24,6 @@ export interface InputProps extends TextInputProps {
   label?: string
   isValid?: boolean
   validLabel?: string
-  button?: string | JSX.Element | null
-  buttonProps?: TouchableOpacityProps
-  onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: any
   inputStyle?: any
@@ -35,17 +32,14 @@ export interface InputProps extends TextInputProps {
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
-const Input = ({
+const TextArea = ({
   label,
-  button,
-  buttonProps,
   info,
   error,
   isValid,
   validLabel,
   onBlur = () => {},
   onFocus = () => {},
-  onButtonPress = () => {},
   disabled,
   containerStyle,
   inputStyle,
@@ -65,8 +59,6 @@ const Input = ({
     setIsFocused(false)
     return onBlur(e)
   }
-
-  const hasButton = !!button
 
   const borderWrapperStyles = [
     styles.borderWrapper,
@@ -88,7 +80,7 @@ const Input = ({
     inputWrapperStyle
   ]
 
-  const inputStyles = [styles.input, !!hasButton && spacings.pr0, inputStyle]
+  const inputStyles = [styles.input, inputStyle]
 
   return (
     <View style={[styles.inputContainer, containerStyle]}>
@@ -101,7 +93,7 @@ const Input = ({
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           {/* TextInput doesn't support border styles so we wrap it in a View */}
-          <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
+          <View style={inputStyles}>
             <TextInput
               placeholderTextColor={theme.secondaryText}
               autoCapitalize="none"
@@ -110,29 +102,9 @@ const Input = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%' }}
+              style={{ height: '100%', outline: 'none' }}
             />
           </View>
-          {!!hasButton && (
-            <TouchableOpacity
-              // The `focusable` prop determines whether a component is user-focusable
-              // and appears in the keyboard tab flow. It's missing in the
-              // TouchableOpacity props, because it's react-native-web specific, see:
-              // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
-              // @ts-ignore-next-line
-              focusable={false}
-              onPress={onButtonPress}
-              disabled={disabled}
-              style={styles.button}
-              {...buttonProps}
-            >
-              {typeof button === 'string' || button instanceof String ? (
-                <Text weight="medium">{button}</Text>
-              ) : (
-                button
-              )}
-            </TouchableOpacity>
-          )}
         </View>
       </View>
       {!!error && (
@@ -161,4 +133,4 @@ const Input = ({
   )
 }
 
-export default React.memo(Input)
+export default React.memo(TextArea)

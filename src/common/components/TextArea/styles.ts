@@ -34,7 +34,6 @@ const getStyles = (theme: ThemeProps) =>
     inputWrapper: {
       flexDirection: 'row',
       borderWidth: 1,
-      height: 50,
       ...common.borderRadiusPrimary
     },
     input: {
@@ -42,10 +41,11 @@ const getStyles = (theme: ThemeProps) =>
       fontSize: 14,
       fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
       flex: 1,
-      height: 48,
-      borderWidth: 0,
+      ...spacings.pvTy,
+      ...spacings.phTy,
       color: theme.secondaryText,
-      ...spacings.phTy
+      borderWidth: 0,
+      borderColor: 'transparent'
     },
     infoText: {
       opacity: 0.5,
