@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -13,6 +13,13 @@ interface Style {
   networks: ViewStyle
   networkIconContainer: ViewStyle
   networkIcon: ViewStyle
+  accountButton: ViewStyle
+  accountButtonRightIcon: ViewStyle
+  accountButtonInfo: ViewStyle
+  accountButtonInfoIcon: ImageStyle
+  accountButtonInfoText: TextStyle
+  accountAddressAndLabel: ViewStyle
+  accountCopyIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -42,7 +49,25 @@ const getStyles = (theme: ThemeProps) =>
     networkIcon: {
       width: 18,
       height: 18
-    }
+    },
+    accountButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      height: 40,
+      ...spacings.phMi,
+      backgroundColor: '#B6B9FF26',
+      borderWidth: 1,
+      borderColor: '#6770B333',
+      borderRadius: 12,
+      minWidth: 180
+    },
+    accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
+    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
+    accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
+    accountButtonInfoText: { ...spacings.mlMi },
+    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
+    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
   })
 
 export default getStyles

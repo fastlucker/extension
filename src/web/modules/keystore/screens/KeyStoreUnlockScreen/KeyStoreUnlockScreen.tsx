@@ -78,7 +78,7 @@ const KeyStoreUnlockScreen = () => {
       }}
     >
       <>
-        <Header mode="title" withAmbireLogo />
+        <Header withAmbireLogo />
         <Wrapper
           contentContainerStyle={[spacings.pbLg, flexboxStyles.alignCenter]}
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}

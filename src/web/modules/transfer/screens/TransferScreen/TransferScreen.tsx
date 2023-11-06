@@ -51,7 +51,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       width="lg"
-      header={<Header mode="title" withAmbireLogo forceBack onGoBackPress={onBack} />}
+      header={<Header withAmbireLogo forceBack onGoBackPress={onBack} />}
     >
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (

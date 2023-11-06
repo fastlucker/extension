@@ -1,9 +1,8 @@
-import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import spacings, { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -18,15 +17,6 @@ interface Styles {
   navIconContainerRegular: ViewStyle
   title: TextStyle
   sideContainer: ViewStyle
-  // Account
-  account: ViewStyle
-  accountButton: ViewStyle
-  accountButtonRightIcon: ViewStyle
-  accountButtonInfo: ViewStyle
-  accountButtonInfoIcon: ImageStyle
-  accountButtonInfoText: TextStyle
-  accountAddressAndLabel: ViewStyle
-  accountCopyIcon: ViewStyle
 }
 
 const isTab = getUiType().isTab
@@ -63,30 +53,7 @@ const getStyles = (theme: ThemeProps) =>
     sideContainer: {
       width: 120,
       minWidth: 120
-    },
-    // Account
-    account: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter
-    },
-    accountButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      height: 40,
-      ...spacings.phMi,
-      backgroundColor: '#B6B9FF26',
-      borderWidth: 1,
-      borderColor: '#6770B333',
-      borderRadius: 12,
-      minWidth: 180
-    },
-    accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
-    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
-    accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
-    accountButtonInfoText: { ...spacings.mlMi },
-    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
-    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
+    }
   })
 
 export default getStyles

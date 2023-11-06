@@ -64,7 +64,7 @@ const AccountSelectScreen = () => {
 
   return (
     <>
-      <Header mode="title" />
+      <Header />
       <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
         <View style={styles.container}>
           <Search control={control} placeholder="Search for accounts" style={styles.searchBar} />

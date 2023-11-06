@@ -37,7 +37,7 @@ const NavMenu = () => {
 
   return (
     <>
-      <Header mode="title" />
+      <Header />
       <Wrapper>
         <View style={[spacings.mhMi, spacings.mvTy]}>
           <View style={(flexboxStyles.directionRow, commonWebStyles.contentContainer)}>

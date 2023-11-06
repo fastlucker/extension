@@ -68,7 +68,7 @@ const GetStartedScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="lg"
-      header={<Header mode="title" withAmbireLogo />}
+      header={<Header withAmbireLogo />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Choose Account Type')} style={spacings.mbMd}>

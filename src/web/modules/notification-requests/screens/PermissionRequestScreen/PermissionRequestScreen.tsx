@@ -43,7 +43,7 @@ const PermissionRequestScreen = () => {
 
   return (
     <>
-      <Header mode="title" withAmbireLogo />
+      <Header withAmbireLogo />
       <Wrapper hasBottomTabNav={false}>
         <Panel>
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
