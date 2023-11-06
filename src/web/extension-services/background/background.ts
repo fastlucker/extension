@@ -53,7 +53,6 @@ async function init() {
 
   await permissionService.init()
 }
-
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
@@ -63,7 +62,9 @@ async function init() {
 
   const mainCtrl = new MainController({
     storage,
-    fetch,
+    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
+    // binding window to fetch provides the correct context
+    fetch: window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,

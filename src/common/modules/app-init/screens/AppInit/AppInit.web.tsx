@@ -43,9 +43,9 @@ if (shouldInitProviders) {
 const Router = isExtension ? HashRouter : BrowserRouter
 
 const AppInit = () => {
-  const { fontsLoaded } = useFonts()
+  const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded) return null
+  if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <BackgroundServiceProvider>

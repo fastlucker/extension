@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ColorValue, TouchableOpacityProps } from 'react-native'
+import { ColorValue, ViewStyle } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import NavIconWrapper from '@common/components/NavIconWrapper'
@@ -10,7 +10,7 @@ import useToast from '@common/hooks/useToast'
 
 interface Props {
   text: string
-  style?: TouchableOpacityProps['style']
+  style?: ViewStyle
   iconColor?: ColorValue
   iconWidth?: number
   iconHeight?: number
@@ -28,7 +28,7 @@ const CopyText: React.FC<Props> = ({ text, style, iconColor, iconWidth = 15, ico
 
   return (
     <NavIconWrapper onPress={handleCopyText} style={style} hoverBackground="transparent">
-      <CopyIcon color={iconColor || theme.primary} width={iconWidth} height={iconHeight} />
+      <CopyIcon color={iconColor || theme.primaryText} width={iconWidth} height={iconHeight} />
     </NavIconWrapper>
   )
 }
