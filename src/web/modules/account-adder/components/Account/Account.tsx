@@ -17,6 +17,55 @@ import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
 
+export const setPrimaryLabel = (text: string) => {
+  const { styles } = useTheme(getStyles)
+  return (
+    <View style={styles.primaryLabel}>
+      <Text fontSize={12} numberOfLines={1} appearance="primary">
+        {text}
+      </Text>
+    </View>
+  )
+}
+
+export const setSuccessLabel = (text: string) => {
+  const { styles, theme } = useTheme(getStyles)
+
+  return (
+    <View style={[styles.successLabel, flexbox.directionRow, flexbox.alignCenter]}>
+      <Text fontSize={12} appearance="successText" style={spacings.mrMi}>
+        {text}
+      </Text>
+
+      <InfoIcon color={theme.successDecorative as any} width={16} height={16} />
+    </View>
+  )
+}
+
+export const setDefaultLabel = (text: string) => {
+  const { styles } = useTheme(getStyles)
+  return (
+    <View style={styles.defaultLabel}>
+      <Text fontSize={12} numberOfLines={1} appearance="secondaryText">
+        {text}
+      </Text>
+    </View>
+  )
+}
+
+export const setWarningLabel = (text: string) => {
+  const { styles } = useTheme(getStyles)
+
+  return (
+    <View style={[styles.warningLabel, flexbox.directionRow, flexbox.alignCenter]}>
+      <Text fontSize={12} numberOfLines={1} color="#5C4E22" style={spacings.mrMi}>
+        {text}
+      </Text>
+      <InfoIcon color="#B89C4B" width={16} height={16} />
+    </View>
+  )
+}
+
 const Account = ({
   account,
   type,
@@ -46,47 +95,6 @@ const Account = ({
     if (accType === 'smart' || creation) return t('Smart Account')
     return ''
   }
-
-  const setPrimaryLabel = (text: string) => (
-    <View style={styles.primaryLabel}>
-      <Text weight="regular" fontSize={12} numberOfLines={1} appearance="primary">
-        {text}
-      </Text>
-    </View>
-  )
-
-  const setSuccessLabel = (text: string) => (
-    <View style={[styles.successLabel, flexbox.directionRow, flexbox.alignCenter]}>
-      <Text
-        weight="regular"
-        fontSize={12}
-        numberOfLines={1}
-        appearance="successText"
-        style={spacings.mrMi}
-      >
-        {text}
-      </Text>
-
-      <InfoIcon color={theme.successDecorative as any} width={16} height={16} />
-    </View>
-  )
-
-  const setDefaultLabel = (text: string) => (
-    <View style={styles.defaultLabel}>
-      <Text weight="regular" fontSize={12} numberOfLines={1} appearance="secondaryText">
-        {text}
-      </Text>
-    </View>
-  )
-
-  const setWarningLabel = (text: string) => (
-    <View style={[styles.warningLabel, flexbox.directionRow, flexbox.alignCenter]}>
-      <Text weight="regular" fontSize={12} numberOfLines={1} color="#5C4E22" style={spacings.mrMi}>
-        {text}
-      </Text>
-      <InfoIcon color="#B89C4B " width={16} height={16} />
-    </View>
-  )
 
   const toggleSelectedState = () => {
     if (isSelected) {

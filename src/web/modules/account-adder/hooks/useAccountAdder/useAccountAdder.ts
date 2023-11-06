@@ -48,7 +48,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
-    const init = {
+    const init: any = {
       internal: () => {
         if (!privKeyOrSeed) return
 
@@ -158,9 +158,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
+        state: {
+          accounts: accountAdderState.readyToAddAccounts
+        }
+      })
     },
-    [navigate]
+    [navigate, accountAdderState]
   )
 
   useEffect(() => {

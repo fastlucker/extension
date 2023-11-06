@@ -143,7 +143,11 @@ const ViewOnlyScreen = () => {
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: selectedAccount.addr }
       }).then(() => {
-        navigate(WEB_ROUTES.accountPersonalize)
+        navigate(WEB_ROUTES.accountPersonalize, {
+          state: {
+            accounts: accountAdderState.readyToAddAccounts
+          }
+        })
       })
     }
   }, [
