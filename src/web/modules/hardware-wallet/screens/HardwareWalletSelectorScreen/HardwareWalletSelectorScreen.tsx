@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -27,7 +26,7 @@ import getOptions from './options'
 
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
@@ -84,26 +83,7 @@ const HardwareWalletSelectorScreen = () => {
           <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
         </Header>
       }
-      footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={goBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      }
+      footer={<BackButton />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Choose Hardware Wallet')}>

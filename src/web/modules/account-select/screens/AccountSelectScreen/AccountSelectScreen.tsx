@@ -5,6 +5,7 @@ import { Image, Pressable, View } from 'react-native'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import BackButton from '@common/components/BackButton'
 import CopyText from '@common/components/CopyText'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
@@ -17,6 +18,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -66,9 +68,12 @@ const AccountSelectScreen = () => {
   }
 
   return (
-    <>
-      <Header />
-      <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
+    <TabLayoutContainer
+      header={<Header withPopupBackButton withAmbireLogo withBackButton={false} />}
+      footer={<BackButton />}
+      hideFooterInPopup
+    >
+      <View style={[flexboxStyles.flex1, spacings.pv]}>
         <View style={styles.container}>
           <Search control={control} placeholder="Search for accounts" style={styles.searchBar} />
         </View>
@@ -158,7 +163,7 @@ const AccountSelectScreen = () => {
           )}
         </Wrapper>
       </View>
-    </>
+    </TabLayoutContainer>
   )
 }
 

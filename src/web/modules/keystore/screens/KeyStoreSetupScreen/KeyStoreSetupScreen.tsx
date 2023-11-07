@@ -41,7 +41,7 @@ import KeyStoreLogo from '../../components/KeyStoreLogo'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
   const [keystoreReady, setKeystoreReady] = useState(false)
@@ -104,7 +104,7 @@ const KeyStoreSetupScreen = () => {
       }
       footer={
         <>
-          <BackButton onPress={goBack} />
+          <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}

@@ -10,7 +10,7 @@ interface Style {
   noCollectibles: TextStyle
 }
 
-const isTab = getUiType().isTab
+const { isTab } = getUiType()
 
 const getStyles = () =>
   StyleSheet.create<Style>({
@@ -18,7 +18,7 @@ const getStyles = () =>
       ...flexbox.flex1,
       ...flexbox.directionRow,
       ...flexbox.wrap,
-      ...spacings.pvLg,
+      ...(isTab ? spacings.pvLg : {}),
       justifyContent: isTab ? 'flex-start' : 'space-between',
       // Fixes huge gaps between rows
       alignContent: 'flex-start',
