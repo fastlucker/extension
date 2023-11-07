@@ -71,7 +71,8 @@ const Account = ({
               style={[flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
-              {Dimensions.get('window').width < 1300 // TODO: this is a temp solution
+              {/* TODO: this is a temp solution because Dimension gets the static sizes of the window and doesn't update dynamically */}
+              {Dimensions.get('window').width < 1300
                 ? shortenAddress(account.addr, 32)
                 : account.addr}
             </Text>

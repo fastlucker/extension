@@ -164,7 +164,8 @@ const AccountsList = ({
         style={spacings.mbLg}
         contentContainerStyle={{
           height:
-            Dimensions.get('window').height < 810 // TODO: this is a temp solution
+            // TODO: this is a temp solution because Dimension gets the static sizes of the window and doesn't update dynamically
+            Dimensions.get('window').height < 810
               ? LIST_ITEM_HEIGHT * 4 + LIST_ITEM_GUTTER * 3
               : LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
           ...spacings.pt0,
