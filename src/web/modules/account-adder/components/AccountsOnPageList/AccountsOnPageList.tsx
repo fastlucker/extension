@@ -110,7 +110,7 @@ const AccountsList = ({
   const getAccounts = (accounts: any) => {
     return accounts.map((acc: any, i: any) => {
       const isSelected = state.selectedAccounts.some(
-        (selectedAcc) => selectedAcc.addr === acc.account.addr
+        (selectedAcc) => selectedAcc.account.addr === acc.account.addr
       )
       const isPreselected = state.preselectedAccounts.some(
         (selectedAcc) => selectedAcc.addr === acc.account.addr
