@@ -1,8 +1,9 @@
-import { Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import spacings, { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -14,8 +15,10 @@ export const HEADER_HEIGHT = Platform.select({
 interface Styles {
   container: ViewStyle
   containerInner: ViewStyle
+  imageAndTitleContainer: ViewStyle
   navIconContainerRegular: ViewStyle
   title: TextStyle
+  image: ImageStyle
   sideContainer: ViewStyle
 }
 
@@ -39,6 +42,12 @@ const getStyles = (theme: ThemeProps) =>
       ...commonWebStyles.contentContainer,
       flex: 1
     },
+    imageAndTitleContainer: {
+      justifyContent: 'center',
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center'
+    },
     navIconContainerRegular: {
       width: 40,
       height: 40,
@@ -49,6 +58,12 @@ const getStyles = (theme: ThemeProps) =>
       textAlign: 'center',
       flex: 1,
       ...spacings.phTy
+    },
+    image: {
+      ...common.borderRadiusPrimary,
+      width: 40,
+      height: 40,
+      ...spacings.mrSm
     },
     sideContainer: {
       width: 120,
