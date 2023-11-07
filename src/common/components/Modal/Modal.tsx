@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { Modal as RNModal, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -13,7 +13,7 @@ type Props = {
   onClose?: () => void
   title?: string
   modalStyle?: ViewStyle | ViewStyle[]
-  children: any
+  children: ReactElement | ReactElement[]
 }
 
 const Modal = ({ isOpen, onClose, title, modalStyle, children }: Props) => {
