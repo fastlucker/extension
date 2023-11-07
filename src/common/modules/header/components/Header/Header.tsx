@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ColorValue, TouchableOpacity, View } from 'react-native'
+import { ColorValue, Image, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
@@ -16,9 +16,11 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 interface Props {
-  mode?: 'title' | 'custom-inner-content' | 'custom'
+  mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
+  customTitle?: string
   withBackButton?: boolean
   withAmbireLogo?: boolean
+  image?: string
   children?: any
   backgroundColor?: ColorValue
   forceBack?: boolean
@@ -27,12 +29,14 @@ interface Props {
 
 const Header: React.FC<Props> = ({
   mode = 'title',
+  customTitle,
   withBackButton = true,
   withAmbireLogo,
   children,
   backgroundColor,
   forceBack,
-  onGoBackPress
+  onGoBackPress,
+  image
 }) => {
   const { styles } = useTheme(getStyles)
 
@@ -86,13 +90,21 @@ const Header: React.FC<Props> = ({
           </View>
           <View style={styles.containerInner}>
             <Text fontSize={30} style={styles.title} numberOfLines={2}>
-              {title || ''}
+              {customTitle || title || ''}
             </Text>
           </View>
           <View style={[styles.sideContainer, flexbox.alignEnd]}>
             {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
           </View>
         </>
+      )}
+      {mode === 'image-and-title' && (
+        <View style={styles.imageAndTitleContainer}>
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+          <Text weight="medium" fontSize={20}>
+            {customTitle || title}
+          </Text>
+        </View>
       )}
       {mode === 'custom-inner-content' && (
         <>

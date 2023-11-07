@@ -32,12 +32,15 @@ const getStyles = (theme: ThemeProps) =>
       overflow: 'hidden'
     },
     informationCircle: {
-      alignSelf: 'center',
+      ...flexbox.alignSelfCenter,
       ...spacings.pbLg
     },
     footerContainer: {
       maxHeight: 120,
-      flex: 1,
+      ...flexbox.flex1,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.alignCenter,
+      ...flexbox.directionRow,
       ...spacings.ph3Xl,
       backgroundColor: theme.primaryBackground,
       shadowColor: '#B8BDE080',

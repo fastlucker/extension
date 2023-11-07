@@ -7,6 +7,7 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
@@ -162,23 +163,8 @@ const ViewOnlyScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo withBackButton={false} />}
       footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={goBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
+        <>
+          <BackButton onPress={goBack} />
           <Button
             textStyle={{ fontSize: 14 }}
             disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}
@@ -190,7 +176,7 @@ const ViewOnlyScreen = () => {
               <RightArrowIcon color={colors.titan} />
             </View>
           </Button>
-        </View>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>

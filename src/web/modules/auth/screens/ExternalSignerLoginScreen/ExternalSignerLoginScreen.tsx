@@ -120,14 +120,7 @@ const ExternalSignerLoginScreen = () => {
         </Header>
       }
       footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
+        <>
           <TouchableOpacity
             style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
             onPress={goBack}
@@ -147,7 +140,7 @@ const ExternalSignerLoginScreen = () => {
               <RightArrowIcon color={colors.titan} />
             </View>
           </Button>
-        </View>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>

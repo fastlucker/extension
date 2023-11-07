@@ -52,19 +52,15 @@ const AccountPersonalizeScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={<Header mode="custom-inner-content" withBackButton={false} withAmbireLogo />}
       footer={
-        <View
-          style={[flexbox.flex1, flexbox.justifyEnd, flexbox.alignCenter, flexbox.directionRow]}
+        <Button
+          onPress={() => navigate('/')}
+          hasBottomSpacing={false}
+          text={t('Save and Continue')}
         >
-          <Button
-            onPress={() => navigate('/')}
-            hasBottomSpacing={false}
-            text={t('Save and Continue')}
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </View>
+          <View style={spacings.pl}>
+            <RightArrowIcon color={colors.titan} />
+          </View>
+        </Button>
       }
     >
       <TabLayoutWrapperMainContent>
