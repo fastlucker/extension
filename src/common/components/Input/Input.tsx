@@ -4,9 +4,11 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
+  TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View
+  View,
+  ViewStyle
 } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -28,10 +30,10 @@ export interface InputProps extends TextInputProps {
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
-  containerStyle?: any
-  inputStyle?: any
-  inputWrapperStyle?: any
-  infoTextStyle?: any
+  containerStyle?: ViewStyle
+  inputStyle?: ViewStyle
+  inputWrapperStyle?: ViewStyle
+  infoTextStyle?: TextStyle
   leftIcon?: () => JSX.Element | JSX.Element
 }
 

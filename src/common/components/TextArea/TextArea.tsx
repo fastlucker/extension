@@ -4,7 +4,9 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
-  View
+  TextStyle,
+  View,
+  ViewStyle
 } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -22,10 +24,10 @@ export interface InputProps extends TextInputProps {
   isValid?: boolean
   validLabel?: string
   disabled?: boolean
-  containerStyle?: any
-  inputStyle?: any
-  inputWrapperStyle?: any
-  infoTextStyle?: any
+  containerStyle?: ViewStyle
+  inputStyle?: ViewStyle
+  inputWrapperStyle?: ViewStyle
+  infoTextStyle?: TextStyle
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
