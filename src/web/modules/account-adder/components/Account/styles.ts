@@ -8,20 +8,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  primaryLabel: ViewStyle
-  defaultLabel: ViewStyle
-  successLabel: ViewStyle
-  warningLabel: ViewStyle
   networkIcon: ViewStyle
-}
-
-const label: ViewStyle = {
-  height: 24,
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingHorizontal: 8,
-  borderWidth: 1,
-  borderRadius: 50
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -38,27 +25,6 @@ const getStyles = (theme: ThemeProps) =>
       flex: 1,
       maxHeight: 78,
       height: 78
-    },
-    primaryLabel: {
-      ...label,
-      borderColor: theme.primary,
-      backgroundColor: '#F6F0FF',
-      marginLeft: 4
-    },
-    defaultLabel: {
-      ...label,
-      borderColor: colors.martinique_80,
-      backgroundColor: '#F2F3FA'
-    },
-    warningLabel: {
-      ...label,
-      borderColor: '#B89C4B',
-      backgroundColor: '#F5F4EF'
-    },
-    successLabel: {
-      ...label,
-      borderColor: theme.successDecorative,
-      backgroundColor: '#EBF5F0'
     },
     networkIcon: {
       borderRadius: 50,
