@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { isValidPassword } from '@ambire-common/services/validations'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -33,6 +32,7 @@ import {
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import storage from '@web/extension-services/background/webapi/storage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -41,7 +41,7 @@ import KeyStoreLogo from '../../components/KeyStoreLogo'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
   const [keystoreReady, setKeystoreReady] = useState(false)
@@ -81,6 +81,15 @@ const KeyStoreSetupScreen = () => {
       setKeystoreReady(true)
     }
   }, [state.latestMethodCall, state.status])
+
+  useEffect(() => {
+    ;(async () => {
+      const secrets = await storage.get('keystoreSecrets', [])
+      if (secrets.some((s: any) => s.id === 'password')) {
+        goBack()
+      }
+    })()
+  }, [goBack])
 
   const handleKeystoreSetup = () => {
     handleSubmit(({ password }) => {
