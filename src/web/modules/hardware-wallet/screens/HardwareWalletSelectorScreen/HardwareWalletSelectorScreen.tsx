@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -25,7 +27,7 @@ import getOptions from './options'
 
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const { dispatchAsync } = useBackgroundService()
@@ -78,9 +80,29 @@ const HardwareWalletSelectorScreen = () => {
       width="lg"
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withBackButton withAmbireLogo>
+        <Header mode="custom-inner-content" withBackButton={false} withAmbireLogo>
           <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
         </Header>
+      }
+      footer={
+        <View
+          style={[
+            flexbox.flex1,
+            flexbox.justifySpaceBetween,
+            flexbox.alignCenter,
+            flexbox.directionRow
+          ]}
+        >
+          <TouchableOpacity
+            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
+            onPress={goBack}
+          >
+            <LeftArrowIcon />
+            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
+              {t('Back')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       }
     >
       <TabLayoutWrapperMainContent>
