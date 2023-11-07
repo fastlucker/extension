@@ -20,11 +20,11 @@ const HardwareWalletSelectorItem = ({ title, text, image, style, onPress }: Prop
       style={style}
       textStyle={[textStyles.center, spacings.mt2Xl]}
       text={
-        <Text>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+        <Text fontSize={14}>
+          <Text fontSize={14} appearance="primaryText" weight="semiBold">
             {'Supported: '}
           </Text>
-          <Text fontSize={14} appearance="secondaryText">
+          <Text fontSize={14} appearance="primaryText">
             {text}
           </Text>
         </Text>
