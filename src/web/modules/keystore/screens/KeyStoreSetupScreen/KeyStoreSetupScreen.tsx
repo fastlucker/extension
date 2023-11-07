@@ -41,7 +41,7 @@ import KeyStoreLogo from '../../components/KeyStoreLogo'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
   const [keystoreReady, setKeystoreReady] = useState(false)
@@ -98,13 +98,13 @@ const KeyStoreSetupScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withBackButton={false} withAmbireLogo>
+        <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
         </Header>
       }
       footer={
         <>
-          <BackButton onPress={goBack} />
+          <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}

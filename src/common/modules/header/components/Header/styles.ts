@@ -1,14 +1,15 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import { isWeb } from '@common/config/env'
-import spacings, { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
+const isTab = getUiType().isTab
+
 export const HEADER_HEIGHT = Platform.select({
-  web: 90,
+  web: 40 + (isTab ? SPACING_LG : SPACING) * 2,
   default: 60
 })
 
@@ -22,8 +23,6 @@ interface Styles {
   sideContainer: ViewStyle
 }
 
-const isTab = getUiType().isTab
-
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
@@ -31,10 +30,10 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: isTab ? SPACING_3XL : SPACING_LG,
+      paddingHorizontal: isTab ? SPACING_3XL : SPACING,
       backgroundColor: theme.secondaryBackground,
       ...spacings.pv,
-      ...(isWeb ? { height: 90 } : {})
+      height: HEADER_HEIGHT
     },
     containerInner: {
       flexDirection: 'row',

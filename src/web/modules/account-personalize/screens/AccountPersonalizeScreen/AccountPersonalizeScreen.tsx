@@ -50,17 +50,20 @@ const AccountPersonalizeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withBackButton={false} withAmbireLogo />}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
       footer={
-        <Button
-          onPress={() => navigate('/')}
-          hasBottomSpacing={false}
-          text={t('Save and Continue')}
-        >
-          <View style={spacings.pl}>
-            <RightArrowIcon color={colors.titan} />
-          </View>
-        </Button>
+        <>
+          <View />
+          <Button
+            onPress={() => navigate('/')}
+            hasBottomSpacing={false}
+            text={t('Save and Continue')}
+          >
+            <View style={spacings.pl}>
+              <RightArrowIcon color={colors.titan} />
+            </View>
+          </Button>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>

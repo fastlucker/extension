@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { NativeScrollEvent, View } from 'react-native'
+import React, { useState } from 'react'
+import { Pressable, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
@@ -15,7 +17,6 @@ interface Props {
   networkId?: NetworkDescriptor['id']
   explorerUrl?: NetworkDescriptor['explorerUrl']
   kind: IrMessage['content']['kind']
-  setHasReachedBottom: (hasReachedBottom: boolean) => void
 }
 
 export function formatFloatTokenAmount(
@@ -43,51 +44,31 @@ export function formatFloatTokenAmount(
   }
 }
 
-export const isCloseToBottom = ({
-  layoutMeasurement,
-  contentOffset,
-  contentSize
-}: NativeScrollEvent) => {
-  const paddingToBottom = 20
-  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
-}
-
-const MessageSummary = ({ message, networkId, explorerUrl, kind, setHasReachedBottom }: Props) => {
+const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
   const { styles } = useTheme(getStyles)
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
   const isTypedMessage = kind === 'typedMessage'
-
-  useEffect(() => {
-    const isScrollNotVisible = contentHeight < containerHeight
-
-    setHasReachedBottom(isScrollNotVisible)
-  }, [contentHeight, containerHeight, setHasReachedBottom])
+  const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <View style={[styles.container, isTypedMessage ? { flex: 1 } : {}]}>
-      <View style={styles.header}>
+    <View style={[styles.container, isTypedMessage && isExpanded ? { flex: 1 } : {}]}>
+      <Pressable onPress={() => setIsExpanded((prev) => !prev)} style={styles.header}>
+        {isTypedMessage && (
+          <Pressable
+            onPress={() => setIsExpanded((prev) => !prev)}
+            style={{ width: 24, justifyContent: 'center' }}
+          >
+            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
+          </Pressable>
+        )}
         <HumanizedVisualization
           data={message.fullVisualization}
           networkId={networkId}
           explorerUrl={explorerUrl}
           kind={kind}
         />
-      </View>
-      {isTypedMessage && (
-        <ScrollView
-          onScroll={(e) => {
-            if (isCloseToBottom(e.nativeEvent)) setHasReachedBottom(true)
-          }}
-          onLayout={(e) => {
-            setContainerHeight(e.nativeEvent.layout.height)
-          }}
-          onContentSizeChange={(_, height) => {
-            setContentHeight(height)
-          }}
-          scrollEventThrottle={400}
-          contentContainerStyle={styles.rawMessage}
-        >
+      </Pressable>
+      {isTypedMessage && isExpanded && (
+        <ScrollView contentContainerStyle={styles.rawMessage}>
           <Text
             appearance="secondaryText"
             fontSize={14}

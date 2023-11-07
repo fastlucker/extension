@@ -48,7 +48,7 @@ const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
 }
 
 const ViewOnlyScreen = () => {
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
@@ -161,10 +161,10 @@ const ViewOnlyScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header withAmbireLogo withBackButton={false} />}
+      header={<Header withAmbireLogo />}
       footer={
         <>
-          <BackButton onPress={goBack} />
+          <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
             disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}

@@ -31,7 +31,7 @@ const Terms = () => {
   const { t } = useTranslation()
   const { params } = useRoute()
   const [isChecked, setIsChecked] = useState(false)
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const keystoreState = useKeystoreControllerState()
   const { flow }: any = params
   const { theme } = useTheme()
@@ -87,7 +87,7 @@ const Terms = () => {
       width="md"
       footer={
         <>
-          <BackButton onPress={goBack} />
+          <BackButton />
           <Button
             disabled={!isChecked}
             textStyle={{ fontSize: 14 }}

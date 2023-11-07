@@ -58,7 +58,6 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
           customTitle={name || t('Unknown collection')}
           image={image}
           withAmbireLogo
-          withBackButton={false}
           mode="image-and-title"
         />
       }

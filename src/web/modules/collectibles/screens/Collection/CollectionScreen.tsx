@@ -5,7 +5,6 @@ import { View } from 'react-native'
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -16,7 +15,6 @@ import getStyles from './styles'
 
 const CollectionScreen = () => {
   const route = useRoute()
-  const { navigate } = useNavigation()
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
@@ -30,18 +28,13 @@ const CollectionScreen = () => {
         <Header
           customTitle={state.name}
           image={state.image}
+          withPopupBackButton
           withAmbireLogo
-          withBackButton={false}
           mode="image-and-title"
         />
       }
-      footer={
-        <BackButton
-          onPress={() => {
-            navigate(-1)
-          }}
-        />
-      }
+      footer={<BackButton />}
+      hideFooterInPopup
     >
       <View style={styles.contentContainer}>
         {state?.collectibles?.length ? (

@@ -97,7 +97,7 @@ const DashboardScreen = () => {
     <>
       <DashboardHeader />
       <View style={styles.container}>
-        <View style={spacings.phLg}>
+        <View style={spacings.ph}>
           <View style={[styles.contentContainer]}>
             <View style={styles.overview}>
               <View>

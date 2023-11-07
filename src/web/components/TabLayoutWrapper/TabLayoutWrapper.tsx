@@ -5,10 +5,13 @@ import Wrapper from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
 type Width = 'sm' | 'md' | 'lg' | 'full'
+
+const { isTab } = getUiType()
 
 export const tabLayoutWidths = {
   sm: 770,
@@ -21,6 +24,7 @@ type TabLayoutContainerProps = {
   backgroundColor?: ColorValue
   header?: React.ReactNode
   footer?: React.ReactNode
+  hideFooterInPopup?: boolean
   width?: Width
   children: any
 }
@@ -29,10 +33,13 @@ export const TabLayoutContainer = ({
   backgroundColor,
   header,
   footer,
+  hideFooterInPopup = false,
   width = 'full',
   children
 }: TabLayoutContainerProps) => {
   const { theme, styles } = useTheme(getStyles)
+  const isFooterHiddenInPopup = hideFooterInPopup && !isTab
+
   return (
     <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
       {!!header && header}
@@ -41,7 +48,8 @@ export const TabLayoutContainer = ({
           flexbox.directionRow,
           flexbox.flex1,
           width !== 'full' ? flexbox.alignSelfCenter : {},
-          width === 'full' ? spacings.ph3Xl : {},
+          width === 'full' && isTab ? spacings.ph3Xl : {},
+          width === 'full' && !isTab ? spacings.ph : {},
           {
             backgroundColor: backgroundColor || theme.primaryBackground,
             maxWidth: tabLayoutWidths[width]
@@ -50,7 +58,7 @@ export const TabLayoutContainer = ({
       >
         {children}
       </View>
-      {!!footer && <View style={styles.footerContainer}>{footer}</View>}
+      {!!footer && !isFooterHiddenInPopup && <View style={styles.footerContainer}>{footer}</View>}
     </View>
   )
 }

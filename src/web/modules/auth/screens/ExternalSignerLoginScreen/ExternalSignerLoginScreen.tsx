@@ -1,12 +1,12 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import InfoIcon from '@common/assets/svg/InfoIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
@@ -14,6 +14,7 @@ import Text from '@common/components/Text'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
@@ -52,7 +53,9 @@ const ExternalSignerLoginScreen = () => {
     }
   })
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { state } = useRoute()
+  const canGoBack = state?.prevRoute?.pathname !== '/keystore-setup'
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
 
   useEffect(() => {
@@ -115,21 +118,13 @@ const ExternalSignerLoginScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withAmbireLogo withBackButton={false}>
+        <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper />
         </Header>
       }
       footer={
         <>
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={goBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
+          {canGoBack ? <BackButton /> : <View />}
           <Button
             text={t('Import Legacy Account')}
             hasBottomSpacing={false}

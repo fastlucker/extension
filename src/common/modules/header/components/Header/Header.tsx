@@ -18,7 +18,7 @@ import getStyles from './styles'
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
   customTitle?: string
-  withBackButton?: boolean
+  withPopupBackButton?: boolean
   withAmbireLogo?: boolean
   image?: string
   children?: any
@@ -27,10 +27,12 @@ interface Props {
   onGoBackPress?: () => void
 }
 
+const { isTab, isPopup } = getUiType()
+
 const Header: React.FC<Props> = ({
   mode = 'title',
   customTitle,
-  withBackButton = true,
+  withPopupBackButton = false,
   withAmbireLogo,
   children,
   backgroundColor,
@@ -46,6 +48,7 @@ const Header: React.FC<Props> = ({
 
   const [title, setTitle] = useState('')
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
+  const showBackButtonInPopup = isPopup && withPopupBackButton
 
   const navigationEnabled = !getUiType().isNotification
 
@@ -86,10 +89,15 @@ const Header: React.FC<Props> = ({
       {mode === 'title' && (
         <>
           <View style={styles.sideContainer}>
-            {!!withBackButton && (!!canGoBack || !!forceBack) && renderBackButton()}
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
           </View>
           <View style={styles.containerInner}>
-            <Text fontSize={30} style={styles.title} numberOfLines={2}>
+            <Text
+              weight="regular"
+              fontSize={isTab ? 24 : 20}
+              style={styles.title}
+              numberOfLines={2}
+            >
               {customTitle || title || ''}
             </Text>
           </View>
@@ -99,17 +107,23 @@ const Header: React.FC<Props> = ({
         </>
       )}
       {mode === 'image-and-title' && (
-        <View style={styles.imageAndTitleContainer}>
-          {image && <Image source={{ uri: image }} style={styles.image} />}
-          <Text weight="medium" fontSize={20}>
-            {customTitle || title}
-          </Text>
-        </View>
+        <>
+          <View style={styles.sideContainer}>
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+          </View>
+          <View style={styles.imageAndTitleContainer}>
+            {image && <Image source={{ uri: image }} style={styles.image} />}
+            <Text weight="medium" fontSize={20}>
+              {customTitle || title}
+            </Text>
+          </View>
+          <View style={styles.sideContainer} />
+        </>
       )}
       {mode === 'custom-inner-content' && (
         <>
           <View style={styles.sideContainer}>
-            {!!withBackButton && !!canGoBack && renderBackButton()}
+            {showBackButtonInPopup && !!canGoBack && renderBackButton()}
           </View>
           <View style={styles.containerInner}>{children}</View>
           <View style={[styles.sideContainer, flexbox.alignEnd]}>

@@ -18,7 +18,7 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       width: '100%',
       backgroundColor: theme.secondaryBackground,
-      ...spacings.phLg,
+      ...spacings.ph,
       ...spacings.pvSm,
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
