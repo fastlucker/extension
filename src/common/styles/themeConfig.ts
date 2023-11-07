@@ -107,6 +107,12 @@ const ThemeColors = {
   }
 }
 
+export const legacyAccount = {
+  primary: '#5C4E22',
+  secondary: '#B89C4B',
+  tertiary: '#F5F4EF'
+}
+
 export const iconColors = {
   warning: '#CA7E04',
   primary: '#54597A',

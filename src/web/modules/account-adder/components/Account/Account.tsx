@@ -4,7 +4,7 @@ import { Dimensions, View } from 'react-native'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
-import InfoIcon from '@common/assets/svg/InfoIcon'
+import Badge from '@common/components/Badge'
 import Checkbox from '@common/components/Checkbox'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
@@ -16,55 +16,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
-
-export const setPrimaryLabel = (text: string) => {
-  const { styles } = useTheme(getStyles)
-  return (
-    <View style={styles.primaryLabel}>
-      <Text fontSize={12} numberOfLines={1} appearance="primary">
-        {text}
-      </Text>
-    </View>
-  )
-}
-
-export const setSuccessLabel = (text: string) => {
-  const { styles, theme } = useTheme(getStyles)
-
-  return (
-    <View style={[styles.successLabel, flexbox.directionRow, flexbox.alignCenter]}>
-      <Text fontSize={12} appearance="successText" style={spacings.mrMi}>
-        {text}
-      </Text>
-
-      <InfoIcon color={theme.successDecorative as any} width={16} height={16} />
-    </View>
-  )
-}
-
-export const setDefaultLabel = (text: string) => {
-  const { styles } = useTheme(getStyles)
-  return (
-    <View style={styles.defaultLabel}>
-      <Text fontSize={12} numberOfLines={1} appearance="secondaryText">
-        {text}
-      </Text>
-    </View>
-  )
-}
-
-export const setWarningLabel = (text: string) => {
-  const { styles } = useTheme(getStyles)
-
-  return (
-    <View style={[styles.warningLabel, flexbox.directionRow, flexbox.alignCenter]}>
-      <Text fontSize={12} numberOfLines={1} color="#5C4E22" style={spacings.mrMi}>
-        {text}
-      </Text>
-      <InfoIcon color="#B89C4B" width={16} height={16} />
-    </View>
-  )
-}
 
 const Account = ({
   account,
@@ -89,12 +40,6 @@ const Account = ({
   const { styles, theme } = useTheme(getStyles)
 
   if (!account.addr) return
-
-  const getAccountTypeLabel = (accType: 'legacy' | 'smart' | 'linked', creation: any) => {
-    if (accType === 'legacy' || !creation) return t('Legacy Account')
-    if (accType === 'smart' || creation) return t('Smart Account')
-    return ''
-  }
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -132,11 +77,11 @@ const Account = ({
             </Text>
             {(!!unused || type === 'linked') && (
               <View style={[flexbox.directionRow, spacings.mbTy]}>
-                {unused && setDefaultLabel('unused')}
-                {type === 'linked' && setPrimaryLabel('linked')}
-                {type === 'linked' &&
-                  isAmbireV1LinkedAccount(account.creation?.factoryAddr) &&
-                  setPrimaryLabel('v1')}
+                {!!unused && <Badge text={t('unused')} />}
+                {type === 'linked' && <Badge text={t('linked')} type="primary" />}
+                {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+                  <Badge text={t('v1')} type="primary" />
+                )}
               </View>
             )}
           </View>
@@ -148,9 +93,11 @@ const Account = ({
               style={[spacings.mbMi, flexbox.flex1]}
               onPress={isDisabled ? undefined : toggleSelectedState}
             >
-              {type === 'legacy'
-                ? setWarningLabel(getAccountTypeLabel(type, account.creation))
-                : setSuccessLabel(getAccountTypeLabel(type, account.creation))}
+              {type === 'legacy' ? (
+                <Badge withIcon text={t('Legacy Account')} type="warning" />
+              ) : (
+                <Badge withIcon text={t('Smart Account')} type="success" />
+              )}
             </Text>
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>

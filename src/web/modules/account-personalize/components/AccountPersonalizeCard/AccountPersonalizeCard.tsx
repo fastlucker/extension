@@ -3,13 +3,13 @@ import { Image, TouchableOpacity, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { setSuccessLabel, setWarningLabel } from '@web/modules/account-adder/components/Account'
 
 import {
   avatarAstronautMan,
@@ -76,9 +76,11 @@ const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => 
             <Text fontSize={16} weight="medium" style={spacings.mb}>
               {account.addr}
             </Text>
-            {account.creation
-              ? setSuccessLabel(t('Smart Account'))
-              : setWarningLabel(t('Legacy Account'))}
+            {account.creation ? (
+              <Badge withIcon type="success" text={t('Smart Account')} />
+            ) : (
+              <Badge withIcon type="warning" text={t('Legacy Account')} />
+            )}
           </View>
         </View>
       </View>
