@@ -18,7 +18,6 @@ import getStyles from './styles'
 interface Props {
   mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
   customTitle?: string
-  withBackButton?: boolean
   withPopupBackButton?: boolean
   withAmbireLogo?: boolean
   image?: string
@@ -33,7 +32,6 @@ const { isTab, isPopup } = getUiType()
 const Header: React.FC<Props> = ({
   mode = 'title',
   customTitle,
-  withBackButton = true,
   withPopupBackButton = false,
   withAmbireLogo,
   children,
@@ -91,9 +89,7 @@ const Header: React.FC<Props> = ({
       {mode === 'title' && (
         <>
           <View style={styles.sideContainer}>
-            {(!!withBackButton || showBackButtonInPopup) &&
-              (!!canGoBack || !!forceBack) &&
-              renderBackButton()}
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
           </View>
           <View style={styles.containerInner}>
             <Text
@@ -113,9 +109,7 @@ const Header: React.FC<Props> = ({
       {mode === 'image-and-title' && (
         <>
           <View style={styles.sideContainer}>
-            {(!!withBackButton || showBackButtonInPopup) &&
-              (!!canGoBack || !!forceBack) &&
-              renderBackButton()}
+            {!showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
           </View>
           <View style={styles.imageAndTitleContainer}>
             {image && <Image source={{ uri: image }} style={styles.image} />}
@@ -129,7 +123,7 @@ const Header: React.FC<Props> = ({
       {mode === 'custom-inner-content' && (
         <>
           <View style={styles.sideContainer}>
-            {(!!withBackButton || showBackButtonInPopup) && !!canGoBack && renderBackButton()}
+            {showBackButtonInPopup && !!canGoBack && renderBackButton()}
           </View>
           <View style={styles.containerInner}>{children}</View>
           <View style={[styles.sideContainer, flexbox.alignEnd]}>

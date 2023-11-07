@@ -115,7 +115,7 @@ const ExternalSignerLoginScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withAmbireLogo withBackButton={false}>
+        <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper />
         </Header>
       }

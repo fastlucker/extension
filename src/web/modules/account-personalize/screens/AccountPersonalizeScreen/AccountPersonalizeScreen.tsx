@@ -50,7 +50,7 @@ const AccountPersonalizeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withBackButton={false} withAmbireLogo />}
+      header={<Header mode="custom-inner-content" withAmbireLogo />}
       footer={
         <>
           <View />

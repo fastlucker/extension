@@ -98,7 +98,7 @@ const KeyStoreSetupScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withBackButton={false} withAmbireLogo>
+        <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
         </Header>
       }

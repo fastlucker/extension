@@ -69,7 +69,7 @@ const AccountSelectScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={<Header withPopupBackButton withAmbireLogo withBackButton={false} />}
+      header={<Header withPopupBackButton withAmbireLogo />}
       footer={<BackButton />}
       hideFooterInPopup
     >

@@ -30,7 +30,6 @@ const CollectionScreen = () => {
           image={state.image}
           withPopupBackButton
           withAmbireLogo
-          withBackButton={false}
           mode="image-and-title"
         />
       }
