@@ -149,7 +149,12 @@ const DashboardScreen = () => {
             ]}
           >
             <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-            <Search control={control} height={32} placeholder="Search for tokens" />
+            <Search
+              containerStyle={{ flex: 1, maxWidth: 206 }}
+              control={control}
+              height={32}
+              placeholder="Search for tokens"
+            />
           </View>
         </View>
         <View style={[styles.contentContainer, flexbox.flex1]}>
