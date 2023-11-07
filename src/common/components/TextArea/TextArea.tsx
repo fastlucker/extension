@@ -4,8 +4,6 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
-  TouchableOpacity,
-  TouchableOpacityProps,
   View
 } from 'react-native'
 
@@ -13,7 +11,6 @@ import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
 
 import getStyles from './styles'
 
@@ -102,7 +99,8 @@ const TextArea = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%', outline: 'none' }}
+              // @ts-ignore outline: 'none'
+              style={{ ...styles.nativeInput, outline: 'none' }}
             />
           </View>
         </View>

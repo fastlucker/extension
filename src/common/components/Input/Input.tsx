@@ -110,7 +110,7 @@ const Input = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%' }}
+              style={styles.nativeInput}
             />
           </View>
           {!!hasButton && (
