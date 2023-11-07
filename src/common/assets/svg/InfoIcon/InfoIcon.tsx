@@ -1,5 +1,4 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
 import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
@@ -7,7 +6,6 @@ import colors from '@common/styles/colors'
 interface Props extends SvgProps {
   width?: number
   height?: number
-  color?: ColorValue
 }
 
 const InfoIcon: React.FC<Props> = ({ width = 24, height = 24, color, ...rest }) => (
