@@ -31,7 +31,7 @@ const getStyles = (theme: ThemeProps) =>
       overflow: 'hidden'
     },
     informationCircle: {
-      alignSelf: 'center',
+      ...flexbox.alignSelfCenter,
       ...spacings.pbLg
     },
     footerContainer: {
