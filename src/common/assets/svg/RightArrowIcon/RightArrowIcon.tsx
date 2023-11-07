@@ -6,7 +6,6 @@ import { iconColors } from '@common/styles/themeConfig'
 interface Props extends SvgProps {
   width?: number
   height?: number
-  color?: string
 }
 
 const RightArrowIcon: React.FC<Props> = ({
