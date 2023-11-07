@@ -99,6 +99,17 @@ const AccountsList = ({
     return 'smart'
   }
 
+  const numberOfVisibleItems = useMemo(() => (Dimensions.get('window').height < 810 ? 4 : 5), [])
+
+  // TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically
+  const listHeight = useMemo(
+    () =>
+      Dimensions.get('window').height < 810
+        ? LIST_ITEM_HEIGHT * numberOfVisibleItems + LIST_ITEM_GUTTER * (numberOfVisibleItems - 1)
+        : LIST_ITEM_HEIGHT * numberOfVisibleItems + LIST_ITEM_GUTTER * (numberOfVisibleItems - 1),
+    [numberOfVisibleItems]
+  )
+
   const getAccounts = (accounts: any) => {
     return accounts.map((acc: any, i: any) => {
       const isSelected = state.selectedAccounts.some(
@@ -163,14 +174,10 @@ const AccountsList = ({
       <Wrapper
         style={spacings.mbLg}
         contentContainerStyle={{
-          height:
-            // TODO: this is a temp solution because Dimension gets the static sizes of the window and doesn't update dynamically
-            Dimensions.get('window').height < 810
-              ? LIST_ITEM_HEIGHT * 4 + LIST_ITEM_GUTTER * 3
-              : LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
+          height: listHeight,
           ...spacings.pt0,
           ...spacings.pl0,
-          ...spacings.prSm
+          ...spacings?.[state.accountsOnPage.length > numberOfVisibleItems ? 'prSm' : 'pr0']
         }}
       >
         {state.accountsLoading ? (
