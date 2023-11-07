@@ -1,4 +1,5 @@
 import React from 'react'
+import { ColorValue } from 'react-native'
 import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
@@ -6,7 +7,7 @@ import colors from '@common/styles/colors'
 interface Props extends SvgProps {
   width?: number
   height?: number
-  color?: string
+  color?: string | ColorValue
   hovered?: boolean
   props?: SvgProps
   withRect?: boolean

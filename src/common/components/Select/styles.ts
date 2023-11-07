@@ -1,6 +1,5 @@
 import { ImageStyle, StyleSheet, TextProps, ViewProps } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -13,7 +12,6 @@ interface Style {
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   modalContentContainerStyle: ViewProps
-  labelStyle: TextProps
   listItemLabelStyle: TextProps
   iconContainerStyle: ViewProps
   extra: ViewProps
@@ -29,11 +27,6 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: colors.scampi_20,
       height: 50,
       ...spacings.mbSm
-    },
-    labelStyle: {
-      color: theme.primaryText,
-      fontSize: 14,
-      fontFamily: FONT_FAMILIES.LIGHT
     },
     listItemLabelStyle: {
       color: theme.primaryText,

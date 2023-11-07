@@ -1,12 +1,13 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  containerHover: ViewStyle
+  active: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -14,16 +15,14 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...flexbox.flex1,
       ...flexbox.alignCenter,
-      backgroundColor: colors.melrose_15,
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-      borderRadius: 12,
+      ...spacings.phTy,
+      ...spacings.pvTy,
+      ...common.borderRadiusPrimary,
       borderWidth: 1,
-      borderColor: 'transparent'
+      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.secondaryBorder
     },
-    containerHover: {
-      backgroundColor: theme.primaryLight,
-      borderStyle: 'solid',
+    active: {
       borderColor: theme.primary
     }
   })

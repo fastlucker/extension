@@ -4,10 +4,12 @@ import spacings, { SPACING_MD } from '@common/styles/spacings'
 
 interface Style {
   mainContentWrapper: ViewStyle
+  contentContainer: ViewStyle
   sideContentContainer: ViewStyle
   informationCircle: ViewStyle
   amebaAlpha: ViewStyle
   amebaBeta: ViewStyle
+  footerContainer: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -16,6 +18,11 @@ const styles = StyleSheet.create<Style>({
     alignSelf: 'center',
     paddingTop: 70,
     flex: 1
+  },
+  contentContainer: {
+    height: '100%',
+    ...spacings.pbLg,
+    ...spacings.ph3Xl
   },
   sideContentContainer: {
     width: '35%',
@@ -40,6 +47,10 @@ const styles = StyleSheet.create<Style>({
     bottom: -1050,
     marginRight: -825,
     zIndex: -1
+  },
+  footerContainer: {
+    maxHeight: 128,
+    flex: 1
   }
 })
 

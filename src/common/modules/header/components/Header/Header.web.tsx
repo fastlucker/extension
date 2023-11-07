@@ -7,7 +7,6 @@ import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Button from '@common/components/Button'
 import CopyText from '@common/components/CopyText'
 import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
@@ -17,7 +16,6 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
@@ -52,59 +50,39 @@ const Header: React.FC<Props> = ({ mode = 'controls', withBackButton = true, wit
     <View
       style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
     >
-      <View style={styles.account}>
-        <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
-          <View style={styles.accountButtonInfo}>
-            <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
-            <View style={styles.accountAddressAndLabel}>
-              {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
-              <Text weight="medium" fontSize={14}>
-                {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
-              </Text>
-              <Text weight="regular" style={styles.accountButtonInfoText} fontSize={13}>
-                ({shortenAddress(selectedAccount, 14)})
-              </Text>
-            </View>
+      <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
+        <View style={styles.accountButtonInfo}>
+          <Image style={styles.accountButtonInfoIcon} source={avatarSpace} resizeMode="contain" />
+          <View style={styles.accountAddressAndLabel}>
+            {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
+            <Text weight="number_bold" fontSize={14}>
+              {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+            </Text>
+            <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
+              ({shortenAddress(selectedAccount, 27)})
+            </Text>
           </View>
-          <NavIconWrapper
-            onPress={() => navigate('account-select')}
-            width={25}
-            height={25}
-            hoverBackground={theme.primaryLight}
-            style={styles.accountButtonRightIcon}
-          >
-            <RightArrowIcon width={26} height={26} withRect={false} />
-          </NavIconWrapper>
-        </Pressable>
-        <CopyText text={selectedAccount} style={styles.accountCopyIcon} />
-      </View>
-      <View style={[flexboxStyles.directionRow]}>
-        <Button
-          textStyle={{ fontSize: 14 }}
-          size="small"
-          text={t('dApps')}
-          hasBottomSpacing={false}
-          style={[spacings.mrTy, { width: 85, height: 40 }]}
+        </View>
+        <CopyText
+          iconHeight={20}
+          iconWidth={20}
+          text={selectedAccount}
+          style={styles.accountCopyIcon}
+          iconColor={theme.secondaryText}
         />
-
+        <Pressable onPress={() => navigate('account-select')} style={styles.accountButtonRightIcon}>
+          <RightArrowIcon width={30} height={30} color={theme.secondaryText} withRect={false} />
+        </Pressable>
+      </Pressable>
+      <View style={styles.maximizeAndMenu}>
         {uiType.isPopup && (
-          <NavIconWrapper
-            width={40}
-            height={40}
-            onPress={() => openInTab('tab.html#/dashboard')}
-            style={{ borderColor: colors.scampi_20, ...spacings.mrTy }}
-          >
+          <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
             <MaximizeIcon width={20} height={20} />
-          </NavIconWrapper>
+          </Pressable>
         )}
-        <NavIconWrapper
-          width={40}
-          height={40}
-          onPress={() => navigate('menu')}
-          style={{ borderColor: colors.scampi_20 }}
-        >
+        <Pressable style={{ ...spacings.mlLg, ...spacings.mrTy }} onPress={() => navigate('menu')}>
           <BurgerIcon width={20} height={20} />
-        </NavIconWrapper>
+        </Pressable>
       </View>
     </View>
   )

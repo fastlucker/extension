@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
+import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
@@ -43,9 +45,14 @@ async function init() {
     initRpcProviders(rpcProviders)
   }
 
+  // Initialize humanizer in storage
+  const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
+  if (!Object.keys(humanizerMetaInStorage).length) {
+    await storage.set('HumanizerMeta', humanizerJSON)
+  }
+
   await permissionService.init()
 }
-
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
@@ -55,7 +62,9 @@ async function init() {
 
   const mainCtrl = new MainController({
     storage,
-    fetch,
+    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
+    // binding window to fetch provides the correct context
+    fetch: window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
@@ -73,6 +82,9 @@ async function init() {
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
+    },
+    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+      notifyForSuccessfulBroadcast(type)
     },
     pinned: pinnedTokens
   })
@@ -375,6 +387,23 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
+
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS':
+              return mainCtrl.signAccountOp.updateMainDeps(data.params)
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
+              return mainCtrl.signAccountOp.update(data.params)
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
+              return mainCtrl.signAccountOp.sign()
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
+              return mainCtrl.reestimateAndUpdatePrices(
+                data.params.accountAddr,
+                data.params.networkId
+              )
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
+              return mainCtrl.signAccountOp.reset()
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
+              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET':
@@ -568,9 +597,35 @@ async function init() {
 })()
 
 // On first install, open Ambire Extension in a new tab to start the login process
+
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    const extensionURL = browser.runtime.getURL('tab.html')
-    browser.tabs.create({ url: extensionURL })
+    setTimeout(() => {
+      const extensionURL = browser.runtime.getURL('tab.html')
+      browser.tabs.create({ url: extensionURL })
+    }, 500)
   }
 })
+
+const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+  const title = 'Successfully signed'
+  let message = ''
+  if (type === 'message') {
+    message = 'Message was successfully signed'
+  }
+  if (type === 'typed-data') {
+    message = 'TypedData was successfully signed'
+  }
+  if (type === 'account-op') {
+    message = 'Your transaction was successfully signed and broadcasted to the network'
+  }
+
+  const id = new Date().getTime()
+  browser.notifications.create(id.toString(), {
+    type: 'basic',
+    iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+    title,
+    message,
+    priority: 2
+  })
+}

@@ -5,6 +5,14 @@ import {
   Poppins_600SemiBold,
   useFonts as useFontsRn
 } from '@expo-google-fonts/poppins'
+import {
+  Roboto_300Light,
+  Roboto_400Regular,
+  Roboto_500Medium,
+  Roboto_700Bold,
+  Roboto_900Black,
+  useFonts as useFontsRnRoboto
+} from '@expo-google-fonts/roboto'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum FONT_FAMILIES {
@@ -14,8 +22,18 @@ export enum FONT_FAMILIES {
   SEMI_BOLD = 'Poppins_600SemiBold'
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export enum ROBOTO_FONT_FAMILIES {
+  LIGHT = 'Roboto_300Light',
+  REGULAR = 'Roboto_400Regular',
+  MEDIUM = 'Roboto_500Medium',
+  BOLD = 'Roboto_700Bold',
+  BLACK = 'Roboto_900Black'
+}
+
 export interface UseFontsReturnType {
   fontsLoaded: boolean
+  robotoFontsLoaded: boolean
 }
 
 export default function useFonts(): UseFontsReturnType {
@@ -42,5 +60,13 @@ export default function useFonts(): UseFontsReturnType {
     // Poppins_900Black_Italic
   })
 
-  return { fontsLoaded }
+  const [robotoFontsLoaded] = useFontsRnRoboto({
+    Roboto_300Light,
+    Roboto_400Regular,
+    Roboto_500Medium,
+    Roboto_700Bold,
+    Roboto_900Black
+  })
+
+  return { fontsLoaded, robotoFontsLoaded }
 }

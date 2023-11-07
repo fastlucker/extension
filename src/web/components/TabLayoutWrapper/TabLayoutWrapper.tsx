@@ -33,6 +33,7 @@ interface Props {
   children: React.ReactNode
   forceCanGoBack?: boolean
   onBack?: () => void
+  header?: React.ReactNode
   footer?: React.ReactNode
 }
 
@@ -51,6 +52,7 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
   children,
   forceCanGoBack,
   onBack,
+  header,
   footer
 }: Props) => {
   const context = useContext(TabLayoutWrapperContext)
@@ -61,20 +63,18 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
 
   return (
     <View style={[flexbox.flex1, { backgroundColor: colors.white }]}>
-      {!hideHeader && (
-        <TabHeader
-          pageTitle={pageTitle}
-          hideStepper={hideStepper}
-          forceCanGoBack={forceCanGoBack}
-          onBack={onBack}
-        />
-      )}
+      {!hideHeader &&
+        (header || (
+          <TabHeader
+            pageTitle={pageTitle}
+            hideStepper={hideStepper}
+            forceCanGoBack={forceCanGoBack}
+            onBack={onBack}
+          />
+        ))}
       <Wrapper
         style={[flexbox.flex1]}
-        // Here, we set height: '100%' to enable the inner ScrollView within the Wrapper to have a scrollable content.
-        // You can observe how the SignScreen utilizes an inner ScrollView component to display the transaction.
-        // This should not have any impact on the other screens.
-        contentContainerStyle={{ height: '100%', ...spacings.pbLg, ...spacings.phLg }}
+        contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
         <View
@@ -89,7 +89,7 @@ export const TabLayoutWrapperMainContent: React.FC<Props> = ({
           {children}
         </View>
       </Wrapper>
-      {footer}
+      <View style={styles.footerContainer}>{footer}</View>
     </View>
   )
 }
