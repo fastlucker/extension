@@ -27,7 +27,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     borderWrapper: {
       borderWidth: 2,
-      borderRadius: 9,
+      borderRadius: 8,
       borderColor: 'transparent',
       ...common.hidden
     },
@@ -41,8 +41,8 @@ const getStyles = (theme: ThemeProps) =>
       fontSize: 14,
       fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
       flex: 1,
-      ...spacings.pvTy,
-      ...spacings.phTy,
+      ...spacings.pv,
+      ...spacings.ph,
       color: theme.secondaryText,
       borderWidth: 0,
       borderColor: 'transparent'

@@ -27,7 +27,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     borderWrapper: {
       borderWidth: 2,
-      borderRadius: 9,
+      borderRadius: 8,
       borderColor: 'transparent',
       ...common.hidden
     },
@@ -45,7 +45,7 @@ const getStyles = (theme: ThemeProps) =>
       height: 48,
       borderWidth: 0,
       color: theme.secondaryText,
-      ...spacings.phTy
+      ...spacings.ph
     },
     infoText: {
       opacity: 0.5,

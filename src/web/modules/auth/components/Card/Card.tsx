@@ -1,6 +1,6 @@
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Pressable, TextStyle, ViewStyle } from 'react-native'
+import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -42,39 +42,39 @@ const Card: React.FC<Props> = ({
       onPress={!isDisabled ? onPress : () => {}}
       style={({ hovered }: any) => [
         styles.container,
-        { borderWidth: 1, borderColor: hovered ? theme.primary : colors.melrose_15 },
+        !isDisabled && { borderWidth: 1, borderColor: hovered ? theme.primary : colors.melrose_15 },
         isDisabled && { opacity: 0.7 },
         style
       ]}
     >
-      {() => (
-        <>
-          {!!Icon && <Icon color={iconColors.primary} />}
-          {!!title && (
-            <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={18}>
-              {t(title)}
-            </Text>
-          )}
-          {!!text && (
-            <Text
-              style={[spacings.mb, flexbox.flex1, textStyle]}
-              fontSize={14}
-              appearance="secondaryText"
-            >
-              <Trans>{text}</Trans>
-            </Text>
-          )}
-          {!!buttonText && (
-            <Button
-              disabled={isDisabled}
-              textStyle={{ fontSize: 14 }}
-              style={{ width: '100%' }}
-              text={t(buttonText)}
-              onPress={!isDisabled ? onPress : () => {}}
-              hasBottomSpacing={false}
-            />
-          )}
-        </>
+      {!!Icon && (
+        <View style={styles.iconWrapper}>
+          <Icon color={iconColors.primary} />
+        </View>
+      )}
+      {!!title && (
+        <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={18}>
+          {t(title)}
+        </Text>
+      )}
+      {!!text && (
+        <Text
+          style={[spacings.mb, flexbox.flex1, textStyle]}
+          fontSize={14}
+          appearance="secondaryText"
+        >
+          <Trans>{text}</Trans>
+        </Text>
+      )}
+      {!!buttonText && (
+        <Button
+          disabled={isDisabled}
+          textStyle={{ fontSize: 14 }}
+          style={{ width: '100%' }}
+          text={t(buttonText)}
+          onPress={!isDisabled ? onPress : () => {}}
+          hasBottomSpacing={false}
+        />
       )}
     </Pressable>
   )

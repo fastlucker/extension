@@ -67,7 +67,7 @@ const StepperComponent = ({ containerStyle }: Props) => {
     currentPosition: number
   }) => (
     <Text
-      fontSize={10}
+      fontSize={11}
       style={[text.center, spacings.phMi]}
       appearance={stepStatus === 'finished' ? 'successText' : 'secondaryText'}
       numberOfLines={2}

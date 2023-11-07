@@ -8,6 +8,7 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Styles {
   container: ViewStyle
   text: TextStyle
+  iconWrapper: ViewStyle
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -18,10 +19,16 @@ const styles = StyleSheet.create<Styles>({
     ...flexbox.alignCenter,
     ...common.borderRadiusPrimary,
     ...spacings.phSm,
-    ...spacings.pvSm
+    ...spacings.pbSm,
+    ...spacings.ptLg
   },
   text: {
     textAlign: 'center'
+  },
+  iconWrapper: {
+    height: 96,
+    ...flexbox.alignCenter,
+    ...flexbox.justifyCenter
   }
 })
 
