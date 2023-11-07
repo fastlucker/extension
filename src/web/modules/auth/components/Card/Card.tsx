@@ -42,7 +42,7 @@ const Card: React.FC<Props> = ({
       onPress={!isDisabled ? onPress : () => {}}
       style={({ hovered }: any) => [
         styles.container,
-        !isDisabled && { borderWidth: 1, borderColor: hovered ? theme.primary : colors.melrose_15 },
+        !isDisabled && { borderWidth: 1, borderColor: hovered ? theme.primary : 'transparent' },
         isDisabled && { opacity: 0.7 },
         style
       ]}
