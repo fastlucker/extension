@@ -1,8 +1,16 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
-import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import {
+  HD_PATH_TEMPLATE_TYPE,
+  SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+} from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
+import {
+  derivePrivateKeyFromAnotherPrivateKey,
+  getPrivateKeyFromSeed,
+  isValidPrivateKey
+} from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -13,7 +21,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
-import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
 interface Props {
   keyType: Key['type']
@@ -118,15 +125,22 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
             let privateKey = privKeyOrSeed
 
-            // in case props.privKeyOrSeed is a seed the private keys have to be extracted
+            // In case it is a seed, the private keys have to be extracted
             if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
               privateKey = getPrivateKeyFromSeed(
                 privKeyOrSeed,
-                // The slot is the key index from the derivation path
-                acc.slot - 1,
+                acc.index,
                 // should always be provided, otherwise it would have thrown an error above
                 accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
+            }
+
+            // Private keys for accounts used as smart account keys should be derived
+            const isPrivateKeyThatShouldBeDerived =
+              isValidPrivateKey(privKeyOrSeed) &&
+              acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+            if (isPrivateKeyThatShouldBeDerived) {
+              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
             return {
