@@ -22,15 +22,15 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: colors.melrose_15,
       borderColor: theme.secondaryBorder,
       width: '100%',
-      flex: 1,
+      ...flexbox.flex1,
       maxHeight: 78,
       height: 78
     },
     networkIcon: {
       borderRadius: 50,
-      backgroundColor: colors.white,
-      borderColor: colors.quartz,
-      borderWidth: 2
+      backgroundColor: theme.primaryBackground,
+      borderColor: theme.secondaryBorder,
+      borderWidth: 1
     }
   })
 
