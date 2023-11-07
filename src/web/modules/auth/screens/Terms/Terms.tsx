@@ -4,6 +4,7 @@ import { TouchableOpacity, View } from 'react-native'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
@@ -85,23 +86,8 @@ const Terms = () => {
     <TabLayoutContainer
       width="md"
       footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={goBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
+        <>
+          <BackButton onPress={goBack} />
           <Button
             disabled={!isChecked}
             textStyle={{ fontSize: 14 }}
@@ -113,7 +99,7 @@ const Terms = () => {
               <RightArrowIcon color={colors.titan} />
             </View>
           </Button>
-        </View>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>

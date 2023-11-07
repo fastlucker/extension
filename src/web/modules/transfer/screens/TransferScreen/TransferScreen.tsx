@@ -4,6 +4,7 @@ import { TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
@@ -71,23 +72,8 @@ const TransferScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo withBackButton={false} mode="custom-inner-content" />}
       footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={onBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
+        <>
+          <BackButton onPress={onBack} />
           <Button
             type="primary"
             text={t('Send')}
@@ -99,7 +85,7 @@ const TransferScreen = () => {
               <SendIcon width={20} color={colors.titan} />
             </View>
           </Button>
-        </View>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>
