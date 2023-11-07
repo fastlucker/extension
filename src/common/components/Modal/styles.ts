@@ -1,6 +1,5 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -18,7 +17,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1,
       ...flexbox.justifyCenter,
       ...flexbox.alignCenter,
-      backgroundColor: colors.comet_80
+      backgroundColor: theme.backdrop
     },
     modal: {
       ...spacings.mh3Xl,
