@@ -30,10 +30,10 @@ export interface InputProps extends TextInputProps {
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
-  containerStyle?: ViewStyle
-  inputStyle?: ViewStyle
-  inputWrapperStyle?: ViewStyle
-  infoTextStyle?: TextStyle
+  containerStyle?: ViewStyle | ViewStyle[]
+  inputStyle?: ViewStyle | ViewStyle[]
+  inputWrapperStyle?: ViewStyle | ViewStyle[]
+  infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
 }
 

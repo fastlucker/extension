@@ -24,10 +24,10 @@ export interface InputProps extends TextInputProps {
   isValid?: boolean
   validLabel?: string
   disabled?: boolean
-  containerStyle?: ViewStyle
-  inputStyle?: ViewStyle
-  inputWrapperStyle?: ViewStyle
-  infoTextStyle?: TextStyle
+  containerStyle?: ViewStyle | ViewStyle[]
+  inputStyle?: ViewStyle | ViewStyle[]
+  inputWrapperStyle?: ViewStyle | ViewStyle[]
+  infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
