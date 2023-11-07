@@ -1,11 +1,10 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import InfoIcon from '@common/assets/svg/InfoIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -52,7 +51,7 @@ const ExternalSignerLoginScreen = () => {
     }
   })
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { theme } = useTheme()
 
   useEffect(() => {
@@ -121,15 +120,7 @@ const ExternalSignerLoginScreen = () => {
       }
       footer={
         <>
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-            onPress={goBack}
-          >
-            <LeftArrowIcon />
-            <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-              {t('Back')}
-            </Text>
-          </TouchableOpacity>
+          <View />
           <Button
             text={t('Import Legacy Account')}
             hasBottomSpacing={false}

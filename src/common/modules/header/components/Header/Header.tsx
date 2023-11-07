@@ -109,7 +109,7 @@ const Header: React.FC<Props> = ({
       {mode === 'image-and-title' && (
         <>
           <View style={styles.sideContainer}>
-            {!showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
           </View>
           <View style={styles.imageAndTitleContainer}>
             {image && <Image source={{ uri: image }} style={styles.image} />}
