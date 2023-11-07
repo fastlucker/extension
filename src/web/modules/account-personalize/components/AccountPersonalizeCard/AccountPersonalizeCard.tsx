@@ -6,7 +6,7 @@ import CheckIcon from '@common/assets/svg/CheckIcon'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { setSuccessLabel, setWarningLabel } from '@web/modules/account-adder/components/Account'
@@ -21,23 +21,26 @@ import {
   avatarSpaceRaccoon,
   avatarSpreadFire
 } from './avatars'
-import styles from './styles'
+import getStyles from './styles'
 
-const AvatarsSelectorItem = ({ selectedAvatar, avatar, setSelectedAvatar }: any) => (
-  <TouchableOpacity activeOpacity={1} onPress={() => setSelectedAvatar(avatar)}>
-    <View style={[spacings.mrTy]} key={avatar}>
-      <Image source={avatar} style={styles.pfpSelectorItem} resizeMode="contain" />
-      {selectedAvatar === avatar && (
-        <CheckIcon
-          width={14}
-          height={14}
-          color={colors.greenHaze}
-          style={{ position: 'absolute', right: 0, bottom: 0 }}
-        />
-      )}
-    </View>
-  </TouchableOpacity>
-)
+const AvatarsSelectorItem = ({ selectedAvatar, avatar, setSelectedAvatar }: any) => {
+  const { styles, theme } = useTheme(getStyles)
+  return (
+    <TouchableOpacity activeOpacity={1} onPress={() => setSelectedAvatar(avatar)}>
+      <View style={[spacings.mrTy]} key={avatar}>
+        <Image source={avatar} style={styles.pfpSelectorItem} resizeMode="contain" />
+        {selectedAvatar === avatar && (
+          <CheckIcon
+            width={14}
+            height={14}
+            color={theme.successDecorative}
+            style={{ position: 'absolute', right: 0, bottom: 0 }}
+          />
+        )}
+      </View>
+    </TouchableOpacity>
+  )
+}
 
 type Props = {
   account: Account
@@ -45,6 +48,7 @@ type Props = {
 }
 
 const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => {
+  const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const [selectedAvatar, setSelectedAvatar] = useState(avatarAstronautMan)
   const [label, setLabel] = useState('')
