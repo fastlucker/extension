@@ -169,7 +169,7 @@ const ExternalSignerLoginScreen = () => {
                   onBlur={onBlur}
                   isValid={!handleValidation(value) && !!value.length}
                   error={errors?.privKeyOrSeed?.message || ' '}
-                  placeholderTextColor={colors.martinique_65}
+                  placeholderTextColor={theme.secondaryText}
                   onSubmitEditing={handleFormSubmit}
                 />
               )
@@ -199,7 +199,7 @@ const ExternalSignerLoginScreen = () => {
                   onBlur={onBlur}
                   isValid={value.length >= 6 && value.length <= 24}
                   error={errors.label && t('Key labels must be 6-24 characters long.')}
-                  placeholderTextColor={colors.martinique_65}
+                  placeholderTextColor={theme.secondaryText}
                   onSubmitEditing={handleFormSubmit}
                 />
               )

@@ -11,17 +11,20 @@ import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { theme, styles } = useTheme(getStyles)
   const { goBack } = useNavigation()
   const { control, watch } = useForm({
     mode: 'all',
@@ -81,11 +84,11 @@ const AccountSelectScreen = () => {
                       {
                         borderColor:
                           account.addr === mainCtrl.selectedAccount || hovered
-                            ? colors.scampi_20
+                            ? theme.secondaryBorder
                             : 'transparent',
                         backgroundColor:
                           account.addr === mainCtrl.selectedAccount || hovered
-                            ? colors.melrose_15
+                            ? theme.secondaryBackground
                             : 'transparent'
                       }
                     ]}
@@ -93,20 +96,16 @@ const AccountSelectScreen = () => {
                     <View style={[flexboxStyles.directionRow]}>
                       <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
                         <Image
-                          style={{ width: 30, height: 30, borderRadius: 10 }}
+                          style={{ width: 32, height: 32, borderRadius: BORDER_RADIUS_PRIMARY }}
                           source={avatarSpace}
                           resizeMode="contain"
                         />
                       </View>
                       <View style={[spacings.mrTy]}>
-                        <Text
-                          fontSize={12}
-                          weight="regular"
-                          color={account.creation ? colors.greenHaze : colors.husk}
-                        >
+                        <Text fontSize={12} weight="regular">
                           {shortenAddress(account.addr, 25)}
                         </Text>
-                        <Text fontSize={12} weight="semiBold">
+                        <Text appearance="secondaryText" fontSize={12} weight="semiBold">
                           {t('Account label')}
                         </Text>
                       </View>
@@ -115,7 +114,8 @@ const AccountSelectScreen = () => {
                           weight="regular"
                           fontSize={10}
                           numberOfLines={1}
-                          color={account.creation ? colors.greenHaze : colors.husk}
+                          // @TODO: replace with legacy account color
+                          color={account.creation ? theme.successText : theme.warningText}
                         >
                           {account.creation ? 'Smart Account' : 'Legacy Account'}
                         </Text>
@@ -136,7 +136,7 @@ const AccountSelectScreen = () => {
                       ) : null}
                       <CopyText
                         text={account.addr}
-                        iconColor={colors.martinique}
+                        iconColor={theme.primaryText}
                         iconWidth={20}
                         iconHeight={20}
                         style={{

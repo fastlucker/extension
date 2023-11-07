@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -9,7 +9,7 @@ import Card from '@web/modules/auth/components/Card'
 type Props = {
   title: string
   text: string
-  image?: any
+  image?: () => ReactElement
   onPress: () => void
   style?: ViewStyle | ViewStyle[]
 }

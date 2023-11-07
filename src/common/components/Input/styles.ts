@@ -2,15 +2,17 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
 import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
-interface Style {
+export interface Style {
   inputContainer: ViewStyle
   borderWrapper: ViewStyle
   inputWrapper: ViewStyle
   input: TextStyle
+  nativeInput: ViewStyle
   button: ViewStyle
   infoText: TextStyle
   errorText: TextStyle
@@ -32,7 +34,7 @@ const getStyles = (theme: ThemeProps) =>
       ...common.hidden
     },
     inputWrapper: {
-      flexDirection: 'row',
+      ...flexbox.directionRow,
       borderWidth: 1,
       height: 50,
       ...common.borderRadiusPrimary
@@ -40,16 +42,18 @@ const getStyles = (theme: ThemeProps) =>
     input: {
       // Centers the content (used because of the borderBottomWidth)
       fontSize: 14,
-      fontFamily: isWeb ? FONT_FAMILIES.MEDIUM : FONT_FAMILIES.LIGHT,
-      flex: 1,
+      ...flexbox.flex1,
       height: 48,
       borderWidth: 0,
       color: theme.secondaryText,
       ...spacings.ph
     },
+    nativeInput: {
+      height: '100%',
+      fontFamily: isWeb ? FONT_FAMILIES.REGULAR : FONT_FAMILIES.LIGHT
+    },
     infoText: {
       opacity: 0.5,
-      ...spacings.phMi,
       ...spacings.ptTy,
       ...spacings.ph
     },
@@ -57,7 +61,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phMi,
       ...spacings.mbMI,
       ...spacings.phTy,
-      paddingTop: 2
+      paddingTop: SPACING_MI / 2
     },
     validText: {
       ...spacings.phMi,
@@ -68,11 +72,11 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mbTy
     },
     button: {
-      justifyContent: 'center',
+      ...flexbox.justifyCenter,
       ...spacings.phTy
     },
     leftIcon: {
-      justifyContent: 'center',
+      ...flexbox.justifyCenter,
       ...spacings.plTy
     },
     disabled: {

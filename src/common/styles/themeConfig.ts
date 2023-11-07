@@ -53,6 +53,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
+  backdrop: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#54597ACC'
+  },
   // Success
   successText: {
     [THEME_TYPES.DARK]: colors.greenHaze,

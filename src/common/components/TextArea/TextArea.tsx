@@ -4,16 +4,15 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View
+  TextStyle,
+  View,
+  ViewStyle
 } from 'react-native'
 
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
 
 import getStyles from './styles'
 
@@ -25,10 +24,10 @@ export interface InputProps extends TextInputProps {
   isValid?: boolean
   validLabel?: string
   disabled?: boolean
-  containerStyle?: any
-  inputStyle?: any
-  inputWrapperStyle?: any
-  infoTextStyle?: any
+  containerStyle?: ViewStyle | ViewStyle[]
+  inputStyle?: ViewStyle | ViewStyle[]
+  inputWrapperStyle?: ViewStyle | ViewStyle[]
+  infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
@@ -102,7 +101,8 @@ const TextArea = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%', outline: 'none' }}
+              // @ts-ignore outline: 'none'
+              style={{ ...styles.nativeInput, outline: 'none' }}
             />
           </View>
         </View>
