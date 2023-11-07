@@ -1,16 +1,20 @@
 import { FC, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { isCloseToBottom } from '@web/modules/sign-message/controllers/MessageSummary/MessageSummary'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
+
+const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: NativeScrollEvent) => {
+  const paddingToBottom = 20
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom
+}
 
 const FallbackVisualization: FC<{
   messageToSign: SignMessageController['messageToSign']

@@ -51,10 +51,23 @@ const SignMessageScreen = () => {
     selectedAccountFull?.associatedKeys.includes(key.addr)
   )
 
+  const network = useMemo(
+    () =>
+      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
+  )
+
   const isViewOnly = selectedAccountKeyStoreKeys.length === 0
 
+  const visualizeHumanized =
+    signMessageState.humanReadable !== null &&
+    network &&
+    signMessageState.messageToSign?.content.kind
+
   const isScrollToBottomForced =
-    signMessageState.messageToSign?.content.kind === 'typedMessage' && !hasReachedBottom
+    signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+    !hasReachedBottom &&
+    !visualizeHumanized
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -189,12 +202,6 @@ const SignMessageScreen = () => {
     )
   }
 
-  const network = useMemo(
-    () =>
-      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
-  )
-
   const onSignButtonClick = () => {
     // If the account has only one signer, we don't need to show the keys select
     if (selectedAccountKeyStoreKeys.length === 1) {
@@ -221,15 +228,15 @@ const SignMessageScreen = () => {
           {t('Sign message')}
         </Text>
         <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
-        {signMessageState.humanReadable &&
-        network &&
+        {visualizeHumanized &&
+        // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+        signMessageState.humanReadable &&
         signMessageState.messageToSign?.content.kind ? (
           <MessageSummary
             message={signMessageState.humanReadable}
             networkId={network?.id}
             explorerUrl={network?.explorerUrl}
             kind={signMessageState.messageToSign?.content.kind}
-            setHasReachedBottom={setHasReachedBottom}
           />
         ) : (
           <FallbackVisualization
@@ -259,11 +266,6 @@ const SignMessageScreen = () => {
             {t("You can't sign messages with view only accounts.")}
           </Text>
         ) : null}
-        {/*
-          zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
-          when we show the select signer overlay
-        */}
-        {/* @ts-ignore  */}
         <View style={styles.signButtonContainer}>
           {isChooseSignerShown ? (
             <SigningKeySelect
