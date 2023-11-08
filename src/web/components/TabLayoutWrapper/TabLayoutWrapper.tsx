@@ -12,7 +12,7 @@ import getStyles from './styles'
 
 type Width = 'sm' | 'md' | 'lg' | 'full'
 
-const { isTab } = getUiType()
+const { isTab, isNotification } = getUiType()
 
 export const tabLayoutWidths = {
   sm: 770,
@@ -49,8 +49,8 @@ export const TabLayoutContainer = ({
           flexbox.directionRow,
           flexbox.flex1,
           width !== 'full' ? flexbox.alignSelfCenter : {},
-          width === 'full' && isTab ? spacings.ph3Xl : {},
-          width === 'full' && !isTab ? spacings.ph : {},
+          width === 'full' && (isTab || isNotification) ? spacings.ph3Xl : {},
+          width === 'full' && !isTab && !isNotification ? spacings.ph : {},
           {
             backgroundColor: backgroundColor || theme.primaryBackground,
             maxWidth: tabLayoutWidths[width],
