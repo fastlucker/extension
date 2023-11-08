@@ -113,8 +113,8 @@ async function init() {
     fetchPortfolioIntervalId = setInterval(
       () => fetchPortfolioData(),
       // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently.
-      // Otherwise, when inactive we want to run it once in a while.
+      // we want to run the interval frequently (1 minute).
+      // Otherwise, when inactive we want to run it once in a while (10 minutes).
       Object.keys(portMessageUIRefs).length ? 60000 : 600000
     )
   }
@@ -128,9 +128,9 @@ async function init() {
     activityIntervalId = setInterval(
       () => mainCtrl.updateAccountsOpsStatuses(),
       // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently.
-      // Otherwise, when inactive we want to run it once in a while.
-      Object.keys(portMessageUIRefs).length ? 60000 : 300000
+      // we want to run the interval frequently (10 seconds).
+      // Otherwise, when inactive we want to run it once in a while (5 minutes).
+      Object.keys(portMessageUIRefs).length ? 10000 : 300000
     )
   }
   // Call it once to initialize the interval
