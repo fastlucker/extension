@@ -100,12 +100,29 @@ async function init() {
     clearInterval(fetchPortfolioIntervalId) // Clear existing interval
     fetchPortfolioIntervalId = setInterval(
       () => fetchPortfolioData(),
+      // In the case we have an active extension (opened tab, popup, notification),
+      // we want to run the interval frequently.
+      // Otherwise, when inactive we want to run it once in a while.
       Object.keys(portMessageUIRefs).length ? 60000 : 600000
     )
   }
 
   // Call it once to initialize the interval
   setPortfolioFetchInterval()
+
+  let activityIntervalId: any
+  function setActivityInterval() {
+    clearInterval(activityIntervalId) // Clear existing interval
+    activityIntervalId = setInterval(
+      () => mainCtrl.updateAccountsOpsStatuses(),
+      // In the case we have an active extension (opened tab, popup, notification),
+      // we want to run the interval frequently.
+      // Otherwise, when inactive we want to run it once in a while.
+      Object.keys(portMessageUIRefs).length ? 60000 : 300000
+    )
+  }
+  // Call it once to initialize the interval
+  setActivityInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -235,6 +252,7 @@ async function init() {
       const pm = new PortMessage(port, id)
       portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
+      setActivityInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -520,6 +538,7 @@ async function init() {
       port.onDisconnect.addListener(() => {
         delete portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
+        setActivityInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
