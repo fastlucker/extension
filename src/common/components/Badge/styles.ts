@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
-import { legacyAccount, ThemeProps } from '@common/styles/themeConfig'
+import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -36,12 +36,12 @@ const getStyles = (theme: ThemeProps) =>
     defaultBadge: {
       ...label,
       borderColor: theme.secondaryBorder,
-      backgroundColor: '#F2F3FA'
+      backgroundColor: 'transparent'
     },
     warningBadge: {
       ...label,
-      borderColor: legacyAccount.secondary,
-      backgroundColor: legacyAccount.tertiary
+      borderColor: theme.warningDecorative,
+      backgroundColor: theme.warningBackground
     },
     successBadge: {
       ...label,

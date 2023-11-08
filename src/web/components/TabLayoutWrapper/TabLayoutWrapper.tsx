@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import { ColorValue, View, ViewProps, ViewStyle } from 'react-native'
 
 import Wrapper, { WrapperProps } from '@common/components/Wrapper'
@@ -26,7 +26,7 @@ type TabLayoutContainerProps = {
   footer?: React.ReactNode
   hideFooterInPopup?: boolean
   width?: Width
-  children: any
+  children: ReactElement | ReactElement[]
 }
 
 export const TabLayoutContainer = ({
@@ -106,8 +106,8 @@ export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentPr
 
 interface TabLayoutWrapperSideContentItemProps extends ViewProps {
   type?: 'primary' | 'info' | 'error'
-  children: any
-  style: ViewStyle
+  children: ReactElement | ReactElement[]
+  style?: ViewStyle
 }
 
 export const TabLayoutWrapperSideContentItem = ({
