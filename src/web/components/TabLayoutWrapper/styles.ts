@@ -36,7 +36,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbLg
     },
     footerContainer: {
-      maxHeight: 120,
+      maxHeight: 96,
       ...flexbox.flex1,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
