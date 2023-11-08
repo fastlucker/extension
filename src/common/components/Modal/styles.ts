@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import { isWeb } from '@common/config/env'
 import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -28,7 +29,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...common.shadowSecondary,
       backgroundColor: theme.primaryBackground,
-      minWidth: 798
+      minWidth: 798,
+      ...(isWeb ? { cursor: 'default' } : {})
     },
     closeIcon: {
       position: 'absolute',
