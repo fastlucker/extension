@@ -13,7 +13,7 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { SPACING, SPACING_LG, SPACING_SM } from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -83,7 +83,15 @@ const Terms = () => {
 
   return (
     <TabLayoutContainer
-      width="md"
+      width="sm"
+      header={
+        <View style={[flexbox.alignCenter, spacings.mtLg]}>
+          <AmbireLogo style={styles.logo} width={185} height={92} />
+          <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
+            {t('Terms Of Service')}
+          </Text>
+        </View>
+      }
       footer={
         <>
           <BackButton />
@@ -101,14 +109,12 @@ const Terms = () => {
         </>
       }
     >
-      <TabLayoutWrapperMainContent>
-        <View style={[flexbox.alignSelfCenter, { maxWidth: 620 }]}>
-          <View style={[flexbox.alignCenter]}>
-            <AmbireLogo style={styles.logo} />
-            <Text fontSize={32} weight="regular" style={[{ textAlign: 'center' }, spacings.mbXl]}>
-              {t('Terms Of Service')}
-            </Text>
-          </View>
+      <TabLayoutWrapperMainContent
+        showsVerticalScrollIndicator
+        style={spacings.mbLg}
+        contentContainerStyle={{ ...spacings.ph2Xl, ...spacings.pt0 }}
+      >
+        <View style={[flexbox.alignSelfCenter]}>
           <Text style={[styles.text, styles.bold]}>{t('Effective starting 26 November 2021')}</Text>
           <Text style={styles.text}>
             <Text style={styles.text}>
@@ -151,7 +157,6 @@ const Terms = () => {
             )}
           </Text>
           <Checkbox
-            style={{ marginBottom: SPACING_LG * 2 }}
             value={isChecked}
             onValueChange={setIsChecked}
             uncheckedBorderColor={theme.primaryText}
