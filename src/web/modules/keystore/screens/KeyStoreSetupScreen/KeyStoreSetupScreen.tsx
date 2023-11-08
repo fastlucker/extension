@@ -179,7 +179,7 @@ const KeyStoreSetupScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem style={spacings.mbLg}>
+        <TabLayoutWrapperSideContentItem>
           <Text weight="medium" style={spacings.mbSm} appearance="infoText" fontSize={20}>
             {t('Setup Your Ambire Key Store')}
           </Text>
@@ -200,13 +200,6 @@ const KeyStoreSetupScreen = () => {
           </Text>
           <Text style={spacings.mbSm} appearance="infoText" fontSize={16}>
             {t('3. This passphrase can only be reset if you enable recovery via your email vault.')}
-          </Text>
-        </TabLayoutWrapperSideContentItem>
-        <TabLayoutWrapperSideContentItem type="error">
-          <Text appearance="errorText" fontSize={16} weight="medium">
-            {t(
-              'If you disable email vault keystore recovery, and lose your passphrase, you will lose access to all keys and accounts on this device'
-            )}
           </Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

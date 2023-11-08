@@ -58,7 +58,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: '#F6F0FF',
       ...common.borderRadiusPrimary,
       ...spacings.phXl,
-      ...spacings.pvXl
+      ...spacings.pvXl,
+      ...spacings.mbLg
     },
     errorSideItem: {
       borderColor: theme.errorDecorative,
@@ -66,7 +67,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.errorBackground,
       ...common.borderRadiusPrimary,
       ...spacings.phXl,
-      ...spacings.pvXl
+      ...spacings.pvXl,
+      ...spacings.mbLg
     }
   })
 
