@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import { ColorValue, View, ViewProps, ViewStyle } from 'react-native'
 
-import Wrapper from '@common/components/Wrapper'
+import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -16,7 +16,7 @@ const { isTab } = getUiType()
 export const tabLayoutWidths = {
   sm: 770,
   md: 900,
-  lg: 1000,
+  lg: 1048,
   full: '100%'
 }
 
@@ -63,17 +63,25 @@ export const TabLayoutContainer = ({
   )
 }
 
-interface TabLayoutWrapperMainContentProps {
+interface TabLayoutWrapperMainContentProps extends WrapperProps {
   children: React.ReactNode
+  wrapperRef?: any
 }
 
 export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentProps> = ({
-  children
+  children,
+  wrapperRef,
+  ...rest
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
 
   return (
-    <Wrapper contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+    <Wrapper
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+      wrapperRef={wrapperRef}
+      {...rest}
+    >
       {children}
     </Wrapper>
   )

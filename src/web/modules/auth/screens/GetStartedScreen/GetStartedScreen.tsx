@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -33,6 +33,7 @@ const GetStartedScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const [seeMoreOptionsEnabled, setSeeMoreOptionsEnabled] = useState(false)
+  const wrapperRef: any = useRef(null)
 
   const handleAuthButtonPress = useCallback(
     async (flow: 'email' | 'hw' | 'legacy' | 'view-only') => {
@@ -64,13 +65,28 @@ const GetStartedScreen = () => {
     },
     [navigate, keystoreState]
   )
+
+  useEffect(() => {
+    if (seeMoreOptionsEnabled) {
+      setTimeout(() => {
+        if (wrapperRef.current && seeMoreOptionsEnabled) {
+          wrapperRef.current.scrollToEnd({ animated: true })
+        }
+      }, 300)
+    }
+  }, [seeMoreOptionsEnabled])
+
+  const handleSeeMoreOptionsPress = useCallback(() => {
+    setSeeMoreOptionsEnabled((prev) => !prev)
+  }, [])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width="lg"
       header={<Header withAmbireLogo />}
     >
-      <TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
         <Panel title={t('Choose Account Type')} style={spacings.mbMd}>
           <View style={[flexboxStyles.directionRow]}>
             <Card
@@ -115,7 +131,7 @@ const GetStartedScreen = () => {
           <TouchableOpacity
             style={styles.showMoreOptionsButton}
             activeOpacity={1}
-            onPress={() => setSeeMoreOptionsEnabled((prev) => !prev)}
+            onPress={handleSeeMoreOptionsPress}
           >
             {seeMoreOptionsEnabled ? (
               <UpArrowIcon color={iconColors.secondary} />
@@ -128,7 +144,7 @@ const GetStartedScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={[flexboxStyles.flex1]}>
+        <View>
           {seeMoreOptionsEnabled && (
             <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
               <Button
