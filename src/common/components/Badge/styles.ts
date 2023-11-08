@@ -31,8 +31,7 @@ const getStyles = (theme: ThemeProps) =>
     primaryBadge: {
       ...label,
       borderColor: theme.primary,
-      backgroundColor: theme.infoBackground,
-      marginLeft: 4
+      backgroundColor: theme.infoBackground
     },
     defaultBadge: {
       ...label,

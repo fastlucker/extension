@@ -77,9 +77,17 @@ const Account = ({
                 : account.addr}
             </Text>
             {(!!unused || type === 'linked') && (
-              <View style={[flexbox.directionRow, spacings.mbTy]}>
+              <View style={[flexbox.directionRow]}>
                 {!!unused && <Badge text={t('unused')} />}
-                {type === 'linked' && <Badge text={t('linked')} type="primary" />}
+                {type === 'linked' && (
+                  <View
+                    style={
+                      !!isAmbireV1LinkedAccount(account.creation?.factoryAddr) && spacings.mrMi
+                    }
+                  >
+                    <Badge text={t('linked')} type="primary" />
+                  </View>
+                )}
                 {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
                   <Badge text={t('v1')} type="primary" />
                 )}
