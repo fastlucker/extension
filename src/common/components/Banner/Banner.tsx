@@ -1,5 +1,5 @@
 import { FC, useCallback } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
@@ -8,12 +8,15 @@ import useTheme from '@common/hooks/useTheme'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
+import Button from '../Button'
 import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
+const ERROR_ACTIONS = ['reject']
+
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
 
   const handleActionPress = useCallback(
@@ -46,29 +49,32 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
       <View style={styles.content}>
         <View style={styles.icon}>
           {/* icon */}
-          <EditIcon width={22} height={22} />
+          <EditIcon color={theme.primaryBackground} width={24} height={24} />
         </View>
         <View style={styles.contentInner}>
-          <Text style={styles.title} fontSize={isTab ? 15 : 13} weight="medium">
+          <Text style={styles.title} fontSize={isTab ? 16 : 14} weight="medium">
             {title}
           </Text>
-          <Text fontSize={13} weight="regular">
+          <Text appearance="secondaryText" fontSize={14} weight="regular">
             {text}
           </Text>
         </View>
       </View>
       <View style={styles.actions}>
-        {actions.map((action) => (
-          <Pressable
-            key={action.actionName}
-            style={styles.action}
-            onPress={() => handleActionPress(action)}
-          >
-            <Text appearance="primary" fontSize={14} weight="regular">
-              {action.label}
-            </Text>
-          </Pressable>
-        ))}
+        {actions.map((action) => {
+          const isReject = ERROR_ACTIONS.includes(action.actionName)
+
+          return (
+            <Button
+              key={action.actionName}
+              size="small"
+              text={action.label}
+              style={styles.action}
+              onPress={() => handleActionPress(action)}
+              type={isReject ? 'danger' : 'primary'}
+            />
+          )
+        })}
       </View>
     </View>
   )

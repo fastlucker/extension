@@ -12,7 +12,12 @@ import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -51,10 +56,23 @@ const SignMessageScreen = () => {
     selectedAccountFull?.associatedKeys.includes(key.addr)
   )
 
+  const network = useMemo(
+    () =>
+      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
+  )
+
   const isViewOnly = selectedAccountKeyStoreKeys.length === 0
 
+  const visualizeHumanized =
+    signMessageState.humanReadable !== null &&
+    network &&
+    signMessageState.messageToSign?.content.kind
+
   const isScrollToBottomForced =
-    signMessageState.messageToSign?.content.kind === 'typedMessage' && !hasReachedBottom
+    signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+    !hasReachedBottom &&
+    !visualizeHumanized
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -189,14 +207,8 @@ const SignMessageScreen = () => {
     )
   }
 
-  const network = useMemo(
-    () =>
-      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
-  )
-
   const onSignButtonClick = () => {
-    // If the account has only one signer, we don't need to show the select signer overlay
+    // If the account has only one signer, we don't need to show the keys select
     if (selectedAccountKeyStoreKeys.length === 1) {
       handleChangeSigningKey(
         selectedAccountKeyStoreKeys[0].addr,
@@ -209,27 +221,71 @@ const SignMessageScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <Header
-        networkId={networkData?.id}
-        networkName={networkData?.name}
-        selectedAccountAddr={selectedAccountFull?.addr}
-        selectedAccountLabel={selectedAccountFull?.label}
-      />
-      <View style={styles.content}>
+    <TabLayoutContainer
+      header={
+        <Header
+          networkId={networkData?.id}
+          networkName={networkData?.name}
+          selectedAccountAddr={selectedAccountFull?.addr}
+          selectedAccountLabel={selectedAccountFull?.label}
+        />
+      }
+      footer={
+        <View style={styles.buttonsContainer}>
+          <Button
+            text="Reject"
+            type="danger"
+            style={styles.rejectButton}
+            textStyle={styles.rejectButtonText}
+            onPress={handleReject}
+          >
+            <CloseIcon color={theme.errorDecorative} />
+          </Button>
+
+          {isScrollToBottomForced && !isViewOnly ? (
+            <Text appearance="errorText" weight="medium">
+              {t('Please read the message before signing.')}
+            </Text>
+          ) : null}
+          {isViewOnly ? (
+            <Text appearance="errorText" weight="medium">
+              {t("You can't sign messages with view only accounts.")}
+            </Text>
+          ) : null}
+          <View style={styles.signButtonContainer}>
+            {isChooseSignerShown ? (
+              <SigningKeySelect
+                selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+                handleChangeSigningKey={handleChangeSigningKey}
+              />
+            ) : null}
+            <Button
+              text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+              disabled={
+                signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
+              }
+              type="primary"
+              style={styles.signButton}
+              onPress={onSignButtonClick}
+            />
+          </View>
+        </View>
+      }
+    >
+      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pvXl}>
         <Text weight="medium" fontSize={20} style={styles.title}>
           {t('Sign message')}
         </Text>
         <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
-        {signMessageState.humanReadable &&
-        network &&
+        {visualizeHumanized &&
+        // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+        signMessageState.humanReadable &&
         signMessageState.messageToSign?.content.kind ? (
           <MessageSummary
             message={signMessageState.humanReadable}
             networkId={network?.id}
             explorerUrl={network?.explorerUrl}
             kind={signMessageState.messageToSign?.content.kind}
-            setHasReachedBottom={setHasReachedBottom}
           />
         ) : (
           <FallbackVisualization
@@ -237,53 +293,11 @@ const SignMessageScreen = () => {
             messageToSign={signMessageState.messageToSign}
           />
         )}
-      </View>
-      <View style={styles.buttonsContainer}>
-        <Button
-          text="Reject"
-          type="danger"
-          style={styles.rejectButton}
-          textStyle={styles.rejectButtonText}
-          onPress={handleReject}
-        >
-          <CloseIcon color={theme.errorDecorative} withRect={false} width={24} height={24} />
-        </Button>
-
-        {isScrollToBottomForced && !isViewOnly ? (
-          <Text appearance="errorText" weight="medium">
-            {t('Please read the message before signing.')}
-          </Text>
+        {isChooseSignerShown ? (
+          <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
         ) : null}
-        {isViewOnly ? (
-          <Text appearance="errorText" weight="medium">
-            {t("You can't sign messages with view only accounts.")}
-          </Text>
-        ) : null}
-        {/* 
-          zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
-          when we show the select signer overlay
-        */}
-        {/* @ts-ignore  */}
-        <View style={styles.signButtonContainer}>
-          {isChooseSignerShown ? (
-            <SigningKeySelect
-              selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-              handleChangeSigningKey={handleChangeSigningKey}
-            />
-          ) : null}
-          <Button
-            text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
-            type="primary"
-            style={styles.signButton}
-            onPress={onSignButtonClick}
-          />
-        </View>
-      </View>
-      {isChooseSignerShown ? (
-        <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
-      ) : null}
-    </View>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

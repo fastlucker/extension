@@ -1,32 +1,26 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
+import common from '@common/styles/utils/common'
 import commonWebStyles from '@web/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
+
+const isTab = getUiType().isTab
 
 export const HEADER_HEIGHT = Platform.select({
-  web: 90,
+  web: 40 + (isTab ? SPACING_LG : SPACING) * 2,
   default: 60
 })
 
 interface Styles {
   container: ViewStyle
   containerInner: ViewStyle
+  imageAndTitleContainer: ViewStyle
   navIconContainerRegular: ViewStyle
   title: TextStyle
+  image: ImageStyle
   sideContainer: ViewStyle
-  // Account
-  account: ViewStyle
-  accountButton: ViewStyle
-  accountButtonRightIcon: ViewStyle
-  accountButtonInfo: ViewStyle
-  accountButtonInfoIcon: ImageStyle
-  accountButtonInfoText: TextStyle
-  accountAddressAndLabel: ViewStyle
-  accountCopyIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -36,16 +30,22 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
+      paddingHorizontal: isTab ? SPACING_3XL : SPACING,
       backgroundColor: theme.secondaryBackground,
-      ...spacings.ph,
       ...spacings.pv,
-      ...(isWeb ? { height: 90 } : {})
+      height: HEADER_HEIGHT
     },
     containerInner: {
       flexDirection: 'row',
       alignItems: 'center',
       ...commonWebStyles.contentContainer,
       flex: 1
+    },
+    imageAndTitleContainer: {
+      justifyContent: 'center',
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center'
     },
     navIconContainerRegular: {
       width: 40,
@@ -58,33 +58,16 @@ const getStyles = (theme: ThemeProps) =>
       flex: 1,
       ...spacings.phTy
     },
-    sideContainer: {
-      width: isWeb ? 180 : 120,
-      minWidth: isWeb ? 180 : 120
-    },
-    // Account
-    account: {
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter
-    },
-    accountButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+    image: {
+      ...common.borderRadiusPrimary,
+      width: 40,
       height: 40,
-      ...spacings.phMi,
-      backgroundColor: '#B6B9FF26',
-      borderWidth: 1,
-      borderColor: '#6770B333',
-      borderRadius: 12,
-      minWidth: 180
+      ...spacings.mrSm
     },
-    accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
-    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
-    accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
-    accountButtonInfoText: { ...spacings.mlMi },
-    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
-    accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
+    sideContainer: {
+      width: 120,
+      minWidth: 120
+    }
   })
 
 export default getStyles

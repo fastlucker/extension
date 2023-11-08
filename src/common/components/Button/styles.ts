@@ -52,7 +52,9 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 0
     },
     buttonContainerSecondary: {
-      backgroundColor: colors.howl
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: theme.primary
     },
     buttonContainerDanger: {
       borderColor: theme.errorDecorative
@@ -68,13 +70,13 @@ const getStyles = (theme: ThemeProps) =>
 
     // Button sizes (large/regular/small)
     buttonContainerStylesSizeLarge: {
-      minHeight: 50,
+      minHeight: 56,
       ...spacings.pvMi,
       ...spacings.phXl,
       ...spacings.mb
     },
     buttonContainerStylesSizeRegular: {
-      minHeight: 50,
+      minHeight: 56,
       ...spacings.pvMi,
       ...spacings.phSm,
       ...spacings.mb
@@ -97,7 +99,7 @@ const getStyles = (theme: ThemeProps) =>
       color: colors.titan
     },
     buttonTextSecondary: {
-      color: colors.titan
+      color: theme.primary
     },
     buttonTextDanger: {
       color: theme.errorDecorative

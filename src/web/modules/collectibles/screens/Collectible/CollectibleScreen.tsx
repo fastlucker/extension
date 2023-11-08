@@ -3,19 +3,21 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
+// @ts-ignore
 import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
+import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import useNft from '@common/hooks/useNft'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import ImageIcon from '@web/assets/svg/ImageIcon'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import TabHeader from '@web/modules/router/components/TabHeader'
 
 import CollectibleTransfer from '../../components/CollectibleTransfer'
 import getStyles from './styles'
@@ -29,7 +31,8 @@ interface State {
 }
 
 const CollectibleScreenInner = ({ name, image, description, owner, address }: State) => {
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
+
   const { t } = useTranslation()
   const { state } = useRoute()
   const { addToast } = useToast()
@@ -49,81 +52,83 @@ const CollectibleScreenInner = ({ name, image, description, owner, address }: St
   }
 
   return (
-    <View style={styles.view}>
-      <TabHeader
-        style={{ backgroundColor: theme.secondaryBackground }}
-        // @TODO: add a case where <CollectionScreen /> doesn't receive collectibles from useRoute
-        // and has to fetch them, so the back button here leads to that screen.(since we can't pass
-        // collectibles to <CollectionScreen /> from <CollectibleScreen />)
-        onBack={() => {
-          if (state?.prevRoute) {
-            navigate(-1)
-            return
-          }
-          navigate(`${ROUTES.dashboard}?tab=collectibles`)
-        }}
-        forceCanGoBack
-        pageTitle={name || t('Unknown collection')}
-        image={image}
-      />
-      <Wrapper style={styles.container}>
-        <View style={styles.contentContainer}>
-          <View style={[styles.section, styles.info]}>
-            <View style={styles.infoImageWrapper}>
-              {image && !failedImage ? (
-                <Image
-                  onError={() => setFailedImage(true)}
-                  source={{ uri: image }}
-                  style={styles.infoImage}
-                />
-              ) : null}
-              {!image || failedImage ? <ImageIcon width={148} height={148} /> : null}
-            </View>
-            <Text style={styles.sectionTitle}>{name}</Text>
-            {description ? (
-              <View style={styles.infoItem}>
-                <Text style={styles.sectionSubtitle}>{t('Description')}</Text>
-                <Text style={styles.itemValue}>{description}</Text>
-              </View>
+    <TabLayoutContainer
+      header={
+        <Header
+          customTitle={name || t('Unknown collection')}
+          image={image}
+          withAmbireLogo
+          mode="image-and-title"
+        />
+      }
+      footer={
+        <BackButton
+          onPress={() => {
+            if (state?.prevRoute) {
+              navigate(-1)
+              return
+            }
+            navigate(`${ROUTES.dashboard}?tab=collectibles`)
+          }}
+        />
+      }
+    >
+      <View style={styles.contentContainer}>
+        <View style={[styles.section, styles.info]}>
+          <View style={styles.infoImageWrapper}>
+            {image && !failedImage ? (
+              <Image
+                onError={() => setFailedImage(true)}
+                source={{ uri: image }}
+                style={styles.infoImage}
+              />
             ) : null}
-            {address ? (
-              <View style={styles.infoItem}>
-                <Text style={styles.sectionSubtitle}>{t('Contract address')}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={styles.itemValue}>{address}</Text>
-                  <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
-                    <CopyIcon width={10} height={10} />
-                  </Pressable>
-                </View>
-              </View>
-            ) : null}
-            {owner ? (
-              <View style={styles.infoItem}>
-                <Text style={styles.sectionSubtitle}>{t('Owner')}</Text>
-                <View style={styles.ownerContainer}>
-                  <Image
-                    style={{ width: 34, height: 34, borderRadius: 12 }}
-                    source={avatarSpaceDog}
-                    resizeMode="contain"
-                  />
-                  <View style={styles.owner}>
-                    {owner === selectedAcc ? (
-                      <Text weight="semiBold" fontSize={16}>
-                        {t('You ')}
-                      </Text>
-                    ) : null}
-                    <Text weight="semiBold" fontSize={16} numberOfLines={1}>
-                      {owner === selectedAcc ? `(${owner})` : owner}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            ) : null}
+            {!image || failedImage ? <ImageIcon width={148} height={148} /> : null}
           </View>
-          <CollectibleTransfer />
+          <Text style={styles.sectionTitle}>{name}</Text>
+          {description ? (
+            <View style={styles.infoItem}>
+              <Text style={styles.sectionSubtitle}>{t('Description')}</Text>
+              <Text style={styles.itemValue}>{description}</Text>
+            </View>
+          ) : null}
+          {address ? (
+            <View style={styles.infoItem}>
+              <Text style={styles.sectionSubtitle}>{t('Contract address')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.itemValue}>{address}</Text>
+                <Pressable style={styles.copyIcon} onPress={handleCopyAddress}>
+                  <CopyIcon width={10} height={10} />
+                </Pressable>
+              </View>
+            </View>
+          ) : null}
+          {owner ? (
+            <View style={styles.infoItem}>
+              <Text style={styles.sectionSubtitle}>{t('Owner')}</Text>
+              <View style={styles.ownerContainer}>
+                <Image
+                  style={{ width: 34, height: 34, borderRadius: 12 }}
+                  source={avatarSpaceDog}
+                  resizeMode="contain"
+                />
+                <View style={styles.owner}>
+                  {owner === selectedAcc ? (
+                    <Text weight="semiBold" fontSize={16}>
+                      {t('You ')}
+                    </Text>
+                  ) : null}
+                  <Text weight="semiBold" fontSize={16} numberOfLines={1}>
+                    {owner === selectedAcc ? `(${owner})` : owner}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ) : null}
         </View>
-      </Wrapper>
-    </View>
+        <CollectibleTransfer />
+      </View>
+    </TabLayoutContainer>
   )
 }
 

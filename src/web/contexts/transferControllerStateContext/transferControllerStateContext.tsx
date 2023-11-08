@@ -56,6 +56,15 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [constants, dispatch, mainState.isReady, mainState.selectedAccount, tokens, preSelectedToken])
 
   useEffect(() => {
+    if (mainState.isReady && !Object.keys(state).length) {
+      dispatch({
+        type: 'INIT_CONTROLLER_STATE',
+        params: { controller: 'transfer' }
+      })
+    }
+  }, [dispatch, mainState.isReady, state])
+
+  useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {
       setState(newState)
     }

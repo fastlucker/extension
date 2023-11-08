@@ -2,25 +2,39 @@ import React from 'react'
 import { ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import FeeWrapper from '@web/modules/sign-account-op/components/FeeWrapper'
-import styles from './styles'
 
 interface Props {
   label: string
-  amount: number
-  onPress: () => void
+  type: string
+  amount: string
+  onPress: (fee: string) => void
   style?: ViewStyle
+  isSelected: boolean
 }
 
-const Fee = ({ label, amount, onPress, style }: Props) => (
-  <FeeWrapper onPress={onPress} style={style}>
-    <Text fontSize={16} weight="medium" style={styles.label}>
-      {label}
-    </Text>
-    <Text fontSize={14} numberOfLines={1}>
-      {amount}
-    </Text>
-  </FeeWrapper>
-)
+const Fee = ({ label, type, amount, onPress, style, isSelected }: Props) => {
+  const { theme } = useTheme()
+  return (
+    <FeeWrapper onPress={onPress} style={style} type={type} isSelected={isSelected}>
+      <Text
+        weight="medium"
+        style={spacings.mbMi}
+        color={isSelected ? theme.primary : theme.primaryText}
+      >
+        {label}
+      </Text>
+      <Text
+        numberOfLines={1}
+        weight="medium"
+        color={isSelected ? theme.primary : theme.primaryText}
+      >
+        {amount}
+      </Text>
+    </FeeWrapper>
+  )
+}
 
 export default Fee

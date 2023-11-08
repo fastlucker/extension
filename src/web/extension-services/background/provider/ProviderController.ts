@@ -62,7 +62,7 @@ export class ProviderController {
     this.mainCtrl = mainCtrl
   }
 
-  getDappNetwork = () => {
+  getDappNetwork = (origin: string) => {
     const defaultNetwork = networks.find((n) => n.id === NETWORKS.ethereum)
     if (!defaultNetwork)
       throw new Error(
@@ -78,13 +78,13 @@ export class ProviderController {
     )
   }
 
-  ethRpc = async (req) => {
+  ethRpc = async (req: any) => {
     const {
       data: { method, params },
       session: { origin }
     } = req
 
-    const networkId = this.getDappNetwork().id
+    const networkId = this.getDappNetwork(origin).id
     const provider = getProvider(networkId)
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
@@ -106,7 +106,7 @@ export class ProviderController {
 
       if (fetchedTx) {
         const response = provider._wrapTransaction(fetchedTx, params[0])
-        const txs = await storage.get('transactionHistory')
+        const txs = await storage.get('transactionHistory', {})
         if (txs[params[0]]) {
           const txn = JSON.parse(txs[params[0]])
           if (txn?.data) {
@@ -180,7 +180,7 @@ export class ProviderController {
     } = cloneDeep(options)
 
     if (requestRes) {
-      const txnHistory = (await storage.get('transactionHistory')) || {}
+      const txnHistory = await storage.get('transactionHistory', {})
       txnHistory[requestRes.hash || ''] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
       return requestRes?.hash
@@ -190,7 +190,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = () => this.getDappNetwork().chainId.toString()
+  netVersion = ({ session: { origin } }: any) => this.getDappNetwork(origin).chainId.toString()
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {

@@ -17,33 +17,23 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  container: { ...flexbox.flex1 },
-  content: { ...flexbox.flex1, ...spacings.ptXl, ...spacings.ph3Xl, ...spacings.pbLg },
-  title: { ...spacings.mbXl },
   buttonsContainer: {
+    ...flexbox.flex1,
+    ...flexbox.alignCenter,
     ...flexbox.directionRow,
     ...flexbox.justifySpaceBetween,
-    height: 128,
-    ...spacings.pvXl,
-    ...spacings.ph3Xl,
-    ...common.shadowPrimary,
-    shadowOpacity: 0.1,
-    shadowOffset: {
-      width: 0,
-      height: -3
-    },
     // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
     // when we show the select signer overlay
     // @ts-ignore
     zIndex: 'unset'
   },
-  rejectButton: { width: 130, height: 56 },
+  rejectButton: { width: 130, height: 56, ...spacings.mb0 },
   rejectButtonText: spacings.mrSm,
   // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
   // when we show the select signer overlay
   // @ts-ignore
   signButtonContainer: { position: 'relative', zIndex: 'unset' },
-  signButton: { width: 162, height: 56 },
+  signButton: { width: 162, height: 56, ...spacings.mb0 },
   overlay: {
     width: '100%',
     height: '100%',

@@ -3,8 +3,9 @@ import { Image, ImageProps, View } from 'react-native'
 
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import Spinner from '@common/components/Spinner'
+import useTheme from '@common/hooks/useTheme'
 import { getTokenIcon } from '@common/services/icons'
-import colors from '@common/styles/colors'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
@@ -30,6 +31,7 @@ const TokenIcon: React.FC<Props> = ({
   height = 20,
   ...props
 }) => {
+  const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
 
@@ -60,13 +62,13 @@ const TokenIcon: React.FC<Props> = ({
         {
           width: containerWidth,
           height: containerHeight,
-          backgroundColor: colors.white,
-          borderRadius: 10,
+          backgroundColor: theme.secondaryBackground,
+          ...common.borderRadiusPrimary,
           ...flexbox.alignCenter,
           ...flexbox.justifyCenter
         }
       ],
-    [containerHeight, containerWidth, withContainer]
+    [containerHeight, containerWidth, withContainer, theme.secondaryBackground]
   )
 
   if (isLoading) {
@@ -79,7 +81,11 @@ const TokenIcon: React.FC<Props> = ({
 
   return validUri ? (
     <View style={containerStyle}>
-      <Image source={{ uri: validUri }} style={{ width, height, borderRadius: 10 }} {...props} />
+      <Image
+        source={{ uri: validUri }}
+        style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
+        {...props}
+      />
     </View>
   ) : (
     <MissingTokenIcon

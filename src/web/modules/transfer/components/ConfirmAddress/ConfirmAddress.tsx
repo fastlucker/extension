@@ -44,11 +44,8 @@ const ConfirmAddress = ({
         disabled
         style={styles.addToAddressBook}
       >
-        <View style={styles.addToAddressBookIcon}>
-          <AddIcon />
-        </View>
         <Text fontSize={14} underline>
-          {t('Add it to the address book')}
+          {t('+ Add it to the address book')}
         </Text>
       </TouchableOpacity>
     </View>

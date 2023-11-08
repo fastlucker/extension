@@ -26,11 +26,11 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...spacings.pr,
       ...spacings.mbSm,
-      backgroundColor: theme.primaryLight,
-      borderRadius: 12,
+      backgroundColor: theme.secondaryBackground,
+      ...commonStyles.borderRadiusPrimary,
       overflow: 'hidden',
       ...commonStyles.shadowSecondary,
-      shadowColor: theme.primaryLight,
+      shadowColor: theme.secondaryBackground,
       shadowOffset: {
         width: 5,
         height: 7
@@ -40,13 +40,13 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.flex1,
       ...flexbox.alignCenter,
-      paddingLeft: 7, // Required by design and missing in spacings.
+      ...spacings.plTy, // Required by design and missing in spacings.
       borderLeftColor: theme.primary,
       borderLeftWidth: 7,
       ...spacings.pvTy
     },
     contentInner: {
-      ...spacings.mlTy,
+      ...spacings.mlSm,
       ...flexbox.wrap,
       ...flexbox.flex1
     },
@@ -54,7 +54,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.center,
       width: SPACING_XL,
       height: SPACING_XL,
-      borderRadius: 12,
+      ...commonStyles.borderRadiusPrimary,
       backgroundColor: theme.primary
     },
     title: { lineHeight: isTab ? 25 : 20 },
@@ -63,7 +63,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter
     },
     action: {
-      ...spacings.mlLg
+      ...spacings.mlSm,
+      ...spacings.mb0,
+      width: 80
     }
   })
 

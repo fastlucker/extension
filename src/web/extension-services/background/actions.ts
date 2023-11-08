@@ -1,9 +1,14 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters } from '@ambire-common/controllers/activity/activity'
-import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
+import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
@@ -64,9 +69,11 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: {
-    accounts: Account[]
-  }
+  params: { selectedAccounts: AccountAdderController['selectedAccounts'] }
+}
+type MainControllerAddAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
+  params: { accounts: Account[] }
 }
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
@@ -170,6 +177,43 @@ type LatticeControllerUnlockAction = {
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
+type MainControllerSignAccountOpEstimateAction = {
+  params: {
+    accountAddr: AccountId
+    networkId: NetworkId
+  }
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE'
+}
+type MainControllerSignAccountOpUpdateMainDepsAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
+  params: {
+    accounts?: Account[]
+    networks?: NetworkDescriptor[]
+    accountStates?: AccountStates
+  }
+}
+type MainControllerSignAccountOpUpdateAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE'
+  params: {
+    accountOp?: AccountOp
+    gasPrices?: GasRecommendation[]
+    estimation?: EstimateResult
+    feeTokenAddr?: string
+    paidBy?: string
+    signingKeyAddr?: string
+    signingKeyType?: string
+  }
+}
+type MainControllerSignAccountOpSignAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+}
+type MainControllerSignAccountOpResetAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
+}
+type MainControllerBroadcastSignedAccountOpAction = {
+  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP'
+  params: { accountOp: AccountOp }
+}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
@@ -238,6 +282,7 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
+  | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
@@ -247,6 +292,12 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerSignAccountOpEstimateAction
+  | MainControllerSignAccountOpUpdateMainDepsAction
+  | MainControllerSignAccountOpSignAction
+  | MainControllerSignAccountOpUpdateAction
+  | MainControllerSignAccountOpResetAction
+  | MainControllerBroadcastSignedAccountOpAction
   | MainControllerTransferResetAction
   | MainControllerTransferResetFormAction
   | MainControllerTransferBuildUserRequestAction
@@ -256,7 +307,6 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
