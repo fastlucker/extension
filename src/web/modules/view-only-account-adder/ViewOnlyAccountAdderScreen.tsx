@@ -127,9 +127,9 @@ const ViewOnlyScreen = () => {
 
   useEffect(() => {
     const newAccountsAddresses = accounts.map((x) => x.address)
-    const areNewAccountsAdded =
-      mainControllerState.accounts.filter((account) => newAccountsAddresses.includes(account.addr))
-        .length > 0
+    const areNewAccountsAdded = mainControllerState.accounts.some((account) =>
+      newAccountsAddresses.includes(account.addr)
+    )
     if (areNewAccountsAdded) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
