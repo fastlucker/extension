@@ -135,7 +135,7 @@ const AccountAdderScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel>
+        <Panel style={{ maxHeight: '100%' }}>
           <AccountsOnPageList state={accountAdderState} setPage={setPage} keyType={keyType} />
         </Panel>
       </TabLayoutWrapperMainContent>

@@ -1,6 +1,6 @@
 import groupBy from 'lodash/groupBy'
-import React, { useCallback, useMemo } from 'react'
-import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -21,8 +21,6 @@ import Slot from '@web/modules/account-adder/components/Slot'
 
 import styles from './styles'
 
-const LIST_ITEM_HEIGHT = 78
-const LIST_ITEM_GUTTER = 10
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
 
@@ -43,6 +41,8 @@ const AccountsList = ({
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
 
   const getDerivationLabel = (_path: HDPath['path']) => {
     const path = HD_PATHS.find((x) => x.path === _path)
@@ -99,16 +99,9 @@ const AccountsList = ({
     return 'smart'
   }
 
-  const numberOfVisibleItems = useMemo(() => (Dimensions.get('window').height < 810 ? 4 : 5), [])
+  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
 
-  // TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically
-  const listHeight = useMemo(
-    () =>
-      Dimensions.get('window').height < 810
-        ? LIST_ITEM_HEIGHT * numberOfVisibleItems + LIST_ITEM_GUTTER * (numberOfVisibleItems - 1)
-        : LIST_ITEM_HEIGHT * numberOfVisibleItems + LIST_ITEM_GUTTER * (numberOfVisibleItems - 1),
-    [numberOfVisibleItems]
-  )
+  const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
 
   const getAccounts = (accounts: any) => {
     return accounts.map((acc: any, i: any) => {
@@ -136,7 +129,7 @@ const AccountsList = ({
   }
 
   return (
-    <View>
+    <View style={flexbox.flex1}>
       <View
         style={[
           spacings.mbLg,
@@ -171,13 +164,20 @@ const AccountsList = ({
           </Pressable>
         )}
       </View>
+
       <Wrapper
-        style={spacings.mbLg}
+        style={shouldEnablePagination && spacings.mbLg}
         contentContainerStyle={{
-          height: listHeight,
+          flexGrow: 1,
           ...spacings.pt0,
           ...spacings.pl0,
-          ...spacings?.[state.accountsOnPage.length > numberOfVisibleItems ? 'prSm' : 'pr0']
+          ...spacings?.[hasScroll ? 'prSm' : 'pr0']
+        }}
+        onLayout={(e) => {
+          setContainerHeight(e.nativeEvent.layout.height)
+        }}
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height)
         }}
       >
         {state.accountsLoading ? (
@@ -196,63 +196,67 @@ const AccountsList = ({
           })
         )}
       </Wrapper>
-
-      <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
-        <TouchableOpacity
-          onPress={handleLargePageStepDecrement}
-          disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
-          style={[
-            spacings.mrLg,
-            state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.4 }
-          ]}
-        >
-          <View style={flexbox.directionRow}>
+      {!!shouldEnablePagination && (
+        <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
+          <TouchableOpacity
+            onPress={handleLargePageStepDecrement}
+            disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
+            style={[
+              spacings.mrLg,
+              state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.4 }
+            ]}
+          >
+            <View style={flexbox.directionRow}>
+              <LeftArrowIcon />
+              <LeftArrowIcon />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSmallPageStepDecrement}
+            disabled={state.page === 1 || disablePagination}
+            style={(state.page === 1 || disablePagination) && { opacity: 0.4 }}
+          >
             <LeftArrowIcon />
-            <LeftArrowIcon />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleSmallPageStepDecrement}
-          disabled={state.page === 1 || disablePagination}
-          style={(state.page === 1 || disablePagination) && { opacity: 0.4 }}
-        >
-          <LeftArrowIcon />
-        </TouchableOpacity>
-        <Text style={spacings.phLg}>
-          {state.page > 2 && <Text>...</Text>}
-          {state.page === 1 && (
-            <Text>
-              <Text weight="semiBold">{state.page}</Text>
-              <Text>{`  ${state.page + 1}  ${state.page + 2}`}</Text>
-            </Text>
-          )}
-          {state.page !== 1 && (
-            <Text>
-              <Text>{`  ${state.page - 1}  `}</Text>
-              <Text weight="semiBold">{state.page}</Text>
-              <Text>{`  ${state.page + 1}`}</Text>
-            </Text>
-          )}
-          <Text>{'  ...'}</Text>
-        </Text>
-        <TouchableOpacity
-          style={[spacings.mrLg, (state.accountsLoading || disablePagination) && { opacity: 0.4 }]}
-          disabled={state.accountsLoading || disablePagination}
-          onPress={handleSmallPageStepIncrement}
-        >
-          <RightArrowIcon />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={(state.accountsLoading || disablePagination) && { opacity: 0.4 }}
-          disabled={state.accountsLoading || disablePagination}
-          onPress={handleLargePageStepIncrement}
-        >
-          <View style={flexbox.directionRow}>
+          </TouchableOpacity>
+          <Text style={spacings.phLg}>
+            {state.page > 2 && <Text>...</Text>}
+            {state.page === 1 && (
+              <Text>
+                <Text weight="semiBold">{state.page}</Text>
+                <Text>{`  ${state.page + 1}  ${state.page + 2}`}</Text>
+              </Text>
+            )}
+            {state.page !== 1 && (
+              <Text>
+                <Text>{`  ${state.page - 1}  `}</Text>
+                <Text weight="semiBold">{state.page}</Text>
+                <Text>{`  ${state.page + 1}`}</Text>
+              </Text>
+            )}
+            <Text>{'  ...'}</Text>
+          </Text>
+          <TouchableOpacity
+            style={[
+              spacings.mrLg,
+              (state.accountsLoading || disablePagination) && { opacity: 0.4 }
+            ]}
+            disabled={state.accountsLoading || disablePagination}
+            onPress={handleSmallPageStepIncrement}
+          >
             <RightArrowIcon />
-            <RightArrowIcon />
-          </View>
-        </TouchableOpacity>
-      </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={(state.accountsLoading || disablePagination) && { opacity: 0.4 }}
+            disabled={state.accountsLoading || disablePagination}
+            onPress={handleLargePageStepIncrement}
+          >
+            <View style={flexbox.directionRow}>
+              <RightArrowIcon />
+              <RightArrowIcon />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   )
 }
