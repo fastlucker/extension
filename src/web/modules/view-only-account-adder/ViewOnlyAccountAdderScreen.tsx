@@ -26,7 +26,7 @@ import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+} from '@web/components/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -231,18 +231,31 @@ const ViewOnlyScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-            <InfoIcon color={theme.infoText} style={spacings.mrTy} />
-            <Text fontSize={20} appearance="infoText" weight="medium">
-              {t('Importing  view-only accounts')}
-            </Text>
-          </View>
-          <Text fontSize={16} appearance="infoText">
+          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon}>
+            <TabLayoutWrapperSideContentItem.Title>
+              Importing view-only accounts
+            </TabLayoutWrapperSideContentItem.Title>
+          </TabLayoutWrapperSideContentItem.Row>
+          <TabLayoutWrapperSideContentItem.Text>
             Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it's balances or connect to dApps with it. Of
+            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
             course, you cannot sign any transactions or messages, or authorize with this account in
             any form. This is possible due to the public nature of the Web3 itself.
-          </Text>
+          </TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+        {/* Will be deleted. Test only */}
+        <TabLayoutWrapperSideContentItem type="error">
+          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon}>
+            <TabLayoutWrapperSideContentItem.Title>
+              Importing view-only accounts
+            </TabLayoutWrapperSideContentItem.Title>
+          </TabLayoutWrapperSideContentItem.Row>
+          <TabLayoutWrapperSideContentItem.Text>
+            Importing accounts in view-only mode allows you to import any address on any of our
+            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
+            course, you cannot sign any transactions or messages, or authorize with this account in
+            any form. This is possible due to the public nature of the Web3 itself.
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
