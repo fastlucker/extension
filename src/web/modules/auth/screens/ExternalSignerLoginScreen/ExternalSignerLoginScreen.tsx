@@ -14,7 +14,6 @@ import Text from '@common/components/Text'
 import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
@@ -53,8 +52,6 @@ const ExternalSignerLoginScreen = () => {
     }
   })
   const { t } = useTranslation()
-  const { state } = useRoute()
-  const canGoBack = state?.prevRoute?.pathname !== '/keystore-setup'
   const { navigate } = useNavigation()
   const { theme } = useTheme()
 
@@ -124,7 +121,7 @@ const ExternalSignerLoginScreen = () => {
       }
       footer={
         <>
-          {canGoBack ? <BackButton /> : <View />}
+          <BackButton />
           <Button
             text={t('Import Legacy Account')}
             hasBottomSpacing={false}
