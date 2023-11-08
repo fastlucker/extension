@@ -70,6 +70,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
+      width="lg"
       header={<Header withAmbireLogo mode="custom-inner-content" />}
       footer={
         <>

@@ -5,6 +5,7 @@ import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -16,7 +17,7 @@ const { isTab } = getUiType()
 export const tabLayoutWidths = {
   sm: 770,
   md: 900,
-  lg: 1048,
+  lg: TAB_CONTENT_WIDTH,
   full: '100%'
 }
 
@@ -52,7 +53,8 @@ export const TabLayoutContainer = ({
           width === 'full' && !isTab ? spacings.ph : {},
           {
             backgroundColor: backgroundColor || theme.primaryBackground,
-            maxWidth: tabLayoutWidths[width]
+            maxWidth: tabLayoutWidths[width],
+            width: '100%'
           }
         ]}
       >
