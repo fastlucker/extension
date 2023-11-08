@@ -134,48 +134,56 @@ const KeyStoreSetupScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Ambire Key Store')}>
-          <Controller
-            control={control}
-            rules={{ validate: isValidPassword }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <InputPassword
-                onBlur={onBlur}
-                placeholder={t('Enter Passphrase')}
-                onChangeText={onChange}
-                isValid={isValidPassword(value)}
-                autoFocus={isWeb}
-                value={value}
-                error={
-                  errors.password &&
-                  (t('Please fill in at least 8 characters for passphrase.') as string)
-                }
-                containerStyle={[spacings.mbTy, { maxWidth: 330 }]}
-                onSubmitEditing={handleKeystoreSetup}
+          <View style={[flexbox.directionRow]}>
+            <View style={{ flex: 1, maxWidth: 330 }}>
+              <Controller
+                control={control}
+                rules={{ validate: isValidPassword }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <InputPassword
+                    onBlur={onBlur}
+                    placeholder={t('Enter Passphrase')}
+                    onChangeText={onChange}
+                    isValid={isValidPassword(value)}
+                    autoFocus={isWeb}
+                    value={value}
+                    error={
+                      errors.password &&
+                      (t('Please fill in at least 8 characters for passphrase.') as string)
+                    }
+                    containerStyle={[spacings.mbTy, { maxWidth: 330 }]}
+                    onSubmitEditing={handleKeystoreSetup}
+                  />
+                )}
+                name="password"
               />
-            )}
-            name="password"
-          />
-          <Controller
-            control={control}
-            rules={{
-              validate: (value) => watch('password', '') === value
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                onBlur={onBlur}
-                placeholder={t('Repeat Passphrase')}
-                onChangeText={onChange}
-                value={value}
-                isValid={!!value && watch('password', '') === value}
-                secureTextEntry
-                error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
-                autoCorrect={false}
-                containerStyle={{ maxWidth: 330 }}
-                onSubmitEditing={handleKeystoreSetup}
+              <Controller
+                control={control}
+                rules={{
+                  validate: (value) => watch('password', '') === value
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    onBlur={onBlur}
+                    placeholder={t('Repeat Passphrase')}
+                    onChangeText={onChange}
+                    value={value}
+                    isValid={!!value && watch('password', '') === value}
+                    validLabel={t('✅ Passwords match, you are ready to continue')}
+                    secureTextEntry
+                    error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
+                    autoCorrect={false}
+                    containerStyle={spacings.mb0}
+                    onSubmitEditing={handleKeystoreSetup}
+                  />
+                )}
+                name="confirmPassword"
               />
-            )}
-            name="confirmPassword"
-          />
+            </View>
+            <View style={spacings.plMd}>
+              <KeyStoreLogo width={117} height={117} />
+            </View>
+          </View>
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
