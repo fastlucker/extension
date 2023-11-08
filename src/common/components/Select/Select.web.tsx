@@ -122,19 +122,21 @@ const SelectComponent = ({
             control: (baseStyles) =>
               ({
                 ...baseStyles,
-                height: 48,
+                height: 50,
                 background: theme.secondaryBackground,
                 ...common.borderRadiusPrimary,
+                borderColor: theme.secondaryBorder,
                 fontSize: 14,
                 color: theme.primaryText,
                 outline: 'none',
                 ...controlStyle
               } as any),
-            menu: (baseStyles) => ({
-              ...baseStyles,
-              borderRadius: 6,
-              overflow: 'hidden'
-            }),
+            menu: (baseStyles) =>
+              ({
+                ...baseStyles,
+                ...common.borderRadiusPrimary,
+                overflow: 'hidden'
+              } as any),
             option: (baseStyles) =>
               ({
                 ...baseStyles,

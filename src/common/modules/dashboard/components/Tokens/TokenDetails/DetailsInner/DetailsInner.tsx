@@ -117,12 +117,7 @@ const DetailsInner = ({
   return (
     <View>
       <Pressable onPress={handleClose} style={styles.closeIcon}>
-        <CloseIcon
-          width={isTab ? 32 : 20}
-          height={isTab ? 32 : 20}
-          color={theme.primaryText}
-          withRect={false}
-        />
+        <CloseIcon width={isTab ? 16 : 12} height={isTab ? 16 : 12} color={theme.primaryText} />
       </Pressable>
       <View style={styles.tokenInfoAndIcon}>
         <TokenIcon

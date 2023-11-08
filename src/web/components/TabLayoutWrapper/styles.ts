@@ -1,57 +1,75 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { Dimensions, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_MD } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  mainContentWrapper: ViewStyle
   contentContainer: ViewStyle
   sideContentContainer: ViewStyle
   informationCircle: ViewStyle
-  amebaAlpha: ViewStyle
-  amebaBeta: ViewStyle
   footerContainer: ViewStyle
+  primarySideItem: ViewStyle
+  errorSideItem: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  mainContentWrapper: {
-    width: 290,
-    alignSelf: 'center',
-    paddingTop: 70,
-    flex: 1
-  },
-  contentContainer: {
-    height: '100%',
-    ...spacings.pbLg,
-    ...spacings.ph3Xl
-  },
-  sideContentContainer: {
-    width: '35%',
-    ...spacings.ptMd,
-    paddingHorizontal: SPACING_MD * 3,
-    overflow: 'hidden'
-  },
-  informationCircle: {
-    alignSelf: 'center',
-    ...spacings.pbLg
-  },
-  amebaAlpha: {
-    position: 'absolute',
-    right: '50%',
-    bottom: -910,
-    marginRight: -825,
-    zIndex: -1
-  },
-  amebaBeta: {
-    position: 'absolute',
-    right: '50%',
-    bottom: -1050,
-    marginRight: -825,
-    zIndex: -1
-  },
-  footerContainer: {
-    maxHeight: 128,
-    flex: 1
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    contentContainer: {
+      height: '100%',
+      ...spacings.pbLg,
+      ...spacings.ph0,
+      ...flexbox.flex1
+    },
+    sideContentContainer: {
+      ...spacings.ph0,
+      ...spacings.plXl,
+      maxWidth: 582,
+      minWidth: 300,
+      // TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically
+      width: Dimensions.get('window').width < 1300 ? 300 : '30%',
+      overflow: 'hidden'
+    },
+    informationCircle: {
+      ...flexbox.alignSelfCenter,
+      ...spacings.pbLg
+    },
+    footerContainer: {
+      maxHeight: 96,
+      ...flexbox.flex1,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.alignCenter,
+      ...flexbox.directionRow,
+      ...spacings.ph3Xl,
+      backgroundColor: theme.primaryBackground,
+      shadowColor: '#B8BDE080',
+      shadowOffset: {
+        width: 0,
+        height: -2
+      },
+      shadowOpacity: 1,
+      shadowRadius: 4,
+      elevation: 7
+    },
+    primarySideItem: {
+      borderColor: theme.primaryLight,
+      borderWidth: 1,
+      backgroundColor: '#F6F0FF',
+      ...common.borderRadiusPrimary,
+      ...spacings.phXl,
+      ...spacings.pvXl,
+      ...spacings.mbLg
+    },
+    errorSideItem: {
+      borderColor: theme.errorDecorative,
+      borderWidth: 1,
+      backgroundColor: theme.errorBackground,
+      ...common.borderRadiusPrimary,
+      ...spacings.phXl,
+      ...spacings.pvXl,
+      ...spacings.mbLg
+    }
+  })
 
-export default styles
+export default getStyles

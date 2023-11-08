@@ -5,22 +5,28 @@ import { Image, Pressable, View } from 'react-native'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import BackButton from '@common/components/BackButton'
 import CopyText from '@common/components/CopyText'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { theme, styles } = useTheme(getStyles)
   const { goBack } = useNavigation()
   const { control, watch } = useForm({
     mode: 'all',
@@ -62,99 +68,102 @@ const AccountSelectScreen = () => {
   }
 
   return (
-    <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
-      <View style={styles.container}>
-        <Search control={control} placeholder="Search for accounts" style={styles.searchBar} />
-      </View>
+    <TabLayoutContainer
+      header={<Header withPopupBackButton withAmbireLogo />}
+      footer={<BackButton />}
+      hideFooterInPopup
+    >
+      <View style={[flexboxStyles.flex1, spacings.pv]}>
+        <View style={styles.container}>
+          <Search control={control} placeholder="Search for accounts" style={styles.searchBar} />
+        </View>
 
-      <Wrapper contentContainerStyle={styles.container}>
-        {accounts.length ? (
-          accounts.map((account) => (
-            <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
-              {({ hovered }: any) => (
-                <View
-                  style={[
-                    styles.accountContainer,
-                    {
-                      borderColor:
-                        account.addr === mainCtrl.selectedAccount || hovered
-                          ? colors.scampi_20
-                          : 'transparent',
-                      backgroundColor:
-                        account.addr === mainCtrl.selectedAccount || hovered
-                          ? colors.melrose_15
-                          : 'transparent'
-                    }
-                  ]}
-                >
-                  <View style={[flexboxStyles.directionRow]}>
-                    <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-                      <Image
-                        style={{ width: 30, height: 30, borderRadius: 10 }}
-                        source={avatarSpace}
-                        resizeMode="contain"
-                      />
-                    </View>
-                    <View style={[spacings.mrTy]}>
-                      <Text
-                        fontSize={12}
-                        weight="regular"
-                        color={account.creation ? colors.greenHaze : colors.husk}
-                      >
-                        {shortenAddress(account.addr, 25)}
-                      </Text>
-                      <Text fontSize={12} weight="semiBold">
-                        {t('Account label')}
-                      </Text>
-                    </View>
-                    <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
-                      <Text
-                        weight="regular"
-                        fontSize={10}
-                        numberOfLines={1}
-                        color={account.creation ? colors.greenHaze : colors.husk}
-                      >
-                        {account.creation ? 'Smart Account' : 'Legacy Account'}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                    {account.associatedKeys.length === 0 ? (
-                      <View style={styles.blueLabel}>
+        <Wrapper contentContainerStyle={styles.container}>
+          {accounts.length ? (
+            accounts.map((account) => (
+              <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
+                {({ hovered }: any) => (
+                  <View
+                    style={[
+                      styles.accountContainer,
+                      {
+                        borderColor:
+                          account.addr === mainCtrl.selectedAccount || hovered
+                            ? theme.secondaryBorder
+                            : 'transparent',
+                        backgroundColor:
+                          account.addr === mainCtrl.selectedAccount || hovered
+                            ? theme.secondaryBackground
+                            : 'transparent'
+                      }
+                    ]}
+                  >
+                    <View style={[flexboxStyles.directionRow]}>
+                      <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
+                        <Image
+                          style={{ width: 32, height: 32, borderRadius: BORDER_RADIUS_PRIMARY }}
+                          source={avatarSpace}
+                          resizeMode="contain"
+                        />
+                      </View>
+                      <View style={[spacings.mrTy]}>
+                        <Text fontSize={12} weight="regular">
+                          {shortenAddress(account.addr, 25)}
+                        </Text>
+                        <Text appearance="secondaryText" fontSize={12} weight="semiBold">
+                          {t('Account label')}
+                        </Text>
+                      </View>
+                      <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
                         <Text
                           weight="regular"
                           fontSize={10}
                           numberOfLines={1}
-                          color={colors.dodgerBlue}
+                          // @TODO: replace with legacy account color
+                          color={account.creation ? theme.successText : theme.warningText}
                         >
-                          no key
+                          {account.creation ? 'Smart Account' : 'Legacy Account'}
                         </Text>
                       </View>
-                    ) : null}
-                    <CopyText
-                      text={account.addr}
-                      iconColor={colors.martinique}
-                      iconWidth={20}
-                      iconHeight={20}
-                      style={{
-                        ...spacings.mrTy,
-                        backgroundColor: 'transparent',
-                        borderColor: 'transparent'
-                      }}
-                    />
-                    <PinIcon style={[spacings.mr]} />
-                    <SettingsIcon />
+                    </View>
+                    <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                      {account.associatedKeys.length === 0 ? (
+                        <View style={styles.blueLabel}>
+                          <Text
+                            weight="regular"
+                            fontSize={10}
+                            numberOfLines={1}
+                            color={colors.dodgerBlue}
+                          >
+                            no key
+                          </Text>
+                        </View>
+                      ) : null}
+                      <CopyText
+                        text={account.addr}
+                        iconColor={theme.primaryText}
+                        iconWidth={20}
+                        iconHeight={20}
+                        style={{
+                          ...spacings.mrTy,
+                          backgroundColor: 'transparent',
+                          borderColor: 'transparent'
+                        }}
+                      />
+                      <PinIcon style={[spacings.mr]} />
+                      <SettingsIcon />
+                    </View>
                   </View>
-                </View>
-              )}
-            </Pressable>
-          ))
-        ) : (
-          // @TODO: add a proper label
-          <Text>No accounts found</Text>
-        )}
-      </Wrapper>
-    </View>
+                )}
+              </Pressable>
+            ))
+          ) : (
+            // @TODO: add a proper label
+            <Text>No accounts found</Text>
+          )}
+        </Wrapper>
+      </View>
+    </TabLayoutContainer>
   )
 }
 

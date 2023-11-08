@@ -17,6 +17,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import DAppFooter from '../components/DAppFooter'
+import DashboardHeader from '../components/Header/Header'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
 import getStyles from './styles'
@@ -36,6 +37,7 @@ const { isPopup } = getUiType()
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
   const route = useRoute()
+
   const { control, watch } = useForm({
     mode: 'all',
     defaultValues: {
@@ -92,67 +94,75 @@ const DashboardScreen = () => {
     )
 
   return (
-    <View style={styles.container}>
-      <View style={spacings.ph}>
-        <View style={[styles.contentContainer]}>
-          <View style={styles.overview}>
-            <View>
-              <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-                <Text style={spacings.mbTy}>
-                  <Text
-                    fontSize={32}
-                    shouldScale={false}
-                    style={{ lineHeight: 34 }}
-                    weight="number_bold"
-                  >
-                    {t('$')}
-                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[0]).toLocaleString(
-                      'en-US'
-                    )}
+    <>
+      <DashboardHeader />
+      <View style={styles.container}>
+        <View style={spacings.ph}>
+          <View style={[styles.contentContainer]}>
+            <View style={styles.overview}>
+              <View>
+                <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+                  <Text style={spacings.mbTy}>
+                    <Text
+                      fontSize={32}
+                      shouldScale={false}
+                      style={{ lineHeight: 34 }}
+                      weight="number_bold"
+                    >
+                      {t('$')}
+                      {Number(
+                        accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
+                      ).toLocaleString('en-US')}
+                    </Text>
+                    <Text fontSize={20} shouldScale={false} weight="semiBold">
+                      {t('.')}
+                      {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
+                    </Text>
                   </Text>
-                  <Text fontSize={20} shouldScale={false} weight="semiBold">
-                    {t('.')}
-                    {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
-                  </Text>
-                </Text>
+                </View>
+                <View style={styles.networks}>
+                  {networksWithAssets.map((networkId, index) => (
+                    <View
+                      key={networkId}
+                      style={[
+                        styles.networkIconContainer,
+                        { zIndex: networksWithAssets.length - index }
+                      ]}
+                    >
+                      <NetworkIcon style={styles.networkIcon} name={networkId} />
+                    </View>
+                  ))}
+                </View>
               </View>
-              <View style={styles.networks}>
-                {networksWithAssets.map((networkId, index) => (
-                  <View
-                    key={networkId}
-                    style={[
-                      styles.networkIconContainer,
-                      { zIndex: networksWithAssets.length - index }
-                    ]}
-                  >
-                    <NetworkIcon style={styles.networkIcon} name={networkId} />
-                  </View>
-                ))}
-              </View>
+              <Routes />
             </View>
-            <Routes />
-          </View>
 
-          <Banners />
+            <Banners />
+          </View>
+          <View
+            style={[
+              styles.contentContainer,
+              flexbox.directionRow,
+              flexbox.justifySpaceBetween,
+              flexbox.alignCenter,
+              spacings.mbMd
+            ]}
+          >
+            <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
+            <Search
+              containerStyle={{ flex: 1, maxWidth: 206 }}
+              control={control}
+              height={32}
+              placeholder="Search for tokens"
+            />
+          </View>
         </View>
-        <View
-          style={[
-            styles.contentContainer,
-            flexbox.directionRow,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            spacings.mbMd
-          ]}
-        >
-          <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-          <Search control={control} height={32} placeholder="Search for tokens" />
+        <View style={[styles.contentContainer, flexbox.flex1]}>
+          {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
         </View>
+        {isPopup && <DAppFooter />}
       </View>
-      <View style={[styles.contentContainer, flexbox.flex1]}>
-        {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
-      </View>
-      {isPopup && <DAppFooter />}
-    </View>
+    </>
   )
 }
 

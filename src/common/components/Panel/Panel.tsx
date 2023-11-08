@@ -1,39 +1,32 @@
-import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { View, ViewProps } from 'react-native'
 
-import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
+import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props extends ViewProps {
-  horizontalSpacing?: 'small' | 'tiny' | 'micro'
-  contentContainerStyle?: any
+  title?: string
 }
 
-const Panel: React.FC<Props> = ({
-  children,
-  style,
-  horizontalSpacing = 'small',
-  contentContainerStyle,
-  ...rest
-}) => {
+const Panel: React.FC<Props> = ({ title, children, style, ...rest }) => {
+  const { styles } = useTheme(getStyles)
   return (
     <View style={[styles.container, style]} {...rest}>
-      <View
-        style={[
-          styles.innerContainer,
-          spacings.pvSm,
-          horizontalSpacing === 'small' && (isWeb ? spacings.phLg : spacings.phSm),
-          horizontalSpacing === 'tiny' && (isWeb ? spacings.phMd : spacings.phTy),
-          horizontalSpacing === 'micro' && (isWeb ? spacings.ph : spacings.phMi),
-          contentContainerStyle
-        ]}
-      >
-        {children}
-      </View>
+      {!!title && (
+        <Text
+          fontSize={20}
+          weight="medium"
+          appearance="primaryText"
+          style={spacings.mbXl}
+          numberOfLines={1}
+        >
+          {title}
+        </Text>
+      )}
+      {children}
     </View>
   )
 }

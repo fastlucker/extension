@@ -3,7 +3,6 @@ import './styles.css'
 import React from 'react'
 
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 
 import { ToggleProps } from './types'
 

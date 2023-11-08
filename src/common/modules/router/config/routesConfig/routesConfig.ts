@@ -36,8 +36,8 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome'),
-      web: ''
+      default: i18n.t('Welcome to Ambire'),
+      web: i18n.t('Welcome to Ambire')
     })
   },
   [ROUTES.terms]: {
@@ -79,27 +79,6 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Login'),
       web: ''
-    })
-  },
-  [ROUTES.ambireAccountLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
-  [ROUTES.ambireAccountJsonLogin]: {
-    route: ROUTES.ambireAccountJsonLogin,
-    title: Platform.select({
-      web: i18n.t('Import From JSON File'),
-      default: i18n.t('Import From File')
-    })
-  },
-  [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
     })
   },
   [ROUTES.hardwareWallet]: {

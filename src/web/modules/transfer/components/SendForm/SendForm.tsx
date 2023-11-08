@@ -3,7 +3,6 @@ import { View } from 'react-native'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
@@ -90,12 +89,6 @@ const SendForm = ({
       }),
     [dispatch]
   )
-
-  const sendTransaction = useCallback(async () => {
-    await dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
-    })
-  }, [dispatch])
 
   const updateTransferCtrlProperty = useCallback(
     (key: string, value: string | boolean) =>
@@ -211,15 +204,6 @@ const SendForm = ({
           </Checkbox>
         ) : null}
       </View>
-
-      <Button
-        type="primary"
-        size="large"
-        text={t('Send')}
-        style={styles.button}
-        onPress={sendTransaction}
-        disabled={!isFormValid}
-      />
     </View>
   )
 }

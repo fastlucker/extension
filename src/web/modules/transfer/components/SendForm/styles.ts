@@ -1,6 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_LG } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -8,7 +8,6 @@ interface Style {
   tokenSelect: ViewStyle
   recipientWrapper: ViewStyle
   sWAddressWarningCheckbox: ViewStyle
-  button: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
@@ -22,11 +21,6 @@ const styles = StyleSheet.create<Style>({
   sWAddressWarningCheckbox: {
     ...spacings.mlTy,
     ...spacings.mbLg
-  },
-  button: {
-    ...flexbox.alignSelfStart,
-    width: 300,
-    paddingHorizontal: SPACING_LG * 4
   }
 })
 
