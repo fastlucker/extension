@@ -73,13 +73,14 @@ interface TabLayoutWrapperMainContentProps extends WrapperProps {
 export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentProps> = ({
   children,
   wrapperRef,
+  contentContainerStyle = {},
   ...rest
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
 
   return (
     <Wrapper
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
       showsVerticalScrollIndicator={false}
       wrapperRef={wrapperRef}
       {...rest}
