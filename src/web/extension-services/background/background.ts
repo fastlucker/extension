@@ -354,7 +354,9 @@ async function init() {
                 providers: rpcProviders
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
-              return mainCtrl.accountAdder.addAccounts(data.params.accounts)
+              return mainCtrl.accountAdder.addAccounts(data.params.selectedAccounts)
+            case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
+              return mainCtrl.addAccounts(data.params.accounts)
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
