@@ -120,27 +120,25 @@ const ViewOnlyScreen = () => {
     const accountsToAdd = await Promise.all(accountsToAddP)
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+      type: 'MAIN_CONTROLLER_ADD_ACCOUNTS',
       params: { accounts: accountsToAdd }
     })
   }, [accounts, dispatch])
 
   useEffect(() => {
-    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
-      const selectedAccount = accountAdderState.readyToAddAccounts[0]
+    const newAccountsAddresses = accounts.map((x) => x.address)
+    const areNewAccountsAdded = mainControllerState.accounts.some((account) =>
+      newAccountsAddresses.includes(account.addr)
+    )
+    if (areNewAccountsAdded) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: selectedAccount.addr }
-      }).then(() => {
-        navigate(WEB_ROUTES.accountPersonalize)
+        params: { accountAddr: newAccountsAddresses[0] }
       })
+
+      navigate(WEB_ROUTES.accountPersonalize)
     }
-  }, [
-    accountAdderState.addAccountsStatus,
-    accountAdderState.readyToAddAccounts,
-    dispatch,
-    navigate
-  ])
+  }, [accounts, dispatch, mainControllerState.accounts, navigate])
 
   return (
     <TabLayoutWrapperMainContent pageTitle={t('View-Only Accounts')} hideStepper>

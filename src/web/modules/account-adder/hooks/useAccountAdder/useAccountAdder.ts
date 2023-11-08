@@ -188,7 +188,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-        params: { accounts: accountAdderState.selectedAccounts }
+        params: { selectedAccounts: accountAdderState.selectedAccounts }
       })
       return
     }

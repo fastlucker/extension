@@ -1,5 +1,6 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -68,9 +69,11 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: {
-    accounts: Account[]
-  }
+  params: { selectedAccounts: AccountAdderController['selectedAccounts'] }
+}
+type MainControllerAddAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
+  params: { accounts: Account[] }
 }
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
@@ -279,6 +282,7 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
+  | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
@@ -303,7 +307,6 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerGetPathForIndexAction
   | LedgerControllerAppAction
   | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
