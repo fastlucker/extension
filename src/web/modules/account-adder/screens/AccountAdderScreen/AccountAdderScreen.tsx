@@ -75,14 +75,7 @@ const AccountAdderScreen = () => {
         </Header>
       }
       footer={
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            flexbox.directionRow
-          ]}
-        >
+        <>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <TouchableOpacity
               style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
@@ -138,7 +131,7 @@ const AccountAdderScreen = () => {
               <RightArrowIcon color={colors.titan} />
             </View>
           </Button>
-        </View>
+        </>
       }
     >
       <TabLayoutWrapperMainContent>
