@@ -37,6 +37,8 @@ const SignMessageScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [shouldShowFallback, setShouldShowFallback] = useState(false)
+
   const networkData =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
@@ -68,6 +70,12 @@ const SignMessageScreen = () => {
     signMessageState.messageToSign?.content.kind === 'typedMessage' &&
     !hasReachedBottom &&
     !visualizeHumanized
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShouldShowFallback(true)
+    }, 1000)
+  })
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -238,11 +246,13 @@ const SignMessageScreen = () => {
             explorerUrl={network?.explorerUrl}
             kind={signMessageState.messageToSign?.content.kind}
           />
-        ) : (
+        ) : shouldShowFallback ? (
           <FallbackVisualization
             setHasReachedBottom={setHasReachedBottom}
             messageToSign={signMessageState.messageToSign}
           />
+        ) : (
+          <Text>Loading</Text>
         )}
       </View>
       <View style={styles.buttonsContainer}>
