@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -25,6 +25,7 @@ import {
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
 const AccountPersonalizeScreen = () => {
@@ -33,6 +34,7 @@ const AccountPersonalizeScreen = () => {
   const { stepperState, updateStepperState } = useStepper()
   const { params } = useRoute()
   const { theme } = useTheme()
+  const { dispatch } = useBackgroundService()
 
   const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
 
@@ -48,6 +50,24 @@ const AccountPersonalizeScreen = () => {
     updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
   }, [stepperState?.currentFlow, updateStepperState])
 
+  const handleSave = useCallback(() => {
+    const newAccPreferences = {}
+    accounts.forEach((acc) => {
+      newAccPreferences[acc.addr] = {
+        label: '', // TODO: Get label from the form
+        avatar: '' // TODO: Get avatar from the form
+      }
+    })
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
+      params: newAccPreferences
+    })
+
+    // TODO: Enable back when the above gets implemented
+    // navigate('/')
+  }, [accounts, dispatch])
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -55,11 +75,7 @@ const AccountPersonalizeScreen = () => {
       footer={
         <>
           <BackButton />
-          <Button
-            onPress={() => navigate('/')}
-            hasBottomSpacing={false}
-            text={t('Save and Continue')}
-          >
+          <Button onPress={handleSave} hasBottomSpacing={false} text={t('Save and Continue')}>
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
             </View>
