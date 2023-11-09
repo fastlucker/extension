@@ -202,8 +202,8 @@ const ExternalSignerLoginScreen = () => {
             />
             <TabLayoutWrapperSideContentItem.Text>
               By inserting a private key or a seed phrase, you can import traditional legacy
-              accounts (also known as EOAs - externally owned accounts).If you enter a seed phrase,
-              you will be given a list of multiple legacy accounts to choose from.For each legacy
+              accounts (also known as EOAs - externally owned accounts). If you enter a seed phrase,
+              you will be given a list of multiple legacy accounts to choose from. For each legacy
               account you import, you also have the option to import a smart account, powered by the
               same private key. This smart account will have a different address. Smart accounts
               have many benefits, including account recovery, transaction batching and much more.
