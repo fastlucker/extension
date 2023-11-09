@@ -1,7 +1,6 @@
 import { Image, Pressable, View } from 'react-native'
 
 // @ts-ignore
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -15,6 +14,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { buildInAvatars } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -29,6 +29,8 @@ const DashboardHeader = () => {
 
   const selectedAccount = mainCtrl.selectedAccount || ''
   const selectedAccPref = settingsControllerState.accountPreferences[selectedAccount]
+  const selectedAccPfpSource =
+    buildInAvatars.find(({ id }) => id === selectedAccPref?.pfp)?.source || buildInAvatars[0].source
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
@@ -53,7 +55,7 @@ const DashboardHeader = () => {
             <View style={styles.accountButtonInfo}>
               <Image
                 style={styles.accountButtonInfoIcon}
-                source={avatarSpace}
+                source={selectedAccPfpSource}
                 resizeMode="contain"
               />
               <View style={styles.accountAddressAndLabel}>
