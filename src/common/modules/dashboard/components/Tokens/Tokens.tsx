@@ -1,102 +1,127 @@
-import React from 'react'
-import { Pressable, View } from 'react-native'
+import { formatUnits } from 'ethers'
+import React, { useMemo, useState } from 'react'
+import { View } from 'react-native'
 
-import { TokenResult as TokenResultInterface } from '@ambire-common/libs/portfolio/interfaces'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import TokenDetails from './TokenDetails'
 import TokenItem from './TokenItem'
 
-// TODO: correct props once connected with portfolio controller
 interface Props {
-  tokens: any[] | TokenResultInterface[]
+  tokens: TokenResult[]
   searchValue: string
+}
+
+const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
+  const balance = parseFloat(formatUnits(amount, decimals))
+  const price =
+    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
+
+  return balance * price
 }
 
 const Tokens = ({ tokens, searchValue }: Props) => {
   const { t } = useTranslation()
-  // TODO: we will have different sorting here on v2. We will have pinned tokens with 0 balance, gas tokens and etc so this will be decided over time once all of them are wired up
-  let sortedTokens = [...tokens]
+  const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
 
-  sortedTokens.sort((a, b) => {
-    // If a is a rewards token and b is not, a should come before b.
-    if (a.flags.rewardsType && !b.flags.rewardsType) {
-      return -1
-    }
-    // If b is a rewards token and a is not, b should come before a.
-    if (!a.flags.rewardsType && b.flags.rewardsType) {
-      return 1
-    }
-    // Otherwise, keep the order as is (or use another criteria to sort them).
-    return 0
-  })
+  const sortedTokens = useMemo(
+    () =>
+      tokens.sort((a, b) => {
+        // If a is a rewards token and b is not, a should come before b.
+        if (a.flags.rewardsType && !b.flags.rewardsType) {
+          return -1
+        }
+        if (!a.flags.rewardsType && b.flags.rewardsType) {
+          // If b is a rewards token and a is not, b should come before a.
+          return 1
+        }
 
-  // Now, move onGasTank tokens to the end of the array
-  const onGasTankTokens = sortedTokens.filter((token) => token.flags.onGasTank)
-  const otherTokens = sortedTokens.filter((token) => !token.flags.onGasTank)
+        const aBalance = calculateTokenBalance(a)
+        const bBalance = calculateTokenBalance(b)
 
-  sortedTokens = [...otherTokens, ...onGasTankTokens]
+        if (a.flags.rewardsType === b.flags.rewardsType) {
+          if (aBalance === 0 && bBalance !== 0) {
+            return 1
+          }
+          if (aBalance !== 0 && bBalance === 0) {
+            return -1
+          }
+
+          return bBalance - aBalance
+        }
+
+        if (a.flags.onGasTank && !b.flags.onGasTank) {
+          return -1
+        }
+        if (!a.flags.onGasTank && b.flags.onGasTank) {
+          return 1
+        }
+
+        return 0
+      }),
+    [tokens]
+  )
+
+  const handleSelectToken = ({ address, networkId, flags }: TokenResult) => {
+    const token =
+      tokens.find(
+        (tokenI) =>
+          tokenI.address === address &&
+          tokenI.networkId === networkId &&
+          tokenI.flags.onGasTank === flags.onGasTank
+      ) || null
+
+    setSelectedToken(token)
+  }
+
+  const handleTokenDetailsClose = () => {
+    setSelectedToken(null)
+  }
 
   return (
     <View>
-      {/* {!!isCurrNetworkBalanceLoading && <TokensListLoader />} */}
+      <TokenDetails token={selectedToken} handleClose={handleTokenDetailsClose} />
 
-      {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
-      {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
-
-      {!!sortedTokens.length &&
-        sortedTokens.map(
-          (
-            {
-              address,
-              amount,
-              decimals,
-              networkId,
-              priceIn,
-              symbol,
-              flags: { onGasTank, rewardsType, canTopUpGasTank, isFeeToken }
-            }: TokenResultInterface,
-            i: number
-          ) => (
-            <TokenItem
-              key={`token-${i}`}
-              address={address}
-              amount={amount}
-              decimals={decimals}
-              networkId={networkId}
-              priceIn={priceIn}
-              symbol={symbol}
-              onGasTank={onGasTank}
-              rewardsType={rewardsType}
-              canTopUpGasTank={canTopUpGasTank}
-              isFeeToken={isFeeToken}
-            />
-          )
-        )}
-      {/* TODO: implementation of add custom token will be in sprint 4 */}
-      <Pressable>
-        {({ hovered }: any) => (
-          <View
-            style={[
-              styles.container,
-              styles.addTokenContainer,
-              spacings.pvTy,
-              hovered && {
-                backgroundColor: colors.lightViolet,
-                borderStyle: 'solid',
-                borderColor: colors.violet
-              }
-            ]}
-          >
-            <Text shouldScale={false} color={colors.violet} weight="medium" fontSize={16}>
-              {t('+ Add Custom')}
-            </Text>
+      <View style={spacings.mb}>
+        {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
+        {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
+        {!!sortedTokens.length && (
+          <View>
+            <View style={{ flexDirection: 'row', ...spacings.mbTy, ...spacings.phTy }}>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
+                ASSET/AMOUNT
+              </Text>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 0.7 }}>
+                PRICE
+              </Text>
+              <Text
+                appearance="secondaryText"
+                fontSize={14}
+                weight="medium"
+                style={{ flex: 0.8, textAlign: 'right' }}
+              >
+                USD VALUE
+              </Text>
+            </View>
+            {sortedTokens.map((token: TokenResult) => (
+              <TokenItem
+                key={`${token?.address}-${token?.networkId}-${
+                  token?.flags?.onGasTank ? 'gas-tank' : 'token'
+                }`}
+                token={token}
+                handleTokenSelect={handleSelectToken}
+              />
+            ))}
           </View>
         )}
-      </Pressable>
+      </View>
+
+      {/* TODO: implementation of add custom token will be in sprint 4 */}
+      <Button disabled type="secondary" text="+ Add Custom" />
     </View>
   )
 }

@@ -1,28 +1,22 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
+import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useDebounce from '@common/hooks/useDebounce'
+import useToast from '@common/hooks/useToast'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { mapTokenOptions } from '@web/utils/maps'
 
 import styles from './styles'
 
 const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
-
-const LOADING_ASSETS_ITEMS = [
-  {
-    value: 'loading',
-    label: <Text weight="medium">Loading...</Text>,
-    icon: null
-  }
-]
 
 const NO_TOKENS_ITEMS = [
   {
@@ -32,29 +26,18 @@ const NO_TOKENS_ITEMS = [
   }
 ]
 
-const getSelectProps = ({
-  tokens,
-  isAllReady,
-  asset
-}: {
-  tokens: TokenResult[]
-  isAllReady: boolean
-  asset: string
-}) => {
+const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: string }) => {
   let options: any = []
   let value = null
   let selectDisabled = true
 
-  if (isAllReady && tokens?.length > 0) {
-    options = mapTokenOptions(tokens)
-    value = options.find((item: any) => item.value === asset) || options[0]
-    selectDisabled = false
-  } else if (isAllReady && !(tokens?.length > 0)) {
+  if (tokens?.length === 0) {
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
-  } else if (!isAllReady) {
-    value = LOADING_ASSETS_ITEMS[0]
-    options = LOADING_ASSETS_ITEMS
+  } else {
+    options = mapTokenOptions(tokens)
+    value = options.find((item: any) => item.value === token) || options[0]
+    selectDisabled = false
   }
 
   return {
@@ -63,98 +46,164 @@ const getSelectProps = ({
     selectDisabled
   }
 }
-
 const SendForm = ({
-  requestTransactionState: {
-    asset,
-    amount,
-    address,
-    setAsset,
-    selectedAsset,
-    onAmountChange,
-    maxAmount,
-    setMaxAmount,
-    setAddress,
-    sendTransaction,
-    disabled,
-    addressConfirmed,
-    setAddressConfirmed,
-    validationFormMgs,
-    showSWAddressWarning,
-    sWAddressConfirmed,
-    setSWAddressConfirmed,
-    uDAddress,
-    ensAddress
-  }
-}: any) => {
+  state,
+  isAllReady = false
+}: {
+  state: TransferControllerState
+  isAllReady?: boolean
+}) => {
+  const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
   const {
-    // When we dispatch the new transaction the main controller updates
-    // which sets the tokens to null and isAllReady to false. This results in blinking in the UI
-    // so we have to check if the portfolio is loading and show a loading state if it is.
-    accountPortfolio: { tokens, isAllReady }
-  } = usePortfolioControllerState()
+    amount,
+    maxAmount,
+    selectedToken,
+    recipientUDAddress,
+    recipientEnsAddress,
+    recipientAddress,
+    userRequest,
+    isRecipientAddressUnknown,
+    isRecipientSmartContract,
+    isRecipientDomainResolving,
+    isSWWarningVisible,
+    tokens,
+    isFormValid,
+    validationFormMsgs,
+    isSWWarningAgreed,
+    isRecipientAddressUnknownAgreed
+  } = state
+
   const { t } = useTranslation()
-  const { value, options, selectDisabled } = getSelectProps({ tokens, isAllReady, asset })
+  const token = `${selectedToken?.address}-${selectedToken?.networkId}`
+  const { value: tokenSelectValue, options, selectDisabled } = getSelectProps({ tokens, token })
+  const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
+
+  const handleChangeToken = useCallback(
+    (value: string) =>
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE',
+        params: {
+          tokenAddressAndNetwork: value
+        }
+      }),
+    [dispatch]
+  )
+
+  const updateTransferCtrlProperty = useCallback(
+    (key: string, value: string | boolean) =>
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+        params: {
+          [key]: value
+        }
+      }),
+    [dispatch]
+  )
+
+  const onAmountChange = useCallback(
+    (newAmount: string) => {
+      updateTransferCtrlProperty('amount', newAmount)
+    },
+    [updateTransferCtrlProperty]
+  )
+
+  const setMaxAmount = useCallback(() => {
+    updateTransferCtrlProperty('setMaxAmount', true)
+  }, [updateTransferCtrlProperty])
+
+  const setRecipientAddress = useCallback(
+    (text: string) => {
+      updateTransferCtrlProperty('recipientAddress', text)
+    },
+    [updateTransferCtrlProperty]
+  )
+
+  const onSWWarningCheckboxClick = useCallback(() => {
+    updateTransferCtrlProperty('isSWWarningAgreed', true)
+  }, [updateTransferCtrlProperty])
+
+  const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
+    updateTransferCtrlProperty('isRecipientAddressUnknownAgreed', true)
+  }, [updateTransferCtrlProperty])
+
+  useEffect(() => {
+    try {
+      if (!userRequest) return
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: userRequest
+      })
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+      })
+    } catch (e: any) {
+      console.error(e)
+      addToast(`Error: ${e.message || e}`, { error: true })
+    }
+  }, [userRequest, addToast, dispatch])
+
+  useEffect(() => {
+    if (!debouncedRecipientAddress) return
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+    })
+  }, [debouncedRecipientAddress, dispatch])
 
   return (
     <View style={styles.container}>
       <Select
-        setValue={({ value: newValue }) => setAsset(newValue)}
+        setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
         options={options}
-        value={value}
+        value={tokenSelectValue}
         disabled={selectDisabled}
         style={styles.tokenSelect}
       />
       <InputSendToken
         amount={amount}
-        selectedAssetSymbol={isAllReady ? selectedAsset?.symbol || t('Unknown') : ''}
-        errorMessage={validationFormMgs?.messages?.amount || ''}
+        selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
+        errorMessage={validationFormMsgs?.amount.message}
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />
       <View style={styles.recipientWrapper}>
         <Recipient
-          setAddress={setAddress}
-          address={address}
-          uDAddress={uDAddress}
-          ensAddress={ensAddress}
-          addressValidationMsg={validationFormMgs?.messages?.address || ''}
-          setAddressConfirmed={setAddressConfirmed}
-          addressConfirmed={addressConfirmed}
+          setAddress={setRecipientAddress}
+          address={recipientAddress}
+          uDAddress={recipientUDAddress}
+          ensAddress={recipientEnsAddress}
+          addressValidationMsg={validationFormMsgs?.recipientAddress.message}
+          isRecipientSmartContract={isRecipientSmartContract}
+          isRecipientAddressUnknown={isRecipientAddressUnknown}
+          isRecipientDomainResolving={isRecipientDomainResolving}
+          isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
         />
 
-        {showSWAddressWarning && (
+        {isSWWarningVisible ? (
           <Checkbox
             style={styles.sWAddressWarningCheckbox}
-            value={sWAddressConfirmed}
-            onValueChange={() => setSWAddressConfirmed(!sWAddressConfirmed)}
+            value={isSWWarningAgreed}
+            onValueChange={onSWWarningCheckboxClick}
           >
-            <Text fontSize={12} onPress={() => setSWAddressConfirmed(!sWAddressConfirmed)}>
+            <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
               {
                 t(
                   'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
                   {
                     platforms: unsupportedSWPlatforms.join(' / '),
-                    token: selectedAsset?.label
+                    token: selectedToken?.symbol
                   }
                 ) as string
               }
             </Text>
           </Checkbox>
-        )}
+        ) : null}
       </View>
-
-      <Button
-        type="primary"
-        size="large"
-        text={t('Send')}
-        disabledStyle={{ opacity: 0.6 }}
-        style={styles.button}
-        onPress={sendTransaction}
-        disabled={disabled}
-      />
     </View>
   )
 }

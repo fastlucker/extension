@@ -1,14 +1,18 @@
 import HDKey from 'hdkey'
 
-import { TREZOR_HD_PATH, TREZOR_PATH_BASE } from '@ambire-common/consts/derivation'
+import {
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect from '@trezor/connect-web'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 
 const keyringType = 'trezor'
 
 const TREZOR_CONNECT_MANIFEST = {
-  email: 'support@debank.com/',
-  appUrl: 'https://debank.com/'
+  email: 'contactus@ambire.com',
+  appUrl: 'https://wallet.ambire.com' // TODO: extension url?
 }
 
 class TrezorController {
@@ -16,25 +20,26 @@ class TrezorController {
 
   hdk: any
 
-  hdPath: string
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
-  model: string
+  deviceModel = 'unknown'
 
-  accountDetails: any
+  deviceId = ''
 
   constructor() {
     this.type = keyringType
     this.hdk = new HDKey()
 
-    // TODO: Handle different derivation paths
-    this.hdPath = TREZOR_HD_PATH
-    this.model = ''
-
-    this.accountDetails = {}
+    // TODO: Handle different derivation
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
 
     trezorConnect.on('DEVICE_EVENT', (event: any) => {
-      if (event && event.payload && event.payload.features) {
-        this.model = event.payload.features.model
+      if (event?.payload?.features?.model) {
+        this.deviceModel = event.payload.features.model
+      }
+      // The device ID could be retrieved from both places
+      if (event?.payload?.features?.device_id || event?.payload?.id) {
+        this.deviceId = event.payload.features.device_id || event.payload.id
       }
     })
 
@@ -42,7 +47,7 @@ class TrezorController {
   }
 
   getModel() {
-    return this.model
+    return this.deviceModel
   }
 
   dispose() {
@@ -67,7 +72,7 @@ class TrezorController {
     return new Promise((resolve, reject) => {
       trezorConnect
         .getPublicKey({
-          path: this.hdPath,
+          path: getHdPathFromTemplate(this.hdPathTemplate, 0),
           coin: 'ETH'
         })
         .then((response) => {
@@ -92,7 +97,7 @@ class TrezorController {
           const iterator = new TrezorKeyIterator({
             hdk: this.hdk
           })
-          const keys = await iterator.retrieve(from, to, TREZOR_PATH_BASE)
+          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
           resolve(keys)
         })

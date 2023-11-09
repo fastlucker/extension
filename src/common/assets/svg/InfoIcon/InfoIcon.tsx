@@ -6,7 +6,6 @@ import colors from '@common/styles/colors'
 interface Props extends SvgProps {
   width?: number
   height?: number
-  color?: string
 }
 
 const InfoIcon: React.FC<Props> = ({ width = 24, height = 24, color, ...rest }) => (

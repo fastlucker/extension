@@ -1,3 +1,5 @@
+import { getBigInt } from 'ethers'
+
 import { networks } from '@ambire-common/consts/networks'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
@@ -166,7 +168,10 @@ class UserNotification {
       id,
       action: {
         kind: 'call',
-        ...txn
+        ...{
+          ...txn,
+          value: getBigInt(txn.value)
+        }
       },
       networkId: network.id,
       accountAddr: selectedAccount,

@@ -1,26 +1,35 @@
 import React from 'react'
-import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
+import Svg, { G, Line, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 interface Props extends SvgProps {
   width?: number
   height?: number
 }
 
-const CloseIcon: React.FC<Props> = ({ width = 40, height = 40, color = colors.titan }) => (
-  <Svg width={width} height={height} viewBox="0 0 40 40">
-    <Rect width={width} height={height} rx="13" fill={color} opacity="0.05" />
-    <Path
-      d="M10,11a1,1,0,0,1-.707-.293l-10-10a1,1,0,0,1,0-1.414,1,1,0,0,1,1.414,0l10,10A1,1,0,0,1,10,11Z"
-      transform="translate(15 15)"
-      fill={color}
-    />
-    <Path
-      d="M0,11a1,1,0,0,1-.707-.293,1,1,0,0,1,0-1.414l10-10a1,1,0,0,1,1.414,0,1,1,0,0,1,0,1.414l-10,10A1,1,0,0,1,0,11Z"
-      transform="translate(15 15)"
-      fill={color}
-    />
+const CloseIcon: React.FC<Props> = ({ width = 14, height = 14, color = iconColors.primary }) => (
+  <Svg width={width} height={height} viewBox="0 0 14.121 14.121">
+    <G transform="translate(-70.81 -462.818)">
+      <Line
+        x2="12"
+        y2="12"
+        transform="translate(71.871 463.879)"
+        fill="none"
+        stroke={color}
+        strokeLinecap="round"
+        strokeWidth="1.5"
+      />
+      <Line
+        x1="12"
+        y2="12"
+        transform="translate(71.871 463.879)"
+        fill="none"
+        stroke={color}
+        strokeLinecap="round"
+        strokeWidth="1.5"
+      />
+    </G>
   </Svg>
 )
 

@@ -72,10 +72,10 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
-
       if (lastError) {
-        // TODO: display error toast instead
-        alert(lastError.message)
+        if (lastError.level !== 'silent')
+          // TODO: display error toast instead
+          alert(lastError.message)
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
         )

@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
-import { TouchableOpacity, View, ViewProps } from 'react-native'
+import { ColorValue, TouchableOpacity, View, ViewProps } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
@@ -15,11 +15,21 @@ interface Props {
   value: boolean
   children?: any
   style?: ViewProps['style']
+  uncheckedBorderColor?: ColorValue
   isDisabled?: boolean
   TestId?: string
 }
 
-const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: Props) => {
+const Checkbox = ({
+  label,
+  children,
+  onValueChange,
+  value,
+  style,
+  uncheckedBorderColor,
+  isDisabled
+}: Props) => {
+  const { theme } = useTheme()
   const onChange = () => {
     !!onValueChange && onValueChange(!value)
   }
@@ -31,15 +41,17 @@ const Checkbox = ({ label, children, onValueChange, value, style, isDisabled }: 
           style={[
             styles.webCheckbox,
             {
-              borderColor: value ? colors.greenHaze : colors.martinique
+              borderColor: value
+                ? theme.successDecorative
+                : uncheckedBorderColor || theme.primaryBorder
             },
-            !!value && { backgroundColor: colors.greenHaze }
+            !!value && { backgroundColor: theme.successDecorative }
           ]}
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}
         >
-          {!!value && <CheckIcon />}
+          {!!value && <CheckIcon color={theme.successDecorative} />}
         </TouchableOpacity>
       </View>
       <View style={flexboxStyles.flex1}>

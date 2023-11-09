@@ -28,12 +28,13 @@ export enum WRAPPER_TYPES {
 }
 
 // @ts-ignore ignored because SectionList and FlatList receive props with same names
-interface Props
+export interface WrapperProps
   extends ScrollViewProps,
     Partial<FlatListProps<any>>,
     Partial<SectionListProps<any, any>> {
   type?: WRAPPER_TYPES
   hasBottomTabNav?: boolean
+  wrapperRef?: any
   extraHeight?: number
 }
 
@@ -46,8 +47,9 @@ const Wrapper = ({
   keyboardDismissMode,
   hasBottomTabNav,
   extraHeight,
+  wrapperRef,
   ...rest
-}: Props) => {
+}: WrapperProps) => {
   const { styles } = useTheme(createStyles)
   const insets = useSafeAreaInsets()
 
@@ -59,6 +61,7 @@ const Wrapper = ({
     return (
       // @ts-ignore
       <FlatList
+        ref={wrapperRef}
         style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -77,6 +80,7 @@ const Wrapper = ({
     return (
       // @ts-ignore
       <SectionList
+        ref={wrapperRef}
         style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -94,6 +98,7 @@ const Wrapper = ({
   if (type === WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW) {
     return (
       <KeyboardAwareScrollView
+        ref={wrapperRef}
         style={[styles.wrapper, horizontalSpacing, style]}
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -124,6 +129,7 @@ const Wrapper = ({
 
   return (
     <ScrollView
+      ref={wrapperRef}
       style={[styles.wrapper, horizontalSpacing, style]}
       contentContainerStyle={[
         styles.contentContainerStyle,

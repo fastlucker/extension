@@ -1,15 +1,30 @@
 import React from 'react'
-import { StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
+import { ColorValue, StyleSheet, Text as RNText, TextProps, TextStyle } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import { FONT_FAMILIES, ROBOTO_FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 
 import styles, { TEXT_SCALE } from './styles'
 
 type TextTypes = 'regular' | 'small' | 'caption' | 'info'
-type TextWeight = 'light' | 'regular' | 'medium' | 'semiBold'
-type TextAppearance = 'accent' | 'danger' | 'warning'
+type TextWeight =
+  | 'light'
+  | 'regular'
+  | 'medium'
+  | 'semiBold'
+  | 'number_light'
+  | 'number_regular'
+  | 'number_medium'
+  | 'number_bold'
+  | 'number_black'
+type TextAppearance =
+  | 'primary'
+  | 'primaryText'
+  | 'secondaryText'
+  | 'successText'
+  | 'warningText'
+  | 'errorText'
+  | 'infoText'
 
 export interface Props extends TextProps {
   underline?: boolean
@@ -17,7 +32,7 @@ export interface Props extends TextProps {
   weight?: TextWeight
   appearance?: TextAppearance
   fontSize?: number
-  color?: string
+  color?: ColorValue
   shouldScale?: boolean
 }
 
@@ -32,19 +47,18 @@ const textWeights: { [key in TextWeight]: string } = {
   light: FONT_FAMILIES.LIGHT,
   regular: FONT_FAMILIES.REGULAR,
   medium: FONT_FAMILIES.MEDIUM,
-  semiBold: FONT_FAMILIES.SEMI_BOLD
-}
-
-const textAppearances: { [key in TextAppearance]: string } = {
-  accent: colors.turquoise,
-  danger: colors.pink,
-  warning: colors.mustard
+  semiBold: FONT_FAMILIES.SEMI_BOLD,
+  number_light: ROBOTO_FONT_FAMILIES.LIGHT,
+  number_regular: ROBOTO_FONT_FAMILIES.REGULAR,
+  number_medium: ROBOTO_FONT_FAMILIES.MEDIUM,
+  number_bold: ROBOTO_FONT_FAMILIES.BOLD,
+  number_black: ROBOTO_FONT_FAMILIES.BLACK
 }
 
 const Text: React.FC<Props> = ({
   type = 'regular',
   weight = 'light',
-  appearance,
+  appearance = 'primaryText',
   children,
   underline,
   fontSize: _fontSize,
@@ -56,12 +70,24 @@ const Text: React.FC<Props> = ({
   const fontSize = _fontSize ? (shouldScale ? _fontSize + TEXT_SCALE : _fontSize) : _fontSize
   const { theme } = useTheme()
 
+  const textAppearances: { [key in TextAppearance]: ColorValue } = {
+    primary: theme.primary,
+    primaryText: theme.primaryText,
+    secondaryText: theme.secondaryText,
+    successText: theme.successText,
+    warningText: theme.warningText,
+    errorText: theme.errorText,
+    infoText: theme.infoText
+  }
+
   return (
     <RNText
       style={StyleSheet.flatten([
         { color: theme.primaryText },
         textStyles[type],
-        { fontFamily: textWeights[weight] },
+        {
+          fontFamily: textWeights[weight]
+        },
         !!underline && styles.underline,
         !!fontSize && {
           fontSize,

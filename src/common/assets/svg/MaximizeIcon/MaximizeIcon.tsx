@@ -1,11 +1,13 @@
 import React from 'react'
-import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
+import { ColorValue } from 'react-native'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
 interface Props extends SvgProps {
   width?: number
   height?: number
+  color?: string | ColorValue
 }
 
 const MaximizeIcon: React.FC<Props> = ({
@@ -14,20 +16,21 @@ const MaximizeIcon: React.FC<Props> = ({
   color = colors.martinique,
   ...rest
 }) => (
-  <Svg width={width} height={height} viewBox="0 0 24.001 24" {...rest}>
-    <G transform="translate(-2345 -103)">
+  <Svg width={width} height={height} viewBox="0 0 20.12 20.121" {...rest}>
+    <G fill="none" stroke={color} strokeLinecap="round" strokeWidth="1.5" data-name="maximize icon">
+      <Path d="m5.675 14.485-4.614 4.576" data-name="Path 3303" />
+      <Path d="M14.446 5.636 19.06 1.06" data-name="Path 3311" />
+      <Path strokeLinejoin="round" d="M1.061 14.26v4.8h4.818" data-name="Path 3304" />
+      <Path strokeLinejoin="round" d="M19.06 5.86v-4.8h-4.82" data-name="Path 3312" />
       <Path
-        d="M2361 123a1 1 0 0 1 0-2h5a1 1 0 0 0 1-1v-14a1 1 0 0 0-1-1h-14a1 1 0 0 0-1 1v5a1 1 0 0 1-2 0v-5a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-5Zm2.27-10.228v-2.9l-3.09 3.089a.809.809 0 0 1-1.144-1.143l3.091-3.089h-2.9a.808.808 0 1 1 0-1.616h4.85a.807.807 0 0 1 .807.808v4.85a.808.808 0 1 1-1.616 0Z"
-        fill={color}
+        strokeLinejoin="round"
+        d="M10.027 1.061H7.386c-4.517 0-6.324 1.8-6.324 6.3v2.653"
+        data-name="Path 3309"
       />
-      <Rect
-        width="11"
-        height="11"
-        rx="1"
-        transform="translate(2346 115)"
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
+      <Path
+        strokeLinejoin="round"
+        d="M10.096 19.061h2.641c4.517 0 6.324-1.8 6.324-6.3v-2.653"
+        data-name="Path 3310"
       />
     </G>
   </Svg>

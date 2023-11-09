@@ -2,10 +2,7 @@ import React, { createContext, useEffect, useMemo, useRef, useState } from 'reac
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import {
-  AccountState,
   CollectionResult as CollectionResultInterface,
-  PortfolioController as PortfolioControllerState,
-  PortfolioGetResult,
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
@@ -21,7 +18,7 @@ interface AccountPortfolio {
 }
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
-  state: PortfolioControllerState
+  state: PortfolioController
   startedLoading: null | number
 }>({
   accountPortfolio: {
@@ -44,7 +41,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     isAllReady: false
   })
   const [startedLoading, setStartedLoading] = useState(null)
-  const [state, setState] = useState({} as PortfolioControllerState)
+  const [state, setState] = useState({} as PortfolioController)
   const prevAccountPortfolio = useRef<AccountPortfolio>({
     tokens: [],
     collections: [],
@@ -94,22 +91,29 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainCtrl.selectedAccount, state])
 
   useEffect(() => {
-    const onUpdate = (newState: { latest: PortfolioControllerState }) => {
-      Object.values(newState?.latest[mainCtrl.selectedAccount]).forEach((network: any) => {
-        if (
-          network?.result?.updateStarted &&
-          (!startedLoading || network?.result?.updateStarted < startedLoading)
-        ) {
-          setStartedLoading(network.result.updateStarted)
+    if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {
+      Object.values(state?.latest[mainCtrl.selectedAccount as string] || {}).forEach(
+        (network: any) => {
+          if (
+            network?.result?.updateStarted &&
+            (!startedLoading || network?.result?.updateStarted < startedLoading)
+          ) {
+            setStartedLoading(network.result.updateStarted)
+          }
         }
-      })
+      )
+    }
+  }, [state?.latest, mainCtrl.selectedAccount, startedLoading])
+
+  useEffect(() => {
+    const onUpdate = (newState: PortfolioController) => {
       setState(newState)
     }
 
     eventBus.addEventListener('portfolio', onUpdate)
 
     return () => eventBus.removeEventListener('portfolio', onUpdate)
-  }, [mainCtrl.selectedAccount, startedLoading])
+  }, [])
 
   return (
     <PortfolioControllerStateContext.Provider

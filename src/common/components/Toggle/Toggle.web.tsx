@@ -3,7 +3,6 @@ import './styles.css'
 import React from 'react'
 
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 
 import { ToggleProps } from './types'
 
@@ -22,7 +21,7 @@ const Toggle: React.FC<ToggleProps> = ({ id, isOn, onToggle, label }) => {
         onChange={handleOnToggle}
       />
       <div className="toggle__fill" />
-      <Text fontSize={12} weight="medium" color={colors.martinique}>
+      <Text fontSize={12} weight="medium">
         {label}
       </Text>
     </label>

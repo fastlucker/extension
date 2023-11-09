@@ -1,6 +1,10 @@
 import HDKey from 'hdkey'
 
-import { LEDGER_LIVE_HD_PATH } from '@ambire-common/consts/derivation'
+import {
+  BIP44_LEDGER_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
@@ -22,17 +26,19 @@ class LedgerController {
 
   accounts: any
 
-  hdPath: string = LEDGER_LIVE_HD_PATH
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   isWebHID: boolean
 
-  transport: Transport | null
+  transport: TransportWebHID | null
 
   app: null | LedgerEth
 
   type = 'ledger'
 
-  model = 'unknown'
+  deviceModel = 'unknown'
+
+  deviceId = ''
 
   constructor() {
     this.hdk = new HDKey()
@@ -41,18 +47,20 @@ class LedgerController {
     this.isWebHID = true
     this.transport = null
     this.app = null
+    // TODO: Handle different derivation
+    this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
   }
 
   isUnlocked() {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  setHdPath(hdPath: string) {
+  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
     // Reset HDKey if the path changes
-    if (this.hdPath !== hdPath) {
+    if (this.hdPathTemplate !== hdPathTemplate) {
       this.hdk = new HDKey()
     }
-    this.hdPath = hdPath
+    this.hdPathTemplate = hdPathTemplate
   }
 
   async makeApp() {
@@ -63,7 +71,10 @@ class LedgerController {
         this.app = new LedgerEth(this.transport as Transport)
 
         if (this.transport?.deviceModel?.id) {
-          this.model = this.transport.deviceModel.id
+          this.deviceModel = this.transport.deviceModel.id
+        }
+        if (this.transport?.device?.productId) {
+          this.deviceId = this.transport.device.productId.toString()
         }
       } catch (e: any) {
         Promise.reject(new Error('ledgerController: permission rejected'))
@@ -71,16 +82,19 @@ class LedgerController {
     }
   }
 
-  async unlock(hdPath?: string) {
-    if (this.isUnlocked() && !hdPath) {
+  async unlock(path?: string) {
+    if (this.isUnlocked()) {
       return 'ledgerController: already unlocked'
     }
 
-    const path = hdPath ? this._toLedgerPath(hdPath) : this.hdPath
     if (this.isWebHID) {
       try {
         await this.makeApp()
-        const res = await this.app!.getAddress(path, false, true)
+        const res = await this.app!.getAddress(
+          path || getHdPathFromTemplate(this.hdPathTemplate, 0),
+          false,
+          true
+        )
         const { address, publicKey, chainCode } = res
 
         this.hdk.publicKey = Buffer.from(publicKey, 'hex')
@@ -94,7 +108,7 @@ class LedgerController {
 
         console.error(error)
         throw new Error(
-          'Could not connect to your ledger device. Please make sure it is connected.'
+          'Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app.'
         )
       }
     }
@@ -112,7 +126,7 @@ class LedgerController {
       const unlockPromises = []
 
       for (let i = from; i <= to; i++) {
-        const path = this._getPathForIndex(i)
+        const path = getHdPathFromTemplate(this.hdPathTemplate, i)
         unlockPromises.push(this.unlock(path))
       }
 
@@ -122,7 +136,7 @@ class LedgerController {
             hdk: this.hdk,
             app: this.app
           })
-          const keys = await iterator.retrieve(from, to)
+          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
 
           resolve(keys)
         })
@@ -137,18 +151,6 @@ class LedgerController {
     if (this.transport) this.transport.close()
     this.transport = null
     this.hdk = new HDKey()
-  }
-
-  _getPathForIndex(index: number) {
-    return this._isLedgerLiveHdPath() ? `m/44'/60'/${index}'/0/0` : `${this.hdPath}/${index}`
-  }
-
-  _toLedgerPath(path: string) {
-    return path.toString().replace('m/', '')
-  }
-
-  _isLedgerLiveHdPath() {
-    return this.hdPath === LEDGER_LIVE_HD_PATH
   }
 
   async _reconnect() {

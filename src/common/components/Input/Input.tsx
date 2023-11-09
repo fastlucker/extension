@@ -4,9 +4,11 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
+  TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View
+  View,
+  ViewStyle
 } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -14,9 +16,8 @@ import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import commonStyles from '@common/styles/utils/common'
 
-import styles from './styles'
+import getStyles from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string | boolean
@@ -29,10 +30,10 @@ export interface InputProps extends TextInputProps {
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
-  containerStyle?: any
-  inputStyle?: any
-  inputWrapperStyle?: any
-  infoTextStyle?: any
+  containerStyle?: ViewStyle | ViewStyle[]
+  inputStyle?: ViewStyle | ViewStyle[]
+  inputWrapperStyle?: ViewStyle | ViewStyle[]
+  infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
 }
 
@@ -56,7 +57,7 @@ const Input = ({
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true)
@@ -69,36 +70,28 @@ const Input = ({
 
   const hasButton = !!button
 
+  const borderWrapperStyles = [
+    styles.borderWrapper,
+    !!error && { borderColor: theme.errorBackground },
+    isFocused && { borderColor: theme.infoBackground },
+    isValid && { borderColor: theme.successBackground }
+  ]
+
   const inputWrapperStyles = [
     styles.inputWrapper,
     {
-      backgroundColor: theme.inputBackground,
-      borderColor: theme.inputBorder
+      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.secondaryBorder
     },
+    !!error && { borderColor: theme.errorDecorative },
+    isFocused && { borderColor: theme.primary },
+    isValid && { borderColor: theme.successDecorative },
     disabled && styles.disabled,
     inputWrapperStyle
   ]
 
-  const inputStyles = [
-    styles.input,
-    !!hasButton && spacings.pr0,
-    {
-      color: theme.buttonText,
-      borderBottomColor: 'transparent'
-    },
-    inputStyle,
-    !!error && { borderBottomColor: theme.inputBorderInvalid },
-    isFocused && { borderBottomColor: theme.inputBorderFocused },
-    isValid && { borderBottomColor: theme.inputBorderValid }
-  ]
+  const inputStyles = [styles.input, !!hasButton && spacings.pr0, inputStyle]
 
-  const buttonStyles = [
-    styles.button,
-    { borderBottomColor: 'transparent' },
-    !!error && { borderBottomColor: theme.inputBorderInvalid },
-    isFocused && { borderBottomColor: theme.inputBorderFocused },
-    isValid && { borderBottomColor: theme.inputBorderValid }
-  ]
   return (
     <View style={[styles.inputContainer, containerStyle]}>
       {!!label && (
@@ -106,20 +99,20 @@ const Input = ({
           {label}
         </Text>
       )}
-      <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
+      <View style={borderWrapperStyles}>
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           {/* TextInput doesn't support border styles so we wrap it in a View */}
           <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
             <TextInput
-              placeholderTextColor={theme.buttonPlaceholderText}
+              placeholderTextColor={theme.secondaryText}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!disabled}
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%' }}
+              style={styles.nativeInput}
             />
           </View>
           {!!hasButton && (
@@ -132,7 +125,7 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={[buttonStyles]}
+              style={styles.button}
               {...buttonProps}
             >
               {typeof button === 'string' || button instanceof String ? (
@@ -149,7 +142,7 @@ const Input = ({
           style={styles.errorText}
           weight={isWeb ? 'regular' : undefined}
           fontSize={10}
-          appearance="danger"
+          appearance="errorText"
         >
           {error}
         </Text>

@@ -8,6 +8,7 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
+import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -31,47 +32,50 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   }, [t, dispatch])
 
   return (
-    <Wrapper hasBottomTabNav={false}>
-      <Panel>
-        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-          <ManifestImage
-            uri={currentNotificationRequest?.params?.session?.icon}
-            size={64}
-            fallback={() => <ManifestFallbackIcon />}
-          />
-        </View>
-
-        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {currentNotificationRequest?.params?.origin
-            ? new URL(currentNotificationRequest.params.origin).hostname
-            : ''}
-        </Title>
-
-        <View>
-          <Trans>
-            <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-              <Text fontSize={14} weight="regular">
-                {'The dApp '}
-              </Text>
-              <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                {currentNotificationRequest?.params?.session?.name || ''}
-              </Text>
-              <Text fontSize={14} weight="regular">
-                {
-                  ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
-                }
-              </Text>
-            </Text>
-          </Trans>
-        </View>
-
-        <View style={styles.buttonsContainer}>
-          <View style={styles.buttonWrapper}>
-            <Button type="outline" onPress={handleDeny} text={t('Okay')} />
+    <>
+      <Header withAmbireLogo />
+      <Wrapper hasBottomTabNav={false}>
+        <Panel>
+          <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
+            <ManifestImage
+              uri={currentNotificationRequest?.params?.session?.icon}
+              size={64}
+              fallback={() => <ManifestFallbackIcon />}
+            />
           </View>
-        </View>
-      </Panel>
-    </Wrapper>
+
+          <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
+            {currentNotificationRequest?.params?.origin
+              ? new URL(currentNotificationRequest.params.origin).hostname
+              : ''}
+          </Title>
+
+          <View>
+            <Trans>
+              <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
+                <Text fontSize={14} weight="regular">
+                  {'The dApp '}
+                </Text>
+                <Text fontSize={14} weight="regular" color={colors.heliotrope}>
+                  {currentNotificationRequest?.params?.session?.name || ''}
+                </Text>
+                <Text fontSize={14} weight="regular">
+                  {
+                    ' wants to get your public encryption key. This method is deprecated and Ambire does not support it.'
+                  }
+                </Text>
+              </Text>
+            </Trans>
+          </View>
+
+          <View style={styles.buttonsContainer}>
+            <View style={styles.buttonWrapper}>
+              <Button type="outline" onPress={handleDeny} text={t('Okay')} />
+            </View>
+          </View>
+        </Panel>
+      </Wrapper>
+    </>
   )
 }
 

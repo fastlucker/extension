@@ -1,70 +1,41 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
-import flexbox from '@common/styles/utils/flexbox'
-import { getUiType } from '@web/utils/uiType'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
-  header: ViewStyle
-  headerContent: ViewStyle
-  action: TextStyle
-  tokenImg: ImageStyle
-  to: TextStyle
+  warningContainer: ViewStyle
   body: ViewStyle
   bodyText: TextStyle
-  text: TextStyle
-  // @TODO - once we update react-native to 0.71, then we will have `gap` support and can remove this helper class
-  mr5: {}
+  explorerIcon: ViewStyle
 }
 
-const { isTab } = getUiType()
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      backgroundColor: theme.secondaryBackground,
+      borderWidth: 1,
+      ...common.borderRadiusPrimary,
+      borderColor: theme.secondaryBorder
+    },
+    warningContainer: {
+      borderWidth: 1,
+      backgroundColor: theme.warningBackground,
+      borderColor: theme.warningDecorative
+    },
+    body: {
+      ...spacings.pvTy,
+      ...spacings.phSm
+    },
+    bodyText: {
+      ...spacings.mbTy,
+      color: theme.secondaryText
+    },
+    explorerIcon: {
+      marginLeft: -SPACING_MI
+    }
+  })
 
-const styles = StyleSheet.create<Style>({
-  container: {
-    backgroundColor: colors.melrose_15,
-    borderWidth: 1,
-    borderRadius: 12,
-    borderColor: colors.chetwode_50
-  },
-  header: {
-    ...flexbox.directionRow,
-    ...flexbox.alignCenter,
-    ...flexbox.justifyCenter,
-    ...flexbox.justifySpaceBetween,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  headerContent: {
-    ...flexbox.flex1,
-    ...flexbox.directionRow,
-    ...flexbox.alignCenter,
-    ...flexbox.wrap,
-    marginHorizontal: 10
-  },
-  text: {
-    fontSize: isTab ? 16 : 14
-  },
-  mr5: {
-    marginRight: 5
-  },
-  action: {
-    color: colors.greenHaze
-  },
-  tokenImg: {
-    width: isTab ? 24 : 18,
-    height: isTab ? 24 : 18
-  },
-  to: {
-    color: colors.martinique_65
-  },
-  body: {
-    padding: 10
-  },
-  bodyText: {
-    marginBottom: isTab ? 25 : 5,
-    color: colors.martinique
-  }
-})
-
-export default styles
+export default getStyles

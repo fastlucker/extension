@@ -37,9 +37,9 @@ const EmailLoginForm: React.FC<any> = ({
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       email: ''
     }
@@ -99,7 +99,7 @@ const EmailLoginForm: React.FC<any> = ({
         <>
           <Controller
             control={control}
-            rules={{ validate: isEmail }}
+            rules={{ validate: isEmail, required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label={t('Please insert your email')}
@@ -110,7 +110,7 @@ const EmailLoginForm: React.FC<any> = ({
                 // onSubmitEditing={handleSubmit(handleLogin)}
                 value={value}
                 autoFocus={isWeb}
-                isValid={isEmail(value)}
+                isValid={!errors.email && value.length > 0}
                 validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
                 error={errors.email && (t('Please fill in a valid email.') as string)}
                 // containerStyle={requiresPassword ? spacings.mbTy : null}
@@ -135,6 +135,7 @@ const EmailLoginForm: React.FC<any> = ({
             //   isSubmitting ||
             //   !watch('email', '')
             // }
+            disabled={!isValid}
             type="primary"
             text={
               // eslint-disable-next-line no-nested-ternary
@@ -148,7 +149,7 @@ const EmailLoginForm: React.FC<any> = ({
           <Text
             fontSize={14}
             style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
-            color={colors.violet}
+            appearance="primary"
           >
             {t('Waiting Email Confirmation')}
           </Text>

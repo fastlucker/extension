@@ -1,7 +1,16 @@
 import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
+import {
+  HD_PATH_TEMPLATE_TYPE,
+  SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+} from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
+import {
+  derivePrivateKeyFromAnotherPrivateKey,
+  getPrivateKeyFromSeed,
+  isValidPrivateKey
+} from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -12,7 +21,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
-import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
 interface Props {
   keyType: Key['type']
@@ -47,7 +55,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
-    const init = {
+    const init: any = {
       internal: () => {
         if (!privKeyOrSeed) return
 
@@ -109,23 +117,35 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       if (keyType === 'internal') {
         try {
           if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
+          if (!accountAdderState.hdPathTemplate)
+            throw new Error(
+              'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+            )
 
           const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
             let privateKey = privKeyOrSeed
 
-            // in case props.privKeyOrSeed is a seed the private keys have to be extracted
+            // In case it is a seed, the private keys have to be extracted
             if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
               privateKey = getPrivateKeyFromSeed(
                 privKeyOrSeed,
-                // The slot is the key index from the derivation path
-                acc.slot - 1,
-                accountAdderState.derivationPath
+                acc.index,
+                // should always be provided, otherwise it would have thrown an error above
+                accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
+            }
+
+            // Private keys for accounts used as smart account keys should be derived
+            const isPrivateKeyThatShouldBeDerived =
+              isValidPrivateKey(privKeyOrSeed) &&
+              acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+            if (isPrivateKeyThatShouldBeDerived) {
+              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
             return {
               privateKey,
-              label: `${{ keyLabel }} for the account on slot ${acc.slot}`
+              label: `${keyLabel} for the account on slot ${acc.slot}`
             }
           })
 
@@ -152,9 +172,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
+        state: {
+          accounts: accountAdderState.readyToAddAccounts
+        }
+      })
     },
-    [navigate]
+    [navigate, accountAdderState]
   )
 
   useEffect(() => {
@@ -168,7 +192,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-        params: { accounts: accountAdderState.selectedAccounts }
+        params: { selectedAccounts: accountAdderState.selectedAccounts }
       })
       return
     }
