@@ -272,30 +272,32 @@ const SignMessageScreen = () => {
         </View>
       }
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pvXl}>
-        <Text weight="medium" fontSize={20} style={styles.title}>
-          {t('Sign message')}
-        </Text>
-        <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
-        {visualizeHumanized &&
-        // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-        signMessageState.humanReadable &&
-        signMessageState.messageToSign?.content.kind ? (
-          <MessageSummary
-            message={signMessageState.humanReadable}
-            networkId={network?.id}
-            explorerUrl={network?.explorerUrl}
-            kind={signMessageState.messageToSign?.content.kind}
-          />
-        ) : (
-          <FallbackVisualization
-            setHasReachedBottom={setHasReachedBottom}
-            messageToSign={signMessageState.messageToSign}
-          />
-        )}
-        {isChooseSignerShown ? (
-          <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
-        ) : null}
+      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+        <View style={flexbox.flex1}>
+          <Text weight="medium" fontSize={20}>
+            {t('Sign message')}
+          </Text>
+          <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          {visualizeHumanized &&
+          // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+          signMessageState.humanReadable &&
+          signMessageState.messageToSign?.content.kind ? (
+            <MessageSummary
+              message={signMessageState.humanReadable}
+              networkId={network?.id}
+              explorerUrl={network?.explorerUrl}
+              kind={signMessageState.messageToSign?.content.kind}
+            />
+          ) : (
+            <FallbackVisualization
+              setHasReachedBottom={setHasReachedBottom}
+              messageToSign={signMessageState.messageToSign}
+            />
+          )}
+          {isChooseSignerShown ? (
+            <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
+          ) : null}
+        </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )
