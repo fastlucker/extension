@@ -5,7 +5,6 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
-import { getUiType } from '@web/utils/uiType'
 
 import BackButton from '../BackButton'
 import getStyles from './styles'
@@ -16,14 +15,11 @@ type Props = {
   title?: string
   modalStyle?: ViewStyle | ViewStyle[]
   children: ReactElement | ReactElement[]
-  showBackButtonInPopup?: boolean
+  withBackButton?: boolean
 }
 
-const { isPopup } = getUiType()
-
-const Modal = ({ isOpen, onClose, title, modalStyle, children, showBackButtonInPopup }: Props) => {
+const Modal = ({ isOpen, onClose, title, modalStyle, children, withBackButton }: Props) => {
   const { styles } = useTheme(getStyles)
-  const shouldDisplayBackButton = showBackButtonInPopup && isPopup
 
   return (
     <RNModal animationType="fade" transparent visible={isOpen} onRequestClose={onClose}>
@@ -35,7 +31,7 @@ const Modal = ({ isOpen, onClose, title, modalStyle, children, showBackButtonInP
         <Pressable style={[styles.modal, modalStyle]}>
           <View style={styles.modalHeader}>
             <View style={styles.sideContainer}>
-              {!!onClose && shouldDisplayBackButton && (
+              {!!onClose && withBackButton && (
                 <View style={styles.backButton}>
                   <BackButton onPress={onClose} />
                 </View>
@@ -47,7 +43,7 @@ const Modal = ({ isOpen, onClose, title, modalStyle, children, showBackButtonInP
               </Text>
             )}
             <View style={styles.sideContainer}>
-              {!!onClose && !shouldDisplayBackButton && (
+              {!!onClose && !withBackButton && (
                 <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
                   <CloseIcon />
                 </TouchableOpacity>

@@ -14,6 +14,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -21,6 +22,8 @@ interface Props {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
 }
+
+const { isPopup } = getUiType()
 
 const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
   const {
@@ -45,7 +48,7 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
 
   return (
     <Modal
-      showBackButtonInPopup
+      withBackButton={isPopup}
       isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       modalStyle={styles.modal}
