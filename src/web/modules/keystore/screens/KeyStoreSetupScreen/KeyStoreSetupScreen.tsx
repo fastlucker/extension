@@ -207,7 +207,7 @@ const KeyStoreSetupScreen = () => {
               on this device.
             </TabLayoutWrapperSideContentItem.Text>
           </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group isLast>
+          <TabLayoutWrapperSideContentItem.Group noMb>
             <TabLayoutWrapperSideContentItem.Text noMb>
               3. This passphrase can only be reset if you enable recovery via your email vault.
             </TabLayoutWrapperSideContentItem.Text>

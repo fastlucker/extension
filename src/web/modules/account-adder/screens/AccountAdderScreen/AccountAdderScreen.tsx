@@ -148,7 +148,7 @@ const AccountAdderScreen = () => {
               both a legacy account and a smart account that you can individually choose to import.
             </TabLayoutWrapperSideContentItem.Text>
           </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group isLast={keyType !== 'internal'}>
+          <TabLayoutWrapperSideContentItem.Group noMb={keyType !== 'internal'}>
             <TabLayoutWrapperSideContentItem.Title>
               Linked Smart Accounts
             </TabLayoutWrapperSideContentItem.Title>
@@ -158,7 +158,7 @@ const AccountAdderScreen = () => {
             </TabLayoutWrapperSideContentItem.Text>
           </TabLayoutWrapperSideContentItem.Group>
           {keyType === 'internal' ? (
-            <TabLayoutWrapperSideContentItem.Group isLast>
+            <TabLayoutWrapperSideContentItem.Group noMb>
               <TabLayoutWrapperSideContentItem.Title>
                 Email recovery
               </TabLayoutWrapperSideContentItem.Title>

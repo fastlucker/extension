@@ -223,7 +223,7 @@ const ExternalSignerLoginScreen = () => {
               batching and much more.
             </TabLayoutWrapperSideContentItem.Text>
           </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group isLast>
+          <TabLayoutWrapperSideContentItem.Group noMb>
             <TabLayoutWrapperSideContentItem.Title>Key Label</TabLayoutWrapperSideContentItem.Title>
             <TabLayoutWrapperSideContentItem.Text noMb>
               The key label is any arbitrary name you choose for this key, entirely up to you.

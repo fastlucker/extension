@@ -81,11 +81,11 @@ const SideContentRow = ({ title, Icon }: { title: string; Icon: FunctionComponen
 
 const SideContentGroup = ({
   children,
-  isLast = false
+  noMb = false
 }: {
   children: ReactElement | ReactElement[]
-  isLast?: boolean
-}) => <View style={!isLast ? spacings.mbLg : {}}>{children}</View>
+  noMb?: boolean
+}) => <View style={!noMb ? spacings.mbLg : {}}>{children}</View>
 
 const TabLayoutWrapperSideContentItem = ({
   type = 'info',
