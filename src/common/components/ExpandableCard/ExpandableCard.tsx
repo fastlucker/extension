@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -11,20 +11,20 @@ import flexbox from '@common/styles/utils/flexbox'
 import getStyles from './styles'
 
 type Props = {
-  content: any
-  expandedContent: any
+  content: ReactElement
+  expandedContent: ReactElement
   style?: ViewStyle
   enableExpand?: boolean
   hasArrow?: boolean
-  children?: any
+  children?: ReactElement | ReactElement[]
 }
 
 const ExpandableCard = ({
   style,
   enableExpand = true,
   hasArrow = true,
-  content = <></>,
-  expandedContent = <></>,
+  content,
+  expandedContent,
   children
 }: Props) => {
   const { styles } = useTheme(getStyles)
@@ -35,11 +35,11 @@ const ExpandableCard = ({
       <Pressable onPress={() => !!enableExpand && setIsExpanded((prevState) => !prevState)}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
           {!!hasArrow && !!isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
-          {content}
+          {!!content && content}
         </View>
         {children}
       </Pressable>
-      {!!enableExpand && !!isExpanded && expandedContent}
+      {!!enableExpand && !!isExpanded && !!expandedContent && expandedContent}
     </View>
   )
 }
