@@ -274,7 +274,7 @@ const SignMessageScreen = () => {
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={styles.title}>
+          <Text weight="medium" fontSize={20}>
             {t('Sign message')}
           </Text>
           <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />

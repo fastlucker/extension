@@ -28,11 +28,11 @@ const ExpandableCard = ({
   children
 }: Props) => {
   const { styles } = useTheme(getStyles)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(!enableExpand)
 
   return (
     <View style={[styles.container, style]}>
-      <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
+      <Pressable onPress={() => !!enableExpand && setIsExpanded((prevState) => !prevState)}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
           {!!hasArrow && !!isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
           {content}
