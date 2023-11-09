@@ -8,6 +8,7 @@ interface Style {
   sideItem: ViewStyle
   infoSideItem: ViewStyle
   errorSideItem: ViewStyle
+  warningSideItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -26,6 +27,10 @@ const getStyles = (theme: ThemeProps) =>
     errorSideItem: {
       borderColor: theme.errorDecorative,
       backgroundColor: theme.errorBackground
+    },
+    warningSideItem: {
+      borderColor: theme.warningDecorative,
+      backgroundColor: theme.warningBackground
     }
   })
 

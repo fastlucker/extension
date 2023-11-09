@@ -10,7 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 
-type SideContentItemType = 'info' | 'error'
+type SideContentItemType = 'info' | 'error' | 'warning'
 
 interface TabLayoutWrapperSideContentItemProps extends ViewProps {
   type?: SideContentItemType
@@ -25,7 +25,8 @@ const SMALL_MARGIN = spacings.mbSm
 
 const TYPE_TO_TEXT_TYPE_MAP = {
   info: 'infoText',
-  error: 'errorText'
+  error: 'errorText',
+  warning: 'warningText'
 }
 
 const SideContentTitle = ({ children, noMb = false }: { children: string; noMb?: boolean }) => {
@@ -62,7 +63,8 @@ const SideContentText = ({ children, noMb = false }: { children: string; noMb?: 
 
 const TYPE_TO_ICON_MAP = {
   info: 'primary',
-  error: 'errorDecorative'
+  error: 'errorDecorative',
+  warning: 'warningDecorative'
 }
 
 const SideContentRow = ({ title, Icon }: { title: string; Icon: FunctionComponent<any> }) => {
@@ -100,15 +102,7 @@ const TabLayoutWrapperSideContentItem = ({
 
   return (
     <ItemTypeContext.Provider value={type}>
-      <View
-        style={[
-          styles.sideItem,
-          type === 'info' && styles.infoSideItem,
-          type === 'error' && styles.errorSideItem,
-          style
-        ]}
-        {...rest}
-      >
+      <View style={[styles.sideItem, styles[`${type}SideItem`], style]} {...rest}>
         {children}
       </View>
     </ItemTypeContext.Provider>
