@@ -16,14 +16,23 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 
-const Routes = () => {
+const Routes = ({
+  setIsReceiveModalVisible
+}: {
+  setIsReceiveModalVisible: (isOpen: boolean) => void
+}) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
   const routeItems = [
     { icon: SendIcon, label: t('Send'), route: WEB_ROUTES.transfer, isExternal: false },
-    { icon: ReceiveIcon, label: t('Receive'), route: 'receiveRoute', isExternal: false },
+    {
+      icon: ReceiveIcon,
+      label: t('Receive'),
+      onPress: () => setIsReceiveModalVisible(true),
+      isExternal: false
+    },
     { icon: SwapIcon, label: t('Swap'), route: 'https://app.uniswap.org/swap', isExternal: true },
     {
       icon: BridgeIcon,
@@ -42,6 +51,11 @@ const Routes = () => {
         >
           <NavIconWrapper
             onPress={() => {
+              if (routeItem?.onPress) {
+                routeItem.onPress()
+                return
+              }
+
               if (routeItem.isExternal) {
                 createTab(routeItem.route)
                 return

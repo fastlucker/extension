@@ -1,16 +1,20 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings, { SPACING } from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_MI } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   container: ViewStyle
   modal: ViewStyle
+  backButton: ViewStyle
   closeIcon: ViewStyle
 }
+
+const { isTab } = getUiType()
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -21,21 +25,25 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.backdrop
     },
     modal: {
-      ...spacings.mh3Xl,
-      ...spacings.mv3Xl,
-      ...common.borderRadiusPrimary,
+      borderRadius: isTab ? BORDER_RADIUS_PRIMARY : 0,
       ...spacings.phLg,
       ...spacings.pvLg,
       ...flexbox.alignCenter,
       ...common.shadowSecondary,
       backgroundColor: theme.primaryBackground,
-      minWidth: 798,
+      minWidth: isTab ? 798 : '100%',
+      height: isTab ? 'auto' : '100%',
       ...(isWeb ? { cursor: 'default' } : {})
+    },
+    backButton: {
+      position: 'absolute',
+      top: SPACING_MI,
+      left: 0
     },
     closeIcon: {
       position: 'absolute',
-      right: SPACING,
-      top: SPACING
+      right: SPACING_LG,
+      top: SPACING_LG
     }
   })
 
