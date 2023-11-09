@@ -1,4 +1,4 @@
-import { createContext, FunctionComponent, ReactElement, useContext } from 'react'
+import { createContext, FunctionComponent, ReactElement, ReactNode, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps, ViewStyle } from 'react-native'
 
@@ -14,7 +14,7 @@ type SideContentItemType = 'info' | 'error'
 
 interface TabLayoutWrapperSideContentItemProps extends ViewProps {
   type?: SideContentItemType
-  children: ReactElement | ReactElement[]
+  children: ReactNode | ReactNode[]
   style?: ViewStyle
 }
 
@@ -25,50 +25,67 @@ const TYPE_TO_TEXT_TYPE_MAP = {
   error: 'errorText'
 }
 
-const SideContentTitle = ({ children }: { children: string }) => {
+const SideContentTitle = ({ children, noMb = false }: { children: string; noMb?: boolean }) => {
   const { t } = useTranslation()
   const type = useContext(ItemTypeContext)
 
   return (
-    <Text appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance} fontSize={20} weight="medium">
+    <Text
+      style={!noMb ? spacings.mbSm : {}}
+      appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance}
+      fontSize={20}
+      weight="medium"
+    >
       {t(children)}
     </Text>
   )
 }
 
-const SideContentText = ({ children }: { children: string }) => {
+const SideContentText = ({ children, noMb = false }: { children: string; noMb?: boolean }) => {
   const { t } = useTranslation()
   const type = useContext(ItemTypeContext)
 
   return (
-    <Text appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance} fontSize={16}>
+    <Text
+      style={!noMb ? spacings.mbSm : {}}
+      appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance}
+      fontSize={16}
+      weight="regular"
+    >
       {t(children)}
     </Text>
   )
 }
 
 const TYPE_TO_ICON_MAP = {
-  info: 'infoDecorative',
+  info: 'primary',
   error: 'errorDecorative'
 }
 
-const SideContentRow = ({
-  children,
-  Icon
-}: {
-  children: ReactElement | ReactElement[]
-  Icon: FunctionComponent<any>
-}) => {
+const SideContentRow = ({ title, Icon }: { title: string; Icon: FunctionComponent<any> }) => {
   const type = useContext(ItemTypeContext)
   const { theme } = useTheme()
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-      <Icon color={theme[TYPE_TO_ICON_MAP[type] as keyof ThemeProps]} style={spacings.mrTy} />
-      {children}
+      <Icon
+        width={20}
+        height={20}
+        color={theme[TYPE_TO_ICON_MAP[type] as keyof ThemeProps]}
+        style={spacings.mrTy}
+      />
+      <SideContentTitle noMb>{title}</SideContentTitle>
     </View>
   )
 }
+
+const SideContentGroup = ({
+  children,
+  isLast = false
+}: {
+  children: ReactElement | ReactElement[]
+  isLast?: boolean
+}) => <View style={!isLast ? spacings.mbLg : {}}>{children}</View>
 
 const TabLayoutWrapperSideContentItem = ({
   type = 'info',
@@ -97,5 +114,6 @@ const TabLayoutWrapperSideContentItem = ({
 TabLayoutWrapperSideContentItem.Title = SideContentTitle
 TabLayoutWrapperSideContentItem.Text = SideContentText
 TabLayoutWrapperSideContentItem.Row = SideContentRow
+TabLayoutWrapperSideContentItem.Group = SideContentGroup
 
 export default TabLayoutWrapperSideContentItem
