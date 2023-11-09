@@ -14,6 +14,7 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -24,8 +25,11 @@ const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
   const mainCtrl = useMainControllerState()
+  const settingsControllerState = useSettingsControllerState()
+
   const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+  const selectedAccPref = settingsControllerState.accountPreferences[selectedAccount]
+
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   return (
@@ -55,7 +59,7 @@ const DashboardHeader = () => {
               <View style={styles.accountAddressAndLabel}>
                 {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
                 <Text weight="number_bold" fontSize={14}>
-                  {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+                  {selectedAccPref?.label || 'Account'}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
                   ({shortenAddress(selectedAccount, 27)})
