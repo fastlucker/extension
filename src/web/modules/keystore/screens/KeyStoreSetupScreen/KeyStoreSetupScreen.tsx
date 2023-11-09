@@ -188,27 +188,30 @@ const KeyStoreSetupScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <Text weight="medium" style={spacings.mbSm} appearance="infoText" fontSize={20}>
-            {t('Setup Your Ambire Key Store')}
-          </Text>
-          <Text style={spacings.mbSm} appearance="infoText" fontSize={16}>
-            {t(
-              'Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the keys that are stored locally with this passphrase through secure AES encryption.'
-            )}
-          </Text>
-          <Text style={spacings.mbSm} appearance="infoText" fontSize={16}>
-            {t(
-              '1. First, pick your passphrase. It should be long and you shouldnt reuse other passphrases.'
-            )}
-          </Text>
-          <Text style={spacings.mbSm} appearance="infoText" fontSize={16}>
-            {t(
-              '2. You will use your passphrase to unlock the Ambire extension and sign transactions on this device.'
-            )}
-          </Text>
-          <Text style={spacings.mbSm} appearance="infoText" fontSize={16}>
-            {t('3. This passphrase can only be reset if you enable recovery via your email vault.')}
-          </Text>
+          <TabLayoutWrapperSideContentItem.Title>
+            Setup Your Ambire Key Store
+          </TabLayoutWrapperSideContentItem.Title>
+          <TabLayoutWrapperSideContentItem.Text>
+            Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the
+            keys that are stored locally with this passphrase through secure AES encryption.
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Group>
+            <TabLayoutWrapperSideContentItem.Text>
+              1. First, pick your passphrase. It should be long and you shouldn&apos;t reuse other
+              passphrases.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Group>
+            <TabLayoutWrapperSideContentItem.Text>
+              2. You will use your passphrase to unlock the Ambire extension and sign transactions
+              on this device.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Group noMb>
+            <TabLayoutWrapperSideContentItem.Text noMb>
+              3. This passphrase can only be reset if you enable recovery via your email vault.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
       <Modal isOpen={keystoreReady} modalStyle={{ minWidth: 'unset' }}>
