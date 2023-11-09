@@ -4,7 +4,7 @@ import { View, ViewProps, ViewStyle } from 'react-native'
 
 import Text, { TextAppearance } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -20,6 +20,9 @@ interface TabLayoutWrapperSideContentItemProps extends ViewProps {
 
 const ItemTypeContext = createContext<SideContentItemType>('info')
 
+const BIG_MARGIN = IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mbLg : spacings.mbSm
+const SMALL_MARGIN = spacings.mbSm
+
 const TYPE_TO_TEXT_TYPE_MAP = {
   info: 'infoText',
   error: 'errorText'
@@ -31,9 +34,9 @@ const SideContentTitle = ({ children, noMb = false }: { children: string; noMb?:
 
   return (
     <Text
-      style={!noMb ? spacings.mbSm : {}}
+      style={!noMb ? SMALL_MARGIN : {}}
       appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance}
-      fontSize={20}
+      fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 16}
       weight="medium"
     >
       {t(children)}
@@ -47,9 +50,9 @@ const SideContentText = ({ children, noMb = false }: { children: string; noMb?: 
 
   return (
     <Text
-      style={!noMb ? spacings.mbSm : {}}
+      style={!noMb ? SMALL_MARGIN : {}}
       appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance}
-      fontSize={16}
+      fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 16 : 14}
       weight="regular"
     >
       {t(children)}
@@ -67,7 +70,7 @@ const SideContentRow = ({ title, Icon }: { title: string; Icon: FunctionComponen
   const { theme } = useTheme()
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+    <View style={[flexbox.directionRow, flexbox.alignCenter, SMALL_MARGIN]}>
       <Icon
         width={20}
         height={20}
@@ -85,7 +88,7 @@ const SideContentGroup = ({
 }: {
   children: ReactElement | ReactElement[]
   noMb?: boolean
-}) => <View style={!noMb ? spacings.mbLg : {}}>{children}</View>
+}) => <View style={!noMb ? BIG_MARGIN : {}}>{children}</View>
 
 const TabLayoutWrapperSideContentItem = ({
   type = 'info',
@@ -99,6 +102,7 @@ const TabLayoutWrapperSideContentItem = ({
     <ItemTypeContext.Provider value={type}>
       <View
         style={[
+          styles.sideItem,
           type === 'info' && styles.infoSideItem,
           type === 'error' && styles.errorSideItem,
           style
