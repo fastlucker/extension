@@ -12,7 +12,7 @@ import getStyles from './styles'
 
 type Props = {
   content: ReactElement
-  expandedContent: ReactElement
+  expandedContent?: ReactElement
   style?: ViewStyle
   enableExpand?: boolean
   hasArrow?: boolean

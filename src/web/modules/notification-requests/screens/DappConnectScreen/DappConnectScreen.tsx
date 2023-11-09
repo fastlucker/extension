@@ -73,10 +73,10 @@ const DappConnectScreen = () => {
               <Image style={styles.accountInfoIcon} source={avatarSpace} resizeMode="contain" />
               <View style={styles.accountAddressAndLabel}>
                 {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
-                <Text weight="number_bold" fontSize={14}>
+                <Text weight="number_bold" fontSize={16} appearance="secondaryText">
                   {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
                 </Text>
-                <Text weight="number_medium" style={styles.accountInfoText} fontSize={14}>
+                <Text weight="number_medium" style={styles.accountInfoText} fontSize={16}>
                   ({selectedAccount})
                 </Text>
               </View>
@@ -208,7 +208,6 @@ const DappConnectScreen = () => {
               </Trans>
             </View>
           }
-          expandedContent={<></>}
         >
           <View
             style={{
