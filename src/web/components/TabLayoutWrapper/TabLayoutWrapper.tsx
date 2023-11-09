@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ColorValue, View, ViewProps, ViewStyle } from 'react-native'
+import { ColorValue, View } from 'react-native'
 
 import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
@@ -8,6 +8,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
+import TabLayoutWrapperSideContent from './SideContent'
+import TabLayoutWrapperSideContentItem from './SideContentItem/SideContentItem'
 import getStyles from './styles'
 
 type Width = 'sm' | 'md' | 'lg' | 'full'
@@ -90,47 +92,4 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
   )
 }
 
-interface TabLayoutWrapperSideContentProps extends ViewProps {}
-
-export const TabLayoutWrapperSideContent: React.FC<TabLayoutWrapperSideContentProps> = ({
-  children,
-  style
-}: TabLayoutWrapperSideContentProps) => {
-  const { styles } = useTheme(getStyles)
-
-  return (
-    <View style={[styles.sideContentContainer, style]}>
-      <Wrapper contentContainerStyle={[spacings.ph0]} showsVerticalScrollIndicator={false}>
-        {children}
-      </Wrapper>
-    </View>
-  )
-}
-
-interface TabLayoutWrapperSideContentItemProps extends ViewProps {
-  type?: 'primary' | 'info' | 'error'
-  children: ReactElement | ReactElement[]
-  style?: ViewStyle
-}
-
-export const TabLayoutWrapperSideContentItem = ({
-  type = 'primary',
-  children,
-  style,
-  ...rest
-}: TabLayoutWrapperSideContentItemProps) => {
-  const { styles } = useTheme(getStyles)
-
-  return (
-    <View
-      style={[
-        type === 'primary' && styles.primarySideItem,
-        type === 'error' && styles.errorSideItem,
-        style
-      ]}
-      {...rest}
-    >
-      {children}
-    </View>
-  )
-}
+export { TabLayoutWrapperSideContent, TabLayoutWrapperSideContentItem }

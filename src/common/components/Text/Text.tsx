@@ -17,7 +17,7 @@ type TextWeight =
   | 'number_medium'
   | 'number_bold'
   | 'number_black'
-type TextAppearance =
+export type TextAppearance =
   | 'primary'
   | 'primaryText'
   | 'secondaryText'
