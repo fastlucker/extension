@@ -5,7 +5,6 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
 import { getUiType } from '@web/utils/uiType'
 
 import BackButton from '../BackButton'
@@ -34,26 +33,26 @@ const Modal = ({ isOpen, onClose, title, modalStyle, children, showBackButtonInP
         style={[styles.container, !onClose && isWeb ? { cursor: 'default' } : {}]}
       >
         <Pressable style={[styles.modal, modalStyle]}>
-          {!!onClose && !shouldDisplayBackButton && (
-            <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-              <CloseIcon />
-            </TouchableOpacity>
-          )}
-          <View style={{ position: 'relative', justifyContent: 'center', width: '100%' }}>
-            {!!onClose && shouldDisplayBackButton && (
-              <View style={styles.backButton}>
-                <BackButton onPress={onClose} />
-              </View>
-            )}
+          <View style={styles.modalHeader}>
+            <View style={styles.sideContainer}>
+              {!!onClose && shouldDisplayBackButton && (
+                <View style={styles.backButton}>
+                  <BackButton onPress={onClose} />
+                </View>
+              )}
+            </View>
             {!!title && (
-              <Text
-                fontSize={20}
-                weight="medium"
-                style={[spacings.mbLg, { marginHorizontal: 'auto' }]}
-              >
+              <Text fontSize={20} weight="medium">
                 {title}
               </Text>
             )}
+            <View style={styles.sideContainer}>
+              {!!onClose && !shouldDisplayBackButton && (
+                <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+                  <CloseIcon />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
           {children}
         </Pressable>
