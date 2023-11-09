@@ -36,6 +36,10 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
           })
         })
       }
+
+      if (action.actionName === 'open-external-url' && topic === 'TRANSACTION') {
+        window.open(action.meta.url, '_blank')
+      }
     },
     [dispatch, topic]
   )
