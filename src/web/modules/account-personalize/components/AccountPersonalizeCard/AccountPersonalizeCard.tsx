@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Controller } from 'react-hook-form'
 import { Image, TouchableOpacity, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -43,15 +44,23 @@ const AvatarsSelectorItem = ({ selectedAvatar, avatar, setSelectedAvatar }: any)
 }
 
 type Props = {
-  account: Account
+  address: Account['addr']
+  isSmartAccount: boolean
+  index: number
+  control: any // TODO
   hasBottomSpacing?: boolean
 }
 
-const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => {
+const AccountPersonalizeCard = ({
+  address,
+  isSmartAccount,
+  index,
+  control,
+  hasBottomSpacing = true
+}: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const [selectedAvatar, setSelectedAvatar] = useState(avatarAstronautMan)
-  const [label, setLabel] = useState('')
   const avatars = [
     avatarAstronautMan,
     avatarAstronautWoman,
@@ -78,9 +87,9 @@ const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => 
           <Image source={selectedAvatar} style={styles.pfp} resizeMode="contain" />
           <View style={{ alignItems: 'flex-start' }}>
             <Text fontSize={16} weight="medium" style={spacings.mb}>
-              {account.addr}
+              {address}
             </Text>
-            {account.creation ? (
+            {isSmartAccount ? (
               <Badge withIcon type="success" text={t('Smart Account')} />
             ) : (
               <Badge withIcon type="warning" text={t('Legacy Account')} />
@@ -99,13 +108,29 @@ const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => 
         </Text>
       </Text>
 
-      <Input
-        numberOfLines={1}
-        maxLength={25}
-        placeholder="Miro"
-        onChangeText={(text) => setLabel(text)}
-        containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
+      <Controller
+        control={control}
+        // TODO:
+        // rules={{ validate: isValidAccountLabel }}
+        name={`preferences.${index}.label`}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            // TODO
+            // error={
+            //   errors.password &&
+            //   (t('Please fill in at least 8 characters for passphrase.') as string)
+            // }
+            // onSubmitEditing={handleKeystoreSetup}
+            numberOfLines={1}
+            maxLength={25}
+            containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
+          />
+        )}
       />
+
       <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
         {t('Choose an avatar')}
       </Text>

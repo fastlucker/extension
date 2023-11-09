@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
@@ -28,6 +31,14 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
+type FormValues = {
+  preferences: {
+    account: Account
+    label: string
+    pfp: string
+  }[]
+}
+
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -35,8 +46,11 @@ const AccountPersonalizeScreen = () => {
   const { params } = useRoute()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-
   const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const { handleSubmit, control, register } = useForm<FormValues>({
+    defaultValues: { preferences: accounts.map((account) => ({ account, label: '', pfp: '' })) }
+  })
+  const { fields } = useFieldArray({ control, name: 'preferences' })
 
   useEffect(() => {
     if (!accounts) {
@@ -50,23 +64,25 @@ const AccountPersonalizeScreen = () => {
     updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
   }, [stepperState?.currentFlow, updateStepperState])
 
-  const handleSave = useCallback(() => {
-    const newAccPreferences = {}
-    accounts.forEach((acc) => {
-      newAccPreferences[acc.addr] = {
-        label: '', // TODO: Get label from the form
-        avatar: '' // TODO: Get avatar from the form
-      }
-    })
+  const handleSave = useCallback(
+    (data: FormValues) => {
+      console.log('data', data)
+      const newAccPreferences: AccountPreferences = {}
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
-      params: newAccPreferences
-    })
+      data.preferences.forEach(({ account, label, pfp }) => {
+        newAccPreferences[account.addr] = { label, pfp }
+      })
 
-    // TODO: Enable back when the above gets implemented
-    // navigate('/')
-  }, [accounts, dispatch])
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
+        params: newAccPreferences
+      })
+
+      // TODO: Enable back when the above gets implemented
+      // navigate('/')
+    },
+    [navigate, dispatch]
+  )
 
   return (
     <TabLayoutContainer
@@ -75,7 +91,11 @@ const AccountPersonalizeScreen = () => {
       footer={
         <>
           <BackButton />
-          <Button onPress={handleSave} hasBottomSpacing={false} text={t('Save and Continue')}>
+          <Button
+            onPress={handleSubmit(handleSave)}
+            hasBottomSpacing={false}
+            text={t('Save and Continue')}
+          >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
             </View>
@@ -86,11 +106,15 @@ const AccountPersonalizeScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel title={t('Personalize Your Accounts')} style={{ maxHeight: '100%' }}>
           <Wrapper style={spacings.mb0} contentContainerStyle={[spacings.pl0, spacings.pt0]}>
-            {accounts.map((acc, i) => (
+            {fields.map((field, index) => (
               <AccountPersonalizeCard
-                key={acc.addr}
-                account={acc}
-                hasBottomSpacing={i !== accounts.length - 1}
+                key={field.id} // important to include key with field's id
+                control={control}
+                index={index}
+                register={register}
+                isSmartAccount={isSmartAccount(field.account)}
+                address={field.account.addr}
+                hasBottomSpacing={index !== accounts.length - 1}
               />
             ))}
           </Wrapper>
