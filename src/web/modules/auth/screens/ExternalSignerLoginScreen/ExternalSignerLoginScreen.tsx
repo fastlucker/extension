@@ -109,6 +109,8 @@ const ExternalSignerLoginScreen = () => {
     if (!(isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue))) {
       return 'Please enter a valid seed phrase or private key.'
     }
+
+    return ''
   }
 
   return (
