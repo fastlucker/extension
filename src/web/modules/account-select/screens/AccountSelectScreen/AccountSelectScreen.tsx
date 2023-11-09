@@ -21,6 +21,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -37,6 +38,7 @@ const AccountSelectScreen = () => {
   const searchValue = watch('search')
 
   const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
@@ -111,7 +113,7 @@ const AccountSelectScreen = () => {
                           {shortenAddress(account.addr, 25)}
                         </Text>
                         <Text appearance="secondaryText" fontSize={12} weight="semiBold">
-                          {t('Account label')}
+                          {settingsCtrl.accountPreferences[account.addr]?.label || 'Account'}
                         </Text>
                       </View>
                       <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
