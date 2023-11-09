@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Controller } from 'react-hook-form'
-import { Image, TouchableOpacity, View } from 'react-native'
+import { Image, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -12,40 +12,14 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
-import {
-  avatarAstronautMan,
-  avatarAstronautWoman,
-  avatarFire,
-  avatarPlanet,
-  avatarSpace,
-  avatarSpaceDog,
-  avatarSpaceRaccoon,
-  avatarSpreadFire
-} from './avatars'
+import { buildInAvatars } from './avatars'
+import AvatarsSelectorItem from './AvatarSelectorItem'
 import getStyles from './styles'
-
-const AvatarsSelectorItem = ({ selectedAvatar, avatar, setSelectedAvatar }: any) => {
-  const { styles, theme } = useTheme(getStyles)
-  return (
-    <TouchableOpacity activeOpacity={1} onPress={() => setSelectedAvatar(avatar)}>
-      <View style={[spacings.mrTy]} key={avatar}>
-        <Image source={avatar} style={styles.pfpSelectorItem} resizeMode="contain" />
-        {selectedAvatar === avatar && (
-          <CheckIcon
-            width={14}
-            height={14}
-            color={theme.successDecorative}
-            style={{ position: 'absolute', right: 0, bottom: 0 }}
-          />
-        )}
-      </View>
-    </TouchableOpacity>
-  )
-}
 
 type Props = {
   address: Account['addr']
   isSmartAccount: boolean
+  pfp: string
   index: number
   control: any // TODO
   hasBottomSpacing?: boolean
@@ -55,22 +29,14 @@ const AccountPersonalizeCard = ({
   address,
   isSmartAccount,
   index,
+  pfp,
   control,
   hasBottomSpacing = true
 }: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const [selectedAvatar, setSelectedAvatar] = useState(avatarAstronautMan)
-  const avatars = [
-    avatarAstronautMan,
-    avatarAstronautWoman,
-    avatarSpaceDog,
-    avatarSpace,
-    avatarSpaceRaccoon,
-    avatarPlanet,
-    avatarFire,
-    avatarSpreadFire
-  ]
+
+  const currentAvatarSource = buildInAvatars.find(({ id }) => id === pfp)?.source
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -84,7 +50,7 @@ const AccountPersonalizeCard = ({
         ]}
       >
         <View style={[flexboxStyles.directionRow]}>
-          <Image source={selectedAvatar} style={styles.pfp} resizeMode="contain" />
+          <Image source={currentAvatarSource} style={styles.pfp} resizeMode="contain" />
           <View style={{ alignItems: 'flex-start' }}>
             <Text fontSize={16} weight="medium" style={spacings.mb}>
               {address}
@@ -135,14 +101,23 @@ const AccountPersonalizeCard = ({
         {t('Choose an avatar')}
       </Text>
       <View style={[flexboxStyles.directionRow]}>
-        {avatars.map((avatar) => (
-          <AvatarsSelectorItem
-            key={avatar}
-            avatar={avatar}
-            selectedAvatar={selectedAvatar}
-            setSelectedAvatar={setSelectedAvatar}
-          />
-        ))}
+        <Controller
+          control={control}
+          name={`preferences.${index}.pfp`}
+          render={({ field: { onChange, value } }) => (
+            <>
+              {buildInAvatars.map(({ id, source }) => (
+                <AvatarsSelectorItem
+                  key={id}
+                  id={id}
+                  source={source}
+                  isSelected={value === id}
+                  setSelectedAvatar={onChange}
+                />
+              ))}
+            </>
+          )}
+        />
       </View>
     </View>
   )

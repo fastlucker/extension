@@ -18,3 +18,16 @@ export {
   avatarSpace,
   avatarSpreadFire
 }
+
+export const BUILD_IN_AVATAR_ID_PREFIX = 'AMBIRE-BUILD-IN-AVATAR-'
+
+export const buildInAvatars = [
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}1`, source: avatarAstronautMan },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}2`, source: avatarAstronautWoman },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}3`, source: avatarFire },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}4`, source: avatarPlanet },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}5`, source: avatarSpaceDog },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}6`, source: avatarSpaceRaccoon },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}7`, source: avatarSpace },
+  { id: `${BUILD_IN_AVATAR_ID_PREFIX}8`, source: avatarSpreadFire }
+]

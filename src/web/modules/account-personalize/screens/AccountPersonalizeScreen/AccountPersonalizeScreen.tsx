@@ -31,6 +31,11 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
+import {
+  BUILD_IN_AVATAR_ID_PREFIX,
+  buildInAvatars
+} from '../../components/AccountPersonalizeCard/avatars'
+
 type FormValues = {
   preferences: {
     account: Account
@@ -47,10 +52,19 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
-  const { handleSubmit, control, register } = useForm<FormValues>({
-    defaultValues: { preferences: accounts.map((account) => ({ account, label: '', pfp: '' })) }
+  const { handleSubmit, control, register, watch } = useForm<FormValues>({
+    defaultValues: {
+      preferences: accounts.map((account, i) => ({
+        account,
+        label: `View Only Account ${i + 1}`,
+        // Iterate from 1 up to the `buildInAvatars.length` and then - start all
+        // over again from the beginning (from 1).
+        pfp: BUILD_IN_AVATAR_ID_PREFIX + ((i + 1) % buildInAvatars.length)
+      }))
+    }
   })
   const { fields } = useFieldArray({ control, name: 'preferences' })
+  const watchPreferences = watch('preferences')
 
   useEffect(() => {
     if (!accounts) {
@@ -113,6 +127,7 @@ const AccountPersonalizeScreen = () => {
                 index={index}
                 register={register}
                 isSmartAccount={isSmartAccount(field.account)}
+                pfp={watchPreferences[index].pfp}
                 address={field.account.addr}
                 hasBottomSpacing={index !== accounts.length - 1}
               />
