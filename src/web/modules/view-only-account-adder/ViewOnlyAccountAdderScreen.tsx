@@ -231,26 +231,11 @@ const ViewOnlyScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon}>
-            <TabLayoutWrapperSideContentItem.Title>
-              Importing view-only accounts
-            </TabLayoutWrapperSideContentItem.Title>
-          </TabLayoutWrapperSideContentItem.Row>
-          <TabLayoutWrapperSideContentItem.Text>
-            Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
-            course, you cannot sign any transactions or messages, or authorize with this account in
-            any form. This is possible due to the public nature of the Web3 itself.
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-        {/* Will be deleted. Test only */}
-        <TabLayoutWrapperSideContentItem type="error">
-          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon}>
-            <TabLayoutWrapperSideContentItem.Title>
-              Importing view-only accounts
-            </TabLayoutWrapperSideContentItem.Title>
-          </TabLayoutWrapperSideContentItem.Row>
-          <TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Row
+            Icon={InfoIcon}
+            title="Importing view-only accounts"
+          />
+          <TabLayoutWrapperSideContentItem.Text noMb>
             Importing accounts in view-only mode allows you to import any address on any of our
             supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
             course, you cannot sign any transactions or messages, or authorize with this account in
