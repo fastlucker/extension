@@ -62,7 +62,7 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
             fontSize={16}
             weight="medium"
           >
-            Warning: Selected account is view only.
+            {t('Warning: Selected account is view only.')}
           </Text>
         ) : null}
         <View style={styles.qrCodeContainer}>
@@ -79,7 +79,7 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
           )}
           {!!qrCodeError && (
             <Text appearance="errorText" weight="medium">
-              Failed to display QR code.
+              {t('Failed to display QR code.')}
             </Text>
           )}
         </View>
