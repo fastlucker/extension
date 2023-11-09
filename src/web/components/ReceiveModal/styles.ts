@@ -48,7 +48,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     qrCodeContainer: { ...flexbox.alignCenter, marginBottom: isTab ? SPACING_XL : SPACING_MD },
     qrCode: {
-      borderRadius: 6,
+      ...common.borderRadiusPrimary,
       overflow: 'hidden'
     },
     accountAddress: { marginHorizontal: 'auto', ...spacings.mb },
@@ -64,7 +64,7 @@ const getStyles = (theme: ThemeProps) =>
       flexWrap: 'wrap',
       justifyContent: 'center',
       // So that, ideally, 4 network items fit on a row (if their name is not huge)
-      marginHorizontal: -2
+      marginHorizontal: -(SPACING_MI / 2)
     },
     supportedNetwork: {
       alignItems: 'center',
