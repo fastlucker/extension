@@ -30,8 +30,8 @@ import useNotificationControllerState from '@web/hooks/useNotificationController
 
 import styles from './styles'
 
-// Screen for dApps authorization - will be triggered on dApp connect request
-const PermissionRequestScreen = () => {
+// Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
+const DappConnectScreen = () => {
   const mainCtrl = useMainControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
   const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
@@ -223,4 +223,4 @@ const PermissionRequestScreen = () => {
   )
 }
 
-export default React.memo(PermissionRequestScreen)
+export default React.memo(DappConnectScreen)

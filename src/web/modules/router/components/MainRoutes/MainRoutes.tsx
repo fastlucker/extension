@@ -21,8 +21,8 @@ import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNew
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
-import PermissionRequestScreen from '@web/modules/notification-requests/screens/PermissionRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -85,7 +85,7 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 
-        <Route path={WEB_ROUTES.permissionRequest} element={<PermissionRequestScreen />} />
+        <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
         <Route
           path={WEB_ROUTES.getEncryptionPublicKeyRequest}
           element={<GetEncryptionPublicKeyRequestScreen />}
