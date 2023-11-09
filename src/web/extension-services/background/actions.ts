@@ -39,9 +39,6 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
     privKeyOrSeed: string
   }
 }
-type MainControllerAccountAdderInitViewOnlyAction = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
-}
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
   params: {
@@ -275,7 +272,6 @@ export type Action =
   | MainControllerAccountAdderInitTrezorAction
   | MainControllerAccountAdderInitLedgerAction
   | MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction
-  | MainControllerAccountAdderInitViewOnlyAction
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
