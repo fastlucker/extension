@@ -20,7 +20,6 @@ import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent,
@@ -109,6 +108,8 @@ const ExternalSignerLoginScreen = () => {
     if (!(isValidPrivateKey(trimmedValue) || isValidMnemonic(trimmedValue))) {
       return 'Please enter a valid seed phrase or private key.'
     }
+
+    return undefined
   }
 
   return (
@@ -194,23 +195,40 @@ const ExternalSignerLoginScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-            <InfoIcon color={theme.infoText} style={spacings.mrTy} />
-            <Text fontSize={20} appearance="infoText" weight="medium">
-              {t('Importing legacy accounts')}
-            </Text>
-          </View>
-          <Text fontSize={16} style={[spacings.mbXl]} appearance="infoText">
-            {t(
-              'By inserting a private key or a seed phrase, you can import traditional legacy accounts (also known as EOAs - externally owned accounts).\n\nIf you enter a seed phrase, you will be given a list of multiple legacy accounts to choose from.\n\nFor each legacy account you import, you also have the option to import a smart account, powered by the same private key. This smart account will have a different address. Smart accounts have many benefits, including account recovery, transaction batching and much more.'
-            )}
-          </Text>
-          <Text fontSize={20} style={spacings.mbSm} appearance="infoText" weight="medium">
-            {t('Key Label')}
-          </Text>
-          <Text fontSize={16} style={[spacings.mbXl]} appearance="infoText">
-            {t('The key label is any arbitrary name you choose for this key, entirely up to you.')}
-          </Text>
+          <TabLayoutWrapperSideContentItem.Group>
+            <TabLayoutWrapperSideContentItem.Row
+              Icon={InfoIcon}
+              title="Importing legacy accounts"
+            />
+            <TabLayoutWrapperSideContentItem.Text>
+              By inserting a private key or a seed phrase, you can import traditional legacy
+              accounts (also known as EOAs - externally owned accounts). If you enter a seed phrase,
+              you will be given a list of multiple legacy accounts to choose from. For each legacy
+              account you import, you also have the option to import a smart account, powered by the
+              same private key. This smart account will have a different address. Smart accounts
+              have many benefits, including account recovery, transaction batching and much more.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Group>
+            <TabLayoutWrapperSideContentItem.Text>
+              If you enter a seed phrase, you will be given a list of multiple legacy accounts to
+              choose from.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Group>
+            <TabLayoutWrapperSideContentItem.Text>
+              For each legacy account you import, you also have the option to import a smart
+              account, powered by the same private key. This smart account will have a different
+              address. Smart accounts have many benefits, including account recovery, transaction
+              batching and much more.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Group noMb>
+            <TabLayoutWrapperSideContentItem.Title>Key Label</TabLayoutWrapperSideContentItem.Title>
+            <TabLayoutWrapperSideContentItem.Text noMb>
+              The key label is any arbitrary name you choose for this key, entirely up to you.
+            </TabLayoutWrapperSideContentItem.Text>
+          </TabLayoutWrapperSideContentItem.Group>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>

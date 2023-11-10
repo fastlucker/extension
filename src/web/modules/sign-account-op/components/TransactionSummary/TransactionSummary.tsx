@@ -1,14 +1,13 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, useCallback, useState } from 'react'
-import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
+import React, { Fragment, useCallback } from 'react'
+import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -55,7 +54,7 @@ export function formatFloatTokenAmount(
 
 const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
+
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
 
@@ -210,12 +209,12 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
   )
 
   return (
-    <View style={[styles.container, !!call.warnings?.length && styles.warningContainer, style]}>
-      <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
-          <TouchableOpacity onPress={() => setIsExpanded((prevState) => !prevState)}>
-            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
-          </TouchableOpacity>
+    <ExpandableCard
+      style={{
+        ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })
+      }}
+      content={
+        <>
           {call.fullVisualization
             ? humanizedVisualization(call.fullVisualization)
             : fallbackVisualization()}
@@ -224,20 +223,9 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
               <DeleteIcon />
             </TouchableOpacity>
           )}
-        </View>
-        <View
-          style={{
-            paddingHorizontal: 42 // magic number
-          }}
-        >
-          {call.warnings?.map((warning) => {
-            return (
-              <Label key={warning.content + warning.level} text={warning.content} type="warning" />
-            )
-          })}
-        </View>
-      </Pressable>
-      {!!isExpanded && (
+        </>
+      }
+      expandedContent={
         <View style={styles.body}>
           <Text fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
@@ -260,8 +248,20 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
             </Text>
           </Text>
         </View>
-      )}
-    </View>
+      }
+    >
+      <View
+        style={{
+          paddingHorizontal: 42 // magic number
+        }}
+      >
+        {call.warnings?.map((warning) => {
+          return (
+            <Label key={warning.content + warning.level} text={warning.content} type="warning" />
+          )
+        })}
+      </View>
+    </ExpandableCard>
   )
 }
 

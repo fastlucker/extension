@@ -26,8 +26,7 @@ import {
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+} from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
@@ -50,8 +49,6 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
-  const accountAdderState = useAccountAdderControllerState()
-  const isLoading = accountAdderState.addAccountsStatus === 'LOADING'
   const { t } = useTranslation()
   const { theme } = useTheme()
   const {
@@ -73,21 +70,6 @@ const ViewOnlyScreen = () => {
   const accounts = watch('accounts')
 
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
-
-  useEffect(() => {
-    if (!mainControllerState.isReady) return
-    if (accountAdderState.isInitialized) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
-    })
-  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady])
-
-  useEffect(() => {
-    return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-    }
-  }, [dispatch])
 
   const handleFormSubmit = useCallback(async () => {
     // wait state update before Wallet calcs because
@@ -166,9 +148,9 @@ const ViewOnlyScreen = () => {
           <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
-            disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}
+            disabled={!isValid || duplicateAccountsIndexes.length > 0}
             hasBottomSpacing={false}
-            text={isLoading ? t('Loading...') : t('Import View-Only Accounts')}
+            text={t('Import View-Only Accounts')}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -231,18 +213,16 @@ const ViewOnlyScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-            <InfoIcon color={theme.infoText} style={spacings.mrTy} />
-            <Text fontSize={20} appearance="infoText" weight="medium">
-              {t('Importing  view-only accounts')}
-            </Text>
-          </View>
-          <Text fontSize={16} appearance="infoText">
+          <TabLayoutWrapperSideContentItem.Row
+            Icon={InfoIcon}
+            title="Importing view-only accounts"
+          />
+          <TabLayoutWrapperSideContentItem.Text noMb>
             Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it's balances or connect to dApps with it. Of
+            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
             course, you cannot sign any transactions or messages, or authorize with this account in
             any form. This is possible due to the public nature of the Web3 itself.
-          </Text>
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>

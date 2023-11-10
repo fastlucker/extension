@@ -49,7 +49,7 @@ const WEB_ROUTES = {
   keyStoreSetup: 'keystore-setup',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
-  permissionRequest: 'permission-request',
+  dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',

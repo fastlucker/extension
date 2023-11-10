@@ -12,6 +12,7 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import ReceiveModal from '@web/components/ReceiveModal'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -36,6 +37,7 @@ const { isPopup } = getUiType()
 
 const DashboardScreen = () => {
   const { styles } = useTheme(getStyles)
+  const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const route = useRoute()
 
   const { control, watch } = useForm({
@@ -88,7 +90,7 @@ const DashboardScreen = () => {
 
   if (!showView)
     return (
-      <View style={[flexbox.alignCenter]}>
+      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
         <Spinner />
       </View>
     )
@@ -96,6 +98,7 @@ const DashboardScreen = () => {
   return (
     <>
       <DashboardHeader />
+      <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
         <View style={spacings.ph}>
           <View style={[styles.contentContainer]}>
@@ -134,7 +137,7 @@ const DashboardScreen = () => {
                   ))}
                 </View>
               </View>
-              <Routes />
+              <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
             </View>
 
             <Banners />

@@ -10,7 +10,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -21,7 +20,6 @@ import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent,
@@ -131,17 +129,12 @@ const AccountPersonalizeScreen = () => {
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
-            <InfoIcon color={theme.infoText} style={spacings.mrTy} />
-            <Text fontSize={20} appearance="infoText" weight="medium">
-              {t('Account personalization')}
-            </Text>
-          </View>
-          <Text fontSize={16} style={[spacings.mbXl]} appearance="infoText">
-            {t(
-              'The account label is any arbitrary label that you choose. Both the label and the avatar are only local and for own organizational purposes - none of this will be uploaded on the blockchain or anywhere else.'
-            )}
-          </Text>
+          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon} title="Account personalization" />
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            The account label is any arbitrary label that you choose. Both the label and the avatar
+            are only local and for own organizational purposes - none of this will be uploaded on
+            the blockchain or anywhere else.
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>

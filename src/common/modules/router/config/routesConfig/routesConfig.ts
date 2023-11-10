@@ -199,8 +199,8 @@ const routesConfig: {
       default: i18n.t('Manage Signers')
     })
   },
-  [ROUTES.permissionRequest]: {
-    route: ROUTES.permissionRequest,
+  [ROUTES.dappConnectRequest]: {
+    route: ROUTES.dappConnectRequest,
     title: Platform.select({
       web: i18n.t('Webpage Wants to Connect'),
       default: i18n.t('dApp Wants to Connect')
