@@ -52,9 +52,11 @@ const AccountPersonalizeScreen = () => {
       preferences: newAccounts.map((account, i) => ({
         account,
         label: `Account ${prevAccountsCount + (i + 1)}`,
-        // Iterate from 1 up to the `buildInAvatars.length` and then - start all
-        // over again from the beginning (from 1).
-        pfp: BUILD_IN_AVATAR_ID_PREFIX + ((prevAccountsCount + i + 1) % buildInAvatars.length)
+        pfp:
+          BUILD_IN_AVATAR_ID_PREFIX +
+          // Iterate from 1 up to the `buildInAvatars.length` and then - start all
+          // over again from the beginning (from 1).
+          ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
       }))
     }
   })
