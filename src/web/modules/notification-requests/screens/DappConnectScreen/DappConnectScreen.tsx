@@ -3,7 +3,6 @@ import React, { useCallback, useState } from 'react'
 import { Image, View } from 'react-native'
 
 // @ts-ignore
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
@@ -13,6 +12,7 @@ import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
@@ -27,14 +27,17 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
 import styles from './styles'
 
 // Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
 const DappConnectScreen = () => {
   const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+  const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
@@ -70,11 +73,14 @@ const DappConnectScreen = () => {
             ]}
           >
             <View style={styles.accountInfo}>
-              <Image style={styles.accountInfoIcon} source={avatarSpace} resizeMode="contain" />
+              <Image
+                style={styles.accountInfoIcon}
+                source={getAccountPfpSource(selectedAccountPref?.pfp)}
+                resizeMode="contain"
+              />
               <View style={styles.accountAddressAndLabel}>
-                {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
                 <Text weight="number_bold" fontSize={16} appearance="secondaryText">
-                  {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+                  {selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL}
                 </Text>
                 <Text weight="number_medium" style={styles.accountInfoText} fontSize={16}>
                   ({selectedAccount})
