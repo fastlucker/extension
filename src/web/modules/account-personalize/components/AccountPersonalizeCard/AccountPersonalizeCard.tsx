@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { Image, TouchableOpacity, View } from 'react-native'
+import React from 'react'
+import { Control, Controller } from 'react-hook-form'
+import { Image, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
-import CheckIcon from '@common/assets/svg/CheckIcon'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -11,57 +11,38 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
-import {
-  avatarAstronautMan,
-  avatarAstronautWoman,
-  avatarFire,
-  avatarPlanet,
-  avatarSpace,
-  avatarSpaceDog,
-  avatarSpaceRaccoon,
-  avatarSpreadFire
-} from './avatars'
+import { buildInAvatars, getAccountPfpSource } from './avatars'
+import AvatarsSelectorItem from './AvatarSelectorItem'
 import getStyles from './styles'
 
-const AvatarsSelectorItem = ({ selectedAvatar, avatar, setSelectedAvatar }: any) => {
-  const { styles, theme } = useTheme(getStyles)
-  return (
-    <TouchableOpacity activeOpacity={1} onPress={() => setSelectedAvatar(avatar)}>
-      <View style={[spacings.mrTy]} key={avatar}>
-        <Image source={avatar} style={styles.pfpSelectorItem} resizeMode="contain" />
-        {selectedAvatar === avatar && (
-          <CheckIcon
-            width={14}
-            height={14}
-            color={theme.successDecorative}
-            style={{ position: 'absolute', right: 0, bottom: 0 }}
-          />
-        )}
-      </View>
-    </TouchableOpacity>
-  )
+export type AccountPersonalizeFormValues = {
+  preferences: {
+    account: Account
+    label: string
+    pfp: string
+  }[]
 }
 
 type Props = {
-  account: Account
+  address: Account['addr']
+  isSmartAccount: boolean
+  pfp: string
+  index: number
+  control: Control<AccountPersonalizeFormValues>
   hasBottomSpacing?: boolean
 }
 
-const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => {
+const AccountPersonalizeCard = ({
+  address,
+  isSmartAccount,
+  index,
+  pfp,
+  control,
+  hasBottomSpacing = true
+}: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const [selectedAvatar, setSelectedAvatar] = useState(avatarAstronautMan)
-  const [label, setLabel] = useState('')
-  const avatars = [
-    avatarAstronautMan,
-    avatarAstronautWoman,
-    avatarSpaceDog,
-    avatarSpace,
-    avatarSpaceRaccoon,
-    avatarPlanet,
-    avatarFire,
-    avatarSpreadFire
-  ]
+  const accountPfpSource = getAccountPfpSource(pfp)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -75,12 +56,12 @@ const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => 
         ]}
       >
         <View style={[flexboxStyles.directionRow]}>
-          <Image source={selectedAvatar} style={styles.pfp} resizeMode="contain" />
+          <Image source={accountPfpSource} style={styles.pfp} resizeMode="contain" />
           <View style={{ alignItems: 'flex-start' }}>
             <Text fontSize={16} weight="medium" style={spacings.mb}>
-              {account.addr}
+              {address}
             </Text>
-            {account.creation ? (
+            {isSmartAccount ? (
               <Badge withIcon type="success" text={t('Smart Account')} />
             ) : (
               <Badge withIcon type="warning" text={t('Legacy Account')} />
@@ -99,25 +80,42 @@ const AccountPersonalizeCard = ({ account, hasBottomSpacing = true }: Props) => 
         </Text>
       </Text>
 
-      <Input
-        numberOfLines={1}
-        maxLength={25}
-        placeholder="Miro"
-        onChangeText={(text) => setLabel(text)}
-        containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
+      <Controller
+        control={control}
+        name={`preferences.${index}.label`}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            numberOfLines={1}
+            maxLength={25}
+            containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
+          />
+        )}
       />
+
       <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
         {t('Choose an avatar')}
       </Text>
       <View style={[flexboxStyles.directionRow]}>
-        {avatars.map((avatar) => (
-          <AvatarsSelectorItem
-            key={avatar}
-            avatar={avatar}
-            selectedAvatar={selectedAvatar}
-            setSelectedAvatar={setSelectedAvatar}
-          />
-        ))}
+        <Controller
+          control={control}
+          name={`preferences.${index}.pfp`}
+          render={({ field: { onChange, value } }) => (
+            <>
+              {buildInAvatars.map(({ id, source }) => (
+                <AvatarsSelectorItem
+                  key={id}
+                  id={id}
+                  source={source}
+                  isSelected={value === id}
+                  setSelectedAvatar={onChange}
+                />
+              ))}
+            </>
+          )}
+        />
       </View>
     </View>
   )

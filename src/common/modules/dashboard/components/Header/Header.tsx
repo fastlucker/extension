@@ -1,12 +1,12 @@
 import { Image, Pressable, View } from 'react-native'
 
 // @ts-ignore
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -14,6 +14,8 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -24,8 +26,13 @@ const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
   const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
+
   const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountInfo = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+  const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
+  const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
+  const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
+
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   return (
@@ -49,16 +56,16 @@ const DashboardHeader = () => {
             <View style={styles.accountButtonInfo}>
               <Image
                 style={styles.accountButtonInfoIcon}
-                source={avatarSpace}
+                source={selectedAccPfpSource}
                 resizeMode="contain"
               />
               <View style={styles.accountAddressAndLabel}>
                 {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
                 <Text weight="number_bold" fontSize={14}>
-                  {selectedAccountInfo?.label ? selectedAccountInfo?.label : 'Account Label'}
+                  {selectedAccLabel}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
-                  ({shortenAddress(selectedAccount, 27)})
+                  ({shortenAddress(selectedAccount, 17)})
                 </Text>
               </View>
             </View>
