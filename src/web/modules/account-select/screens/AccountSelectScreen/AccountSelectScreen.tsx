@@ -11,6 +11,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -21,6 +22,8 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -37,6 +40,7 @@ const AccountSelectScreen = () => {
   const searchValue = watch('search')
 
   const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
@@ -102,7 +106,9 @@ const AccountSelectScreen = () => {
                       <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
                         <Image
                           style={{ width: 32, height: 32, borderRadius: BORDER_RADIUS_PRIMARY }}
-                          source={avatarSpace}
+                          source={getAccountPfpSource(
+                            settingsCtrl.accountPreferences[account.addr]?.pfp
+                          )}
                           resizeMode="contain"
                         />
                       </View>
@@ -111,7 +117,8 @@ const AccountSelectScreen = () => {
                           {shortenAddress(account.addr, 25)}
                         </Text>
                         <Text appearance="secondaryText" fontSize={12} weight="semiBold">
-                          {t('Account label')}
+                          {settingsCtrl.accountPreferences[account.addr]?.label ||
+                            DEFAULT_ACCOUNT_LABEL}
                         </Text>
                       </View>
                       <View style={account.creation ? styles.greenLabel : styles.greyLabel}>

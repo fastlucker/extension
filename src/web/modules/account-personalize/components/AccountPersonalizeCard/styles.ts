@@ -6,6 +6,7 @@ import common from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
+  checkIcon: ViewStyle
   pfp: ImageStyle
   pfpSelectorItem: ImageStyle
 }
@@ -31,6 +32,11 @@ const getStyles = (theme: ThemeProps) =>
       height: 48,
       width: 48,
       ...common.borderRadiusPrimary
+    },
+    checkIcon: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0
     }
   })
 
