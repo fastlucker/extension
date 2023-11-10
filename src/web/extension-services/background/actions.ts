@@ -89,6 +89,9 @@ type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
 }
+type MainControllerRefetchPortfolio = {
+  type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
+}
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
   params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
@@ -287,6 +290,7 @@ export type Action =
   | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
+  | MainControllerRefetchPortfolio
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction

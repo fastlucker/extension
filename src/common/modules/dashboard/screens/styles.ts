@@ -10,6 +10,7 @@ interface Style {
   container: ViewStyle
   contentContainer: ViewStyle
   overview: ViewStyle
+  overviewLoader: ViewStyle
   networks: ViewStyle
   networkIconContainer: ViewStyle
   networkIcon: ViewStyle
@@ -36,6 +37,13 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mb,
       ...spacings.phSm,
       ...spacings.pvLg,
+      ...common.borderRadiusPrimary
+    },
+    overviewLoader: {
+      width: 150,
+      height: 34,
+      backgroundColor: theme.primaryBackground,
+      ...spacings.mbTy,
       ...common.borderRadiusPrimary
     },
     networks: { ...flexbox.directionRow, ...flexbox.alignCenter },
