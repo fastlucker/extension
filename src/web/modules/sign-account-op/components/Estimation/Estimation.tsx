@@ -8,13 +8,13 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
-import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 
@@ -22,15 +22,17 @@ import getStyles from './styles'
 
 type Props = {
   networkId: NetworkDescriptor['id']
+  isViewOnly: boolean
 }
 
-const Estimation = ({ networkId }: Props) => {
+const Estimation = ({ networkId, isViewOnly }: Props) => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
@@ -121,25 +123,27 @@ const Estimation = ({ networkId }: Props) => {
         options={payOptions}
         style={spacings.mb}
         value={payValue || {}}
+        disabled={isViewOnly}
         defaultValue={payValue}
       />
-      <View style={spacings.mbMd}>
+      <View style={[spacings.mbMd]}>
         <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
           {t('Transaction speed')}
         </Text>
-        <View style={flexbox.directionRow}>
-          {signAccountOpState.feeSpeeds.map((fee) => (
+        <View style={[maxWidthSize('xxl') && flexbox.directionRow, isViewOnly && { opacity: 0.6 }]}>
+          {signAccountOpState.feeSpeeds.map((fee, i) => (
             <Fee
+              isViewOnly={isViewOnly}
+              isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
               key={fee.amount + fee.type}
               label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
               type={fee.type}
               amount={fee.amountFormatted}
               onPress={onFeeSelect}
               isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-              style={spacings.mrTy}
             />
           ))}
-          <CustomFee onPress={() => {}} />
+          {/* TODO: <CustomFee onPress={() => {}} /> */}
         </View>
       </View>
       <View>
@@ -150,12 +154,14 @@ const Estimation = ({ networkId }: Props) => {
                 {t('Fee')}:
               </Text>
               <Text fontSize={16} weight="medium">
-                {selectedFee.amountFormatted} {payValue.token?.symbol}
+                {parseFloat(Number(selectedFee.amountFormatted).toFixed(6)).toString()}{' '}
+                {payValue.token?.symbol}
+              </Text>
+              <Text weight="medium" fontSize={16} appearance="primary">
+                {' '}
+                (~ ${Number(selectedFee.amountUsd).toFixed(2)})
               </Text>
             </View>
-            <Text weight="medium" style={styles.feeUsd}>
-              ~ ${Number(selectedFee.amountUsd).toFixed(4)}
-            </Text>
           </View>
         )}
         {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}

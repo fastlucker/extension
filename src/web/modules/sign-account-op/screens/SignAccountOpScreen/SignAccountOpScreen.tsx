@@ -230,8 +230,9 @@ const SignAccountOpScreen = () => {
     signAccountOpState.status?.type
   ])
 
-  const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
-    account?.associatedKeys.includes(key.addr)
+  const selectedAccountKeyStoreKeys = useMemo(
+    () => keystoreState.keys.filter((key) => account?.associatedKeys.includes(key.addr)),
+    [account?.associatedKeys, keystoreState.keys]
   )
 
   const onSignButtonClick = () => {
@@ -247,6 +248,11 @@ const SignAccountOpScreen = () => {
     setIsChooseSignerShown(true)
   }
 
+  const isViewOnly = useMemo(
+    () => selectedAccountKeyStoreKeys.length === 0,
+    [selectedAccountKeyStoreKeys.length]
+  )
+
   if (!signAccountOpState.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -260,7 +266,8 @@ const SignAccountOpScreen = () => {
       width="full"
       header={
         <Header
-          networkId={network.id as any} // TODO: type mismatch
+          networkId={network.id as any}
+          isEOA={!account?.creation}
           networkName={network.name}
         />
       }
@@ -268,6 +275,7 @@ const SignAccountOpScreen = () => {
         <Footer
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
+          isEOA={!account?.creation}
           isSignLoading={
             signAccountOpState.status?.type === SigningStatus.InProgress ||
             signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
@@ -275,6 +283,7 @@ const SignAccountOpScreen = () => {
             mainState.broadcastStatus === 'LOADING'
           }
           isChooseSignerShown={isChooseSignerShown}
+          isViewOnly={isViewOnly}
           handleChangeSigningKey={handleChangeSigningKey}
           selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
           onSign={onSignButtonClick}
@@ -335,7 +344,7 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network.id} />
+              <Estimation networkId={network.id} isViewOnly={isViewOnly} />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />

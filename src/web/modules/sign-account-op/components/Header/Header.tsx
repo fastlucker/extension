@@ -4,6 +4,7 @@ import { Image, View } from 'react-native'
 
 // @ts-ignore
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
@@ -18,8 +19,9 @@ import getStyles from './styles'
 interface Props {
   networkName?: string
   networkId?: NetworkIconNameType
+  isEOA: boolean
 }
-const Header: FC<Props> = ({ networkName, networkId }) => {
+const Header: FC<Props> = ({ networkName, networkId, isEOA }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const mainCtrl = useMainControllerState()
@@ -39,6 +41,10 @@ const Header: FC<Props> = ({ networkName, networkId }) => {
         <Text appearance="primaryText" weight="medium" fontSize={16}>
           ({selectedAccount}){' '}
         </Text>
+        <Badge
+          type={isEOA ? 'warning' : 'success'}
+          text={isEOA ? t('Legacy Account') : t('Smart Account')}
+        />
         <View style={styles.network}>
           <Text appearance="secondaryText" weight="regular" fontSize={16}>
             {t('on')}{' '}
