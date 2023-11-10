@@ -82,20 +82,12 @@ const AccountPersonalizeCard = ({
 
       <Controller
         control={control}
-        // TODO:
-        // rules={{ validate: isValidAccountLabel }}
         name={`preferences.${index}.label`}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
-            // TODO
-            // error={
-            //   errors.password &&
-            //   (t('Please fill in at least 8 characters for passphrase.') as string)
-            // }
-            // onSubmitEditing={handleKeystoreSetup}
             numberOfLines={1}
             maxLength={25}
             containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
