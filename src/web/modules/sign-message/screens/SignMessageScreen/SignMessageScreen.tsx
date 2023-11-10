@@ -222,14 +222,7 @@ const SignMessageScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={
-        <Header
-          networkId={networkData?.id}
-          networkName={networkData?.name}
-          selectedAccountAddr={selectedAccountFull?.addr}
-          selectedAccountLabel={selectedAccountFull?.label}
-        />
-      }
+      header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
       footer={
         <View style={styles.buttonsContainer}>
           <Button
