@@ -269,8 +269,6 @@ const SignAccountOpScreen = () => {
           networkId={network.id as any}
           isEOA={!account?.creation}
           networkName={network.name}
-          selectedAccountAddr={account?.addr}
-          selectedAccountLabel={account?.label}
         />
       }
       footer={
