@@ -37,6 +37,7 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -85,6 +86,7 @@ async function init() {
     },
     onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
+      setAccountStateInterval(accountStateIntervals.pending)
     },
     pinned: pinnedTokens
   })
@@ -135,6 +137,65 @@ async function init() {
   }
   // Call it once to initialize the interval
   setActivityInterval()
+
+  // refresh the account state once every 5 minutes.
+  // if there are pending account ops, start refreshing once every
+  // 7.5 seconds until they are cleared
+  let accountStateInternval: any
+  let selectedAccountStateInterval: any
+  const accountStateIntervals = {
+    pending: 7500,
+    standBy: 300000,
+  }
+
+  function setAccountStateInterval(intervalLength: number) {
+    console.log(`setting the account state interval to ${intervalLength}`)
+    clearInterval(accountStateInternval)
+    selectedAccountStateInterval = intervalLength
+
+    accountStateInternval = setInterval(
+      async () => {
+        // update the account state with the latest block in normal
+        // circumstances and with the pending block when there are
+        // pending account ops
+        const blockTag = selectedAccountStateInterval == accountStateIntervals.standBy
+          ? 'latest'
+          : 'pending'
+        mainCtrl.updateAccountStates(blockTag)
+
+        if (selectedAccountStateInterval == accountStateIntervals.standBy) {
+          return
+        }
+
+        // if we don't have any account ops, set the refresh rate to standBy
+        const accountsOps = await storage.get('accountsOps', {})
+        if (!accountsOps) {
+          setAccountStateInterval(accountStateIntervals.standBy)
+          return
+        }
+
+        // check for pending account ops
+        // if there aren't any, set the refresh rate to standBy
+        let hasPending = false
+      mainLoop:
+        for (const account in accountsOps) {
+          for (const network in accountsOps[account]) {
+            hasPending = accountsOps[account][network].filter((accOp: any) => (
+              accOp.status == AccountOpStatus.Pending
+            )).length > 0
+            if (hasPending) break mainLoop
+          }
+        }
+
+        if (!hasPending) {
+          setAccountStateInterval(accountStateIntervals.standBy)
+        }
+      },
+      intervalLength
+    )
+  }
+  // Call it once to initialize the interval
+  setAccountStateInterval(accountStateIntervals.standBy)
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
