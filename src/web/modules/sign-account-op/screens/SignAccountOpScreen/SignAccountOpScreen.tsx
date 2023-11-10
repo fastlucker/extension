@@ -259,7 +259,7 @@ const SignAccountOpScreen = () => {
   }
 
   const selectedAccountLabel =
-    settingsState.accountPreferences[account?.addr || ''].label || DEFAULT_ACCOUNT_LABEL
+    settingsState.accountPreferences[account?.addr || '']?.label || DEFAULT_ACCOUNT_LABEL
 
   return (
     <TabLayoutContainer

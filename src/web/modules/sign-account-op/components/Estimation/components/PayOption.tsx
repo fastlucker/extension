@@ -15,7 +15,7 @@ const PayOption = ({ account, token }: any) => {
   const settingsCtrl = useSettingsControllerState()
   const accountPref = settingsCtrl.accountPreferences[account.addr]
   const pfpSource = getAccountPfpSource(accountPref?.pfp)
-  const label = accountPref.label || DEFAULT_ACCOUNT_LABEL
+  const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
