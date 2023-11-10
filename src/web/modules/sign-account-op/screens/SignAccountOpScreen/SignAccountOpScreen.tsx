@@ -8,6 +8,7 @@ import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portf
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -22,6 +23,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
@@ -37,6 +39,7 @@ const SignAccountOpScreen = () => {
   const { navigate } = useNavigation()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
+  const settingsState = useSettingsControllerState()
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -255,6 +258,9 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const selectedAccountLabel =
+    settingsState.accountPreferences[account?.addr || ''].label || DEFAULT_ACCOUNT_LABEL
+
   return (
     <TabLayoutContainer
       width="full"
@@ -263,7 +269,7 @@ const SignAccountOpScreen = () => {
           networkId={network.id as any}
           networkName={network.name}
           selectedAccountAddr={account?.addr}
-          selectedAccountLabel={account?.label}
+          selectedAccountLabel={selectedAccountLabel}
         />
       }
       footer={
