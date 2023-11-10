@@ -12,7 +12,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
-import { buildInAvatars } from './avatars'
+import { buildInAvatars, getAccountPfpSource } from './avatars'
 import AvatarsSelectorItem from './AvatarSelectorItem'
 import getStyles from './styles'
 
@@ -35,8 +35,7 @@ const AccountPersonalizeCard = ({
 }: Props) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-
-  const currentAvatarSource = buildInAvatars.find(({ id }) => id === pfp)?.source
+  const accountPfpSource = getAccountPfpSource(pfp)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -50,7 +49,7 @@ const AccountPersonalizeCard = ({
         ]}
       >
         <View style={[flexboxStyles.directionRow]}>
-          <Image source={currentAvatarSource} style={styles.pfp} resizeMode="contain" />
+          <Image source={accountPfpSource} style={styles.pfp} resizeMode="contain" />
           <View style={{ alignItems: 'flex-start' }}>
             <Text fontSize={16} weight="medium" style={spacings.mb}>
               {address}

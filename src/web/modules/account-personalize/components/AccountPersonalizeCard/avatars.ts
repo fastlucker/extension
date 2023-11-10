@@ -31,3 +31,7 @@ export const buildInAvatars = [
   { id: `${BUILD_IN_AVATAR_ID_PREFIX}7`, source: avatarSpace },
   { id: `${BUILD_IN_AVATAR_ID_PREFIX}8`, source: avatarSpreadFire }
 ]
+
+const DEFAULT_AVATAR = buildInAvatars[0]
+export const getAccountPfpSource = (pfpId: string) =>
+  buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source

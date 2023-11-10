@@ -14,7 +14,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { buildInAvatars } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -25,12 +25,11 @@ const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
   const mainCtrl = useMainControllerState()
-  const settingsControllerState = useSettingsControllerState()
+  const settingsCtrl = useSettingsControllerState()
 
   const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccPref = settingsControllerState.accountPreferences[selectedAccount]
-  const selectedAccPfpSource =
-    buildInAvatars.find(({ id }) => id === selectedAccPref?.pfp)?.source || buildInAvatars[0].source
+  const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
+  const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)

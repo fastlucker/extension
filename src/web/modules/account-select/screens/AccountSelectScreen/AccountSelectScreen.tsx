@@ -22,7 +22,7 @@ import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWr
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { buildInAvatars } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -105,11 +105,9 @@ const AccountSelectScreen = () => {
                       <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
                         <Image
                           style={{ width: 32, height: 32, borderRadius: BORDER_RADIUS_PRIMARY }}
-                          source={
-                            buildInAvatars.find(
-                              ({ id }) => id === settingsCtrl.accountPreferences[account.addr]?.pfp
-                            )?.source || buildInAvatars[0].source
-                          }
+                          source={getAccountPfpSource(
+                            settingsCtrl.accountPreferences[account.addr]?.pfp
+                          )}
                           resizeMode="contain"
                         />
                       </View>
