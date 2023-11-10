@@ -31,12 +31,11 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
-
-import { AccountPersonalizeFormValues } from '../../components/AccountPersonalizeCard/AccountPersonalizeCard'
+import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
 import {
   BUILD_IN_AVATAR_ID_PREFIX,
   buildInAvatars
-} from '../../components/AccountPersonalizeCard/avatars'
+} from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
