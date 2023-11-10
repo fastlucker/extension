@@ -11,6 +11,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -116,7 +117,8 @@ const AccountSelectScreen = () => {
                           {shortenAddress(account.addr, 25)}
                         </Text>
                         <Text appearance="secondaryText" fontSize={12} weight="semiBold">
-                          {settingsCtrl.accountPreferences[account.addr]?.label || 'Account'}
+                          {settingsCtrl.accountPreferences[account.addr]?.label ||
+                            DEFAULT_ACCOUNT_LABEL}
                         </Text>
                       </View>
                       <View style={account.creation ? styles.greenLabel : styles.greyLabel}>

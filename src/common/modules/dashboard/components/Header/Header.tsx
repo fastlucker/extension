@@ -6,6 +6,7 @@ import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -60,7 +61,7 @@ const DashboardHeader = () => {
               <View style={styles.accountAddressAndLabel}>
                 {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
                 <Text weight="number_bold" fontSize={14}>
-                  {selectedAccPref?.label || 'Account'}
+                  {selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
                   ({shortenAddress(selectedAccount, 27)})
