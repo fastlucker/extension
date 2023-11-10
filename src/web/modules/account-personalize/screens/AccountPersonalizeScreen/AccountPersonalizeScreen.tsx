@@ -31,18 +31,11 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
+import { AccountPersonalizeFormValues } from '../../components/AccountPersonalizeCard/AccountPersonalizeCard'
 import {
   BUILD_IN_AVATAR_ID_PREFIX,
   buildInAvatars
 } from '../../components/AccountPersonalizeCard/avatars'
-
-type FormValues = {
-  preferences: {
-    account: Account
-    label: string
-    pfp: string
-  }[]
-}
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -52,7 +45,7 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
-  const { handleSubmit, control, register, watch } = useForm<FormValues>({
+  const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
       preferences: accounts.map((account, i) => ({
         account,
@@ -79,7 +72,7 @@ const AccountPersonalizeScreen = () => {
   }, [stepperState?.currentFlow, updateStepperState])
 
   const handleSave = useCallback(
-    (data: FormValues) => {
+    (data: AccountPersonalizeFormValues) => {
       console.log('data', data)
       const newAccPreferences: AccountPreferences = {}
 
@@ -125,7 +118,6 @@ const AccountPersonalizeScreen = () => {
                 key={field.id} // important to include key with field's id
                 control={control}
                 index={index}
-                register={register}
                 isSmartAccount={isSmartAccount(field.account)}
                 pfp={watchPreferences[index].pfp}
                 address={field.account.addr}

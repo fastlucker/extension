@@ -1,9 +1,8 @@
 import React from 'react'
-import { Controller } from 'react-hook-form'
+import { Control, Controller } from 'react-hook-form'
 import { Image, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
-import CheckIcon from '@common/assets/svg/CheckIcon'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -16,12 +15,20 @@ import { buildInAvatars, getAccountPfpSource } from './avatars'
 import AvatarsSelectorItem from './AvatarSelectorItem'
 import getStyles from './styles'
 
+export type AccountPersonalizeFormValues = {
+  preferences: {
+    account: Account
+    label: string
+    pfp: string
+  }[]
+}
+
 type Props = {
   address: Account['addr']
   isSmartAccount: boolean
   pfp: string
   index: number
-  control: any // TODO
+  control: Control<AccountPersonalizeFormValues>
   hasBottomSpacing?: boolean
 }
 
