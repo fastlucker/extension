@@ -11,6 +11,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useDebounce from '@common/hooks/useDebounce'
 import useToast from '@common/hooks/useToast'
+import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { mapTokenOptions } from '@web/utils/maps'
 
@@ -169,7 +170,7 @@ const SendForm = ({
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />
-      <View style={styles.recipientWrapper}>
+      <View>
         <Recipient
           setAddress={setRecipientAddress}
           address={recipientAddress}
@@ -185,8 +186,8 @@ const SendForm = ({
 
         {isSWWarningVisible ? (
           <Checkbox
-            style={styles.sWAddressWarningCheckbox}
             value={isSWWarningAgreed}
+            style={spacings.plTy}
             onValueChange={onSWWarningCheckboxClick}
           >
             <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
