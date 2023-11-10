@@ -110,7 +110,9 @@ const Tokens = ({ tokens, searchValue }: Props) => {
             {sortedTokens.map((token: TokenResult) => (
               <TokenItem
                 key={`${token?.address}-${token?.networkId}-${
-                  token?.flags?.onGasTank ? 'gas-tank' : 'token'
+                  token?.flags?.onGasTank ? 'gas-tank' : ''
+                }${token?.flags?.rewardsType ? 'rewards' : ''}${
+                  !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
                 }`}
                 token={token}
                 handleTokenSelect={handleSelectToken}
