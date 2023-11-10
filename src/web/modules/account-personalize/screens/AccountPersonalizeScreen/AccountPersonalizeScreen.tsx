@@ -29,6 +29,7 @@ import {
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 
 import { AccountPersonalizeFormValues } from '../../components/AccountPersonalizeCard/AccountPersonalizeCard'
@@ -43,16 +44,18 @@ const AccountPersonalizeScreen = () => {
   const { stepperState, updateStepperState } = useStepper()
   const { params } = useRoute()
   const { theme } = useTheme()
+  const mainCtrl = useMainControllerState()
   const { dispatch } = useBackgroundService()
-  const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const prevAccountsCount = mainCtrl.accounts.length - newAccounts.length
   const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
-      preferences: accounts.map((account, i) => ({
+      preferences: newAccounts.map((account, i) => ({
         account,
-        label: `View Only Account ${i + 1}`,
+        label: `View Only Account ${prevAccountsCount + (i + 1)}`,
         // Iterate from 1 up to the `buildInAvatars.length` and then - start all
         // over again from the beginning (from 1).
-        pfp: BUILD_IN_AVATAR_ID_PREFIX + ((i + 1) % buildInAvatars.length)
+        pfp: BUILD_IN_AVATAR_ID_PREFIX + ((prevAccountsCount + i + 1) % buildInAvatars.length)
       }))
     }
   })
@@ -60,10 +63,10 @@ const AccountPersonalizeScreen = () => {
   const watchPreferences = watch('preferences')
 
   useEffect(() => {
-    if (!accounts) {
+    if (!newAccounts.length) {
       navigate('/')
     }
-  }, [navigate, accounts])
+  }, [navigate, newAccounts.length])
 
   useEffect(() => {
     if (!stepperState?.currentFlow) return
@@ -73,7 +76,6 @@ const AccountPersonalizeScreen = () => {
 
   const handleSave = useCallback(
     (data: AccountPersonalizeFormValues) => {
-      console.log('data', data)
       const newAccPreferences: AccountPreferences = {}
 
       data.preferences.forEach(({ account, label, pfp }) => {
@@ -85,8 +87,7 @@ const AccountPersonalizeScreen = () => {
         params: newAccPreferences
       })
 
-      // TODO: Enable back when the above gets implemented
-      // navigate('/')
+      navigate('/')
     },
     [navigate, dispatch]
   )
@@ -121,7 +122,7 @@ const AccountPersonalizeScreen = () => {
                 isSmartAccount={isSmartAccount(field.account)}
                 pfp={watchPreferences[index].pfp}
                 address={field.account.addr}
-                hasBottomSpacing={index !== accounts.length - 1}
+                hasBottomSpacing={index !== fields.length - 1}
               />
             ))}
           </Wrapper>
