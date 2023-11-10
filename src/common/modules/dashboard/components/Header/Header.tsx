@@ -31,6 +31,7 @@ const DashboardHeader = () => {
   const selectedAccount = mainCtrl.selectedAccount || ''
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
+  const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
@@ -61,10 +62,10 @@ const DashboardHeader = () => {
               <View style={styles.accountAddressAndLabel}>
                 {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
                 <Text weight="number_bold" fontSize={14}>
-                  {selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL}
+                  {selectedAccLabel}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
-                  ({shortenAddress(selectedAccount, 27)})
+                  ({shortenAddress(selectedAccount, 17)})
                 </Text>
               </View>
             </View>

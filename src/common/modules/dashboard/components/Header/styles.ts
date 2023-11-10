@@ -31,8 +31,12 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...flexbox.flex1
     },
-    accountButtonRightIcon: { borderColor: 'transparent', ...common.borderRadiusPrimary },
-    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
+    accountButtonRightIcon: {
+      borderColor: 'transparent',
+      ...common.borderRadiusPrimary,
+      ...spacings.mrTy
+    },
+    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter, ...flexbox.flex1 },
     accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
     accountButtonInfoText: { ...spacings.mlMi },
     accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mlTy },
