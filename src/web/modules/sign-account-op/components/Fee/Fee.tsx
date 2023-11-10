@@ -16,9 +16,10 @@ interface Props {
   onPress: (fee: string) => void
   isSelected: boolean
   isLastItem: boolean
+  isViewOnly: boolean
 }
 
-const Fee = ({ label, type, amount, onPress, isSelected, isLastItem }: Props) => {
+const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
@@ -29,6 +30,7 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem }: Props) =>
           ? [flexbox.flex1, !isLastItem && spacings.mrTy]
           : [flexbox.flex1, !isLastItem && spacings.mbTy]
       }
+      disabled={isViewOnly}
       onPress={() => onPress(type)}
     >
       {({ hovered }: any) => (

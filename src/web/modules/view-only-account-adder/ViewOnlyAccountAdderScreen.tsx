@@ -99,9 +99,9 @@ const ViewOnlyScreen = () => {
         `https://staging-relayer.ambire.com/v2/identity/${account.address}`
       )
 
-      const accountIdentity = accountIdentityResponse?.body
+      const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
-
+      let associatedKeys = [account.address]
       if (
         typeof accountIdentity === 'object' &&
         accountIdentity !== null &&
@@ -119,11 +119,15 @@ const ViewOnlyScreen = () => {
         }
       }
 
+      if (accountIdentity && accountIdentity?.associatedKeys) {
+        associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
+      }
+
       return {
         addr: account.address,
         label: '',
         pfp: '',
-        associatedKeys: [],
+        associatedKeys,
         creation
       }
     })

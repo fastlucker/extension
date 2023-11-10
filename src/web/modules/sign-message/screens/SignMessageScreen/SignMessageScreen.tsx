@@ -261,7 +261,7 @@ const SignMessageScreen = () => {
           ) : null}
           {isViewOnly ? (
             <Text appearance="errorText" weight="medium">
-              {t("You can't sign messages with view only accounts.")}
+              {t("You can't sign messages with view-only accounts.")}
             </Text>
           ) : null}
           <View style={styles.signButtonContainer}>

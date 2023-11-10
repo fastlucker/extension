@@ -55,7 +55,7 @@ const Footer = ({
       </Button>
       {!!isViewOnly && (
         <Text appearance="errorText" weight="medium">
-          {t("You can't sign messages with view only accounts.")}
+          {t("You can't sign transactions with view-only accounts.")}
         </Text>
       )}
       <View style={[flexbox.directionRow]}>
@@ -82,7 +82,7 @@ const Footer = ({
           ) : null}
           <Button
             type="primary"
-            disabled={isSignLoading}
+            disabled={isSignLoading || isViewOnly}
             text={isSignLoading ? t('Signing...') : t('Sign')}
             onPress={onSign}
             hasBottomSpacing={false}

@@ -267,6 +267,7 @@ const SignAccountOpScreen = () => {
       header={
         <Header
           networkId={network.id as any}
+          isEOA={!account?.creation}
           networkName={network.name}
           selectedAccountAddr={account?.addr}
           selectedAccountLabel={account?.label}
@@ -345,7 +346,7 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network.id} />
+              <Estimation networkId={network.id} isViewOnly={isViewOnly} />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />

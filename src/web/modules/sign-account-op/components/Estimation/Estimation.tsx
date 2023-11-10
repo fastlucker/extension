@@ -22,9 +22,10 @@ import getStyles from './styles'
 
 type Props = {
   networkId: NetworkDescriptor['id']
+  isViewOnly: boolean
 }
 
-const Estimation = ({ networkId }: Props) => {
+const Estimation = ({ networkId, isViewOnly }: Props) => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const portfolioState = usePortfolioControllerState()
@@ -122,15 +123,17 @@ const Estimation = ({ networkId }: Props) => {
         options={payOptions}
         style={spacings.mb}
         value={payValue || {}}
+        disabled={isViewOnly}
         defaultValue={payValue}
       />
       <View style={[spacings.mbMd]}>
         <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
           {t('Transaction speed')}
         </Text>
-        <View style={[maxWidthSize('xxl') && flexbox.directionRow]}>
+        <View style={[maxWidthSize('xxl') && flexbox.directionRow, isViewOnly && { opacity: 0.6 }]}>
           {signAccountOpState.feeSpeeds.map((fee, i) => (
             <Fee
+              isViewOnly={isViewOnly}
               isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
               key={fee.amount + fee.type}
               label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
