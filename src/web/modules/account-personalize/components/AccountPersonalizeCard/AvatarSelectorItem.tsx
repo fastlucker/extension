@@ -10,7 +10,7 @@ import getStyles from './styles'
 interface Props {
   id: string
   isSelected: boolean
-  source: any // TODO
+  source: any
   setSelectedAvatar: (id: string) => void
 }
 
