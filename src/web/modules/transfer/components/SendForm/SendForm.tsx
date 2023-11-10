@@ -68,7 +68,6 @@ const SendForm = ({
     isRecipientDomainResolving,
     isSWWarningVisible,
     tokens,
-    isFormValid,
     validationFormMsgs,
     isSWWarningAgreed,
     isRecipientAddressUnknownAgreed
