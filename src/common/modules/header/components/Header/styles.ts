@@ -6,7 +6,7 @@ import common from '@common/styles/utils/common'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
-const isTab = getUiType().isTab
+const { isTab, isNotification } = getUiType()
 
 export const HEADER_HEIGHT = Platform.select({
   web: 40 + (isTab ? SPACING_LG : SPACING) * 2,
@@ -30,7 +30,7 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: isTab ? SPACING_3XL : SPACING,
+      paddingHorizontal: isTab || isNotification ? SPACING_3XL : SPACING,
       backgroundColor: theme.secondaryBackground,
       ...spacings.pv,
       height: HEADER_HEIGHT

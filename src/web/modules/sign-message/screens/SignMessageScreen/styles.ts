@@ -1,13 +1,11 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   content: ViewStyle
-  title: TextStyle
   buttonsContainer: ViewStyle
   rejectButton: ViewStyle
   rejectButtonText: TextStyle

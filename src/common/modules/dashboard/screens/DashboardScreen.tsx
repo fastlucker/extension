@@ -90,7 +90,7 @@ const DashboardScreen = () => {
 
   if (!showView)
     return (
-      <View style={[flexbox.alignCenter]}>
+      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
         <Spinner />
       </View>
     )

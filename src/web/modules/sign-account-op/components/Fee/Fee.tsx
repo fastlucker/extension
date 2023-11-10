@@ -21,12 +21,14 @@ const Fee = ({ label, type, amount, onPress, style, isSelected }: Props) => {
     <FeeWrapper onPress={onPress} style={style} type={type} isSelected={isSelected}>
       <Text
         weight="medium"
+        fontSize={14}
         style={spacings.mbMi}
         color={isSelected ? theme.primary : theme.primaryText}
       >
         {label}
       </Text>
       <Text
+        fontSize={14}
         numberOfLines={1}
         weight="medium"
         color={isSelected ? theme.primary : theme.primaryText}

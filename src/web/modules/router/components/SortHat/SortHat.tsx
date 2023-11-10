@@ -39,8 +39,8 @@ const SortHat = () => {
     }
 
     if (isNotification && notificationState.currentNotificationRequest) {
-      if (notificationState.currentNotificationRequest?.screen === 'PermissionRequest') {
-        return navigate(ROUTES.permissionRequest)
+      if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
+        return navigate(ROUTES.dappConnectRequest)
       }
       if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
         if (
