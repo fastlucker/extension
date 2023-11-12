@@ -44,6 +44,10 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const initializeController = useCallback(async () => {
     if (!constants || !mainState.selectedAccount || !mainState.isReady) return
 
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+    })
+
     await dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
       params: {

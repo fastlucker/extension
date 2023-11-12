@@ -427,8 +427,6 @@ async function init() {
               return mainCtrl.transfer.update(data.params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET':
               return mainCtrl.transfer.reset()
-            case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
-              return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':

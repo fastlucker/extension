@@ -21,9 +21,9 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
+import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import AddressBookSection from '../../components/AddressBookSection'
-import SendForm from '../../components/SendForm/SendForm'
 import styles from './styles'
 
 const TransferScreen = () => {
@@ -64,6 +64,19 @@ const TransferScreen = () => {
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
   }, [dispatch])
+
+  useEffect(() => {
+    if (!state.userRequest) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+      params: state.userRequest
+    })
+
+    // Reinitialize the transfer ctrl after adding
+    // the user req to the main ctrl
+    initializeController()
+  }, [state.userRequest, dispatch, initializeController])
 
   return (
     <TabLayoutContainer
