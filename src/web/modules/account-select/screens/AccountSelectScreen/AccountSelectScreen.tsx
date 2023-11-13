@@ -30,6 +30,7 @@ import shortenAddress from '@web/utils/shortenAddress'
 import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { goBack } = useNavigation()
   const { control, watch } = useForm({
@@ -44,8 +45,6 @@ const AccountSelectScreen = () => {
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
-
-  const { t } = useTranslation()
 
   const accounts = useMemo(
     () =>
@@ -130,7 +129,7 @@ const AccountSelectScreen = () => {
                           // @TODO: replace with legacy account color
                           color={isSmartAccount(account) ? theme.successText : theme.warningText}
                         >
-                          {isSmartAccount(account) ? 'Smart Account' : 'Legacy Account'}
+                          {isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
                         </Text>
                       </View>
                     </View>
@@ -143,7 +142,7 @@ const AccountSelectScreen = () => {
                             numberOfLines={1}
                             color={colors.dodgerBlue}
                           >
-                            no key
+                            {t('no key')}
                           </Text>
                         </View>
                       )}
@@ -156,7 +155,7 @@ const AccountSelectScreen = () => {
                               numberOfLines={1}
                               color={colors.dodgerBlue}
                             >
-                              v1
+                              {t('v1')}
                             </Text>
                           </View>
                         )}
