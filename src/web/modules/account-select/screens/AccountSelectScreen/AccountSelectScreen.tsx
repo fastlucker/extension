@@ -136,18 +136,6 @@ const AccountSelectScreen = () => {
                       </View>
                     </View>
                     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                      {account.associatedKeys.length === 0 && (
-                        <View style={styles.blueLabel}>
-                          <Text
-                            weight="regular"
-                            fontSize={10}
-                            numberOfLines={1}
-                            color={colors.dodgerBlue}
-                          >
-                            view only
-                          </Text>
-                        </View>
-                      )}
                       {keystoreCtrl.keys.every((k) => !account.associatedKeys.includes(k.addr)) && (
                         <View style={styles.blueLabel}>
                           <Text
@@ -159,7 +147,7 @@ const AccountSelectScreen = () => {
                             no key
                           </Text>
                         </View>
-                      ) : null}
+                      )}
                       <CopyText
                         text={account.addr}
                         iconColor={theme.primaryText}
