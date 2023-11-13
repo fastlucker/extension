@@ -4,12 +4,14 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
+import { JsonRpcProvider } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks, { NETWORKS } from '@common/constants/networks'
+import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
@@ -85,7 +87,7 @@ export class ProviderController {
     } = req
 
     const networkId = this.getDappNetwork(origin).id
-    const provider = getProvider(networkId)
+    const provider: JsonRpcProvider = getProvider(networkId)
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
@@ -105,11 +107,12 @@ export class ProviderController {
       }
 
       if (fetchedTx) {
-        const response = provider._wrapTransaction(fetchedTx, params[0])
+        const response = provider._wrapTransactionResponse(fetchedTx, params[0])
         const txs = await storage.get('transactionHistory', {})
         if (txs[params[0]]) {
           const txn = JSON.parse(txs[params[0]])
           if (txn?.data) {
+            // @ts-ignore
             response.data = txn?.data
           }
         }
@@ -179,11 +182,14 @@ export class ProviderController {
       requestRes
     } = cloneDeep(options)
 
-    if (requestRes) {
+    if (requestRes?.hash) {
       const txnHistory = await storage.get('transactionHistory', {})
-      txnHistory[requestRes.hash || ''] = JSON.stringify(txParams)
+      txnHistory[requestRes.hash] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
-      return requestRes?.hash
+
+      // delay just for better UX
+      await delayPromise(500)
+      return requestRes.hash
     }
 
     throw new Error('Transaction failed!')
