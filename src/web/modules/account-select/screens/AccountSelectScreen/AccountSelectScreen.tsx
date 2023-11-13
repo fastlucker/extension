@@ -21,6 +21,7 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
@@ -41,6 +42,7 @@ const AccountSelectScreen = () => {
 
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
+  const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
 
   const { t } = useTranslation()
@@ -134,7 +136,19 @@ const AccountSelectScreen = () => {
                       </View>
                     </View>
                     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                      {account.associatedKeys.length === 0 ? (
+                      {account.associatedKeys.length === 0 && (
+                        <View style={styles.blueLabel}>
+                          <Text
+                            weight="regular"
+                            fontSize={10}
+                            numberOfLines={1}
+                            color={colors.dodgerBlue}
+                          >
+                            view only
+                          </Text>
+                        </View>
+                      )}
+                      {keystoreCtrl.keys.every((k) => !account.associatedKeys.includes(k.addr)) && (
                         <View style={styles.blueLabel}>
                           <Text
                             weight="regular"
