@@ -28,11 +28,19 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderWidth: 1,
       borderColor: theme.secondaryBorder,
-      ...common.borderRadiusPrimary,
-      ...flexbox.flex1
+      ...common.borderRadiusPrimary
     },
-    accountButtonRightIcon: { borderColor: 'transparent', ...common.borderRadiusPrimary },
-    accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
+    accountButtonRightIcon: {
+      borderColor: 'transparent',
+      ...common.borderRadiusPrimary,
+      ...spacings.mrTy
+    },
+    accountButtonInfo: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...flexbox.flex1,
+      ...spacings.mrMi
+    },
     accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
     accountButtonInfoText: { ...spacings.mlMi },
     accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mlTy },

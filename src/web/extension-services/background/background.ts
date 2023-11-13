@@ -347,6 +347,9 @@ async function init() {
                 )
               })
             }
+            case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
+              return mainCtrl.settings.addAccountPreferences(data.params)
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -373,6 +376,8 @@ async function init() {
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
+            case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
+              return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init({
                 messageToSign: data.params.messageToSign,

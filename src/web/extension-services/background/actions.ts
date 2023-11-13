@@ -5,6 +5,7 @@ import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -75,6 +76,10 @@ type MainControllerAddAccounts = {
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
 }
+type MainControllerSettingsAddAccountPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
+  params: AccountPreferences
+}
 
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
@@ -83,6 +88,9 @@ type MainControllerAddUserRequestAction = {
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
+}
+type MainControllerRefetchPortfolio = {
+  type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -276,11 +284,13 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
+  | MainControllerSettingsAddAccountPreferences
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
+  | MainControllerRefetchPortfolio
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction

@@ -1,7 +1,10 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
@@ -23,7 +26,14 @@ import {
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
+import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
+import {
+  BUILD_IN_AVATAR_ID_PREFIX,
+  buildInAvatars
+} from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -31,20 +41,55 @@ const AccountPersonalizeScreen = () => {
   const { stepperState, updateStepperState } = useStepper()
   const { params } = useRoute()
   const { theme } = useTheme()
-
-  const accounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const mainCtrl = useMainControllerState()
+  const { dispatch } = useBackgroundService()
+  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const prevAccountsCount = mainCtrl.accounts.length - newAccounts.length
+  const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
+    defaultValues: {
+      preferences: newAccounts.map((account, i) => ({
+        account,
+        label: `Account ${prevAccountsCount + (i + 1)}`,
+        pfp:
+          BUILD_IN_AVATAR_ID_PREFIX +
+          // Iterate from 1 up to the `buildInAvatars.length` and then - start all
+          // over again from the beginning (from 1).
+          ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
+      }))
+    }
+  })
+  const { fields } = useFieldArray({ control, name: 'preferences' })
+  const watchPreferences = watch('preferences')
 
   useEffect(() => {
-    if (!accounts) {
+    if (!newAccounts.length) {
       navigate('/')
     }
-  }, [navigate, accounts])
+  }, [navigate, newAccounts.length])
 
   useEffect(() => {
     if (!stepperState?.currentFlow) return
 
     updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
   }, [stepperState?.currentFlow, updateStepperState])
+
+  const handleSave = useCallback(
+    (data: AccountPersonalizeFormValues) => {
+      const newAccPreferences: AccountPreferences = {}
+
+      data.preferences.forEach(({ account, label, pfp }) => {
+        newAccPreferences[account.addr] = { label, pfp }
+      })
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
+        params: newAccPreferences
+      })
+
+      navigate('/')
+    },
+    [navigate, dispatch]
+  )
 
   return (
     <TabLayoutContainer
@@ -54,7 +99,7 @@ const AccountPersonalizeScreen = () => {
         <>
           <BackButton />
           <Button
-            onPress={() => navigate('/')}
+            onPress={handleSubmit(handleSave)}
             hasBottomSpacing={false}
             text={t('Save and Continue')}
           >
@@ -68,11 +113,15 @@ const AccountPersonalizeScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel title={t('Personalize Your Accounts')} style={{ maxHeight: '100%' }}>
           <Wrapper style={spacings.mb0} contentContainerStyle={[spacings.pl0, spacings.pt0]}>
-            {accounts.map((acc, i) => (
+            {fields.map((field, index) => (
               <AccountPersonalizeCard
-                key={acc.addr}
-                account={acc}
-                hasBottomSpacing={i !== accounts.length - 1}
+                key={field.id} // important to include key with field's id
+                control={control}
+                index={index}
+                isSmartAccount={isSmartAccount(field.account)}
+                pfp={watchPreferences[index].pfp}
+                address={field.account.addr}
+                hasBottomSpacing={index !== fields.length - 1}
               />
             ))}
           </Wrapper>
