@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Image, Pressable, View } from 'react-native'
 
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BackButton from '@common/components/BackButton'
@@ -30,6 +30,7 @@ import shortenAddress from '@web/utils/shortenAddress'
 import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { goBack } = useNavigation()
   const { control, watch } = useForm({
@@ -45,8 +46,6 @@ const AccountSelectScreen = () => {
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
 
-  const { t } = useTranslation()
-
   const accounts = useMemo(
     () =>
       mainCtrl.accounts.filter((account) => {
@@ -54,11 +53,10 @@ const AccountSelectScreen = () => {
 
         const doesAddressMatch = account.addr.toLowerCase().includes(searchValue.toLowerCase())
         const doesLabelMatch = account.label.toLowerCase().includes(searchValue.toLowerCase())
-        const isSmartAccount = !!account?.creation
         const doesSmartAccountMatch =
-          isSmartAccount && 'smart account'.includes(searchValue.toLowerCase())
+          isSmartAccount(account) && 'smart account'.includes(searchValue.toLowerCase())
         const doesLegacyAccountMatch =
-          !isSmartAccount && 'legacy account'.includes(searchValue.toLowerCase())
+          !isSmartAccount(account) && 'legacy account'.includes(searchValue.toLowerCase())
 
         return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesLegacyAccountMatch
       }),
@@ -123,15 +121,15 @@ const AccountSelectScreen = () => {
                             DEFAULT_ACCOUNT_LABEL}
                         </Text>
                       </View>
-                      <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
+                      <View style={isSmartAccount(account) ? styles.greenLabel : styles.greyLabel}>
                         <Text
                           weight="regular"
                           fontSize={10}
                           numberOfLines={1}
                           // @TODO: replace with legacy account color
-                          color={account.creation ? theme.successText : theme.warningText}
+                          color={isSmartAccount(account) ? theme.successText : theme.warningText}
                         >
-                          {account.creation ? 'Smart Account' : 'Legacy Account'}
+                          {isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
                         </Text>
                       </View>
                     </View>
@@ -144,10 +142,23 @@ const AccountSelectScreen = () => {
                             numberOfLines={1}
                             color={colors.dodgerBlue}
                           >
-                            no key
+                            {t('no key')}
                           </Text>
                         </View>
                       )}
+                      {isSmartAccount(account) &&
+                        isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+                          <View style={styles.blueLabel}>
+                            <Text
+                              weight="regular"
+                              fontSize={10}
+                              numberOfLines={1}
+                              color={colors.dodgerBlue}
+                            >
+                              {t('v1')}
+                            </Text>
+                          </View>
+                        )}
                       <CopyText
                         text={account.addr}
                         iconColor={theme.primaryText}
