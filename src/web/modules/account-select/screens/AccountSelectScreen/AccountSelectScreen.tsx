@@ -52,7 +52,9 @@ const AccountSelectScreen = () => {
         if (!searchValue) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(searchValue.toLowerCase())
-        const doesLabelMatch = account.label.toLowerCase().includes(searchValue.toLowerCase())
+        const accountPref = settingsCtrl.accountPreferences[account.addr]
+        const doesLabelMatch =
+          accountPref?.label && accountPref.label.toLowerCase().includes(searchValue.toLowerCase())
         const doesSmartAccountMatch =
           isSmartAccount(account) && 'smart account'.includes(searchValue.toLowerCase())
         const doesLegacyAccountMatch =
@@ -60,7 +62,7 @@ const AccountSelectScreen = () => {
 
         return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesLegacyAccountMatch
       }),
-    [mainCtrl.accounts, searchValue]
+    [mainCtrl.accounts, searchValue, settingsCtrl.accountPreferences]
   )
 
   const selectAccount = (addr: string) => {
