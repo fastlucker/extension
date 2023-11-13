@@ -36,6 +36,7 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
+import { nestedControllersOnUpdateHandlers } from './on-update-handlers'
 import { controllersNestedInMainMapping } from './types'
 
 async function init() {
@@ -181,6 +182,7 @@ async function init() {
 
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
+                nestedControllersOnUpdateHandlers(mainCtrl, ctrl)
                 Object.keys(portMessageUIRefs).forEach((key: string) => {
                   portMessageUIRefs[key]?.request({
                     type: 'broadcast',

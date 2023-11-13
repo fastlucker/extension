@@ -65,19 +65,6 @@ const TransferScreen = () => {
     })
   }, [dispatch])
 
-  useEffect(() => {
-    if (!state.userRequest) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-      params: state.userRequest
-    })
-
-    // Reinitialize the transfer ctrl after adding
-    // the user req to the main ctrl
-    initializeController()
-  }, [state.userRequest, dispatch, initializeController])
-
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -88,10 +75,10 @@ const TransferScreen = () => {
           <BackButton onPress={onBack} />
           <Button
             type="primary"
-            text={t('Send')}
+            text={state.userRequest ? t('Sending...') : t('Send')}
             onPress={sendTransaction}
             hasBottomSpacing={false}
-            disabled={!state.isFormValid}
+            disabled={!!state.userRequest || !state.isFormValid}
           >
             <View style={spacings.plTy}>
               <SendIcon width={20} color={colors.titan} />
