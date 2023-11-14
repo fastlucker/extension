@@ -158,7 +158,6 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                         Linking.openURL(`${explorerUrl}/address/${item.address}`)
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.explorerIcon}
                     >
                       <OpenIcon width={24} height={24} color={colors.martinique_80} />
                     </TouchableOpacity>
