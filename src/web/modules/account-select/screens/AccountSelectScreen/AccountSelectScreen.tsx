@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Image, Pressable, View } from 'react-native'
 
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
+import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BackButton from '@common/components/BackButton'
@@ -11,6 +11,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
+import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -20,12 +21,16 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { goBack } = useNavigation()
   const { control, watch } = useForm({
@@ -37,9 +42,9 @@ const AccountSelectScreen = () => {
   const searchValue = watch('search')
 
   const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
+  const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
-
-  const { t } = useTranslation()
 
   const accounts = useMemo(
     () =>
@@ -47,16 +52,17 @@ const AccountSelectScreen = () => {
         if (!searchValue) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(searchValue.toLowerCase())
-        const doesLabelMatch = account.label.toLowerCase().includes(searchValue.toLowerCase())
-        const isSmartAccount = !!account?.creation
+        const accountPref = settingsCtrl.accountPreferences[account.addr]
+        const doesLabelMatch =
+          accountPref?.label && accountPref.label.toLowerCase().includes(searchValue.toLowerCase())
         const doesSmartAccountMatch =
-          isSmartAccount && 'smart account'.includes(searchValue.toLowerCase())
+          isSmartAccount(account) && 'smart account'.includes(searchValue.toLowerCase())
         const doesLegacyAccountMatch =
-          !isSmartAccount && 'legacy account'.includes(searchValue.toLowerCase())
+          !isSmartAccount(account) && 'legacy account'.includes(searchValue.toLowerCase())
 
         return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesLegacyAccountMatch
       }),
-    [mainCtrl.accounts, searchValue]
+    [mainCtrl.accounts, searchValue, settingsCtrl.accountPreferences]
   )
 
   const selectAccount = (addr: string) => {
@@ -102,7 +108,9 @@ const AccountSelectScreen = () => {
                       <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
                         <Image
                           style={{ width: 32, height: 32, borderRadius: BORDER_RADIUS_PRIMARY }}
-                          source={avatarSpace}
+                          source={getAccountPfpSource(
+                            settingsCtrl.accountPreferences[account.addr]?.pfp
+                          )}
                           resizeMode="contain"
                         />
                       </View>
@@ -111,23 +119,24 @@ const AccountSelectScreen = () => {
                           {shortenAddress(account.addr, 25)}
                         </Text>
                         <Text appearance="secondaryText" fontSize={12} weight="semiBold">
-                          {t('Account label')}
+                          {settingsCtrl.accountPreferences[account.addr]?.label ||
+                            DEFAULT_ACCOUNT_LABEL}
                         </Text>
                       </View>
-                      <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
+                      <View style={isSmartAccount(account) ? styles.greenLabel : styles.greyLabel}>
                         <Text
                           weight="regular"
                           fontSize={10}
                           numberOfLines={1}
                           // @TODO: replace with legacy account color
-                          color={account.creation ? theme.successText : theme.warningText}
+                          color={isSmartAccount(account) ? theme.successText : theme.warningText}
                         >
-                          {account.creation ? 'Smart Account' : 'Legacy Account'}
+                          {isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
                         </Text>
                       </View>
                     </View>
                     <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                      {account.associatedKeys.length === 0 ? (
+                      {keystoreCtrl.keys.every((k) => !account.associatedKeys.includes(k.addr)) && (
                         <View style={styles.blueLabel}>
                           <Text
                             weight="regular"
@@ -135,10 +144,23 @@ const AccountSelectScreen = () => {
                             numberOfLines={1}
                             color={colors.dodgerBlue}
                           >
-                            no key
+                            {t('no key')}
                           </Text>
                         </View>
-                      ) : null}
+                      )}
+                      {isSmartAccount(account) &&
+                        isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+                          <View style={styles.blueLabel}>
+                            <Text
+                              weight="regular"
+                              fontSize={10}
+                              numberOfLines={1}
+                              color={colors.dodgerBlue}
+                            >
+                              {t('v1')}
+                            </Text>
+                          </View>
+                        )}
                       <CopyText
                         text={account.addr}
                         iconColor={theme.primaryText}

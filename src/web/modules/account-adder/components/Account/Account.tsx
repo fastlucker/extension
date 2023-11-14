@@ -81,7 +81,6 @@ const Account = ({
             </Text>
             {(!!unused || type === 'linked') && (
               <View style={[flexbox.directionRow]}>
-                {!!unused && <Badge text={t('unused')} />}
                 {type === 'linked' && (
                   <View
                     style={
@@ -111,6 +110,7 @@ const Account = ({
                 <Badge withIcon text={t('Smart Account')} type="success" />
               )}
             </Text>
+            {!!unused && <Badge text={t('unused')} />}
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text fontSize={12} weight="regular">

@@ -20,7 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1,
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
-      ...flexbox.wrap
+      ...flexbox.wrap,
+      ...spacings.plSm
     },
     body: {
       ...spacings.pSm

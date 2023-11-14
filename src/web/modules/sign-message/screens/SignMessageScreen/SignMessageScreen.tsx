@@ -48,12 +48,15 @@ const SignMessageScreen = () => {
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
-  const selectedAccountFull = mainState.accounts.find(
-    (acc) => acc.addr === mainState.selectedAccount
+  const selectedAccountFull = useMemo(
+    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
+    [mainState.accounts, mainState.selectedAccount]
   )
 
-  const selectedAccountKeyStoreKeys = keystoreState.keys.filter((key) =>
-    selectedAccountFull?.associatedKeys.includes(key.addr)
+  const selectedAccountKeyStoreKeys = useMemo(
+    () =>
+      keystoreState.keys.filter((key) => selectedAccountFull?.associatedKeys.includes(key.addr)),
+    [keystoreState.keys, selectedAccountFull?.associatedKeys]
   )
 
   const network = useMemo(
@@ -62,17 +65,26 @@ const SignMessageScreen = () => {
     [mainState.settings.networks, signMessageState.messageToSign?.networkId]
   )
 
-  const isViewOnly = selectedAccountKeyStoreKeys.length === 0
+  const isViewOnly = useMemo(
+    () => selectedAccountKeyStoreKeys.length === 0,
+    [selectedAccountKeyStoreKeys.length]
+  )
 
-  const visualizeHumanized =
-    signMessageState.humanReadable !== null &&
-    network &&
-    signMessageState.messageToSign?.content.kind
+  const visualizeHumanized = useMemo(
+    () =>
+      signMessageState.humanReadable !== null &&
+      network &&
+      signMessageState.messageToSign?.content.kind,
+    [network, signMessageState.humanReadable, signMessageState.messageToSign?.content?.kind]
+  )
 
-  const isScrollToBottomForced =
-    signMessageState.messageToSign?.content.kind === 'typedMessage' &&
-    !hasReachedBottom &&
-    !visualizeHumanized
+  const isScrollToBottomForced = useMemo(
+    () =>
+      signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+      !hasReachedBottom &&
+      !visualizeHumanized,
+    [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
+  )
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -222,14 +234,7 @@ const SignMessageScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={
-        <Header
-          networkId={networkData?.id}
-          networkName={networkData?.name}
-          selectedAccountAddr={selectedAccountFull?.addr}
-          selectedAccountLabel={selectedAccountFull?.label}
-        />
-      }
+      header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
       footer={
         <View style={styles.buttonsContainer}>
           <Button
@@ -249,7 +254,7 @@ const SignMessageScreen = () => {
           ) : null}
           {isViewOnly ? (
             <Text appearance="errorText" weight="medium">
-              {t("You can't sign messages with view only accounts.")}
+              {t("You can't sign messages with view-only accounts.")}
             </Text>
           ) : null}
           <View style={styles.signButtonContainer}>
@@ -272,30 +277,32 @@ const SignMessageScreen = () => {
         </View>
       }
     >
-      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pvXl}>
-        <Text weight="medium" fontSize={20} style={styles.title}>
-          {t('Sign message')}
-        </Text>
-        <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
-        {visualizeHumanized &&
-        // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
-        signMessageState.humanReadable &&
-        signMessageState.messageToSign?.content.kind ? (
-          <MessageSummary
-            message={signMessageState.humanReadable}
-            networkId={network?.id}
-            explorerUrl={network?.explorerUrl}
-            kind={signMessageState.messageToSign?.content.kind}
-          />
-        ) : (
-          <FallbackVisualization
-            setHasReachedBottom={setHasReachedBottom}
-            messageToSign={signMessageState.messageToSign}
-          />
-        )}
-        {isChooseSignerShown ? (
-          <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
-        ) : null}
+      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+        <View style={flexbox.flex1}>
+          <Text weight="medium" fontSize={20}>
+            {t('Sign message')}
+          </Text>
+          <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          {visualizeHumanized &&
+          // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+          signMessageState.humanReadable &&
+          signMessageState.messageToSign?.content.kind ? (
+            <MessageSummary
+              message={signMessageState.humanReadable}
+              networkId={network?.id}
+              explorerUrl={network?.explorerUrl}
+              kind={signMessageState.messageToSign?.content.kind}
+            />
+          ) : (
+            <FallbackVisualization
+              setHasReachedBottom={setHasReachedBottom}
+              messageToSign={signMessageState.messageToSign}
+            />
+          )}
+          {isChooseSignerShown ? (
+            <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
+          ) : null}
+        </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

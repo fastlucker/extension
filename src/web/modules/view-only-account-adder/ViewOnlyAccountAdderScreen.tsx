@@ -27,7 +27,6 @@ import {
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
@@ -50,8 +49,6 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
-  const accountAdderState = useAccountAdderControllerState()
-  const isLoading = accountAdderState.addAccountsStatus === 'LOADING'
   const { t } = useTranslation()
   const { theme } = useTheme()
   const {
@@ -74,21 +71,6 @@ const ViewOnlyScreen = () => {
 
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
-  useEffect(() => {
-    if (!mainControllerState.isReady) return
-    if (accountAdderState.isInitialized) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
-    })
-  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady])
-
-  useEffect(() => {
-    return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-    }
-  }, [dispatch])
-
   const handleFormSubmit = useCallback(async () => {
     // wait state update before Wallet calcs because
     // when Wallet method is called on devices with slow CPU the UI freezes
@@ -99,9 +81,9 @@ const ViewOnlyScreen = () => {
         `https://staging-relayer.ambire.com/v2/identity/${account.address}`
       )
 
-      const accountIdentity = accountIdentityResponse?.body
+      const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
-
+      let associatedKeys = [account.address]
       if (
         typeof accountIdentity === 'object' &&
         accountIdentity !== null &&
@@ -119,11 +101,15 @@ const ViewOnlyScreen = () => {
         }
       }
 
+      if (accountIdentity && accountIdentity?.associatedKeys) {
+        associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
+      }
+
       return {
         addr: account.address,
         label: '',
         pfp: '',
-        associatedKeys: [],
+        associatedKeys,
         creation
       }
     })
@@ -166,9 +152,9 @@ const ViewOnlyScreen = () => {
           <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
-            disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}
+            disabled={!isValid || duplicateAccountsIndexes.length > 0}
             hasBottomSpacing={false}
-            text={isLoading ? t('Loading...') : t('Import View-Only Accounts')}
+            text={t('Import View-Only Accounts')}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>

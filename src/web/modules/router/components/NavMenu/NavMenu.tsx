@@ -39,7 +39,11 @@ const NavMenu = () => {
   ]
 
   return (
-    <TabLayoutContainer footer={<BackButton />} header={<Header />}>
+    <TabLayoutContainer
+      hideFooterInPopup
+      footer={<BackButton />}
+      header={<Header withPopupBackButton />}
+    >
       <TabLayoutWrapperMainContent>
         <View style={commonWebStyles.contentContainer}>
           {menu.map(({ Icon, name, route }) => {

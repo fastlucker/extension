@@ -170,7 +170,7 @@ class UserNotification {
         kind: 'call',
         ...{
           ...txn,
-          value: getBigInt(txn.value)
+          value: txn.value ? getBigInt(txn.value) : 0n
         }
       },
       networkId: network.id,
