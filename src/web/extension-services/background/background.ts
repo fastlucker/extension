@@ -122,7 +122,6 @@ async function init() {
   // Call it once to initialize the interval
   setPortfolioFetchInterval()
 
-  let isActivityOnUpdateCallbackSet = false
   let activityIntervalId: any
   function setActivityInterval(timeout: number) {
     clearInterval(activityIntervalId) // Clear existing interval
@@ -172,6 +171,19 @@ async function init() {
             if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
             ctrlOnUpdateIsDirtyFlags[ctrl] = true
 
+            if (ctrl === 'activity') {
+              // Start the interval for updating the accounts ops statuses,
+              // only if there are broadcasted but not confirmed accounts ops
+              if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
+                // If the interval is already set, then do nothing.
+                if (!activityIntervalId) {
+                  setActivityInterval(5000)
+                }
+              } else {
+                clearInterval(activityIntervalId)
+              }
+            }
+
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
                 Object.keys(portMessageUIRefs).forEach((key: string) => {
@@ -204,26 +216,6 @@ async function init() {
 
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
-    }
-
-    // Attach the callback, only if ActivityController is already defined in MainController
-    if (mainCtrl.isReady && mainCtrl.activity) {
-      // Attach the callback only once
-      !isActivityOnUpdateCallbackSet &&
-        mainCtrl.activity.onUpdate(() => {
-          isActivityOnUpdateCallbackSet = true
-
-          // Start the interval for updating the accounts ops statuses,
-          // only if there are broadcasted but not confirmed accounts ops
-          if (mainCtrl.activity.broadcastedButNotConfirmed.length) {
-            // If the interval is already set, then do nothing.
-            if (!activityIntervalId) {
-              setActivityInterval(5000)
-            }
-          } else {
-            clearInterval(activityIntervalId)
-          }
-        })
     }
   })
   mainCtrl.onError(() => {
