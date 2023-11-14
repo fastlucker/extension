@@ -4,18 +4,21 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import { JsonRpcProvider } from 'ethers'
+import { JsonRpcProvider, Network } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks, { NETWORKS } from '@common/constants/networks'
+import {networks as commonNetworks} from '@ambire-common/consts/networks'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
+import bundler from '@ambire-common/services/bundlers'
 
 interface RequestRes {
   type?: string
@@ -183,13 +186,27 @@ export class ProviderController {
     } = cloneDeep(options)
 
     if (requestRes?.hash) {
+      // @erc4337
+      // check if the request is erc4337
+      // if it is, the received requestRes?.hash is an userOperationHash
+      // Call the bundler to receive the transaction hash needed by the dapp
+      const dappNetwork = this.getDappNetwork(options.session.origin)
+      const network = commonNetworks.filter(net => net.id == dappNetwork.id)[0]
+      const account = this.mainCtrl.accounts.filter(acc => acc.addr == this.mainCtrl.selectedAccount)[0]
+      const is4337Broadcast = isErc4337Broadcast(network, account)
+      let hash = requestRes?.hash
+      if (is4337Broadcast) {
+        const receipt = await bundler.poll(hash, network)
+        hash = receipt.receipt.transactionHash
+      }
+
       const txnHistory = await storage.get('transactionHistory', {})
-      txnHistory[requestRes.hash] = JSON.stringify(txParams)
+      txnHistory[hash] = JSON.stringify(txParams)
       await storage.set('transactionHistory', txnHistory)
 
       // delay just for better UX
       await delayPromise(500)
-      return requestRes.hash
+      return hash
     }
 
     throw new Error('Transaction failed!')
