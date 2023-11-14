@@ -40,6 +40,15 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     return selectedTokenFromUrl
   }, [selectedTokenFromUrl, tokens])
 
+  // Reset on mount and not on unmount to
+  // prevent resetting the form if there are 2 instances
+  // of Transfer opened and the user closes one of them
+  useEffect(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+    })
+  }, [dispatch])
+
   useEffect(() => {
     if (!constants) return
     dispatch({

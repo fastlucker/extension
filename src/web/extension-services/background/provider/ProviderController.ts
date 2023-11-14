@@ -182,6 +182,8 @@ export class ProviderController {
       requestRes
     } = cloneDeep(options)
 
+    console.log('txParams', txParams)
+
     if (requestRes?.hash) {
       const txnHistory = await storage.get('transactionHistory', {})
       txnHistory[requestRes.hash] = JSON.stringify(txParams)

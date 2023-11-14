@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -34,26 +34,12 @@ const TransferScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
-  const handleReset = useCallback(
-    () =>
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-      }),
-    [dispatch]
-  )
-
   const onBack = useCallback(() => {
-    handleReset()
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate, handleReset])
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleReset)
-    return () => {
-      window.removeEventListener('beforeunload', handleReset)
-      handleReset()
-    }
-  }, [handleReset])
+  }, [navigate, dispatch])
 
   const sendTransaction = useCallback(async () => {
     await dispatch({
