@@ -119,7 +119,7 @@ type MainControllerActivityResetAction = {
 }
 
 type MainControllerTransferResetAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+  type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
 }
 
 type MainControllerTransferBuildUserRequestAction = {

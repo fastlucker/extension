@@ -5,7 +5,7 @@ import { controllersMapping } from './types'
 const transferCtrlHandler = (mainCtrl: MainController) => {
   if (mainCtrl.transfer.userRequest) {
     mainCtrl.addUserRequest(mainCtrl.transfer.userRequest)
-    mainCtrl.transfer.reset()
+    mainCtrl.transfer.resetForm()
   }
 }
 

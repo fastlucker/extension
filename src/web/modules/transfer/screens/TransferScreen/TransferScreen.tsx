@@ -28,20 +28,16 @@ import styles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
-  const { state, initializeController } = useTransferControllerState()
+  const { state } = useTransferControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
 
-  useEffect(() => {
-    initializeController()
-  }, [initializeController])
-
   const handleReset = useCallback(
     () =>
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET'
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
       }),
     [dispatch]
   )
