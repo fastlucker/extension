@@ -124,18 +124,10 @@ async function init() {
   setPortfolioFetchInterval()
 
   let activityIntervalId: any
-  function setActivityInterval() {
+  function setActivityInterval(timeout: number) {
     clearInterval(activityIntervalId) // Clear existing interval
-    activityIntervalId = setInterval(
-      () => mainCtrl.updateAccountsOpsStatuses(),
-      // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently (10 seconds).
-      // Otherwise, when inactive we want to run it once in a while (5 minutes).
-      Object.keys(portMessageUIRefs).length ? 10000 : 300000
-    )
+    activityIntervalId = setInterval(() => mainCtrl.updateAccountsOpsStatuses(), timeout)
   }
-  // Call it once to initialize the interval
-  setActivityInterval()
 
   /**
    * Init all controllers `onUpdate` listeners only once (in here), instead of
@@ -179,6 +171,19 @@ async function init() {
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
             if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
             ctrlOnUpdateIsDirtyFlags[ctrl] = true
+
+            if (ctrl === 'activity') {
+              // Start the interval for updating the accounts ops statuses,
+              // only if there are broadcasted but not confirmed accounts ops
+              if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
+                // If the interval is already set, then do nothing.
+                if (!activityIntervalId) {
+                  setActivityInterval(5000)
+                }
+              } else {
+                clearInterval(activityIntervalId)
+              }
+            }
 
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
@@ -266,7 +271,6 @@ async function init() {
       const pm = new PortMessage(port, id)
       portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
-      setActivityInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -570,7 +574,6 @@ async function init() {
       port.onDisconnect.addListener(() => {
         delete portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
-        setActivityInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
