@@ -128,7 +128,7 @@ const ExternalSignerLoginScreen = () => {
             hasBottomSpacing={false}
             onPress={handleFormSubmit}
             disabled={!isValid}
-            testID='button-ext-signer-login-screen'
+            testID='button-ext-signer-login-screen888'
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />

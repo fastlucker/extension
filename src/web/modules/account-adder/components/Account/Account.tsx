@@ -56,6 +56,8 @@ const Account = ({
     >
       <View style={styles.container}>
         <Checkbox
+                    testID ='account-checkbox1'
+
           style={{ marginBottom: 0 }}
           value={isSelected}
           onValueChange={toggleSelectedState}
@@ -66,6 +68,7 @@ const Account = ({
         <View style={[flexbox.flex1]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
             <Text
+            testID ='account-checkbox'
               fontSize={16}
               appearance="primaryText"
               style={[flexbox.flex1]}
