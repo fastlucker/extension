@@ -32,7 +32,6 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
-import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
@@ -71,18 +70,16 @@ const AppInit = () => {
                                           <NetInfoProvider>
                                             <ToastProvider>
                                               <ConstantsProvider>
-                                                <TransferControllerStateProvider>
-                                                  <AuthProvider>
-                                                    <ExtensionProvider>
-                                                      <BiometricsProvider>
-                                                        <PrivateModeProvider>
-                                                          <AppRouter />
-                                                        </PrivateModeProvider>
-                                                        <PortalHost name="global" />
-                                                      </BiometricsProvider>
-                                                    </ExtensionProvider>
-                                                  </AuthProvider>
-                                                </TransferControllerStateProvider>
+                                                <AuthProvider>
+                                                  <ExtensionProvider>
+                                                    <BiometricsProvider>
+                                                      <PrivateModeProvider>
+                                                        <AppRouter />
+                                                      </PrivateModeProvider>
+                                                      <PortalHost name="global" />
+                                                    </BiometricsProvider>
+                                                  </ExtensionProvider>
+                                                </AuthProvider>
                                               </ConstantsProvider>
                                             </ToastProvider>
                                           </NetInfoProvider>
