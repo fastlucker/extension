@@ -36,6 +36,7 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
+import { nestedControllersOnUpdateHandlers } from './on-update-handlers'
 import { controllersNestedInMainMapping } from './types'
 
 async function init() {
@@ -181,6 +182,7 @@ async function init() {
 
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
+                nestedControllersOnUpdateHandlers(mainCtrl, ctrl)
                 Object.keys(portMessageUIRefs).forEach((key: string) => {
                   portMessageUIRefs[key]?.request({
                     type: 'broadcast',
@@ -425,8 +427,6 @@ async function init() {
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
-            case 'MAIN_CONTROLLER_TRANSFER_RESET':
-              return mainCtrl.transfer.reset()
             case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
               return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':

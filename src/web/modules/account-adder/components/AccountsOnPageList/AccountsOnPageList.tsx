@@ -118,7 +118,7 @@ const AccountsList = ({
           account={acc.account}
           type={setType(acc)}
           isLastInSlot={i === accounts.length - 1}
-          unused={!acc.account.creation && !acc.account.usedOnNetworks.length}
+          unused={!acc.account.usedOnNetworks.length}
           isSelected={isSelected || isPreselected}
           isDisabled={isPreselected}
           onSelect={handleSelectAccount}
