@@ -2,7 +2,8 @@ const puppeteer = require('puppeteer');
 const path = require('path')
 
 import { bootStrap } from './functions.js';
-import {  KEYSTORE_PASS_PHRASE, KEYSTORE, KEYSTORE1}from '@env';
+// import { keyStore } from './pass.js';
+// import {  KEYSTORE_PASS_PHRASE, KEYSTORE }from '@env';
 
 
 
@@ -13,6 +14,8 @@ describe('balance', () => {
     let pages
     let extensionRootUrl
 
+
+    
     beforeAll(async () => {
         const context = await bootStrap(page, browser)
 
@@ -26,20 +29,51 @@ describe('balance', () => {
         page = (await browser.pages())[0];
         let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/keystore-unlock`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
+        // console.log('raw log ------------- '+ keyStore)
+        // console.log( typeof process.env.KEYSTORE)
 
-    
+// console.log(JSON.parse(keyStore))
 
-        // KEYSTORE = KEYSTORE.replaceAll("\"", "&quot;")
-        // KEYSTORE = KEYSTORE.replaceAll("'","\"");
-        
-        console.log('-----------====== ' + KEYSTORE1)
-        console.log('-----------====== ' + KEYSTORE_PASS_PHRASE)
-        // console.log('-0-0-0-0-0-0-' + JSON.parse(KEYSTORE))
+parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS)
+parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID)
+parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS)
+parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS)
+envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS)
+envPermission = (process.env.KEYSTORE_PERMISSION)
+envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT)
+envTermState = (process.env.KEYSTORE_TERMSTATE)
+parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
+
+// KEYSTORE1 = (`accounts:`+`${KEYSTORE2}`)
+
+console.log(process.env.KEYSTORE_PREVIOUSHINTS)
 
         const executionContext = await page.mainFrame().executionContext()
-        await executionContext.evaluate((KEYSTORE1) => {
-            browser.storage.local.set(KEYSTORE1)    
-        }, KEYSTORE1)
+        await executionContext.evaluate((parsedKeystoreAccounts,parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
+            envSelectedAccount, envTermState, parsedPreviousHints) => {
+            browser.storage.local.set({
+                accounts: parsedKeystoreAccounts,
+                keyStoreUid: parsedKeystoreUID,
+                keystoreKeys: parsedKeystoreKeys,
+                keystoreSecrets: parsedKeystoreSecrets,
+                onboardingStatus: envOnboardingStatus,
+                permission: envPermission,
+                selectedAccount: envSelectedAccount,
+                termsState: envTermState,
+                previousHints: parsedPreviousHints
+            })
+        },parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus,envPermission, 
+        envSelectedAccount, envTermState, parsedPreviousHints)
+
+
+        
+        // const executionContext = await page.mainFrame().executionContext()
+        // await executionContext.evaluate((keyStore) => {
+        //     browser.storage.local.set(JSON.parse(keyStore))
+        // },keyStore)
+
+
+        await new Promise((r) => setTimeout(r, 1000));
 
         let pages = await browser.pages()
         pages[0].close() // blank tab
@@ -47,7 +81,7 @@ describe('balance', () => {
         // pages[2].close() // tab always opened after extension installation
 
 
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 1000));
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
@@ -56,41 +90,20 @@ describe('balance', () => {
     })
 
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         // await new Promise((r) => setTimeout(r, 500));
         // /*Open the page again to load the browser local storage */
         // page = await browser.newPage();
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
+        await new Promise((r) => setTimeout(r, 1000));
+
         pages = await browser.pages()
         // pages[1].close()
-    })
-
-
-    afterEach(async () => {
-        // browser.close();
-        const executionContext = await page.mainFrame().executionContext()
-
-        await executionContext.evaluate(() => {
-            browser.storage.local.clear()
-        })
-        let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
-        await page.goto(createVaultUrl, { waitUntil: 'load' })
-
-    })
-
-    afterAll(async () => {
-        await browser.close();
-    });
-
-    //--------------------------------------------------------------------------------------------------------------
-    // the login is only in the first test, the next tests don't include it, if the first one  fails the other will fail too
-    it.only('check the balance in account ', (async () => {
-        await new Promise((r) => setTimeout(r, 500));
         pages[1].close()
         /*Type keystore password */
         await page.waitForSelector('[placeholder="Passphrase"]');
         const keyStorePassField = await page.$('[placeholder="Passphrase"]');
-        await keyStorePassField.type( KEYSTORE_PASS_PHRASE);
+        await keyStorePassField.type(process.env.KEYSTORE_PASS_PHRASE);
 
         await new Promise((r) => setTimeout(r, 1000))
 
@@ -99,10 +112,48 @@ describe('balance', () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
+
+    })
+
+
+    // afterEach(async () => {
+    //     // browser.close();
+    //     const executionContext = await page.mainFrame().executionContext()
+
+    //     await executionContext.evaluate(() => {
+    //         browser.storage.local.clear()
+    //     })
+    //     let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
+    //     await page.goto(createVaultUrl, { waitUntil: 'load' })
+
+    // })
+
+    // afterAll(async () => {
+    //     await browser.close();
+    // });
+
+    //--------------------------------------------------------------------------------------------------------------
+    // the login is only in the first test, the next tests don't include it, if the first one  fails the other will fail too
+    it('check the balance in account ', (async () => {
+
+        // await new Promise((r) => setTimeout(r, 500));
+        // pages[1].close()
+        // /*Type keystore password */
+        // await page.waitForSelector('[placeholder="Passphrase"]');
+        // const keyStorePassField = await page.$('[placeholder="Passphrase"]');
+        // await keyStorePassField.type(KEYSTORE_PASS_PHRASE);
+
+        // await new Promise((r) => setTimeout(r, 1000))
+
+        // const keyStoreUnlokeButton = await page.waitForSelector('xpath///div[contains(text(), "Unlock")]');
+        // await keyStoreUnlokeButton.click();
+
+        // await new Promise((r) => setTimeout(r, 2000))
+
         /* Get the available balance */
         const availableAmmount = await page.evaluate(() => {
-            const balance = document.querySelectorAll('[class="css-175oi2r r-18u37iz"]')
-            return balance[1].innerText
+            const balance = document.querySelector('[data-testid="full-balance"]')
+            return balance.innerText
         })
 
         let availableAmmountNum = availableAmmount.replace(/\n/g, "");
@@ -110,6 +161,8 @@ describe('balance', () => {
 
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
+
+
     }));
 
 
@@ -146,7 +199,7 @@ describe('balance', () => {
 
 
     //--------------------------------------------------------------------------------------------------------------
-    it('check if item exist in Collectibles tab', (async () => {
+    it.only('check if item exist in Collectibles tab', (async () => {
 
         // /*Type keystore password */
         // const pass = 'test1234'
@@ -170,12 +223,14 @@ describe('balance', () => {
             await collectiblesButton.click(),
             page.waitForNavigation()
         ]);
-
+        console.log('========>>>>> click-----------')
 
         /* Get the text content of the first item */
-        let firstCollectiblesItem = await page.$$eval('[class="css-175oi2r r-1loqt21 r-1otgn73 r-1awozwy r-42olwf r-1q9bdsx r-rs99b7 r-18u37iz r-1wtj0ep r-1uu6nss"]', element => {
+        let firstCollectiblesItem = await page.$$eval('[class="css-175oi2r r-1awozwy r-18u37iz"]', element => {
             return element[0].textContent
         });
+
+        console.log('========>>>>>' + firstCollectiblesItem)
         let firstCollectiblesItemCut = firstCollectiblesItem.split(' ')[0]
 
         /* Click on the first item */

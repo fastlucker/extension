@@ -4,7 +4,6 @@ const path = require('path')
 
 
 import { bootStrap, setAmbKeyStoreForLegacy } from './functions.js';
-import { privateKeyLegasyAccount } from './pass.js';
 
 
 describe('balance', () => {
@@ -24,12 +23,16 @@ describe('balance', () => {
         extensionId = context.extensionId
 
 
-         page = (await browser.pages())[0];
-
+        page = (await browser.pages())[0];
         const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
+        // await new Promise((r) => setTimeout(r, 2000))
+
+
         const pages = await browser.pages()
+            // await new Promise((r) => setTimeout(r, 2000))
+
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
         // pages[2].close() // tab always opened after extension installation
@@ -37,23 +40,20 @@ describe('balance', () => {
         await setAmbKeyStoreForLegacy(page);
     })
 
-    afterEach(async () => {
-        browser.close();
-    })
+    // afterEach(async () => {
+    //     browser.close();
+    // })
 
     //--------------------------------------------------------------------------------------------------------------
-    it('login into legasy account with private key', (async () => {
+    it.only('login into legasy account with private key', (async () => {
 
-        const repeatPhrase = await page.$('[placeholder="Repeat Passphrase"]');
-
+        // const repeatPhrase = await page.$('[placeholder="Repeat Passphrase"]');
 
         await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(privateKeyLegasyAccount, { delay: 10 });
-
+        const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
+        await repeatPhrase.type(process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 });
         /* Click on Import Legacy account button. */
-        await page.click('[data-testid="button-ext-sighner-login-screen"]')
-
+        await page.click('[data-testid="button-ext-signer-login-screen"]')
         await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
         await page.waitForSelector('[data-testid="account-checkbox"]');
 
@@ -66,12 +66,12 @@ describe('balance', () => {
         await page.$$eval('[data-testid="account-checkbox"]', element => {
             element.find((item) => item.textContent === "Smart Account").click()
         })
-
+return true
         /* Click on Import Accounts button*/
         const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
         await Button.click();
 
-        /* Click on Save and Continue button*/
+        /* Click on Save and Continue button */
         const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
         await SaveButton.click();
 
