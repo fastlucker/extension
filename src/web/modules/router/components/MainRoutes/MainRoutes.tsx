@@ -5,6 +5,7 @@ import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
@@ -71,7 +72,14 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
           <Route element={<PrivateRoute />}>
-            <Route path={WEB_ROUTES.transfer} element={<TransferScreen />} />
+            <Route
+              path={WEB_ROUTES.transfer}
+              element={
+                <TransferControllerStateProvider>
+                  <TransferScreen />
+                </TransferControllerStateProvider>
+              }
+            />
             <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsScreen />} />
           </Route>
