@@ -4,7 +4,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 import { intToHex } from 'ethereumjs-util'
-import { JsonRpcProvider, Network } from 'ethers'
+import { JsonRpcProvider } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { MainController } from '@ambire-common/controllers/main/main'
