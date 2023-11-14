@@ -206,7 +206,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
         </View>
       )
     },
-    [networkId, explorerUrl, styles.explorerIcon, t]
+    [networkId, explorerUrl, t]
   )
 
   return (
