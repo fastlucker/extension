@@ -151,17 +151,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
             params: { keys: keysToAddToKeystore }
           })
-
-          const keyPreferencesToAdd = accountAdderState.selectedAccounts.map((acc) => ({
-            addr: acc.account.addr,
-            type: 'internal',
-            label: `${keyLabel} for the account on slot ${acc.slot}`
-          }))
-
-          dispatch({
-            type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
-            params: keyPreferencesToAdd
-          })
         } catch (error: any) {
           console.error(error)
           // TODO: display error toast
@@ -175,20 +164,23 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
           params: { keyType }
         })
-
-        const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
-          ({ accountKeyAddr, slot }) => ({
-            addr: accountKeyAddr,
-            type: keyType,
-            label: `${HARDWARE_WALLET_DEVICE_NAMES[keyType]} on slot ${slot}`
-          })
-        )
-
-        dispatch({
-          type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
-          params: keyPreferencesToAdd
-        })
       }
+
+      const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+        ({ accountKeyAddr, slot }) => ({
+          addr: accountKeyAddr,
+          type: keyType,
+          label:
+            keyType === 'internal'
+              ? `${keyLabel} for the account on slot ${slot}`
+              : `${HARDWARE_WALLET_DEVICE_NAMES[keyType]} on slot ${slot}`
+        })
+      )
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+        params: keyPreferencesToAdd
+      })
     }
   }, [
     accountAdderState.addAccountsStatus,
