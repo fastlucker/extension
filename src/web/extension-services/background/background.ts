@@ -266,6 +266,7 @@ async function init() {
                 }
               } else {
                 clearInterval(activityIntervalId)
+                activityIntervalId = null
               }
             }
 

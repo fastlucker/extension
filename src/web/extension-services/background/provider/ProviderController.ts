@@ -15,7 +15,6 @@ import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import { storage } from '@web/extension-services/background/webapi/storage'
 
 interface RequestRes {
   type?: string
@@ -93,36 +92,6 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
-    // therefore we override the data stored on the blockchain with the original one
-    if (method === 'eth_getTransactionByHash') {
-      let fetchedTx = null
-      let failed = 0
-      while (fetchedTx === null && failed < 3) {
-        fetchedTx = await provider.getTransaction(params[0])
-        if (fetchedTx === null) {
-          await new Promise((r) => setTimeout(r, 1500))
-          failed++
-        }
-      }
-
-      if (fetchedTx) {
-        const response = provider._wrapTransactionResponse(fetchedTx, params[0])
-        const txs = await storage.get('transactionHistory', {})
-        if (txs[params[0]]) {
-          const txn = JSON.parse(txs[params[0]])
-          if (txn?.data) {
-            // @ts-ignore
-            response.data = txn?.data
-          }
-        }
-
-        return response
-      }
-
-      return provider.getTransaction(params[0])
-    }
-
     return provider.send(method, params)
   }
 
@@ -175,20 +144,11 @@ export class ProviderController {
   }) => {
     if (options.pushed) return options.result
 
-    const {
-      data: {
-        params: [txParams]
-      },
-      requestRes
-    } = cloneDeep(options)
+    const { requestRes } = cloneDeep(options)
 
     if (requestRes?.hash) {
-      const txnHistory = await storage.get('transactionHistory', {})
-      txnHistory[requestRes.hash] = JSON.stringify(txParams)
-      await storage.set('transactionHistory', txnHistory)
-
       // delay just for better UX
-      await delayPromise(500)
+      await delayPromise(400)
       return requestRes.hash
     }
 

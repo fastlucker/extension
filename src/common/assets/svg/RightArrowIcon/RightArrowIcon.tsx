@@ -6,12 +6,14 @@ import { iconColors } from '@common/styles/themeConfig'
 interface Props extends SvgProps {
   width?: number
   height?: number
+  weight?: string
 }
 
 const RightArrowIcon: React.FC<Props> = ({
   width = 8,
   height = 15,
   color = iconColors.primary,
+  weight = '1.5',
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 8.467 14.879" {...rest}>
@@ -21,7 +23,7 @@ const RightArrowIcon: React.FC<Props> = ({
       fill="none"
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={weight}
     />
   </Svg>
 )
