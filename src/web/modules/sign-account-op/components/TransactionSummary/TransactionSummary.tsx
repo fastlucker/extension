@@ -142,13 +142,15 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
 
             if (item.type === 'address')
               return (
-                <Text
-                  key={Number(item.id) || i}
-                  fontSize={16}
-                  weight="medium"
-                  color={colors.martinique}
-                >
-                  {` ${item.name ? item.name : item.address} `}
+                <>
+                  <Text
+                    key={Number(item.id) || i}
+                    fontSize={16}
+                    weight="medium"
+                    color={colors.martinique}
+                  >
+                    {` ${item.name ? item.name : item.address} `}
+                  </Text>
                   {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
                       disabled={!explorerUrl}
@@ -156,12 +158,11 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                         Linking.openURL(`${explorerUrl}/address/${item.address}`)
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.explorerIcon}
                     >
-                      <OpenIcon width={20} height={20} color={colors.martinique_80} />
+                      <OpenIcon width={24} height={24} color={colors.martinique_80} />
                     </TouchableOpacity>
                   )}
-                </Text>
+                </>
               )
 
             if (item.type === 'nft') {
@@ -205,7 +206,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
         </View>
       )
     },
-    [networkId, explorerUrl, styles.explorerIcon, t]
+    [networkId, explorerUrl, t]
   )
 
   return (
