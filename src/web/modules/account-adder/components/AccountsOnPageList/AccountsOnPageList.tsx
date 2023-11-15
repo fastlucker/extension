@@ -63,7 +63,11 @@ const AccountsList = ({
   }
 
   const handleLargePageStepDecrement = () => {
-    setPage(state.page - LARGE_PAGE_STEP)
+    if (state.page <= LARGE_PAGE_STEP) {
+      setPage(1)
+    } else {
+      setPage(state.page - LARGE_PAGE_STEP)
+    }
   }
 
   const handleLargePageStepIncrement = () => {
@@ -200,11 +204,8 @@ const AccountsList = ({
         <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
           <TouchableOpacity
             onPress={handleLargePageStepDecrement}
-            disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
-            style={[
-              spacings.mrLg,
-              state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.4 }
-            ]}
+            disabled={state.page === 1 || disablePagination}
+            style={[spacings.mrLg, (state.page === 1 || disablePagination) && { opacity: 0.4 }]}
           >
             <View style={flexbox.directionRow}>
               <LeftArrowIcon />
