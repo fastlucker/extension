@@ -38,6 +38,7 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
+import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -147,7 +148,6 @@ async function init() {
   }
 
   function setAccountStateInterval(intervalLength: number) {
-    console.log(`setting the account state interval to ${intervalLength}`)
     clearInterval(accountStateInternval)
     selectedAccountStateInterval = intervalLength
 
@@ -156,7 +156,7 @@ async function init() {
         // update the account state with the latest block in normal
         // circumstances and with the pending block when there are
         // pending account ops
-        const blockTag = selectedAccountStateInterval == accountStateIntervals.standBy
+        const blockTag = selectedAccountStateInterval === accountStateIntervals.standBy
           ? 'latest'
           : 'pending'
         mainCtrl.updateAccountStates(blockTag)
@@ -172,20 +172,42 @@ async function init() {
           return
         }
 
-        // check for pending account ops
-        // if there aren't any, set the refresh rate to standBy
-        let hasPending = false
-      mainLoop:
-        for (const account in accountsOps) {
-          for (const network in accountsOps[account]) {
-            hasPending = accountsOps[account][network].filter((accOp: any) => (
-              accOp.status == AccountOpStatus.Pending
-            )).length > 0
-            if (hasPending) break mainLoop
+        /**
+         * Pass the accountOps for a single account and check whether
+         * it has pending ops on any network
+         *
+         * @param accountOps the account ops for a single account
+         * @returns boolean
+         */
+        const hasAccountPendingOps = (accountOps: any): boolean => {
+          for (const network in accountOps) {
+            if (
+              accountOps[network].filter((accOp: SubmittedAccountOp) => {
+                console.log(accOp.status)
+                return accOp.status == AccountOpStatus.Pending
+              }).length > 0
+            ) return true
           }
+          return false
         }
 
-        if (!hasPending) {
+        /**
+         * Check if there are any pending account ops for all of
+         * the user accounts accross networks
+         *
+         * @param accountsOps InternalAccountsOps
+         * @returns boolean
+         */
+        const hasPendingOps = (accountsOps: any): boolean => {
+          for (const account in accountsOps) {
+            if (hasAccountPendingOps(accountsOps[account])) return true
+          }
+          return false
+        }
+
+        // check for pending account ops
+        // if there aren't any, set the refresh rate to standBy
+        if (!hasPendingOps(accountsOps)) {
           setAccountStateInterval(accountStateIntervals.standBy)
         }
       },
