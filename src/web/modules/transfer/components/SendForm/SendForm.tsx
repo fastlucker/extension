@@ -10,7 +10,7 @@ import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useDebounce from '@common/hooks/useDebounce'
-import useToast from '@common/hooks/useToast'
+import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { mapTokenOptions } from '@web/utils/maps'
 
@@ -53,7 +53,6 @@ const SendForm = ({
   state: TransferControllerState
   isAllReady?: boolean
 }) => {
-  const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const {
     amount,
@@ -62,13 +61,11 @@ const SendForm = ({
     recipientUDAddress,
     recipientEnsAddress,
     recipientAddress,
-    userRequest,
     isRecipientAddressUnknown,
     isRecipientSmartContract,
     isRecipientDomainResolving,
     isSWWarningVisible,
     tokens,
-    isFormValid,
     validationFormMsgs,
     isSWWarningAgreed,
     isRecipientAddressUnknownAgreed
@@ -128,24 +125,6 @@ const SendForm = ({
   }, [updateTransferCtrlProperty])
 
   useEffect(() => {
-    try {
-      if (!userRequest) return
-
-      dispatch({
-        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-        params: userRequest
-      })
-
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-      })
-    } catch (e: any) {
-      console.error(e)
-      addToast(`Error: ${e.message || e}`, { error: true })
-    }
-  }, [userRequest, addToast, dispatch])
-
-  useEffect(() => {
     if (!debouncedRecipientAddress) return
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
@@ -170,7 +149,7 @@ const SendForm = ({
         setMaxAmount={setMaxAmount}
         maxAmount={!selectDisabled ? Number(maxAmount) : null}
       />
-      <View style={styles.recipientWrapper}>
+      <View>
         <Recipient
           setAddress={setRecipientAddress}
           address={recipientAddress}
@@ -186,8 +165,8 @@ const SendForm = ({
 
         {isSWWarningVisible ? (
           <Checkbox
-            style={styles.sWAddressWarningCheckbox}
             value={isSWWarningAgreed}
+            style={spacings.plTy}
             onValueChange={onSWWarningCheckboxClick}
           >
             <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
@@ -208,4 +187,4 @@ const SendForm = ({
   )
 }
 
-export default SendForm
+export default React.memo(SendForm)

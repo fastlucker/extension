@@ -100,7 +100,7 @@ const SelectComponent = ({
           onDropdownOpen ? onDropdownOpen() : setIsDropdownOpen(!isDropdownOpen)
         }}
         disabled={disabled}
-        style={style}
+        style={[disabled && { opacity: 0.6 }, style]}
       >
         <Select
           options={options}

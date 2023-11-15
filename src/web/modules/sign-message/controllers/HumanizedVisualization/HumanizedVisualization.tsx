@@ -65,8 +65,10 @@ const HumanizedVisualization: FC<{
 
         if (item.type === 'address')
           return (
-            <Text fontSize={16} weight="medium">
-              {` ${item.name ? item.name : item.address} `}
+            <>
+              <Text fontSize={16} weight="medium">
+                {` ${item.name ? item.name : item.address} `}
+              </Text>
               {!!item.address && !!explorerUrl && (
                 <TouchableOpacity
                   disabled={!explorerUrl}
@@ -74,12 +76,11 @@ const HumanizedVisualization: FC<{
                     Linking.openURL(`${explorerUrl}/address/${item.address}`)
                   }}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  style={styles.explorerIcon}
                 >
-                  <OpenIcon width={20} height={20} color={colors.martinique_80} />
+                  <OpenIcon width={24} height={24} color={colors.martinique_80} />
                 </TouchableOpacity>
               )}
-            </Text>
+            </>
           )
 
         if (item.content) {

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import useConstants from '@common/hooks/useConstants'
@@ -10,7 +10,6 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 type ContextReturn = {
   state: TransferControllerState
-  initializeController: () => void
 }
 
 const TransferControllerStateContext = createContext<ContextReturn>({} as ContextReturn)
@@ -41,19 +40,44 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     return selectedTokenFromUrl
   }, [selectedTokenFromUrl, tokens])
 
-  const initializeController = useCallback(async () => {
-    if (!constants || !mainState.selectedAccount || !mainState.isReady) return
+  useEffect(() => {
+    return () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+      })
+    }
+  }, [dispatch])
 
-    await dispatch({
+  useEffect(() => {
+    if (!constants) return
+    dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
       params: {
-        selectedAccount: mainState.selectedAccount,
-        humanizerInfo: constants.humanizerInfo,
+        humanizerInfo: constants.humanizerInfo
+      }
+    })
+  }, [constants, dispatch])
+
+  useEffect(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+      params: {
         tokens,
         preSelectedToken: preSelectedToken || undefined
       }
     })
-  }, [constants, dispatch, mainState.isReady, mainState.selectedAccount, tokens, preSelectedToken])
+  }, [tokens, preSelectedToken, dispatch])
+
+  useEffect(() => {
+    if (!mainState.selectedAccount) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+      params: {
+        selectedAccount: mainState.selectedAccount
+      }
+    })
+  }, [mainState.selectedAccount, dispatch])
 
   useEffect(() => {
     if (mainState.isReady && !Object.keys(state).length) {
@@ -63,6 +87,18 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
       })
     }
   }, [dispatch, mainState.isReady, state])
+
+  useEffect(() => {
+    if (state.userRequest) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: state.userRequest
+      })
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+      })
+    }
+  }, [dispatch, state.userRequest])
 
   useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {
@@ -77,9 +113,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [])
 
   return (
-    <TransferControllerStateContext.Provider
-      value={useMemo(() => ({ state, initializeController }), [state, initializeController])}
-    >
+    <TransferControllerStateContext.Provider value={useMemo(() => ({ state }), [state])}>
       {children}
     </TransferControllerStateContext.Provider>
   )

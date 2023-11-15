@@ -6,6 +6,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
@@ -21,6 +22,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
+  const settingsState = useSettingsControllerState()
 
   useEffect(() => {
     // Initially we set all controller states to empty object
@@ -35,7 +37,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(notificationState).length &&
       Object.keys(portfolioState).length &&
       Object.keys(activityState).length &&
-      Object.keys(signAccountOpState).length
+      Object.keys(signAccountOpState).length &&
+      Object.keys(settingsState).length
     ) {
       setIsStateLoaded(true)
     }
@@ -47,7 +50,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     notificationState,
     portfolioState,
     activityState,
-    signAccountOpState
+    signAccountOpState,
+    settingsState
   ])
 
   return (

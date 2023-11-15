@@ -168,7 +168,16 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
         })
       }
     }
-  })
+  }, [
+    accountAdderState.addAccountsStatus,
+    accountAdderState.hdPathTemplate,
+    accountAdderState.readyToAddAccounts,
+    accountAdderState.selectedAccounts,
+    dispatch,
+    keyLabel,
+    keyType,
+    privKeyOrSeed
+  ])
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {

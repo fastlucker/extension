@@ -5,6 +5,7 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import CartIcon from '@common/assets/svg/CartIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
+import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -19,6 +20,8 @@ type Props = {
   onSign: () => void
   isSignLoading: boolean
   isChooseSignerShown: boolean
+  isViewOnly: boolean
+  isEOA: boolean
   handleChangeSigningKey: (signingKeyAddr: string, signingKeyType: string) => void
   selectedAccountKeyStoreKeys: Key[]
 }
@@ -29,6 +32,8 @@ const Footer = ({
   onSign,
   isSignLoading,
   isChooseSignerShown,
+  isViewOnly,
+  isEOA,
   handleChangeSigningKey,
   selectedAccountKeyStoreKeys
 }: Props) => {
@@ -48,19 +53,26 @@ const Footer = ({
           <CloseIcon color={theme.errorDecorative} />
         </View>
       </Button>
+      {!!isViewOnly && (
+        <Text appearance="errorText" weight="medium">
+          {t("You can't sign transactions with view-only accounts.")}
+        </Text>
+      )}
       <View style={[flexbox.directionRow]}>
-        <Button
-          type="outline"
-          accentColor={theme.primary}
-          text={t('Add to Cart')}
-          onPress={onAddToCart}
-          hasBottomSpacing={false}
-          style={[spacings.phLg, spacings.mr]}
-        >
-          <View style={spacings.plSm}>
-            <CartIcon color={theme.primary} />
-          </View>
-        </Button>
+        {!isEOA && (
+          <Button
+            type="outline"
+            accentColor={theme.primary}
+            text={t('Add to Cart')}
+            onPress={onAddToCart}
+            hasBottomSpacing={false}
+            style={[spacings.phLg, spacings.mr]}
+          >
+            <View style={spacings.plSm}>
+              <CartIcon color={theme.primary} />
+            </View>
+          </Button>
+        )}
         <View style={styles.signButtonContainer}>
           {isChooseSignerShown ? (
             <SigningKeySelect
@@ -70,7 +82,7 @@ const Footer = ({
           ) : null}
           <Button
             type="primary"
-            disabled={isSignLoading}
+            disabled={isSignLoading || isViewOnly}
             text={isSignLoading ? t('Signing...') : t('Sign')}
             onPress={onSign}
             hasBottomSpacing={false}

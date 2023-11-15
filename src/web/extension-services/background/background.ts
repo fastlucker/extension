@@ -48,7 +48,7 @@ async function init() {
 
   // Initialize humanizer in storage
   const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
-  if (!Object.keys(humanizerMetaInStorage).length) {
+  if (Object.keys(humanizerMetaInStorage).length < Object.keys(humanizerJSON).length) {
     await storage.set('HumanizerMeta', humanizerJSON)
   }
 
@@ -57,7 +57,6 @@ async function init() {
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
-  let controllersNestedInMainSubscribe: any = null
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
@@ -98,7 +97,14 @@ async function init() {
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
   let fetchPortfolioIntervalId: any
+  /** ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl
+  when it receives an update in the ctrl.onUpdate callback. While the flag is truthy and there are new updates coming for that ctrl
+  in the same tick, they will be debounced and only one event will be executed at the end */
   const ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean } = {}
+  /** Will be assigned with a function that initialized the on update listeners
+  for the nested controllers in main. Serves for checking whether the listeners are already set
+  to avoid duplicated/multiple instanced of the onUpdate callbacks for a given ctrl to be initialized in the background */
+  let controllersNestedInMainSubscribe: any = null
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -125,18 +131,10 @@ async function init() {
   setPortfolioFetchInterval()
 
   let activityIntervalId: any
-  function setActivityInterval() {
+  function setActivityInterval(timeout: number) {
     clearInterval(activityIntervalId) // Clear existing interval
-    activityIntervalId = setInterval(
-      () => mainCtrl.updateAccountsOpsStatuses(),
-      // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently (10 seconds).
-      // Otherwise, when inactive we want to run it once in a while (5 minutes).
-      Object.keys(portMessageUIRefs).length ? 10000 : 300000
-    )
+    activityIntervalId = setInterval(() => mainCtrl.updateAccountsOpsStatuses(), timeout)
   }
-  // Call it once to initialize the interval
-  setActivityInterval()
 
   // refresh the account state once every 5 minutes.
   // if there are pending account ops, start refreshing once every
@@ -198,18 +196,14 @@ async function init() {
   setAccountStateInterval(accountStateIntervals.standBy)
 
   /**
-   * Init all controllers `onUpdate` listeners only once (in here), instead of
-   * doing it in the `browser.runtime.onConnect.addListener` listener, because
-   * the `onUpdate` listeners are not supposed to be re-initialized every time
-   * the `browser.runtime.onConnect.addListener` listener is called.
-   * Moreover, this re-initialization happens multiple times per session,
-   * `browser.runtime.onConnect.addListener` gets called multiple times,
-   * and the `onUpdate` listeners skip emits from controllers (race condition).
-   * Initializing the listeners only once proofs to be more reliable.
+   * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
+   * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
    */
 
-  // Broadcast onUpdate for the main controller
-
+  /**
+   * Initialize the onUpdate callback for the MainController.
+   * Once the mainCtrl load is ready, initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
+   */
   mainCtrl.onUpdate(() => {
     if (ctrlOnUpdateIsDirtyFlags.main) return
     ctrlOnUpdateIsDirtyFlags.main = true
@@ -239,6 +233,19 @@ async function init() {
           ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
             if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
             ctrlOnUpdateIsDirtyFlags[ctrl] = true
+
+            if (ctrl === 'activity') {
+              // Start the interval for updating the accounts ops statuses,
+              // only if there are broadcasted but not confirmed accounts ops
+              if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
+                // If the interval is already set, then do nothing.
+                if (!activityIntervalId) {
+                  setActivityInterval(5000)
+                }
+              } else {
+                clearInterval(activityIntervalId)
+              }
+            }
 
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
@@ -325,7 +332,6 @@ async function init() {
       const pm = new PortMessage(port, id)
       portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
-      setActivityInterval()
 
       pm.listen(async (data: Action) => {
         if (data?.type) {
@@ -408,6 +414,9 @@ async function init() {
                 )
               })
             }
+            case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
+              return mainCtrl.settings.addAccountPreferences(data.params)
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -434,6 +443,8 @@ async function init() {
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
+            case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
+              return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init({
                 messageToSign: data.params.messageToSign,
@@ -481,8 +492,6 @@ async function init() {
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
-            case 'MAIN_CONTROLLER_TRANSFER_RESET':
-              return mainCtrl.transfer.reset()
             case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
               return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
@@ -626,7 +635,6 @@ async function init() {
       port.onDisconnect.addListener(() => {
         delete portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
-        setActivityInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
           ledgerCtrl.cleanUp()
@@ -672,8 +680,7 @@ async function init() {
   })
 })()
 
-// On first install, open Ambire Extension in a new tab to start the login process
-
+// Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     setTimeout(() => {
@@ -683,6 +690,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 })
 
+// Send a browser notification when the signing process of a message or account op is finalized
 const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
   let message = ''

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -21,43 +21,25 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
+import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
+import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import AddressBookSection from '../../components/AddressBookSection'
-import SendForm from '../../components/SendForm/SendForm'
 import styles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
-  const { state, initializeController } = useTransferControllerState()
+  const { state } = useTransferControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
 
-  useEffect(() => {
-    initializeController()
-  }, [initializeController])
-
-  const handleReset = useCallback(
-    () =>
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET'
-      }),
-    [dispatch]
-  )
-
   const onBack = useCallback(() => {
-    handleReset()
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+    })
     navigate(ROUTES.dashboard)
-  }, [navigate, handleReset])
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleReset)
-    return () => {
-      window.removeEventListener('beforeunload', handleReset)
-      handleReset()
-    }
-  }, [handleReset])
+  }, [navigate, dispatch])
 
   const sendTransaction = useCallback(async () => {
     await dispatch({
@@ -75,10 +57,10 @@ const TransferScreen = () => {
           <BackButton onPress={onBack} />
           <Button
             type="primary"
-            text={t('Send')}
+            text={state.userRequest ? t('Sending...') : t('Send')}
             onPress={sendTransaction}
             hasBottomSpacing={false}
-            disabled={!state.isFormValid}
+            disabled={!!state.userRequest || !state.isFormValid}
           >
             <View style={spacings.plTy}>
               <SendIcon width={20} color={colors.titan} />
