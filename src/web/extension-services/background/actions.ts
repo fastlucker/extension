@@ -234,7 +234,7 @@ type KeystoreControllerUnlockWithSecretAction = {
 }
 type KeystoreControllerAddKeysAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string; label: string }[] }
+  params: { keys: { privateKey: string }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
