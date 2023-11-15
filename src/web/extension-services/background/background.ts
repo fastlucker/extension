@@ -47,7 +47,7 @@ async function init() {
 
   // Initialize humanizer in storage
   const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
-  if (!Object.keys(humanizerMetaInStorage).length) {
+  if (Object.keys(humanizerMetaInStorage).length < Object.keys(humanizerJSON).length) {
     await storage.set('HumanizerMeta', humanizerJSON)
   }
 
