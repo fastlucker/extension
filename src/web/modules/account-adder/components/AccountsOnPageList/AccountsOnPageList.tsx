@@ -5,7 +5,6 @@ import { Pressable, TouchableOpacity, View } from 'react-native'
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { Key } from '@ambire-common/interfaces/keystore'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -18,17 +17,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import styles from './styles'
 
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
-
-const hwDeviceNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
-  ledger: 'Ledger',
-  trezor: 'Trezor',
-  lattice: 'GridPlus Lattice1'
-}
 
 const AccountsList = ({
   state,
@@ -149,7 +143,7 @@ const AccountsList = ({
           {keyType === 'internal'
             ? t('Pick Accounts To Import')
             : t('Import Account From {{ hwDeviceName }}', {
-                hwDeviceName: hwDeviceNames[keyType]
+                hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
               })}
         </Text>
         {/* TODO: impl change derivation and move this into a separate component */}

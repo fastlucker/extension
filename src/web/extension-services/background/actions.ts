@@ -5,7 +5,7 @@ import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -79,6 +79,10 @@ type MainControllerAccountAdderReset = {
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
+}
+type MainControllerSettingsAddKeyPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
+  params: KeyPreferences
 }
 
 type MainControllerAddUserRequestAction = {
@@ -281,6 +285,7 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
+  | MainControllerSettingsAddKeyPreferences
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts

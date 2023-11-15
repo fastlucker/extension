@@ -18,6 +18,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
@@ -143,15 +144,23 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
               privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
-            return {
-              privateKey,
-              label: `${keyLabel} for the account on slot ${acc.slot}`
-            }
+            return { privateKey }
           })
 
           dispatch({
             type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
             params: { keys: keysToAddToKeystore }
+          })
+
+          const keyPreferencesToAdd = accountAdderState.selectedAccounts.map((acc) => ({
+            addr: acc.account.addr,
+            type: 'internal',
+            label: `${keyLabel} for the account on slot ${acc.slot}`
+          }))
+
+          dispatch({
+            type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+            params: keyPreferencesToAdd
           })
         } catch (error: any) {
           console.error(error)
@@ -165,6 +174,19 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
         dispatch({
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
           params: { keyType }
+        })
+
+        const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+          ({ accountKeyAddr, slot }) => ({
+            addr: accountKeyAddr,
+            type: keyType,
+            label: `${HARDWARE_WALLET_DEVICE_NAMES[keyType]} on slot ${slot}`
+          })
+        )
+
+        dispatch({
+          type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+          params: keyPreferencesToAdd
         })
       }
     }
