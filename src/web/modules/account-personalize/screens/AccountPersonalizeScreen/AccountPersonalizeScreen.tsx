@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -35,6 +36,8 @@ import {
   buildInAvatars
 } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
+import { getDefaultAccountLabel } from '../../libs/default-labels'
+
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -43,13 +46,15 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const mainCtrl = useMainControllerState()
   const { dispatch } = useBackgroundService()
-  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params])
+  const newAccounts: Account[] = params?.accounts || []
+  const keyType: Key['type'] = params?.keyType || ''
+  const keyTypeInternalSubtype: 'seed' | 'private-key' = params?.keyTypeInternalSubtype || ''
   const prevAccountsCount = mainCtrl.accounts.length - newAccounts.length
   const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
-      preferences: newAccounts.map((account, i) => ({
-        account,
-        label: `Account ${prevAccountsCount + (i + 1)}`,
+      preferences: newAccounts.map((acc, i) => ({
+        account: acc,
+        label: getDefaultAccountLabel(acc, prevAccountsCount, i, keyType, keyTypeInternalSubtype),
         pfp:
           BUILD_IN_AVATAR_ID_PREFIX +
           // Iterate from 1 up to the `buildInAvatars.length` and then - start all
