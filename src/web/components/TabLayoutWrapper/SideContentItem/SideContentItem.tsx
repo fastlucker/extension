@@ -2,7 +2,7 @@ import { createContext, FunctionComponent, ReactElement, ReactNode, useContext }
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps, ViewStyle } from 'react-native'
 
-import Text, { TextAppearance } from '@common/components/Text'
+import Text, { Props as CommonTextProps, TextAppearance } from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -45,7 +45,14 @@ const SideContentTitle = ({ children, noMb = false }: { children: string; noMb?:
   )
 }
 
-const SideContentText = ({ children, noMb = false }: { children: string; noMb?: boolean }) => {
+const SideContentText = ({
+  children,
+  noMb = false,
+  ...rest
+}: CommonTextProps & {
+  children: string
+  noMb?: boolean
+}) => {
   const { t } = useTranslation()
   const type = useContext(ItemTypeContext)
 
@@ -55,6 +62,7 @@ const SideContentText = ({ children, noMb = false }: { children: string; noMb?: 
       appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance}
       fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 16 : 14}
       weight="regular"
+      {...rest}
     >
       {t(children)}
     </Text>
