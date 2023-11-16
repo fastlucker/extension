@@ -1,5 +1,5 @@
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import {
   HD_PATH_TEMPLATE_TYPE,
@@ -37,6 +37,11 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return ''
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const setPage: any = React.useCallback(
     (page = 1) => {
@@ -197,11 +202,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
         state: {
-          accounts: accountAdderState.readyToAddAccounts
+          accounts: accountAdderState.readyToAddAccounts,
+          keyType,
+          keyTypeInternalSubtype
         }
       })
     },
-    [navigate, accountAdderState]
+    [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
   )
 
   useEffect(() => {
