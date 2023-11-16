@@ -76,8 +76,6 @@ const SendForm = ({
     isRecipientAddressUnknownAgreed
   } = state
 
-  console.log(state)
-
   const { t } = useTranslation()
   const token = `${selectedToken?.address}-${selectedToken?.networkId}`
   const { value: tokenSelectValue, options, selectDisabled } = getSelectProps({ tokens, token })
