@@ -85,9 +85,12 @@ async function init() {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+    onBroadcastSuccess: (
+      type: 'message' | 'typed-data' | 'account-op',
+      opts?: {}
+    ) => {
       notifyForSuccessfulBroadcast(type)
-      setAccountStateInterval(accountStateIntervals.pending)
+      setAccountStateInterval(accountStateIntervals.pending, opts)
     },
     pinned: pinnedTokens
   })
@@ -141,18 +144,20 @@ async function init() {
   // refresh the account state once every 5 minutes.
   // if there are BroadcastedButNotConfirmed account ops, start refreshing
   //  once every 7.5 seconds until they are cleared
-  let accountStateInternval: any
+  let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
     pending: 7500,
     standBy: 300000
   }
 
-  function setAccountStateInterval(intervalLength: number) {
-    clearInterval(accountStateInternval)
+  function setAccountStateInterval(intervalLength: number, opts?: {
+    accountAddr?: string
+  }) {
+    clearInterval(accountStateInterval)
     selectedAccountStateInterval = intervalLength
 
-    accountStateInternval = setInterval(async () => {
+    accountStateInterval = setInterval(async () => {
       // update the account state with the latest block in normal
       // circumstances and with the pending block when there are
       // pending account ops
@@ -204,9 +209,16 @@ async function init() {
         return false
       }
 
-      // check for pending account ops
-      // if there aren't any, set the refresh rate to standBy
-      if (!hasNotConfirmedOps(accountsOps)) {
+      // if we have a set account filter in the opts, we check only for its
+      // accountOps. The state refresh is set to pending after broadcast.
+      // There's no point in checking the other account in this scenario
+      // this is synced with how the activity controller works - it changes
+      // the statuses only of the selectedAccount
+      const hasBroadcastedButNotConfirmed = opts?.accountAddr
+        ? hasAccountNotConfirmedOps(accountsOps[opts.accountAddr])
+        : hasNotConfirmedOps(accountsOps)
+
+      if (!hasBroadcastedButNotConfirmed) {
         setAccountStateInterval(accountStateIntervals.standBy)
       }
     }, intervalLength)
