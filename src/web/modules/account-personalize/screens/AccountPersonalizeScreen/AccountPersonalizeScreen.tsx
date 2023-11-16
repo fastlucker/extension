@@ -31,8 +31,10 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
-
-import { getDefaultAccountLabel, getDefaultAccountPfp } from '../../libs/default-labels'
+import {
+  getDefaultAccountLabel,
+  getDefaultAccountPfp
+} from '@web/modules/account-personalize/libs/defaults'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
