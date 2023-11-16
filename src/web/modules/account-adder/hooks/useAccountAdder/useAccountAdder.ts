@@ -18,6 +18,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
@@ -143,10 +144,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
               privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
-            return {
-              privateKey,
-              label: `${keyLabel} for the account on slot ${acc.slot}`
-            }
+            return { privateKey }
           })
 
           dispatch({
@@ -167,6 +165,22 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           params: { keyType }
         })
       }
+
+      const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+        ({ accountKeyAddr, slot }) => ({
+          addr: accountKeyAddr,
+          type: keyType,
+          label:
+            keyType === 'internal'
+              ? `${keyLabel} for the account on slot ${slot}`
+              : `${HARDWARE_WALLET_DEVICE_NAMES[keyType]} on slot ${slot}`
+        })
+      )
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+        params: keyPreferencesToAdd
+      })
     }
   }, [
     accountAdderState.addAccountsStatus,

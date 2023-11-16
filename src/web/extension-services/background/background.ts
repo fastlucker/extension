@@ -357,6 +357,9 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
             }
+            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
+              return mainCtrl.settings.addKeyPreferences(data.params)
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -493,17 +496,10 @@ async function init() {
                 lattice: latticeCtrl.deviceModel
               }
 
-              const keyWalletNames: { [key in ExternalKey['type']]: string } = {
-                ledger: 'Ledger',
-                trezor: 'Trezor',
-                lattice: 'Lattice'
-              }
-
               const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, slot, index }) => ({
+                ({ accountKeyAddr, index }) => ({
                   addr: accountKeyAddr,
                   type: keyType,
-                  label: `${keyWalletNames[keyType]} on slot ${slot}`,
                   meta: {
                     deviceId: deviceIds[keyType],
                     deviceModel: deviceModels[keyType],
