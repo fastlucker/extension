@@ -138,8 +138,8 @@ async function init() {
   }
 
   // refresh the account state once every 5 minutes.
-  // if there are pending account ops, start refreshing once every
-  // 7.5 seconds until they are cleared
+  // if there are BroadcastedButNotConfirmed account ops, start refreshing
+  //  once every 7.5 seconds until they are cleared
   let accountStateInternval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
@@ -179,12 +179,11 @@ async function init() {
          * @param accountOps the account ops for a single account
          * @returns boolean
          */
-        const hasAccountPendingOps = (accountOps: any): boolean => {
+        const hasAccountNotConfirmedOps = (accountOps: any): boolean => {
           for (const network in accountOps) {
             if (
               accountOps[network].filter((accOp: SubmittedAccountOp) => {
-                console.log(accOp.status)
-                return accOp.status == AccountOpStatus.Pending
+                return accOp.status == AccountOpStatus.BroadcastedButNotConfirmed
               }).length > 0
             ) return true
           }
@@ -198,16 +197,16 @@ async function init() {
          * @param accountsOps InternalAccountsOps
          * @returns boolean
          */
-        const hasPendingOps = (accountsOps: any): boolean => {
+        const hasNotConfirmedOps = (accountsOps: any): boolean => {
           for (const account in accountsOps) {
-            if (hasAccountPendingOps(accountsOps[account])) return true
+            if (hasAccountNotConfirmedOps(accountsOps[account])) return true
           }
           return false
         }
 
         // check for pending account ops
         // if there aren't any, set the refresh rate to standBy
-        if (!hasPendingOps(accountsOps)) {
+        if (!hasNotConfirmedOps(accountsOps)) {
           setAccountStateInterval(accountStateIntervals.standBy)
         }
       },
