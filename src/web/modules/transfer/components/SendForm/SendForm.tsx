@@ -26,6 +26,11 @@ const NO_TOKENS_ITEMS = [
   }
 ]
 
+const getTokenAddressAndNetworkFromId = (id: string) => {
+  const [address, networkId] = id.split('-')
+  return [address, networkId]
+}
+
 const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: string }) => {
   let options: any = []
   let value = null
@@ -71,20 +76,28 @@ const SendForm = ({
     isRecipientAddressUnknownAgreed
   } = state
 
+  console.log(state)
+
   const { t } = useTranslation()
   const token = `${selectedToken?.address}-${selectedToken?.networkId}`
   const { value: tokenSelectValue, options, selectDisabled } = getSelectProps({ tokens, token })
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
 
   const handleChangeToken = useCallback(
-    (value: string) =>
+    (value: string) => {
+      const tokenToSelect = tokens.find(
+        (tokenRes: TokenResult) =>
+          tokenRes.address === getTokenAddressAndNetworkFromId(value)[0] &&
+          tokenRes.networkId === getTokenAddressAndNetworkFromId(value)[1]
+      )
       dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE',
+        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
         params: {
-          tokenAddressAndNetwork: value
+          selectedToken: tokenToSelect
         }
-      }),
-    [dispatch]
+      })
+    },
+    [dispatch, tokens]
   )
 
   const updateTransferCtrlProperty = useCallback(
@@ -106,8 +119,8 @@ const SendForm = ({
   )
 
   const setMaxAmount = useCallback(() => {
-    updateTransferCtrlProperty('setMaxAmount', true)
-  }, [updateTransferCtrlProperty])
+    updateTransferCtrlProperty('amount', maxAmount)
+  }, [updateTransferCtrlProperty, maxAmount])
 
   const setRecipientAddress = useCallback(
     (text: string) => {

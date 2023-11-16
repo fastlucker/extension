@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
@@ -7,8 +8,10 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -37,8 +40,6 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
-import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
-import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 
 async function init() {
   // Initialize rpc providers for all networks
@@ -140,79 +141,75 @@ async function init() {
   // refresh the account state once every 5 minutes.
   // if there are pending account ops, start refreshing once every
   // 7.5 seconds until they are cleared
-  let accountStateInternval: any
+  let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
     pending: 7500,
-    standBy: 300000,
+    standBy: 300000
   }
 
   function setAccountStateInterval(intervalLength: number) {
-    clearInterval(accountStateInternval)
+    clearInterval(accountStateInterval)
     selectedAccountStateInterval = intervalLength
 
-    accountStateInternval = setInterval(
-      async () => {
-        // update the account state with the latest block in normal
-        // circumstances and with the pending block when there are
-        // pending account ops
-        const blockTag = selectedAccountStateInterval === accountStateIntervals.standBy
-          ? 'latest'
-          : 'pending'
-        mainCtrl.updateAccountStates(blockTag)
+    accountStateInterval = setInterval(async () => {
+      // update the account state with the latest block in normal
+      // circumstances and with the pending block when there are
+      // pending account ops
+      const blockTag =
+        selectedAccountStateInterval === accountStateIntervals.standBy ? 'latest' : 'pending'
+      mainCtrl.updateAccountStates(blockTag)
 
-        if (selectedAccountStateInterval == accountStateIntervals.standBy) {
-          return
-        }
+      if (selectedAccountStateInterval === accountStateIntervals.standBy) {
+        return
+      }
 
-        // if we don't have any account ops, set the refresh rate to standBy
-        const accountsOps = await storage.get('accountsOps', {})
-        if (!accountsOps) {
-          setAccountStateInterval(accountStateIntervals.standBy)
-          return
-        }
+      // if we don't have any account ops, set the refresh rate to standBy
+      const accountsOps = await storage.get('accountsOps', {})
+      if (!accountsOps) {
+        setAccountStateInterval(accountStateIntervals.standBy)
+        return
+      }
 
-        /**
-         * Pass the accountOps for a single account and check whether
-         * it has pending ops on any network
-         *
-         * @param accountOps the account ops for a single account
-         * @returns boolean
-         */
-        const hasAccountPendingOps = (accountOps: any): boolean => {
-          for (const network in accountOps) {
-            if (
-              accountOps[network].filter((accOp: SubmittedAccountOp) => {
-                console.log(accOp.status)
-                return accOp.status == AccountOpStatus.Pending
-              }).length > 0
-            ) return true
-          }
-          return false
+      /**
+       * Pass the accountOps for a single account and check whether
+       * it has pending ops on any network
+       *
+       * @param accountOps the account ops for a single account
+       * @returns boolean
+       */
+      const hasAccountPendingOps = (accountOps: any): boolean => {
+        for (const network in accountOps) {
+          if (
+            accountOps[network].filter((accOp: SubmittedAccountOp) => {
+              return accOp.status === AccountOpStatus.Pending
+            }).length > 0
+          )
+            return true
         }
+        return false
+      }
 
-        /**
-         * Check if there are any pending account ops for all of
-         * the user accounts accross networks
-         *
-         * @param accountsOps InternalAccountsOps
-         * @returns boolean
-         */
-        const hasPendingOps = (accountsOps: any): boolean => {
-          for (const account in accountsOps) {
-            if (hasAccountPendingOps(accountsOps[account])) return true
-          }
-          return false
+      /**
+       * Check if there are any pending account ops for all of
+       * the user accounts accross networks
+       *
+       * @param accountsOps InternalAccountsOps
+       * @returns boolean
+       */
+      const hasPendingOps = (accountsOps: any): boolean => {
+        for (const account in accountsOps) {
+          if (hasAccountPendingOps(accountsOps[account])) return true
         }
+        return false
+      }
 
-        // check for pending account ops
-        // if there aren't any, set the refresh rate to standBy
-        if (!hasPendingOps(accountsOps)) {
-          setAccountStateInterval(accountStateIntervals.standBy)
-        }
-      },
-      intervalLength
-    )
+      // check for pending account ops
+      // if there aren't any, set the refresh rate to standBy
+      if (!hasPendingOps(accountsOps)) {
+        setAccountStateInterval(accountStateIntervals.standBy)
+      }
+    }, intervalLength)
   }
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
@@ -521,8 +518,6 @@ async function init() {
               return mainCtrl.transfer.buildUserRequest()
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
               return mainCtrl.transfer.onRecipientAddressChange()
-            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
-              return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break

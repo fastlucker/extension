@@ -19,7 +19,10 @@ const getInfoFromSearch = (search: string | undefined) => {
 
   const params = new URLSearchParams(search)
 
-  return `${params.get('address')}-${params.get('networkId')}`
+  return {
+    addr: params.get('address'),
+    networkId: params.get('networkId')
+  }
 }
 
 const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -31,14 +34,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const { search } = useRoute()
   const tokens = accountPortfolio?.tokens
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
-
-  const preSelectedToken = useMemo(() => {
-    if (!selectedTokenFromUrl && tokens && tokens?.length > 0)
-      return `${tokens[0].address}-${tokens[0].networkId}`
-    if (!selectedTokenFromUrl && !tokens) return null
-
-    return selectedTokenFromUrl
-  }, [selectedTokenFromUrl, tokens])
 
   useEffect(() => {
     return () => {
@@ -59,23 +54,33 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [constants, dispatch])
 
   useEffect(() => {
+    if (tokens?.length && selectedTokenFromUrl && !state.selectedToken) {
+      const tokenToSelect = tokens.find(
+        (t) =>
+          t.address === selectedTokenFromUrl.addr && t.networkId === selectedTokenFromUrl.networkId
+      )
+      if (tokenToSelect) {
+        dispatch({
+          type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+          params: { selectedToken: tokenToSelect }
+        })
+      }
+    }
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
+
+  useEffect(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        tokens,
-        preSelectedToken: preSelectedToken || undefined
-      }
+      params: { tokens }
     })
-  }, [tokens, preSelectedToken, dispatch])
+  }, [tokens, dispatch])
 
   useEffect(() => {
     if (!mainState.selectedAccount) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        selectedAccount: mainState.selectedAccount
-      }
+      params: { selectedAccount: mainState.selectedAccount }
     })
   }, [mainState.selectedAccount, dispatch])
 

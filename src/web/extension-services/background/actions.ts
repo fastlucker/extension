@@ -130,12 +130,11 @@ type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: {
     selectedAccount?: string
-    preSelectedToken?: string
+    selectedToken?: TokenResult
     humanizerInfo?: HumanizerInfoType
     tokens?: TokenResult[]
     recipientAddress?: string
     amount?: string
-    setMaxAmount?: boolean
     isSWWarningAgreed?: boolean
     isRecipientAddressUnknownAgreed?: boolean
   }
@@ -143,13 +142,6 @@ type MainControllerTransferUpdateAction = {
 
 type MainControllerTransferOnRecipientAddressChangeAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-}
-
-type MainControllerTransferHandleTokenChangeAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE'
-  params: {
-    tokenAddressAndNetwork: string
-  }
 }
 
 type NotificationControllerResolveRequestAction = {
