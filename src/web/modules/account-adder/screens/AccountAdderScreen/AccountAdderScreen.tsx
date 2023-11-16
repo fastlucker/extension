@@ -86,13 +86,13 @@ const AccountAdderScreen = () => {
                 {t('Back')}
               </Text>
             </TouchableOpacity>
-            {!!showEmailVaultRecoveryToggle && (
+            {/* TODO: {!!showEmailVaultRecoveryToggle && (
               <Toggle
                 isOn={enableEmailVaultRecovery}
                 onToggle={() => setEnableEmailVaultRecovery((p) => !p)}
                 label={t('Enable email recovery for new Smart Accounts')}
               />
-            )}
+            )} */}
           </View>
           <View
             style={[
