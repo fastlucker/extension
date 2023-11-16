@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 
@@ -9,7 +9,6 @@ interface Style {
   warningContainer: ViewStyle
   body: ViewStyle
   bodyText: TextStyle
-  explorerIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -32,9 +31,6 @@ const getStyles = (theme: ThemeProps) =>
     bodyText: {
       ...spacings.mbTy,
       color: theme.secondaryText
-    },
-    explorerIcon: {
-      marginLeft: -SPACING_MI
     }
   })
 

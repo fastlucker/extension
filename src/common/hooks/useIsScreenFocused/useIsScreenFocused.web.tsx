@@ -1,7 +1,27 @@
+import { useEffect, useState } from 'react'
+
 const useIsScreenFocused = () => {
-  // TODO: Temporarily assume the screen is always on focus, but if later on
-  // needed for a web feature too - implement the logic.
-  return true
+  const [isFocused, setIsFocused] = useState(true)
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsFocused(!document.hidden)
+    }
+
+    const handleWindowFocus = () => {
+      setIsFocused(true)
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleWindowFocus)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleWindowFocus)
+    }
+  }, [])
+
+  return isFocused
 }
 
 export default useIsScreenFocused

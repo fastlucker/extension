@@ -7,18 +7,17 @@ import { intToHex } from 'ethereumjs-util'
 import { JsonRpcProvider } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
+import bundler from '@ambire-common/services/bundlers'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks, { NETWORKS } from '@common/constants/networks'
-import {networks as commonNetworks} from '@ambire-common/consts/networks'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import { storage } from '@web/extension-services/background/webapi/storage'
-import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
-import bundler from '@ambire-common/services/bundlers'
 
 interface RequestRes {
   type?: string
@@ -96,36 +95,6 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
-    // therefore we override the data stored on the blockchain with the original one
-    if (method === 'eth_getTransactionByHash') {
-      let fetchedTx = null
-      let failed = 0
-      while (fetchedTx === null && failed < 3) {
-        fetchedTx = await provider.getTransaction(params[0])
-        if (fetchedTx === null) {
-          await new Promise((r) => setTimeout(r, 1500))
-          failed++
-        }
-      }
-
-      if (fetchedTx) {
-        const response = provider._wrapTransactionResponse(fetchedTx, params[0])
-        const txs = await storage.get('transactionHistory', {})
-        if (txs[params[0]]) {
-          const txn = JSON.parse(txs[params[0]])
-          if (txn?.data) {
-            // @ts-ignore
-            response.data = txn?.data
-          }
-        }
-
-        return response
-      }
-
-      return provider.getTransaction(params[0])
-    }
-
     return provider.send(method, params)
   }
 
@@ -178,12 +147,7 @@ export class ProviderController {
   }) => {
     if (options.pushed) return options.result
 
-    const {
-      data: {
-        params: [txParams]
-      },
-      requestRes
-    } = cloneDeep(options)
+    const { requestRes } = cloneDeep(options)
 
     if (requestRes?.hash) {
       // @erc4337
@@ -191,8 +155,10 @@ export class ProviderController {
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(options.session.origin)
-      const network = commonNetworks.filter(net => net.id == dappNetwork.id)[0]
-      const account = this.mainCtrl.accounts.filter(acc => acc.addr == this.mainCtrl.selectedAccount)[0]
+      const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
+      const account = this.mainCtrl.accounts.filter(
+        (acc) => acc.addr === this.mainCtrl.selectedAccount
+      )[0]
       const is4337Broadcast = isErc4337Broadcast(network, account)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
@@ -200,12 +166,8 @@ export class ProviderController {
         hash = receipt.receipt.transactionHash
       }
 
-      const txnHistory = await storage.get('transactionHistory', {})
-      txnHistory[hash] = JSON.stringify(txParams)
-      await storage.set('transactionHistory', txnHistory)
-
       // delay just for better UX
-      await delayPromise(500)
+      await delayPromise(400)
       return hash
     }
 
