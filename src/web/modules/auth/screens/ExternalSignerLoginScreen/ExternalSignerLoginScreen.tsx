@@ -28,8 +28,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Stepper from '@web/modules/router/components/Stepper'
 
-const DEFAULT_IMPORT_LABEL = `Imported key on ${new Date().toLocaleDateString()}`
-
 function isValidMnemonic(input: string) {
   const separators = /[\s,;\n]+/
   const words = input.trim().split(separators)
@@ -42,11 +40,13 @@ const ExternalSignerLoginScreen = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isValid }
   } = useForm({
     mode: 'all',
     defaultValues: {
-      privKeyOrSeed: '',
+      privKeyOrSeed:
+        'brisk rich glide impose category stuff company you appear remain decorate monkey',
       label: ''
     }
   })
@@ -71,7 +71,7 @@ const ExternalSignerLoginScreen = () => {
         state: {
           keyType: 'internal',
           privKeyOrSeed: formattedPrivKeyOrSeed,
-          label: label || DEFAULT_IMPORT_LABEL
+          label
         }
       })
     })()
@@ -180,7 +180,9 @@ const ExternalSignerLoginScreen = () => {
                   value={value}
                   editable
                   numberOfLines={1}
-                  placeholder={DEFAULT_IMPORT_LABEL}
+                  placeholder={
+                    isValidPrivateKey(watch('privKeyOrSeed')) ? t('Private Key') : t('Seed')
+                  }
                   onChangeText={onChange}
                   onBlur={onBlur}
                   isValid={value.length >= 6 && value.length <= 24}
