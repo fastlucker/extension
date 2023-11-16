@@ -31,12 +31,8 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
-import {
-  BUILD_IN_AVATAR_ID_PREFIX,
-  buildInAvatars
-} from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
-import { getDefaultAccountLabel } from '../../libs/default-labels'
+import { getDefaultAccountLabel, getDefaultAccountPfp } from '../../libs/default-labels'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -55,11 +51,7 @@ const AccountPersonalizeScreen = () => {
       preferences: newAccounts.map((acc, i) => ({
         account: acc,
         label: getDefaultAccountLabel(acc, prevAccountsCount, i, keyType, keyTypeInternalSubtype),
-        pfp:
-          BUILD_IN_AVATAR_ID_PREFIX +
-          // Iterate from 1 up to the `buildInAvatars.length` and then - start all
-          // over again from the beginning (from 1).
-          ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
+        pfp: getDefaultAccountPfp(prevAccountsCount, i)
       }))
     }
   })
