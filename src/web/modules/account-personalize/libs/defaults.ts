@@ -1,6 +1,9 @@
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import {
+  isDerivedForSmartAccountKeyOnly,
+  isSmartAccount
+} from '@ambire-common/libs/account/account'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import {
@@ -37,4 +40,17 @@ export const getDefaultAccountPfp = (prevAccountsCount: number, i: number) => {
     // over again from the beginning (from 1).
     ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
   )
+}
+
+export const getDefaultKeyLabel = (
+  customLabel: string,
+  keyType: Key['type'],
+  index: number,
+  slot: number
+) => {
+  const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Legacy Key'
+  const from =
+    customLabel || (keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType])
+
+  return `${prefix} (${from}) from slot ${slot}`
 }
