@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
@@ -7,8 +8,10 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -82,8 +85,11 @@ async function init() {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+    onBroadcastSuccess: (
+      type: 'message' | 'typed-data' | 'account-op'
+    ) => {
       notifyForSuccessfulBroadcast(type)
+      setAccountStateInterval(accountStateIntervals.pending)
     },
     pinned: pinnedTokens
   })
@@ -133,6 +139,49 @@ async function init() {
     clearInterval(activityIntervalId) // Clear existing interval
     activityIntervalId = setInterval(() => mainCtrl.updateAccountsOpsStatuses(), timeout)
   }
+
+  // refresh the account state once every 5 minutes.
+  // if there are BroadcastedButNotConfirmed account ops, start refreshing
+  //  once every 7.5 seconds until they are cleared
+  let accountStateInterval: any
+  let selectedAccountStateInterval: any
+  const accountStateIntervals = {
+    pending: 7500,
+    standBy: 300000
+  }
+
+  function setAccountStateInterval(intervalLength: number) {
+    clearInterval(accountStateInterval)
+    selectedAccountStateInterval = intervalLength
+
+    // if setAccountStateInterval is called with a pending request
+    // (this happens after broadcast), update the account state
+    // with the pending block without waiting
+    if (selectedAccountStateInterval === accountStateIntervals.pending) {
+      mainCtrl.updateAccountStates('pending')
+    }
+
+    accountStateInterval = setInterval(async () => {
+      // update the account state with the latest block in normal
+      // circumstances and with the pending block when there are
+      // pending account ops
+      const blockTag =
+        selectedAccountStateInterval === accountStateIntervals.standBy ? 'latest' : 'pending'
+      mainCtrl.updateAccountStates(blockTag)
+
+      // if we're in a pending update interval but there are no
+      // broadcastedButNotConfirmed account Ops, set the interval to standBy
+      if (
+        selectedAccountStateInterval === accountStateIntervals.pending &&
+        !mainCtrl.activity.broadcastedButNotConfirmed.length
+      ) {
+        setAccountStateInterval(accountStateIntervals.standBy)
+        return
+      }
+    }, intervalLength)
+  }
+  // Call it once to initialize the interval
+  setAccountStateInterval(accountStateIntervals.standBy)
 
   /**
    * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
@@ -441,8 +490,6 @@ async function init() {
               return mainCtrl.transfer.buildUserRequest()
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
               return mainCtrl.transfer.onRecipientAddressChange()
-            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
-              return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
