@@ -9,7 +9,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import SettingsPage from '@web/components/SettingsPage'
 import Account from '@web/modules/account-select/components/Account'
 
-const AccountsScreen = () => {
+const AccountsSettingsScreen = () => {
   const { accounts, control } = useAccounts()
 
   return (
@@ -36,4 +36,4 @@ const AccountsScreen = () => {
   )
 }
 
-export default React.memo(AccountsScreen)
+export default React.memo(AccountsSettingsScreen)
