@@ -12,7 +12,6 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
@@ -106,7 +105,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
             <item.Icon color={isActive ? theme.primary : theme.primaryText} />
             <Text
               style={spacings.ml}
-              color={isActive ? colors.violet : colors.martinique}
+              color={isActive ? theme.primary : theme.primaryText}
               fontSize={16}
               weight="medium"
             >
