@@ -12,7 +12,7 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
@@ -138,7 +138,7 @@ const AccountsList = ({
         ]}
       >
         <Text
-          fontSize={20}
+          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}
