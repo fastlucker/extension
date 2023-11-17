@@ -85,10 +85,10 @@ const Account = ({
                 text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
               />
               {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                <Badge style={spacings.mlTy} type="primary" text={t('View-only')} />
+                <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
               )}
               {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                <Badge style={spacings.mlTy} type="primary" text={t('v1')} />
+                <Badge style={spacings.mlTy} type="info" text={t('v1')} />
               )}
             </View>
           </View>

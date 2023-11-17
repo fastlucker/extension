@@ -12,15 +12,15 @@ import getStyles from './styles'
 
 type Props = {
   text: string
-  type?: 'primary' | 'warning' | 'default' | 'success'
+  type?: 'info' | 'warning' | 'default' | 'success'
   withIcon?: boolean
   style?: ViewStyle
 }
 
 const getBadgeTypes = (theme: ThemeProps) => ({
-  primary: {
-    color: theme.primary,
-    iconColor: theme.primary
+  info: {
+    color: theme.infoText,
+    iconColor: theme.infoDecorative
   },
   default: {
     color: theme.secondaryText,
@@ -49,7 +49,7 @@ const Badge = ({ text, withIcon, type = 'default', style }: Props) => {
         type === 'success' && styles.successBadge,
         type === 'default' && styles.defaultBadge,
         type === 'warning' && styles.warningBadge,
-        type === 'primary' && styles.primaryBadge,
+        type === 'info' && styles.infoBadge,
         style
       ]}
     >

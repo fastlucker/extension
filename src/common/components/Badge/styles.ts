@@ -7,7 +7,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  primaryBadge: ViewStyle
+  infoBadge: ViewStyle
   defaultBadge: ViewStyle
   successBadge: ViewStyle
   warningBadge: ViewStyle
@@ -28,9 +28,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...common.borderRadiusSecondary
     },
-    primaryBadge: {
+    infoBadge: {
       ...label,
-      borderColor: theme.primary,
+      borderColor: theme.infoDecorative,
       backgroundColor: theme.infoBackground
     },
     defaultBadge: {
