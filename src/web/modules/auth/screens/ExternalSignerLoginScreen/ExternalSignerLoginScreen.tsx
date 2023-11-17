@@ -45,8 +45,7 @@ const ExternalSignerLoginScreen = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
-      privKeyOrSeed:
-        'brisk rich glide impose category stuff company you appear remain decorate monkey',
+      privKeyOrSeed: '',
       label: ''
     }
   })
