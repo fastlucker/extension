@@ -151,7 +151,6 @@ async function init() {
   }
 
   function setAccountStateInterval(intervalLength: number) {
-    console.log(`setting the interval to ${intervalLength}`)
     clearInterval(accountStateInterval)
     selectedAccountStateInterval = intervalLength
 
