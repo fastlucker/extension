@@ -14,10 +14,11 @@ interface Props {
 
 const SettingsPage: FC<Props> = ({ children, currentPage }) => {
   const { styles } = useTheme(getStyles)
+
   return (
-    <View style={{ flexDirection: 'row', flex: 1, backgroundColor: '#F2F3FA' }}>
+    <View style={styles.container}>
       <Sidebar activeLink={currentPage} />
-      <Panel style={styles.container}>{children}</Panel>
+      <Panel style={styles.panel}>{children}</Panel>
     </View>
   )
 }
