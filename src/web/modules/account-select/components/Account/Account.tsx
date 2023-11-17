@@ -5,6 +5,7 @@ import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
+import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import Badge from '@common/components/Badge'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
@@ -39,6 +40,7 @@ const Account = ({
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
+  const MOCK_IS_PINNED = mainCtrl.selectedAccount === addr // @TODO: pinned account logic
 
   const selectAccount = (selectedAddr: string) => {
     dispatch({
@@ -106,8 +108,12 @@ const Account = ({
                 }}
               />
             )}
-            <PinIcon style={[spacings.mr]} />
-            <SettingsIcon />
+            {MOCK_IS_PINNED ? (
+              <UnpinIcon color={theme.secondaryText} style={[spacings.mr]} />
+            ) : (
+              <PinIcon color={theme.secondaryText} style={spacings.mr} />
+            )}
+            <SettingsIcon color={theme.secondaryText} />
           </View>
         </View>
       )}
