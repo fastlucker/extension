@@ -75,19 +75,10 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
         ]}
         onPress={() => navigate(ROUTES.dashboard)}
       >
-        {({ hovered }: any) => (
-          <>
-            <LeftArrowIcon color={hovered ? theme.primary : theme.secondaryText} />
-            <Text
-              fontSize={16}
-              weight="medium"
-              appearance={hovered ? 'primary' : 'secondaryText'}
-              style={spacings.mlLg}
-            >
-              Dashboard
-            </Text>
-          </>
-        )}
+        <LeftArrowIcon color={theme.secondaryText} />
+        <Text fontSize={16} weight="medium" appearance="secondaryText" style={spacings.mlLg}>
+          Dashboard
+        </Text>
       </Pressable>
       <Text style={[spacings.ml, spacings.mbLg]} fontSize={20} weight="medium">
         Settings
@@ -100,7 +91,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
             onPress={() => {
               console.log(item.path)
             }}
-            style={[
+            style={({ hovered }: any) => [
               flexboxStyles.directionRow,
               spacings.pl,
               spacings.pv,
@@ -108,7 +99,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
                 borderTopRightRadius: 6,
                 borderBottomRightRadius: 6,
                 width: 250,
-                backgroundColor: isActive ? theme.tertiaryBackground : 'transparent'
+                backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent'
               }
             ]}
           >
