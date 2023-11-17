@@ -50,7 +50,16 @@ class TrezorSigner implements KeystoreSigner {
 
     const res: any = await trezorConnect.ethereumSignTransaction({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: txnRequest
+      transaction: {
+        ...txnRequest,
+        // TODO: The incoming `txnRequest` mismatch the Trezor req ones
+        // Double-check with Bobby if this is correct!
+        value: txnRequest.value.toString(),
+        gasLimit: txnRequest.gasLimit.toString(),
+        gasPrice: (txnRequest.gasPrice || '').toString(),
+        nonce: txnRequest.nonce.toString(),
+        chainId: +txnRequest.chainId.toString()
+      }
     })
 
     if (res.success) {
