@@ -11,6 +11,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 const AccountsScreen = () => {
   const { accounts, control } = useAccounts()
   const mainCtrl = useMainControllerState()
+
   return (
     <SettingsPage currentPage="accounts">
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 }}>

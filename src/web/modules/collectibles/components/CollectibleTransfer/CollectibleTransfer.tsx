@@ -5,7 +5,6 @@ import { View } from 'react-native'
 import Button from '@common/components/Button'
 import RecipientInput from '@common/components/RecipientInput'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
 
 import styles from './styles'
 
@@ -15,9 +14,7 @@ const CollectibleTransfer = () => {
 
   return (
     <View style={styles.container}>
-      <Text color={colors.martinique} style={styles.title}>
-        {t('Transfer')}
-      </Text>
+      <Text style={styles.title}>{t('Transfer')}</Text>
       <Controller
         name="recipientAddr"
         control={control}

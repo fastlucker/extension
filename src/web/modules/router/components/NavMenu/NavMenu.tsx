@@ -6,14 +6,18 @@ import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
+import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
+import Header from '@common/modules/header/components/Header'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import commonWebStyles from '@web/styles/utils/common'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
@@ -35,9 +39,13 @@ const NavMenu = () => {
   ]
 
   return (
-    <Wrapper>
-      <View style={[spacings.mhMi, spacings.mvTy]}>
-        <View style={(flexboxStyles.directionRow, commonWebStyles.contentContainer)}>
+    <TabLayoutContainer
+      hideFooterInPopup
+      footer={<BackButton />}
+      header={<Header withPopupBackButton />}
+    >
+      <TabLayoutWrapperMainContent>
+        <View style={commonWebStyles.contentContainer}>
           {menu.map(({ Icon, name, route }) => {
             return (
               <TouchableOpacity
@@ -46,15 +54,15 @@ const NavMenu = () => {
                 style={[styles.menuItem]}
               >
                 {!!Icon && <Icon color={colors.black} />}
-                <Text style={spacings.mlTy} color={colors.black}>
+                <Text style={spacings.mlTy} appearance="primaryText">
                   {name}
                 </Text>
               </TouchableOpacity>
             )
           })}
         </View>
-
-        {/* <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
+      </TabLayoutWrapperMainContent>
+      {/* <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
           {social.map(({ Icon, url }) => (
             <TouchableOpacity key={url} onPress={() => Linking.openURL(url)}>
               <Icon style={spacings.mr} />
@@ -62,9 +70,8 @@ const NavMenu = () => {
           ))}
         </View> */}
 
-        {/* <AppVersion /> */}
-      </View>
-    </Wrapper>
+      {/* <AppVersion /> */}
+    </TabLayoutContainer>
   )
 }
 

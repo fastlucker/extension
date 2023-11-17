@@ -6,7 +6,6 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
-    maxWidth: 700,
     marginRight: 'auto',
     marginLeft: 'auto'
   }

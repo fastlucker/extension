@@ -1,30 +1,28 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING_3XL,
+  SPACING_LG,
+  SPACING_XL
+} from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 
-interface Styles {
+interface Style {
   container: ViewStyle
-  innerContainer: ViewStyle
-  gradient: any
 }
 
-const styles = StyleSheet.create<Styles>({
-  container: {
-    ...spacings.mb
-  },
-  innerContainer: {
-    borderRadius: 13,
-    flex: 1,
-    backgroundColor: colors.melrose_15
-  },
-  gradient: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: -1,
-    borderRadius: 13
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
+      paddingVertical: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_XL : SPACING_LG,
+      ...common.borderRadiusPrimary,
+      borderWidth: 1,
+      borderColor: theme.secondaryBorder,
+      backgroundColor: theme.primaryBackground
+    }
+  })
 
-export default styles
+export default getStyles

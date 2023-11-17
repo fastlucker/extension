@@ -1,8 +1,8 @@
 import { stripHexPrefix } from 'ethereumjs-util'
 
-import { TREZOR_HD_PATH } from '@ambire-common/consts/derivation'
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
@@ -43,7 +43,7 @@ class TrezorSigner implements KeystoreSigner {
     delete unsignedTxObj.gas
 
     const res: any = await trezorConnect.ethereumSignTransaction({
-      path: this.key.meta.hdPath,
+      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
       transaction: unsignedTxObj
     })
 
@@ -86,7 +86,7 @@ class TrezorSigner implements KeystoreSigner {
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
     const res = await trezorConnect.ethereumSignTypedData({
-      path: this.key.meta.hdPath,
+      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
       data: {
         types,
         message,
@@ -120,7 +120,7 @@ class TrezorSigner implements KeystoreSigner {
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
     const res = await trezorConnect.ethereumSignMessage({
-      path: this.key.meta.hdPath,
+      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
       message: stripHexPrefix(hex),
       hex: true
     })

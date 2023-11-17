@@ -1,15 +1,30 @@
-import { StyleSheet, TextStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  label: TextStyle
+  container: ViewStyle
+  active: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  label: {
-    marginBottom: 4
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      ...flexbox.flex1,
+      ...flexbox.alignCenter,
+      ...spacings.phTy,
+      ...spacings.pvTy,
+      ...common.borderRadiusPrimary,
+      borderWidth: 1,
+      backgroundColor: theme.secondaryBackground,
+      borderColor: theme.secondaryBorder
+    },
+    active: {
+      borderColor: theme.primary
+    }
+  })
 
-export default styles
+export default getStyles

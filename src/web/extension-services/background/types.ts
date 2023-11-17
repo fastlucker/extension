@@ -3,6 +3,8 @@ import { ActivityController } from '@ambire-common/controllers/activity/activity
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import { SettingsController } from '@ambire-common/controllers/settings/settings'
+import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
@@ -13,8 +15,11 @@ export const controllersNestedInMainMapping = {
   signMessage: SignMessageController,
   portfolio: PortfolioController,
   activity: ActivityController,
-  transfer: TransferController
-  // Add other controllers here:
+  signAccountOp: SignAccountOpController,
+  transfer: TransferController,
+  settings: SettingsController
+
+  // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
 }

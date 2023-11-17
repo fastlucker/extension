@@ -45,12 +45,7 @@ const CreateNewEmailVaultScreen = () => {
       >
         <View style={[styles.mainContentWrapper, hideFormTitle && { ...spacings.mt }]}>
           {!hideFormTitle && (
-            <Text
-              weight="medium"
-              fontSize={16}
-              color={colors.martinique}
-              style={[spacings.mbLg, text.center]}
-            >
+            <Text weight="medium" fontSize={16} style={[spacings.mbLg, text.center]}>
               {t(
                 !isPasswordConfirmStep
                   ? 'Create Or Enter Email Vault'

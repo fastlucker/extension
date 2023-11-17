@@ -52,6 +52,9 @@ if (isExtension) {
   })
 
   dispatch = (action) => {
+    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
+    // from all opened extension instances, leading to some unpredictable behaviors of the state.
+    if (document.hidden) return Promise.resolve(undefined)
     return portMessageChannel.request({
       type: action.type,
       // TypeScript being unable to guarantee that every member of the Action
@@ -72,10 +75,10 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
-
       if (lastError) {
-        // TODO: display error toast instead
-        alert(lastError.message)
+        if (lastError.level !== 'silent')
+          // TODO: display error toast instead
+          alert(lastError.message)
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
         )

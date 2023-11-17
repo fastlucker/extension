@@ -1,73 +1,46 @@
-import React, { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
+import React from 'react'
+import { Pressable, View } from 'react-native'
 
-import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
-import Select from '@common/components/Select'
-import spacings from '@common/styles/spacings'
+import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+
+import getStyles from './styles'
 
 type Props = {
-  keystoreKeys: Key[]
-  selectedKeyAddr: SignMessageController['signingKeyAddr']
-  selectedKeyType: SignMessageController['signingKeyType']
-  selectedAccountFull: Account
+  selectedAccountKeyStoreKeys: Key[]
   handleChangeSigningKey: (keyAddr: Key['addr'], keyType: Key['type']) => void
 }
 
-const SigningKeySelect = ({
-  keystoreKeys,
-  selectedKeyAddr,
-  selectedKeyType,
-  selectedAccountFull,
-  handleChangeSigningKey
-}: Props) => {
-  const { t } = useTranslation()
-
-  // Pull keys from the Keystore and match the ones that have the
-  // same address as the associatedKeys for the selected account.
-  const keySelectorValues = useMemo(
-    () =>
-      keystoreKeys
-        .filter((key) => selectedAccountFull.associatedKeys.includes(key.addr))
-        .map((key) => ({
-          value: `${key.addr}|${key.type}`,
-          label: `${key.label} (${key.addr})`
-        })),
-    [keystoreKeys, selectedAccountFull.associatedKeys]
-  )
-
-  const keyValue = React.useMemo(() => {
-    const key = keystoreKeys.find((x) => x.addr === selectedKeyAddr && x.type === selectedKeyType)
-
-    return {
-      value: `${selectedKeyAddr}|${selectedKeyType}`,
-      label: key ? `${key.label} (${key.addr})` : 'Key'
-    }
-  }, [keystoreKeys, selectedKeyAddr, selectedKeyType])
+const SigningKeySelect = ({ selectedAccountKeyStoreKeys, handleChangeSigningKey }: Props) => {
+  const { theme, styles } = useTheme(getStyles)
+  const settingsCtrl = useSettingsControllerState()
 
   return (
-    <Select
-      setValue={(newValue: any) => {
-        const [keyAddr, keyType] = newValue.value.split('|')
-        handleChangeSigningKey(keyAddr, keyType)
-      }}
-      label={
-        selectedAccountFull.label
-          ? t('Signing with account {{accountLabel}} ({{accountAddress}}) via key:', {
-              accountLabel: selectedAccountFull.label,
-              accountAddress: selectedAccountFull.addr
-            })
-          : t('Signing with account {{accountAddress}} via key:', {
-              accountAddress: selectedAccountFull.addr
-            })
-      }
-      options={keySelectorValues}
-      disabled={!keySelectorValues.length}
-      style={spacings.mb}
-      value={keyValue}
-      defaultValue={keyValue}
-    />
+    <View style={styles.container}>
+      <Text style={styles.title} fontSize={16} weight="medium" appearance="secondaryText">
+        Select a signing key
+      </Text>
+      {selectedAccountKeyStoreKeys.map((key, i) => (
+        <Pressable
+          onPress={() => handleChangeSigningKey(key.addr, key.type)}
+          style={({ hovered }: any) => ({
+            ...styles.signer,
+            backgroundColor: hovered ? theme.secondaryBackground : 'transparent'
+          })}
+        >
+          <Text weight="medium" fontSize={18}>
+            {settingsCtrl.keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)
+              ?.label || `Key ${i + 1}`}
+          </Text>
+          <Text appearance="secondaryText" weight="regular" fontSize={16}>{`${key.addr.slice(
+            0,
+            16
+          )}...${key.addr.slice(-10)}`}</Text>
+        </Pressable>
+      ))}
+    </View>
   )
 }
 

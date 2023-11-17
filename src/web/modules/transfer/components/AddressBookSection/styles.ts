@@ -1,7 +1,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 
 interface Style {
   title: TextStyle
@@ -9,15 +9,16 @@ interface Style {
   buttonText: TextStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  title: spacings.mbSm,
-  button: {
-    borderColor: colors.violet,
-    width: 300
-  },
-  buttonText: {
-    color: colors.violet
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    title: spacings.mbSm,
+    button: {
+      borderColor: theme.primary,
+      width: 300
+    },
+    buttonText: {
+      color: theme.primary
+    }
+  })
 
-export default styles
+export default getStyles

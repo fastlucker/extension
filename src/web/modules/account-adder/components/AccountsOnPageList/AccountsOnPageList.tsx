@@ -5,50 +5,38 @@ import { Pressable, TouchableOpacity, View } from 'react-native'
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import LeftDoubleArrowIcon from '@common/assets/svg/LeftDoubleArrowIcon.tsx'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import RightDoubleArrowIcon from '@common/assets/svg/RightDoubleArrowIcon'
-import Button from '@common/components/Button'
-import NavIconWrapper from '@common/components/NavIconWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import styles from './styles'
 
-const LIST_ITEM_HEIGHT = 76
-const LIST_ITEM_GUTTER = 10
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
 
 const AccountsList = ({
-  isSubmitting = false,
   state,
-  onImportReady,
-  enableCreateEmailVault,
-  onCreateEmailVaultStep,
-  setPage
+  setPage,
+  keyType
 }: {
-  isSubmitting?: boolean
   state: AccountAdderController
-  onImportReady: () => void
-  enableCreateEmailVault?: boolean
-  onCreateEmailVaultStep?: () => void
   setPage: (page: number) => void
+  keyType: string
 }) => {
   const { t } = useTranslation()
-  const [emailVaultStep, setEmailVaultStep] = useState(false)
-  // const [showUnused, setShowUnused] = useState(false)
   const { dispatch } = useBackgroundService()
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
 
   const getDerivationLabel = (_path: HDPath['path']) => {
     const path = HD_PATHS.find((x) => x.path === _path)
@@ -69,7 +57,11 @@ const AccountsList = ({
   }
 
   const handleLargePageStepDecrement = () => {
-    setPage(state.page - LARGE_PAGE_STEP)
+    if (state.page <= LARGE_PAGE_STEP) {
+      setPage(1)
+    } else {
+      setPage(state.page - LARGE_PAGE_STEP)
+    }
   }
 
   const handleLargePageStepIncrement = () => {
@@ -105,10 +97,14 @@ const AccountsList = ({
     return 'smart'
   }
 
+  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
+
+  const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
+
   const getAccounts = (accounts: any) => {
     return accounts.map((acc: any, i: any) => {
       const isSelected = state.selectedAccounts.some(
-        (selectedAcc) => selectedAcc.addr === acc.account.addr
+        (selectedAcc) => selectedAcc.account.addr === acc.account.addr
       )
       const isPreselected = state.preselectedAccounts.some(
         (selectedAcc) => selectedAcc.addr === acc.account.addr
@@ -120,7 +116,7 @@ const AccountsList = ({
           account={acc.account}
           type={setType(acc)}
           isLastInSlot={i === accounts.length - 1}
-          unused={!acc.account.creation && !acc.account.usedOnNetworks.length}
+          unused={!acc.account.usedOnNetworks.length}
           isSelected={isSelected || isPreselected}
           isDisabled={isPreselected}
           onSelect={handleSelectAccount}
@@ -131,111 +127,94 @@ const AccountsList = ({
   }
 
   return (
-    <View>
-      <View style={[flexbox.alignCenter]}>
-        {enableCreateEmailVault && (
-          <Toggle
-            isOn={emailVaultStep}
-            onToggle={() => {
-              setEmailVaultStep(true)
-              onCreateEmailVaultStep && onCreateEmailVaultStep()
-            }}
-            label={t('Enable email recovery for new Smart Accounts')}
-          />
+    <View style={flexbox.flex1}>
+      <View
+        style={[
+          spacings.mbLg,
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.justifySpaceBetween,
+          { minHeight: 40 }
+        ]}
+      >
+        <Text
+          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
+          weight="medium"
+          appearance="primaryText"
+          numberOfLines={1}
+          style={spacings.mrTy}
+        >
+          {keyType === 'internal'
+            ? t('Pick Accounts To Import')
+            : t('Import Account From {{ hwDeviceName }}', {
+                hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+              })}
+        </Text>
+        {/* TODO: impl change derivation and move this into a separate component */}
+        {state.accountsLoading ? null : (
+          <Pressable style={styles.derivationButton} disabled>
+            <View style={styles.derivationButtonInfo}>
+              <Text weight="medium" fontSize={14}>
+                {state.hdPathTemplate && getDerivationLabel(state.hdPathTemplate)}{' '}
+              </Text>
+            </View>
+            <DownArrowIcon />
+          </Pressable>
         )}
-        <Wrapper
-          contentContainerStyle={{
-            ...spacings.pv0,
-            ...spacings.ph0
-          }}
-        >
-          {/* TODO: impl change derivation and move this into a separate component */}
-          {state.accountsLoading ? null : (
-            <Pressable style={styles.derivationButton} disabled>
-              <View style={styles.derivationButtonInfo}>
-                <Text weight="medium" fontSize={14}>
-                  {state.derivationPath &&
-                    getDerivationLabel(state.derivationPath as HDPath['path'])}{' '}
-                </Text>
-                <Text weight="medium" fontSize={14} color={colors.martinique_65}>
-                  {state.derivationPath}{' '}
-                </Text>
-              </View>
-              <NavIconWrapper
-                onPress={() => null}
-                width={25}
-                height={25}
-                hoverBackground={colors.lightViolet}
-                style={styles.derivationButtonRightIcon}
-              >
-                <RightArrowIcon width={26} height={26} withRect={false} />
-              </NavIconWrapper>
-            </Pressable>
-          )}
-          <Wrapper
-            contentContainerStyle={{
-              height: LIST_ITEM_HEIGHT * 5 + LIST_ITEM_GUTTER * 4,
-              ...spacings.pt0,
-              ...spacings.phSm
-            }}
+      </View>
+
+      <Wrapper
+        style={shouldEnablePagination && spacings.mbLg}
+        contentContainerStyle={{
+          flexGrow: 1,
+          ...spacings.pt0,
+          ...spacings.pl0,
+          ...spacings?.[hasScroll ? 'prSm' : 'pr0']
+        }}
+        onLayout={(e) => {
+          setContainerHeight(e.nativeEvent.layout.height)
+        }}
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height)
+        }}
+      >
+        {state.accountsLoading ? (
+          <View
+            style={[flexbox.alignCenter, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
           >
-            {state.accountsLoading ? (
-              <View
-                style={[
-                  flexbox.alignCenter,
-                  flexbox.flex1,
-                  flexbox.alignCenter,
-                  flexbox.justifyCenter
-                ]}
-              >
-                <Spinner style={{ width: 28, height: 28 }} />
-              </View>
-            ) : (
-              Object.keys(slots).map((key) => {
-                return (
-                  <Slot key={key} slot={+key + (state.page - 1) * state.pageSize}>
-                    {getAccounts(slots[key])}
-                  </Slot>
-                )
-              })
-            )}
-          </Wrapper>
-        </Wrapper>
-
-        <View
-          style={[
-            flexbox.alignCenter,
-            spacings.ptSm,
-            { opacity: state.linkedAccountsLoading ? 1 : 0 }
-          ]}
-        >
-          <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-            <Spinner style={{ width: 16, height: 16 }} />
-            <Text color={colors.violet} style={[spacings.mlSm]} fontSize={12}>
-              {t('Looking for linked smart accounts')}
-            </Text>
+            <Spinner style={{ width: 28, height: 28 }} />
           </View>
-        </View>
-
-        <View
-          style={[flexbox.directionRow, flexbox.justifyCenter, flexbox.alignCenter, spacings.pv]}
-        >
+        ) : (
+          Object.keys(slots).map((key) => {
+            return (
+              <Slot key={key} slot={+key}>
+                {getAccounts(slots[key])}
+              </Slot>
+            )
+          })
+        )}
+      </Wrapper>
+      {!!shouldEnablePagination && (
+        <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
           <TouchableOpacity
             onPress={handleLargePageStepDecrement}
-            disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
-            style={state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.6 }}
+            disabled={state.page === 1 || disablePagination}
+            style={[spacings.mrLg, (state.page === 1 || disablePagination) && { opacity: 0.4 }]}
           >
-            <LeftDoubleArrowIcon />
+            <View style={flexbox.directionRow}>
+              <LeftArrowIcon />
+              <LeftArrowIcon />
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSmallPageStepDecrement}
             disabled={state.page === 1 || disablePagination}
-            style={(state.page === 1 || disablePagination) && { opacity: 0.6 }}
+            style={(state.page === 1 || disablePagination) && { opacity: 0.4 }}
           >
-            <LeftArrowIcon width={36} height={36} style={[spacings.mlTy]} />
+            <LeftArrowIcon />
           </TouchableOpacity>
-          <Text style={spacings.ph}>
-            {state.page > 2 && <Text>{'...  '}</Text>}
+          <Text style={spacings.phLg}>
+            {state.page > 2 && <Text>...</Text>}
             {state.page === 1 && (
               <Text>
                 <Text weight="semiBold">{state.page}</Text>
@@ -252,37 +231,27 @@ const AccountsList = ({
             <Text>{'  ...'}</Text>
           </Text>
           <TouchableOpacity
-            style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+            style={[
+              spacings.mrLg,
+              (state.accountsLoading || disablePagination) && { opacity: 0.4 }
+            ]}
             disabled={state.accountsLoading || disablePagination}
             onPress={handleSmallPageStepIncrement}
           >
-            <RightArrowIcon style={[spacings.mrTy]} />
+            <RightArrowIcon />
           </TouchableOpacity>
           <TouchableOpacity
-            style={(state.accountsLoading || disablePagination) && { opacity: 0.6 }}
+            style={(state.accountsLoading || disablePagination) && { opacity: 0.4 }}
             disabled={state.accountsLoading || disablePagination}
             onPress={handleLargePageStepIncrement}
           >
-            <RightDoubleArrowIcon />
+            <View style={flexbox.directionRow}>
+              <RightArrowIcon />
+              <RightArrowIcon />
+            </View>
           </TouchableOpacity>
         </View>
-        <Button
-          style={{ ...spacings.mtTy, width: 296, ...flexbox.alignSelfCenter }}
-          onPress={onImportReady}
-          disabled={
-            state.accountsLoading ||
-            isSubmitting ||
-            (!state.selectedAccounts.length && !state.preselectedAccounts.length)
-          }
-          text={
-            isSubmitting
-              ? t('Importing...')
-              : state.preselectedAccounts.length && !state.selectedAccounts.length
-              ? t('Continue')
-              : t('Import Accounts')
-          }
-        />
-      </View>
+      )}
     </View>
   )
 }
