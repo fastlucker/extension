@@ -6,7 +6,7 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect from '@trezor/connect-web'
+import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
@@ -26,7 +26,21 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(params: any) {
+  async signRawTransaction(
+    // txnRequest: TransactionRequest
+    txnRequest: EthereumTransaction | EthereumTransactionEIP1559
+    // TODO: params
+    // {
+    //   to: Call['to']
+    //   value: Call['value']
+    //   data: Call['data']
+    //   chainId: NetworkDescriptor['chainId']
+    //   nonce: number
+    //   gasLimit: GasFeePayment['simulatedGasLimit']
+    //   gasPrice: BigInt
+    // }
+  ) {
+    // debugger
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
     }
@@ -34,29 +48,23 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const unsignedTxObj = {
-      ...params,
-      gasLimit: params.gasLimit || params.gas
-    }
-
-    delete unsignedTxObj.from
-    delete unsignedTxObj.gas
-
     const res: any = await trezorConnect.ethereumSignTransaction({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: unsignedTxObj
+      transaction: txnRequest
     })
 
     if (res.success) {
       const intV = parseInt(res.payload.v, 16)
       const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
 
-      if (signedChainId !== params.chainId) {
+      if (signedChainId !== txnRequest.chainId) {
         throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
       }
-      delete unsignedTxObj.v
 
-      const signature = serialize(unsignedTxObj, {
+      // TODO: why?
+      // delete txnRequest.v
+
+      const signature = serialize(txnRequest, {
         r: res.payload.r,
         s: res.payload.s,
         v: intV
