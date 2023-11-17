@@ -6,8 +6,8 @@ import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts/useAccounts'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import SettingsPage from '@web/components/SettingsPage'
 import Account from '@web/modules/account-select/components/Account'
+import SettingsPage from '@web/modules/settings/components/SettingsPage'
 
 const AccountsSettingsScreen = () => {
   const { accounts, control } = useAccounts()
