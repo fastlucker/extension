@@ -86,11 +86,10 @@ async function init() {
       return sessionService.broadcastEvent('accountsChanged', account)
     },
     onBroadcastSuccess: (
-      type: 'message' | 'typed-data' | 'account-op',
-      opts?: {}
+      type: 'message' | 'typed-data' | 'account-op'
     ) => {
       notifyForSuccessfulBroadcast(type)
-      setAccountStateInterval(accountStateIntervals.pending, opts)
+      setAccountStateInterval(accountStateIntervals.pending)
     },
     pinned: pinnedTokens
   })
@@ -151,11 +150,17 @@ async function init() {
     standBy: 300000
   }
 
-  function setAccountStateInterval(intervalLength: number, opts?: {
-    accountAddr?: string
-  }) {
+  function setAccountStateInterval(intervalLength: number) {
+    console.log(`setting the interval to ${intervalLength}`)
     clearInterval(accountStateInterval)
     selectedAccountStateInterval = intervalLength
+
+    // if setAccountStateInterval is called with a pending request
+    // (this happens after broadcast), update the account state
+    // with the pending block without waiting
+    if (selectedAccountStateInterval === accountStateIntervals.pending) {
+      mainCtrl.updateAccountStates('pending')
+    }
 
     accountStateInterval = setInterval(async () => {
       // update the account state with the latest block in normal
@@ -165,61 +170,14 @@ async function init() {
         selectedAccountStateInterval === accountStateIntervals.standBy ? 'latest' : 'pending'
       mainCtrl.updateAccountStates(blockTag)
 
-      if (selectedAccountStateInterval === accountStateIntervals.standBy) {
-        return
-      }
-
-      // if we don't have any account ops, set the refresh rate to standBy
-      const accountsOps = await storage.get('accountsOps', {})
-      if (!accountsOps) {
+      // if we're in a pending update interval but there are no
+      // broadcastedButNotConfirmed account Ops, set the interval to standBy
+      if (
+        selectedAccountStateInterval === accountStateIntervals.pending &&
+        !mainCtrl.activity.broadcastedButNotConfirmed.length
+      ) {
         setAccountStateInterval(accountStateIntervals.standBy)
         return
-      }
-
-      /**
-       * Pass the accountOps for a single account and check whether
-       * it has pending ops on any network
-       *
-       * @param accountOps the account ops for a single account
-       * @returns boolean
-       */
-      const hasAccountNotConfirmedOps = (accountOps: any): boolean => {
-        for (const network in accountOps) {
-          if (
-            accountOps[network].filter((accOp: SubmittedAccountOp) => {
-              return accOp.status === AccountOpStatus.BroadcastedButNotConfirmed
-            }).length > 0
-          )
-            return true
-        }
-        return false
-      }
-
-      /**
-       * Check if there are any pending account ops for all of
-       * the user accounts accross networks
-       *
-       * @param accountsOps InternalAccountsOps
-       * @returns boolean
-       */
-      const hasNotConfirmedOps = (accountsOps: any): boolean => {
-        for (const account in accountsOps) {
-          if (hasAccountNotConfirmedOps(accountsOps[account])) return true
-        }
-        return false
-      }
-
-      // if we have a set account filter in the opts, we check only for its
-      // accountOps. The state refresh is set to pending after broadcast.
-      // There's no point in checking the other account in this scenario
-      // this is synced with how the activity controller works - it changes
-      // the statuses only of the selectedAccount
-      const hasBroadcastedButNotConfirmed = opts?.accountAddr
-        ? hasAccountNotConfirmedOps(accountsOps[opts.accountAddr])
-        : hasNotConfirmedOps(accountsOps)
-
-      if (!hasBroadcastedButNotConfirmed) {
-        setAccountStateInterval(accountStateIntervals.standBy)
       }
     }, intervalLength)
   }
