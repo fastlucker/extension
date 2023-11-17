@@ -43,10 +43,10 @@ export const getDefaultAccountPfp = (prevAccountsCount: number, i: number) => {
 }
 
 export const getDefaultKeyLabel = (
-  customLabel: string,
   keyType: Key['type'],
   index: number,
-  slot: number
+  slot: number,
+  customLabel?: string
 ) => {
   const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Legacy Key'
   const from =
