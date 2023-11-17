@@ -183,7 +183,7 @@ const ViewOnlyScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
                   <Input
-                    containerStyle={{ width: '100%', marginBottom: 0 }}
+                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     onBlur={onBlur}
                     placeholder={t('Enter an address')}
                     onChangeText={onChange}
