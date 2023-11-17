@@ -13,6 +13,7 @@ import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 const sidebarItems = [
@@ -69,7 +70,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           {
             width: '100%',
             backgroundColor: hovered ? theme.tertiaryBackground : 'transparent',
-            borderBottomRightRadius: 6
+            borderBottomRightRadius: BORDER_RADIUS_PRIMARY
           }
         ]}
         onPress={() => navigate(ROUTES.dashboard)}
@@ -95,8 +96,8 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
               spacings.pl,
               spacings.pv,
               {
-                borderTopRightRadius: 6,
-                borderBottomRightRadius: 6,
+                borderTopRightRadius: BORDER_RADIUS_PRIMARY,
+                borderBottomRightRadius: BORDER_RADIUS_PRIMARY,
                 width: 250,
                 backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent'
               }
