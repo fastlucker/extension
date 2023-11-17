@@ -1,16 +1,9 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  color?: ColorValue
-}
-
-const EmailVaultIcon: React.FC<Props> = ({
+const EmailVaultIcon: React.FC<SvgProps> = ({
   width = 24,
   height = 24,
   color = colors.martinique

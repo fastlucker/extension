@@ -1,16 +1,13 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  color?: ColorValue
-}
-
-const AccountsIcon: React.FC<Props> = ({ width = 24, height = 24, color = colors.martinique }) => (
+const AccountsIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = colors.martinique
+}) => (
   <Svg width={width} height={height} viewBox="0 0 20.625 21.31">
     <G id="Accounts_icon" transform="translate(-2328.688 -230.345)">
       <G id="Group_975" transform="translate(2327.091 229.095)">

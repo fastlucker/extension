@@ -1,16 +1,13 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  color?: ColorValue
-}
-
-const NetworksIcon: React.FC<Props> = ({ width = 24, height = 24, color = colors.martinique }) => (
+const NetworksIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = colors.martinique
+}) => (
   <Svg width={width} height={height} viewBox="0 0 21.5 21.533">
     <G>
       <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
