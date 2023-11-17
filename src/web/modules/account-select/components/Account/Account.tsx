@@ -98,7 +98,7 @@ const Account = ({
             {isCopyVisible && (
               <CopyText
                 text={addr}
-                iconColor={theme.primaryText}
+                iconColor={theme.secondaryText}
                 iconWidth={20}
                 iconHeight={20}
                 style={{
