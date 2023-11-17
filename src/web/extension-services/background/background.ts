@@ -421,8 +421,16 @@ async function init() {
               return mainCtrl.signAccountOp.updateMainDeps(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl.signAccountOp.update(data.params)
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
+              if (mainCtrl.signAccountOp.accountOp?.signingKeyType === 'ledger')
+                return mainCtrl.signAccountOp.sign(ledgerCtrl)
+              if (mainCtrl.signAccountOp.accountOp?.signingKeyType === 'trezor')
+                return mainCtrl.signAccountOp.sign(trezorCtrl)
+              if (mainCtrl.signAccountOp.accountOp?.signingKeyType === 'lattice')
+                return mainCtrl.signAccountOp.sign(latticeCtrl)
+
               return mainCtrl.signAccountOp.sign()
+            }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
               return mainCtrl.reestimateAndUpdatePrices(
                 data.params.accountAddr,
