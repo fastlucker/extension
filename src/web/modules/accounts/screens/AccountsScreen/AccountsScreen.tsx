@@ -1,32 +1,35 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import Account from '@common/components/Account/Account'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts/useAccounts'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
 import SettingsPage from '@web/components/SettingsPage'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import Account from '@web/modules/account-select/components/Account'
 
 const AccountsScreen = () => {
   const { accounts, control } = useAccounts()
-  const mainCtrl = useMainControllerState()
 
   return (
     <SettingsPage currentPage="accounts">
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 40 }}>
+      <View
+        style={[
+          flexboxStyles.directionRow,
+          flexboxStyles.alignCenter,
+          flexboxStyles.justifySpaceBetween,
+          spacings.mbXl
+        ]}
+      >
         <Text fontSize={20} weight="medium">
           Accounts
         </Text>
-        <Search control={control} />
+        <Search placeholder="Search for account" control={control} />
       </View>
       <View>
         {accounts.map((account) => (
-          <Account
-            selectedAccount={mainCtrl.selectedAccount}
-            key={account.addr}
-            account={account}
-          />
+          <Account isCopyVisible={false} key={account.addr} account={account} />
         ))}
       </View>
     </SettingsPage>
