@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import Search from '@common/components/Search'
@@ -10,6 +11,7 @@ import Account from '@web/modules/account-select/components/Account'
 import SettingsPage from '@web/modules/settings/components/SettingsPage'
 
 const AccountsSettingsScreen = () => {
+  const { t } = useTranslation()
   const { accounts, control } = useAccounts()
 
   return (
@@ -23,7 +25,7 @@ const AccountsSettingsScreen = () => {
         ]}
       >
         <Text fontSize={20} weight="medium">
-          Accounts
+          {t('Accounts')}
         </Text>
         <Search placeholder="Search for account" control={control} />
       </View>

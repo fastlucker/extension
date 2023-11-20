@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ColorValue, Pressable, View } from 'react-native'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
@@ -16,48 +17,50 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
-const sidebarItems = [
+const getSidebarItems = (t: (string: string) => string) => [
   {
     key: 'accounts',
     Icon: ({ color }: { color: ColorValue }) => <AccountsIcon color={color} />,
-    label: 'Accounts',
+    label: t('Accounts'),
     path: '/settings/accounts'
   },
   {
     key: 'networks',
     Icon: ({ color }: { color: ColorValue }) => <NetworksIcon color={color} />,
-    label: 'Networks',
+    label: t('Networks'),
     path: '/settings/networks'
   },
   {
     key: 'transaction-history',
     Icon: ({ color }: { color: ColorValue }) => <TransactionHistoryIcon color={color} />,
-    label: 'Transaction History',
+    label: t('Transaction History'),
     path: '/settings/transaction-history'
   },
   {
     key: 'keystore-settings',
     Icon: ({ color }: { color: ColorValue }) => <KeyStoreSettingsIcon color={color} />,
-    label: 'Ambire Key Store',
+    label: t('Ambire Key Store'),
     path: '/settings/keystore-settings'
   },
   {
     key: 'email-vault',
     Icon: ({ color }: { color: ColorValue }) => <EmailVaultIcon color={color} />,
-    label: 'Email Vault',
+    label: t('Email Vault'),
     path: '/settings/email-vault'
   },
   {
     key: 'custom-tokens',
     Icon: ({ color }: { color: ColorValue }) => <CustomTokensIcon color={color} />,
-    label: 'Custom Tokens',
+    label: t('Custom Tokens'),
     path: '/settings/custom-tokens'
   }
 ]
 
 const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme } = useTheme()
+  const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const sidebarItems = getSidebarItems(t)
   return (
     <View style={{ ...spacings.pbMd, position: 'relative' }}>
       <Pressable
@@ -77,11 +80,11 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
       >
         <LeftArrowIcon color={theme.secondaryText} />
         <Text fontSize={16} weight="medium" appearance="secondaryText" style={spacings.mlLg}>
-          Dashboard
+          {t('Dashboard')}
         </Text>
       </Pressable>
       <Text style={[spacings.ml, spacings.mbLg]} fontSize={20} weight="medium">
-        Settings
+        {t('Settings')}
       </Text>
       {sidebarItems.map((item) => {
         const isActive = activeLink === item.key
