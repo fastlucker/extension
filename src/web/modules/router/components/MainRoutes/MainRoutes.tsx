@@ -28,6 +28,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
@@ -82,6 +83,7 @@ const MainRoutes = () => {
             />
             <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
+            <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
           </Route>
         </Route>
       </Route>
