@@ -17,12 +17,12 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
-const getSidebarItems = (t: (string: string) => string) => [
+export const getSettingsPages = (t: (string: string) => string) => [
   {
     key: 'accounts',
     Icon: ({ color }: { color: ColorValue }) => <AccountsIcon color={color} />,
     label: t('Accounts'),
-    path: '/settings/accounts'
+    path: ROUTES.accounts
   },
   {
     key: 'networks',
@@ -34,7 +34,7 @@ const getSidebarItems = (t: (string: string) => string) => [
     key: 'transaction-history',
     Icon: ({ color }: { color: ColorValue }) => <TransactionHistoryIcon color={color} />,
     label: t('Transaction History'),
-    path: '/settings/transaction-history'
+    path: ROUTES.transactions
   },
   {
     key: 'keystore-settings',
@@ -60,7 +60,8 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const sidebarItems = getSidebarItems(t)
+  const sidebarItems = getSettingsPages(t)
+
   return (
     <View style={{ ...spacings.pbMd, position: 'relative' }}>
       <Pressable
@@ -92,7 +93,12 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           <Pressable
             key={item.key}
             onPress={() => {
-              console.log(item.path)
+              if (item.path in ROUTES) {
+                navigate(item.path)
+                return
+              }
+
+              alert('Not implemented yet')
             }}
             style={({ hovered }: any) => [
               flexboxStyles.directionRow,
