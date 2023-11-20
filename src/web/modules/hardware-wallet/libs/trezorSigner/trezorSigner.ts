@@ -1,10 +1,12 @@
 import { stripHexPrefix } from 'ethereumjs-util'
+import { Transaction } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import { Call, GasFeePayment } from '@ambire-common/libs/accountOp/accountOp'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
-import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -25,22 +27,15 @@ class TrezorSigner implements KeystoreSigner {
     this.controller = _controller
   }
 
-  // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(
-    // txnRequest: TransactionRequest
-    txnRequest: EthereumTransaction | EthereumTransactionEIP1559
-    // TODO: params
-    // {
-    //   to: Call['to']
-    //   value: Call['value']
-    //   data: Call['data']
-    //   chainId: NetworkDescriptor['chainId']
-    //   nonce: number
-    //   gasLimit: GasFeePayment['simulatedGasLimit']
-    //   gasPrice: BigInt
-    // }
-  ) {
-    // debugger
+  async signRawTransaction(txnRequest: {
+    to: Call['to']
+    value: Call['value']
+    data: Call['data']
+    chainId: NetworkDescriptor['chainId']
+    nonce: number
+    gasLimit: GasFeePayment['simulatedGasLimit']
+    gasPrice: BigInt
+  }) {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
     }
@@ -48,36 +43,52 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const res: any = await trezorConnect.ethereumSignTransaction({
+    // The incoming `txnRequest` param types mismatch the Trezor expected ones,
+    // so normalize the types before passing them to the Trezor API
+    const unsignedTransaction: EthereumTransaction | EthereumTransactionEIP1559 = {
+      ...txnRequest,
+      // FIXME: Figure out why the values on Trezor screen mismatch
+      value: txnRequest.value.toString(),
+      gasLimit: txnRequest.gasLimit.toString(),
+      gasPrice: txnRequest.gasPrice.toString(),
+      nonce: txnRequest.nonce.toString(),
+      chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
+    }
+
+    const res = await trezorConnect.ethereumSignTransaction({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: {
-        ...txnRequest,
-        // TODO: The incoming `txnRequest` mismatch the Trezor req ones
-        // Double-check with Bobby if this is correct!
-        value: txnRequest.value.toString(),
-        gasLimit: txnRequest.gasLimit.toString(),
-        gasPrice: (txnRequest.gasPrice || '').toString(),
-        nonce: txnRequest.nonce.toString(),
-        chainId: +txnRequest.chainId.toString()
-      }
+      transaction: unsignedTransaction
     })
 
     if (res.success) {
-      const intV = parseInt(res.payload.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-      if (signedChainId !== txnRequest.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
+      const signedTxn = {
+        ...unsignedTransaction,
+        nonce: txnRequest.nonce,
+        v: res.payload.v,
+        r: res.payload.r,
+        s: res.payload.s
       }
+
+      // const intV = parseInt(res.payload.v, 16)
+
+      // TODO: why?
+      // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+      // if (signedChainId !== txnRequest.chainId) {
+      //   throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
+      // }
 
       // TODO: why?
       // delete txnRequest.v
 
-      const signature = serialize(txnRequest, {
-        r: res.payload.r,
-        s: res.payload.s,
-        v: intV
-      })
+      // TODO: Figure out if this serializes the transaction correctly
+      const signature = Transaction.from(signedTxn).serialized
+
+      // TODO: do this with EthersJS instead
+      // const signature = serialize(transaction, {
+      //   r: res.payload.r,
+      //   s: res.payload.s,
+      //   v: intV
+      // })
 
       return signature
     }
