@@ -1,17 +1,15 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Linking, TouchableOpacity, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CheckIcon from '@common/assets/svg/CheckIcon'
-import CloseIconRound from '@common/assets/svg/CloseIconRound'
-import ErrorIcon from '@common/assets/svg/ErrorIcon'
-import Text from '@common/components/Text'
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert'
 import { isWeb } from '@common/config/env'
+import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
-import colors from '@common/styles/colors'
-import spacings, { SPACING_MD, SPACING_TY } from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
@@ -33,10 +31,11 @@ interface Toast extends Options {
   onClick?: () => void
 }
 
+const { isPopup } = getUiType()
+
 // Magic spacing for positioning the toast list
 // to match exactly the area of the header + its bottom spacing
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
-const ADDITIONAL_TOP_SPACING_WEB = SPACING_MD
 
 const ToastContext = React.createContext<{
   addToast: (text: string, options: Options) => number
@@ -52,7 +51,10 @@ const defaultOptions = {
   sticky: false
 }
 
+let nextToastId = 0
+
 const ToastProvider = ({ children }: Props) => {
+  const { theme } = useTheme()
   const [toasts, setToasts] = useState<Toast[]>([])
   const insets = useSafeAreaInsets()
 
@@ -63,7 +65,7 @@ const ToastProvider = ({ children }: Props) => {
   const addToast = useCallback(
     (text: string, options: Options) => {
       const toast = {
-        id: toasts.length + 1,
+        id: nextToastId++,
         text,
         ...defaultOptions,
         ...options
@@ -74,7 +76,7 @@ const ToastProvider = ({ children }: Props) => {
 
       return toast.id
     },
-    [setToasts, removeToast, toasts]
+    [setToasts, removeToast]
   )
 
   const onToastPress = useCallback(
@@ -85,10 +87,7 @@ const ToastProvider = ({ children }: Props) => {
     [removeToast]
   )
 
-  const topInset =
-    insets.top +
-    HEADER_HEIGHT +
-    (isWeb ? ADDITIONAL_TOP_SPACING_WEB : ADDITIONAL_TOP_SPACING_MOBILE)
+  const topInset = insets.top + HEADER_HEIGHT + (isWeb ? 0 : ADDITIONAL_TOP_SPACING_MOBILE)
 
   return (
     <ToastContext.Provider
@@ -102,28 +101,29 @@ const ToastProvider = ({ children }: Props) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {toasts.map(({ id, url, type, sticky, text, onClick }) => (
-            <View style={styles.toastWrapper} key={id}>
-              <TouchableOpacity
-                style={[styles.toast, type === 'error' && styles.error]}
-                onPress={() => onToastPress(id, onClick, url)}
-                activeOpacity={0.9}
-              >
-                <View style={spacings.prTy}>
-                  {type === 'error' ? <ErrorIcon /> : <CheckIcon />}
-                </View>
-                <View style={flexboxStyles.flex1}>
-                  <Text numberOfLines={7} color={colors.patriotBlue} weight="regular" fontSize={12}>
-                    {text}
-                  </Text>
-                </View>
+          {toasts.map(({ id, url, type = 'success', sticky, text, onClick }) => (
+            <Pressable
+              onPress={() => onToastPress(id, onClick, url)}
+              style={[
+                styles.toastWrapper,
+                {
+                  borderWidth: 1,
+                  borderColor: theme[`${type}Decorative`]
+                }
+              ]}
+              key={id}
+            >
+              <Alert size={isPopup ? 'sm' : 'md'} title={text} type={type}>
                 {!!sticky && (
-                  <TouchableOpacity style={spacings.plTy} onPress={() => removeToast(id)}>
-                    <CloseIconRound color={type === 'error' ? colors.pink : colors.turquoise} />
-                  </TouchableOpacity>
+                  <Pressable
+                    style={{ marginLeft: 'auto', ...spacings.mtMi }}
+                    onPress={() => removeToast(id)}
+                  >
+                    <CloseIcon color={theme[`${type}Decorative`]} />
+                  </Pressable>
                 )}
-              </TouchableOpacity>
-            </View>
+              </Alert>
+            </Pressable>
           ))}
         </View>
       </Portal>
