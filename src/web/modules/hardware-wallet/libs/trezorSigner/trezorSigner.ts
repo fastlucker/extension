@@ -1,5 +1,5 @@
 import { stripHexPrefix } from 'ethereumjs-util'
-import { Transaction } from 'ethers'
+import { toBeHex } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -7,6 +7,7 @@ import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { Call, GasFeePayment } from '@ambire-common/libs/accountOp/accountOp'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
+import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -34,7 +35,7 @@ class TrezorSigner implements KeystoreSigner {
     chainId: NetworkDescriptor['chainId']
     nonce: number
     gasLimit: GasFeePayment['simulatedGasLimit']
-    gasPrice: BigInt
+    gasPrice: bigint
   }) {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
@@ -43,15 +44,14 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    // The incoming `txnRequest` param types mismatch the Trezor expected ones,
-    // so normalize the types before passing them to the Trezor API
     const unsignedTransaction: EthereumTransaction | EthereumTransactionEIP1559 = {
       ...txnRequest,
-      // FIXME: Figure out why the values on Trezor screen mismatch
-      value: txnRequest.value.toString(),
-      gasLimit: txnRequest.gasLimit.toString(),
-      gasPrice: txnRequest.gasPrice.toString(),
-      nonce: txnRequest.nonce.toString(),
+      // The incoming `txnRequest` param types mismatch the Trezor expected ones,
+      // so normalize the types before passing them to the Trezor API
+      value: toBeHex(txnRequest.value),
+      gasLimit: toBeHex(txnRequest.gasLimit),
+      gasPrice: toBeHex(txnRequest.gasPrice),
+      nonce: toBeHex(txnRequest.nonce),
       chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
     }
 
@@ -63,13 +63,11 @@ class TrezorSigner implements KeystoreSigner {
     if (res.success) {
       const signedTxn = {
         ...unsignedTransaction,
-        nonce: txnRequest.nonce,
-        v: res.payload.v,
-        r: res.payload.r,
-        s: res.payload.s
+        nonce: txnRequest.nonce
+        // v: res.payload.v,
+        // r: res.payload.r,
+        // s: res.payload.s
       }
-
-      // const intV = parseInt(res.payload.v, 16)
 
       // TODO: why?
       // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
@@ -80,15 +78,14 @@ class TrezorSigner implements KeystoreSigner {
       // TODO: why?
       // delete txnRequest.v
 
-      // TODO: Figure out if this serializes the transaction correctly
-      const signature = Transaction.from(signedTxn).serialized
-
-      // TODO: do this with EthersJS instead
-      // const signature = serialize(transaction, {
-      //   r: res.payload.r,
-      //   s: res.payload.s,
-      //   v: intV
-      // })
+      // TODO: Do this with EthersJS instead
+      // const signature = Transaction.from(signedTxn).serialized
+      const intV = parseInt(res.payload.v, 16)
+      const signature = serialize(signedTxn, {
+        r: res.payload.r,
+        s: res.payload.s,
+        v: intV
+      })
 
       return signature
     }
