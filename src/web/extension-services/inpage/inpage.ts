@@ -301,7 +301,7 @@ export class EthereumProvider extends EventEmitter {
 
   // TODO: support multi request!
   request = async (data) => {
-    if (!this._isAmbire) {
+    if (!this._isReady) {
       const promise = new Promise((resolve, reject) => {
         this._cacheRequestsBeforeReady.push({
           data,
