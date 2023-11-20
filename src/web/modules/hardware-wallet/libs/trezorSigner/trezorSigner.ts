@@ -61,33 +61,39 @@ class TrezorSigner implements KeystoreSigner {
     })
 
     if (res.success) {
-      const signedTxn = {
-        ...unsignedTransaction,
-        nonce: txnRequest.nonce
-        // v: res.payload.v,
-        // r: res.payload.r,
-        // s: res.payload.s
-      }
-
-      // TODO: why?
+      // TODO: DO we need this check?
       // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
       // if (signedChainId !== txnRequest.chainId) {
       //   throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
       // }
 
-      // TODO: why?
-      // delete txnRequest.v
+      try {
+        // Serialize via '@ethersproject/transactions'
+        const serializedSignedTxn = serialize(
+          { ...unsignedTransaction, nonce: txnRequest.nonce },
+          {
+            r: res.payload.r,
+            s: res.payload.s,
+            v: parseInt(res.payload.v, 16)
+          }
+        )
 
-      // TODO: Do this with EthersJS instead
-      // const signature = Transaction.from(signedTxn).serialized
-      const intV = parseInt(res.payload.v, 16)
-      const signature = serialize(signedTxn, {
-        r: res.payload.r,
-        s: res.payload.s,
-        v: intV
-      })
+        // TODO: Serialize via EthersJS v6
+        // const signature = Signature.from({
+        //   r: res.payload.r,
+        //   s: res.payload.s,
+        //   v: parseInt(res.payload.v, 16)
+        // })
+        // const serializedSignedTxn = Transaction.from({
+        //   ...unsignedTransaction,
+        //   nonce: txnRequest.nonce,
+        //   signature
+        // }).serialized
 
-      return signature
+        return serializedSignedTxn
+      } catch (error: any) {
+        throw new Error(error?.message || 'trezorSigner: unknown error')
+      }
     }
 
     throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
