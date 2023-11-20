@@ -1,5 +1,5 @@
 import { stripHexPrefix } from 'ethereumjs-util'
-import { toBeHex } from 'ethers'
+import { Signature, toBeHex } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -13,7 +13,6 @@ import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
-const EIP_155_CONSTANT = 35
 
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
@@ -64,12 +63,6 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error(res.payload?.error || 'trezorSigner: unknown error')
     }
 
-    // TODO: DO we need this check?
-    // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-    // if (signedChainId !== txnRequest.chainId) {
-    //   throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
-    // }
-
     try {
       // Serialize via '@ethersproject/transactions'
       const serializedSignedTxn = serialize(
@@ -77,11 +70,15 @@ class TrezorSigner implements KeystoreSigner {
         {
           r: res.payload.r,
           s: res.payload.s,
-          v: parseInt(res.payload.v, 16)
+          v: Signature.getNormalizedV(res.payload.v)
         }
       )
 
-      // TODO: Serialize via EthersJS v6
+      // TODO: Serialize via EthersJS v6. Currently not working, Trying to
+      // decode this serialized transaction returns:
+      //     "Decode Error: AssertionError: invalid remainder
+      // And trying to broadcast it (provider.broadcastTransaction) fails with
+      // misleading error that the sender does not have enough to cover the fee.
       // const signature = Signature.from({
       //   r: res.payload.r,
       //   s: res.payload.s,
