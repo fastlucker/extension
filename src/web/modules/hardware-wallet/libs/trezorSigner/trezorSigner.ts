@@ -85,7 +85,7 @@ class TrezorSigner implements KeystoreSigner {
       // const signature = Signature.from({
       //   r: res.payload.r,
       //   s: res.payload.s,
-      //   v: parseInt(res.payload.v, 16)
+      //   v: Signature.getNormalizedV(res.payload.v)
       // })
       // const serializedSignedTxn = Transaction.from({
       //   ...unsignedTransaction,
