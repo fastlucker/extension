@@ -20,8 +20,12 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import shortenAddress from '@web/utils/shortenAddress'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isTab } = getUiType()
 
 const Account = ({
   account,
@@ -67,30 +71,51 @@ const Account = ({
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
               <Image
-                style={{ width: 40, height: 40, borderRadius: BORDER_RADIUS_PRIMARY }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: BORDER_RADIUS_PRIMARY
+                }}
                 source={getAccountPfpSource(settingsCtrl.accountPreferences[addr]?.pfp)}
                 resizeMode="contain"
               />
             </View>
             <View>
-              <Text fontSize={16} weight="regular">
-                {addr}
+              <Text fontSize={isTab ? 16 : 14} weight="regular">
+                {isTab ? addr : shortenAddress(addr, 18)}
               </Text>
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">
                 {settingsCtrl.accountPreferences[addr]?.label || DEFAULT_ACCOUNT_LABEL}
               </Text>
             </View>
-            <View style={[spacings.mtTy, spacings.mlLg, flexboxStyles.directionRow]}>
+            <View
+              style={[
+                isTab ? spacings.mtTy : spacings.mtMi,
+                isTab ? spacings.mlLg : spacings.ml,
+                flexboxStyles.directionRow
+              ]}
+            >
               <Badge
+                size={isTab ? 'md' : 'sm'}
                 withIcon
                 type={isSmartAccount(account) ? 'success' : 'warning'}
                 text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
               />
               {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
+                <Badge
+                  size={isTab ? 'md' : 'sm'}
+                  style={spacings.mlTy}
+                  type="info"
+                  text={t('View-only')}
+                />
               )}
               {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                <Badge style={spacings.mlTy} type="info" text={t('v1')} />
+                <Badge
+                  size={isTab ? 'md' : 'sm'}
+                  style={spacings.mlTy}
+                  type="info"
+                  text={t('v1')}
+                />
               )}
             </View>
           </View>
