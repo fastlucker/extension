@@ -2,9 +2,7 @@ import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, toBeHex } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
-import { Call, GasFeePayment } from '@ambire-common/libs/accountOp/accountOp'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
 import { serialize } from '@ethersproject/transactions'
@@ -27,15 +25,7 @@ class TrezorSigner implements KeystoreSigner {
     this.controller = _controller
   }
 
-  async signRawTransaction(txnRequest: {
-    to: Call['to']
-    value: Call['value']
-    data: Call['data']
-    chainId: NetworkDescriptor['chainId']
-    nonce: number
-    gasLimit: GasFeePayment['simulatedGasLimit']
-    gasPrice: bigint
-  }) {
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
     }
@@ -64,7 +54,7 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     try {
-      // Serialize via '@ethersproject/transactions'
+      // Serialize via @ethersproject/transactions
       const serializedSignedTxn = serialize(
         { ...unsignedTransaction, nonce: txnRequest.nonce },
         {
