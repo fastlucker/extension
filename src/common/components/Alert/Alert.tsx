@@ -17,6 +17,8 @@ interface Props {
   text?: string
   type?: 'error' | 'warning' | 'success' | 'info'
   style?: ViewStyle
+  children?: React.ReactNode
+  size?: 'sm' | 'md'
 }
 
 const ICON_MAP = {
@@ -26,42 +28,49 @@ const ICON_MAP = {
   info: InfoIcon
 }
 
-const Alert: FC<Props> = ({ title, text, type = 'info', style }) => {
+const Alert: FC<Props> = ({ title, text, type = 'info', style, children, size = 'md' }) => {
   const Icon = ICON_MAP[type]
   const { theme } = useTheme()
+  const isSmall = size === 'sm'
+  const fontSize = !isSmall ? 16 : 14
 
   return (
     <View
       style={[
-        spacings.ph,
-        spacings.pv,
+        !isSmall ? spacings.ph : spacings.phSm,
+        !isSmall ? spacings.pv : spacings.pvSm,
         flexbox.directionRow,
         common.borderRadiusPrimary,
         { backgroundColor: theme[`${type}Background`] },
         style
       ]}
     >
-      <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
-      <View style={spacings.ml}>
+      <Icon
+        width={!isSmall ? 20 : 16}
+        height={!isSmall ? 20 : 16}
+        color={theme[`${type}Decorative`]}
+      />
+      <View style={[!isSmall ? spacings.ml : spacings.mlTy, flexbox.flex1]}>
         <Text style={text ? spacings.mbTy : {}}>
           <Text
             appearance={`${type}Text`}
-            fontSize={16}
+            fontSize={fontSize}
             weight="semiBold"
             style={{ textTransform: 'capitalize' }}
           >
             {type}:{' '}
           </Text>
-          <Text appearance={`${type}Text`} fontSize={16} weight="regular">
+          <Text appearance={`${type}Text`} fontSize={fontSize} weight="regular">
             {title}
           </Text>
         </Text>
         {text && (
-          <Text weight="regular" appearance={`${type}Text`}>
+          <Text fontSize={fontSize} weight="regular" appearance={`${type}Text`}>
             {text}
           </Text>
         )}
       </View>
+      {children}
     </View>
   )
 }

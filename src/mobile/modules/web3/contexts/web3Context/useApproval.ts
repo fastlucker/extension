@@ -36,7 +36,7 @@ const useApproval = ({
           t(
             'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
           ),
-          { error: true }
+          { type: 'error' }
         )
       }
 
@@ -60,7 +60,7 @@ const useApproval = ({
           t(
             'Missing approval request from the dApp. Please close this window and trigger the action again from the dApp.'
           ),
-          { error: true }
+          { type: 'error' }
         )
       }
 
