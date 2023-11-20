@@ -15,12 +15,33 @@ import { Portal } from '@gorhom/portal'
 
 import styles from './styles'
 
+interface Props {
+  children: React.ReactNode | React.ReactNode[]
+}
+
+interface Options {
+  timeout?: number
+  type?: 'error' | 'success' | 'info' | 'warning'
+  sticky?: boolean
+  badge?: string
+}
+
+interface Toast extends Options {
+  id: number
+  text: string
+  url?: string
+  onClick?: () => void
+}
+
 // Magic spacing for positioning the toast list
 // to match exactly the area of the header + its bottom spacing
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
 const ADDITIONAL_TOP_SPACING_WEB = SPACING_MD
 
-const ToastContext = React.createContext({
+const ToastContext = React.createContext<{
+  addToast: (text: string, options: Options) => number
+  removeToast: (id: number) => void
+}>({
   addToast: () => -1,
   removeToast: () => {}
 })
@@ -31,36 +52,33 @@ const defaultOptions = {
   sticky: false
 }
 
-let id = 0
-
-const ToastProvider: React.FC = ({ children }) => {
-  const [toasts, setToasts] = useState<any[]>([])
+const ToastProvider = ({ children }: Props) => {
+  const [toasts, setToasts] = useState<Toast[]>([])
   const insets = useSafeAreaInsets()
 
-  const removeToast = useCallback((tId) => {
+  const removeToast = useCallback((tId: number) => {
     setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
   }, [])
 
   const addToast = useCallback(
-    (text, options) => {
+    (text: string, options: Options) => {
       const toast = {
-        id: id++,
+        id: toasts.length + 1,
         text,
         ...defaultOptions,
         ...options
       }
-
       setToasts((_toasts) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
       return toast.id
     },
-    [setToasts, removeToast]
+    [setToasts, removeToast, toasts]
   )
 
   const onToastPress = useCallback(
-    (_id, onClick?, url?) => {
+    (_id: number, onClick?: () => void, url?: string) => {
       if (url) Linking.openURL(url)
       onClick ? onClick() : removeToast(_id)
     },
@@ -84,24 +102,16 @@ const ToastProvider: React.FC = ({ children }) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-          {toasts.map(({ id, url, error, sticky, badge, text, onClick }) => (
+          {toasts.map(({ id, url, type, sticky, text, onClick }) => (
             <View style={styles.toastWrapper} key={id}>
               <TouchableOpacity
-                style={[styles.toast, error && styles.error]}
+                style={[styles.toast, type === 'error' && styles.error]}
                 onPress={() => onToastPress(id, onClick, url)}
                 activeOpacity={0.9}
               >
-                {!!badge && (
-                  <View style={[styles.badge, spacings.mrTy, error && styles.errorBadge]}>
-                    <Text fontSize={10} weight="medium" color={colors.white}>
-                      {badge}
-                    </Text>
-                  </View>
-                )}
-                {!badge && (
-                  <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>
-                )}
+                <View style={spacings.prTy}>
+                  {type === 'error' ? <ErrorIcon /> : <CheckIcon />}
+                </View>
                 <View style={flexboxStyles.flex1}>
                   <Text numberOfLines={7} color={colors.patriotBlue} weight="regular" fontSize={12}>
                     {text}
@@ -109,7 +119,7 @@ const ToastProvider: React.FC = ({ children }) => {
                 </View>
                 {!!sticky && (
                   <TouchableOpacity style={spacings.plTy} onPress={() => removeToast(id)}>
-                    <CloseIconRound color={error ? colors.pink : colors.turquoise} />
+                    <CloseIconRound color={type === 'error' ? colors.pink : colors.turquoise} />
                   </TouchableOpacity>
                 )}
               </TouchableOpacity>

@@ -19,7 +19,7 @@ const useTaskQueue = () => {
     queueRef.current.on('error', (e: any) => {
       const message =
         e?.message || 'Unable to connect to Hardware wallet. Please try to re-connect.'
-      addToast(message, { error: true })
+      addToast(message, { type: 'error' })
 
       goBack()
     })
