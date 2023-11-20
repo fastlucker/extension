@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Text from '@common/components/Text'
@@ -12,14 +12,15 @@ import getStyles from './styles'
 
 type Props = {
   text: string
-  type?: 'primary' | 'warning' | 'default' | 'success'
+  type?: 'info' | 'warning' | 'default' | 'success'
   withIcon?: boolean
+  style?: ViewStyle
 }
 
 const getBadgeTypes = (theme: ThemeProps) => ({
-  primary: {
-    color: theme.primary,
-    iconColor: theme.primary
+  info: {
+    color: theme.infoText,
+    iconColor: theme.infoDecorative
   },
   default: {
     color: theme.secondaryText,
@@ -35,7 +36,7 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
-const Badge = ({ text, withIcon, type = 'default' }: Props) => {
+const Badge = ({ text, withIcon, type = 'default', style }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
@@ -48,7 +49,8 @@ const Badge = ({ text, withIcon, type = 'default' }: Props) => {
         type === 'success' && styles.successBadge,
         type === 'default' && styles.defaultBadge,
         type === 'warning' && styles.warningBadge,
-        type === 'primary' && styles.primaryBadge
+        type === 'info' && styles.infoBadge,
+        style
       ]}
     >
       <Text weight="regular" fontSize={12} color={color} style={spacings.mrMi}>
