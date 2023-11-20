@@ -10,7 +10,7 @@ import BroadcastChannelMessage from '@web/extension-services/message/broadcastCh
 import PortMessage from '@web/extension-services/message/portMessage'
 
 const channelName = nanoid()
-const isOpera = false
+const isOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
 const injectProviderScript = (isDefaultWallet: boolean) => {
   // the script element with src won't execute immediately
