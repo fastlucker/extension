@@ -513,7 +513,7 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
 
 const initOperaProvider = () => {
   window.ethereum = ambireProvider
-  ambireProvider._isAmbire = true
+  ambireProvider._isReady = true
   window.ambire = ambireProvider
   patchProvider(ambireProvider)
 }
@@ -536,7 +536,7 @@ const setOtherProvider = (otherProvider: EthereumProvider) => {
 }
 
 const initProvider = (isDefaultWallet: boolean) => {
-  ambireProvider._isAmbire = true
+  ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
   if (window.ethereum && !window.ethereum._isAmbire) {
