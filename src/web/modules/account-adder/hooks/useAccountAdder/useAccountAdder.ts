@@ -1,5 +1,5 @@
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import {
   HD_PATH_TEMPLATE_TYPE,
@@ -18,7 +18,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
+import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
@@ -37,6 +37,11 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return ''
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const setPage: any = React.useCallback(
     (page = 1) => {
@@ -167,13 +172,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       }
 
       const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
-        ({ accountKeyAddr, slot }) => ({
+        ({ accountKeyAddr, slot, index }) => ({
           addr: accountKeyAddr,
           type: keyType,
-          label:
-            keyType === 'internal'
-              ? `${keyLabel} for the account on slot ${slot}`
-              : `${HARDWARE_WALLET_DEVICE_NAMES[keyType]} on slot ${slot}`
+          label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
         })
       )
 
@@ -197,11 +199,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
         state: {
-          accounts: accountAdderState.readyToAddAccounts
+          accounts: accountAdderState.readyToAddAccounts,
+          keyType,
+          keyTypeInternalSubtype
         }
       })
     },
-    [navigate, accountAdderState]
+    [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
   )
 
   useEffect(() => {

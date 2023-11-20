@@ -7,14 +7,13 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  primaryBadge: ViewStyle
+  infoBadge: ViewStyle
   defaultBadge: ViewStyle
   successBadge: ViewStyle
   warningBadge: ViewStyle
 }
 
 const label: ViewStyle = {
-  height: 24,
   ...flexbox.alignCenter,
   ...flexbox.justifyCenter,
   ...spacings.phTy,
@@ -28,9 +27,9 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...common.borderRadiusSecondary
     },
-    primaryBadge: {
+    infoBadge: {
       ...label,
-      borderColor: theme.primary,
+      borderColor: theme.infoDecorative,
       backgroundColor: theme.infoBackground
     },
     defaultBadge: {
