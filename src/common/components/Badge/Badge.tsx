@@ -15,6 +15,7 @@ type Props = {
   type?: 'info' | 'warning' | 'default' | 'success'
   withIcon?: boolean
   style?: ViewStyle
+  size?: 'sm' | 'md'
 }
 
 const getBadgeTypes = (theme: ThemeProps) => ({
@@ -36,10 +37,11 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
-const Badge = ({ text, withIcon, type = 'default', style }: Props) => {
+const Badge = ({ text, withIcon, type = 'default', style, size = 'md' }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
+  const isSmall = size === 'sm'
 
   return (
     <View
@@ -50,13 +52,18 @@ const Badge = ({ text, withIcon, type = 'default', style }: Props) => {
         type === 'default' && styles.defaultBadge,
         type === 'warning' && styles.warningBadge,
         type === 'info' && styles.infoBadge,
+        {
+          height: !isSmall ? 24 : 20
+        },
         style
       ]}
     >
-      <Text weight="regular" fontSize={12} color={color} style={spacings.mrMi}>
+      <Text weight="regular" fontSize={!isSmall ? 12 : 10} color={color} style={spacings.mrMi}>
         {text}
       </Text>
-      {withIcon && <InfoIcon color={iconColor} width={16} height={16} />}
+      {withIcon && (
+        <InfoIcon color={iconColor} width={!isSmall ? 16 : 14} height={!isSmall ? 16 : 14} />
+      )}
     </View>
   )
 }
