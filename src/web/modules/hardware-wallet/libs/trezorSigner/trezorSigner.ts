@@ -1,11 +1,10 @@
 import { stripHexPrefix } from 'ethereumjs-util'
-import { Signature, toBeHex } from 'ethers'
+import { Signature, toBeHex, Transaction } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
-import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -54,31 +53,17 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     try {
-      // Serialize via @ethersproject/transactions
-      const serializedSignedTxn = serialize(
-        { ...unsignedTransaction, nonce: txnRequest.nonce },
-        {
-          r: res.payload.r,
-          s: res.payload.s,
-          v: Signature.getNormalizedV(res.payload.v)
-        }
-      )
-
-      // TODO: Serialize via EthersJS v6. Currently not working, Trying to
-      // decode this serialized transaction returns:
-      //     "Decode Error: AssertionError: invalid remainder
-      // And trying to broadcast it (provider.broadcastTransaction) fails with
-      // misleading error that the sender does not have enough to cover the fee.
-      // const signature = Signature.from({
-      //   r: res.payload.r,
-      //   s: res.payload.s,
-      //   v: Signature.getNormalizedV(res.payload.v)
-      // })
-      // const serializedSignedTxn = Transaction.from({
-      //   ...unsignedTransaction,
-      //   nonce: txnRequest.nonce,
-      //   signature
-      // }).serialized
+      const signature = Signature.from({
+        r: res.payload.r,
+        s: res.payload.s,
+        v: Signature.getNormalizedV(res.payload.v)
+      })
+      const serializedSignedTxn = Transaction.from({
+        ...unsignedTransaction,
+        type: 0, // TODO: use `1` to make EIP-2930 transaction instead
+        nonce: txnRequest.nonce,
+        signature
+      }).serialized
 
       return serializedSignedTxn
     } catch (error: any) {
