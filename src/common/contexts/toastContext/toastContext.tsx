@@ -38,7 +38,7 @@ const { isPopup } = getUiType()
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
 
 const ToastContext = React.createContext<{
-  addToast: (text: string, options: Options) => number
+  addToast: (text: string, options?: Options) => number
   removeToast: (id: number) => void
 }>({
   addToast: () => -1,
@@ -63,12 +63,12 @@ const ToastProvider = ({ children }: Props) => {
   }, [])
 
   const addToast = useCallback(
-    (text: string, options: Options) => {
+    (text: string, options?: Options) => {
       const toast = {
         id: nextToastId++,
         text,
         ...defaultOptions,
-        ...options
+        ...(options || {})
       }
       setToasts((_toasts) => [..._toasts, toast])
 
