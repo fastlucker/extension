@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
@@ -22,6 +21,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
@@ -41,6 +41,8 @@ const SignAccountOpScreen = () => {
   const portfolioState = usePortfolioControllerState()
   const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
+
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -75,6 +77,7 @@ const SignAccountOpScreen = () => {
   }, [
     params,
     dispatch,
+    networks,
     mainState.accounts,
     mainState.accountStates,
     mainState.accountOpsToBeSigned
@@ -144,10 +147,8 @@ const SignAccountOpScreen = () => {
   }, [mainState.accounts, signAccountOpState.accountOp?.accountAddr])
 
   const network = useMemo(() => {
-    return mainState.settings.networks.find(
-      (n) => n.id === signAccountOpState?.accountOp?.networkId
-    )
-  }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
+    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
+  }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!signAccountOpState.accountOp) return

@@ -7,7 +7,6 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
@@ -21,6 +20,7 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
@@ -38,6 +38,7 @@ const SignMessageScreen = () => {
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
@@ -60,9 +61,8 @@ const SignMessageScreen = () => {
   )
 
   const network = useMemo(
-    () =>
-      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
+    () => networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [networks, signMessageState.messageToSign?.networkId]
   )
 
   const isViewOnly = useMemo(
@@ -141,6 +141,7 @@ const SignMessageScreen = () => {
   }, [
     dispatch,
     params,
+    networks,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
     mainState.accounts,

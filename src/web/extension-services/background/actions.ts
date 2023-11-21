@@ -118,6 +118,10 @@ type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
   params: { filters: Filters }
 }
+type MainControllerActivitySetFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
+  params: { filters: Filters }
+}
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
@@ -290,6 +294,7 @@ export type Action =
   | MainControllerSignMessageSetSignKeyAction
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
+  | MainControllerActivitySetFiltersAction
   | MainControllerActivityResetAction
   | MainControllerSignAccountOpEstimateAction
   | MainControllerSignAccountOpUpdateMainDepsAction
@@ -301,7 +306,6 @@ export type Action =
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
   | MainControllerTransferOnRecipientAddressChangeAction
-  | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
