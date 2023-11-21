@@ -9,6 +9,7 @@ import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import Badge from '@common/components/Badge'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
@@ -55,7 +56,14 @@ const Account = ({
   }
 
   return (
-    <Pressable key={addr} onPress={() => selectAccount(addr)}>
+    <Pressable
+      key={addr}
+      onPress={() => {
+        if (mainCtrl.selectedAccount === addr) return
+
+        selectAccount(addr)
+      }}
+    >
       {({ hovered }: any) => (
         <View
           style={[
@@ -64,7 +72,10 @@ const Account = ({
               backgroundColor:
                 addr === mainCtrl.selectedAccount || hovered
                   ? theme.secondaryBackground
-                  : 'transparent'
+                  : 'transparent',
+              ...(isWeb
+                ? { cursor: addr === mainCtrl.selectedAccount ? 'default' : 'pointer' }
+                : {})
             }
           ]}
         >
