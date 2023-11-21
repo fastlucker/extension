@@ -6,7 +6,7 @@ import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect, { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
+import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
@@ -29,10 +29,14 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error('trezorSigner: trezorController not initialized')
     }
 
+    if (typeof txnRequest.value === 'undefined') {
+      throw new Error('trezorSigner: missing value in transaction request')
+    }
+
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const unsignedTransaction: EthereumTransaction | EthereumTransactionEIP1559 = {
+    const unsignedTransaction: EthereumTransaction = {
       ...txnRequest,
       // The incoming `txnRequest` param types mismatch the Trezor expected ones,
       // so normalize the types before passing them to the Trezor API
