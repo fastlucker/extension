@@ -19,8 +19,15 @@ class LatticeSigner implements KeystoreSigner {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
+  // TODO: the ExternalSignerController type is missing some properties from
+  // type 'LedgerController', sync the types mismatch
+  // @ts-ignore
+  init(externalSignerController?: LatticeController) {
+    if (!externalSignerController) {
+      throw new Error('ledgerSigner: externalSignerController not initialized')
+    }
+
+    this.controller = externalSignerController
   }
 
   // TODO: That's a blueprint for the future implementation
@@ -37,7 +44,7 @@ class LatticeSigner implements KeystoreSigner {
 
     await this._onBeforeLatticeRequest()
 
-    const fwVersion = this.controller.sdkSession.getFwVersion()
+    const fwVersion = this.controller.sdkSession?.getFwVersion()
 
     const tx = Transaction.fromTxData(params)
 

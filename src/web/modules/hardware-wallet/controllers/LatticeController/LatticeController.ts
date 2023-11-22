@@ -6,7 +6,7 @@ import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
@@ -14,7 +14,7 @@ const keyringType = 'lattice'
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeController extends EventEmitter {
+class LatticeController implements ExternalSignerController {
   appName: string
 
   type: string
@@ -27,10 +27,6 @@ class LatticeController extends EventEmitter {
 
   unlockedAccount: any
 
-  accountIndices: any
-
-  isLocked: boolean = true
-
   network: any
 
   deviceId = ''
@@ -39,7 +35,6 @@ class LatticeController extends EventEmitter {
   deviceModel = 'lattice'
 
   constructor() {
-    super()
     this.appName = 'Ambire Wallet Extension'
     this.type = keyringType
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
@@ -112,8 +107,6 @@ class LatticeController extends EventEmitter {
   }
 
   _resetDefaults() {
-    this.accountIndices = []
-    this.isLocked = true
     this.creds = {
       deviceID: null,
       password: null,
@@ -121,7 +114,6 @@ class LatticeController extends EventEmitter {
     }
     this.deviceId = ''
     this.sdkSession = null
-    this.unlockedAccount = 0
     this.network = null
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
