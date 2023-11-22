@@ -1,8 +1,11 @@
 import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, toBeHex, Transaction } from 'ethers'
 
-import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import {
+  ExternalKey,
+  ExternalSignerController,
+  KeystoreSigner
+} from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
@@ -20,8 +23,12 @@ class TrezorSigner implements KeystoreSigner {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
+  init(externalDeviceController?: ExternalSignerController) {
+    if (!externalDeviceController) {
+      throw new Error('trezorSigner: externalDeviceController not initialized')
+    }
+
+    this.controller = externalDeviceController
   }
 
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
@@ -75,7 +82,12 @@ class TrezorSigner implements KeystoreSigner {
     }
   }
 
-  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -116,7 +128,7 @@ class TrezorSigner implements KeystoreSigner {
     return res.payload.signature
   }
 
-  async signMessage(hex: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
