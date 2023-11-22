@@ -20,7 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...spacings.ph,
       ...spacings.pv,
-      ...spacings.mb
+      ...spacings.mb,
+      width: '100%'
     },
     pfp: {
       height: 64,

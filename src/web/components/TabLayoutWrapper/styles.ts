@@ -1,6 +1,10 @@
-import { Dimensions, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING_3XL,
+  SPACING_XL
+} from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -28,7 +32,7 @@ const getStyles = (theme: ThemeProps) =>
       maxWidth: 582,
       minWidth: 300,
       // TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically
-      width: Dimensions.get('window').width < 1300 ? 300 : '30%',
+      width: IS_SCREEN_SIZE_DESKTOP_LARGE ? 300 : '30%',
       overflow: 'hidden'
     },
     informationCircle: {
@@ -42,6 +46,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.directionRow,
       ...spacings.ph3Xl,
+      paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
       backgroundColor: theme.primaryBackground,
       shadowColor: '#B8BDE080',
       shadowOffset: {
