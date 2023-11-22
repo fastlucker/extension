@@ -45,7 +45,7 @@ const HardwareWalletSelectorScreen = () => {
         state: { keyType: 'trezor' }
       })
     } catch (error: any) {
-      addToast(error.message, { error: true })
+      addToast(error.message, { type: 'error' })
       await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])
@@ -64,7 +64,7 @@ const HardwareWalletSelectorScreen = () => {
         state: { keyType: 'lattice' }
       })
     } catch (error: any) {
-      addToast(error.message, { error: true })
+      addToast(error.message, { type: 'error' })
       await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
   }, [addToast, dispatchAsync, navigate, updateStepperState])

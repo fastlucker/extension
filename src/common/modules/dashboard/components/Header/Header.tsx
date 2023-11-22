@@ -65,7 +65,7 @@ const DashboardHeader = () => {
                   {selectedAccLabel}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
-                  ({shortenAddress(selectedAccount, 17)})
+                  ({shortenAddress(selectedAccount, 11)})
                 </Text>
               </View>
             </View>
