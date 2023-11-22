@@ -6,6 +6,7 @@ import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
+import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
@@ -89,7 +90,14 @@ const MainRoutes = () => {
       <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
 
       <Route element={<PrivateRoute />}>
-        <Route path={WEB_ROUTES.signAccountOp} element={<SignAccountOpScreen />} />
+        <Route
+          path={WEB_ROUTES.signAccountOp}
+          element={
+            <SignAccountOpControllerStateProvider>
+              <SignAccountOpScreen />
+            </SignAccountOpControllerStateProvider>
+          }
+        />
         <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 

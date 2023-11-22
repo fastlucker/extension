@@ -178,6 +178,16 @@ type LatticeControllerUnlockAction = {
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
 }
+type MainControllerSignAccountOpInitAction = {
+  params: {
+    accountAddr: AccountId
+    networkId: NetworkId
+  }
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT'
+}
+type MainControllerSignAccountOpDestroyAction = {
+  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY'
+}
 type MainControllerSignAccountOpEstimateAction = {
   params: {
     accountAddr: AccountId
@@ -201,6 +211,7 @@ type MainControllerSignAccountOpUpdateAction = {
     estimation?: EstimateResult
     feeTokenAddr?: string
     paidBy?: string
+    speed?: string
     signingKeyAddr?: string
     signingKeyType?: string
   }
@@ -294,6 +305,8 @@ export type Action =
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivityResetAction
+  | MainControllerSignAccountOpInitAction
+  | MainControllerSignAccountOpDestroyAction
   | MainControllerSignAccountOpEstimateAction
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction

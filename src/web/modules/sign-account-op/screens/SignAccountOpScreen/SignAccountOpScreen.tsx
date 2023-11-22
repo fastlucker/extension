@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
@@ -30,6 +29,7 @@ import PendingTokenSummary from '@web/modules/sign-account-op/components/Pending
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
+import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -46,8 +46,8 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
 
   const hasEstimation = useMemo(
-    () => !!signAccountOpState.availableFeeOptions.length,
-    [signAccountOpState.availableFeeOptions]
+    () => !!signAccountOpState?.availableFeeOptions.length,
+    [signAccountOpState?.availableFeeOptions]
   )
 
   useEffect(() => {
@@ -55,30 +55,14 @@ const SignAccountOpScreen = () => {
       return
     }
 
-    const accountOpToBeSigned: any =
-      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
-
-    if (
-      accountOpToBeSigned &&
-      mainState.accounts &&
-      Object.keys(mainState.accountStates || {}).length
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS',
-        params: {
-          accounts: mainState.accounts,
-          accountStates: mainState.accountStates,
-          networks
-        }
-      })
-    }
-  }, [
-    params,
-    dispatch,
-    mainState.accounts,
-    mainState.accountStates,
-    mainState.accountOpsToBeSigned
-  ])
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+      params: {
+        accountAddr: params?.accountAddr,
+        networkId: params?.network?.id
+      }
+    })
+  }, [params, dispatch])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -95,31 +79,12 @@ const SignAccountOpScreen = () => {
       })
     }
 
-    estimateAccountOp()
     const interval = setInterval(estimateAccountOp, 60000)
 
     return () => {
       clearInterval(interval)
     }
   }, [params, dispatch])
-
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
-
-    const accountOpToBeSigned: any =
-      mainState.accountOpsToBeSigned?.[params.accountAddr]?.[params.network.id]
-
-    if (accountOpToBeSigned) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: {
-          accountOp: accountOpToBeSigned.accountOp
-        }
-      })
-    }
-  }, [mainState.accountOpsToBeSigned, params, dispatch])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -140,8 +105,8 @@ const SignAccountOpScreen = () => {
   }, [activityState.isInitialized, dispatch, params])
 
   const account = useMemo(() => {
-    return mainState.accounts.find((acc) => acc.addr === signAccountOpState.accountOp?.accountAddr)
-  }, [mainState.accounts, signAccountOpState.accountOp?.accountAddr])
+    return mainState.accounts.find((acc) => acc.addr === signAccountOpState?.accountOp?.accountAddr)
+  }, [mainState.accounts, signAccountOpState?.accountOp?.accountAddr])
 
   const network = useMemo(() => {
     return mainState.settings.networks.find(
@@ -150,7 +115,7 @@ const SignAccountOpScreen = () => {
   }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
-    if (!signAccountOpState.accountOp) return
+    if (!signAccountOpState?.accountOp) return
 
     signAccountOpState.accountOp.calls.forEach((call) => {
       if (call.fromUserRequestId)
@@ -159,7 +124,7 @@ const SignAccountOpScreen = () => {
           params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
         })
     })
-  }, [dispatch, signAccountOpState.accountOp])
+  }, [dispatch, signAccountOpState?.accountOp])
 
   const handleAddToCart = useCallback(() => {
     if (getUiType().isNotification) {
@@ -180,30 +145,31 @@ const SignAccountOpScreen = () => {
   )
 
   const callsToVisualize: IrCall[] = useMemo(() => {
+    if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState.accountOp?.calls, signAccountOpState.humanReadable])
+  }, [signAccountOpState?.accountOp?.calls, signAccountOpState?.humanReadable])
 
   const pendingTokens = useMemo(() => {
-    if (signAccountOpState.accountOp && network) {
+    if (signAccountOpState?.accountOp && network) {
       return calculateTokensPendingState(
-        signAccountOpState.accountOp.accountAddr,
+        signAccountOpState?.accountOp.accountAddr,
         network,
         portfolioState.state
       )
     }
     return []
-  }, [network, portfolioState.state, signAccountOpState.accountOp])
+  }, [network, portfolioState.state, signAccountOpState?.accountOp])
 
   useEffect(() => {
-    const reset = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET' })
+    const destroy = () => {
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
     }
-    window.addEventListener('beforeunload', reset)
+    window.addEventListener('beforeunload', destroy)
 
     return () => {
-      reset()
-      window.removeEventListener('beforeunload', reset)
+      destroy()
+      window.removeEventListener('beforeunload', destroy)
     }
   }, [dispatch])
 
@@ -215,19 +181,19 @@ const SignAccountOpScreen = () => {
 
   useEffect(() => {
     if (
-      signAccountOpState.isInitialized &&
-      signAccountOpState.status?.type === SigningStatus.ReadyToSign &&
-      signAccountOpState.accountOp?.signingKeyAddr &&
-      signAccountOpState.accountOp?.signingKeyType
+      signAccountOpState?.isInitialized &&
+      signAccountOpState?.status?.type === SigningStatus.ReadyToSign &&
+      signAccountOpState?.accountOp?.signingKeyAddr &&
+      signAccountOpState?.accountOp?.signingKeyType
     ) {
       handleSign()
     }
   }, [
     handleSign,
-    signAccountOpState.accountOp?.signingKeyAddr,
-    signAccountOpState.accountOp?.signingKeyType,
-    signAccountOpState.isInitialized,
-    signAccountOpState.status?.type
+    signAccountOpState?.accountOp?.signingKeyAddr,
+    signAccountOpState?.accountOp?.signingKeyType,
+    signAccountOpState?.isInitialized,
+    signAccountOpState?.status?.type
   ])
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -253,7 +219,17 @@ const SignAccountOpScreen = () => {
     [selectedAccountKeyStoreKeys.length]
   )
 
-  if (!signAccountOpState.accountOp || !network) {
+  if (mainState.signAccOpInitError) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Text style={styles.errorHeading}>
+          <ErrorIcon /> {mainState.signAccOpInitError}
+        </Text>
+      </View>
+    )
+  }
+
+  if (!signAccountOpState?.accountOp) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
         <Spinner />
@@ -266,9 +242,9 @@ const SignAccountOpScreen = () => {
       width="full"
       header={
         <Header
-          networkId={network.id as any}
+          networkId={network!.id as any}
           isEOA={!account?.creation}
-          networkName={network.name}
+          networkName={network?.name}
         />
       }
       footer={
@@ -282,6 +258,7 @@ const SignAccountOpScreen = () => {
             signAccountOpState.status?.type === SigningStatus.Done ||
             mainState.broadcastStatus === 'LOADING'
           }
+          hasSigningErrors={!!signAccountOpState.errors.length}
           isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
           handleChangeSigningKey={handleChangeSigningKey}
@@ -304,8 +281,8 @@ const SignAccountOpScreen = () => {
                       key={call.data + call.fromUserRequestId}
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
-                      networkId={network.id}
-                      explorerUrl={network.explorerUrl}
+                      networkId={network!.id}
+                      explorerUrl={network!.explorerUrl}
                     />
                   )
                 })}
@@ -330,7 +307,7 @@ const SignAccountOpScreen = () => {
                       <PendingTokenSummary
                         key={token.address}
                         token={token}
-                        networkId={network.id}
+                        networkId={network!.id}
                       />
                     )
                   })}
@@ -344,12 +321,27 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network.id} isViewOnly={isViewOnly} />
+              <Estimation networkId={network!.id} isViewOnly={isViewOnly} />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />
               </View>
             )}
+
+            {signAccountOpState.errors.length ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorHeading}>
+                  <ErrorIcon /> We are unable to sign your transaction due to the following errors:
+                </Text>
+                <Text style={styles.error}>
+                  <ul>
+                    {signAccountOpState.errors.map((error) => (
+                      <li>{error}</li>
+                    ))}
+                  </ul>
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
       </TabLayoutWrapperMainContent>
