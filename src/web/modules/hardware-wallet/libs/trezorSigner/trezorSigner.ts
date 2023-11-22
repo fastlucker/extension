@@ -71,9 +71,15 @@ class TrezorSigner implements KeystoreSigner {
       })
       const serializedSignedTxn = Transaction.from({
         ...unsignedTransaction,
-        type: 0, // TODO: use `1` to make EIP-2930 transaction instead
+        signature,
+        // The nonce type of the normalized `unsignedTransaction` compatible
+        // with Trezor  mismatches the EthersJS supported type, so fallback to
+        // the nonce incoming from the `txnRequest` param
         nonce: txnRequest.nonce,
-        signature
+        // TODO: Temporary use the legacy transaction mode, because:
+        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
+        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
       }).serialized
 
       return serializedSignedTxn
