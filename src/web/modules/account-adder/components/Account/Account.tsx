@@ -39,7 +39,7 @@ const Account = ({
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
 
-  if (!account.addr) return
+  if (!account.addr) return null
 
   const toggleSelectedState = () => {
     if (isSelected) {
@@ -84,11 +84,11 @@ const Account = ({
                       !!isAmbireV1LinkedAccount(account.creation?.factoryAddr) && spacings.mrMi
                     }
                   >
-                    <Badge text={t('linked')} type="primary" />
+                    <Badge text={t('linked')} type="info" />
                   </View>
                 )}
                 {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-                  <Badge text={t('v1')} type="primary" />
+                  <Badge text={t('v1')} type="info" />
                 )}
               </View>
             )}
