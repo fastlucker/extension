@@ -1,16 +1,22 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image, View } from 'react-native'
+import { Trans } from 'react-i18next'
+import { Image, ScrollView, StyleSheet, View } from 'react-native'
 
-import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
+import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
+import { Account } from '@ambire-common/interfaces/account'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { SignedMessage } from '@ambire-common/interfaces/userRequest'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Pagination from '@common/components/Pagination'
 import Select from '@common/components/Select'
 import getSelectStyles from '@common/components/Select/styles'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -20,11 +26,8 @@ import SettingsPage from '@web/modules/settings/components/SettingsPage'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import shortenAddress from '@web/utils/shortenAddress'
 
+import SignedMessageSummary from '../../components/TransactionHistory/SignedMessageSummary'
 import Tabs, { TabId } from './Tabs'
-
-const PLACEHOLDER_CALL = parse(
-  '{"to":"0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935","value":{"$bigint":"0"},"data":"0xa9059cbb000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b700000000000000000000000000000000000000000000023da5842a53c43df58c","fromUserRequestId":1700475060014,"fullVisualization":[{"type":"action","content":"Transfer"},{"type":"token","address":"0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935","amount":{"$bigint":"10581911058488020039052"},"symbol":"xWALLET","decimals":18,"readableAmount":"10581.911058488020039052"},{"type":"label","content":"to"},{"type":"address","address":"0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7","name":"0xFe8...4b7"}],"warnings":[{"content":"Unknown address","level":"caution"}]}'
-)
 
 type AccountOption = {
   value: string
@@ -38,23 +41,34 @@ type NetworkOption = {
   icon: JSX.Element
 }
 
+const ITEMS_PER_PAGE = 10
+
 const TransactionHistorySettingsScreen = () => {
   const { networks, accountPreferences } = useSettingsControllerState()
   const activityState = useActivityControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
   const { styles: selectStyles } = useTheme(getSelectStyles)
+  const [page, setPage] = useState(1)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
 
-  const [account, setAccount] = useState(
+  const [account, setAccount] = useState<Account>(
     mainState.accounts.filter((acc) => acc.addr === mainState.selectedAccount)[0]
   )
-  const [network, setNetwork] = useState(networks.filter((n) => n.id === 'ethereum')[0])
+  const [network, setNetwork] = useState<NetworkDescriptor>(
+    networks.filter((n) => n.id === 'ethereum')[0]
+  )
   const [tab, setTab] = useState<TabId>('transactions')
 
   const accountsOptions: AccountOption[] = useMemo(() => {
     return mainState.accounts.map((acc) => ({
       value: acc.addr,
-      label: <Text weight="medium">{shortenAddress(acc.addr, 20)}</Text>,
+      label: (
+        <Text weight="medium" numberOfLines={1}>
+          {accountPreferences?.[acc.addr]?.label || shortenAddress(acc.addr, 20)}
+        </Text>
+      ),
       icon: (
         <Image
           style={selectStyles.optionIcon}
@@ -76,18 +90,18 @@ const TransactionHistorySettingsScreen = () => {
   )
 
   useEffect(() => {
-    if (account) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS',
-        params: {
-          filters: {
-            account: account.addr,
-            network: network.id
-          }
+    if (!account || !activityState.isInitialized) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS',
+      params: {
+        filters: {
+          account: account.addr,
+          network: network.id
         }
-      })
-    }
-  }, [dispatch, account, network, tab])
+      }
+    })
+  }, [dispatch, account, network, tab, activityState.isInitialized])
 
   useEffect(() => {
     if (!activityState.isInitialized && account)
@@ -101,6 +115,38 @@ const TransactionHistorySettingsScreen = () => {
         }
       })
   }, [dispatch, account, network, activityState.isInitialized])
+
+  useEffect(() => {
+    if (tab !== 'transactions' || !activityState.isInitialized) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION',
+      params: {
+        pagination: {
+          itemsPerPage: ITEMS_PER_PAGE,
+          fromPage: page - 1
+        }
+      }
+    })
+  }, [page, tab, activityState.isInitialized, dispatch])
+
+  useEffect(() => {
+    if (tab !== 'messages' || !activityState.isInitialized) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION',
+      params: {
+        pagination: {
+          itemsPerPage: ITEMS_PER_PAGE,
+          fromPage: page - 1
+        }
+      }
+    })
+  }, [page, tab, activityState.isInitialized, dispatch])
+
+  useEffect(() => {
+    setPage(1)
+  }, [tab])
 
   const handleSetAccountValue = useCallback(
     (accountOption: AccountOption) => {
@@ -116,10 +162,112 @@ const TransactionHistorySettingsScreen = () => {
     [networks]
   )
 
+  const renderAccountOpsHistory = useCallback(() => {
+    if (!activityState?.accountsOps?.items?.length) {
+      return (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            flexbox.flex1,
+            flexbox.alignCenter,
+            flexbox.justifyCenter
+          ]}
+        >
+          <Trans>
+            <Text style={text.center}>
+              <Text fontSize={20}>{'No transactions history for\n'}</Text>
+              <Text fontSize={20} weight="medium">
+                {accountPreferences?.[account.addr]?.label || shortenAddress(account.addr, 14)}
+              </Text>
+              <Text fontSize={20}>{' on '}</Text>
+              <Text fontSize={20} weight="medium">
+                {network.name}
+              </Text>
+            </Text>
+          </Trans>
+        </View>
+      )
+    }
+
+    return activityState?.accountsOps?.items.map((item: SubmittedAccountOp, i) => (
+      <TransactionSummary
+        key={item.txnId}
+        style={i !== activityState.accountsOps!.items.length - 1 ? spacings.mbSm : {}}
+        call={item.calls as any}
+        networkId={network.id}
+        explorerUrl={network.explorerUrl}
+      />
+    ))
+  }, [
+    account.addr,
+    activityState.accountsOps,
+    accountPreferences,
+    network.explorerUrl,
+    network.id,
+    network.name
+  ])
+
+  const renderSignedMessagesHistory = useCallback(() => {
+    if (!activityState?.signedMessages?.items?.length) {
+      return (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            flexbox.flex1,
+            flexbox.alignCenter,
+            flexbox.justifyCenter
+          ]}
+        >
+          <Trans>
+            <Text style={text.center}>
+              <Text fontSize={20}>{'No signed messages history for\n'}</Text>
+              <Text fontSize={20} weight="medium">
+                {accountPreferences?.[account.addr]?.label || shortenAddress(account.addr, 14)}
+              </Text>
+              {page > 1 && (
+                <>
+                  <Text>{' on page: '}</Text>
+                  <Text fontSize={20} weight="medium">
+                    {page}
+                  </Text>
+                </>
+              )}
+            </Text>
+          </Trans>
+        </View>
+      )
+    }
+
+    return activityState?.signedMessages?.items.map((item, i) => (
+      <SignedMessageSummary
+        signedMessage={item as SignedMessage}
+        style={i !== activityState.signedMessages!.items.length - 1 ? spacings.mbSm : {}}
+      />
+    ))
+  }, [account.addr, activityState.signedMessages, accountPreferences, page])
+
+  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
+  const goToNextPageDisabled = useMemo(() => {
+    if (tab === 'transactions')
+      return (activityState?.accountsOps?.items?.length || 0) < ITEMS_PER_PAGE
+    if (tab === 'messages')
+      return (activityState?.signedMessages?.items?.length || 0) < ITEMS_PER_PAGE
+
+    return true
+  }, [activityState, tab])
+
+  if (!activityState.isInitialized) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
+  }
+
   return (
     <SettingsPage currentPage="transaction-history">
       <Tabs selectedTab={tab} setTab={setTab} />
-      <View style={[flexboxStyles.directionRow, spacings.mbLg]}>
+      <View style={[flexbox.directionRow, spacings.mbLg]}>
         <Select
           setValue={handleSetAccountValue}
           style={{ width: 300, ...spacings.mr }}
@@ -135,21 +283,48 @@ const TransactionHistorySettingsScreen = () => {
           />
         )}
       </View>
-      <View style={[spacings.mbXl, flexboxStyles.flex1]}>
-        {tab === 'transactions' && (
-          <TransactionSummary
-            key={PLACEHOLDER_CALL.data + PLACEHOLDER_CALL.fromUserRequestId}
-            // style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-            style={{}}
-            call={PLACEHOLDER_CALL}
-            networkId={network.id}
-            explorerUrl={network.explorerUrl}
-          />
+      <View style={[hasScroll && { paddingRight: 20 }, spacings.mbTy]}>
+        {tab === 'messages' && !!activityState?.signedMessages?.items?.length && (
+          <View style={[flexbox.directionRow, flexbox.flex1, spacings.phSm]}>
+            <View style={flexbox.flex1}>
+              <Text fontSize={14}>Dapps</Text>
+            </View>
+            <View style={flexbox.flex1}>
+              <Text fontSize={14}>Submitted on</Text>
+            </View>
+            <View style={flexbox.flex1}>
+              <Text fontSize={14}>Sign type</Text>
+            </View>
+            <View style={{ width: 15, height: 1 }} /> {/* with the width of the arrow icon */}
+          </View>
         )}
-        {tab === 'messages' && <Text>Signed Messages</Text>}
-        {tab === 'cross-chain' && <Text>Cross-Chain Bridge</Text>}
       </View>
-      <Pagination style={{ marginLeft: 'auto' }} page={1} setPage={() => null} />
+      <ScrollView
+        style={[spacings.mbXl, flexbox.flex1]}
+        contentContainerStyle={{
+          flexGrow: 1,
+          ...spacings?.[hasScroll ? 'prSm' : 'pr0']
+        }}
+        onLayout={(e) => {
+          setContainerHeight(e.nativeEvent.layout.height)
+        }}
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height)
+        }}
+        {...(tab === 'messages' && !!activityState.signedMessages?.items.length
+          ? { stickyHeaderIndices: [0] }
+          : {})}
+      >
+        {tab === 'transactions' && renderAccountOpsHistory()}
+        {tab === 'messages' && renderSignedMessagesHistory()}
+        {tab === 'cross-chain' && <Text>Cross-Chain Bridge</Text>}
+      </ScrollView>
+      <Pagination
+        isNextDisabled={goToNextPageDisabled}
+        style={{ marginLeft: 'auto' }}
+        page={page}
+        setPage={(p) => setPage(p)}
+      />
     </SettingsPage>
   )
 }

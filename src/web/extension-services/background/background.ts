@@ -435,11 +435,7 @@ async function init() {
             case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
               return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init({
-                messageToSign: data.params.messageToSign,
-                accounts: data.params.accounts,
-                accountStates: data.params.accountStates
-              })
+              return mainCtrl.signMessage.init(data.params)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
@@ -462,6 +458,10 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
               return mainCtrl.activity.setFilters(data.params.filters)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
+              return mainCtrl.activity.setAccountsOpsPagination(data.params.pagination)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
+              return mainCtrl.activity.setSignedMessagesPagination(data.params.pagination)
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
 

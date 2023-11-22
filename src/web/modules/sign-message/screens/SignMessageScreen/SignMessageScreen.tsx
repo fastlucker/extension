@@ -20,6 +20,7 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
@@ -42,6 +43,8 @@ const SignMessageScreen = () => {
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const { currentNotificationRequest } = useNotificationControllerState()
+
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const networkData =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
@@ -131,6 +134,10 @@ const SignMessageScreen = () => {
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
+            dapp: {
+              name: currentNotificationRequest?.params?.session?.name,
+              icon: currentNotificationRequest?.params?.session?.icon
+            },
             messageToSign: msgToSign,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
@@ -147,7 +154,8 @@ const SignMessageScreen = () => {
     mainState.accounts,
     mainState.accountStates,
     signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr
+    signMessageState.messageToSign?.accountAddr,
+    currentNotificationRequest?.params
   ])
 
   useEffect(() => {
