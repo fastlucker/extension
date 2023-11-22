@@ -85,9 +85,7 @@ async function init() {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
     },
-    onBroadcastSuccess: (
-      type: 'message' | 'typed-data' | 'account-op'
-    ) => {
+    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
       setAccountStateInterval(accountStateIntervals.pending)
     },
@@ -176,7 +174,6 @@ async function init() {
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
         setAccountStateInterval(accountStateIntervals.standBy)
-        return
       }
     }, intervalLength)
   }
@@ -254,7 +251,8 @@ async function init() {
               }
             } else {
               clearInterval(activityIntervalId)
-              activityIntervalId = null}
+              activityIntervalId = null
+            }
           }
 
           setTimeout(() => {
