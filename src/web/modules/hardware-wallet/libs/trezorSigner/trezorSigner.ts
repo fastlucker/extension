@@ -60,7 +60,7 @@ class TrezorSigner implements KeystoreSigner {
     })
 
     if (!res.success) {
-      throw new Error(res.payload?.error || 'trezorSigner: unknown error')
+      throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
     }
 
     try {
@@ -84,7 +84,7 @@ class TrezorSigner implements KeystoreSigner {
 
       return serializedSignedTxn
     } catch (error: any) {
-      throw new Error(error?.message || 'trezorSigner: unknown error')
+      throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
     }
   }
 
