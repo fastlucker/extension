@@ -1,19 +1,31 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { ClipPath, Defs, G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const UnpinIcon: React.FC<Props> = ({ width = 24, height = 27, color = colors.martinique }) => (
-  <Svg width={width} height={height} viewBox="0 0 24.864 27.843">
-    <Path
-      d="m11.374 18.515-.053.113-2.36 4.924a2.281 2.281 0 0 1-.246.418.955.955 0 0 1-1.21.293.974.974 0 0 1-.5-1.172 2.265 2.265 0 0 1 .103-.267q1.195-2.504 2.394-5.006l.076-.163-.122-.057-5.502-2.635a1.175 1.175 0 0 1-.592-.548 1 1 0 0 1-.01-.84 6.6 6.6 0 0 1 1.137-1.752 8.318 8.318 0 0 1 5.05-2.867.2.2 0 0 0 .178-.146c.027-.074 1.082-2.164 1.298-2.628a1.4 1.4 0 0 0 .134-.89 5.469 5.469 0 0 1 .295-2.762 6.52 6.52 0 0 1 .241-.562.957.957 0 0 1 1.18-.467c.227.09.451.194.673.297q4.1 1.96 8.197 3.922a1.134 1.134 0 0 1 .528.44.974.974 0 0 1 .039.968 5.716 5.716 0 0 1-2.354 2.509 1 1 0 0 0-.438.467c-.566 1.17-.373.704-1.356 2.754-.05.108-.006.184.038.267a8.592 8.592 0 0 1 .675 1.57 8.329 8.329 0 0 1 .056 4.798c-.107.376-.238.746-.375 1.111a1.042 1.042 0 0 1-1.51.62c-.25-.116-.499-.232-.746-.353l-4.79-2.295-.129-.06"
-      fill={color}
-    />
+const UnpinIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = colors.martinique,
+  ...rest
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 24 24" {...rest}>
+    <Defs>
+      <ClipPath id="a">
+        <Path fill="none" stroke={color} d="M9 8h24v24H9z" />
+      </ClipPath>
+    </Defs>
+    <Path fill="none" d="M0 0h24v24H0z" data-name="Rectangle 1280" />
+    <G clipPath="url(#a)" data-name="Mask Group 30" transform="translate(-9 -8)">
+      <G stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5">
+        <Path
+          fill={color}
+          d="M12.692 21.057a7.025 7.025 0 0 1 6.065-2.646l3.036-5.257a5.508 5.508 0 0 1-.436-3.832l9.166 5.292a5.485 5.485 0 0 1-3.53 1.542l-3.037 5.259a7.017 7.017 0 0 1 .738 6.573Z"
+          data-name="Union 51"
+        />
+        <Path fill="none" d="m18.694 24.52-3.5 6.062" />
+      </G>
+    </G>
   </Svg>
 )
 

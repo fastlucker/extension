@@ -1,6 +1,12 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING, SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING,
+  SPACING_3XL,
+  SPACING_LG,
+  SPACING_XL
+} from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import commonWebStyles from '@web/styles/utils/common'
@@ -30,7 +36,12 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: isTab || isNotification ? SPACING_3XL : SPACING,
+      paddingHorizontal:
+        isTab || isNotification
+          ? IS_SCREEN_SIZE_DESKTOP_LARGE
+            ? SPACING_3XL
+            : SPACING_XL
+          : SPACING,
       backgroundColor: theme.secondaryBackground,
       ...spacings.pv,
       height: HEADER_HEIGHT

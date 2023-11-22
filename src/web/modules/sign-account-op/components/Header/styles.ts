@@ -1,6 +1,10 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING_3XL,
+  SPACING_XL
+} from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -20,7 +24,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
-      ...spacings.ph3Xl,
+      paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
       ...spacings.pv,
       backgroundColor: theme.secondaryBackground,
       borderBottomColor: theme.secondaryBorder,

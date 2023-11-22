@@ -3,7 +3,11 @@ import { ColorValue, View } from 'react-native'
 
 import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING_3XL,
+  SPACING_XL
+} from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
@@ -51,7 +55,11 @@ export const TabLayoutContainer = ({
           flexbox.directionRow,
           flexbox.flex1,
           width !== 'full' ? flexbox.alignSelfCenter : {},
-          width === 'full' && (isTab || isNotification) ? spacings.ph3Xl : {},
+          width === 'full' && (isTab || isNotification)
+            ? {
+                paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL
+              }
+            : {},
           width === 'full' && !isTab && !isNotification ? spacings.ph : {},
           {
             backgroundColor: backgroundColor || theme.primaryBackground,
