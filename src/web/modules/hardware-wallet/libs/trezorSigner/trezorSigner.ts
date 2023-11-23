@@ -43,7 +43,8 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const unsignedTransaction: EthereumTransaction = {
+    // Note: Trezor auto-detects the transaction `type`, based on the txn params
+    const unsignedTxn: EthereumTransaction = {
       ...txnRequest,
       // The incoming `txnRequest` param types mismatch the Trezor expected ones,
       // so normalize the types before passing them to the Trezor API
@@ -56,7 +57,7 @@ class TrezorSigner implements KeystoreSigner {
 
     const res = await trezorConnect.ethereumSignTransaction({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: unsignedTransaction
+      transaction: unsignedTxn
     })
 
     if (!res.success) {
@@ -69,8 +70,8 @@ class TrezorSigner implements KeystoreSigner {
         s: res.payload.s,
         v: Signature.getNormalizedV(res.payload.v)
       })
-      const serializedSignedTxn = Transaction.from({
-        ...unsignedTransaction,
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
         signature,
         // The nonce type of the normalized `unsignedTransaction` compatible
         // with Trezor  mismatches the EthersJS supported type, so fallback to
@@ -82,7 +83,7 @@ class TrezorSigner implements KeystoreSigner {
         type: 0
       }).serialized
 
-      return serializedSignedTxn
+      return signedSerializedTxn
     } catch (error: any) {
       throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
     }
