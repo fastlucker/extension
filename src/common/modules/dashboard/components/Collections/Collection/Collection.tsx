@@ -67,7 +67,7 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn
           />
         )}
         {(imageFailed || !data?.image) && <ImageIcon width={30} height={30} style={styles.image} />}
-        <Text weight="regular" style={styles.name} fontSize={14}>
+        <Text testID='collection-item'  weight="regular" style={styles.name} fontSize={14}>
           {name} ({collectibles.length})
         </Text>
       </View>

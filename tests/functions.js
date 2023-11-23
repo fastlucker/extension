@@ -13,7 +13,7 @@ let puppeteerArgs = [
 ];
 
 export async function bootStrap(page, browser, options= {}) {
-    const { devtools = false, slowMo = 50 } = options
+    const { devtools = false, slowMo = 10 } = options
 
      browser = await puppeteer.launch({
         headless: false,

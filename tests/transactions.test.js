@@ -3,6 +3,7 @@ const path = require('path')
 
 import { trimEnd } from 'lodash';
 import { bootStrap } from './functions.js';
+import { t } from 'i18next';
 ;
 
 
@@ -22,19 +23,20 @@ describe('balance', () => {
         extensionRootUrl = context.extensionRootUrl
         extensionId = context.extensionId
 
+
         page = (await browser.pages())[0];
         let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/keystore-unlock`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
-        parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS)
-        parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID)
-        parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS)
-        parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS)
-        envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS)
-        envPermission = (process.env.KEYSTORE_PERMISSION)
-        envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT)
-        envTermState = (process.env.KEYSTORE_TERMSTATE)
-        parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
+        parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
+        parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
+        parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
+        parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
+        envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
+        envPermission = (process.env.KEYSTORE_PERMISSION_1)
+        envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
+        envTermState = (process.env.KEYSTORE_TERMSTATE_1)
+        parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
 
 
         const executionContext = await page.mainFrame().executionContext()
@@ -60,20 +62,14 @@ describe('balance', () => {
         pages[1].close() // tab always opened after extension installation
         // pages[2].close() // tab always opened after extension installation
 
-    
+
         await new Promise((r) => setTimeout(r, 1000));
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
         pages = await browser.pages()
 
-    
 
-
-    })
-
-
-    beforeAll(async () => {
 
         await new Promise((r) => setTimeout(r, 500));
         // /*Open the page again to load the browser local storage */
@@ -87,7 +83,7 @@ describe('balance', () => {
         // /*Type keystore password */
         await page.waitForSelector('[placeholder="Passphrase"]');
         const keyStorePassField = await page.$('[placeholder="Passphrase"]');
-        await keyStorePassField.type(process.env.KEYSTORE_PASS_PHRASE);
+        await keyStorePassField.type(process.env.KEYSTORE_PASS_PHRASE_1);
 
         // await new Promise((r) => setTimeout(r, 1000))
 
@@ -96,6 +92,7 @@ describe('balance', () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
+
     })
 
     afterAll(async () => {
@@ -103,8 +100,10 @@ describe('balance', () => {
     });
 
     //--------------------------------------------------------------------------------------------------------------
-    // the login is only in the first test, the next tests don't include it, if the first one  fails the other will fail too
-    it('check the balance in account ', (async () => {
+    it('Make valid transaction', (async () => {
+
+        await new Promise((r) => setTimeout(r, 2000))
+
 
         /* Get the available balance */
         const availableAmmount = await page.evaluate(() => {
@@ -117,63 +116,58 @@ describe('balance', () => {
 
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
-    }));
+
+        // await new Promise((r) => setTimeout(r, 1000))
+        await page.waitForSelector('[data-testid="dashboard-button"]');
 
 
-    //--------------------------------------------------------------------------------------------------------------
-    it('check if networks Ethereum, USDC and Polygon exist in the account  ', (async () => {
-
-        await new Promise((r) => setTimeout(r, 2000))
-
-        /* Verify that USDC, ETH, WALLET */
-        const text = await page.$eval('*', el => el.innerText);
-
-        expect(text).toContain('USDC');
-        console.log('USDC exist on the page')
-        expect(text).toContain('ETH');
-        console.log('ETH exist on the page')
-        expect(text).toContain('WALLET');
-        console.log('WALLET exist on the page')
-
-    }));
-
-
-
-
-    //--------------------------------------------------------------------------------------------------------------
-    it('check if item exist in Collectibles tab', (async () => {
-
-        await new Promise((r) => setTimeout(r, 2000))
-
-        /* Click on "Collectibles" button */
-        const collectiblesButton = await page.waitForSelector('xpath///div[contains(text(), "Collectibles")]');
-        await collectiblesButton.click()
-
-        /* Get the text content of the first item */
-        let firstCollectiblesItem = await page.$$eval('[data-testid="collection-item"]', element => {
-            return element[0].textContent
-        });
-
-        let firstCollectiblesItemCut = firstCollectiblesItem.split(' ')[0]
-
-        /* Click on the first item */
-        let elements = await page.$$('[data-testid="collection-item"]');
-
-        // loop trough items          
-        for (let i = 0; i < elements.length; i++) {
-
-            let text = await page.evaluate(el => el.innerText, elements[i]);
-            if (text.indexOf(firstCollectiblesItemCut) > -1) {
-                await elements[i].click();
+        /* Click on "Send" button */
+        let buttons = await page.$$('[data-testid="dashboard-button"]');
+        for (let i = 0; i < buttons.length; i++) {
+            let text = await page.evaluate(el => el.innerText, buttons[i]);
+            if (text.indexOf("Send") > -1) {
+                await buttons[i].click();
             }
         }
-        /* Verify that the correct url os loaded */
-        const url = page.url()
-        expect(url).toContain('collection');
+
+        /* Type the amount */
+        await page.waitForSelector('[placeholder="0"]');
+        const amount = await page.$('[placeholder="0"]');
+        await amount.click({ clickCount: 3 });
+        await amount.press('Backspace');
+        await amount.type("0.0001", { delay: 10 }); 
 
 
-        /* Verify that selected item exist on the page */
-        const text = await page.$eval('*', el => el.innerText);
-        expect(text).toContain(firstCollectiblesItemCut);
+
+        
+        /* Type the adress of the recipient  */
+        const nthElementHandle = (await page.$$('[type="text"]'))[1];
+        await nthElementHandle.type('0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C');
+
+        /* Check the checkbox "Confirm sending to a previously unknown address" */
+        await page.waitForSelector('[data-testid="checkbox"]');
+        await page.click('[data-testid="checkbox"]')
+
+        /* Check the checkbox "I confirm this address is not a Binance wallets...." */
+        await page.waitForSelector('[data-testid="confirm-address-checkbox"]');
+        await page.click('[data-testid="confirm-address-checkbox"]')
+
+        /* Click on "Send" button */
+        const sendButton = await page.waitForSelector('xpath///div[contains(text(), "Send")]');
+        await sendButton.click();
+
+
+        await page.goto(`${extensionRootUrl}/notification.html#/sign-account-op`, { waitUntil: 'load', })
+
+        /* Click on "Medium" button */
+        const keyStoreUnlokeButton = await page.waitForSelector('xpath///div[contains(text(), "Medium")]');
+        await keyStoreUnlokeButton.click();
+
+                // /* Click on "Medium" button */
+                // const keyStoreUnlokeButton1 = await page.waitForSelector('xpath///div[contains(text(), "Sign")]');
+                // await keyStoreUnlokeButton1.click();
+
+                // await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
+                // await page.goto(`${extensionRootUrl}/notification.html#/sign-account-op`, { waitUntil: 'load', })
     }));
 })

@@ -169,7 +169,7 @@ const SendForm = ({
             style={spacings.plTy}
             onValueChange={onSWWarningCheckboxClick}
           >
-            <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
+            <Text testID='confirm-address-checkbox' fontSize={12} onPress={onSWWarningCheckboxClick}>
               {
                 t(
                   'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
