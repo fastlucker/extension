@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, useCallback } from 'react'
+import React, { Fragment, ReactNode, useCallback } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -25,34 +25,18 @@ interface Props {
   call: IrCall
   networkId: NetworkDescriptor['id']
   explorerUrl: NetworkDescriptor['explorerUrl']
+  rightIcon?: ReactNode
+  onRightIconPress?: () => void
 }
 
-export function formatFloatTokenAmount(
-  amount: any,
-  useGrouping = true,
-  maximumFractionDigits = 18
-) {
-  if (
-    Number.isNaN(amount) ||
-    Number.isNaN(parseFloat(amount)) ||
-    !(typeof amount === 'number' || typeof amount === 'string')
-  )
-    return amount
-
-  try {
-    const minimumFractionDigits = Math.min(2, maximumFractionDigits || 0)
-    return (typeof amount === 'number' ? amount : parseFloat(amount)).toLocaleString(undefined, {
-      useGrouping,
-      maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
-      minimumFractionDigits
-    })
-  } catch (err) {
-    console.error(err)
-    return amount
-  }
-}
-
-const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
+const TransactionSummary = ({
+  style,
+  call,
+  networkId,
+  explorerUrl,
+  rightIcon,
+  onRightIconPress
+}: Props) => {
   const { t } = useTranslation()
 
   const { dispatch } = useBackgroundService()
@@ -159,7 +143,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                      <OpenIcon width={24} height={24} color={colors.martinique_80} />
+                      <OpenIcon width={14} height={14} strokeWidth="2" />
                     </TouchableOpacity>
                   )}
                 </>
@@ -219,7 +203,10 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
           {call.fullVisualization
             ? humanizedVisualization(call.fullVisualization)
             : fallbackVisualization()}
-          {!!call.fromUserRequestId && (
+          {!!rightIcon && (
+            <TouchableOpacity onPress={onRightIconPress}>{rightIcon}</TouchableOpacity>
+          )}
+          {!!call.fromUserRequestId && !rightIcon && (
             <TouchableOpacity onPress={handleRemoveCall}>
               <DeleteIcon />
             </TouchableOpacity>

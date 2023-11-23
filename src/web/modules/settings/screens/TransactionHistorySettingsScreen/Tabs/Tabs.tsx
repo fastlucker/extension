@@ -65,9 +65,8 @@ const Tabs = ({
                       : 'transparent'
                 }
               ]}
-              weight="regular"
               fontSize={16}
-              appearance="primary"
+              appearance={isSelected ? 'primary' : 'secondaryText'}
             >
               {tab.label}
             </Text>

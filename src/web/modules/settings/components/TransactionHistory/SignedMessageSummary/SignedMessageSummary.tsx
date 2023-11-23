@@ -1,8 +1,7 @@
 import React from 'react'
-import { View, ViewStyle } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView, View, ViewStyle } from 'react-native'
 
-import { SignedMessage } from '@ambire-common/interfaces/userRequest'
+import { SignedMessage } from '@ambire-common/controllers/activity/activity'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
