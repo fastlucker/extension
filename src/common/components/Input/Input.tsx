@@ -95,7 +95,7 @@ const Input = ({
   return (
     <View style={[styles.inputContainer, containerStyle]}>
       {!!label && (
-        <Text fontSize={12} weight="regular" style={styles.label}>
+        <Text appearance="secondaryText" fontSize={14} weight="regular" style={styles.label}>
           {label}
         </Text>
       )}

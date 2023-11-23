@@ -90,7 +90,12 @@ const SelectComponent = ({
   return (
     <>
       {!!label && (
-        <Text fontSize={16} appearance="secondaryText" style={[spacings.mbTy, labelStyle]}>
+        <Text
+          fontSize={14}
+          weight="regular"
+          appearance="secondaryText"
+          style={[spacings.mbMi, labelStyle]}
+        >
           {label}
         </Text>
       )}
