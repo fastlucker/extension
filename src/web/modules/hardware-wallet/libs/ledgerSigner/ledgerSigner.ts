@@ -2,7 +2,6 @@ import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -64,11 +63,16 @@ class LedgerSigner implements KeystoreSigner {
 
       return signedSerializedTxn
     } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(e?.message || 'ledgerSigner: singing failed for unknown reason')
     }
   }
 
-  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -100,7 +104,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signMessage(hex: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
