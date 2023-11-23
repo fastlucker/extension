@@ -19,8 +19,6 @@ interface Style {
   spinner: ViewStyle
   accountSelect: ViewStyle
   errorContainer: ViewStyle
-  errorHeading: TextStyle
-  error: TextStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -83,15 +81,6 @@ const getStyles = (theme: ThemeProps) =>
     errorContainer: {
       marginTop: 'auto',
       paddingTop: 10
-    },
-    errorHeading: {
-      fontSize: 16,
-      fontFamily: 'Poppins_500Medium',
-      color: theme.errorText
-    },
-    error: {
-      marginTop: 5,
-      color: theme.errorText
     }
   })
 

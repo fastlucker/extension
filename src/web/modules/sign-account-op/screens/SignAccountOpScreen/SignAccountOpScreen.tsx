@@ -29,7 +29,7 @@ import PendingTokenSummary from '@web/modules/sign-account-op/components/Pending
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import ErrorIcon from '@common/assets/svg/ErrorIcon'
+import Alert from '@common/components/Alert'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -222,13 +222,14 @@ const SignAccountOpScreen = () => {
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Text style={styles.errorHeading}>
-          <ErrorIcon /> {mainState.signAccOpInitError}
-        </Text>
+        <Alert type="error" title={mainState.signAccOpInitError} />
       </View>
     )
   }
 
+  // We want to show the errors one by one.
+  // Once the user resolves an error, it will be removed from the array,
+  // and we are going to show the next one, if it exists.
   if (!signAccountOpState?.accountOp) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -330,16 +331,10 @@ const SignAccountOpScreen = () => {
 
             {signAccountOpState.errors.length ? (
               <View style={styles.errorContainer}>
-                <Text style={styles.errorHeading}>
-                  <ErrorIcon /> We are unable to sign your transaction due to the following errors:
-                </Text>
-                <Text style={styles.error}>
-                  <ul>
-                    {signAccountOpState.errors.map((error) => (
-                      <li>{error}</li>
-                    ))}
-                  </ul>
-                </Text>
+                <Alert
+                  type="error"
+                  title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+                />
               </View>
             ) : null}
           </View>
