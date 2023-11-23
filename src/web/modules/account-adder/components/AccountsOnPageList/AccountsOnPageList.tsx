@@ -5,7 +5,6 @@ import { Pressable, TouchableOpacity, View } from 'react-native'
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { Key } from '@ambire-common/interfaces/keystore'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -13,22 +12,17 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Account from '@web/modules/account-adder/components/Account'
 import Slot from '@web/modules/account-adder/components/Slot'
+import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import styles from './styles'
 
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
-
-const hwDeviceNames: { [key in Exclude<Key['type'], 'internal'>]: string } = {
-  ledger: 'Ledger',
-  trezor: 'Trezor',
-  lattice: 'GridPlus Lattice1'
-}
 
 const AccountsList = ({
   state,
@@ -63,7 +57,11 @@ const AccountsList = ({
   }
 
   const handleLargePageStepDecrement = () => {
-    setPage(state.page - LARGE_PAGE_STEP)
+    if (state.page <= LARGE_PAGE_STEP) {
+      setPage(1)
+    } else {
+      setPage(state.page - LARGE_PAGE_STEP)
+    }
   }
 
   const handleLargePageStepIncrement = () => {
@@ -140,7 +138,7 @@ const AccountsList = ({
         ]}
       >
         <Text
-          fontSize={20}
+          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}
@@ -149,7 +147,7 @@ const AccountsList = ({
           {keyType === 'internal'
             ? t('Pick Accounts To Import')
             : t('Import Account From {{ hwDeviceName }}', {
-                hwDeviceName: hwDeviceNames[keyType]
+                hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
               })}
         </Text>
         {/* TODO: impl change derivation and move this into a separate component */}
@@ -200,11 +198,8 @@ const AccountsList = ({
         <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
           <TouchableOpacity
             onPress={handleLargePageStepDecrement}
-            disabled={state.page <= LARGE_PAGE_STEP || disablePagination}
-            style={[
-              spacings.mrLg,
-              state.page <= (LARGE_PAGE_STEP || disablePagination) && { opacity: 0.4 }
-            ]}
+            disabled={state.page === 1 || disablePagination}
+            style={[spacings.mrLg, (state.page === 1 || disablePagination) && { opacity: 0.4 }]}
           >
             <View style={flexbox.directionRow}>
               <LeftArrowIcon />

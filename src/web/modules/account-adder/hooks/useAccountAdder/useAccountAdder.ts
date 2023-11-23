@@ -1,5 +1,5 @@
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
 import {
   HD_PATH_TEMPLATE_TYPE,
@@ -18,6 +18,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
@@ -36,6 +37,11 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return ''
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const setPage: any = React.useCallback(
     (page = 1) => {
@@ -143,10 +149,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
               privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
-            return {
-              privateKey,
-              label: `${keyLabel} for the account on slot ${acc.slot}`
-            }
+            return { privateKey }
           })
 
           dispatch({
@@ -167,18 +170,42 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           params: { keyType }
         })
       }
+
+      const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+        ({ accountKeyAddr, slot, index }) => ({
+          addr: accountKeyAddr,
+          type: keyType,
+          label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
+        })
+      )
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+        params: keyPreferencesToAdd
+      })
     }
-  })
+  }, [
+    accountAdderState.addAccountsStatus,
+    accountAdderState.hdPathTemplate,
+    accountAdderState.readyToAddAccounts,
+    accountAdderState.selectedAccounts,
+    dispatch,
+    keyLabel,
+    keyType,
+    privKeyOrSeed
+  ])
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
         state: {
-          accounts: accountAdderState.readyToAddAccounts
+          accounts: accountAdderState.readyToAddAccounts,
+          keyType,
+          keyTypeInternalSubtype
         }
       })
     },
-    [navigate, accountAdderState]
+    [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
   )
 
   useEffect(() => {

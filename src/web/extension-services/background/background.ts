@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
 import {
@@ -7,8 +8,10 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -36,7 +39,6 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 
 import { Action } from './actions'
-import { nestedControllersOnUpdateHandlers } from './on-update-handlers'
 import { controllersNestedInMainMapping } from './types'
 
 async function init() {
@@ -48,7 +50,7 @@ async function init() {
 
   // Initialize humanizer in storage
   const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
-  if (!Object.keys(humanizerMetaInStorage).length) {
+  if (Object.keys(humanizerMetaInStorage).length < Object.keys(humanizerJSON).length) {
     await storage.set('HumanizerMeta', humanizerJSON)
   }
 
@@ -57,7 +59,6 @@ async function init() {
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
-  let controllersNestedInMainSubscribe: any = null
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
@@ -84,8 +85,11 @@ async function init() {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
+    onBroadcastSuccess: (
+      type: 'message' | 'typed-data' | 'account-op'
+    ) => {
       notifyForSuccessfulBroadcast(type)
+      setAccountStateInterval(accountStateIntervals.pending)
     },
     pinned: pinnedTokens
   })
@@ -97,7 +101,14 @@ async function init() {
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
   let fetchPortfolioIntervalId: any
+  /** ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl
+  when it receives an update in the ctrl.onUpdate callback. While the flag is truthy and there are new updates coming for that ctrl
+  in the same tick, they will be debounced and only one event will be executed at the end */
   const ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean } = {}
+  /** Will be assigned with a function that initialized the on update listeners
+  for the nested controllers in main. Serves for checking whether the listeners are already set
+  to avoid duplicated/multiple instanced of the onUpdate callbacks for a given ctrl to be initialized in the background */
+  let controllersNestedInMainSubscribe: any = null
 
   onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -129,19 +140,58 @@ async function init() {
     activityIntervalId = setInterval(() => mainCtrl.updateAccountsOpsStatuses(), timeout)
   }
 
+  // refresh the account state once every 5 minutes.
+  // if there are BroadcastedButNotConfirmed account ops, start refreshing
+  //  once every 7.5 seconds until they are cleared
+  let accountStateInterval: any
+  let selectedAccountStateInterval: any
+  const accountStateIntervals = {
+    pending: 7500,
+    standBy: 300000
+  }
+
+  function setAccountStateInterval(intervalLength: number) {
+    clearInterval(accountStateInterval)
+    selectedAccountStateInterval = intervalLength
+
+    // if setAccountStateInterval is called with a pending request
+    // (this happens after broadcast), update the account state
+    // with the pending block without waiting
+    if (selectedAccountStateInterval === accountStateIntervals.pending) {
+      mainCtrl.updateAccountStates('pending')
+    }
+
+    accountStateInterval = setInterval(async () => {
+      // update the account state with the latest block in normal
+      // circumstances and with the pending block when there are
+      // pending account ops
+      const blockTag =
+        selectedAccountStateInterval === accountStateIntervals.standBy ? 'latest' : 'pending'
+      mainCtrl.updateAccountStates(blockTag)
+
+      // if we're in a pending update interval but there are no
+      // broadcastedButNotConfirmed account Ops, set the interval to standBy
+      if (
+        selectedAccountStateInterval === accountStateIntervals.pending &&
+        !mainCtrl.activity.broadcastedButNotConfirmed.length
+      ) {
+        setAccountStateInterval(accountStateIntervals.standBy)
+        return
+      }
+    }, intervalLength)
+  }
+  // Call it once to initialize the interval
+  setAccountStateInterval(accountStateIntervals.standBy)
+
   /**
-   * Init all controllers `onUpdate` listeners only once (in here), instead of
-   * doing it in the `browser.runtime.onConnect.addListener` listener, because
-   * the `onUpdate` listeners are not supposed to be re-initialized every time
-   * the `browser.runtime.onConnect.addListener` listener is called.
-   * Moreover, this re-initialization happens multiple times per session,
-   * `browser.runtime.onConnect.addListener` gets called multiple times,
-   * and the `onUpdate` listeners skip emits from controllers (race condition).
-   * Initializing the listeners only once proofs to be more reliable.
+   * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
+   * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
    */
 
-  // Broadcast onUpdate for the main controller
-
+  /**
+   * Initialize the onUpdate callback for the MainController.
+   * Once the mainCtrl load is ready, initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
+   */
   mainCtrl.onUpdate(() => {
     if (ctrlOnUpdateIsDirtyFlags.main) return
     ctrlOnUpdateIsDirtyFlags.main = true
@@ -182,12 +232,12 @@ async function init() {
                 }
               } else {
                 clearInterval(activityIntervalId)
+                activityIntervalId = null
               }
             }
 
             setTimeout(() => {
               if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
-                nestedControllersOnUpdateHandlers(mainCtrl, ctrl)
                 Object.keys(portMessageUIRefs).forEach((key: string) => {
                   portMessageUIRefs[key]?.request({
                     type: 'broadcast',
@@ -356,6 +406,9 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
             }
+            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
+              return mainCtrl.settings.addKeyPreferences(data.params)
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -437,8 +490,6 @@ async function init() {
               return mainCtrl.transfer.buildUserRequest()
             case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
               return mainCtrl.transfer.onRecipientAddressChange()
-            case 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE':
-              return mainCtrl.transfer.handleTokenChange(data.params.tokenAddressAndNetwork)
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
@@ -492,17 +543,10 @@ async function init() {
                 lattice: latticeCtrl.deviceModel
               }
 
-              const keyWalletNames: { [key in ExternalKey['type']]: string } = {
-                ledger: 'Ledger',
-                trezor: 'Trezor',
-                lattice: 'Lattice'
-              }
-
               const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, slot, index }) => ({
+                ({ accountKeyAddr, index }) => ({
                   addr: accountKeyAddr,
                   type: keyType,
-                  label: `${keyWalletNames[keyType]} on slot ${slot}`,
                   meta: {
                     deviceId: deviceIds[keyType],
                     deviceModel: deviceModels[keyType],
@@ -619,8 +663,7 @@ async function init() {
   })
 })()
 
-// On first install, open Ambire Extension in a new tab to start the login process
-
+// Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     setTimeout(() => {
@@ -630,6 +673,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 })
 
+// Send a browser notification when the signing process of a message or account op is finalized
 const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
   let message = ''

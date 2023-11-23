@@ -1,45 +1,32 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import { SPACING_4XL, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  title: TextStyle
-  wrapper: ViewStyle
   pinExtension: ViewStyle
   videoBackground: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  wrapper: {
-    maxWidth: 480,
-    height: '100%',
-    ...spacings.pl4Xl
-  },
-  title: {
-    textAlign: 'center',
-    position: 'relative',
-    ...spacings.mt,
-    ...spacings.mb4Xl
-  },
-  pinExtension: {
-    // @ts-ignore-next-line web only property
-    position: 'fixed',
-    right: 50,
-    top: -10,
-    zIndex: 10
-  },
-  videoBackground: {
-    backgroundColor: colors.melrose_15,
-    width: 440,
-    height: 300,
-    ...spacings.mb4Xl,
-    ...flexbox.alignCenter,
-    ...flexbox.justifyCenter,
-    ...commonStyles.borderRadiusPrimary
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    pinExtension: {
+      // @ts-ignore-next-line web only property
+      position: 'fixed',
+      right: SPACING_4XL + SPACING_XL,
+      top: -SPACING_TY,
+      zIndex: 10
+    },
+    videoBackground: {
+      backgroundColor: theme.secondaryBackground,
+      width: 640,
+      height: 360,
+      ...flexbox.alignCenter,
+      ...flexbox.justifyCenter,
+      ...commonStyles.borderRadiusPrimary
+    }
+  })
 
-export default styles
+export default getStyles

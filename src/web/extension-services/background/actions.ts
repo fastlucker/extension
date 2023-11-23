@@ -5,7 +5,7 @@ import { Filters } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -80,6 +80,10 @@ type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
 }
+type MainControllerSettingsAddKeyPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
+  params: KeyPreferences
+}
 
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
@@ -130,12 +134,11 @@ type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: {
     selectedAccount?: string
-    preSelectedToken?: string
+    selectedToken?: TokenResult
     humanizerInfo?: HumanizerInfoType
     tokens?: TokenResult[]
     recipientAddress?: string
     amount?: string
-    setMaxAmount?: boolean
     isSWWarningAgreed?: boolean
     isRecipientAddressUnknownAgreed?: boolean
   }
@@ -143,13 +146,6 @@ type MainControllerTransferUpdateAction = {
 
 type MainControllerTransferOnRecipientAddressChangeAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-}
-
-type MainControllerTransferHandleTokenChangeAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_HANDLE_TOKEN_CHANGE'
-  params: {
-    tokenAddressAndNetwork: string
-  }
 }
 
 type NotificationControllerResolveRequestAction = {
@@ -230,7 +226,7 @@ type KeystoreControllerUnlockWithSecretAction = {
 }
 type KeystoreControllerAddKeysAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string; label: string }[] }
+  params: { keys: { privateKey: string }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
@@ -281,6 +277,7 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
+  | MainControllerSettingsAddKeyPreferences
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
