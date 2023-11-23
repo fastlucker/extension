@@ -120,31 +120,6 @@ class LedgerController implements ExternalSignerController {
     this.hasHIDPermission = true
   }
 
-  async getKeys(from: number = 0, to: number = 4) {
-    return new Promise((resolve, reject) => {
-      const unlockPromises = []
-
-      for (let i = from; i <= to; i++) {
-        const path = getHdPathFromTemplate(this.hdPathTemplate, i)
-        unlockPromises.push(this.unlock(path))
-      }
-
-      Promise.all(unlockPromises)
-        .then(async () => {
-          const iterator = new LedgerKeyIterator({
-            hdk: this.hdk,
-            app: this.app
-          })
-          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
-
-          resolve(keys)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
-  }
-
   async cleanUp() {
     this.app = null
     if (this.transport) this.transport.close()
