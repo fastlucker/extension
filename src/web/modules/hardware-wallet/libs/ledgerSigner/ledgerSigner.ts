@@ -1,12 +1,10 @@
 import { stripHexPrefix } from 'ethereumjs-util'
+import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { serialize } from '@ethersproject/transactions'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-
-const EIP_155_CONSTANT = 35
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -28,8 +26,7 @@ class LedgerSigner implements KeystoreSigner {
     this.controller = externalDeviceController
   }
 
-  // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(params: any) {
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (!this.controller) {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
@@ -41,37 +38,31 @@ class LedgerSigner implements KeystoreSigner {
     )
 
     try {
-      const unsignedTxObj = {
-        ...params,
-        gasLimit: params.gasLimit || params.gas
+      const unsignedTxn: TransactionLike = {
+        ...txnRequest,
+        // TODO: Temporary use the legacy transaction mode, because Ambire
+        // extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
       }
 
-      delete unsignedTxObj.from
-      delete unsignedTxObj.gas
+      const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      const serializedUnsigned = serialize(unsignedTxObj)
-
-      // @ts-ignore
-      const rsvRes = await this.controller.app.signTransaction(
+      const res = await this.controller.app!.signTransaction(
         getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        serializedUnsigned.substr(2) // TODO: maybe use stripHexPrefix instead
+        stripHexPrefix(unsignedSerializedTxn)
       )
 
-      const intV = parseInt(rsvRes.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-      if (signedChainId !== params.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${rsvRes.v}`)
-      }
-
-      delete unsignedTxObj.v
-      const signature = serialize(unsignedTxObj, {
-        r: `0x${rsvRes.r}`,
-        s: `0x${rsvRes.s}`,
-        v: intV
+      const signature = Signature.from({
+        r: `0x${res.r}`,
+        s: `0x${res.s}`,
+        v: Signature.getNormalizedV(res.v)
       })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature
+      }).serialized
 
-      return signature
+      return signedSerializedTxn
     } catch (e: any) {
       throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
     }
