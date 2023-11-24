@@ -8,10 +8,8 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
-import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
-import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -491,8 +489,16 @@ async function init() {
 
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
-              return mainCtrl?.signAccountOp?.sign()
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
+              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'ledger')
+                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
+              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'trezor')
+                return mainCtrl?.signAccountOp.sign(trezorCtrl)
+              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'lattice')
+                return mainCtrl?.signAccountOp.sign(latticeCtrl)
+
+              return mainCtrl?.signAccountOp.sign()
+            }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
               return mainCtrl.initSignAccOp(data.params.accountAddr, data.params.networkId)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
