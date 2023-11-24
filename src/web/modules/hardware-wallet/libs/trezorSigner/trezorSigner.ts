@@ -1,16 +1,18 @@
 import { stripHexPrefix } from 'ethereumjs-util'
+import { Signature, toBeHex, Transaction } from 'ethers'
 
-import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { TypedMessage } from '@ambire-common/interfaces/userRequest'
+import {
+  ExternalKey,
+  ExternalSignerController,
+  KeystoreSigner
+} from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { delayPromise } from '@common/utils/promises'
-import { serialize } from '@ethersproject/transactions'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect from '@trezor/connect-web'
+import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
-const EIP_155_CONSTANT = 35
 
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
@@ -21,54 +23,78 @@ class TrezorSigner implements KeystoreSigner {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
+  init(externalDeviceController?: ExternalSignerController) {
+    if (!externalDeviceController) {
+      throw new Error('trezorSigner: externalDeviceController not initialized')
+    }
+
+    this.controller = externalDeviceController
   }
 
-  // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(params: any) {
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (!this.controller) {
       throw new Error('trezorSigner: trezorController not initialized')
+    }
+
+    if (typeof txnRequest.value === 'undefined') {
+      throw new Error('trezorSigner: missing value in transaction request')
     }
 
     const status = await this.controller.unlock()
     await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
 
-    const unsignedTxObj = {
-      ...params,
-      gasLimit: params.gasLimit || params.gas
+    // Note: Trezor auto-detects the transaction `type`, based on the txn params
+    const unsignedTxn: EthereumTransaction = {
+      ...txnRequest,
+      // The incoming `txnRequest` param types mismatch the Trezor expected ones,
+      // so normalize the types before passing them to the Trezor API
+      value: toBeHex(txnRequest.value),
+      gasLimit: toBeHex(txnRequest.gasLimit),
+      gasPrice: toBeHex(txnRequest.gasPrice),
+      nonce: toBeHex(txnRequest.nonce),
+      chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
     }
 
-    delete unsignedTxObj.from
-    delete unsignedTxObj.gas
-
-    const res: any = await trezorConnect.ethereumSignTransaction({
+    const res = await trezorConnect.ethereumSignTransaction({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: unsignedTxObj
+      transaction: unsignedTxn
     })
 
-    if (res.success) {
-      const intV = parseInt(res.payload.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-      if (signedChainId !== params.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
-      }
-      delete unsignedTxObj.v
-
-      const signature = serialize(unsignedTxObj, {
-        r: res.payload.r,
-        s: res.payload.s,
-        v: intV
-      })
-
-      return signature
+    if (!res.success) {
+      throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
     }
 
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
+    try {
+      const signature = Signature.from({
+        r: res.payload.r,
+        s: res.payload.s,
+        v: Signature.getNormalizedV(res.payload.v)
+      })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature,
+        // The nonce type of the normalized `unsignedTransaction` compatible
+        // with Trezor  mismatches the EthersJS supported type, so fallback to
+        // the nonce incoming from the `txnRequest` param
+        nonce: txnRequest.nonce,
+        // TODO: Temporary use the legacy transaction mode, because:
+        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
+        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
+      }).serialized
+
+      return signedSerializedTxn
+    } catch (error: any) {
+      throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
+    }
   }
 
-  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -109,7 +135,7 @@ class TrezorSigner implements KeystoreSigner {
     return res.payload.signature
   }
 
-  async signMessage(hex: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
