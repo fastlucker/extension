@@ -12,6 +12,7 @@ import Select from '@common/components/Select'
 import getSelectStyles from '@common/components/Select/styles'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -58,6 +59,7 @@ const TransactionHistorySettingsScreen = () => {
   const [page, setPage] = useState(1)
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
+  const { t } = useTranslation()
 
   const [account, setAccount] = useState<Account>(
     mainState.accounts.filter((acc) => acc.addr === mainState.selectedAccount)[0]
@@ -202,6 +204,7 @@ const TransactionHistorySettingsScreen = () => {
 
     return activityState?.accountsOps?.items.map((item: SubmittedAccountOp, i) => (
       <SubmittedTransactionSummary
+        key={item.txnId}
         submittedAccountOp={item}
         style={i !== activityState.accountsOps!.items.length - 1 ? spacings.mbLg : {}}
       />
@@ -244,6 +247,7 @@ const TransactionHistorySettingsScreen = () => {
 
     return activityState?.signedMessages?.items.map((item, i) => (
       <SignedMessageSummary
+        key={item.id}
         signedMessage={item as SignedMessage}
         style={i !== activityState.signedMessages!.items.length - 1 ? spacings.mbSm : {}}
       />
@@ -256,7 +260,7 @@ const TransactionHistorySettingsScreen = () => {
         style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
       >
         <Text style={text.center} fontSize={16} weight="medium">
-          Coming soon
+          {t('Coming soon')}
         </Text>
       </View>
     )
@@ -303,15 +307,15 @@ const TransactionHistorySettingsScreen = () => {
         {tab === 'messages' && !!activityState?.signedMessages?.items?.length && (
           <View style={[flexbox.directionRow, flexbox.flex1, spacings.phSm]}>
             <View style={flexbox.flex1}>
-              <Text fontSize={14}>Dapps</Text>
+              <Text fontSize={14}>{t('Dapps')}</Text>
             </View>
             <View style={flexbox.flex1}>
-              <Text fontSize={14}>Submitted on</Text>
+              <Text fontSize={14}>{t('Submitted on')}</Text>
             </View>
             <View style={flexbox.flex1}>
-              <Text fontSize={14}>Sign type</Text>
+              <Text fontSize={14}>{t('Sign type')}</Text>
             </View>
-            <View style={{ width: 15, height: 1 }} /> {/* with the width of the arrow icon */}
+            <View style={{ width: 15, height: 1 }} />
           </View>
         )}
       </View>

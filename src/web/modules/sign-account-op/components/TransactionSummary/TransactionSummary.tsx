@@ -126,13 +126,8 @@ const TransactionSummary = ({
 
             if (item.type === 'address')
               return (
-                <>
-                  <Text
-                    key={Number(item.id) || i}
-                    fontSize={16}
-                    weight="medium"
-                    color={colors.martinique}
-                  >
+                <Fragment key={Number(item.id) || i}>
+                  <Text fontSize={16} weight="medium" color={colors.martinique}>
                     {` ${item.name ? item.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
@@ -146,7 +141,7 @@ const TransactionSummary = ({
                       <OpenIcon width={14} height={14} strokeWidth="2" />
                     </TouchableOpacity>
                   )}
-                </>
+                </Fragment>
               )
 
             if (item.type === 'nft') {

@@ -53,4 +53,4 @@ const ExpandableCard = ({
   )
 }
 
-export default ExpandableCard
+export default React.memo(ExpandableCard)

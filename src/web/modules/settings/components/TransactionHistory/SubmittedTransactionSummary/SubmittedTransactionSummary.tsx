@@ -9,6 +9,7 @@ import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/in
 import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -30,6 +31,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const mainState = useMainControllerState()
   const settingsState = useSettingsControllerState()
   const keystoreState = useKeystoreControllerState()
+  const { t } = useTranslation()
 
   const [humanizedCalls, setHumanizedCalls] = useState<IrCall[]>([])
   const [humanizerError, setHumanizerError] = useState(null)
@@ -133,7 +135,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       <View style={[flexbox.directionRow, flexbox.flex1, spacings.mbSm]}>
         <View style={flexbox.flex1}>
           <Text style={spacings.mbTy} fontSize={14}>
-            Fee
+            {t('Fee')}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
             {feeFormattedValue}
@@ -141,7 +143,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         </View>
         <View style={flexbox.flex1}>
           <Text style={spacings.mbTy} fontSize={14}>
-            Submitted on
+            {t('Submitted on')}
           </Text>
           {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
             <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
@@ -153,7 +155,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         </View>
         <View style={flexbox.flex1}>
           <Text style={spacings.mbTy} fontSize={14}>
-            Block Explorer
+            {t('Block Explorer')}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
             {new URL(network.explorerUrl).hostname}

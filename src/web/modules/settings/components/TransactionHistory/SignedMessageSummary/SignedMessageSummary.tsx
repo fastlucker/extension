@@ -5,6 +5,7 @@ import { SignedMessage } from '@ambire-common/controllers/activity/activity'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -19,6 +20,7 @@ interface Props {
 
 const SignedMessageSummary = ({ signedMessage, style }: Props) => {
   const { styles } = useTheme(getStyles)
+  const { t } = useTranslation()
 
   return (
     <ExpandableCard
@@ -60,7 +62,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
             weight="regular"
             style={styles.rawMessageTitle}
           >
-            Raw message:
+            {t('Raw message')}:
           </Text>
           <Text appearance="secondaryText" fontSize={14} weight="regular">
             {JSON.stringify(signedMessage.content, null, 4)}
