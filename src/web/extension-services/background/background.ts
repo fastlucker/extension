@@ -85,9 +85,7 @@ async function init() {
       const account = accountAddr ? [accountAddr] : []
       return sessionService.broadcastEvent('accountsChanged', account)
     },
-    onBroadcastSuccess: (
-      type: 'message' | 'typed-data' | 'account-op'
-    ) => {
+    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
       setAccountStateInterval(accountStateIntervals.pending)
     },
@@ -176,7 +174,6 @@ async function init() {
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
         setAccountStateInterval(accountStateIntervals.standBy)
-        return
       }
     }, intervalLength)
   }
@@ -408,6 +405,18 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
               return mainCtrl.settings.addKeyPreferences(data.params)
+            }
+            case 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES': {
+              return mainCtrl.settings.updateNetworkPreferences(
+                data.params.networkPreferences,
+                data.params.networkId
+              )
+            }
+            case 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE': {
+              return mainCtrl.settings.resetNetworkPreference(
+                data.params.preferenceKey,
+                data.params.networkId
+              )
             }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
