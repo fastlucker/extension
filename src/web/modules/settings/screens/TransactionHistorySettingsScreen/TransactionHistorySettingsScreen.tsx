@@ -172,17 +172,12 @@ const TransactionHistorySettingsScreen = () => {
     [networks]
   )
 
+  console.log(activityState)
+
   const renderAccountOpsHistory = useCallback(() => {
     if (!activityState?.accountsOps?.items?.length) {
       return (
-        <View
-          style={[
-            StyleSheet.absoluteFill,
-            flexbox.flex1,
-            flexbox.alignCenter,
-            flexbox.justifyCenter
-          ]}
-        >
+        <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
           <Trans>
             <Text style={text.center}>
               <Text fontSize={16}>{'No transactions history for\n'}</Text>
@@ -264,7 +259,7 @@ const TransactionHistorySettingsScreen = () => {
         </Text>
       </View>
     )
-  }, [])
+  }, [t])
 
   const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
   const goToNextPageDisabled = useMemo(() => {
@@ -285,7 +280,7 @@ const TransactionHistorySettingsScreen = () => {
   }
 
   return (
-    <SettingsPage currentPage="transaction-history">
+    <SettingsPage currentPage="transaction-history" withPanelScrollView={false}>
       <Tabs selectedTab={tab} setTab={setTab} />
       <View style={[flexbox.directionRow, spacings.mbLg]}>
         <Select
