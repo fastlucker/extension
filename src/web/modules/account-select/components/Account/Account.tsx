@@ -9,6 +9,7 @@ import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import Badge from '@common/components/Badge'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
@@ -55,7 +56,14 @@ const Account = ({
   }
 
   return (
-    <Pressable key={addr} onPress={() => selectAccount(addr)}>
+    <Pressable
+      key={addr}
+      onPress={() => {
+        if (mainCtrl.selectedAccount === addr) return
+
+        selectAccount(addr)
+      }}
+    >
       {({ hovered }: any) => (
         <View
           style={[
@@ -64,7 +72,10 @@ const Account = ({
               backgroundColor:
                 addr === mainCtrl.selectedAccount || hovered
                   ? theme.secondaryBackground
-                  : 'transparent'
+                  : 'transparent',
+              ...(isWeb
+                ? { cursor: addr === mainCtrl.selectedAccount ? 'default' : 'pointer' }
+                : {})
             }
           ]}
         >
@@ -81,42 +92,37 @@ const Account = ({
               />
             </View>
             <View>
-              <Text fontSize={isTab ? 16 : 14} weight="regular">
-                {isTab ? addr : shortenAddress(addr, 18)}
-              </Text>
+              <View style={flexboxStyles.directionRow}>
+                <Text fontSize={isTab ? 16 : 14} weight="regular">
+                  {isTab ? addr : shortenAddress(addr, 18)}
+                </Text>
+                <Badge
+                  size={isTab ? 'md' : 'sm'}
+                  withIcon
+                  style={spacings.mlTy}
+                  type={isSmartAccount(account) ? 'success' : 'warning'}
+                  text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
+                />
+                {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
+                  <Badge
+                    size={isTab ? 'md' : 'sm'}
+                    style={spacings.mlTy}
+                    type="info"
+                    text={t('View-only')}
+                  />
+                )}
+                {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
+                  <Badge
+                    size={isTab ? 'md' : 'sm'}
+                    style={spacings.mlTy}
+                    type="info"
+                    text={t('v1')}
+                  />
+                )}
+              </View>
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">
                 {settingsCtrl.accountPreferences[addr]?.label || DEFAULT_ACCOUNT_LABEL}
               </Text>
-            </View>
-            <View
-              style={[
-                isTab ? spacings.mtTy : spacings.mtMi,
-                isTab ? spacings.mlLg : spacings.ml,
-                flexboxStyles.directionRow
-              ]}
-            >
-              <Badge
-                size={isTab ? 'md' : 'sm'}
-                withIcon
-                type={isSmartAccount(account) ? 'success' : 'warning'}
-                text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
-              />
-              {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                <Badge
-                  size={isTab ? 'md' : 'sm'}
-                  style={spacings.mlTy}
-                  type="info"
-                  text={t('View-only')}
-                />
-              )}
-              {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                <Badge
-                  size={isTab ? 'md' : 'sm'}
-                  style={spacings.mlTy}
-                  type="info"
-                  text={t('v1')}
-                />
-              )}
             </View>
           </View>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>

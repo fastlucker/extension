@@ -180,6 +180,16 @@ async function init() {
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
 
+  // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
+  // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
+  // Part of the controllers are initialized only once in the very beginning in the main controller (as singletons) and we should be careful to attach the callbacks only once.
+  // Some of the controllers are initialized and destroyed multiple times, and we will continuously add and remove them from the mainControllersQueue.
+  // These dynamic controllers are defined in the dynamicMainControllers.
+  const mainControllersQueue = Object.keys(controllersNestedInMainMapping)
+  // Some of the controllers are dynamic and are initialized only when needed. After they complete their tasks, we destroy them and initialize them again only when necessary.
+  // Every time we initialize such a controller, we should reattach the callbacks.
+  const dynamicMainControllers = ['signAccountOp']
+
   /**
    * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
    * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
@@ -211,56 +221,72 @@ async function init() {
       controllersNestedInMainSubscribe = null
     }
 
-    if (mainCtrl.isReady && !controllersNestedInMainSubscribe) {
-      controllersNestedInMainSubscribe = () => {
-        Object.keys(controllersNestedInMainMapping).forEach((ctrl: any) => {
-          // Broadcast onUpdate for the nested controllers in main
-          ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-            if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
-            ctrlOnUpdateIsDirtyFlags[ctrl] = true
+    if (mainCtrl.isReady) {
+      dynamicMainControllers.forEach((dynamicCtrl) => {
+        // If a dynamic controller was destroyed, we need to reinitialize its callbacks again
+        // and that's the reason we push bash the controller to mainControllersQueue
+        if (
+          !(mainCtrl as any)[dynamicCtrl] &&
+          !mainControllersQueue.find((queueCtrl) => queueCtrl === dynamicCtrl)
+        ) {
+          mainControllersQueue.push(dynamicCtrl)
+        }
+      })
 
-            if (ctrl === 'activity') {
-              // Start the interval for updating the accounts ops statuses,
-              // only if there are broadcasted but not confirmed accounts ops
-              if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
-                // If the interval is already set, then do nothing.
-                if (!activityIntervalId) {
-                  setActivityInterval(5000)
-                }
-              } else {
-                clearInterval(activityIntervalId)
-                activityIntervalId = null
+      for (let i = mainControllersQueue.length - 1; i >= 0; i--) {
+        const ctrl = mainControllersQueue[i]
+
+        // Broadcast onUpdate for the nested controllers in main
+        ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
+          if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
+          ctrlOnUpdateIsDirtyFlags[ctrl] = true
+
+          if (ctrl === 'activity') {
+            // Start the interval for updating the accounts ops statuses,
+            // only if there are broadcasted but not confirmed accounts ops
+            if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
+              // If the interval is already set, then do nothing.
+              if (!activityIntervalId) {
+                setActivityInterval(5000)
               }
+            } else {
+              clearInterval(activityIntervalId)
+              activityIntervalId = null
             }
+          }
 
-            setTimeout(() => {
-              if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
-                Object.keys(portMessageUIRefs).forEach((key: string) => {
-                  portMessageUIRefs[key]?.request({
-                    type: 'broadcast',
-                    method: ctrl,
-                    params: (mainCtrl as any)[ctrl]
-                  })
+          setTimeout(() => {
+            if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
+              Object.keys(portMessageUIRefs).forEach((key: string) => {
+                portMessageUIRefs[key]?.request({
+                  type: 'broadcast',
+                  method: ctrl,
+                  params: (mainCtrl as any)[ctrl]
                 })
-              }
-              ctrlOnUpdateIsDirtyFlags[ctrl] = false
-            }, 0)
-          })
-          ;(mainCtrl as any)[ctrl]?.onError(() => {
-            const errors = (mainCtrl as any)[ctrl].getErrors()
-            const lastError = errors[errors.length - 1]
-            if (lastError) console.error(lastError.error)
-            Object.keys(portMessageUIRefs).forEach((key: string) => {
-              portMessageUIRefs[key]?.request({
-                type: 'broadcast-error',
-                method: ctrl,
-                params: { errors, controller: ctrl }
               })
+            }
+            ctrlOnUpdateIsDirtyFlags[ctrl] = false
+          }, 0)
+        })
+        ;(mainCtrl as any)[ctrl]?.onError(() => {
+          const errors = (mainCtrl as any)[ctrl].getErrors()
+          const lastError = errors[errors.length - 1]
+          if (lastError) console.error(lastError.error)
+          Object.keys(portMessageUIRefs).forEach((key: string) => {
+            portMessageUIRefs[key]?.request({
+              type: 'broadcast-error',
+              method: ctrl,
+              params: { errors, controller: ctrl }
             })
           })
         })
+
+        // If the child controller exists, it means that we already attached the callbacks in the above lines.
+        // If so, we need to remove the child controller from the queue to prevent attaching the same callbacks twice.
+        if ((mainCtrl as any)[ctrl]) {
+          mainControllersQueue.splice(i, 1)
+        }
       }
-      controllersNestedInMainSubscribe()
     }
 
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
@@ -465,19 +491,21 @@ async function init() {
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
 
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS':
-              return mainCtrl.signAccountOp.updateMainDeps(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
-              return mainCtrl.signAccountOp.update(data.params)
+              return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN':
-              return mainCtrl.signAccountOp.sign()
+              return mainCtrl?.signAccountOp?.sign()
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
+              return mainCtrl.initSignAccOp(data.params.accountAddr, data.params.networkId)
+            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
+              return mainCtrl.destroySignAccOp()
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
               return mainCtrl.reestimateAndUpdatePrices(
                 data.params.accountAddr,
                 data.params.networkId
               )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl.signAccountOp.reset()
+              return mainCtrl?.signAccountOp?.reset()
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
               return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
 

@@ -30,7 +30,6 @@ import { MainControllerStateProvider } from '@web/contexts/mainControllerStateCo
 import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
-import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
@@ -58,40 +57,38 @@ const AppInit = () => {
                   <ActivityControllerStateProvider>
                     <NotificationControllerStateProvider>
                       <PortfolioControllerStateProvider>
-                        <SignAccountOpControllerStateProvider>
-                          <ControllersStateLoadedProvider>
-                            <PortalProvider>
-                              <LoaderProvider>
-                                <StorageProvider>
-                                  <OnboardingProvider>
-                                    <ThemeProvider>
-                                      <SafeAreaProvider>
-                                        <KeyboardProvider>
-                                          <NetInfoProvider>
-                                            <ToastProvider>
-                                              <ConstantsProvider>
-                                                <AuthProvider>
-                                                  <ExtensionProvider>
-                                                    <BiometricsProvider>
-                                                      <PrivateModeProvider>
-                                                        <AppRouter />
-                                                      </PrivateModeProvider>
-                                                      <PortalHost name="global" />
-                                                    </BiometricsProvider>
-                                                  </ExtensionProvider>
-                                                </AuthProvider>
-                                              </ConstantsProvider>
-                                            </ToastProvider>
-                                          </NetInfoProvider>
-                                        </KeyboardProvider>
-                                      </SafeAreaProvider>
-                                    </ThemeProvider>
-                                  </OnboardingProvider>
-                                </StorageProvider>
-                              </LoaderProvider>
-                            </PortalProvider>
-                          </ControllersStateLoadedProvider>
-                        </SignAccountOpControllerStateProvider>
+                        <ControllersStateLoadedProvider>
+                          <PortalProvider>
+                            <LoaderProvider>
+                              <StorageProvider>
+                                <OnboardingProvider>
+                                  <ThemeProvider>
+                                    <SafeAreaProvider>
+                                      <KeyboardProvider>
+                                        <NetInfoProvider>
+                                          <ToastProvider>
+                                            <ConstantsProvider>
+                                              <AuthProvider>
+                                                <ExtensionProvider>
+                                                  <BiometricsProvider>
+                                                    <PrivateModeProvider>
+                                                      <AppRouter />
+                                                    </PrivateModeProvider>
+                                                    <PortalHost name="global" />
+                                                  </BiometricsProvider>
+                                                </ExtensionProvider>
+                                              </AuthProvider>
+                                            </ConstantsProvider>
+                                          </ToastProvider>
+                                        </NetInfoProvider>
+                                      </KeyboardProvider>
+                                    </SafeAreaProvider>
+                                  </ThemeProvider>
+                                </OnboardingProvider>
+                              </StorageProvider>
+                            </LoaderProvider>
+                          </PortalProvider>
+                        </ControllersStateLoadedProvider>
                       </PortfolioControllerStateProvider>
                     </NotificationControllerStateProvider>
                   </ActivityControllerStateProvider>
