@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
@@ -14,26 +14,15 @@ import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import useToast from '@common/hooks/useToast'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPage from '@web/modules/settings/components/SettingsPage'
 
-const validateUrl = (value: string) => {
-  if (!value) return 'URL cannot be empty'
-
-  try {
-    const url = new URL(value)
-
-    return url.protocol === 'https:' ? undefined : 'URL must start with https://'
-  } catch {
-    return 'Invalid URL'
-  }
-}
-
-const getInputFields = (selectedNetworkData?: NetworkDescriptor, rpcChainId?: bigint | null) => [
+const INPUT_FIELDS = [
   {
     name: 'name',
     label: 'Network Name',
@@ -48,13 +37,7 @@ const getInputFields = (selectedNetworkData?: NetworkDescriptor, rpcChainId?: bi
     label: 'RPC URL',
     editable: true,
     rules: {
-      required: 'Field is required',
-      validate: (value: string) => {
-        if (!rpcChainId && value) return 'Invalid RPC URL'
-        if (rpcChainId !== selectedNetworkData?.chainId)
-          return `RPC chain id ${rpcChainId} does not match ${selectedNetworkData?.name} chain id ${selectedNetworkData?.chainId}`
-        return undefined
-      }
+      required: 'Field is required'
     }
   },
   {
@@ -79,7 +62,17 @@ const getInputFields = (selectedNetworkData?: NetworkDescriptor, rpcChainId?: bi
     editable: true,
     rules: {
       required: 'Field is required',
-      validate: (value: string) => validateUrl(value)
+      validate: (value: string) => {
+        if (!value) return 'URL cannot be empty'
+
+        try {
+          const url = new URL(value)
+
+          return url.protocol === 'https:' ? undefined : 'URL must start with https://'
+        } catch {
+          return 'Invalid URL'
+        }
+      }
     }
   }
 ]
@@ -105,6 +98,7 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: NetworkDescriptor)
 
 const NetworksSettingsScreen = () => {
   const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
   const { control, watch } = useForm({
     defaultValues: {
       search: ''
@@ -113,16 +107,25 @@ const NetworksSettingsScreen = () => {
   const search = watch('search')
   const { networks } = useSettingsControllerState()
   const [selectedNetworkId, setSelectedNetworkId] = useState(networks[0].id)
-  const [rpcChainId, setRpcChainId] = useState<bigint | null>(null)
   const selectedNetwork = networks.find((network) => network.id === selectedNetworkId)
 
   const {
     control: networkControl,
     watch: watchNetworkForm,
     formState: { errors: networkFormErrors, isValid: isNetworkFormValid },
-    reset: resetNetworkForm
+    reset: resetNetworkForm,
+    setError: setNetworkFormError
   } = useForm({
-    mode: 'all',
+    // Mode onChange is required to validate the rpcUrl field, because custom errors
+    // are overwritten by errors from the rules.
+    mode: 'onChange',
+    defaultValues: {
+      name: '',
+      rpcUrl: '',
+      chainId: '',
+      nativeAssetSymbol: '',
+      explorerUrl: ''
+    },
     values: {
       name: selectedNetwork?.name || '',
       rpcUrl: selectedNetwork?.rpcUrl || '',
@@ -139,30 +142,33 @@ const NetworksSettingsScreen = () => {
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
 
-  const getRpcChainId = async (rpcUrl?: string) => {
-    const rpc = new JsonRpcProvider(rpcUrl)
-
-    try {
-      const network = await rpc.getNetwork()
-      setRpcChainId(network.chainId)
-    } catch {
-      setRpcChainId(null)
-    }
-  }
-
   useEffect(() => {
-    getRpcChainId(networkFormValues.rpcUrl)
-    const subscription = watchNetworkForm((value, { name }) => {
+    // We can't just validate using a custom validate rule, because getNetwork is async
+    // and resetting the form doesn't wait for the validation to finish so we get an error
+    // when resetting the form.
+    const subscription = watchNetworkForm(async (value, { name }) => {
       if (name !== 'rpcUrl') return
-      getRpcChainId(value.rpcUrl)
-    })
-    return () => {
-      setRpcChainId(null)
-      subscription.unsubscribe()
-    }
-  }, [])
+      try {
+        const rpc = new JsonRpcProvider(value.rpcUrl)
+        const network = await rpc.getNetwork()
 
-  const inputFields = getInputFields(selectedNetwork, rpcChainId)
+        if (network.chainId !== selectedNetwork?.chainId) {
+          setNetworkFormError('rpcUrl', {
+            type: 'custom',
+            message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${selectedNetwork?.chainId}`
+          })
+          return
+        }
+        setNetworkFormError('rpcUrl', {})
+      } catch {
+        setNetworkFormError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
+      }
+    })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
+  }, [selectedNetwork?.chainId, selectedNetwork?.name, setNetworkFormError, watchNetworkForm])
 
   const handleSave = () => {
     dispatch({
@@ -175,12 +181,15 @@ const NetworksSettingsScreen = () => {
         networkId: selectedNetworkId
       }
     })
+    addToast(`${selectedNetwork?.name} settings saved!`)
   }
 
   const handleSelectNetwork = (id: string) => {
     if (areDefaultValuesChanged) {
       // Temporary solution
-      const isSure = window.confirm('Are you sure you want to change the network without saving?')
+      const isSure = window.confirm(
+        'Are you sure you want to change the network without saving? This will discard all changes.'
+      )
 
       if (!isSure) return
     }
@@ -195,6 +204,11 @@ const NetworksSettingsScreen = () => {
         networkId: selectedNetworkId
       }
     })
+    addToast(
+      `"${
+        INPUT_FIELDS.find((field) => field.name === preferenceKey)?.label || ''
+      }" reset to default for ${selectedNetwork?.name}.`
+    )
   }
 
   return (
@@ -267,19 +281,19 @@ const NetworksSettingsScreen = () => {
         <View
           style={[
             flexboxStyles.flex1,
-            spacings.pl3Xl,
-            spacings.ml3Xl,
+            IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.pl3Xl : spacings.plXl,
+            IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.ml3Xl : spacings.mlXl,
             { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
           ]}
         >
           <View style={spacings.mb}>
-            {inputFields.map((inputField) => (
+            {INPUT_FIELDS.map((inputField) => (
               <Controller
                 key={inputField.name}
                 name={inputField.name as any}
                 control={networkControl}
                 rules={inputField?.rules}
-                render={({ field }) => {
+                render={({ field: { onBlur, onChange, value } }) => {
                   const correspondingConstantNetwork = constantNetworks.find(
                     (network) => network.id === selectedNetworkId
                   )
@@ -288,12 +302,16 @@ const NetworksSettingsScreen = () => {
                   )
 
                   const isChanged =
-                    correspondingNetwork?.[inputField.name] !==
-                    correspondingConstantNetwork?.[inputField.name]
+                    correspondingNetwork?.[inputField.name as keyof typeof correspondingNetwork] !==
+                    correspondingConstantNetwork?.[
+                      inputField.name as keyof typeof correspondingConstantNetwork
+                    ]
 
                   return (
                     <Input
-                      {...field}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      value={value}
                       disabled={!inputField.editable && selectedNetworkId !== 'custom'}
                       isValid={
                         !networkFormErrors[inputField.name as keyof typeof networkFormErrors] &&
@@ -305,7 +323,9 @@ const NetworksSettingsScreen = () => {
                       containerStyle={spacings.mbLg}
                       label={inputField.label}
                       button={inputField.editable && isChanged ? 'Reset' : ''}
-                      onButtonPress={() => handleResetNetworkField(inputField.name as any)}
+                      onButtonPress={() =>
+                        handleResetNetworkField(inputField.name as keyof NetworkPreference)
+                      }
                     />
                   )
                 }}
@@ -315,7 +335,13 @@ const NetworksSettingsScreen = () => {
           <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
             <Button
               onPress={() => {
-                resetNetworkForm()
+                resetNetworkForm({
+                  name: selectedNetwork?.name || '',
+                  rpcUrl: selectedNetwork?.rpcUrl || '',
+                  chainId: Number(selectedNetwork?.chainId) || '',
+                  nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
+                  explorerUrl: selectedNetwork?.explorerUrl || ''
+                })
               }}
               text="Cancel"
               type="secondary"
@@ -325,7 +351,9 @@ const NetworksSettingsScreen = () => {
             <Button
               onPress={handleSave}
               text="Save"
-              disabled={!areDefaultValuesChanged || !isNetworkFormValid}
+              disabled={
+                !areDefaultValuesChanged || !isNetworkFormValid || !!networkFormErrors?.rpcUrl
+              }
               style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
             />
           </View>
