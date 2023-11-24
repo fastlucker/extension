@@ -1,5 +1,5 @@
 import { JsonRpcProvider } from 'ethers'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -47,6 +47,7 @@ const NetworkForm = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
+  const [isLoadingRPC, setIsLoadingRPC] = useState(false)
   const { theme } = useTheme()
   const networkFormValues = watch()
 
@@ -58,19 +59,24 @@ const NetworkForm = ({
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
       if (name !== 'rpcUrl') return
+
       try {
+        setIsLoadingRPC(true)
         const rpc = new JsonRpcProvider(value.rpcUrl)
         const network = await rpc.getNetwork()
 
         if (network.chainId !== selectedNetwork?.chainId) {
+          setIsLoadingRPC(false)
           setError('rpcUrl', {
             type: 'custom',
             message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${selectedNetwork?.chainId}`
           })
           return
         }
+        setIsLoadingRPC(false)
         clearErrors('rpcUrl')
       } catch {
+        setIsLoadingRPC(false)
         setError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
       }
     })
@@ -146,7 +152,11 @@ const NetworkForm = ({
                   value={value}
                   disabled={!inputField.editable && selectedNetworkId !== 'custom'}
                   isValid={!errors[inputField.name as keyof typeof errors] && inputField.editable}
-                  error={handleErrors(errors[inputField.name as keyof typeof errors])}
+                  error={
+                    inputField.name === 'rpcUrl' && isLoadingRPC
+                      ? false
+                      : handleErrors(errors[inputField.name as keyof typeof errors])
+                  }
                   containerStyle={spacings.mbLg}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
@@ -178,7 +188,7 @@ const NetworkForm = ({
         <Button
           onPress={handleSave}
           text="Save"
-          disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl}
+          disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC}
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
       </View>
