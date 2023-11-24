@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -31,6 +32,7 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: NetworkDescriptor)
 }
 
 const NetworksSettingsScreen = () => {
+  const { t } = useTranslation()
   const { control, watch } = useForm({
     defaultValues: {
       search: ''
@@ -75,7 +77,9 @@ const NetworksSettingsScreen = () => {
     if (areDefaultValuesChanged) {
       // Temporary solution
       const isSure = window.confirm(
-        'Are you sure you want to change the network without saving? This will discard all changes.'
+        t(
+          'Are you sure you want to change the network without saving? This will discard all changes.'
+        )
       )
 
       if (!isSure) return
@@ -94,7 +98,7 @@ const NetworksSettingsScreen = () => {
         ]}
       >
         <Text weight="medium" fontSize={20}>
-          Networks
+          {t('Networks')}
         </Text>
         <Search placeholder="Search for a previously added network" control={control} />
       </View>
@@ -126,7 +130,7 @@ const NetworksSettingsScreen = () => {
               ))
             ) : (
               <Text weight="regular" style={spacings.mlSm}>
-                No networks found. Try searching for a different network.
+                {t('No networks found. Try searching for a different network.')}
               </Text>
             )}
           </View>
@@ -146,7 +150,7 @@ const NetworksSettingsScreen = () => {
               appearance="primary"
               fontSize={16}
             >
-              Add New Network
+              {t('Add New Network')}
             </Text>
           </Pressable>
         </View>

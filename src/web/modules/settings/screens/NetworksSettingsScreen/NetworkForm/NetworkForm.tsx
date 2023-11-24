@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
@@ -36,6 +37,7 @@ const NetworkForm = ({
   selectedNetwork?: NetworkDescriptor
   selectedNetworkId: NetworkDescriptor['id']
 }) => {
+  const { t } = useTranslation()
   const {
     watch,
     setError,
@@ -180,14 +182,14 @@ const NetworkForm = ({
               explorerUrl: selectedNetwork?.explorerUrl || ''
             })
           }}
-          text="Cancel"
+          text={t('Cancel')}
           type="secondary"
           disabled={!areDefaultValuesChanged}
           style={[spacings.mb0, { width: 120 }]}
         />
         <Button
           onPress={handleSave}
-          text="Save"
+          text={t('Save')}
           disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC}
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
