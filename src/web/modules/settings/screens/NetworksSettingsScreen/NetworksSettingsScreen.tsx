@@ -114,7 +114,8 @@ const NetworksSettingsScreen = () => {
     watch: watchNetworkForm,
     formState: { errors: networkFormErrors, isValid: isNetworkFormValid },
     reset: resetNetworkForm,
-    setError: setNetworkFormError
+    setError: setNetworkFormError,
+    clearErrors: clearNetworkFormErrors
   } = useForm({
     // Mode onChange is required to validate the rpcUrl field, because custom errors
     // are overwritten by errors from the rules.
@@ -159,7 +160,7 @@ const NetworksSettingsScreen = () => {
           })
           return
         }
-        setNetworkFormError('rpcUrl', {})
+        clearNetworkFormErrors('rpcUrl')
       } catch {
         setNetworkFormError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
       }
@@ -168,7 +169,13 @@ const NetworksSettingsScreen = () => {
     return () => {
       subscription?.unsubscribe()
     }
-  }, [selectedNetwork?.chainId, selectedNetwork?.name, setNetworkFormError, watchNetworkForm])
+  }, [
+    selectedNetwork?.chainId,
+    selectedNetwork?.name,
+    setNetworkFormError,
+    watchNetworkForm,
+    clearNetworkFormErrors
+  ])
 
   const handleSave = () => {
     dispatch({
@@ -205,9 +212,9 @@ const NetworksSettingsScreen = () => {
       }
     })
     addToast(
-      `"${
-        INPUT_FIELDS.find((field) => field.name === preferenceKey)?.label || ''
-      }" reset to default for ${selectedNetwork?.name}.`
+      `Reset "${INPUT_FIELDS.find((field) => field.name === preferenceKey)?.label || ''}" for ${
+        selectedNetwork?.name
+      }.`
     )
   }
 
@@ -218,7 +225,7 @@ const NetworksSettingsScreen = () => {
           flexboxStyles.directionRow,
           flexboxStyles.justifySpaceBetween,
           flexboxStyles.alignCenter,
-          spacings.mb2Xl
+          IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mb2Xl : spacings.mbLg
         ]}
       >
         <Text weight="medium" fontSize={20}>
