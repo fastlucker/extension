@@ -60,10 +60,12 @@ const Input = ({
   const { theme, styles } = useTheme(getStyles)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
     setIsFocused(true)
     return onFocus(e)
   }
   const handleOnBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
     setIsFocused(false)
     return onBlur(e)
   }
@@ -74,7 +76,7 @@ const Input = ({
     styles.borderWrapper,
     !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
-    isValid && { borderColor: theme.successBackground }
+    isValid && isFocused && { borderColor: theme.successBackground }
   ]
 
   const inputWrapperStyles = [
@@ -85,7 +87,7 @@ const Input = ({
     },
     !!error && { borderColor: theme.errorDecorative },
     isFocused && { borderColor: theme.primary },
-    isValid && { borderColor: theme.successDecorative },
+    isValid && isFocused && { borderColor: theme.successDecorative },
     disabled && styles.disabled,
     inputWrapperStyle
   ]
