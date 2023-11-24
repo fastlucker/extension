@@ -511,8 +511,15 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
   }
 }
 
+// this config prevents other wallets to override our provider
+// MM for example with the default provider setup overrides our window.ethereum on Opera browser
 const initOperaProvider = () => {
-  window.ethereum = ambireProvider
+  Object.defineProperty(window, 'ethereum', {
+    value: ambireProvider,
+    configurable: false, // Make it non-configurable
+    writable: false, // Make it non-writable
+    enumerable: true
+  })
   ambireProvider._isReady = true
   window.ambire = ambireProvider
   patchProvider(ambireProvider)
@@ -526,8 +533,8 @@ const setOtherProvider = (otherProvider: EthereumProvider) => {
   if (existingProvider?.configurable) {
     Object.defineProperty(window, 'ethereum', {
       value: otherProvider,
-      writable: true,
-      configurable: true,
+      writable: false,
+      configurable: false,
       enumerable: true
     })
   } else {
