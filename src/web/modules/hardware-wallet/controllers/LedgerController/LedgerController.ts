@@ -9,7 +9,6 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
 export const wait = (fn: () => void, ms = 1000) => {
   return new Promise((resolve) => {
@@ -54,14 +53,6 @@ class LedgerController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
-    // Reset HDKey if the path changes
-    if (this.hdPathTemplate !== hdPathTemplate) {
-      this.hdk = new HDKey()
-    }
-    this.hdPathTemplate = hdPathTemplate
-  }
-
   async makeApp() {
     if (!this.app) {
       try {
@@ -81,7 +72,7 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async unlock(path?: string) {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
       return 'ledgerController: already unlocked'
     }
@@ -120,31 +111,6 @@ class LedgerController implements ExternalSignerController {
     this.hasHIDPermission = true
   }
 
-  async getKeys(from: number = 0, to: number = 4) {
-    return new Promise((resolve, reject) => {
-      const unlockPromises = []
-
-      for (let i = from; i <= to; i++) {
-        const path = getHdPathFromTemplate(this.hdPathTemplate, i)
-        unlockPromises.push(this.unlock(path))
-      }
-
-      Promise.all(unlockPromises)
-        .then(async () => {
-          const iterator = new LedgerKeyIterator({
-            hdk: this.hdk,
-            app: this.app
-          })
-          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
-
-          resolve(keys)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
-  }
-
   async cleanUp() {
     this.app = null
     if (this.transport) this.transport.close()
@@ -152,7 +118,7 @@ class LedgerController implements ExternalSignerController {
     this.hdk = new HDKey()
   }
 
-  async _reconnect() {
+  async reconnect() {
     if (this.isWebHID) {
       await this.cleanUp()
 
