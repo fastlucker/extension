@@ -21,10 +21,10 @@ const injectProviderScript = (isDefaultWallet: boolean) => {
   // seperate content assignment to two line
   // use AssetReplacePlugin to replace pageprovider content
   let content = ';(function () {'
-  content += `var ambireChannelName = '${channelName}';`
-  content += `var ambireIsDefaultWallet = ${isDefaultWallet};`
-  content += `var ambireId = '${uuid()}';`
-  content += `var ambireIsOpera = ${isOpera};`
+  content += `const ambireChannelName = '${channelName}';`
+  content += `const ambireIsDefaultWallet = ${isDefaultWallet};`
+  content += `const ambireId = '${uuid()}';`
+  content += `const ambireIsOpera = ${isOpera};`
   content += '#PAGEPROVIDER#'
   content += '\n})();'
   ele.textContent = content
