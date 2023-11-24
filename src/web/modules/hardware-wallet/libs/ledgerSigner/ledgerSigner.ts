@@ -3,6 +3,7 @@ import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { ledgerService } from '@ledgerhq/hw-app-eth'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
@@ -46,9 +47,21 @@ class LedgerSigner implements KeystoreSigner {
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
+      // Look for resolutions for external plugins and ERC20
+      const resolution = await ledgerService.resolveTransaction(
+        stripHexPrefix(unsignedSerializedTxn),
+        this.controller.app!.loadConfig,
+        {
+          externalPlugins: true,
+          erc20: true,
+          nft: true
+        }
+      )
+
       const res = await this.controller.app!.signTransaction(
         getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        stripHexPrefix(unsignedSerializedTxn)
+        stripHexPrefix(unsignedSerializedTxn),
+        resolution
       )
 
       const signature = Signature.from({
