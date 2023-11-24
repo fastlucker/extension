@@ -9,7 +9,6 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
 export const wait = (fn: () => void, ms = 1000) => {
   return new Promise((resolve) => {
@@ -54,14 +53,6 @@ class LedgerController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
-    // Reset HDKey if the path changes
-    if (this.hdPathTemplate !== hdPathTemplate) {
-      this.hdk = new HDKey()
-    }
-    this.hdPathTemplate = hdPathTemplate
-  }
-
   async makeApp() {
     if (!this.app) {
       try {
@@ -81,7 +72,7 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async unlock(path?: string) {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
       return 'ledgerController: already unlocked'
     }
@@ -127,7 +118,7 @@ class LedgerController implements ExternalSignerController {
     this.hdk = new HDKey()
   }
 
-  async _reconnect() {
+  async reconnect() {
     if (this.isWebHID) {
       await this.cleanUp()
 

@@ -30,7 +30,7 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller._reconnect()
+    await this.controller.reconnect()
 
     await this.controller.unlock(
       getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
