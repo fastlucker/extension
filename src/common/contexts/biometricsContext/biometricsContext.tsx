@@ -82,7 +82,7 @@ const BiometricsProvider: React.FC = ({ children }) => {
 
       return success
     } catch (e) {
-      addToast(t('Authentication attempt failed.') as string, { error: true })
+      addToast(t('Authentication attempt failed.') as string, { type: 'error' })
       return false
     }
   }, [addToast, t])

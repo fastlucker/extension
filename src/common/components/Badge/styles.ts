@@ -14,7 +14,6 @@ interface Style {
 }
 
 const label: ViewStyle = {
-  height: 24,
   ...flexbox.alignCenter,
   ...flexbox.justifyCenter,
   ...spacings.phTy,

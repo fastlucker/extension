@@ -5,7 +5,7 @@ import { SignAccountOpControllerStateContext } from '@web/contexts/signAccountOp
 export default function useSignAccountOpControllerState() {
   const context = useContext(SignAccountOpControllerStateContext)
 
-  if (!context) {
+  if (context === undefined) {
     throw new Error(
       'useSignAccountOpControllerState must be used within a SignAccountOpControllerStateProvider'
     )

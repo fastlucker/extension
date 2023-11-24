@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import Panel from '@common/components/Panel'
 import useTheme from '@common/hooks/useTheme'
@@ -18,7 +18,9 @@ const SettingsPage: FC<Props> = ({ children, currentPage }) => {
   return (
     <View style={styles.container}>
       <Sidebar activeLink={currentPage} />
-      <Panel style={styles.panel}>{children}</Panel>
+      <Panel style={styles.panel}>
+        <ScrollView>{children}</ScrollView>
+      </Panel>
     </View>
   )
 }

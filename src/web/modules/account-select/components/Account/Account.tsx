@@ -9,6 +9,7 @@ import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import Badge from '@common/components/Badge'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
@@ -20,8 +21,12 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import shortenAddress from '@web/utils/shortenAddress'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isTab } = getUiType()
 
 const Account = ({
   account,
@@ -51,7 +56,14 @@ const Account = ({
   }
 
   return (
-    <Pressable key={addr} onPress={() => selectAccount(addr)}>
+    <Pressable
+      key={addr}
+      onPress={() => {
+        if (mainCtrl.selectedAccount === addr) return
+
+        selectAccount(addr)
+      }}
+    >
       {({ hovered }: any) => (
         <View
           style={[
@@ -60,38 +72,57 @@ const Account = ({
               backgroundColor:
                 addr === mainCtrl.selectedAccount || hovered
                   ? theme.secondaryBackground
-                  : 'transparent'
+                  : 'transparent',
+              ...(isWeb
+                ? { cursor: addr === mainCtrl.selectedAccount ? 'default' : 'pointer' }
+                : {})
             }
           ]}
         >
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
               <Image
-                style={{ width: 40, height: 40, borderRadius: BORDER_RADIUS_PRIMARY }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: BORDER_RADIUS_PRIMARY
+                }}
                 source={getAccountPfpSource(settingsCtrl.accountPreferences[addr]?.pfp)}
                 resizeMode="contain"
               />
             </View>
             <View>
-              <Text fontSize={16} weight="regular">
-                {addr}
-              </Text>
+              <View style={flexboxStyles.directionRow}>
+                <Text fontSize={isTab ? 16 : 14} weight="regular">
+                  {isTab ? addr : shortenAddress(addr, 18)}
+                </Text>
+                <Badge
+                  size={isTab ? 'md' : 'sm'}
+                  withIcon
+                  style={spacings.mlTy}
+                  type={isSmartAccount(account) ? 'success' : 'warning'}
+                  text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
+                />
+                {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
+                  <Badge
+                    size={isTab ? 'md' : 'sm'}
+                    style={spacings.mlTy}
+                    type="info"
+                    text={t('View-only')}
+                  />
+                )}
+                {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
+                  <Badge
+                    size={isTab ? 'md' : 'sm'}
+                    style={spacings.mlTy}
+                    type="info"
+                    text={t('v1')}
+                  />
+                )}
+              </View>
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">
                 {settingsCtrl.accountPreferences[addr]?.label || DEFAULT_ACCOUNT_LABEL}
               </Text>
-            </View>
-            <View style={[spacings.mtTy, spacings.mlLg, flexboxStyles.directionRow]}>
-              <Badge
-                withIcon
-                type={isSmartAccount(account) ? 'success' : 'warning'}
-                text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
-              />
-              {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
-              )}
-              {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                <Badge style={spacings.mlTy} type="info" text={t('v1')} />
-              )}
             </View>
           </View>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>

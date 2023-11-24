@@ -19,6 +19,7 @@ type Props = {
   onAddToCart: () => void
   onSign: () => void
   isSignLoading: boolean
+  hasSigningErrors: boolean
   isChooseSignerShown: boolean
   isViewOnly: boolean
   isEOA: boolean
@@ -32,6 +33,7 @@ const Footer = ({
   onSign,
   isSignLoading,
   isChooseSignerShown,
+  hasSigningErrors,
   isViewOnly,
   isEOA,
   handleChangeSigningKey,
@@ -82,7 +84,7 @@ const Footer = ({
           ) : null}
           <Button
             type="primary"
-            disabled={isSignLoading || isViewOnly}
+            disabled={isSignLoading || isViewOnly || hasSigningErrors}
             text={isSignLoading ? t('Signing...') : t('Sign')}
             onPress={onSign}
             hasBottomSpacing={false}
