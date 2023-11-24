@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -18,6 +18,7 @@ interface Style {
   estimationHeading: ViewStyle
   spinner: ViewStyle
   accountSelect: ViewStyle
+  errorContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -76,6 +77,10 @@ const getStyles = (theme: ThemeProps) =>
     },
     accountSelect: {
       ...spacings.mb
+    },
+    errorContainer: {
+      marginTop: 'auto',
+      paddingTop: 10
     }
   })
 
