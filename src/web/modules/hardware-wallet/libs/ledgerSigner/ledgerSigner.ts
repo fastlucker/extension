@@ -17,8 +17,15 @@ class LedgerSigner implements KeystoreSigner {
     this.key = _key
   }
 
-  init(_controller: LedgerController) {
-    this.controller = _controller
+  // TODO: the ExternalSignerController type is missing some properties from
+  // type 'LedgerController', sync the types mismatch
+  // @ts-ignore
+  init(externalDeviceController?: LedgerController) {
+    if (!externalDeviceController) {
+      throw new Error('ledgerSigner: externalDeviceController not initialized')
+    }
+
+    this.controller = externalDeviceController
   }
 
   // TODO: That's a blueprint for the future implementation

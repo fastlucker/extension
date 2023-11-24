@@ -4,6 +4,7 @@ import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
+import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import LedgerEth from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
@@ -19,12 +20,10 @@ export const wait = (fn: () => void, ms = 1000) => {
   })
 }
 
-class LedgerController {
+class LedgerController implements ExternalSignerController {
   hdk: any
 
   hasHIDPermission: boolean | null
-
-  accounts: any
 
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
