@@ -1,14 +1,12 @@
-import { addHexPrefix } from 'ethereumjs-util'
-import * as SDK from 'gridplus-sdk'
+import { Signature, Transaction } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
-import { Transaction } from '@ethereumjs/tx'
-import { serialize } from '@ethersproject/transactions'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
-const EIP_155_CONSTANT = 35
+// TODO: Remove
+// const EIP_155_CONSTANT = 35
 
 class LatticeSigner implements KeystoreSigner {
   key: ExternalKey
@@ -30,72 +28,93 @@ class LatticeSigner implements KeystoreSigner {
     this.controller = externalSignerController
   }
 
-  // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(params: any) {
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
       )
     }
 
-    if (!this.key) {
-      throw new Error('latticeSigner: key not found')
-    }
-
     await this._onBeforeLatticeRequest()
 
-    const fwVersion = this.controller.sdkSession?.getFwVersion()
+    // TODO: Consider bring back this check when EIP1559 and EIP2930 support is added
+    // Lattice firmware v0.11.0 implemented EIP1559 and EIP2930
+    // We should throw an error if we cannot support this.
+    // const fwVersion = this.controller.sdkSession?.getFwVersion()
+    // if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
+    //   throw new Error('Please update Lattice firmware.')
+    // }
 
-    const tx = Transaction.fromTxData(params)
+    // TODO: Remove
+    // const tx = Transaction.fromTxData(params)
+    // const data: any = {}
+    // data.payload = this.getLegacyTxReq(tx)
+    // data.chainId = params.chainId
+    // data.signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
 
-    if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
-      throw new Error('Please update Lattice firmware.')
-    }
+    const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
 
-    const data: any = {}
-    data.payload = this.getLegacyTxReq(tx)
-    data.chainId = params.chainId
-    data.signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
-
-    const res = await this.controller.sdkSession!.sign({ currency: 'ETH', data })
+    const res = await this.controller.sdkSession!.sign({
+      currency: 'ETH',
+      data: {
+        payload: txnRequest,
+        chainId: Number(txnRequest.chainId), // assuming the value is a BigInt within the safe integer range
+        signerPath
+      }
+    })
 
     if (!res.sig || !res.sig.r || !res.sig.s) {
       throw new Error('latticeSigner: no signature returned')
     }
 
-    let v
-    // Construct the `v` signature param
-    if (res.sig.v === undefined) {
-      // V2 signature needs `v` calculated
-      v = SDK.Utils.getV(tx, res)
-    } else {
-      // Legacy signatures have `v` in the response
-      v = res.sig.v.length === 0 ? '0' : res.sig.v.toString('hex')
+    // TODO: Remove
+    // let v
+    // // Construct the `v` signature param
+    // if (res.sig.v === undefined) {
+    //   // V2 signature needs `v` calculated
+    //   v = SDK.Utils.getV(tx, res)
+    // } else {
+    //   // Legacy signatures have `v` in the response
+    //   v = res.sig.v.length === 0 ? '0' : res.sig.v.toString('hex')
+    // }
+
+    // const intV = parseInt(v, 16)
+    // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+
+    // const unsignedTxObj = {
+    //   ...params,
+    //   gasLimit: params.gasLimit || params.gas
+    // }
+
+    // delete unsignedTxObj.from
+    // delete unsignedTxObj.gas
+    // delete unsignedTxObj.v
+
+    // const signature = serialize(unsignedTxObj, {
+    //   r: addHexPrefix(res.sig.r.toString('hex')),
+    //   s: addHexPrefix(res.sig.s.toString('hex')),
+    //   v: intV
+    // })
+
+    try {
+      const signature = Signature.from({
+        r: res.payload.r,
+        s: res.payload.s,
+        v: Signature.getNormalizedV(res.payload.v)
+      })
+      const signedSerializedTxn = Transaction.from({
+        ...txnRequest,
+        signature,
+        // TODO: Temporary use the legacy transaction mode, because:
+        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
+        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
+      }).serialized
+
+      return signedSerializedTxn
+    } catch (error: any) {
+      throw new Error(error?.message || 'latticeSigner: singing failed for unknown reason')
     }
-
-    const intV = parseInt(v, 16)
-    const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-    if (signedChainId !== params.chainId) {
-      throw new Error(`ledgerSigner: invalid returned V 0x${res.sig.v}`)
-    }
-
-    const unsignedTxObj = {
-      ...params,
-      gasLimit: params.gasLimit || params.gas
-    }
-
-    delete unsignedTxObj.from
-    delete unsignedTxObj.gas
-    delete unsignedTxObj.v
-
-    const signature = serialize(unsignedTxObj, {
-      r: addHexPrefix(res.sig.r.toString('hex')),
-      s: addHexPrefix(res.sig.s.toString('hex')),
-      v: intV
-    })
-
-    return signature
   }
 
   async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
