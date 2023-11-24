@@ -1,5 +1,4 @@
 import crypto from 'crypto'
-import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
 import {
@@ -7,7 +6,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
-import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
 
 const keyringType = 'lattice'
 
@@ -41,11 +39,7 @@ class LatticeController implements ExternalSignerController {
     this._resetDefaults()
   }
 
-  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
-    this.hdPathTemplate = hdPathTemplate
-  }
-
-  // Deterimine if we have a connection to the Lattice and an existing wallet UID
+  // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
     return !!this._getCurrentWalletUID() && !!this.sdkSession
@@ -78,34 +72,6 @@ class LatticeController implements ExternalSignerController {
     return 'Unlocked'
   }
 
-  async exportAccount(address) {
-    throw new Error('exportAccount not supported by this device')
-  }
-
-  async getKeys(from: number = 0, to: number = 4) {
-    await this.unlock()
-
-    if (!this.isUnlocked()) {
-      throw new Error('No connection to Lattice. Cannot fetch addresses.')
-    }
-
-    return new Promise((resolve) => {
-      ;(async () => {
-        const iterator = new LatticeKeyIterator({
-          sdkSession: this.sdkSession
-        })
-
-        const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
-
-        resolve(keys)
-      })()
-    })
-  }
-
-  forgetDevice() {
-    this._resetDefaults()
-  }
-
   _resetDefaults() {
     this.creds = {
       deviceID: null,
@@ -118,7 +84,7 @@ class LatticeController implements ExternalSignerController {
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openConnectorTab(url) {
+  async _openConnectorTab(url: string) {
     try {
       const browserTab = window.open(url)
       // Preferred option for Chromium browsers. This extension runs in a window
