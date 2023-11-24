@@ -1,9 +1,7 @@
 const puppeteer = require('puppeteer');
 const path = require('path')
 
-import { trimEnd } from 'lodash';
 import { bootStrap } from './functions.js';
-;
 
 
 describe('balance', () => {

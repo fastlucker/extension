@@ -40,7 +40,7 @@ describe('balance', () => {
 
 
         page = (await browser.pages())[0];
-        const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started?keepalive=300000`
+        const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
         // await new Promise((r) => setTimeout(r, 2000))
