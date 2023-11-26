@@ -19,6 +19,7 @@ declare const ambireChannelName: any
 declare const ambireIsDefaultWallet: any
 declare const ambireId: any
 declare const ambireIsOpera: any
+declare let shouldReplaceMM: boolean
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -361,6 +362,17 @@ export class EthereumProvider extends EventEmitter {
       return this._bcm
         .request(data)
         .then((res) => {
+          if (data.method === 'get_dapp_urls') {
+            if (
+              (JSON.parse(res as string) as string[]).some((url) => {
+                return new URL(url).hostname === new URL(location.origin).hostname
+              })
+            ) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              shouldReplaceMM = true
+            }
+            return
+          }
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[request: success]', data.method, res)
           }
@@ -593,5 +605,6 @@ window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestPr
 })
 
 announceEip6963Provider(ambireProvider)
+ambireProvider.request({ method: 'get_dapp_urls' })
 
 window.dispatchEvent(new Event('ethereum#initialized'))

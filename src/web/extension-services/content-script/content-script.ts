@@ -4,6 +4,7 @@
 import { nanoid } from 'nanoid'
 import { v4 as uuid } from 'uuid'
 
+import replaceMetamaskWithAmbireInDapps from '@web/extension-services/inpage/mm-replacement/ReplaceMetamaskWithAmbireInDapps'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 // Middleware for handling messages between dapps and the extension's background process
 // import { browserapi, engine } from '@web/constants/browserapi'
@@ -12,15 +13,17 @@ import PortMessage from '@web/extension-services/message/portMessage'
 const channelName = nanoid()
 const isOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
-const injectProviderScript = (isDefaultWallet: boolean) => {
+const injectProviderScript = async (isDefaultWallet: boolean) => {
   // the script element with src won't execute immediately
   // use inline script element instead!
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
   // in prevent of webpack optimized code do some magic(e.g. double/sigle quote wrap),
-  // seperate content assignment to two line
-  // use AssetReplacePlugin to replace pageprovider content
+  // separate content assignment to two line
+  // use AssetReplacePlugin to replace page provider content
+
   let content = ';(function () {'
+  content += `${replaceMetamaskWithAmbireInDapps}`
   content += `const ambireChannelName = '${channelName}';`
   content += `const ambireIsDefaultWallet = ${isDefaultWallet};`
   content += `const ambireId = '${uuid()}';`
@@ -33,7 +36,6 @@ const injectProviderScript = (isDefaultWallet: boolean) => {
 }
 
 const pm = new PortMessage().connect()
-
 const bcm = new BroadcastChannelMessage(channelName).listen((data) => pm.request(data))
 
 // background notification
