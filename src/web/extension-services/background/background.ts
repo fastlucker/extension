@@ -10,6 +10,7 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -178,6 +179,16 @@ async function init() {
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
 
+  // re-estimate interval
+  let reestimateInterval: any
+  function setReestimateInterval(accountOp: AccountOp) {
+    clearInterval(reestimateInterval)
+
+    reestimateInterval = setInterval(async () => {
+      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+    }, 5000)
+  }
+
   // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
   // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
   // Part of the controllers are initialized only once in the very beginning in the main controller (as singletons) and we should be careful to attach the callbacks only once.
@@ -284,6 +295,14 @@ async function init() {
         if ((mainCtrl as any)[ctrl]) {
           mainControllersQueue.splice(i, 1)
         }
+      }
+
+      // if the signAccountOp controller is active, reestimate
+      // at a set period of time
+      if (mainCtrl.signAccountOp !== null) {
+        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+      } else {
+        clearInterval(reestimateInterval)
       }
     }
 
