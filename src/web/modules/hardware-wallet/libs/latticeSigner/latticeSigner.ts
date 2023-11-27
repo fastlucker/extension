@@ -19,11 +19,11 @@ class LatticeSigner implements KeystoreSigner {
   }
 
   // TODO: the ExternalSignerController type is missing some properties from
-  // type 'LedgerController', sync the types mismatch
+  // type 'LatticeController', sync the types mismatch
   // @ts-ignore
   init(externalSignerController?: LatticeController) {
     if (!externalSignerController) {
-      throw new Error('ledgerSigner: externalSignerController not initialized')
+      throw new Error('latticeSigner: externalSignerController not initialized')
     }
 
     this.controller = externalSignerController
@@ -38,6 +38,12 @@ class LatticeSigner implements KeystoreSigner {
 
     await this._onBeforeLatticeRequest()
 
+    if (!this.controller.sdkSession) {
+      throw new Error(
+        'Something went wrong with initiating a session with the device. Please try again or contact support if the problem persists.'
+      )
+    }
+
     // TODO: Consider bring back this check when EIP1559 and EIP2930 support is added
     // Lattice firmware v0.11.0 implemented EIP1559 and EIP2930
     // We should throw an error if we cannot support this.
@@ -45,79 +51,40 @@ class LatticeSigner implements KeystoreSigner {
     // if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
     //   throw new Error('Please update Lattice firmware.')
     // }
-
-    // TODO: Remove
-    // const tx = Transaction.fromTxData(params)
-    // const data: any = {}
-    // data.payload = this.getLegacyTxReq(tx)
-    // data.chainId = params.chainId
-    // data.signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
-
-    const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
-
-    const unsignedTxn: TransactionLike = {
-      ...txnRequest,
-      // TODO: Temporary use the legacy transaction mode, because Ambire
-      // extension doesn't support EIP-1559 yet (type: `2`)
-      type: 0
-    }
-
-    const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
-
-    // const tx = TransactionFactory.fromTxData(unsignedTxn)
-    // Full, serialized EVM transaction
-    // const msg = tx.getMessageToSign(false)
-
-    const res = await this.controller.sdkSession!.sign({
-      // Prior to general signing, request data was sent to the device in
-      // preformatted ways and was used to build the transaction in firmware.
-      // GridPlus are phasing out this mechanism, for signing raw transactions
-      // flip to using the "general signing" mechanism, instead of the legacy
-      // one that was getting triggered by passing `currency: 'ETH'` flag.
-      data: {
-        signerPath,
-        payload: unsignedSerializedTxn,
-        curveType: SDK.Constants.SIGNING.CURVES.SECP256K1,
-        hashType: SDK.Constants.SIGNING.HASHES.KECCAK256,
-        encodingType: SDK.Constants.SIGNING.ENCODINGS.EVM
-      }
-    })
-
-    // Ensure we got a signature back
-    if (!res?.sig || !res.sig.r || !res.sig.s || !res.sig.v) {
-      throw new Error('latticeSigner: no signature returned')
-    }
-
-    // TODO: Remove
-    // let v
-    // // Construct the `v` signature param
-    // if (res.sig.v === undefined) {
-    //   // V2 signature needs `v` calculated
-    //   v = SDK.Utils.getV(tx, res)
-    // } else {
-    //   // Legacy signatures have `v` in the response
-    //   v = res.sig.v.length === 0 ? '0' : res.sig.v.toString('hex')
-    // }
-
-    // const intV = parseInt(v, 16)
-    // const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-    // const unsignedTxObj = {
-    //   ...params,
-    //   gasLimit: params.gasLimit || params.gas
-    // }
-
-    // delete unsignedTxObj.from
-    // delete unsignedTxObj.gas
-    // delete unsignedTxObj.v
-
-    // const signature = serialize(unsignedTxObj, {
-    //   r: addHexPrefix(res.sig.r.toString('hex')),
-    //   s: addHexPrefix(res.sig.s.toString('hex')),
-    //   v: intV
-    // })
+    // TODO: Consider checking for legacy Lattice 1 firmware (one without
+    // "general signing" capabilities) and throw an error if so.
 
     try {
+      const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
+      const unsignedTxn: TransactionLike = {
+        ...txnRequest,
+        // TODO: Temporary use the legacy transaction mode, because Ambire
+        // extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
+      }
+
+      const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
+
+      const res = await this.controller.sdkSession!.sign({
+        // Prior to general signing, request data was sent to the device in
+        // preformatted ways and was used to build the transaction in firmware.
+        // GridPlus are phasing out this mechanism, for signing raw transactions
+        // flip to using the "general signing" mechanism, instead of the legacy
+        // one that was getting triggered by passing `currency: 'ETH'` flag.
+        data: {
+          signerPath,
+          payload: unsignedSerializedTxn,
+          curveType: SDK.Constants.SIGNING.CURVES.SECP256K1,
+          hashType: SDK.Constants.SIGNING.HASHES.KECCAK256,
+          encodingType: SDK.Constants.SIGNING.ENCODINGS.EVM
+        }
+      })
+
+      // Ensure we got a signature back
+      if (!res?.sig || !res.sig.r || !res.sig.s || !res.sig.v) {
+        throw new Error('latticeSigner: no signature returned')
+      }
+
       // GridPlus SDK's type for the signature is any, either because of bad
       // types, either because of bad typescript import/export configuration.
       type MissingSignatureType = {
@@ -139,7 +106,10 @@ class LatticeSigner implements KeystoreSigner {
 
       return signedSerializedTxn
     } catch (error: any) {
-      throw new Error(error?.message || 'latticeSigner: singing failed for unknown reason')
+      throw new Error(
+        // An `error.err` message might come from the Lattice .sign() failure
+        error?.message || error?.err || 'latticeSigner: singing failed for unknown reason'
+      )
     }
   }
 
