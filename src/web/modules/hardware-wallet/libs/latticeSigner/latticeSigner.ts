@@ -47,7 +47,7 @@ class LatticeSigner implements KeystoreSigner {
     // TODO: Consider bring back this check when EIP1559 and EIP2930 support is added
     // Lattice firmware v0.11.0 implemented EIP1559 and EIP2930
     // We should throw an error if we cannot support this.
-    // const fwVersion = this.controller.sdkSession?.getFwVersion()
+    // const fwVersion = this.controller.sdkSession.getFwVersion()
     // if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
     //   throw new Error('Please update Lattice firmware.')
     // }
@@ -65,7 +65,7 @@ class LatticeSigner implements KeystoreSigner {
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      const res = await this.controller.sdkSession!.sign({
+      const res = await this.controller.sdkSession.sign({
         // Prior to general signing, request data was sent to the device in
         // preformatted ways and was used to build the transaction in firmware.
         // GridPlus are phasing out this mechanism, for signing raw transactions
