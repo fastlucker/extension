@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
-import alert from '@common/services/alert'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
@@ -10,6 +9,7 @@ import {
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
+import useToast from '@common/hooks/useToast'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
@@ -72,13 +72,15 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
+  const { addToast } = useToast()
+
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
       if (lastError) {
         if (lastError.level !== 'silent')
-          // TODO: display error toast instead
-          alert(lastError.message)
+          addToast(lastError.message, { timeout: 4000, type: 'error' })
+
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
         )
