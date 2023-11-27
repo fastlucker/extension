@@ -1,12 +1,10 @@
 import { stripHexPrefix } from 'ethereumjs-util'
+import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { serialize } from '@ethersproject/transactions'
+import { ledgerService } from '@ledgerhq/hw-app-eth'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-
-const EIP_155_CONSTANT = 35
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -28,56 +26,66 @@ class LedgerSigner implements KeystoreSigner {
     this.controller = externalDeviceController
   }
 
-  // TODO: That's a blueprint for the future implementation
-  async signRawTransaction(params: any) {
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (!this.controller) {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller._reconnect()
+    await this.controller.reconnect()
 
     await this.controller.unlock(
       getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
     )
 
     try {
-      const unsignedTxObj = {
-        ...params,
-        gasLimit: params.gasLimit || params.gas
+      const unsignedTxn: TransactionLike = {
+        ...txnRequest,
+        // TODO: Temporary use the legacy transaction mode, because Ambire
+        // extension doesn't support EIP-1559 yet (type: `2`)
+        type: 0
       }
 
-      delete unsignedTxObj.from
-      delete unsignedTxObj.gas
+      const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-      const serializedUnsigned = serialize(unsignedTxObj)
-
-      // @ts-ignore
-      const rsvRes = await this.controller.app.signTransaction(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        serializedUnsigned.substr(2) // TODO: maybe use stripHexPrefix instead
+      // Look for resolutions for external plugins and ERC20
+      const resolution = await ledgerService.resolveTransaction(
+        stripHexPrefix(unsignedSerializedTxn),
+        this.controller.app!.loadConfig,
+        {
+          externalPlugins: true,
+          erc20: true,
+          nft: true
+        }
       )
 
-      const intV = parseInt(rsvRes.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+      const res = await this.controller.app!.signTransaction(
+        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+        stripHexPrefix(unsignedSerializedTxn),
+        resolution
+      )
 
-      if (signedChainId !== params.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${rsvRes.v}`)
-      }
-
-      delete unsignedTxObj.v
-      const signature = serialize(unsignedTxObj, {
-        r: `0x${rsvRes.r}`,
-        s: `0x${rsvRes.s}`,
-        v: intV
+      const signature = Signature.from({
+        r: `0x${res.r}`,
+        s: `0x${res.s}`,
+        v: Signature.getNormalizedV(res.v)
       })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature
+      }).serialized
 
-      return signature
+      return signedSerializedTxn
     } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(e?.message || 'ledgerSigner: singing failed for unknown reason')
     }
   }
 
-  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
@@ -109,7 +117,7 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
-  async signMessage(hex: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
     if (!this.controller) {
       throw new Error(
         'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
