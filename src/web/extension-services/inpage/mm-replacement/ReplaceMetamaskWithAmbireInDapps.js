@@ -4,6 +4,24 @@ const ambireSvg =
 
 const replaceMetamaskWithAmbireInDapps = `
   let shouldReplaceMM = false;
+
+  let hasConnectButtonInWebsite = false;
+
+  function findConnectButton() {
+    const nodes = document.querySelectorAll('body, body *')
+    Array.from(nodes).forEach(node => {
+      Array.from(node.childNodes).forEach(childNode => {
+        if (childNode.nodeType === Node.TEXT_NODE) {
+          const text = childNode.nodeValue;
+          console.log(text)
+          if (text.toLowerCase() === "connect wallet" || text.toLowerCase() === "connect") {
+            hasConnectButtonInWebsite = true;
+          }
+        }
+      })
+    })
+  }
+
   function replaceMetamaskWithAmbire(textToFind, replacementText) {
     let additionalNodes = [];
     const onboardElement = document.querySelector("onboard-v2");
@@ -127,7 +145,9 @@ const replaceMetamaskWithAmbireInDapps = `
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {
-      if (shouldReplaceMM) {
+      findConnectButton()
+
+      if (shouldReplaceMM || hasConnectButtonInWebsite) {
         replaceMetamaskWithAmbire('metamask', 'Ambire')
       }
       mutationsQueue.length = 0; // Clear the mutation queue

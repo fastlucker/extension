@@ -20,6 +20,7 @@ declare const ambireIsDefaultWallet: any
 declare const ambireId: any
 declare const ambireIsOpera: any
 declare let shouldReplaceMM: boolean
+let isEIP6963: boolean = false
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -364,9 +365,11 @@ export class EthereumProvider extends EventEmitter {
         .then((res) => {
           if (data.method === 'get_dapp_urls') {
             if (
-              (JSON.parse(res as string) as string[]).some((url) => {
-                return new URL(url).hostname === new URL(location.origin).hostname
-              })
+              !isEIP6963 &&
+              (location.origin.includes('app.') ||
+                (JSON.parse(res as string) as string[]).some(
+                  (url) => new URL(url).hostname === new URL(location.origin).hostname
+                ))
             ) {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               shouldReplaceMM = true
@@ -601,6 +604,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestProviderEvent) => {
+  isEIP6963 = true
   announceEip6963Provider(ambireProvider)
 })
 
