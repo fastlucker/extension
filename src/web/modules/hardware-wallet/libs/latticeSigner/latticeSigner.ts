@@ -2,12 +2,8 @@ import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
 import * as SDK from 'gridplus-sdk'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
-import { TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-
-// TODO: Remove
-// const EIP_155_CONSTANT = 35
 
 class LatticeSigner implements KeystoreSigner {
   key: ExternalKey
@@ -113,7 +109,12 @@ class LatticeSigner implements KeystoreSigner {
     }
   }
 
-  async signTypedData({ domain, types, message, primaryType }: TypedMessage) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!types.EIP712Domain) {
       throw new Error('latticeSigner: only EIP712 messages are supported')
     }
@@ -121,7 +122,7 @@ class LatticeSigner implements KeystoreSigner {
     return this._signMsgRequest({ domain, types, primaryType, message }, 'eip712')
   }
 
-  async signMessage(hash: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hash) => {
     return this._signMsgRequest(hash, 'signPersonal')
   }
 
@@ -179,49 +180,6 @@ class LatticeSigner implements KeystoreSigner {
     if (wasUnlocked) {
       await this.controller?._connect()
     }
-  }
-
-  getLegacyTxReq(tx: any) {
-    let txData: any
-    try {
-      txData = {
-        nonce: `0x${tx.nonce.toString('hex')}` || 0,
-        gasLimit: `0x${tx.gasLimit.toString('hex')}`,
-        to: tx.to ? tx.to.toString('hex') : null, // null for contract deployments
-        value: `0x${tx.value.toString('hex')}`,
-        data: tx.data.length === 0 ? null : `0x${tx.data.toString('hex')}`
-      }
-      switch (tx._type) {
-        case 2: // eip1559
-          if (
-            tx.maxPriorityFeePerGas === null ||
-            tx.maxFeePerGas === null ||
-            tx.maxPriorityFeePerGas === undefined ||
-            tx.maxFeePerGas === undefined
-          )
-            throw new Error(
-              '`maxPriorityFeePerGas` and `maxFeePerGas` must be included for EIP1559 transactions.'
-            )
-          txData.maxPriorityFeePerGas = `0x${tx.maxPriorityFeePerGas.toString('hex')}`
-          txData.maxFeePerGas = `0x${tx.maxFeePerGas.toString('hex')}`
-          txData.accessList = tx.accessList || []
-          txData.type = 2
-          break
-        case 1: // eip2930
-          txData.accessList = tx.accessList || []
-          txData.gasPrice = `0x${tx.gasPrice.toString('hex')}`
-          txData.type = 1
-          break
-        default:
-          // legacy
-          txData.gasPrice = `0x${tx.gasPrice.toString('hex')}`
-          txData.type = null
-          break
-      }
-    } catch (err) {
-      throw new Error('Failed to build transaction.')
-    }
-    return txData
   }
 }
 
