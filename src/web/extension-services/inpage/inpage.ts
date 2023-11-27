@@ -9,6 +9,7 @@ import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
+import { replaceMMIfNeeded } from '@web/extension-services/inpage/mm-replacement/mm-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
@@ -131,6 +132,8 @@ const domReadyCall = (callback: any) => {
 
 const $ = document.querySelector.bind(document)
 
+replaceMMIfNeeded()
+
 export class EthereumProvider extends EventEmitter {
   chainId: string | null = null
 
@@ -218,10 +221,12 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
+      this.request({ method: 'get_dapp_urls' })
       const { chainId, accounts, networkVersion, isUnlocked }: any =
         await this.requestInternalMethods({
           method: 'getProviderState'
         })
+
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -609,6 +614,5 @@ window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestPr
 })
 
 announceEip6963Provider(ambireProvider)
-ambireProvider.request({ method: 'get_dapp_urls' })
 
 window.dispatchEvent(new Event('ethereum#initialized'))

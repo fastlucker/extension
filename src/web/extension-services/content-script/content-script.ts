@@ -4,7 +4,6 @@
 import { nanoid } from 'nanoid'
 import { v4 as uuid } from 'uuid'
 
-import replaceMetamaskWithAmbireInDapps from '@web/extension-services/inpage/mm-replacement/ReplaceMetamaskWithAmbireInDapps'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 // Middleware for handling messages between dapps and the extension's background process
 // import { browserapi, engine } from '@web/constants/browserapi'
@@ -23,7 +22,6 @@ const injectProviderScript = async (isDefaultWallet: boolean) => {
   // use AssetReplacePlugin to replace page provider content
 
   let content = ';(function () {'
-  content += `${replaceMetamaskWithAmbireInDapps}`
   content += `const ambireChannelName = '${channelName}';`
   content += `const ambireIsDefaultWallet = ${isDefaultWallet};`
   content += `const ambireId = '${uuid()}';`
