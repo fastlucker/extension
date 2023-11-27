@@ -1,4 +1,5 @@
-import { Signature, Transaction } from 'ethers'
+import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
+import * as SDK from 'gridplus-sdk'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { TypedMessage } from '@ambire-common/interfaces/userRequest'
@@ -54,16 +55,36 @@ class LatticeSigner implements KeystoreSigner {
 
     const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
 
+    const unsignedTxn: TransactionLike = {
+      ...txnRequest,
+      // TODO: Temporary use the legacy transaction mode, because Ambire
+      // extension doesn't support EIP-1559 yet (type: `2`)
+      type: 0
+    }
+
+    const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
+
+    // const tx = TransactionFactory.fromTxData(unsignedTxn)
+    // Full, serialized EVM transaction
+    // const msg = tx.getMessageToSign(false)
+
     const res = await this.controller.sdkSession!.sign({
-      currency: 'ETH',
+      // Prior to general signing, request data was sent to the device in
+      // preformatted ways and was used to build the transaction in firmware.
+      // GridPlus are phasing out this mechanism, for signing raw transactions
+      // flip to using the "general signing" mechanism, instead of the legacy
+      // one that was getting triggered by passing `currency: 'ETH'` flag.
       data: {
-        payload: txnRequest,
-        chainId: Number(txnRequest.chainId), // assuming the value is a BigInt within the safe integer range
-        signerPath
+        signerPath,
+        payload: unsignedSerializedTxn,
+        curveType: SDK.Constants.SIGNING.CURVES.SECP256K1,
+        hashType: SDK.Constants.SIGNING.HASHES.KECCAK256,
+        encodingType: SDK.Constants.SIGNING.ENCODINGS.EVM
       }
     })
 
-    if (!res.sig || !res.sig.r || !res.sig.s) {
+    // Ensure we got a signature back
+    if (!res?.sig || !res.sig.r || !res.sig.s || !res.sig.v) {
       throw new Error('latticeSigner: no signature returned')
     }
 
@@ -97,18 +118,23 @@ class LatticeSigner implements KeystoreSigner {
     // })
 
     try {
+      // GridPlus SDK's type for the signature is any, either because of bad
+      // types, either because of bad typescript import/export configuration.
+      type MissingSignatureType = {
+        v: Uint8Array
+        r: Uint8Array
+        s: Uint8Array
+      }
+      const { r, s, v } = res.sig as MissingSignatureType
+
       const signature = Signature.from({
-        r: res.payload.r,
-        s: res.payload.s,
-        v: Signature.getNormalizedV(res.payload.v)
+        r: hexlify(r),
+        s: hexlify(s),
+        v: Signature.getNormalizedV(hexlify(v))
       })
       const signedSerializedTxn = Transaction.from({
-        ...txnRequest,
-        signature,
-        // TODO: Temporary use the legacy transaction mode, because:
-        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
-        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
-        type: 0
+        ...unsignedTxn,
+        signature
       }).serialized
 
       return signedSerializedTxn
