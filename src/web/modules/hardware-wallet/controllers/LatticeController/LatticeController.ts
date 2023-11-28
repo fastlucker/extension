@@ -7,12 +7,14 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 
+const LATTICE_APP_NAME = 'Ambire Wallet Extension'
+const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
+const LATTICE_BASE_URL = 'https://signing.gridpl.us'
+
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
 class LatticeController implements ExternalSignerController {
-  appName: string
-
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   sdkSession?: SDK.Client | null
@@ -27,7 +29,6 @@ class LatticeController implements ExternalSignerController {
   deviceModel = 'lattice1'
 
   constructor() {
-    this.appName = 'Ambire Wallet Extension'
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
@@ -107,18 +108,13 @@ class LatticeController implements ExternalSignerController {
     return new Promise((resolve, reject) => {
       // We only need to setup if we don't have a deviceID
       if (this._hasCreds()) return resolve()
-      // If we are not aware of what Lattice we should be talking to,
-      // we need to open a window that lets the user go through the
-      // pairing or connection process.
-      const name = this.appName ? this.appName : 'Unknown'
-      const base = 'https://lattice.gridplus.io'
-      const url = `${base}?keyring=${name}&forceLogin=true`
+      const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
       let listenInterval: any
 
       // PostMessage handler
       function receiveMessage(event) {
         // Ensure origin
-        if (event.origin !== base) return
+        if (event.origin !== LATTICE_MANAGER_URL) return
         try {
           // Stop the listener
           clearInterval(listenInterval)
@@ -205,11 +201,10 @@ class LatticeController implements ExternalSignerController {
     if (this.isUnlocked()) {
       return
     }
-    let url = 'https://signing.gridpl.us'
-    if (this.creds.endpoint) url = this.creds.endpoint
+
     const setupData = {
-      name: this.appName,
-      baseUrl: url,
+      name: LATTICE_APP_NAME,
+      baseUrl: this.creds.endpoint || LATTICE_BASE_URL,
       timeout: SDK_TIMEOUT,
       privKey: this._genSessionKey(),
       skipRetryOnWrongWallet: true
@@ -232,18 +227,15 @@ class LatticeController implements ExternalSignerController {
   }
 
   _hasCreds() {
-    return this.creds.deviceID !== null && this.creds.password !== null && this.appName
+    return this.creds.deviceID !== null && this.creds.password !== null
   }
 
   _genSessionKey() {
-    if (this.name && !this.appName)
-      // Migrate from legacy param if needed
-      this.appName = this.name
     if (!this._hasCreds()) throw new Error('No credentials -- cannot create session key!')
     const buf = Buffer.concat([
       Buffer.from(this.creds.password),
       Buffer.from(this.creds.deviceID),
-      Buffer.from(this.appName)
+      Buffer.from(LATTICE_APP_NAME)
     ])
 
     return crypto.createHash('sha256').update(buf).digest()
