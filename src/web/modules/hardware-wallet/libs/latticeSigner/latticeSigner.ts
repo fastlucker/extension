@@ -40,15 +40,13 @@ class LatticeSigner implements KeystoreSigner {
       )
     }
 
-    // TODO: Consider bring back this check when EIP1559 and EIP2930 support is added
-    // Lattice firmware v0.11.0 implemented EIP1559 and EIP2930
-    // We should throw an error if we cannot support this.
-    // const fwVersion = this.controller.sdkSession.getFwVersion()
-    // if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
-    //   throw new Error('Please update Lattice firmware.')
-    // }
-    // TODO: Consider checking for legacy Lattice 1 firmware (one without
-    // "general signing" capabilities) and throw an error if so.
+    // EIP1559 and EIP2930 support was added to Lattice in firmware v0.11.0,
+    // "general signing" was introduced in v0.14.0. In order to avoid supporting
+    // legacy firmware, throw an error and prompt user to update.
+    const fwVersion = this.controller.sdkSession.getFwVersion()
+    if (fwVersion?.major === 0 && fwVersion?.minor <= 14) {
+      throw new Error('Please update Lattice1 firmware.')
+    }
 
     try {
       const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
