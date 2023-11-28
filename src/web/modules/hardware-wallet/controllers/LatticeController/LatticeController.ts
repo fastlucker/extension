@@ -7,15 +7,11 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 
-const keyringType = 'lattice'
-
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
 class LatticeController implements ExternalSignerController {
   appName: string
-
-  type: string
 
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
@@ -28,11 +24,10 @@ class LatticeController implements ExternalSignerController {
   deviceId = ''
 
   // There is only one Grid+ device
-  deviceModel = 'lattice'
+  deviceModel = 'lattice1'
 
   constructor() {
     this.appName = 'Ambire Wallet Extension'
-    this.type = keyringType
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
