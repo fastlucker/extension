@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import { getWalletDappCatalog } from '@ambire-common-v1/services/dappCatalog'
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -57,8 +56,6 @@ async function init() {
 }
 ;(async () => {
   await init()
-  const dapps = await getWalletDappCatalog(fetch)
-  const dappUrls = dapps.map((d) => d.url)
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
@@ -690,11 +687,6 @@ async function init() {
       // but the rpc block subscription is actually not implemented because it causes app crashes
       if (data?.method === 'eth_subscribe' || data?.method === 'eth_unsubscribe') {
         return true
-      }
-
-      if (data?.method === 'get_dapp_urls') {
-        console.log('get_dapp_urls')
-        return JSON.stringify(dappUrls)
       }
 
       return provider({ ...req, mainCtrl, notificationCtrl })

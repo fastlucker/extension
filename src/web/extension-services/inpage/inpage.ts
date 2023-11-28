@@ -9,7 +9,12 @@ import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
-import { replaceMMIfNeeded } from '@web/extension-services/inpage/mm-replacement/mm-replacement'
+import {
+  ambireSvg,
+  getNumberOfWordOccurrencesInPage,
+  isWordInPage,
+  replaceWordAndIcon
+} from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
@@ -20,8 +25,7 @@ declare const ambireChannelName: any
 declare const ambireIsDefaultWallet: any
 declare const ambireId: any
 declare const ambireIsOpera: any
-declare let shouldReplaceMM: boolean
-let isEIP6963: boolean = false
+let shouldReplaceMM: boolean
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -132,8 +136,6 @@ const domReadyCall = (callback: any) => {
 
 const $ = document.querySelector.bind(document)
 
-replaceMMIfNeeded()
-
 export class EthereumProvider extends EventEmitter {
   chainId: string | null = null
 
@@ -221,7 +223,6 @@ export class EthereumProvider extends EventEmitter {
     })
 
     try {
-      this.request({ method: 'get_dapp_urls' })
       const { chainId, accounts, networkVersion, isUnlocked }: any =
         await this.requestInternalMethods({
           method: 'getProviderState'
@@ -368,19 +369,6 @@ export class EthereumProvider extends EventEmitter {
       return this._bcm
         .request(data)
         .then((res) => {
-          if (data.method === 'get_dapp_urls') {
-            if (
-              !isEIP6963 &&
-              (location.origin.includes('app.') ||
-                (JSON.parse(res as string) as string[]).some(
-                  (url) => new URL(url).hostname === new URL(location.origin).hostname
-                ))
-            ) {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              shouldReplaceMM = true
-            }
-            return
-          }
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[request: success]', data.method, res)
           }
@@ -520,6 +508,9 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
+        console.log('interacted with provider')
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        shouldReplaceMM = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
@@ -609,10 +600,43 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestProviderEvent) => {
-  isEIP6963 = true
   announceEip6963Provider(ambireProvider)
 })
 
 announceEip6963Provider(ambireProvider)
 
 window.dispatchEvent(new Event('ethereum#initialized'))
+
+//
+// MetaMask text and icon replacement for dApps using legacy connect only
+//
+
+let timeoutId: any
+const mutationsQueue = []
+
+const observer = new MutationObserver((mutationsList) => {
+  mutationsQueue.push(...mutationsList)
+  clearTimeout(timeoutId)
+
+  const hasMMWordInPage = isWordInPage('metamask')
+  const hasWCWordInPage = isWordInPage('walletconnect')
+  const hasAmbireWordInPage = isWordInPage('ambire')
+  const numberOfTimesMMWordOccursInPage = getNumberOfWordOccurrencesInPage('metamask')
+
+  if (!hasMMWordInPage || !hasWCWordInPage || hasAmbireWordInPage) {
+    return
+  }
+
+  if (numberOfTimesMMWordOccursInPage > 1) {
+    return
+  }
+
+  timeoutId = setTimeout(() => {
+    if (shouldReplaceMM) {
+      replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+    }
+    mutationsQueue.length = 0 // Clear the mutation queue
+  }, 60)
+})
+
+observer.observe(document, { childList: true, subtree: true, attributes: true })
