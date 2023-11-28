@@ -25,8 +25,6 @@ class LatticeController implements ExternalSignerController {
 
   unlockedAccount: any
 
-  network: any
-
   deviceId = ''
 
   // There is only one Grid+ device
@@ -80,7 +78,6 @@ class LatticeController implements ExternalSignerController {
     }
     this.deviceId = ''
     this.sdkSession = null
-    this.network = null
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
@@ -220,7 +217,6 @@ class LatticeController implements ExternalSignerController {
       baseUrl: url,
       timeout: SDK_TIMEOUT,
       privKey: this._genSessionKey(),
-      network: this.network,
       skipRetryOnWrongWallet: true
     }
     /*
