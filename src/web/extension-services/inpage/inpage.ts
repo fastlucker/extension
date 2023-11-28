@@ -507,7 +507,8 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // the webpage reads the proxy provider so treat the page as a dapp
+        // should replace mm brand only for dapps
         shouldReplaceMM = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
@@ -611,6 +612,8 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 
 let timeoutId: any
 const mutationsQueue = []
+// Once we replace "MetaMask" with "Ambire," the variable hasAmbireWordInPage will always be true.
+// Therefore, we keep track of this, and if it has been replaced once, we continue to replace it for the remainder of that session
 let mmReplaced = false
 
 const observer = new MutationObserver((mutationsList) => {
