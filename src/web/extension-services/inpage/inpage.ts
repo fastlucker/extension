@@ -11,7 +11,6 @@ import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import {
   ambireSvg,
-  getNumberOfWordOccurrencesInPage,
   isWordInPage,
   replaceWordAndIcon
 } from '@web/extension-services/inpage/page-content-replacement'
@@ -508,7 +507,6 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        console.log('interacted with provider')
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         shouldReplaceMM = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
@@ -613,28 +611,26 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 
 let timeoutId: any
 const mutationsQueue = []
+let mmReplaced = false
 
 const observer = new MutationObserver((mutationsList) => {
   mutationsQueue.push(...mutationsList)
   clearTimeout(timeoutId)
 
+  if (!shouldReplaceMM) return
+
   const hasMMWordInPage = isWordInPage('metamask')
   const hasWCWordInPage = isWordInPage('walletconnect')
   const hasAmbireWordInPage = isWordInPage('ambire')
-  const numberOfTimesMMWordOccursInPage = getNumberOfWordOccurrencesInPage('metamask')
 
-  if (!hasMMWordInPage || !hasWCWordInPage || hasAmbireWordInPage) {
-    return
-  }
-
-  if (numberOfTimesMMWordOccursInPage > 1) {
+  if ((!hasMMWordInPage || !hasWCWordInPage || hasAmbireWordInPage) && !mmReplaced) {
     return
   }
 
   timeoutId = setTimeout(() => {
-    if (shouldReplaceMM) {
-      replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
-    }
+    replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+    mmReplaced = true
+
     mutationsQueue.length = 0 // Clear the mutation queue
   }, 60)
 })
