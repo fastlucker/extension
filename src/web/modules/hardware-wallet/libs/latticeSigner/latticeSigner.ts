@@ -165,7 +165,7 @@ class LatticeSigner implements KeystoreSigner {
 
     const foundIdx = await this.controller._keyIdxInCurrentWallet(this.key)
     if (foundIdx === null) {
-      throw new Error('latticeSigner: key not found in the current Lattice wallet')
+      throw new Error('latticeSigner: key not found in the current Lattice1 wallet')
     }
 
     return `0x${res.sig.r}${res.sig.s}${v}`
