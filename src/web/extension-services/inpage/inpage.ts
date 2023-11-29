@@ -25,6 +25,7 @@ declare const ambireIsDefaultWallet: any
 declare const ambireId: any
 declare const ambireIsOpera: any
 let shouldReplaceMM: boolean
+let isEIP6963: boolean
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -509,6 +510,7 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
       get() {
         // the webpage reads the proxy provider so treat the page as a dapp
         // should replace mm brand only for dapps
+        console.log('-------!!!!!!-------')
         shouldReplaceMM = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
@@ -599,6 +601,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestProviderEvent) => {
+  isEIP6963 = true
   announceEip6963Provider(ambireProvider)
 })
 
@@ -612,9 +615,6 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 
 let timeoutId: any
 const mutationsQueue = []
-// Once we replace "MetaMask" with "Ambire," the variable hasAmbireWordInPage will always be true.
-// Therefore, we keep track of this, and if it has been replaced once, we continue to replace it for the remainder of that session
-let mmReplaced = false
 
 const observer = new MutationObserver((mutationsList) => {
   mutationsQueue.push(...mutationsList)
@@ -624,15 +624,13 @@ const observer = new MutationObserver((mutationsList) => {
 
   const hasMMWordInPage = isWordInPage('metamask')
   const hasWCWordInPage = isWordInPage('walletconnect')
-  const hasAmbireWordInPage = isWordInPage('ambire')
 
-  if ((!hasMMWordInPage || !hasWCWordInPage || hasAmbireWordInPage) && !mmReplaced) {
+  if (!hasMMWordInPage || !hasWCWordInPage || isEIP6963) {
     return
   }
 
   timeoutId = setTimeout(() => {
     replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
-    mmReplaced = true
 
     mutationsQueue.length = 0 // Clear the mutation queue
   }, 60)
