@@ -510,7 +510,6 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
       get() {
         // the webpage reads the proxy provider so treat the page as a dapp
         // should replace mm brand only for dapps
-        console.log('-------!!!!!!-------')
         shouldReplaceMM = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
