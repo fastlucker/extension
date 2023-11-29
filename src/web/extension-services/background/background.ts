@@ -512,14 +512,14 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'ledger')
+              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
                 return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'trezor')
+              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
                 return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp.sign(latticeCtrl)
+              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
+                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
 
-              return mainCtrl?.signAccountOp.sign()
+              return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
               return mainCtrl.initSignAccOp(data.params.accountAddr, data.params.networkId)

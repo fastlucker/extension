@@ -27,7 +27,7 @@
     {
       "all_frames": true,
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
+      "exclude_matches": ["*://doInWebPack.lan/*"],
       "run_at": "document_start",
       "js": ["browser-polyfill.js", "content-script.js"]
     },
@@ -39,7 +39,7 @@
   "web_accessible_resources": [
     {
       "resources": ["*"],
-      "exclude_matches": ["*://wallet.ambire.com/*"],
+      "exclude_matches": [],
       "matches": ["<all_urls>"],
       "extension_ids": []
     }

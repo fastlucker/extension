@@ -121,7 +121,7 @@ const KeyStoreSetupScreen = () => {
             text={
               isSubmitting || isKeystoreSetupLoading
                 ? t('Setting Up Your Key Store...')
-                : t('Setup Ambire Key Store')
+                : t('Set up Ambire Key Store')
             }
             onPress={handleKeystoreSetup}
           >
@@ -189,7 +189,7 @@ const KeyStoreSetupScreen = () => {
       <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
           <TabLayoutWrapperSideContentItem.Title>
-            Setup Your Ambire Key Store
+            Set up Your Ambire Key Store
           </TabLayoutWrapperSideContentItem.Title>
           <TabLayoutWrapperSideContentItem.Text>
             Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the
