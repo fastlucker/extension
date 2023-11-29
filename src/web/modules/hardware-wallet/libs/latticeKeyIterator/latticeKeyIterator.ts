@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import { Client } from 'gridplus-sdk'
 
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
@@ -37,7 +38,12 @@ class LatticeKeyIterator implements KeyIteratorInterface {
       n: to - from + 1
     }
 
-    const res: any = await this.sdkSession?.getAddresses(keyData as any)
+    // TODO: Figure out the corner cases when this returns Buffer[]
+    let res: string[] = await this.sdkSession?.getAddresses(keyData)
+    // For some reason, the addresses incoming from the device are not
+    // checksumed, that's why manually checksum them here.
+    res = res?.map((addr) => getAddress(addr)) || []
+
     keys.push(...res)
 
     return keys
