@@ -11,6 +11,7 @@ const Banners: FC = () => {
   if (state.banners.length === 0) return null
 
   return (
+    // @TODO: better display of more than one banner in popup
     <View style={spacings.mb}>
       {(state.banners || []).map((banner) => (
         <Banner

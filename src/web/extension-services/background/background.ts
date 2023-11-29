@@ -41,6 +41,7 @@ import { controllersNestedInMainMapping } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
+  // @TODO: get rid of this and use the rpc providers from the settings controller
   const shouldInitProviders = !areRpcProvidersInitialized()
   if (shouldInitProviders) {
     initRpcProviders(rpcProviders)
@@ -54,6 +55,7 @@ async function init() {
 
   await permissionService.init()
 }
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
@@ -651,6 +653,7 @@ async function init() {
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
