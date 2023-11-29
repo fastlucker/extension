@@ -622,7 +622,7 @@ const observer = new MutationObserver((mutationsList) => {
   if (!shouldReplaceMM) return
 
   const hasMMWordInPage = isWordInPage('metamask')
-  const hasWCWordInPage = isWordInPage('walletconnect')
+  const hasWCWordInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
 
   if (!hasMMWordInPage || !hasWCWordInPage || isEIP6963) {
     return
