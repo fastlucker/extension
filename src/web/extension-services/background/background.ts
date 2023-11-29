@@ -184,9 +184,13 @@ async function init() {
   function setReestimateInterval(accountOp: AccountOp) {
     clearInterval(reestimateInterval)
 
+    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    // 12 seconds is the time needed for a new ethereum block
+    const time = currentNetwork.reestimateOn ?? 12000
+    console.log(time)
     reestimateInterval = setInterval(async () => {
       mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
-    }, 5000)
+    }, time)
   }
 
   // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
