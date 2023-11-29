@@ -187,7 +187,6 @@ async function init() {
     const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
-    console.log(time)
     reestimateInterval = setInterval(async () => {
       mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
     }, time)
