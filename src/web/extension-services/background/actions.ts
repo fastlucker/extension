@@ -245,6 +245,10 @@ type KeystoreControllerLockAction = {
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
 }
+type KeystoreControllerChangePasswordAction = {
+  type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
+  params: { secretId: string; secret: string; newSecret: string }
+}
 
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
@@ -329,6 +333,7 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
+  | KeystoreControllerChangePasswordAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction

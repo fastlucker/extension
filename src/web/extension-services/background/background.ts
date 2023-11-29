@@ -598,7 +598,8 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
-
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
+              return mainCtrl.keystore.updateSecret(data.params)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
