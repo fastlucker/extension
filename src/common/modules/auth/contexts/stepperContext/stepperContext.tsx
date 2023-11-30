@@ -5,7 +5,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 export const STEPPER_FLOWS = {
   email: {
-    [WEB_ROUTES.keyStoreSetup]: 'Setup Key\nStore',
+    [WEB_ROUTES.keyStoreSetup]: 'Set up Key\nStore',
     [WEB_ROUTES.createEmailVault]: 'Create Email\nVault',
     'email-confirmation': 'Email\nConfirmation',
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
@@ -17,7 +17,7 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
   },
   legacy: {
-    [WEB_ROUTES.keyStoreSetup]: 'Setup Key\nStore',
+    [WEB_ROUTES.keyStoreSetup]: 'Set up Key\nStore',
     [WEB_ROUTES.externalSigner]: 'Import Legacy Account',
     [WEB_ROUTES.accountAdder]: 'Pick Accounts To Import',
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'

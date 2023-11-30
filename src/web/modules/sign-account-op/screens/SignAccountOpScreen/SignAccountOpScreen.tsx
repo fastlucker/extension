@@ -19,7 +19,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -40,7 +39,6 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
-  const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
 
@@ -135,16 +133,6 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
-  const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, signingKeyType: string) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: { signingKeyAddr, signingKeyType }
-      })
-    },
-    [dispatch]
-  )
-
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
@@ -180,35 +168,23 @@ const SignAccountOpScreen = () => {
     })
   }, [dispatch])
 
-  useEffect(() => {
-    if (
-      signAccountOpState?.isInitialized &&
-      signAccountOpState?.status?.type === SigningStatus.ReadyToSign &&
-      signAccountOpState?.accountOp?.signingKeyAddr &&
-      signAccountOpState?.accountOp?.signingKeyType
-    ) {
-      handleSign()
-    }
-  }, [
-    handleSign,
-    signAccountOpState?.accountOp?.signingKeyAddr,
-    signAccountOpState?.accountOp?.signingKeyType,
-    signAccountOpState?.isInitialized,
-    signAccountOpState?.status?.type
-  ])
+  const handleChangeSigningKey = useCallback(
+    (signingKeyAddr: string, signingKeyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: { signingKeyAddr, signingKeyType }
+      })
 
-  const selectedAccountKeyStoreKeys = useMemo(
-    () => keystoreState.keys.filter((key) => account?.associatedKeys.includes(key.addr)),
-    [account?.associatedKeys, keystoreState.keys]
+      handleSign()
+    },
+    [dispatch, handleSign]
   )
 
   const onSignButtonClick = () => {
-    // If the account has only one signer, we don't need to show the select signer overlay
-    if (selectedAccountKeyStoreKeys.length === 1) {
-      handleChangeSigningKey(
-        selectedAccountKeyStoreKeys[0].addr,
-        selectedAccountKeyStoreKeys[0].type
-      )
+    // If the account has only one signer, we don't need to show the select signer overlay,
+    // and we will sign the transaction with the only one available signer (it is set by default in the controller).
+    if (signAccountOpState?.accountKeyStoreKeys.length === 1) {
+      handleSign()
       return
     }
 
@@ -216,8 +192,8 @@ const SignAccountOpScreen = () => {
   }
 
   const isViewOnly = useMemo(
-    () => selectedAccountKeyStoreKeys.length === 0,
-    [selectedAccountKeyStoreKeys.length]
+    () => signAccountOpState?.accountKeyStoreKeys.length === 0,
+    [signAccountOpState?.accountKeyStoreKeys]
   )
 
   if (mainState.signAccOpInitError) {
@@ -260,11 +236,11 @@ const SignAccountOpScreen = () => {
             signAccountOpState.status?.type === SigningStatus.Done ||
             mainState.broadcastStatus === 'LOADING'
           }
-          hasSigningErrors={!!signAccountOpState.errors.length}
+          readyToSign={signAccountOpState.readyToSign}
           isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
           handleChangeSigningKey={handleChangeSigningKey}
-          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          selectedAccountKeyStoreKeys={signAccountOpState?.accountKeyStoreKeys}
           onSign={onSignButtonClick}
         />
       }
