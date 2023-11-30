@@ -45,7 +45,7 @@ const Account = ({
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
-  const MOCK_IS_PINNED = mainCtrl.selectedAccount === addr // @TODO: pinned account logic
+  const MOCK_IS_PINNED = mainCtrl.accounts[0].addr === addr // @TODO: pinned account logic
 
   const selectAccount = (selectedAddr: string) => {
     dispatch({
@@ -59,8 +59,6 @@ const Account = ({
     <Pressable
       key={addr}
       onPress={() => {
-        if (mainCtrl.selectedAccount === addr) return
-
         selectAccount(addr)
       }}
     >
@@ -72,10 +70,7 @@ const Account = ({
               backgroundColor:
                 addr === mainCtrl.selectedAccount || hovered
                   ? theme.secondaryBackground
-                  : 'transparent',
-              ...(isWeb
-                ? { cursor: addr === mainCtrl.selectedAccount ? 'default' : 'pointer' }
-                : {})
+                  : 'transparent'
             }
           ]}
         >
