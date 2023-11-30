@@ -143,7 +143,7 @@ async function init() {
   let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
-    pending: 7500,
+    pending: 3000,
     standBy: 300000
   }
 
