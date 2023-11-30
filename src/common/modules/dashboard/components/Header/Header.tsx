@@ -60,8 +60,7 @@ const DashboardHeader = () => {
                 resizeMode="contain"
               />
               <View style={styles.accountAddressAndLabel}>
-                {/* TODO: Hide this text element if the account doesn't have a label when labels are properly implemented */}
-                <Text weight="number_bold" fontSize={14}>
+                <Text numberOfLines={1} weight="number_bold" fontSize={14}>
                   {selectedAccLabel}
                 </Text>
                 <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
