@@ -156,10 +156,8 @@ export class ProviderController {
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(options.session.origin)
       const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
-      const account = this.mainCtrl.accounts.filter(
-        (acc) => acc.addr === this.mainCtrl.selectedAccount
-      )[0]
-      const is4337Broadcast = isErc4337Broadcast(network, account)
+      const accountState = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount!][network.id]
+      const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
         const receipt = await bundler.poll(hash, network)
