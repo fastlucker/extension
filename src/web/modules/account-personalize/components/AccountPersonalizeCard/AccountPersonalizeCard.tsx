@@ -76,7 +76,7 @@ const AccountPersonalizeCard = ({
         </Text>
         {'  '}
         <Text weight="light" appearance="secondaryText" fontSize={12}>
-          {t('(Use up to 25 characters)')}
+          {t('(Use up to 40 characters)')}
         </Text>
       </Text>
 
@@ -89,7 +89,7 @@ const AccountPersonalizeCard = ({
             onChangeText={onChange}
             value={value}
             numberOfLines={1}
-            maxLength={25}
+            maxLength={40}
             containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
           />
         )}

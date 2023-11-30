@@ -1,24 +1,20 @@
 import crypto from 'crypto'
-import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
 import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
-import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
+import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
 
-const keyringType = 'lattice'
+const LATTICE_APP_NAME = 'Ambire Wallet Extension'
+const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
+const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeController extends EventEmitter {
-  appName: string
-
-  type: string
-
+class LatticeController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   sdkSession?: SDK.Client | null
@@ -27,30 +23,17 @@ class LatticeController extends EventEmitter {
 
   unlockedAccount: any
 
-  accountIndices: any
-
-  isLocked: boolean = true
-
-  network: any
-
   deviceId = ''
 
   // There is only one Grid+ device
-  deviceModel = 'lattice'
+  deviceModel = 'lattice1'
 
   constructor() {
-    super()
-    this.appName = 'Ambire Wallet Extension'
-    this.type = keyringType
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
 
-  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
-    this.hdPathTemplate = hdPathTemplate
-  }
-
-  // Deterimine if we have a connection to the Lattice and an existing wallet UID
+  // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
     return !!this._getCurrentWalletUID() && !!this.sdkSession
@@ -83,37 +66,7 @@ class LatticeController extends EventEmitter {
     return 'Unlocked'
   }
 
-  async exportAccount(address) {
-    throw new Error('exportAccount not supported by this device')
-  }
-
-  async getKeys(from: number = 0, to: number = 4) {
-    await this.unlock()
-
-    if (!this.isUnlocked()) {
-      throw new Error('No connection to Lattice. Cannot fetch addresses.')
-    }
-
-    return new Promise((resolve) => {
-      ;(async () => {
-        const iterator = new LatticeKeyIterator({
-          sdkSession: this.sdkSession
-        })
-
-        const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
-
-        resolve(keys)
-      })()
-    })
-  }
-
-  forgetDevice() {
-    this._resetDefaults()
-  }
-
   _resetDefaults() {
-    this.accountIndices = []
-    this.isLocked = true
     this.creds = {
       deviceID: null,
       password: null,
@@ -121,12 +74,10 @@ class LatticeController extends EventEmitter {
     }
     this.deviceId = ''
     this.sdkSession = null
-    this.unlockedAccount = 0
-    this.network = null
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openConnectorTab(url) {
+  async _openConnectorTab(url: string) {
     try {
       const browserTab = window.open(url)
       // Preferred option for Chromium browsers. This extension runs in a window
@@ -157,18 +108,13 @@ class LatticeController extends EventEmitter {
     return new Promise((resolve, reject) => {
       // We only need to setup if we don't have a deviceID
       if (this._hasCreds()) return resolve()
-      // If we are not aware of what Lattice we should be talking to,
-      // we need to open a window that lets the user go through the
-      // pairing or connection process.
-      const name = this.appName ? this.appName : 'Unknown'
-      const base = 'https://lattice.gridplus.io'
-      const url = `${base}?keyring=${name}&forceLogin=true`
+      const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
       let listenInterval: any
 
       // PostMessage handler
       function receiveMessage(event) {
         // Ensure origin
-        if (event.origin !== base) return
+        if (event.origin !== LATTICE_MANAGER_URL) return
         try {
           // Stop the listener
           clearInterval(listenInterval)
@@ -255,14 +201,12 @@ class LatticeController extends EventEmitter {
     if (this.isUnlocked()) {
       return
     }
-    let url = 'https://signing.gridpl.us'
-    if (this.creds.endpoint) url = this.creds.endpoint
+
     const setupData = {
-      name: this.appName,
-      baseUrl: url,
+      name: LATTICE_APP_NAME,
+      baseUrl: this.creds.endpoint || LATTICE_BASE_URL,
       timeout: SDK_TIMEOUT,
       privKey: this._genSessionKey(),
-      network: this.network,
       skipRetryOnWrongWallet: true
     }
     /*
@@ -283,18 +227,15 @@ class LatticeController extends EventEmitter {
   }
 
   _hasCreds() {
-    return this.creds.deviceID !== null && this.creds.password !== null && this.appName
+    return this.creds.deviceID !== null && this.creds.password !== null
   }
 
   _genSessionKey() {
-    if (this.name && !this.appName)
-      // Migrate from legacy param if needed
-      this.appName = this.name
     if (!this._hasCreds()) throw new Error('No credentials -- cannot create session key!')
     const buf = Buffer.concat([
       Buffer.from(this.creds.password),
       Buffer.from(this.creds.deviceID),
-      Buffer.from(this.appName)
+      Buffer.from(LATTICE_APP_NAME)
     ])
 
     return crypto.createHash('sha256').update(buf).digest()
