@@ -172,8 +172,6 @@ const TransactionHistorySettingsScreen = () => {
     [networks]
   )
 
-  console.log(activityState)
-
   const renderAccountOpsHistory = useCallback(() => {
     if (!activityState?.accountsOps?.items?.length) {
       return (
