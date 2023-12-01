@@ -64,7 +64,7 @@ const RecipientInput: React.FC<Props> = ({
   return (
     <>
       {label && (
-        <Text weight="regular" style={styles.label}>
+        <Text fontSize={14} appearance="secondaryText" weight="regular" style={styles.label}>
           {label}
         </Text>
       )}

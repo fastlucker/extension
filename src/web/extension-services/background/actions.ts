@@ -1,12 +1,16 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
+import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
-import { Message, SignedMessage, UserRequest } from '@ambire-common/interfaces/userRequest'
+import {
+  AccountPreferences,
+  KeyPreferences,
+  NetworkPreference
+} from '@ambire-common/interfaces/settings'
+import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
@@ -84,7 +88,20 @@ type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences
 }
-
+type MainControllerSettingsUpdateNetworkPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES'
+  params: {
+    networkPreferences: NetworkPreference
+    networkId: NetworkDescriptor['id']
+  }
+}
+type MainControllerSettingsResetPreference = {
+  type: 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE'
+  params: {
+    preferenceKey: keyof NetworkPreference
+    networkId: NetworkDescriptor['id']
+  }
+}
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -309,6 +326,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
   | MainControllerSettingsAddKeyPreferences
+  | MainControllerSettingsUpdateNetworkPreferences
+  | MainControllerSettingsResetPreference
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
