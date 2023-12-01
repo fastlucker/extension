@@ -69,7 +69,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.ph
     },
     label: {
-      ...spacings.mbTy
+      ...spacings.mbMi
     },
     button: {
       ...flexbox.justifyCenter,
