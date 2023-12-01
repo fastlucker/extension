@@ -132,7 +132,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           />
         )
       })}
-      <View style={[flexbox.directionRow, flexbox.flex1, spacings.mbSm]}>
+      <View style={[flexbox.directionRow, flexbox.flex1, spacings.mbSm, spacings.phSm]}>
         <View style={flexbox.flex1}>
           <Text style={spacings.mbTy} fontSize={14}>
             {t('Fee')}
