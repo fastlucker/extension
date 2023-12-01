@@ -298,7 +298,13 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network!.id} isViewOnly={isViewOnly} />
+              <Estimation
+                mainState={mainState}
+                signAccountOpState={signAccountOpState}
+                accountPortfolio={portfolioState.accountPortfolio}
+                networkId={network!.id}
+                isViewOnly={isViewOnly}
+              />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />
