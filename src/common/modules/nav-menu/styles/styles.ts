@@ -16,8 +16,8 @@ const styles = StyleSheet.create<Style>({
   menuItem: {
     ...flexboxStyles.directionRow,
     ...flexboxStyles.alignCenter,
-    height: 36,
-    maxHeight: 36
+    ...spacings.pv,
+    ...spacings.ph
   },
   activeMenuItem: {
     backgroundColor: colors.valhalla,

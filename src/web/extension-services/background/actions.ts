@@ -1,7 +1,7 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Filters } from '@ambire-common/controllers/activity/activity'
+import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
@@ -115,7 +115,15 @@ type MainControllerRefetchPortfolio = {
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
-  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
+  params: {
+    dapp: {
+      name: string
+      icon: string
+    }
+    messageToSign: Message
+    accounts: Account[]
+    accountStates: AccountStates
+  }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
@@ -129,11 +137,23 @@ type MainControllerSignMessageSetSignKeyAction = {
 }
 type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
-  params: { signedMessage: Message }
+  params: { signedMessage: SignedMessage }
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
   params: { filters: Filters }
+}
+type MainControllerActivitySetFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
+  params: { filters: Filters }
+}
+type MainControllerActivitySetAccountOpsPaginationAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
+  params: { pagination: Pagination }
+}
+type MainControllerActivitySetSignedMessagesPaginationAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION'
+  params: { pagination: Pagination }
 }
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
@@ -320,6 +340,9 @@ export type Action =
   | MainControllerSignMessageSetSignKeyAction
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
+  | MainControllerActivitySetFiltersAction
+  | MainControllerActivitySetAccountOpsPaginationAction
+  | MainControllerActivitySetSignedMessagesPaginationAction
   | MainControllerActivityResetAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
