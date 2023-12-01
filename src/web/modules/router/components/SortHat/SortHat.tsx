@@ -24,6 +24,7 @@ const SortHat = () => {
   const keystoreState = useKeystoreControllerState()
   const notificationState = useNotificationControllerState()
   const mainState = useMainControllerState()
+
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
