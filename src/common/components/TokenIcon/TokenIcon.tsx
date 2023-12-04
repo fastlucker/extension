@@ -62,7 +62,7 @@ const TokenIcon: React.FC<Props> = ({
   if (isLoading) {
     return (
       <View style={containerStyle}>
-        <Spinner />
+        <Spinner style={{ width: 24, height: 24 }} />
       </View>
     )
   }

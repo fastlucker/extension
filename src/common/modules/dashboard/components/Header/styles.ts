@@ -43,7 +43,12 @@ const getStyles = (theme: ThemeProps) =>
     },
     accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
     accountButtonInfoText: { ...spacings.mlMi },
-    accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mlTy },
+    accountAddressAndLabel: {
+      ...flexbox.directionRow,
+      ...flexbox.alignEnd,
+      ...spacings.mlTy,
+      ...flexbox.flex1
+    },
     accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' },
     maximizeAndMenu: {
       ...flexbox.directionRow,

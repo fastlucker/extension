@@ -47,26 +47,26 @@ const AppInit = () => {
   if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
-    <BackgroundServiceProvider>
-      <Router>
-        <MainControllerStateProvider>
-          <SettingsControllerStateProvider>
-            <AccountAdderControllerStateProvider>
-              <KeystoreControllerStateProvider>
-                <SignMessageControllerStateProvider>
-                  <ActivityControllerStateProvider>
-                    <NotificationControllerStateProvider>
-                      <PortfolioControllerStateProvider>
-                        <ControllersStateLoadedProvider>
-                          <PortalProvider>
-                            <LoaderProvider>
-                              <StorageProvider>
-                                <OnboardingProvider>
-                                  <ThemeProvider>
-                                    <SafeAreaProvider>
-                                      <KeyboardProvider>
-                                        <NetInfoProvider>
-                                          <ToastProvider>
+    <Router>
+      <PortalProvider>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <ToastProvider>
+              <BackgroundServiceProvider>
+                <MainControllerStateProvider>
+                  <SettingsControllerStateProvider>
+                    <AccountAdderControllerStateProvider>
+                      <KeystoreControllerStateProvider>
+                        <SignMessageControllerStateProvider>
+                          <ActivityControllerStateProvider>
+                            <NotificationControllerStateProvider>
+                              <PortfolioControllerStateProvider>
+                                <ControllersStateLoadedProvider>
+                                  <LoaderProvider>
+                                    <StorageProvider>
+                                      <OnboardingProvider>
+                                        <KeyboardProvider>
+                                          <NetInfoProvider>
                                             <ConstantsProvider>
                                               <AuthProvider>
                                                 <ExtensionProvider>
@@ -79,26 +79,26 @@ const AppInit = () => {
                                                 </ExtensionProvider>
                                               </AuthProvider>
                                             </ConstantsProvider>
-                                          </ToastProvider>
-                                        </NetInfoProvider>
-                                      </KeyboardProvider>
-                                    </SafeAreaProvider>
-                                  </ThemeProvider>
-                                </OnboardingProvider>
-                              </StorageProvider>
-                            </LoaderProvider>
-                          </PortalProvider>
-                        </ControllersStateLoadedProvider>
-                      </PortfolioControllerStateProvider>
-                    </NotificationControllerStateProvider>
-                  </ActivityControllerStateProvider>
-                </SignMessageControllerStateProvider>
-              </KeystoreControllerStateProvider>
-            </AccountAdderControllerStateProvider>
-          </SettingsControllerStateProvider>
-        </MainControllerStateProvider>
-      </Router>
-    </BackgroundServiceProvider>
+                                          </NetInfoProvider>
+                                        </KeyboardProvider>
+                                      </OnboardingProvider>
+                                    </StorageProvider>
+                                  </LoaderProvider>
+                                </ControllersStateLoadedProvider>
+                              </PortfolioControllerStateProvider>
+                            </NotificationControllerStateProvider>
+                          </ActivityControllerStateProvider>
+                        </SignMessageControllerStateProvider>
+                      </KeystoreControllerStateProvider>
+                    </AccountAdderControllerStateProvider>
+                  </SettingsControllerStateProvider>
+                </MainControllerStateProvider>
+              </BackgroundServiceProvider>
+            </ToastProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </PortalProvider>
+    </Router>
   )
 }
 
