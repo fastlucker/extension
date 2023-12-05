@@ -52,36 +52,34 @@ describe('balance', () => {
         }, parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
             envSelectedAccount, envTermState, parsedPreviousHints)
 
-
         let pages = await browser.pages()
         pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
         // pages[2].close() // tab always opened after extension installation
 
-    
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 2000));
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
-        pages = await browser.pages()
+        // pages = await browser.pages()
 
-    
+        await new Promise((r) => setTimeout(r, 1000));
 
-
-    })
-
-
-    beforeAll(async () => {
-
-        await new Promise((r) => setTimeout(r, 500));
         // /*Open the page again to load the browser local storage */
         // page = await browser.newPage();
         // await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
         // await new Promise((r) => setTimeout(r, 1000));
 
         pages = await browser.pages()
+        // pages[0].close()
         pages[1].close()
-        // pages[1].close()
+        // await new Promise((r) => setTimeout(r, 2000));
+
+        await page.evaluate(() => {
+            location.reload(true)
+        })
+
+
         // /*Type keystore password */
         await page.waitForSelector('[placeholder="Passphrase"]');
         const keyStorePassField = await page.$('[placeholder="Passphrase"]');
@@ -93,6 +91,7 @@ describe('balance', () => {
         await keyStoreUnlokeButton.click();
 
         await new Promise((r) => setTimeout(r, 2000))
+
 
     })
 

@@ -6,32 +6,21 @@ import { bootStrap, setAmbKeyStoreForLegacy } from './functions.js';
 
 
 describe('balance', () => {
-
-
-    const innit = async () => {
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-      
-        /*Your login code*/
-      
-        const cookies = JSON.stringify(await page.cookies());
-        const sessionStorage = await page.evaluate(() =>JSON.stringify(sessionStorage));
-        const localStorage = await page.evaluate(() => JSON.stringify(localStorage));
-      
-        await fs.writeFile("./cookies.json", cookies);
-        await fs.writeFile("./sessionStorage.json", sessionStorage);
-        await fs.writeFile("./localStorage.json", localStorage);
-        browser.close();
-      };
-
-    let browser
-    let page
-    let pages
-    let extensionRootUrl
+    let browser;
+    let page;
+    let extensionRootUrl;
+    let options;
 
     beforeEach(async () => {
 
-        const context = await bootStrap(page, browser)
+
+        options = {
+            devtools: false,
+            slowMo: 10,
+            // Add other options as needed
+          };
+
+        const context = await bootStrap(page, browser, options)
         // page = context.page
         // pages = context.pages
         browser = context.browser
@@ -39,11 +28,14 @@ describe('balance', () => {
         extensionId = context.extensionId
 
 
+
         page = (await browser.pages())[0];
         const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
-        // await new Promise((r) => setTimeout(r, 2000))
+       await page.evaluate(() => {
+             location.reload(true)
+         })
 
 
         const pages = await browser.pages()
@@ -53,12 +45,17 @@ describe('balance', () => {
         pages[1].close() // tab always opened after extension installation
         // pages[2].close() // tab always opened after extension installation
 
+
+        await page.evaluate(() => {
+            location.reload(true)
+        })
+
+
         await setAmbKeyStoreForLegacy(page);
     })
 
     afterEach(async () => {
-        // browser.close();
-        browser.disconnect();
+        browser.close();
     })
 
     //--------------------------------------------------------------------------------------------------------------
@@ -358,24 +355,22 @@ describe('balance', () => {
 
         await new Promise((r) => setTimeout(r, 1000))
 
-
-
         /* Select one Legacy account and one Smart account */
         let firstSelectedLegacyAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[0].click()
             return element[0].textContent
         })
-
-         firstSelectedLegacyAccount = firstSelectedLegacyAccount.slice(0,11) + firstSelectedLegacyAccount.slice(15,18) + firstSelectedLegacyAccount.slice(22, firstSelectedLegacyAccount.length) 
-
+        /* Keep the first and the last part of the address and use it later for verification later */
+         firstSelectedLegacyAccount1 = firstSelectedLegacyAccount.slice(0,15)  
+         firstSelectedLegacyAccount2 = firstSelectedLegacyAccount.slice(18, firstSelectedLegacyAccount.length) 
 
         let firstSelectedSmartAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[1].click()
             return element[1].textContent
         })
 
-        firstSelectedSmartAccount = firstSelectedSmartAccount.slice(0,11) + firstSelectedSmartAccount.slice(15,18) + firstSelectedSmartAccount.slice(22, firstSelectedSmartAccount.length) 
-
+        firstSelectedSmartAccount1 = firstSelectedSmartAccount.slice(0,15); 
+        firstSelectedSmartAccount2 = firstSelectedSmartAccount.slice(18, firstSelectedSmartAccount.length);
 
         /* Click on Import Accounts button*/
         const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
@@ -395,8 +390,12 @@ describe('balance', () => {
 
         /* Verify that selected accounts exist on the page */
         const text = await page.$eval('*', el => el.innerText);
-        expect(text).toContain(firstSelectedLegacyAccount);
-        expect(text).toContain(firstSelectedSmartAccount);
+        expect(text).toContain(firstSelectedLegacyAccount1);
+        expect(text).toContain(firstSelectedLegacyAccount2);
+
+        expect(text).toContain(firstSelectedSmartAccount1);
+        expect(text).toContain(firstSelectedSmartAccount2);
+
     }));
 
     //--------------------------------------------------------------------------------------------------------------
@@ -428,13 +427,13 @@ describe('balance', () => {
         let accountName2 = 'Test-Account-2'
 
         /* Change the names of the chosen accounts */
-        await page.waitForSelector('[value="Account 1"]');
-        const accountNameField1 = await page.$('[value="Account 1"]');
+        await page.waitForSelector('[value="Account 1 (Legacy from Private Key)"]');
+        const accountNameField1 = await page.$('[value="Account 1 (Legacy from Private Key)"]');
         await accountNameField1.click({ clickCount: 3 });
         await accountNameField1.press('Backspace');
         await accountNameField1.type(accountName1, { delay: 10 });
 
-        const accountNameField2 = await page.$('[value="Account 2"]');
+        const accountNameField2 = await page.$('[value="Account 2 (Ambire via Private Key)"]');
         await accountNameField2.click({ clickCount: 3 });
         await accountNameField2.press('Backspace');
         await accountNameField2.type(accountName2, { delay: 10 });

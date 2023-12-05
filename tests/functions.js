@@ -20,8 +20,7 @@ export async function bootStrap(page, browser, options= {}) {
         devtools,
         args: puppeteerArgs,
         defaultViewport: null,
-        ...(slowMo && { slowMo })
-    })
+        slowMo: options.slowMo,    })
 
 
     const targets = await browser.targets()
@@ -52,7 +51,8 @@ export async function bootStrap(page, browser, options= {}) {
         // pages,
         extensionRootUrl: `chrome-extension://${extensionId}`,
         extensionId,
-        targets
+        targets,
+        options
     }
 }
 
