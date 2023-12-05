@@ -13,6 +13,7 @@ import {
 } from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -34,6 +35,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch, dispatchAsync } = useBackgroundService()
+  const { addToast } = useToast()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -107,10 +109,9 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
       if (!defaultSelectedAccount) {
-        // TODO: display error toast instead
-        // eslint-disable-next-line no-alert
-        alert(
-          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+        addToast(
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.',
+          { timeout: 4000, type: 'error' }
         )
         return
       }
@@ -158,10 +159,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           })
         } catch (error: any) {
           console.error(error)
-          // TODO: display error toast
-          // eslint-disable-next-line no-alert
-          alert(
-            'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.'
+
+          addToast(
+            'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.',
+            { timeout: 4000, type: 'error' }
           )
         }
       } else {

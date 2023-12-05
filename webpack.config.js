@@ -223,6 +223,10 @@ module.exports = async function (env, argv) {
     })
   ]
 
+  if (config.mode === 'production') {
+    config.devtool = false // optimize bundle size for production by removing the source-map
+  }
+
   // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
   config.optimization = { minimize: false }
   if (config.mode === 'development') {
