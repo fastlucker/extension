@@ -528,17 +528,14 @@ async function init() {
               const { accountOp } = data.params
               const broadcastKeyType = accountOp.signingKeyType
 
-              const externalSignerControllers = {
-                ledger: ledgerCtrl,
-                trezor: trezorCtrl,
-                lattice: latticeCtrl
-              }
+              if (broadcastKeyType === 'ledger')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
+              if (broadcastKeyType === 'trezor')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
+              if (broadcastKeyType === 'lattice')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
 
-              return mainCtrl.broadcastSignedAccountOp(
-                accountOp,
-                // TODO: type?
-                externalSignerControllers[broadcastKeyType]
-              )
+              return mainCtrl.broadcastSignedAccountOp(accountOp)
             }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
