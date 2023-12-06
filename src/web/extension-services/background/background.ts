@@ -524,8 +524,19 @@ async function init() {
               )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
               return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
-              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
+              const { accountOp } = data.params
+              const broadcastKeyType = accountOp.signingKeyType
+
+              if (broadcastKeyType === 'ledger')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
+              if (broadcastKeyType === 'trezor')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
+              if (broadcastKeyType === 'lattice')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
+
+              return mainCtrl.broadcastSignedAccountOp(accountOp)
+            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
