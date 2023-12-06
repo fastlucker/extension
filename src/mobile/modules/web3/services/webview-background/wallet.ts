@@ -1,4 +1,4 @@
-import { intToHex } from 'ethereumjs-util'
+import { toBeHex } from 'ethers'
 
 import { NetworkType } from '@common/constants/networks'
 import VaultController from '@common/modules/vault/services/VaultController'
@@ -60,7 +60,7 @@ export class WalletController {
 
   networkChange = (network: NetworkType) => {
     sessionService.broadcastEvent('chainChanged', {
-      chain: intToHex(network.chainId),
+      chain: toBeHex(network.chainId),
       networkVersion: `${network.chainId}`
     })
   }

@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
-import { JsonRpcProvider, WebSocketProvider } from 'ethers'
+import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn, isUndefined } from 'lodash'
 
@@ -326,7 +325,7 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
+        const network = networks.find((n) => toBeHex(n.chainId) === this.chainId)
         if (network?.id && this.dAppOwnProviders[network.id]) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
