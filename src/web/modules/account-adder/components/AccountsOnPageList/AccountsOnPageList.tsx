@@ -1,13 +1,12 @@
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { HD_PATHS, HDPath } from '@ambire-common/consts/derivation'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import Pagination from '@common/components/Pagination'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
@@ -20,9 +19,6 @@ import Slot from '@web/modules/account-adder/components/Slot'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 import styles from './styles'
-
-export const SMALL_PAGE_STEP = 1
-export const LARGE_PAGE_STEP = 10
 
 const AccountsList = ({
   state,
@@ -47,26 +43,6 @@ const AccountsList = ({
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
   }, [state.accountsOnPage])
-
-  const handleSmallPageStepDecrement = () => {
-    setPage(state.page - SMALL_PAGE_STEP)
-  }
-
-  const handleSmallPageStepIncrement = () => {
-    setPage(state.page + SMALL_PAGE_STEP)
-  }
-
-  const handleLargePageStepDecrement = () => {
-    if (state.page <= LARGE_PAGE_STEP) {
-      setPage(1)
-    } else {
-      setPage(state.page - LARGE_PAGE_STEP)
-    }
-  }
-
-  const handleLargePageStepIncrement = () => {
-    setPage(state.page + LARGE_PAGE_STEP)
-  }
 
   const handleSelectAccount = useCallback(
     (account: AccountInterface) => {
@@ -195,62 +171,11 @@ const AccountsList = ({
         )}
       </Wrapper>
       {!!shouldEnablePagination && (
-        <View style={[flexbox.directionRow, flexbox.justifyEnd, flexbox.alignCenter]}>
-          <TouchableOpacity
-            onPress={handleLargePageStepDecrement}
-            disabled={state.page === 1 || disablePagination}
-            style={[spacings.mrLg, (state.page === 1 || disablePagination) && { opacity: 0.4 }]}
-          >
-            <View style={flexbox.directionRow}>
-              <LeftArrowIcon />
-              <LeftArrowIcon />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSmallPageStepDecrement}
-            disabled={state.page === 1 || disablePagination}
-            style={(state.page === 1 || disablePagination) && { opacity: 0.4 }}
-          >
-            <LeftArrowIcon />
-          </TouchableOpacity>
-          <Text style={spacings.phLg}>
-            {state.page > 2 && <Text>...</Text>}
-            {state.page === 1 && (
-              <Text>
-                <Text weight="semiBold">{state.page}</Text>
-                <Text>{`  ${state.page + 1}  ${state.page + 2}`}</Text>
-              </Text>
-            )}
-            {state.page !== 1 && (
-              <Text>
-                <Text>{`  ${state.page - 1}  `}</Text>
-                <Text weight="semiBold">{state.page}</Text>
-                <Text>{`  ${state.page + 1}`}</Text>
-              </Text>
-            )}
-            <Text>{'  ...'}</Text>
-          </Text>
-          <TouchableOpacity
-            style={[
-              spacings.mrLg,
-              (state.accountsLoading || disablePagination) && { opacity: 0.4 }
-            ]}
-            disabled={state.accountsLoading || disablePagination}
-            onPress={handleSmallPageStepIncrement}
-          >
-            <RightArrowIcon />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={(state.accountsLoading || disablePagination) && { opacity: 0.4 }}
-            disabled={state.accountsLoading || disablePagination}
-            onPress={handleLargePageStepIncrement}
-          >
-            <View style={flexbox.directionRow}>
-              <RightArrowIcon />
-              <RightArrowIcon />
-            </View>
-          </TouchableOpacity>
-        </View>
+        <Pagination
+          page={state.page}
+          setPage={setPage}
+          isDisabled={state.accountsLoading || disablePagination}
+        />
       )}
     </View>
   )

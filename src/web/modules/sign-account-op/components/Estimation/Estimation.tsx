@@ -3,7 +3,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { MainController } from '@ambire-common/controllers/main/main'
+import {
+  SignAccountOpController,
+  SigningStatus
+} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -12,23 +17,26 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import getStyles from './styles'
 
 type Props = {
+  mainState: MainController
+  accountPortfolio: AccountPortfolio | null
+  signAccountOpState: SignAccountOpController
   networkId: NetworkDescriptor['id']
   isViewOnly: boolean
 }
 
-const Estimation = ({ networkId, isViewOnly }: Props) => {
-  const signAccountOpState = useSignAccountOpControllerState()
-  const mainState = useMainControllerState()
-  const portfolioState = usePortfolioControllerState()
+const Estimation = ({
+  mainState,
+  accountPortfolio,
+  signAccountOpState,
+  networkId,
+  isViewOnly
+}: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme } = useTheme(getStyles)
@@ -37,7 +45,7 @@ const Estimation = ({ networkId, isViewOnly }: Props) => {
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
-      const token = portfolioState.accountPortfolio?.tokens.find(
+      const token = accountPortfolio?.tokens.find(
         (t) => t.address === feeOption.address && t.networkId === networkId
       )
       // TODO: validate - should never happen but there are some cases in which account is undefined
@@ -55,7 +63,7 @@ const Estimation = ({ networkId, isViewOnly }: Props) => {
   }, [
     signAccountOpState.availableFeeOptions,
     mainState.accounts,
-    portfolioState.accountPortfolio?.tokens,
+    accountPortfolio?.tokens,
     networkId
   ])
 

@@ -430,6 +430,18 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
               return mainCtrl.settings.addKeyPreferences(data.params)
             }
+            case 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES': {
+              return mainCtrl.settings.updateNetworkPreferences(
+                data.params.networkPreferences,
+                data.params.networkId
+              )
+            }
+            case 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE': {
+              return mainCtrl.settings.resetNetworkPreference(
+                data.params.preferenceKey,
+                data.params.networkId
+              )
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -459,11 +471,7 @@ async function init() {
             case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
               return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init({
-                messageToSign: data.params.messageToSign,
-                accounts: data.params.accounts,
-                accountStates: data.params.accountStates
-              })
+              return mainCtrl.signMessage.init(data.params)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
@@ -484,6 +492,12 @@ async function init() {
               return mainCtrl.activity.init({
                 filters: data.params.filters
               })
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
+              return mainCtrl.activity.setFilters(data.params.filters)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
+              return mainCtrl.activity.setAccountsOpsPagination(data.params.pagination)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
+              return mainCtrl.activity.setSignedMessagesPagination(data.params.pagination)
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
 
@@ -510,8 +524,19 @@ async function init() {
               )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
               return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
-              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
+              const { accountOp } = data.params
+              const broadcastKeyType = accountOp.signingKeyType
+
+              if (broadcastKeyType === 'ledger')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
+              if (broadcastKeyType === 'trezor')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
+              if (broadcastKeyType === 'lattice')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
+
+              return mainCtrl.broadcastSignedAccountOp(accountOp)
+            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)

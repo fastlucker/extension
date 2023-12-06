@@ -19,7 +19,7 @@ const MaxAmount = ({
 
   return (
     <View style={styles.maxAmount}>
-      <Text weight="regular" style={styles.maxAmountLabel}>
+      <Text weight="regular" fontSize={14} appearance="secondaryText" style={styles.maxAmountLabel}>
         {t('Available Amount:')}
       </Text>
 

@@ -75,7 +75,7 @@ const getStyles = (theme: ThemeProps) =>
     optionIcon: {
       width: 30,
       height: 30,
-      borderRadius: 10,
+      ...commonStyles.borderRadiusPrimary,
       ...spacings.mrTy
     }
   })
