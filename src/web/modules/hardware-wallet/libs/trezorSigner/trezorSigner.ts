@@ -21,6 +21,12 @@ const DELAY_BETWEEN_POPUPS = 1000
 const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
   wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
 
+/**
+ * This is necessary to avoid popup collision between signing multiple times in
+ * a row or between signing a message and then a raw transaction.
+ */
+const delayBetweenStarting = () => wait(1000)
+
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
 
@@ -47,6 +53,7 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error('trezorSigner: missing value in transaction request')
     }
 
+    await delayBetweenStarting()
     const status = await this.controller.unlock()
     await delayBetweenPopupsIfNeeded(status)
 
@@ -113,8 +120,7 @@ class TrezorSigner implements KeystoreSigner {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
 
-    // This is necessary to avoid popup collision
-    // between the unlock & sign trezor popups
+    await delayBetweenStarting()
     const status = await this.controller.unlock()
     await delayBetweenPopupsIfNeeded(status)
 
@@ -149,6 +155,7 @@ class TrezorSigner implements KeystoreSigner {
       )
     }
 
+    await delayBetweenStarting()
     const status = await this.controller.unlock()
     await delayBetweenPopupsIfNeeded(status)
 
