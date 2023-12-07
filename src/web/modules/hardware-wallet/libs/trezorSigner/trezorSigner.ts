@@ -8,12 +8,18 @@ import {
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import { delayPromise } from '@common/utils/promises'
+import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
+
+/**
+ * This is necessary to avoid popup collision between the unlock & sign Trezor popups.
+ */
+const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
+  wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
 
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
@@ -42,7 +48,7 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+    await delayBetweenPopupsIfNeeded(status)
 
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
     const unsignedTxn: EthereumTransaction = {
@@ -110,7 +116,7 @@ class TrezorSigner implements KeystoreSigner {
     // This is necessary to avoid popup collision
     // between the unlock & sign trezor popups
     const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+    await delayBetweenPopupsIfNeeded(status)
 
     const res = await trezorConnect.ethereumSignTypedData({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
@@ -144,7 +150,7 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+    await delayBetweenPopupsIfNeeded(status)
 
     const res = await trezorConnect.ethereumSignMessage({
       path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
