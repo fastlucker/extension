@@ -57,7 +57,7 @@ const textWeights: { [key in TextWeight]: string } = {
 
 const Text: React.FC<Props> = ({
   type = 'regular',
-  weight = 'light',
+  weight = 'regular',
   appearance = 'primaryText',
   children,
   underline,

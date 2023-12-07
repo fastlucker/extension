@@ -11,8 +11,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   label: {
-    ...spacings.mbTy,
-    ...spacings.mlTy
+    ...spacings.mbMi
   },
   domainIcons: flexbox.directionRow,
   plTy: spacings.plTy

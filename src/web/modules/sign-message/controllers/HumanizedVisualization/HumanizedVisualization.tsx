@@ -77,7 +77,7 @@ const HumanizedVisualization: FC<{
                   }}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <OpenIcon width={24} height={24} color={colors.martinique_80} />
+                  <OpenIcon width={14} height={14} strokeWidth="2" />
                 </TouchableOpacity>
               )}
             </>

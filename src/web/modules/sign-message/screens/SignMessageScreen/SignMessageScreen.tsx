@@ -7,7 +7,6 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
@@ -21,6 +20,8 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
@@ -38,9 +39,12 @@ const SignMessageScreen = () => {
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const { currentNotificationRequest } = useNotificationControllerState()
+
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const networkData =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
@@ -60,9 +64,8 @@ const SignMessageScreen = () => {
   )
 
   const network = useMemo(
-    () =>
-      mainState.settings.networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
-    [mainState.settings.networks, signMessageState.messageToSign?.networkId]
+    () => networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [networks, signMessageState.messageToSign?.networkId]
   )
 
   const isViewOnly = useMemo(
@@ -131,6 +134,10 @@ const SignMessageScreen = () => {
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
+            dapp: {
+              name: currentNotificationRequest?.params?.session?.name,
+              icon: currentNotificationRequest?.params?.session?.icon
+            },
             messageToSign: msgToSign,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
@@ -141,12 +148,14 @@ const SignMessageScreen = () => {
   }, [
     dispatch,
     params,
+    networks,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
     mainState.accounts,
     mainState.accountStates,
     signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr
+    signMessageState.messageToSign?.accountAddr,
+    currentNotificationRequest?.params
   ])
 
   useEffect(() => {
