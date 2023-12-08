@@ -1,4 +1,3 @@
-import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, toBeHex, Transaction } from 'ethers'
 
 import {
@@ -6,7 +5,9 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import { delayPromise } from '@common/utils/promises'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
@@ -158,7 +159,7 @@ class TrezorSigner implements KeystoreSigner {
       )
     }
 
-    return `0x${res.payload.signature}`
+    return addHexPrefix(res.payload.signature)
   }
 }
 

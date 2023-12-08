@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
+import Alert from '@common/components/Alert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
@@ -18,9 +19,9 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
@@ -29,7 +30,6 @@ import PendingTokenSummary from '@web/modules/sign-account-op/components/Pending
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import Alert from '@common/components/Alert'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -39,8 +39,9 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
-  const keystoreState = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
+
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -109,10 +110,8 @@ const SignAccountOpScreen = () => {
   }, [mainState.accounts, signAccountOpState?.accountOp?.accountAddr])
 
   const network = useMemo(() => {
-    return mainState.settings.networks.find(
-      (n) => n.id === signAccountOpState?.accountOp?.networkId
-    )
-  }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
+    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
+  }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!signAccountOpState?.accountOp) return
@@ -133,16 +132,6 @@ const SignAccountOpScreen = () => {
       navigate('/')
     }
   }, [navigate])
-
-  const handleChangeSigningKey = useCallback(
-    (signingKeyAddr: string, signingKeyType: string) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: { signingKeyAddr, signingKeyType }
-      })
-    },
-    [dispatch]
-  )
 
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
@@ -179,35 +168,23 @@ const SignAccountOpScreen = () => {
     })
   }, [dispatch])
 
-  useEffect(() => {
-    if (
-      signAccountOpState?.isInitialized &&
-      signAccountOpState?.status?.type === SigningStatus.ReadyToSign &&
-      signAccountOpState?.accountOp?.signingKeyAddr &&
-      signAccountOpState?.accountOp?.signingKeyType
-    ) {
-      handleSign()
-    }
-  }, [
-    handleSign,
-    signAccountOpState?.accountOp?.signingKeyAddr,
-    signAccountOpState?.accountOp?.signingKeyType,
-    signAccountOpState?.isInitialized,
-    signAccountOpState?.status?.type
-  ])
+  const handleChangeSigningKey = useCallback(
+    (signingKeyAddr: string, signingKeyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: { signingKeyAddr, signingKeyType }
+      })
 
-  const selectedAccountKeyStoreKeys = useMemo(
-    () => keystoreState.keys.filter((key) => account?.associatedKeys.includes(key.addr)),
-    [account?.associatedKeys, keystoreState.keys]
+      handleSign()
+    },
+    [dispatch, handleSign]
   )
 
   const onSignButtonClick = () => {
-    // If the account has only one signer, we don't need to show the select signer overlay
-    if (selectedAccountKeyStoreKeys.length === 1) {
-      handleChangeSigningKey(
-        selectedAccountKeyStoreKeys[0].addr,
-        selectedAccountKeyStoreKeys[0].type
-      )
+    // If the account has only one signer, we don't need to show the select signer overlay,
+    // and we will sign the transaction with the only one available signer (it is set by default in the controller).
+    if (signAccountOpState?.accountKeyStoreKeys.length === 1) {
+      handleSign()
       return
     }
 
@@ -215,8 +192,8 @@ const SignAccountOpScreen = () => {
   }
 
   const isViewOnly = useMemo(
-    () => selectedAccountKeyStoreKeys.length === 0,
-    [selectedAccountKeyStoreKeys.length]
+    () => signAccountOpState?.accountKeyStoreKeys.length === 0,
+    [signAccountOpState?.accountKeyStoreKeys]
   )
 
   if (mainState.signAccOpInitError) {
@@ -259,11 +236,11 @@ const SignAccountOpScreen = () => {
             signAccountOpState.status?.type === SigningStatus.Done ||
             mainState.broadcastStatus === 'LOADING'
           }
-          hasSigningErrors={!!signAccountOpState.errors.length}
+          readyToSign={signAccountOpState.readyToSign}
           isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
           handleChangeSigningKey={handleChangeSigningKey}
-          selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+          selectedAccountKeyStoreKeys={signAccountOpState?.accountKeyStoreKeys}
           onSign={onSignButtonClick}
         />
       }
@@ -322,7 +299,13 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network!.id} isViewOnly={isViewOnly} />
+              <Estimation
+                mainState={mainState}
+                signAccountOpState={signAccountOpState}
+                accountPortfolio={portfolioState.accountPortfolio}
+                networkId={network!.id}
+                isViewOnly={isViewOnly}
+              />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />

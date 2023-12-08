@@ -3,14 +3,16 @@
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
+import { toBeHex } from 'ethers'
 import { isString } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
-import sessionService, { Session } from '@mobile/modules/web3/services/webview-background/services/session'
+import sessionService, {
+  Session
+} from '@mobile/modules/web3/services/webview-background/services/session'
 import storage from '@mobile/modules/web3/services/webview-background/webapi/storage'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 
@@ -126,7 +128,7 @@ class ProviderController {
   ethChainId = async () => {
     const networkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === networkId)
-    return intToHex(network?.chainId || networks[0].chainId)
+    return toBeHex(network?.chainId || networks[0].chainId)
   }
 
   @Reflect.metadata('APPROVAL', ['SendTransaction', false])
@@ -238,7 +240,7 @@ class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin
@@ -268,7 +270,7 @@ class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin
