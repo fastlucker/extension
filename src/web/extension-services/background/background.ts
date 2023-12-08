@@ -585,7 +585,7 @@ async function init() {
                 data.params.leaveUnlocked
               )
             case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { keyType } = data.params
+              const { keyType, priv } = data.params
 
               const deviceIds: { [key in ExternalKey['type']]: string } = {
                 ledger: ledgerCtrl.deviceId,
@@ -603,6 +603,7 @@ async function init() {
                 ({ accountKeyAddr, index }) => ({
                   addr: accountKeyAddr,
                   type: keyType,
+                  priv,
                   meta: {
                     deviceId: deviceIds[keyType],
                     deviceModel: deviceModels[keyType],

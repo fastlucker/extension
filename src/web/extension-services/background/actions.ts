@@ -3,7 +3,7 @@ import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPrivilege } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
   AccountPreferences,
@@ -266,7 +266,7 @@ type KeystoreControllerAddSecretAction = {
 }
 type KeystoreControllerAddKeysExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-  params: { keyType: Exclude<Key['type'], 'internal'> }
+  params: { keyType: Exclude<Key['type'], 'internal'>; priv: KeyPrivilege }
 }
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
@@ -274,7 +274,7 @@ type KeystoreControllerUnlockWithSecretAction = {
 }
 type KeystoreControllerAddKeysAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string }[] }
+  params: { keys: { privateKey: string; priv: KeyPrivilege }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'

@@ -5,15 +5,15 @@ import {
   HD_PATH_TEMPLATE_TYPE,
   SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
 } from '@ambire-common/consts/derivation'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, KeyPrivilege } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
   getPrivateKeyFromSeed,
   isValidPrivateKey
 } from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import useToast from '@common/hooks/useToast'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -150,7 +150,8 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
               privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
 
-            return { privateKey }
+            const priv: KeyPrivilege = 'full'
+            return { privateKey, priv }
           })
 
           dispatch({
@@ -168,7 +169,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       } else {
         dispatch({
           type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
-          params: { keyType }
+          params: { keyType, priv: 'full' }
         })
       }
 
