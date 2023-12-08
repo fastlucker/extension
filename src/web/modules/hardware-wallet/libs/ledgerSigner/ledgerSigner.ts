@@ -132,11 +132,11 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
-
     try {
+      await this.controller.unlock(
+        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      )
+
       const rsvRes = await this.controller.app!.signPersonalMessage(
         getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
         stripHexPrefix(hex)
