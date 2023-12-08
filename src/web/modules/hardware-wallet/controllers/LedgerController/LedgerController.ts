@@ -53,22 +53,24 @@ class LedgerController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  async makeApp() {
-    if (!this.app) {
-      try {
-        // @ts-ignore
-        this.transport = await TransportWebHID.create()
-        this.app = new LedgerEth(this.transport as Transport)
+  async initAppIfNeeded() {
+    if (this.app) return
 
-        if (this.transport?.deviceModel?.id) {
-          this.deviceModel = this.transport.deviceModel.id
-        }
-        if (this.transport?.device?.productId) {
-          this.deviceId = this.transport.device.productId.toString()
-        }
-      } catch (e: any) {
-        Promise.reject(new Error('ledgerController: permission rejected'))
+    try {
+      // @ts-ignore
+      this.transport = await TransportWebHID.create()
+      this.app = new LedgerEth(this.transport as Transport)
+
+      if (this.transport?.deviceModel?.id) {
+        this.deviceModel = this.transport.deviceModel.id
       }
+      if (this.transport?.device?.productId) {
+        this.deviceId = this.transport.device.productId.toString()
+      }
+    } catch (e: any) {
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
     }
   }
 
@@ -83,13 +85,15 @@ class LedgerController implements ExternalSignerController {
       )
     }
 
+    await this.initAppIfNeeded()
     if (!this.app) {
-      await this.makeApp()
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
     }
 
     try {
-      // TODO: Why exclamation mark?
-      const res = await this.app!.getAddress(
+      const res = await this.app.getAddress(
         path || getHdPathFromTemplate(this.hdPathTemplate, 0),
         false,
         true
@@ -129,7 +133,7 @@ class LedgerController implements ExternalSignerController {
   //     // wait connect the WebHID
   //     while (!this.app) {
   //       // eslint-disable-next-line no-await-in-loop
-  //       await this.makeApp()
+  //       await this.initAppIfNeeded()
   //       // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
   //       await wait(() => {
   //         if (count++ > 50) {
