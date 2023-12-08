@@ -88,20 +88,23 @@ type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences
 }
-type MainControllerSettingsUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES'
+
+type MainControllerUpdateNetworkPreferences = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
     networkPreferences: NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
-type MainControllerSettingsResetPreference = {
-  type: 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE'
+
+type MainControllerResetNetworkPreference = {
+  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
   params: {
     preferenceKey: keyof NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -210,6 +213,9 @@ type LatticeControllerUnlockAction = {
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+  params: {
+    forceUpdate?: boolean
+  }
 }
 type MainControllerSignAccountOpInitAction = {
   params: {
@@ -326,8 +332,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerSettingsUpdateNetworkPreferences
-  | MainControllerSettingsResetPreference
+  | MainControllerUpdateNetworkPreferences
+  | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
