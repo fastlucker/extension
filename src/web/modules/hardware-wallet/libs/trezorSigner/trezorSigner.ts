@@ -54,7 +54,8 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     await delayBetweenStarting()
-    const status = await this.controller.unlock()
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const status = await this.controller.unlock(path)
     await delayBetweenPopupsIfNeeded(status)
 
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
@@ -69,10 +70,7 @@ class TrezorSigner implements KeystoreSigner {
       chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
     }
 
-    const res = await trezorConnect.ethereumSignTransaction({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-      transaction: unsignedTxn
-    })
+    const res = await trezorConnect.ethereumSignTransaction({ path, transaction: unsignedTxn })
 
     if (!res.success) {
       throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
@@ -121,11 +119,12 @@ class TrezorSigner implements KeystoreSigner {
     const { domain_separator_hash, message_hash } = dataWithHashes
 
     await delayBetweenStarting()
-    const status = await this.controller.unlock()
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const status = await this.controller.unlock(path)
     await delayBetweenPopupsIfNeeded(status)
 
     const res = await trezorConnect.ethereumSignTypedData({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+      path,
       data: {
         types,
         message,
@@ -156,11 +155,12 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     await delayBetweenStarting()
-    const status = await this.controller.unlock()
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const status = await this.controller.unlock(path)
     await delayBetweenPopupsIfNeeded(status)
 
     const res = await trezorConnect.ethereumSignMessage({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+      path,
       message: stripHexPrefix(hex),
       hex: true
     })
