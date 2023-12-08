@@ -51,14 +51,14 @@ class TrezorController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  async unlock() {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
       return 'ALREADY_UNLOCKED'
     }
 
     try {
       const response = await trezorConnect.getPublicKey({
-        path: getHdPathFromTemplate(this.hdPathTemplate, 0),
+        path: path || getHdPathFromTemplate(this.hdPathTemplate, 0),
         coin: 'ETH'
       })
 
