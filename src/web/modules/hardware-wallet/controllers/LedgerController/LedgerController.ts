@@ -22,7 +22,7 @@ export const wait = (fn: () => void, ms = 1000) => {
 class LedgerController implements ExternalSignerController {
   hdk: any
 
-  hasHIDPermission: boolean | null
+  // hasHIDPermission: boolean | null
 
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
@@ -40,7 +40,7 @@ class LedgerController implements ExternalSignerController {
 
   constructor() {
     this.hdk = new HDKey()
-    this.hasHIDPermission = null
+    // this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
@@ -74,39 +74,49 @@ class LedgerController implements ExternalSignerController {
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
-      return 'ledgerController: already unlocked'
+      return 'ALREADY_UNLOCKED'
     }
 
-    if (this.isWebHID) {
-      try {
-        await this.makeApp()
-        const res = await this.app!.getAddress(
-          path || getHdPathFromTemplate(this.hdPathTemplate, 0),
-          false,
-          true
-        )
-        const { address, publicKey, chainCode } = res
+    if (!this.isWebHID) {
+      throw new Error(
+        'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
+      )
+    }
 
-        this.hdk.publicKey = Buffer.from(publicKey, 'hex')
-        this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
+    if (!this.app) {
+      await this.makeApp()
+    }
 
-        return address
-      } catch (error: any) {
-        if (error?.statusCode === 25871 || error?.statusCode === 27404) {
-          throw new Error('Please make sure your ledger is unlocked and running the Ethereum app.')
-        }
+    try {
+      // TODO: Why exclamation mark?
+      const res = await this.app!.getAddress(
+        path || getHdPathFromTemplate(this.hdPathTemplate, 0),
+        false,
+        true
+      )
+      const { publicKey, chainCode } = res
+      this.hdk.publicKey = Buffer.from(publicKey, 'hex')
+      this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
 
-        console.error(error)
+      return 'JUST_UNLOCKED'
+    } catch (error: any) {
+      const message = error?.message || error?.toString() || 'missing'
+
+      // TODO: Make sure this is correct
+      console.log('error', error)
+      if (error?.statusCode === 25871 || error?.statusCode === 27404) {
         throw new Error(
-          'Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app.'
+          `Please make sure your ledger is unlocked and running the Ethereum app. Error details: ${message}`
         )
       }
-    }
 
-    return null
-    // TODO: impl when isWebHID is false
+      throw new Error(
+        `Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app. Error details: ${message}`
+      )
+    }
   }
 
+  // TODO: Probably not needed?
   authorizeHIDPermission() {
     this.hasHIDPermission = true
   }
@@ -118,24 +128,25 @@ class LedgerController implements ExternalSignerController {
     this.hdk = new HDKey()
   }
 
-  async reconnect() {
-    if (this.isWebHID) {
-      await this.cleanUp()
+  // TODO: Probably not needed?
+  // async reconnect() {
+  //   if (this.isWebHID) {
+  //     await this.cleanUp()
 
-      let count = 0
-      // wait connect the WebHID
-      while (!this.app) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.makeApp()
-        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
-        await wait(() => {
-          if (count++ > 50) {
-            throw new Error('Ledger: Failed to connect to Ledger')
-          }
-        }, 100)
-      }
-    }
-  }
+  //     let count = 0
+  //     // wait connect the WebHID
+  //     while (!this.app) {
+  //       // eslint-disable-next-line no-await-in-loop
+  //       await this.makeApp()
+  //       // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
+  //       await wait(() => {
+  //         if (count++ > 50) {
+  //           throw new Error('Ledger: Failed to connect to Ledger')
+  //         }
+  //       }, 100)
+  //     }
+  //   }
+  // }
 }
 
 export default LedgerController
