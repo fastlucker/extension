@@ -22,8 +22,6 @@ export const wait = (fn: () => void, ms = 1000) => {
 class LedgerController implements ExternalSignerController {
   hdk: any
 
-  // hasHIDPermission: boolean | null
-
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   isWebHID: boolean
@@ -40,7 +38,6 @@ class LedgerController implements ExternalSignerController {
 
   constructor() {
     this.hdk = new HDKey()
-    // this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
@@ -112,37 +109,12 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  // TODO: Probably not needed?
-  authorizeHIDPermission() {
-    this.hasHIDPermission = true
-  }
-
   async cleanUp() {
     this.app = null
     if (this.transport) this.transport.close()
     this.transport = null
     this.hdk = new HDKey()
   }
-
-  // TODO: Probably not needed?
-  // async reconnect() {
-  //   if (this.isWebHID) {
-  //     await this.cleanUp()
-
-  //     let count = 0
-  //     // wait connect the WebHID
-  //     while (!this.app) {
-  //       // eslint-disable-next-line no-await-in-loop
-  //       await this.initAppIfNeeded()
-  //       // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
-  //       await wait(() => {
-  //         if (count++ > 50) {
-  //           throw new Error('Ledger: Failed to connect to Ledger')
-  //         }
-  //       }, 100)
-  //     }
-  //   }
-  // }
 }
 
 export default LedgerController
