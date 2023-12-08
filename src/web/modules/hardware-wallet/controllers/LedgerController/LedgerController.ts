@@ -100,18 +100,10 @@ class LedgerController implements ExternalSignerController {
 
       return 'JUST_UNLOCKED'
     } catch (error: any) {
-      const message = error?.message || error?.toString() || 'missing'
-
-      // TODO: Make sure this is correct
-      console.log('error', error)
-      if (error?.statusCode === 25871 || error?.statusCode === 27404) {
-        throw new Error(
-          `Please make sure your ledger is unlocked and running the Ethereum app. Error details: ${message}`
-        )
-      }
+      const message = error?.message || error?.toString() || 'Ledger device: no response.'
 
       throw new Error(
-        `Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app. Error details: ${message}`
+        `Could not connect to your Ledger device. Please make sure it is connected, unlocked and running the Ethereum app. \n${message}`
       )
     }
   }
