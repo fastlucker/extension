@@ -6,11 +6,11 @@ import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/cons
 const event = new EventEmitter()
 
 // if focus other windows, then reject the notification request
-browser.windows.onFocusChanged.addListener((winId) => {
+chrome.windows.onFocusChanged.addListener((winId) => {
   event.emit('windowFocusChange', winId)
 })
 
-browser.windows.onRemoved.addListener((winId) => {
+chrome.windows.onRemoved.addListener((winId) => {
   event.emit('windowRemoved', winId)
 })
 
@@ -21,13 +21,14 @@ export const WINDOW_SIZE = {
 
 // creates a browser new window that is 15% smaller
 // of the current page and is centered in the browser app
-const createFullScreenWindow = ({ url, ...rest }: any) => {
+const createFullScreenWindow = async ({ url, ...rest }: any) => {
+  const displayInfo = await chrome.system.display.getInfo()
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
-      const ratio = 0.9
+      const ratio = 0.88 // 88% of the screen/tab size
 
-      const screenWidth = window.screen.width
-      const screenHeight = window.screen.height
+      const screenWidth = displayInfo?.[0]?.workArea?.width
+      const screenHeight = displayInfo?.[0]?.workArea?.height
 
       let desiredWidth = screenWidth * ratio
       let desiredHeight = screenHeight * ratio
@@ -45,15 +46,17 @@ const createFullScreenWindow = ({ url, ...rest }: any) => {
             topOffset = currentWindow.top
           }
           if (activeTab.width && activeTab.height) {
-            desiredWidth = activeTab.width * ratio
-            desiredHeight = activeTab.height * ratio
-
-            leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
-            topPosition =
-              (activeTab.height - desiredHeight) / 2 +
-              topOffset +
-              currentWindow.height -
-              activeTab.height
+            // if tab size is smaller than 60% of the screen size don't override the default desiredWidth and desiredHeight
+            if (activeTab.width > screenWidth * 0.6 && activeTab.height > screenHeight * 0.6) {
+              desiredWidth = activeTab.width * ratio
+              leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
+              desiredHeight = activeTab.height * ratio
+              topPosition =
+                (activeTab.height - desiredHeight) / 2 +
+                topOffset +
+                currentWindow.height -
+                activeTab.height
+            }
           }
           chrome.windows.create(
             {
@@ -82,14 +85,14 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
     top: cTop,
     left: cLeft,
     width
-  } = await browser.windows.getCurrent({
+  } = await chrome.windows.getCurrent({
     windowTypes: ['normal']
   })
 
   const top = cTop
   const left = cLeft! + width! - WINDOW_SIZE.width
 
-  // const currentWindow = await browser.windows.getCurrent()
+  // const currentWindow = await chrome.windows.getCurrent()
   // For the new Ambire v2 we need a full-screen notification window to
   // display the all UI elements of the sign txn/msg screens therefore we hardcode it to 'fullscreen'
   const currentWindow: any = {}
@@ -97,10 +100,10 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
 
   let win: any
   if (currentWindow.state === 'fullscreen') {
-    // browser.windows.create not pass state to chrome
+    // chrome.windows.create not pass state to chrome
     win = await createFullScreenWindow({ url, ...rest })
   } else {
-    win = await browser.windows.create({
+    win = await chrome.windows.create({
       focused: true,
       url,
       type: 'popup',
@@ -112,14 +115,14 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
   }
   // shim firefox
   if (win.left !== left && currentWindow.state !== 'fullscreen') {
-    await browser.windows.update(win.id!, { left, top })
+    await chrome.windows.update(win.id!, { left, top })
   }
 
   return win.id
 }
 
 const remove = async (winId: number) => {
-  return browser.windows.remove(winId)
+  return chrome.windows.remove(winId)
 }
 
 const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {

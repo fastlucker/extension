@@ -3,6 +3,7 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn, isUndefined } from 'lodash'
+import { nanoid } from 'nanoid'
 
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
@@ -14,10 +15,12 @@ import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-declare const ambireChannelName: any
-declare const ambireIsDefaultWallet: any
-declare const ambireId: any
-declare const ambireIsOpera: any
+const ambireChannelName = 'ambire-inpage'
+let ambireIsDefaultWallet = true
+const ambireId = nanoid()
+const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
+
+if (ambireIsOpera) ambireIsDefaultWallet = false
 
 export interface Interceptor {
   onRequest?: (data: any) => any

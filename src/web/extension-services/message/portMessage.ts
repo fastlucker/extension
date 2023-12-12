@@ -24,7 +24,7 @@ class PortMessage extends Message {
   }
 
   connect = (name?: string) => {
-    this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
+    this.port = chrome.runtime.connect(undefined, name ? { name } : undefined)
     this.port.onMessage.addListener((message) => {
       // message should be a stringified json but in some cases it comes as an object
       // and in that case if parsing fails it defaults to destructing the message object

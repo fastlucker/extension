@@ -5,14 +5,14 @@ import { EventEmitter } from 'events'
 const tabEvent = new EventEmitter()
 
 try {
-  browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     if (changeInfo.url) {
       tabEvent.emit('tabUrlChanged', tabId, changeInfo.url)
     }
   })
 
   // window close will trigger this event also
-  browser.tabs.onRemoved.addListener((tabId) => {
+  chrome.tabs.onRemoved.addListener((tabId) => {
     tabEvent.emit('tabRemove', tabId)
   })
 } catch (error) {
@@ -20,7 +20,7 @@ try {
 }
 
 const createTab = async (url): Promise<number | undefined> => {
-  const tab = await browser.tabs.create({
+  const tab = await chrome.tabs.create({
     active: true,
     url
   })
@@ -36,7 +36,7 @@ const openIndexPage = (route = ''): Promise<number | undefined> => {
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
   try {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
     return tabs[0]
   } catch (error) {
     // Silent fail
@@ -44,7 +44,7 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
 }
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
-  const tab = await browser.tabs.create({
+  const tab = await chrome.tabs.create({
     active: true,
     url
   })
@@ -55,7 +55,7 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
 }
 
 const getCurrentWindow = async (): Promise<number | undefined> => {
-  const { id } = await browser.windows.getCurrent({
+  const { id } = await chrome.windows.getCurrent({
     windowTypes: ['popup']
   } as Windows.GetInfo)
 

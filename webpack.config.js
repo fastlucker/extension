@@ -17,8 +17,8 @@ const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    // Temporarily the manifest is v2 for all browsers until the v3 is ready for prod and tested well
-    const manifestVersion = 2
+    // manifest v3 for chromium browsers and manifest v2 for gecko browsers (like Firefox)
+    const manifestVersion = process.env.WEB_ENGINE === 'gecko' ? 2 : 3
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -40,15 +40,18 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self' 'wasm-eval'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
-      manifest.content_security_policy = { extension_pages: csp }
+      manifest.content_security_policy = {
+        extension_pages:
+          "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
+      }
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
+      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display']
       manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
@@ -56,7 +59,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['browser-polyfill.js', 'setimmediate.js', 'background.js'],
+        scripts: ['setimmediate.js', 'background.js'],
         persistent: true
       }
       // Chrome extensions do not respect `browser_specific_settings`
@@ -75,7 +78,8 @@ module.exports = async function (env, argv) {
       delete manifest.action
       manifest.externally_connectable = undefined
       manifest.permissions.push('<all_urls>')
-      manifest.content_security_policy = csp
+      manifest.content_security_policy =
+        "script-src 'self' 'wasm-eval'; object-src 'self'; frame-ancestors 'none';"
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)
@@ -181,12 +185,8 @@ module.exports = async function (env, argv) {
           transform: processManifest
         },
         {
-          from: './node_modules/webextension-polyfill/dist/browser-polyfill.js',
-          to: 'browser-polyfill.js'
-        },
-        {
           from: './node_modules/setimmediate/setImmediate.js',
-          to: 'setimmediate.js'
+          to: 'setImmediate.js'
         },
         {
           from: './src/web/public/index.html',

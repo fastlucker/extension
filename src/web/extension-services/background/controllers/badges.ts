@@ -56,14 +56,14 @@ export class BadgesController {
 
   setBadges = (badgesCount: number) => {
     if (badgesCount <= 0) {
-      browser.browserAction.setBadgeText({
+      ;(chrome.browserAction || chrome.action).setBadgeText({
         text: null
       })
     } else {
-      browser.browserAction.setBadgeText({
+      ;(chrome.browserAction || chrome.action).setBadgeText({
         text: `${badgesCount}`
       })
-      browser.browserAction.setBadgeBackgroundColor({
+      ;(chrome.browserAction || chrome.action).setBadgeBackgroundColor({
         color: colors.turquoise
       })
     }

@@ -4,13 +4,13 @@ interface ReturnType {
 }
 
 export async function checkBrowserWindowsForExtensionPopup(): Promise<ReturnType> {
-  const windows = await browser.windows.getAll({ populate: true })
+  const windows = await chrome.windows.getAll({ populate: true })
 
   const result: ReturnType = { extensionPopupExists: false }
   windows.forEach((window) => {
     if (
       window.type === 'popup' &&
-      window?.tabs?.some((tab) => tab?.url?.includes(browser.runtime.id))
+      window?.tabs?.some((tab) => tab?.url?.includes(chrome.runtime.id))
     ) {
       result.extensionPopupExists = true
       result.windowId = window.id

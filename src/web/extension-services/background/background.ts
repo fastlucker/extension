@@ -1,6 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
+import 'setImmediate'
+
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -64,7 +66,7 @@ async function init() {
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
     // binding window to fetch provides the correct context
-    fetch: window.fetch.bind(window),
+    fetch,
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
@@ -336,7 +338,7 @@ async function init() {
   })
 
   // listen for messages from UI
-  browser.runtime.onConnect.addListener(async (port) => {
+  chrome.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
@@ -720,11 +722,11 @@ async function init() {
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
-browser.runtime.onInstalled.addListener(({ reason }) => {
+chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     setTimeout(() => {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
+      const extensionURL = chrome.runtime.getURL('tab.html')
+      chrome.tabs.create({ url: extensionURL })
     }, 500)
   }
 })
@@ -744,11 +746,34 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
   }
 
   const id = new Date().getTime()
-  browser.notifications.create(id.toString(), {
+  chrome.notifications.create(id.toString(), {
     type: 'basic',
-    iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+    iconUrl: chrome.runtime.getURL('assets/images/xicon@96.png'),
     title,
     message,
     priority: 2
   })
 }
+
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerInPageContentScript = async () => {
+  try {
+    await chrome.scripting.registerContentScripts([
+      {
+        id: 'inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+registerInPageContentScript()

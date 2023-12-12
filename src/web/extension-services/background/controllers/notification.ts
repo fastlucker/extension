@@ -159,20 +159,20 @@ export class NotificationController extends EventEmitter {
     try {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
-        const windows = await browser.windows.getAll()
+        const windows = await chrome.windows.getAll()
         const existWindow = windows.find((window) => window.id === this.notificationWindowId)
         if (this.notificationWindowId !== null && !!existWindow) {
           const {
             top: cTop,
             left: cLeft,
             width
-          } = await browser.windows.getCurrent({
+          } = await chrome.windows.getCurrent({
             windowTypes: ['normal']
           })
 
           const top = cTop
           const left = cLeft! + width! - WINDOW_SIZE.width
-          browser.windows.update(this.notificationWindowId, {
+          chrome.windows.update(this.notificationWindowId, {
             focused: true,
             top,
             left
@@ -418,9 +418,9 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
-      browser.notifications.create(id.toString(), {
+      chrome.notifications.create(id.toString(), {
         type: 'basic',
-        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        iconUrl: chrome.runtime.getURL('assets/images/xicon@96.png'),
         title,
         message,
         priority: 2

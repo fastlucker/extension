@@ -41,13 +41,13 @@ export class StorageController {
 
   async init() {
     if (isExtension) {
-      const result = await browser.storage.local.get()
+      const result = await chrome.storage.local.get()
 
       this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
-      // local `extensionSyncStorage` with the browser.storage.local
-      browser.storage.onChanged.addListener(this.handleOnExtensionStorageChange as any)
+      // local `extensionSyncStorage` with the chrome.storage.local
+      chrome.storage.onChanged.addListener(this.handleOnExtensionStorageChange as any)
     } else {
       this.mmkv = new MMKV()
     }
@@ -56,7 +56,7 @@ export class StorageController {
 
     return () =>
       isExtension
-        ? browser.storage.onChanged.removeListener(this.handleOnExtensionStorageChange as any)
+        ? chrome.storage.onChanged.removeListener(this.handleOnExtensionStorageChange as any)
         : null
   }
 
@@ -72,7 +72,7 @@ export class StorageController {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
 
-      browser.storage.local.set({ [key]: value })
+      chrome.storage.local.set({ [key]: value })
     } else {
       this.mmkv?.set(key, value)
     }
@@ -82,7 +82,7 @@ export class StorageController {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
 
-      browser.storage.local.remove([key])
+      chrome.storage.local.remove([key])
     } else {
       this.mmkv?.delete(key)
     }
