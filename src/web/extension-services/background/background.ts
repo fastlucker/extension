@@ -566,8 +566,6 @@ async function init() {
               return ledgerCtrl.unlock()
             case 'LEDGER_CONTROLLER_APP':
               return ledgerCtrl.app
-            case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
-              return ledgerCtrl.authorizeHIDPermission()
 
             case 'TREZOR_CONTROLLER_UNLOCK':
               return trezorCtrl.unlock()

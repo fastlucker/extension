@@ -32,11 +32,8 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller.reconnect()
-
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    await this.controller.unlock(path)
 
     try {
       const unsignedTxn: TransactionLike = {
@@ -60,7 +57,7 @@ class LedgerSigner implements KeystoreSigner {
       )
 
       const res = await this.controller.app!.signTransaction(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+        path,
         stripHexPrefix(unsignedSerializedTxn),
         resolution
       )
@@ -93,20 +90,16 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    await this.controller.unlock(path)
 
     try {
-      const rsvRes = await this.controller.app!.signEIP712Message(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        {
-          domain,
-          types,
-          message,
-          primaryType
-        }
-      )
+      const rsvRes = await this.controller.app!.signEIP712Message(path, {
+        domain,
+        types,
+        message,
+        primaryType
+      })
 
       const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
       return signature
@@ -131,15 +124,11 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
-
     try {
-      const rsvRes = await this.controller.app!.signPersonalMessage(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        stripHexPrefix(hex)
-      )
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      await this.controller.unlock(path)
+
+      const rsvRes = await this.controller.app!.signPersonalMessage(path, stripHexPrefix(hex))
 
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
       return signature

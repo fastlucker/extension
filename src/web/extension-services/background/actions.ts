@@ -202,9 +202,6 @@ type LedgerControllerUnlockAction = {
 type LedgerControllerAppAction = {
   type: 'LEDGER_CONTROLLER_APP'
 }
-type LedgerControllerAuthorizeHIDPermissionAction = {
-  type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION'
-}
 type TrezorControllerUnlockAction = {
   type: 'TREZOR_CONTROLLER_UNLOCK'
 }
@@ -366,7 +363,6 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerAppAction
-  | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
@@ -397,5 +393,4 @@ export type AsyncActionTypes = {
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
   TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
-  LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION: ReturnType<LedgerController['authorizeHIDPermission']>
 }
