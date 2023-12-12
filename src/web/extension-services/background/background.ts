@@ -42,6 +42,7 @@ import { controllersNestedInMainMapping } from './types'
 
 async function init() {
   // Initialize rpc providers for all networks
+  // @TODO: get rid of this and use the rpc providers from the settings controller
   const shouldInitProviders = !areRpcProvidersInitialized()
   if (shouldInitProviders) {
     initRpcProviders(rpcProviders)
@@ -55,6 +56,7 @@ async function init() {
 
   await permissionService.init()
 }
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
@@ -452,14 +454,14 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
               return mainCtrl.settings.addKeyPreferences(data.params)
             }
-            case 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES': {
-              return mainCtrl.settings.updateNetworkPreferences(
+            case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
+              return mainCtrl.updateNetworkPreferences(
                 data.params.networkPreferences,
                 data.params.networkId
               )
             }
-            case 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE': {
-              return mainCtrl.settings.resetNetworkPreference(
+            case 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE': {
+              return mainCtrl.resetNetworkPreference(
                 data.params.preferenceKey,
                 data.params.networkId
               )
@@ -586,8 +588,6 @@ async function init() {
               return ledgerCtrl.unlock()
             case 'LEDGER_CONTROLLER_APP':
               return ledgerCtrl.app
-            case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
-              return ledgerCtrl.authorizeHIDPermission()
 
             case 'TREZOR_CONTROLLER_UNLOCK':
               return trezorCtrl.unlock()
@@ -597,7 +597,10 @@ async function init() {
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return
-              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+              return mainCtrl.updateSelectedAccount(
+                mainCtrl.selectedAccount,
+                data.params?.forceUpdate
+              )
             }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
@@ -698,6 +701,7 @@ async function init() {
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
