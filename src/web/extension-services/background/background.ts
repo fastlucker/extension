@@ -10,6 +10,7 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -144,7 +145,7 @@ async function init() {
   let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
-    pending: 7500,
+    pending: 3000,
     standBy: 300000
   }
 
@@ -179,6 +180,19 @@ async function init() {
   }
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
+
+  // re-estimate interval
+  let reestimateInterval: any
+  function setReestimateInterval(accountOp: AccountOp) {
+    clearInterval(reestimateInterval)
+
+    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    // 12 seconds is the time needed for a new ethereum block
+    const time = currentNetwork.reestimateOn ?? 12000
+    reestimateInterval = setInterval(async () => {
+      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+    }, time)
+  }
 
   // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
   // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
@@ -286,6 +300,14 @@ async function init() {
         if ((mainCtrl as any)[ctrl]) {
           mainControllersQueue.splice(i, 1)
         }
+      }
+
+      // if the signAccountOp controller is active, reestimate
+      // at a set period of time
+      if (mainCtrl.signAccountOp !== null) {
+        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+      } else {
+        clearInterval(reestimateInterval)
       }
     }
 
