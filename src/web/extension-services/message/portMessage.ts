@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
+import { browserAPI } from '@web/constants/browserapi'
 
 import Message from './baseMessage'
 
@@ -24,7 +25,7 @@ class PortMessage extends Message {
   }
 
   connect = (name?: string) => {
-    this.port = chrome.runtime.connect(undefined, name ? { name } : undefined)
+    this.port = browserAPI.runtime.connect(undefined, name ? { name } : undefined)
     this.port.onMessage.addListener((message) => {
       // message should be a stringified json but in some cases it comes as an object
       // and in that case if parsing fails it defaults to destructing the message object

@@ -18,7 +18,7 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/ser
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { isManifestV3 } from '@web/constants/browserapi'
+import { browserAPI, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -45,7 +45,7 @@ import { controllersNestedInMainMapping } from './types'
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
 
-  chrome.storage.session.set({ timestamp })
+  browserAPI.storage.session.set({ timestamp })
 }
 
 async function init() {
@@ -353,7 +353,7 @@ async function init() {
   })
 
   // listen for messages from UI
-  chrome.runtime.onConnect.addListener(async (port) => {
+  browserAPI.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
@@ -737,11 +737,11 @@ async function init() {
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+browserAPI.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     setTimeout(() => {
-      const extensionURL = chrome.runtime.getURL('tab.html')
-      chrome.tabs.create({ url: extensionURL })
+      const extensionURL = browserAPI.runtime.getURL('tab.html')
+      browserAPI.tabs.create({ url: extensionURL })
     }, 500)
   }
 })
@@ -761,9 +761,9 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
   }
 
   const id = new Date().getTime()
-  chrome.notifications.create(id.toString(), {
+  browserAPI.notifications.create(id.toString(), {
     type: 'basic',
-    iconUrl: chrome.runtime.getURL('assets/images/xicon@96.png'),
+    iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
     title,
     message,
     priority: 2
@@ -777,7 +777,7 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
  */
 const registerInPageContentScript = async () => {
   try {
-    await chrome.scripting.registerContentScripts([
+    await browserAPI.scripting.registerContentScripts([
       {
         id: 'inpage',
         matches: ['file://*/*', 'http://*/*', 'https://*/*'],
@@ -791,4 +791,6 @@ const registerInPageContentScript = async () => {
   }
 }
 
-registerInPageContentScript()
+if (isManifestV3) {
+  registerInPageContentScript()
+}

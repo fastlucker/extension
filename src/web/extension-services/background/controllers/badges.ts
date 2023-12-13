@@ -1,5 +1,6 @@
 import { MainController } from '@ambire-common/controllers/main/main'
 import colors from '@common/styles/colors'
+import { browserAPI } from '@web/constants/browserapi'
 import {
   NotificationController,
   NotificationRequest,
@@ -56,14 +57,14 @@ export class BadgesController {
 
   setBadges = (badgesCount: number) => {
     if (badgesCount <= 0) {
-      ;(chrome.browserAction || chrome.action).setBadgeText({
+      ;(browserAPI.browserAction || browserAPI.action).setBadgeText({
         text: null
       })
     } else {
-      ;(chrome.browserAction || chrome.action).setBadgeText({
+      ;(browserAPI.browserAction || browserAPI.action).setBadgeText({
         text: `${badgesCount}`
       })
-      ;(chrome.browserAction || chrome.action).setBadgeBackgroundColor({
+      ;(browserAPI.browserAction || browserAPI.action).setBadgeBackgroundColor({
         color: colors.turquoise
       })
     }

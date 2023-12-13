@@ -6,6 +6,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { browserAPI } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet Extension'
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
@@ -85,14 +86,10 @@ class LatticeController implements ExternalSignerController {
       if (browserTab) {
         return { chromium: browserTab }
       }
-      if (chrome && chrome.tabs && chrome.tabs.create) {
-        // FireFox extensions do not run in windows, so it will return `null` from
-        // `window.open`. Instead, we need to use the `browser` API to open a tab.
-        // We will surveille this tab to see if its URL parameters change, which
-        // will indicate that the user has logged in.
-        const tab = await chrome.tabs.create({ url })
-        return { firefox: tab }
-      }
+
+      const tab = await browserAPI.tabs.create({ url })
+      return { firefox: tab }
+
       throw new Error('Unknown browser context. Cannot open Lattice connector.')
     } catch (err) {
       throw new Error('Failed to open Lattice connector.')
@@ -100,7 +97,7 @@ class LatticeController implements ExternalSignerController {
   }
 
   async _findTabById(id) {
-    const tabs = await chrome.tabs.query({})
+    const tabs = await browserAPI.tabs.query({})
     return tabs.find((tab) => tab.id === id)
   }
 
@@ -164,7 +161,7 @@ class LatticeController implements ExternalSignerController {
                 // encoded as a base64 string.
                 const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
                 // Close the tab and return the credentials
-                chrome.tabs.remove(tab.id).then(() => {
+                browserAPI.tabs.remove(tab.id).then(() => {
                   const creds = JSON.parse(_creds)
                   if (!creds.deviceID || !creds.password)
                     return reject(new Error('Invalid credentials returned from Lattice.'))

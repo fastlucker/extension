@@ -6,6 +6,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
+import { browserAPI } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -115,31 +116,6 @@ export class NotificationController extends EventEmitter {
         this.openNotificationRequest(this.notificationRequests[0].id)
       }
     })
-
-    // Temporarily disabled because of an unexpected notification window closing on prod.
-    // TODO: needs further investigation to determine where the issue comes from
-    // we will see how a prod build behaves without this logic and if there are no issues
-    // we can permanently delete that part of the code
-    // winMgr.event.on('windowFocusChange', (winId: number) => {
-    //   // Otherwise, inspecting the notification popup (opening console) is
-    //   // triggering the logic and firing `this.rejectNotificationRequest()` call,
-    //   // which is closing the notification popup, and one can't inspect it.
-    //   if (isDev) return
-
-    //   if (IS_CHROME && winId === chrome.windows.WINDOW_ID_NONE && IS_LINUX) {
-    //     // When sign on Linux, will focus on -1 first then focus on sign window
-    //     return
-    //   }
-
-    //   if (this.notificationWindowId && winId !== this.notificationWindowId) {
-    //     if (
-    //       this.currentNotificationRequest &&
-    //       !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
-    //     ) {
-    //       this.rejectNotificationRequest()
-    //     }
-    //   }
-    // })
   }
 
   reopenCurrentNotificationRequest = async () => {
@@ -159,20 +135,20 @@ export class NotificationController extends EventEmitter {
     try {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
-        const windows = await chrome.windows.getAll()
+        const windows = await browserAPI.windows.getAll()
         const existWindow = windows.find((window) => window.id === this.notificationWindowId)
         if (this.notificationWindowId !== null && !!existWindow) {
           const {
             top: cTop,
             left: cLeft,
             width
-          } = await chrome.windows.getCurrent({
+          } = await browserAPI.windows.getCurrent({
             windowTypes: ['normal']
           })
 
           const top = cTop
           const left = cLeft! + width! - WINDOW_SIZE.width
-          chrome.windows.update(this.notificationWindowId, {
+          browserAPI.windows.update(this.notificationWindowId, {
             focused: true,
             top,
             left
@@ -418,9 +394,9 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
-      chrome.notifications.create(id.toString(), {
+      browserAPI.notifications.create(id.toString(), {
         type: 'basic',
-        iconUrl: chrome.runtime.getURL('assets/images/xicon@96.png'),
+        iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
         title,
         message,
         priority: 2
