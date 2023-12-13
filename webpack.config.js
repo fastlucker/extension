@@ -144,8 +144,10 @@ module.exports = async function (env, argv) {
     config.plugins.splice(excludeExpoPwaManifestWebpackPlugin, 1)
   }
 
+  const defaultExpoConfigPlugins = [...config.plugins]
+
   config.plugins = [
-    ...config.plugins,
+    ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
@@ -227,8 +229,6 @@ module.exports = async function (env, argv) {
     config.devtool = false // optimize bundle size for production by removing the source-map
   }
 
-  // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
-  config.optimization = { minimize: false }
   if (config.mode === 'development') {
     // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
     config.devServer.devMiddleware.writeToDisk = true
@@ -254,6 +254,58 @@ module.exports = async function (env, argv) {
     // like in certain browsers, when building (and running) in extension context.
     publicPath: ''
   }
+
+  if (process.env.WEBPACK_BUILD_OUTPUT_PATH.includes('benzin')) {
+    if (process.env.APP_ENV === 'development') {
+      config.optimization = { minimize: false }
+    }
+
+    delete config.optimization.splitChunks
+
+    config.entry = './src/benzin/index.js'
+
+    config.plugins = [
+      ...defaultExpoConfigPlugins,
+      new NodePolyfillPlugin(),
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+        process: 'process'
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './src/web/assets',
+            to: 'assets'
+          },
+          {
+            from: './src/benzin/public/index.html',
+            to: 'index.html'
+          }
+        ]
+      }),
+      new FileManagerPlugin({
+        events: {
+          onStart: {
+            delete: [
+              {
+                source: path
+                  .join(__dirname, 'src/ambire-common/node_modules/')
+                  .replaceAll('\\', '/'),
+                options: {
+                  force: true,
+                  recursive: true
+                }
+              }
+            ]
+          }
+        }
+      })
+    ]
+
+    return config
+  }
+
+  config.optimization = { minimize: false }
 
   return config
 }
