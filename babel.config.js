@@ -93,7 +93,8 @@ module.exports = function (api) {
     ]
   }
 
-  const isMobile = !process.env.WEB_ENGINE
+  const isMobile =
+    !process.env.WEB_ENGINE && !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('benzin')
 
   return isMobile ? mobileConfig : webConfig
 }
