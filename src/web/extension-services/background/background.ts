@@ -18,6 +18,7 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/ser
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -41,6 +42,12 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
 
+function saveTimestamp() {
+  const timestamp = new Date().toISOString()
+
+  chrome.storage.session.set({ timestamp })
+}
+
 async function init() {
   // Initialize rpc providers for all networks
   const shouldInitProviders = !areRpcProvidersInitialized()
@@ -57,6 +64,14 @@ async function init() {
   await permissionService.init()
 }
 ;(async () => {
+  if (isManifestV3) {
+    // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
+    // miliseconds. This keeps the service worker alive.
+    const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
+
+    saveTimestamp()
+    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
+  }
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
