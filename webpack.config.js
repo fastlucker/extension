@@ -258,9 +258,9 @@ module.exports = async function (env, argv) {
   if (process.env.WEBPACK_BUILD_OUTPUT_PATH.includes('benzin')) {
     if (process.env.APP_ENV === 'development') {
       config.optimization = { minimize: false }
+    } else {
+      delete config.optimization.splitChunks
     }
-
-    delete config.optimization.splitChunks
 
     config.entry = './src/benzin/index.js'
 
