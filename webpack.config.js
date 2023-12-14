@@ -278,6 +278,10 @@ module.exports = async function (env, argv) {
             to: 'assets'
           },
           {
+            from: './src/benzin/public/style.css',
+            to: 'style.css'
+          },
+          {
             from: './src/benzin/public/index.html',
             to: 'index.html'
           }
