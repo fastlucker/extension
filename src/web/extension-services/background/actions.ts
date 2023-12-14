@@ -88,20 +88,23 @@ type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences
 }
-type MainControllerSettingsUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES'
+
+type MainControllerUpdateNetworkPreferences = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
     networkPreferences: NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
-type MainControllerSettingsResetPreference = {
-  type: 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE'
+
+type MainControllerResetNetworkPreference = {
+  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
   params: {
     preferenceKey: keyof NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -199,9 +202,6 @@ type LedgerControllerUnlockAction = {
 type LedgerControllerAppAction = {
   type: 'LEDGER_CONTROLLER_APP'
 }
-type LedgerControllerAuthorizeHIDPermissionAction = {
-  type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION'
-}
 type TrezorControllerUnlockAction = {
   type: 'TREZOR_CONTROLLER_UNLOCK'
 }
@@ -210,6 +210,9 @@ type LatticeControllerUnlockAction = {
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+  params: {
+    forceUpdate?: boolean
+  }
 }
 type MainControllerSignAccountOpInitAction = {
   params: {
@@ -326,8 +329,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerSettingsUpdateNetworkPreferences
-  | MainControllerSettingsResetPreference
+  | MainControllerUpdateNetworkPreferences
+  | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
@@ -360,7 +363,6 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerAppAction
-  | LedgerControllerAuthorizeHIDPermissionAction
   | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
@@ -391,5 +393,4 @@ export type AsyncActionTypes = {
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
   TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
-  LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION: ReturnType<LedgerController['authorizeHIDPermission']>
 }

@@ -1,8 +1,9 @@
-import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import { ledgerService } from '@ledgerhq/hw-app-eth'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -31,11 +32,8 @@ class LedgerSigner implements KeystoreSigner {
       throw new Error('ledgerSigner: ledgerController not initialized')
     }
 
-    await this.controller.reconnect()
-
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    await this.controller.unlock(path)
 
     try {
       const unsignedTxn: TransactionLike = {
@@ -59,14 +57,14 @@ class LedgerSigner implements KeystoreSigner {
       )
 
       const res = await this.controller.app!.signTransaction(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+        path,
         stripHexPrefix(unsignedSerializedTxn),
         resolution
       )
 
       const signature = Signature.from({
-        r: `0x${res.r}`,
-        s: `0x${res.s}`,
+        r: addHexPrefix(res.r),
+        s: addHexPrefix(res.s),
         v: Signature.getNormalizedV(res.v)
       })
       const signedSerializedTxn = Transaction.from({
@@ -92,22 +90,18 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    await this.controller.unlock(path)
 
     try {
-      const rsvRes = await this.controller.app!.signEIP712Message(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        {
-          domain,
-          types,
-          message,
-          primaryType
-        }
-      )
+      const rsvRes = await this.controller.app!.signEIP712Message(path, {
+        domain,
+        types,
+        message,
+        primaryType
+      })
 
-      const signature = `0x${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`
+      const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
       return signature
     } catch (e: any) {
       throw new Error(
@@ -130,17 +124,13 @@ class LedgerSigner implements KeystoreSigner {
       )
     }
 
-    await this.controller.unlock(
-      getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    )
-
     try {
-      const rsvRes = await this.controller.app!.signPersonalMessage(
-        getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
-        stripHexPrefix(hex)
-      )
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      await this.controller.unlock(path)
 
-      const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
+      const rsvRes = await this.controller.app!.signPersonalMessage(path, stripHexPrefix(hex))
+
+      const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
       return signature
     } catch (e: any) {
       throw new Error(

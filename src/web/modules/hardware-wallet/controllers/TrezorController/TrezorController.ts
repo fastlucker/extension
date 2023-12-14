@@ -51,30 +51,28 @@ class TrezorController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  unlock() {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
-      return Promise.resolve('already unlocked')
+      return 'ALREADY_UNLOCKED'
     }
 
-    return new Promise((resolve, reject) => {
-      trezorConnect
-        .getPublicKey({
-          path: getHdPathFromTemplate(this.hdPathTemplate, 0),
-          coin: 'ETH'
-        })
-        .then((response) => {
-          if (!response.success) {
-            return reject(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
-          }
+    try {
+      const response = await trezorConnect.getPublicKey({
+        path: path || getHdPathFromTemplate(this.hdPathTemplate, 0),
+        coin: 'ETH'
+      })
 
-          this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex')
-          this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex')
-          resolve('just unlocked')
-        })
-        .catch((e) => {
-          reject(e?.message || e?.toString() || 'Failed to unlock Trezor for unknown reason.')
-        })
-    })
+      if (!response.success) {
+        throw new Error(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
+      }
+
+      this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex')
+      this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex')
+
+      return 'JUST_UNLOCKED'
+    } catch (e: any) {
+      throw new Error(e?.message || e?.toString() || 'Failed to unlock Trezor for unknown reason.')
+    }
   }
 }
 

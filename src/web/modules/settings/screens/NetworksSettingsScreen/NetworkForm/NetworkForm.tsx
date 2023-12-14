@@ -90,7 +90,7 @@ const NetworkForm = ({
 
   const handleSave = () => {
     dispatch({
-      type: 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES',
+      type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
       params: {
         networkPreferences: {
           rpcUrl: networkFormValues.rpcUrl,
@@ -104,7 +104,7 @@ const NetworkForm = ({
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
     dispatch({
-      type: 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE',
+      type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE',
       params: {
         preferenceKey,
         networkId: selectedNetworkId

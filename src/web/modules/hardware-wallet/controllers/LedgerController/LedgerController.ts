@@ -22,8 +22,6 @@ export const wait = (fn: () => void, ms = 1000) => {
 class LedgerController implements ExternalSignerController {
   hdk: any
 
-  hasHIDPermission: boolean | null
-
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   isWebHID: boolean
@@ -40,7 +38,6 @@ class LedgerController implements ExternalSignerController {
 
   constructor() {
     this.hdk = new HDKey()
-    this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
@@ -53,62 +50,63 @@ class LedgerController implements ExternalSignerController {
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  async makeApp() {
-    if (!this.app) {
-      try {
-        // @ts-ignore
-        this.transport = await TransportWebHID.create()
-        this.app = new LedgerEth(this.transport as Transport)
+  async initAppIfNeeded() {
+    if (this.app) return
 
-        if (this.transport?.deviceModel?.id) {
-          this.deviceModel = this.transport.deviceModel.id
-        }
-        if (this.transport?.device?.productId) {
-          this.deviceId = this.transport.device.productId.toString()
-        }
-      } catch (e: any) {
-        Promise.reject(new Error('ledgerController: permission rejected'))
+    try {
+      // @ts-ignore
+      this.transport = await TransportWebHID.create()
+      this.app = new LedgerEth(this.transport as Transport)
+
+      if (this.transport?.deviceModel?.id) {
+        this.deviceModel = this.transport.deviceModel.id
       }
+      if (this.transport?.device?.productId) {
+        this.deviceId = this.transport.device.productId.toString()
+      }
+    } catch (e: any) {
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
     }
   }
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
     if (this.isUnlocked()) {
-      return 'ledgerController: already unlocked'
+      return 'ALREADY_UNLOCKED'
     }
 
-    if (this.isWebHID) {
-      try {
-        await this.makeApp()
-        const res = await this.app!.getAddress(
-          path || getHdPathFromTemplate(this.hdPathTemplate, 0),
-          false,
-          true
-        )
-        const { address, publicKey, chainCode } = res
-
-        this.hdk.publicKey = Buffer.from(publicKey, 'hex')
-        this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
-
-        return address
-      } catch (error: any) {
-        if (error?.statusCode === 25871 || error?.statusCode === 27404) {
-          throw new Error('Please make sure your ledger is unlocked and running the Ethereum app.')
-        }
-
-        console.error(error)
-        throw new Error(
-          'Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app.'
-        )
-      }
+    if (!this.isWebHID) {
+      throw new Error(
+        'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
+      )
     }
 
-    return null
-    // TODO: impl when isWebHID is false
-  }
+    await this.initAppIfNeeded()
+    if (!this.app) {
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
+    }
 
-  authorizeHIDPermission() {
-    this.hasHIDPermission = true
+    try {
+      const res = await this.app.getAddress(
+        path || getHdPathFromTemplate(this.hdPathTemplate, 0),
+        false,
+        true
+      )
+      const { publicKey, chainCode } = res
+      this.hdk.publicKey = Buffer.from(publicKey, 'hex')
+      this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
+
+      return 'JUST_UNLOCKED'
+    } catch (error: any) {
+      const message = error?.message || error?.toString() || 'Ledger device: no response.'
+
+      throw new Error(
+        `Could not connect to your Ledger device. Please make sure it is connected, unlocked and running the Ethereum app. \n${message}`
+      )
+    }
   }
 
   async cleanUp() {
@@ -116,25 +114,6 @@ class LedgerController implements ExternalSignerController {
     if (this.transport) this.transport.close()
     this.transport = null
     this.hdk = new HDKey()
-  }
-
-  async reconnect() {
-    if (this.isWebHID) {
-      await this.cleanUp()
-
-      let count = 0
-      // wait connect the WebHID
-      while (!this.app) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.makeApp()
-        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
-        await wait(() => {
-          if (count++ > 50) {
-            throw new Error('Ledger: Failed to connect to Ledger')
-          }
-        }, 100)
-      }
-    }
   }
 }
 

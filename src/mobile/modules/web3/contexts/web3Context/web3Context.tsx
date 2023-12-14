@@ -1,5 +1,5 @@
 import { serializeError } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
+import { toBeHex } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
@@ -203,7 +203,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
         let result: any
 
         const dappProvider = dappProviders.find(
-          (item) => intToHex(item?.network?.chainId) === data?.chainId
+          (item) => toBeHex(item?.network?.chainId) === data?.chainId
         )?.provider
 
         if (
@@ -270,7 +270,7 @@ const Web3Provider: React.FC<any> = ({ children }) => {
     if (network && selectedDappUrl) {
       const networkChange = (net: NetworkType) => {
         sessionService.broadcastEvent('chainChanged', {
-          chain: intToHex(net.chainId),
+          chain: toBeHex(net.chainId),
           networkVersion: `${net.chainId}`
         })
       }

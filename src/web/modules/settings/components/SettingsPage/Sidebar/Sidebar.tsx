@@ -28,7 +28,7 @@ export const getSettingsPages = (t: (string: string) => string) => [
     key: 'networks',
     Icon: ({ color }: { color: ColorValue }) => <NetworksIcon color={color} />,
     label: t('Networks'),
-    path: '/settings/networks'
+    path: ROUTES.networks
   },
   {
     key: 'transaction-history',
