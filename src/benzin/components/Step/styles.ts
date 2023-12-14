@@ -76,6 +76,7 @@ const styles = StyleSheet.create<Style>({
   },
   title: {
     ...spacings.mb,
+    textTransform: 'capitalize',
     lineHeight: 18 // must be the same as font-size
   },
   row: {
