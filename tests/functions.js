@@ -12,17 +12,16 @@ let puppeteerArgs = [
     // '--start-maximized'
 ];
 
-export async function bootStrap(page, browser, options= {}) {
+export async function bootStrap(page, browser, options = {}) {
     const { devtools = false, slowMo = 10 } = options
 
-     browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
         headless: false,
         devtools,
         args: puppeteerArgs,
         defaultViewport: null,
-        slowMo: options.slowMo,    })
-
-
+        slowMo: options.slowMo,
+    })
     const targets = await browser.targets()
 
     await new Promise((r) => setTimeout(r, 500))
@@ -32,18 +31,6 @@ export async function bootStrap(page, browser, options= {}) {
     })
     const partialExtensionUrl = extensionTarget.url() || ''
     const [, , extensionId] = partialExtensionUrl.split('/')
-
- 
-    // const page = (await browser.pages())[0];
-
-    // const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
-    // await page.goto(createVaultUrl, { waitUntil: 'load' })
-
-
-    // const pages = await browser.pages()
-    // // pages[0].close() // blank tab
-    // pages[1].close() // tab always opened after extension installation
-    // // pages[2].close() // tab always opened after extension installation
 
     return {
         browser,
@@ -57,39 +44,66 @@ export async function bootStrap(page, browser, options= {}) {
 }
 
 export async function setAmbKeyStoreForLegacy(page) {
+    try {
+        await page.waitForXPath('//*[contains(text(), "Welcome to Ambire")]')
 
-    await page.waitForXPath('//*[contains(text(), "Welcome to Ambire")]')
+        /* Check the checkbox "I agree...".  */
+        const importLegacyButton = await page.waitForSelector('xpath///div[contains(text(), "Import Legacy Account")]');
+        await importLegacyButton.click();
 
-    /* Check the checkbox "I agree...".  */
-    const importLegacyButton = await page.waitForSelector('xpath///div[contains(text(), "Import Legacy Account")]');
-    await importLegacyButton.click();
+        await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
 
-    await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
+        /* Check the checkbox "I agree...". */
+        const iAgreeCheckbox = await page.waitForSelector('xpath///div[contains(text(), "I agree to the Terms of Service and Privacy Policy.")]');
+        await iAgreeCheckbox.click();
+        /* Click on "Continue" button */
+        const ContinueButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
+        await ContinueButton.click();
 
-    /* Check the checkbox "I agree...". */
-    const iAgreeCheckbox = await page.waitForSelector('xpath///div[contains(text(), "I agree to the Terms of Service and Privacy Policy.")]');
-    await iAgreeCheckbox.click();
-    /* Click on "Continue" button */
-    const ContinueButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
-    await ContinueButton.click();
+        //type message 
+        const phrase = 'Password'
+        await page.waitForSelector('[placeholder="Enter Passphrase"]');
+        const phraseField = await page.$('[placeholder="Enter Passphrase"]');
+        await phraseField.type(phrase);
 
-    //type message 
-    const phrase = 'Password'
-    await page.waitForSelector('[placeholder="Enter Passphrase"]');
-    const phraseField = await page.$('[placeholder="Enter Passphrase"]');
-    await phraseField.type(phrase);
+        // await typeText(page, '[placeholder="Enter Passphrase"]', phrase  )
 
+        await page.waitForSelector('[placeholder="Repeat Passphrase"]');
+        const repeatPhrase = await page.$('[placeholder="Repeat Passphrase"]');
+        await repeatPhrase.type(phrase);
 
-    await page.waitForSelector('[placeholder="Repeat Passphrase"]');
-    const repeatPhrase = await page.$('[placeholder="Repeat Passphrase"]');
-    await repeatPhrase.type(phrase);
+        const setupAmbireKeyStoreButton = await page.waitForSelector('xpath///div[contains(text(), "Set up Ambire Key Store")]');
+        await setupAmbireKeyStoreButton.click();
 
-    const setupAmbireKeyStoreButton = await page.waitForSelector('xpath///div[contains(text(), "Setup Ambire Key Store")]');
-    await setupAmbireKeyStoreButton.click();
+        const continueToAccountButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
+        await continueToAccountButton.click();
 
-    const continueToAccountButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
-    await continueToAccountButton.click();
-
-    await page.waitForXPath('//div[contains(text(), "Import Legacy Account")]');
+        await page.waitForXPath('//div[contains(text(), "Import Legacy Account")]');
+    } catch (error) {
+        throw new Error(' Failed when try to set Ambire key store for legacy account ')
+    }
 }
 
+
+export async function typeText(page, selector, text) {
+    try {
+        await page.waitForSelector(selector);
+        let whereToType = await page.$(selector);
+        await whereToType.click({ clickCount: 3 });
+        await whereToType.press('Backspace');
+        await whereToType.type(text, { delay: 10 });
+    } catch (error) {
+        throw new Error(`Could not type text: ${text} 
+        in the selector: ${selector}`)
+    }
+}
+
+
+export async function clickOnElement(page, selector){
+    try {
+        let elementToClick = await page.waitForSelector(selector);
+        await elementToClick.click();
+    } catch (error) { 
+        throw new Error(`Could not click on selector: ${selector}`)
+    }
+}

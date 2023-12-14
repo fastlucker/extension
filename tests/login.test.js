@@ -2,10 +2,10 @@ const puppeteer = require('puppeteer');
 const path = require('path')
 
 
-import { bootStrap, setAmbKeyStoreForLegacy } from './functions.js';
+import { bootStrap, setAmbKeyStoreForLegacy, clickOnElement, typeText } from './functions.js';
 
 
-describe('balance', () => {
+describe('login', () => {
     let browser;
     let page;
     let extensionRootUrl;
@@ -13,12 +13,10 @@ describe('balance', () => {
 
     beforeEach(async () => {
 
-
         options = {
             devtools: false,
-            slowMo: 10,
-            // Add other options as needed
-          };
+            slowMo: 30,
+        };
 
         const context = await bootStrap(page, browser, options)
         // page = context.page
@@ -27,29 +25,17 @@ describe('balance', () => {
         extensionRootUrl = context.extensionRootUrl
         extensionId = context.extensionId
 
-
-
         page = (await browser.pages())[0];
         const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
-       await page.evaluate(() => {
-             location.reload(true)
-         })
-
-
         const pages = await browser.pages()
-        // await new Promise((r) => setTimeout(r, 2000))
-
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
-        // pages[2].close() // tab always opened after extension installation
-
 
         await page.evaluate(() => {
             location.reload(true)
         })
-
 
         await setAmbKeyStoreForLegacy(page);
     })
@@ -61,167 +47,153 @@ describe('balance', () => {
     //--------------------------------------------------------------------------------------------------------------
     it('login into legasy account with private key', (async () => {
 
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 });
+        await typeText(page, '[placeholder="Enter a seed phrase or private key"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 })
 
         /* Click on Import Legacy account button. */
-        await page.click('[data-testid="button-ext-signer-login-screen"]')
+        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
+
         await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
         await page.waitForSelector('[data-testid="account-checkbox"]');
 
         await new Promise((r) => setTimeout(r, 1000))
 
-        /* Select one Smart account and one Smart account */
+        /* Select one Legacy account and one Smart account */
         await page.$$eval('div', element => {
             element.find((item) => item.textContent === "Smart Account").click()
         })
-        /* Select one Legacy account and one Smart account */
         await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[0].click()
         })
 
         /* Click on Import Accounts button*/
-        const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
-        await Button.click();
+        await clickOnElement(page, 'xpath///div[contains(text(), "Import Accounts")]')
 
         /* Click on Save and Continue button */
-        const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
-        await SaveButton.click();
+        await clickOnElement(page, 'xpath///div[contains(text(), "Save and Continue")]')
+
 
         /* Check whether the text "How To Use Ambire Wallet" exists on the page  */
         const textContent = await page.$$eval('div[dir="auto"]', element => {
             return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
         });
         if (textContent) {
-            console.log('Test is passed');
+            console.log('login into legasy account with private key --- Test is passed');
         }
     }));
 
 
     //------------------------------------------------------------------------------------------------------
-
     it('login into legasy account with phrase', (async () => {
 
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(process.env.PHRASE_LEGACY_ACCOUNT, { delay: 10 });
+        await typeText(page, '[placeholder="Enter a seed phrase or private key"]', process.env.PHRASE_LEGACY_ACCOUNT, { delay: 10 })
 
-        /* Click on Import Legacy account button. */
-        await page.click('[data-testid="button-ext-signer-login-screen"]')
+        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
+
         await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
         await page.waitForSelector('[data-testid="account-checkbox"]');
 
         await new Promise((r) => setTimeout(r, 1000))
 
-        /* Select one Smart account and one Smart account */
+        /* Select one Legacy account and one Smart account */
         await page.$$eval('div', element => {
             element.find((item) => item.textContent === "Smart Account").click()
         })
-        /* Select one Legacy account and one Smart account */
         await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[0].click()
         })
 
         /* Click on Import Accounts button*/
-        const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
-        await Button.click();
+        await clickOnElement(page, 'xpath///div[contains(text(), "Import Accounts")]')
 
         /* Click on Save and Continue button */
-        const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
-        await SaveButton.click();
+        await clickOnElement(page, 'xpath///div[contains(text(), "Save and Continue")]')
 
-        /* Check whether the text "How To Use Ambire Wallet" exists on the page  */
+        /* Check whether text "How To Use Ambire Wallet" exists on the page  */
         const textContent = await page.$$eval('div[dir="auto"]', element => {
             return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
         });
         if (textContent) {
-            console.log('Test is passed');
-        }
-    }));
-
-
-
-    //------------------------------------------------------------------------------------------------------
-    it('(-)login into legasy account with invalid private key', (async () => {
-
-        let privateKey = '0000000000000000000000000000000000000000000000000000000000000000'
-
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(privateKey, { delay: 10 });
-
-        /* Check whether text "Invalid private key." exist on the page  */
-        const textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Invalid private key.").textContent
-        });
-        /* Check if the button is disabled. */
-        let attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(privateKey + ' is invalid private key and button is disabled');
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-
-        privateKey = ''
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(privateKey, { delay: 10 });
-
-        /* Check whether text "Invalid private key." exist on the page  */
-        await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Invalid private key.").textContent
-        });
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(privateKey + ' is invalid private key and button is disabled');
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-        privateKey = '00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018'
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(privateKey, { delay: 10 });
-
-        /* Check whether text "Invalid private key." exist on the page  */
-        await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Invalid private key.").textContent
-        });
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(privateKey + ' is invalid private key and button is disabled');
-            }
-        }
-
-        await new Promise((r) => setTimeout(r, 1000))
-
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-        privateKey = '03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018'
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(privateKey, { delay: 10 });
-
-        /* Check whether text "Invalid private key." exist on the page  */
-        await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Invalid private key.").textContent
-        });
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(privateKey + ' is invalid private key and button is disabled');
-            }
+            console.log('login into legasy account with phrase --- Test is passed');
         }
     }));
 
     //------------------------------------------------------------------------------------------------------
+    it('(-) login into legacy account with invalid private key', async () => {
+        const typeTextAndCheckValidity = async (privateKey, testName) => {
+            let textContent;
+            try {
+                await typeText(page, '[placeholder="Enter a seed phrase or private key"]', privateKey, { delay: 10 });
 
-    it('(-)login into legasy account with invalid phrase', (async () => {
+                /* Check whether text "Invalid private key." exists on the page */
+                textContent = await page.$$eval('div[dir="auto"]', element => {
+                    return element.find((item) => item.textContent === "Invalid private key.").textContent;
+                });
+                /* Check whether button is disabled */
+                const isButtonDisabled = await page.$eval('[data-testid="button-ext-signer-login-screen"]', (button) => {
+                    return button.getAttribute('aria-disabled');
+                });
+
+                if (isButtonDisabled === 'true') {
+                    console.log('Button is disabled');
+                } else {
+                    throw new Error('Button is NOT disabled');
+                }
+
+            } catch (error) {
+                console.error(`Error when trying to login with private key: ${privateKey}. Test failed: ${testName}`);
+                throw error;
+            }
+        };
+
+        /* Test cases with different private keys */
+        await typeTextAndCheckValidity('0000000000000000000000000000000000000000000000000000000000000000', 'Test 1');
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 1 passed for privateKey: 0000000000000000000000000000000000000000000000000000000000000000');
+
+
+
+        await typeTextAndCheckValidity('', 'Test 2');
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 2 passed for privateKey: Empty');
+
+        await typeTextAndCheckValidity('00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018', 'Test 3');
+        await new Promise((r) => setTimeout(r, 1000));
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 3 passed for privateKey: 00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018');
+
+        await typeTextAndCheckValidity('03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018', 'Test 4');
+        console.log('Test 4 passed for privateKey: 03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018');
+    });
+
+
+    //--------------------------------------------------------------------------------------------------------------
+    it('(-) Login into legacy account with invalid phrase', async () => {
+
+        const typeTextAndCheckValidity = async (phrase, testName, errorMessage) => {
+            let textContent;
+            try {
+                await typeText(page, '[placeholder="Enter a seed phrase or private key"]', phrase, { delay: 10 });
+
+                /* Check whether text "Invalid private key." exists on the page */
+                textContent = await page.$$eval('div[dir="auto"]', (element, errorMessage) => {
+                    return element.find((item) => item.textContent === errorMessage).textContent;
+                }, errorMessage);
+                /* Check whether button is disabled */
+                const isButtonDisabled = await page.$eval('[data-testid="button-ext-signer-login-screen"]', (button) => {
+                    return button.getAttribute('aria-disabled');
+                });
+
+                if (isButtonDisabled === 'true') {
+                    console.log('Button is disabled');
+                } else {
+                    throw new Error('Button is NOT disabled');
+                }
+
+            } catch (error) {
+                console.error(`Error when trying to login with private key: ${phrase}. Test failed: ${testName}`);
+                throw error;
+            }
+        };
 
         let phrase1 = ''
         let textContent
@@ -237,112 +209,32 @@ describe('balance', () => {
             console.log('THE BUTTON IS DISABLED WITH EMPTY PHRASE');
         }
 
-        phrase1 = 'allow survey plan weasel exhibit helmet industry bunker fish step garlic slice sss'
+        phrase = '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
+        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
 
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(phrase1, { delay: 10 });
+        /* Test cases with different phrases keys */
+        await typeTextAndCheckValidity(phrase, 'Test 1', errorMessage);
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 1 passed for privateKey:' + phrase);
 
-        /* Check whether text "A seed phrase must be 12-24 words long." exist on the page  */
-        textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "A seed phrase must be 12-24 words long.").textContent
-        });
+        phrase = 'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
+        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
 
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(phrase1 + '---TOO LONG PHRASE. ERROR IS--- ' + textContent);
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
+        await typeTextAndCheckValidity(phrase, 'Test 2', errorMessage);
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 3 passed for privateKey:' + phrase);
 
-        phrase1 = 'allow survey play weasel exhibit helmet industry bunker fish step garlic'
+        phrase = 'allow survey allow survey allow survey allow survey allow survey allow survey'
+        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
 
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(phrase1, { delay: 10 });
+        await typeTextAndCheckValidity(phrase, 'Test 3', errorMessage);
+        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''));
+        console.log('Test 4 passed for privateKey:' + phrase);
+    });
 
-        /* Check whether text "A seed phrase must be 12-24 words long." exist on the page  */
-        textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "A seed phrase must be 12-24 words long.").textContent
-        });
-
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(phrase1 + '---TOO SHORT PHRASE. ERROR IS--- ' + textContent);
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-
-        phrase1 = 'allow survey allow survey allow survey allow survey allow survey allow survey'
-
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(phrase1, { delay: 10 });
-
-        /* Check whether text "A seed phrase must be 12-24 words long." exist on the page  */
-        textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Your seed phrase length is valid, but a word is misspelled.").textContent
-        });
-
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(phrase1 + '---INVALID PHRASE. ERROR IS--- ' + textContent);
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-
-        phrase1 = '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
-
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(phrase1, { delay: 10 });
-
-        /* Check whether text "A seed phrase must be 12-24 words long." exist on the page  */
-        textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Your seed phrase length is valid, but a word is misspelled.").textContent
-        });
-
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(phrase1 + '---INVALID PHRASE. ERROR IS--- ' + textContent);
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-        phrase1 = 'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
-
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(phrase1, { delay: 10 });
-
-        /* Check whether text "A seed phrase must be 12-24 words long." exist on the page  */
-        textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "Your seed phrase length is valid, but a word is misspelled.").textContent
-        });
-
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (textContent) {
-            if (attr == "true") {
-                console.log(phrase1 + '---INVALID WORD IN PHRASE. ERROR IS--- ' + textContent);
-            }
-        }
-        await page.$eval('[placeholder="Enter a seed phrase or private key"]', (el) => (el.value = ''))
-
-    }));
 
     //--------------------------------------------------------------------------------------------------------------
-    it('check selected accounts when you are logged in', (async () => {
+    it('check if chosen account exist when you are logged in', (async () => {
 
         await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
         const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
@@ -361,15 +253,15 @@ describe('balance', () => {
             return element[0].textContent
         })
         /* Keep the first and the last part of the address and use it later for verification later */
-         firstSelectedLegacyAccount1 = firstSelectedLegacyAccount.slice(0,15)  
-         firstSelectedLegacyAccount2 = firstSelectedLegacyAccount.slice(18, firstSelectedLegacyAccount.length) 
+        firstSelectedLegacyAccount1 = firstSelectedLegacyAccount.slice(0, 15)
+        firstSelectedLegacyAccount2 = firstSelectedLegacyAccount.slice(18, firstSelectedLegacyAccount.length)
 
         let firstSelectedSmartAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[1].click()
             return element[1].textContent
         })
 
-        firstSelectedSmartAccount1 = firstSelectedSmartAccount.slice(0,15); 
+        firstSelectedSmartAccount1 = firstSelectedSmartAccount.slice(0, 15);
         firstSelectedSmartAccount2 = firstSelectedSmartAccount.slice(18, firstSelectedSmartAccount.length);
 
         /* Click on Import Accounts button*/
@@ -380,11 +272,6 @@ describe('balance', () => {
         const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
         await SaveButton.click();
 
-        // /* Check whether the text "How To Use Ambire Wallet" exists on the page  */
-        // const textContent = await page.$$eval('div[dir="auto"]', element => {
-        //     return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
-        // });
-        
         /* Move to account select page */
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load', })
 
@@ -395,7 +282,6 @@ describe('balance', () => {
 
         expect(text).toContain(firstSelectedSmartAccount1);
         expect(text).toContain(firstSelectedSmartAccount2);
-
     }));
 
     //--------------------------------------------------------------------------------------------------------------
@@ -414,10 +300,12 @@ describe('balance', () => {
 
         /* Select one Legacy account and one Smart account */
         let firstSelectedLegacyAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
-            element[0].click()        })
+            element[0].click()
+        })
 
         let firstSelectedSmartAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
-            element[1].click()        })
+            element[1].click()
+        })
 
         /* Click on Import Accounts button*/
         const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
@@ -437,16 +325,11 @@ describe('balance', () => {
         await accountNameField2.click({ clickCount: 3 });
         await accountNameField2.press('Backspace');
         await accountNameField2.type(accountName2, { delay: 10 });
- 
+
         /* Click on Save and Continue button */
         const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
         await SaveButton.click();
 
-        // /* Check whether the text "How To Use Ambire Wallet" exists on the page  */
-        // const textContent = await page.$$eval('div[dir="auto"]', element => {
-        //     return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
-        // });
-    
         /* Move to account select page */
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load', })
 
@@ -455,6 +338,4 @@ describe('balance', () => {
         expect(text).toContain(accountName1);
         expect(text).toContain(accountName2);
     }));
-
-
 });

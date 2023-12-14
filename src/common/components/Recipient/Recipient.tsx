@@ -39,6 +39,7 @@ const Recipient: React.FC<Props> = ({
   return (
     <>
       <RecipientInput
+        testID='recepient-address-field'
         containerStyle={styles.inputContainer}
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}

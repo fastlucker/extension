@@ -1,8 +1,7 @@
 const puppeteer = require('puppeteer');
 const path = require('path')
 
-import { bootStrap } from './functions.js';
-
+import { bootStrap, typeText, clickOnElement } from './functions.js';
 
 describe('balance', () => {
 
@@ -34,7 +33,6 @@ describe('balance', () => {
         envTermState = (process.env.KEYSTORE_TERMSTATE)
         parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
 
-
         const executionContext = await page.mainFrame().executionContext()
         await executionContext.evaluate((parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
             envSelectedAccount, envTermState, parsedPreviousHints) => {
@@ -52,47 +50,34 @@ describe('balance', () => {
         }, parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
             envSelectedAccount, envTermState, parsedPreviousHints)
 
+        await new Promise((r) => setTimeout(r, 2000));
+
         let pages = await browser.pages()
         pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
-        // pages[2].close() // tab always opened after extension installation
 
         await new Promise((r) => setTimeout(r, 2000));
+
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
-        // pages = await browser.pages()
 
-        await new Promise((r) => setTimeout(r, 1000));
-
-        // /*Open the page again to load the browser local storage */
-        // page = await browser.newPage();
-        // await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
-        // await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 2000));
 
         pages = await browser.pages()
         // pages[0].close()
         pages[1].close()
-        // await new Promise((r) => setTimeout(r, 2000));
 
         await page.evaluate(() => {
             location.reload(true)
         })
 
+        /*Type keystore password */
+        await typeText(page, '[placeholder="Passphrase"]', process.env.KEYSTORE_PASS_PHRASE)
 
-        // /*Type keystore password */
-        await page.waitForSelector('[placeholder="Passphrase"]');
-        const keyStorePassField = await page.$('[placeholder="Passphrase"]');
-        await keyStorePassField.type(process.env.KEYSTORE_PASS_PHRASE);
-
-        // await new Promise((r) => setTimeout(r, 1000))
-
-        const keyStoreUnlokeButton = await page.waitForSelector('xpath///div[contains(text(), "Unlock")]');
-        await keyStoreUnlokeButton.click();
+        await clickOnElement(page, 'xpath///div[contains(text(), "Unlock")]')
 
         await new Promise((r) => setTimeout(r, 2000))
-
-
     })
 
     afterAll(async () => {
@@ -125,17 +110,15 @@ describe('balance', () => {
         /* Verify that USDC, ETH, WALLET */
         const text = await page.$eval('*', el => el.innerText);
 
-        expect(text).toContain('USDC');
-        console.log('USDC exist on the page')
-        expect(text).toContain('ETH');
-        console.log('ETH exist on the page')
-        expect(text).toContain('WALLET');
-        console.log('WALLET exist on the page')
+        expect(text).toMatch(/\bUSDC\b/);
+        console.log('USDC exists on the page');
 
+        expect(text).toMatch(/\bETH\b/);
+        console.log('ETH exists on the page');
+
+        expect(text).toMatch(/\bWALLET\b/);
+        console.log('WALLET exists on the page');
     }));
-
-
-
 
     //--------------------------------------------------------------------------------------------------------------
     it('check if item exist in Collectibles tab', (async () => {
@@ -143,8 +126,7 @@ describe('balance', () => {
         await new Promise((r) => setTimeout(r, 2000))
 
         /* Click on "Collectibles" button */
-        const collectiblesButton = await page.waitForSelector('xpath///div[contains(text(), "Collectibles")]');
-        await collectiblesButton.click()
+        await clickOnElement(page, 'xpath///div[contains(text(), "Collectibles")]')
 
         /* Get the text content of the first item */
         let firstCollectiblesItem = await page.$$eval('[data-testid="collection-item"]', element => {
@@ -155,22 +137,22 @@ describe('balance', () => {
 
         /* Click on the first item */
         let elements = await page.$$('[data-testid="collection-item"]');
-
         // loop trough items          
         for (let i = 0; i < elements.length; i++) {
-
             let text = await page.evaluate(el => el.innerText, elements[i]);
             if (text.indexOf(firstCollectiblesItemCut) > -1) {
                 await elements[i].click();
             }
         }
+
         /* Verify that the correct url os loaded */
         const url = page.url()
         expect(url).toContain('collection');
-
 
         /* Verify that selected item exist on the page */
         const text = await page.$eval('*', el => el.innerText);
         expect(text).toContain(firstCollectiblesItemCut);
     }));
 })
+
+

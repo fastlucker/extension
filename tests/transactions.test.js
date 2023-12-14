@@ -1,15 +1,20 @@
 const puppeteer = require('puppeteer');
 const path = require('path')
 
-import { bootStrap } from './functions.js';
+import { bootStrap, typeText, clickOnElement } from './functions.js';
 
 
-describe('balance', () => {
+describe('transactions', () => {
+
 
     let browser
     let page
     let pages
     let extensionRootUrl
+
+    let recipientField = '[data-testid="recepient-address-field"]';
+    let amountField = '[data-testid="amount-field"]'
+
 
     beforeAll(async () => {
         const context = await bootStrap(page, browser)
@@ -52,6 +57,8 @@ describe('balance', () => {
         }, parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
             envSelectedAccount, envTermState, parsedPreviousHints)
 
+        await new Promise((r) => setTimeout(r, 500));
+
         let pages = await browser.pages()
         pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
@@ -60,39 +67,21 @@ describe('balance', () => {
         await new Promise((r) => setTimeout(r, 2000));
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
+        await page.setDefaultNavigationTimeout(6000)
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
-        // pages = await browser.pages()
 
         await new Promise((r) => setTimeout(r, 2000));
-
-        // /*Open the page again to load the browser local storage */
-        // page = await browser.newPage();
-        // await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
-        // await new Promise((r) => setTimeout(r, 1000));
 
         pages = await browser.pages()
         // pages[0].close()
         pages[1].close()
-        // await new Promise((r) => setTimeout(r, 2000));
+        await page.reload({ waitUntil: 'load', });
 
-        await page.evaluate(() => {
-            location.reload(true)
-        })
-
-
-        // /*Type keystore password */
-        await page.waitForSelector('[placeholder="Passphrase"]');
-        const keyStorePassField = await page.$('[placeholder="Passphrase"]');
-        await keyStorePassField.type(process.env.KEYSTORE_PASS_PHRASE_1);
-
-        // await new Promise((r) => setTimeout(r, 1000))
-
-        const keyStoreUnlokeButton = await page.waitForSelector('xpath///div[contains(text(), "Unlock")]');
-        await keyStoreUnlokeButton.click();
+        /*Type keystore password */
+        await typeText(page, '[placeholder="Passphrase"]', process.env.KEYSTORE_PASS_PHRASE_1)
+        await clickOnElement(page, 'xpath///div[contains(text(), "Unlock")]')
 
         await new Promise((r) => setTimeout(r, 2000))
-
-
     })
 
     // afterAll(async () => {
@@ -100,7 +89,7 @@ describe('balance', () => {
     // });
 
     //--------------------------------------------------------------------------------------------------------------
-    it.only('Make valid transaction', (async () => {
+    it('Make valid transaction', (async () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
@@ -116,10 +105,7 @@ describe('balance', () => {
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
 
-        // await new Promise((r) => setTimeout(r, 1000))
         await page.waitForSelector('[data-testid="dashboard-button"]');
-
-
         /* Click on "Send" button */
         let buttons = await page.$$('[data-testid="dashboard-button"]');
         for (let i = 0; i < buttons.length; i++) {
@@ -130,47 +116,42 @@ describe('balance', () => {
         }
 
         /* Type the amount */
-        await page.waitForSelector('[placeholder="0"]');
-        let amount = await page.$('[placeholder="0"]');
-        await amount.click({ clickCount: 3 });
-        await amount.press('Backspace');
-        await amount.type("0.0001", { delay: 10 });
-
-
-
+        await typeText(page, amountField, "0.0001")
 
         /* Type the adress of the recipient  */
-        const nthElementHandle = (await page.$$('[type="text"]'))[1];
-        await nthElementHandle.type('0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C', { delay: 10 });
+        await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
 
         /* Check the checkbox "Confirm sending to a previously unknown address" */
-        await page.waitForSelector('[data-testid="checkbox"]');
-        await page.click('[data-testid="checkbox"]')
+        await clickOnElement(page, '[data-testid="checkbox"]')
+
 
         /* Check the checkbox "I confirm this address is not a Binance wallets...." */
-        await page.waitForSelector('[data-testid="confirm-address-checkbox"]');
-        await page.click('[data-testid="confirm-address-checkbox"]')
+        await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
 
         /* Click on "Send" button */
-        const sendButton = await page.waitForSelector('xpath///div[contains(text(), "Send")]');
-        await sendButton.click();
-
-        await page.goto(`${extensionRootUrl}/notification.html#/sign-account-op`, { waitUntil: 'load', })
+        await clickOnElement(page, 'xpath///div[contains(text(), "Send")]')
+        
+        // Wait for the new window to be created and switch to it 
+        const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`);
+        const newPage = await newTarget.page();
 
         /* Click on "Medium" button */
-        const keyStoreUnlokeButton = await page.waitForSelector('xpath///div[contains(text(), "Medium")]');
-        await keyStoreUnlokeButton.click();
+        await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
 
-        // /* Click on "Medium" button */
-        // const keyStoreUnlokeButton1 = await page.waitForSelector('xpath///div[contains(text(), "Sign")]');
-        // await keyStoreUnlokeButton1.click();
+        /* Click on "Sign" button */
+        await clickOnElement(newPage, 'xpath///div[contains(text(), "Sign")]')
 
-        // await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
-        // await page.goto(`${extensionRootUrl}/notification.html#/sign-account-op`, { waitUntil: 'load', })
+        await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
+        await new Promise((r) => setTimeout(r, 500))
+
+        /* Verify that the transaction is signed and sent */
+        const targetText = 'Transaction successfully signed and sent!';
+        // Wait until the specified text appears on the page
+        await page.waitForFunction((text) => {
+            const element = document.querySelector('body');
+            return element && element.textContent.includes(text);
+        }, {}, targetText);
     }));
-
-
-
 
 
     //--------------------------------------------------------------------------------------------------------------
@@ -178,79 +159,50 @@ describe('balance', () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
+        await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load', })
+
+        await page.waitForSelector('[data-testid="max-available-ammount"]')
         /* Get the available balance */
-        const availableAmmount = await page.evaluate(() => {
-            const balance = document.querySelector('[data-testid="full-balance"]')
-            return balance.innerText
+        let maxAvailableAmmount = await page.evaluate(() => {
+            const balance = document.querySelector('[data-testid="max-available-ammount"]')
+            return balance.textContent
         })
-        let availableAmmountNum = availableAmmount.replace(/\n/g, "");
-        availableAmmountNum = availableAmmountNum.split('$')[1]
+        const balance1 = 1 + maxAvailableAmmount;
 
-        const balance1 = 1 + availableAmmountNum;
-        console.log('Greater balance is ' + balance1)
+        /* Type the amount bigger than balance */
+        await typeText(page, amountField, balance1)
 
-        console.log(balance1)
+        /* Verify that the message "The amount is greater than the asset's balance:" exist on the page */
+        const targetText = "The amount is greater than the asset's balance:";
+        // Wait until the specified text appears on the page
+        await page.waitForFunction((text) => {
+            const element = document.querySelector('body');
+            return element && element.textContent.includes(text);
+        }, {}, targetText);
 
+    }));
 
+    //--------------------------------------------------------------------------------------------------------------
+    it('(-) Send matics to smart contract ', (async () => {
 
-
-
+        await new Promise((r) => setTimeout(r, 2000))
 
         await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load', })
 
-        /* Type the amount */
-        await page.waitForSelector('[placeholder="0"]');
-        const amount = await page.$('[placeholder="0"]');
-        await amount.click({ clickCount: 3 });
-        await amount.press('Backspace');
-        await amount.type(availableAmmountNum, { delay: 10 });
+       /* Type the amount */
+       await typeText(page, amountField, "0.0001")
 
+        /* Type the adress of smart contract in the "Add Recipient" field */
+        await typeText(page, recipientField, '0x4e15361fd6b4bb609fa63c81a2be19d873717870')
 
-        return true
-        // /* Verify that the balance is bigger than 0 */
-        // expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
+        /* Verify that the message "The amount is greater than the asset's balance:" exist on the page */
+        const targetText = "You are trying to send tokens to a smart contract. Doing so would burn them.";
+        // Wait until the specified text appears on the page
+        await page.waitForFunction((text) => {
+            const element = document.querySelector('body');
+            return element && element.textContent.includes(text);
+        }, {}, targetText);
 
-        // await new Promise((r) => setTimeout(r, 1000))
-        await page.waitForSelector('[data-testid="dashboard-button"]');
-
-
-        /* Click on "Send" button */
-        let buttons = await page.$$('[data-testid="dashboard-button"]');
-        for (let i = 0; i < buttons.length; i++) {
-            let text = await page.evaluate(el => el.innerText, buttons[i]);
-            if (text.indexOf("Send") > -1) {
-                await buttons[i].click();
-            }
-        }
-
-        //   --------------------
-
-
-        // await new Promise((r) => setTimeout(r, 5000))
-
-        //Verify that the available ammount in matics is visible 
-        const availableAmmount1 = await page.evaluate(() => {
-            const maxBalance = document.querySelector('[data-testid="amount"]')
-            return maxBalance.value
-        })
-        // console.log('available ammount is ' + availableAmmount)
-
-        // const balance = await page.$eval('[data-testid="amount"]', n => n.getAttribute("value"))
-        // console.log('Balance is ' + balance)
-
-        // const balance1 = 1 + balance;
-        // console.log('Greater balance is ' + balance1)
-
-
-        const transferAmmount = await page.$('[data-testid="amount"]');
-
-        await transferAmmount.click({ clickCount: 3 });
-        await transferAmmount.press('Backspace');
-        await transferAmmount.type(balance1);
-
-
-        await page.waitForFunction(
-            'document.querySelector("body").innerText.includes("The amount is greater than the asset")'
-        );
     }));
+
 })
