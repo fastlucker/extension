@@ -56,6 +56,13 @@ class TrezorSigner implements KeystoreSigner {
     await delayBetweenStarting()
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
     const status = await this.controller.unlock(path)
+
+    // TODO: Check if this.key.addr is different than this.controller.hdk.publicKey,
+    // if they are different, means that the user is trying to sign a transaction
+    // but with a different account than the one that is unlocked in the Trezor.
+    console.log('this.key.addr', this.key.addr)
+    console.log('this.controller.hdk.publicKey', this.controller.hdk.publicKey)
+
     await delayBetweenPopupsIfNeeded(status)
 
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
