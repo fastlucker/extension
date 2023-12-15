@@ -40,17 +40,21 @@ class LatticeController implements ExternalSignerController {
     return !!this._getCurrentWalletUID() && !!this.sdkSession
   }
 
-  // Initialize a session with the Lattice1 device using the GridPlus SDK
-  // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
-  // reconnecting to the target Lattice. This is only currently used for signing
-  // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
-  // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
-  // possible edge cases related to this new functionality (it's probably fine - just
-  // being cautious). In the future we may remove `bypassOnStateData` entirely.
-  async unlock(bypassOnStateData = false) {
+  async unlock() {
     if (this.isUnlocked()) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
+
+    // Initialize a session with the Lattice1 device using the GridPlus SDK
+    // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
+    // reconnecting to the target Lattice. This is only currently used for signing
+    // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
+    // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
+    // possible edge cases related to this new functionality (it's probably fine - just
+    // being cautious). In the future we may remove `bypassOnStateData` entirely.
+    // TODO: Currently not implemented
+    const bypassOnStateData = false
+
     const creds: any = await this._getCreds()
     if (creds) {
       this.creds.deviceID = creds.deviceID
@@ -61,10 +65,10 @@ class LatticeController implements ExternalSignerController {
     // If state data was provided and if we are authorized to
     // bypass reconnecting, we can exit here.
     if (includedStateData && bypassOnStateData) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
     await this._connect()
-    return 'Unlocked'
+    return 'JUST_UNLOCKED'
   }
 
   _resetDefaults() {

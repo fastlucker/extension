@@ -34,6 +34,7 @@ import { SignMessageControllerStateProvider } from '@web/contexts/signMessageCon
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
+// @TODO: get rid of this and use the rpc providers from the settings controller
 const shouldInitProviders = !areRpcProvidersInitialized()
 if (shouldInitProviders) {
   initRpcProviders(rpcProviders)

@@ -12,6 +12,8 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/accountState/accountState'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -50,6 +52,7 @@ function saveTimestamp() {
 
 async function init() {
   // Initialize rpc providers for all networks
+  // @TODO: get rid of this and use the rpc providers from the settings controller
   const shouldInitProviders = !areRpcProvidersInitialized()
   if (shouldInitProviders) {
     initRpcProviders(rpcProviders)
@@ -63,6 +66,7 @@ async function init() {
 
   await permissionService.init()
 }
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   if (isManifestV3) {
     // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
@@ -159,7 +163,7 @@ async function init() {
   let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
-    pending: 7500,
+    pending: 3000,
     standBy: 300000
   }
 
@@ -194,6 +198,19 @@ async function init() {
   }
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
+
+  // re-estimate interval
+  let reestimateInterval: any
+  function setReestimateInterval(accountOp: AccountOp) {
+    clearInterval(reestimateInterval)
+
+    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    // 12 seconds is the time needed for a new ethereum block
+    const time = currentNetwork.reestimateOn ?? 12000
+    reestimateInterval = setInterval(async () => {
+      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+    }, time)
+  }
 
   // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
   // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
@@ -301,6 +318,24 @@ async function init() {
         if ((mainCtrl as any)[ctrl]) {
           mainControllersQueue.splice(i, 1)
         }
+      }
+
+      // if the signAccountOp controller is active, reestimate
+      // at a set period of time
+      if (mainCtrl.signAccountOp !== null) {
+        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+      } else {
+        clearInterval(reestimateInterval)
+      }
+
+      // if there are failed networks, refresh the account state every 8 seconds
+      // for them until we get a clean state
+      const failedNetworkIds = getNetworksWithFailedRPC({
+        accountStates: mainCtrl.accountStates,
+        networks: mainCtrl.settings.networks
+      })
+      if (failedNetworkIds.length) {
+        setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
       }
     }
 
@@ -447,14 +482,14 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
               return mainCtrl.settings.addKeyPreferences(data.params)
             }
-            case 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES': {
-              return mainCtrl.settings.updateNetworkPreferences(
+            case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
+              return mainCtrl.updateNetworkPreferences(
                 data.params.networkPreferences,
                 data.params.networkId
               )
             }
-            case 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE': {
-              return mainCtrl.settings.resetNetworkPreference(
+            case 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE': {
+              return mainCtrl.resetNetworkPreference(
                 data.params.preferenceKey,
                 data.params.networkId
               )
@@ -581,8 +616,6 @@ async function init() {
               return ledgerCtrl.unlock()
             case 'LEDGER_CONTROLLER_APP':
               return ledgerCtrl.app
-            case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
-              return ledgerCtrl.authorizeHIDPermission()
 
             case 'TREZOR_CONTROLLER_UNLOCK':
               return trezorCtrl.unlock()
@@ -592,7 +625,10 @@ async function init() {
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return
-              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+              return mainCtrl.updateSelectedAccount(
+                mainCtrl.selectedAccount,
+                data.params?.forceUpdate
+              )
             }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
@@ -693,6 +729,7 @@ async function init() {
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
