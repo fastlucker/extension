@@ -1,6 +1,9 @@
-import React from 'react'
-import { ImageBackground, Pressable, View } from 'react-native'
+import { setStringAsync } from 'expo-clipboard'
+import React, { useCallback } from 'react'
+import { ImageBackground, Linking, Pressable, View } from 'react-native'
 
+import { networks } from '@ambire-common/consts/networks'
+import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -12,26 +15,64 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import getStyles from './styles'
 
 type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
+
+const callsToVisualize = [
+  parse(
+    '{"to":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","value":{"$bigint":"0"},"data":"0xa9059cbb000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b700000000000000000000000000000000000000000000000000000010d947186a","fromUserRequestId":1702630056993,"fullVisualization":[{"type":"action","content":"Send"},{"type":"token","address":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","amount":{"$bigint":"72364791914"},"symbol":"AUSDT","decimals":6,"readableAmount":"72364.791914"},{"type":"label","content":"to"},{"type":"address","address":"0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7","name":"0xFe8...4b7"}],"warnings":[{"content":"Unknown address","level":"caution"}]}'
+  )
+]
 
 export type FinalizedStatusType = {
   status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed'
   reason?: string
 } | null
 
+const activeStep: ActiveStepType = 'finalized'
+const finalizedStatus: FinalizedStatusType = {
+  status: 'cancelled',
+  reason: 'User cancelled'
+}
+
 const TransactionProgressScreen = () => {
   const { theme, styles } = useTheme(getStyles)
+  const route = useRoute()
+  const { addToast } = useToast()
 
-  const activeStep: ActiveStepType = 'finalized'
-  // const finalizedStatus: FinalizedStatusType = null
-  const finalizedStatus: FinalizedStatusType = {
-    status: 'replaced',
-    reason: 'By your request'
+  const params = new URLSearchParams(route?.search)
+
+  const [txnId, networkId, isUserOp] = [
+    params.get('txnId'),
+    params.get('networkId'),
+    typeof params.get('userOp') === 'string'
+  ]
+
+  const network = networks.find((n) => n.id === networkId)
+
+  if (!network || !txnId) {
+    // @TODO
+    return <Text>Error loading transaction</Text>
+  }
+
+  const handleOpenExplorer = useCallback(async () => {
+    await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
+  }, [network.explorerUrl, txnId])
+
+  const handleCopyText = async () => {
+    try {
+      await setStringAsync(window.location.href)
+    } catch {
+      addToast('Error copying to clipboard', { type: 'error' })
+    }
+    addToast('Copied to clipboard!')
   }
 
   return (
@@ -59,7 +100,7 @@ const TransactionProgressScreen = () => {
             </Text>
             <NetworkIcon name="ethereum" />
             <Text appearance="secondaryText" fontSize={14}>
-              Ethereum
+              {network.name}
             </Text>
           </View>
         ) : null}
@@ -79,7 +120,7 @@ const TransactionProgressScreen = () => {
               },
               {
                 label: 'Transaction ID',
-                value: '0xb31f8cb1e84c59d449748242a3093ad8720c3cb01fa6a8f340f44713f95394d2',
+                value: txnId,
                 isValueSmall: true
               }
             ]}
@@ -88,7 +129,22 @@ const TransactionProgressScreen = () => {
             title="Your transaction is in progress"
             stepName="in-progress"
             activeStep={activeStep}
-          />
+            finalizedStatus={finalizedStatus}
+          >
+            {callsToVisualize.map((call, i) => {
+              return (
+                <TransactionSummary
+                  key={call.data + call.fromUserRequestId}
+                  style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                  call={call}
+                  networkId={network!.id}
+                  explorerUrl={network!.explorerUrl}
+                  rightIcon={<OpenIcon />}
+                  onRightIconPress={handleOpenExplorer}
+                />
+              )
+            })}
+          </Step>
           <Step
             title={
               finalizedStatus && finalizedStatus?.status !== 'confirmed'
@@ -103,22 +159,22 @@ const TransactionProgressScreen = () => {
             style={spacings.pb0}
             titleStyle={spacings.mb0}
           />
+          {activeStep === 'finalized' ? (
+            <Step
+              style={{ ...spacings.pt, borderWidth: 0 }}
+              rows={[
+                {
+                  label: 'Timestamp',
+                  value: '04 APR 2023, 1:45 PM'
+                },
+                {
+                  label: 'Block number',
+                  value: '17087709'
+                }
+              ]}
+            />
+          ) : null}
         </View>
-        {activeStep === 'finalized' ? (
-          <Step
-            style={{ borderWidth: 0 }}
-            rows={[
-              {
-                label: 'Timestamp',
-                value: '04 APR 2023, 1:45 PM'
-              },
-              {
-                label: 'Block number',
-                value: '17087709'
-              }
-            ]}
-          />
-        ) : null}
         <View style={styles.buttons}>
           <Pressable style={styles.openExplorer}>
             <OpenIcon color={theme.primary} />
@@ -127,13 +183,19 @@ const TransactionProgressScreen = () => {
               appearance="primary"
               weight="medium"
               style={styles.openExplorerText}
+              onPress={handleOpenExplorer}
             >
               Open explorer
             </Text>
           </Pressable>
           <Button style={{ width: 200, ...spacings.mlLg, ...spacings.mb0 }}>
             <CopyIcon color="#fff" />
-            <Text style={{ color: '#fff', ...spacings.mlSm }} fontSize={16} weight="medium">
+            <Text
+              style={{ color: '#fff', ...spacings.mlSm }}
+              fontSize={16}
+              weight="medium"
+              onPress={handleCopyText}
+            >
               Copy link
             </Text>
           </Button>

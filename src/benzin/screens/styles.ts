@@ -44,7 +44,7 @@ const getStyles = () =>
       ...spacings.mbXl
     },
     steps: {
-      ...spacings.mbTy
+      ...spacings.mb3Xl
     },
     buttons: {
       ...flexbox.directionRow,
