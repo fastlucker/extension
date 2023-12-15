@@ -1,6 +1,11 @@
 import React from 'react'
 import { ImageBackground, Pressable, View } from 'react-native'
 
+// @ts-ignore
+import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
+// @ts-ignore
+import meshGradient from '@benzin/assets/images/mesh-gradient.png'
+import Step from '@benzin/components/Step'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -10,11 +15,6 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 
-// @ts-ignore
-import meshGradientLarge from '../assets/images/mesh-gradient-large.png'
-// @ts-ignore
-import meshGradient from '../assets/images/mesh-gradient.png'
-import Step from '../components/Step'
 import styles from './styles'
 
 type CurrentStepType = 'signed' | 'in-progress' | 'finalized'

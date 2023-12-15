@@ -8,7 +8,8 @@ module.exports = function (api) {
     '@ambire-common-v1': './src/ambire-common/v1',
     '@common': './src/common',
     '@mobile': './src/mobile',
-    '@web': './src/web'
+    '@web': './src/web',
+    '@benzin': './src/benzin'
   }
 
   const config = {

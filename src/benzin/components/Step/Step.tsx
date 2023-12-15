@@ -1,7 +1,7 @@
 import React from 'react'
 import { TextStyle, View, ViewStyle } from 'react-native'
-import { FinalizedStatusType } from 'src/benzin/screens/TransactionProgressScreen'
 
+import { FinalizedStatusType } from '@benzin/screens/TransactionProgressScreen'
 import ConfirmedIcon from '@common/assets/svg/ConfirmedIcon'
 import RejectedIcon from '@common/assets/svg/RejectedIcon'
 import Text from '@common/components/Text'
