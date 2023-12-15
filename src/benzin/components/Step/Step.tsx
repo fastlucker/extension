@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { TextStyle, View, ViewStyle } from 'react-native'
 
 import { FinalizedStatusType } from '@benzin/screens/TransactionProgressScreen'
@@ -7,11 +7,26 @@ import RejectedIcon from '@common/assets/svg/RejectedIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
-import styles from './styles'
+import StepRow from './StepRow'
+import getStyles from './styles'
 
 const STEPS = ['signed', 'in-progress', 'finalized'] as const
 
-const Step = ({
+interface StepProps {
+  title?: string
+  rows?: {
+    label: string
+    value: string
+    isValueSmall?: boolean
+  }[]
+  stepName?: typeof STEPS[number]
+  activeStep?: typeof STEPS[number]
+  finalizedStatus?: FinalizedStatusType
+  style?: ViewStyle
+  titleStyle?: TextStyle
+}
+
+const Step: FC<StepProps> = ({
   title,
   rows,
   stepName,
@@ -19,26 +34,27 @@ const Step = ({
   finalizedStatus,
   style,
   titleStyle
-}: {
-  title: string
-  rows?: {
-    label: string
-    value: string
-    isValueSmall?: boolean
-  }[]
-  stepName: typeof STEPS[number]
-  activeStep: typeof STEPS[number]
-  finalizedStatus?: FinalizedStatusType
-  style?: ViewStyle
-  titleStyle?: TextStyle
 }) => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
+
+  if (!title || !stepName || !activeStep) {
+    if (!rows) return null
+
+    return (
+      <View style={[styles.step, style]}>
+        {rows.map((row) => (
+          <StepRow {...row} key={row.label} />
+        ))}
+      </View>
+    )
+  }
+
   const isCompleted = STEPS.indexOf(stepName) <= STEPS.indexOf(activeStep)
   const isNext = STEPS.indexOf(stepName) === STEPS.indexOf(activeStep) + 1
   const isInitial = STEPS.indexOf(stepName) > STEPS.indexOf(activeStep)
   const hasFailed = finalizedStatus && finalizedStatus.status !== 'confirmed'
 
-  const getTextAppearance = () => {
+  const getTitleAppearance = () => {
     if (hasFailed) {
       return 'errorText'
     }
@@ -60,25 +76,17 @@ const Step = ({
       {hasFailed && (
         <RejectedIcon width={18} height={18} color={theme.errorDecorative} style={styles.icon} />
       )}
-      <Text
-        appearance={getTextAppearance()}
-        fontSize={16}
-        weight="medium"
-        style={[styles.title, titleStyle]}
-      >
-        {title}
-      </Text>
-      {!!rows &&
-        rows.map((row) => (
-          <View style={styles.row} key={row.label}>
-            <Text appearance="secondaryText" fontSize={14}>
-              {row.label}
-            </Text>
-            <Text appearance="secondaryText" fontSize={!row?.isValueSmall ? 14 : 12}>
-              {row.value}
-            </Text>
-          </View>
-        ))}
+      {!!title && (
+        <Text
+          appearance={getTitleAppearance()}
+          fontSize={16}
+          weight="medium"
+          style={[styles.title, titleStyle]}
+        >
+          {title}
+        </Text>
+      )}
+      {!!rows && rows.map((row) => <StepRow {...row} key={row.label} />)}
     </View>
   )
 }

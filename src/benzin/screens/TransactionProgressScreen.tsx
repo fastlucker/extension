@@ -15,9 +15,9 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 
-import styles from './styles'
+import getStyles from './styles'
 
-type CurrentStepType = 'signed' | 'in-progress' | 'finalized'
+type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
 
 export type FinalizedStatusType = {
   status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed'
@@ -25,9 +25,9 @@ export type FinalizedStatusType = {
 } | null
 
 const TransactionProgressScreen = () => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
 
-  const activeStep: CurrentStepType = 'finalized'
+  const activeStep: ActiveStepType = 'finalized'
   // const finalizedStatus: FinalizedStatusType = null
   const finalizedStatus: FinalizedStatusType = {
     status: 'replaced',
@@ -37,13 +37,7 @@ const TransactionProgressScreen = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%'
-        }}
+        style={styles.backgroundImage}
         source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
         resizeMode="cover"
       />
@@ -111,24 +105,19 @@ const TransactionProgressScreen = () => {
           />
         </View>
         {activeStep === 'finalized' ? (
-          <View style={[styles.step, { borderWidth: 0 }]}>
-            <View style={styles.row}>
-              <Text appearance="secondaryText" fontSize={14}>
-                Timestamp
-              </Text>
-              <Text appearance="secondaryText" fontSize={14}>
-                04 APR 2023, 1:47 PM
-              </Text>
-            </View>
-            <View style={styles.row}>
-              <Text appearance="secondaryText" fontSize={14}>
-                Block number
-              </Text>
-              <Text appearance="secondaryText" fontSize={14}>
-                17087709
-              </Text>
-            </View>
-          </View>
+          <Step
+            style={{ borderWidth: 0 }}
+            rows={[
+              {
+                label: 'Timestamp',
+                value: '04 APR 2023, 1:45 PM'
+              },
+              {
+                label: 'Block number',
+                value: '17087709'
+              }
+            ]}
+          />
         ) : null}
         <View style={styles.buttons}>
           <Pressable style={styles.openExplorer}>
