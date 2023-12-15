@@ -1,6 +1,6 @@
 import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback } from 'react'
-import { ImageBackground, Linking, Pressable, View } from 'react-native'
+import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
@@ -19,9 +19,10 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import getStyles from './styles'
+import getStyles, { IS_MOBILE_UP_BENZIN_BREAKPOINT } from './styles'
 
 type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
 
@@ -76,23 +77,39 @@ const TransactionProgressScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <ImageBackground
         style={styles.backgroundImage}
         source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
         resizeMode="cover"
       />
       <View style={styles.content}>
-        <View style={styles.logoWrapper}>
-          <AmbireLogo width={148} height={69} />
-        </View>
-        <Text
-          fontSize={20}
-          weight="medium"
-          style={[activeStep === 'finalized' ? spacings.mb3Xl : {}, { textAlign: 'center' }]}
+        <View
+          style={[
+            IS_MOBILE_UP_BENZIN_BREAKPOINT
+              ? {}
+              : { flexDirection: 'row-reverse', ...flexbox.justifySpaceBetween },
+            IS_MOBILE_UP_BENZIN_BREAKPOINT ? {} : spacings.mbXl,
+            flexbox.alignCenter
+          ]}
         >
-          Transaction Progress
-        </Text>
+          <View style={styles.logoWrapper}>
+            <AmbireLogo
+              width={148 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+              height={69 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+            />
+          </View>
+          <Text
+            fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}
+            weight="medium"
+            style={[
+              activeStep === 'finalized' && IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : {},
+              IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }
+            ]}
+          >
+            Transaction Progress
+          </Text>
+        </View>
         {activeStep !== 'finalized' ? (
           <View style={styles.estimate}>
             <Text appearance="secondaryText" fontSize={14}>
@@ -139,8 +156,14 @@ const TransactionProgressScreen = () => {
                   call={call}
                   networkId={network!.id}
                   explorerUrl={network!.explorerUrl}
-                  rightIcon={<OpenIcon />}
+                  rightIcon={
+                    <OpenIcon
+                      width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                      height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                    />
+                  }
                   onRightIconPress={handleOpenExplorer}
+                  size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
                 />
               )
             })}
@@ -161,7 +184,10 @@ const TransactionProgressScreen = () => {
           />
           {activeStep === 'finalized' ? (
             <Step
-              style={{ ...spacings.pt, borderWidth: 0 }}
+              style={{
+                ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
+                borderWidth: 0
+              }}
               rows={[
                 {
                   label: 'Timestamp',
@@ -177,9 +203,13 @@ const TransactionProgressScreen = () => {
         </View>
         <View style={styles.buttons}>
           <Pressable style={styles.openExplorer}>
-            <OpenIcon color={theme.primary} />
+            <OpenIcon
+              width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+              height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+              color={theme.primary}
+            />
             <Text
-              fontSize={16}
+              fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
               appearance="primary"
               weight="medium"
               style={styles.openExplorerText}
@@ -188,7 +218,13 @@ const TransactionProgressScreen = () => {
               Open explorer
             </Text>
           </Pressable>
-          <Button style={{ width: 200, ...spacings.mlLg, ...spacings.mb0 }}>
+          <Button
+            style={{
+              width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
+              ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
+              ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
+            }}
+          >
             <CopyIcon color="#fff" />
             <Text
               style={{ color: '#fff', ...spacings.mlSm }}
@@ -201,7 +237,7 @@ const TransactionProgressScreen = () => {
           </Button>
         </View>
       </View>
-    </View>
+    </ScrollView>
   )
 }
 

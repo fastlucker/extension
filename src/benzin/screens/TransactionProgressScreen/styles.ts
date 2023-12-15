@@ -1,7 +1,9 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { Dimensions, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+
+export const IS_MOBILE_UP_BENZIN_BREAKPOINT = Dimensions.get('window').width > 700
 
 interface Style {
   container: ViewStyle
@@ -31,11 +33,12 @@ const getStyles = () =>
       height: '100%'
     },
     content: {
-      width: 620
+      maxWidth: 620,
+      width: '100%'
     },
     logoWrapper: {
       ...flexbox.alignCenter,
-      ...spacings.mbXl
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : {})
     },
     estimate: {
       ...flexbox.directionRow,
@@ -44,16 +47,19 @@ const getStyles = () =>
       ...spacings.mbXl
     },
     steps: {
-      ...spacings.mb3Xl
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl)
     },
     buttons: {
-      ...flexbox.directionRow,
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT
+        ? flexbox.directionRow
+        : { flexDirection: 'column-reverse' }),
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter
     },
     openExplorer: {
       ...flexbox.directionRow,
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      ...(!IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : {})
     },
     openExplorerText: {
       ...spacings.mlSm,

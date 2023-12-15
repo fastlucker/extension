@@ -10,7 +10,7 @@ import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 
-import TransactionProgressScreen from './screens'
+import TransactionProgressScreen from './screens/TransactionProgressScreen'
 
 // Initialize rpc providers for all networks
 // @TODO: get rid of this and use the rpc providers from the settings controller

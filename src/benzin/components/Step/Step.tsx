@@ -2,7 +2,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React, { FC } from 'react'
 import { TextStyle, View, ViewStyle } from 'react-native'
 
-import { FinalizedStatusType } from '@benzin/screens/TransactionProgressScreen'
+import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/TransactionProgressScreen/styles'
+import { FinalizedStatusType } from '@benzin/screens/TransactionProgressScreen/TransactionProgressScreen'
 import ConfirmedIcon from '@common/assets/svg/ConfirmedIcon'
 import RejectedIcon from '@common/assets/svg/RejectedIcon'
 import Text from '@common/components/Text'
@@ -114,7 +115,13 @@ const Step: FC<StepProps> = ({
         )}
       </View>
       <View
-        style={[spacings.plMd, flexbox.flex1, stepIndex !== STEPS.length - 1 ? spacings.pb2Xl : {}]}
+        style={[
+          spacings.plMd,
+          flexbox.flex1,
+          stepIndex !== STEPS.length - 1
+            ? spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pb2Xl' : 'pbLg']
+            : {}
+        ]}
       >
         {!!title && (
           <Text

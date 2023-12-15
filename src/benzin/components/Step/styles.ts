@@ -1,5 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/TransactionProgressScreen/styles'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -39,7 +40,7 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.successDecorative
     },
     title: {
-      ...spacings.mb,
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb : spacings.mbSm),
       textTransform: 'capitalize',
       lineHeight: 18 // must be the same as font-size
     }
