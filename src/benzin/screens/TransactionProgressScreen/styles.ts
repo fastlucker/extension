@@ -6,8 +6,8 @@ import flexbox from '@common/styles/utils/flexbox'
 export const IS_MOBILE_UP_BENZIN_BREAKPOINT = Dimensions.get('window').width > 700
 
 interface Style {
-  container: ViewStyle
   backgroundImage: ViewStyle
+  container: ViewStyle
   content: ViewStyle
   logoWrapper: ViewStyle
   estimate: ViewStyle
@@ -19,18 +19,16 @@ interface Style {
 
 const getStyles = () =>
   StyleSheet.create<Style>({
+    backgroundImage: {
+      ...flexbox.flex1,
+      width: '100%',
+      height: '100%'
+    },
     container: {
       ...flexbox.flex1,
       ...flexbox.alignCenter,
       ...spacings.pv,
       ...spacings.phLg
-    },
-    backgroundImage: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%'
     },
     content: {
       maxWidth: 620,
@@ -54,7 +52,8 @@ const getStyles = () =>
         ? flexbox.directionRow
         : { flexDirection: 'column-reverse' }),
       ...flexbox.alignCenter,
-      ...flexbox.justifyCenter
+      ...flexbox.justifyCenter,
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : spacings.mbMd)
     },
     openExplorer: {
       ...flexbox.directionRow,

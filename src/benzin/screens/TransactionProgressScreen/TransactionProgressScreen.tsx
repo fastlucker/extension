@@ -77,167 +77,168 @@ const TransactionProgressScreen = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <ImageBackground
-        style={styles.backgroundImage}
-        source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
-        resizeMode="cover"
-      />
-      <View style={styles.content}>
-        <View
-          style={[
-            IS_MOBILE_UP_BENZIN_BREAKPOINT
-              ? {}
-              : { flexDirection: 'row-reverse', ...flexbox.justifySpaceBetween },
-            IS_MOBILE_UP_BENZIN_BREAKPOINT ? {} : spacings.mbXl,
-            flexbox.alignCenter
-          ]}
-        >
-          <View style={styles.logoWrapper}>
-            <AmbireLogo
-              width={148 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-              height={69 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-            />
-          </View>
-          <Text
-            fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}
-            weight="medium"
+    <ImageBackground
+      style={styles.backgroundImage}
+      source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
+      resizeMode="cover"
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.content}>
+          <View
             style={[
-              activeStep === 'finalized' && IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : {},
-              IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }
+              IS_MOBILE_UP_BENZIN_BREAKPOINT
+                ? {}
+                : { flexDirection: 'row-reverse', ...flexbox.justifySpaceBetween },
+              IS_MOBILE_UP_BENZIN_BREAKPOINT ? {} : spacings.mbXl,
+              flexbox.alignCenter
             ]}
           >
-            Transaction Progress
-          </Text>
-        </View>
-        {activeStep !== 'finalized' ? (
-          <View style={styles.estimate}>
-            <Text appearance="secondaryText" fontSize={14}>
-              Est time remaining 5 mins on
-            </Text>
-            <NetworkIcon name="ethereum" />
-            <Text appearance="secondaryText" fontSize={14}>
-              {network.name}
+            <View style={styles.logoWrapper}>
+              <AmbireLogo
+                width={148 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+                height={69 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
+              />
+            </View>
+            <Text
+              fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}
+              weight="medium"
+              style={[
+                activeStep === 'finalized' && IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : {},
+                IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }
+              ]}
+            >
+              Transaction Progress
             </Text>
           </View>
-        ) : null}
-        <View style={styles.steps}>
-          <Step
-            title="Signed"
-            stepName="signed"
-            activeStep={activeStep}
-            rows={[
-              {
-                label: 'Timestamp',
-                value: '04 APR 2023, 1:45 PM'
-              },
-              {
-                label: 'Transaction fee',
-                value: '0.001487535107372448 ETH ($2.78)'
-              },
-              {
-                label: 'Transaction ID',
-                value: txnId,
-                isValueSmall: true
-              }
-            ]}
-          />
-          <Step
-            title="Your transaction is in progress"
-            stepName="in-progress"
-            activeStep={activeStep}
-            finalizedStatus={finalizedStatus}
-          >
-            {callsToVisualize.map((call, i) => {
-              return (
-                <TransactionSummary
-                  key={call.data + call.fromUserRequestId}
-                  style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-                  call={call}
-                  networkId={network!.id}
-                  explorerUrl={network!.explorerUrl}
-                  rightIcon={
-                    <OpenIcon
-                      width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                      height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                    />
-                  }
-                  onRightIconPress={handleOpenExplorer}
-                  size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-                />
-              )
-            })}
-          </Step>
-          <Step
-            title={
-              finalizedStatus && finalizedStatus?.status !== 'confirmed'
-                ? `${finalizedStatus.status}${
-                    finalizedStatus?.reason ? `: ${finalizedStatus.reason}` : ''
-                  }`
-                : 'Confirmed'
-            }
-            stepName="finalized"
-            finalizedStatus={finalizedStatus}
-            activeStep={activeStep}
-            style={spacings.pb0}
-            titleStyle={spacings.mb0}
-          />
-          {activeStep === 'finalized' ? (
+          {activeStep !== 'finalized' ? (
+            <View style={styles.estimate}>
+              <Text appearance="secondaryText" fontSize={14}>
+                Est time remaining 5 mins on
+              </Text>
+              <NetworkIcon name="ethereum" />
+              <Text appearance="secondaryText" fontSize={14}>
+                {network.name}
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.steps}>
             <Step
-              style={{
-                ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
-                borderWidth: 0
-              }}
+              title="Signed"
+              stepName="signed"
+              activeStep={activeStep}
               rows={[
                 {
                   label: 'Timestamp',
                   value: '04 APR 2023, 1:45 PM'
                 },
                 {
-                  label: 'Block number',
-                  value: '17087709'
+                  label: 'Transaction fee',
+                  value: '0.001487535107372448 ETH ($2.78)'
+                },
+                {
+                  label: 'Transaction ID',
+                  value: txnId,
+                  isValueSmall: true
                 }
               ]}
             />
-          ) : null}
-        </View>
-        <View style={styles.buttons}>
-          <Pressable style={styles.openExplorer}>
-            <OpenIcon
-              width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-              height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-              color={theme.primary}
+            <Step
+              title="Your transaction is in progress"
+              stepName="in-progress"
+              activeStep={activeStep}
+              finalizedStatus={finalizedStatus}
+            >
+              {callsToVisualize.map((call, i) => {
+                return (
+                  <TransactionSummary
+                    key={call.data + call.fromUserRequestId}
+                    style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                    call={call}
+                    networkId={network!.id}
+                    explorerUrl={network!.explorerUrl}
+                    rightIcon={
+                      <OpenIcon
+                        width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                        height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                      />
+                    }
+                    onRightIconPress={handleOpenExplorer}
+                    size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
+                  />
+                )
+              })}
+            </Step>
+            <Step
+              title={
+                finalizedStatus && finalizedStatus?.status !== 'confirmed'
+                  ? `${finalizedStatus.status}${
+                      finalizedStatus?.reason ? `: ${finalizedStatus.reason}` : ''
+                    }`
+                  : 'Confirmed'
+              }
+              stepName="finalized"
+              finalizedStatus={finalizedStatus}
+              activeStep={activeStep}
+              style={spacings.pb0}
+              titleStyle={spacings.mb0}
             />
-            <Text
-              fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
-              appearance="primary"
-              weight="medium"
-              style={styles.openExplorerText}
-              onPress={handleOpenExplorer}
+            {activeStep === 'finalized' ? (
+              <Step
+                style={{
+                  ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
+                  borderWidth: 0
+                }}
+                rows={[
+                  {
+                    label: 'Timestamp',
+                    value: '04 APR 2023, 1:45 PM'
+                  },
+                  {
+                    label: 'Block number',
+                    value: '17087709'
+                  }
+                ]}
+              />
+            ) : null}
+          </View>
+          <View style={styles.buttons}>
+            <Pressable style={styles.openExplorer}>
+              <OpenIcon
+                width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+                height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+                color={theme.primary}
+              />
+              <Text
+                fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
+                appearance="primary"
+                weight="medium"
+                style={styles.openExplorerText}
+                onPress={handleOpenExplorer}
+              >
+                Open explorer
+              </Text>
+            </Pressable>
+            <Button
+              style={{
+                width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
+                ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
+                ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
+              }}
             >
-              Open explorer
-            </Text>
-          </Pressable>
-          <Button
-            style={{
-              width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
-              ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
-              ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
-            }}
-          >
-            <CopyIcon color="#fff" />
-            <Text
-              style={{ color: '#fff', ...spacings.mlSm }}
-              fontSize={16}
-              weight="medium"
-              onPress={handleCopyText}
-            >
-              Copy link
-            </Text>
-          </Button>
+              <CopyIcon color="#fff" />
+              <Text
+                style={{ color: '#fff', ...spacings.mlSm }}
+                fontSize={16}
+                weight="medium"
+                onPress={handleCopyText}
+              >
+                Copy link
+              </Text>
+            </Button>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </ImageBackground>
   )
 }
 
