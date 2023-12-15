@@ -18,6 +18,10 @@ class TrezorController implements ExternalSignerController {
 
   hdk: any
 
+  unlockedPath: string = ''
+
+  unlockedPathKeyAddr: string = ''
+
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   deviceModel = 'unknown'
@@ -25,8 +29,6 @@ class TrezorController implements ExternalSignerController {
   deviceId = ''
 
   constructor() {
-    this.hdk = new HDKey()
-
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
 
@@ -44,27 +46,43 @@ class TrezorController implements ExternalSignerController {
   }
 
   cleanUp() {
-    this.hdk = new HDKey()
+    this.unlockedPath = ''
+    this.unlockedPathKeyAddr = ''
   }
 
   isUnlocked() {
+    // TODO: That's not the best way to check if the Trezor is unlocked
     return Boolean(this.hdk && this.hdk.publicKey)
   }
 
-  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
-    if (this.isUnlocked()) {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+
+    // Unlocked, but with different path
+    if (
+      this.isUnlocked() &&
+      (this.unlockedPathKeyAddr !== expectedKeyOnThisPath || this.unlockedPath !== pathToUnlock)
+    ) {
+      throw new Error('Trezor is already unlocked with a different path.')
+    }
+
+    if (
+      this.isUnlocked() &&
+      this.unlockedPathKeyAddr === expectedKeyOnThisPath &&
+      this.unlockedPath === path
+    ) {
       return 'ALREADY_UNLOCKED'
     }
 
     try {
-      const response = await trezorConnect.getPublicKey({
-        path: path || getHdPathFromTemplate(this.hdPathTemplate, 0),
-        coin: 'ETH'
-      })
+      const response = await trezorConnect.getPublicKey({ path: pathToUnlock, coin: 'ETH' })
 
       if (!response.success) {
         throw new Error(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
       }
+
+      this.unlockedPath = pathToUnlock
+      this.unlockedPathKeyAddr = response.payload.publicKey
 
       this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex')
       this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex')
