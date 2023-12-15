@@ -1,5 +1,3 @@
-import HDKey from 'hdkey'
-
 import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
@@ -15,8 +13,6 @@ const TREZOR_CONNECT_MANIFEST = {
 
 class TrezorController implements ExternalSignerController {
   type = 'trezor'
-
-  hdk: any
 
   unlockedPath: string = ''
 
@@ -52,7 +48,7 @@ class TrezorController implements ExternalSignerController {
 
   isUnlocked() {
     // TODO: That's not the best way to check if the Trezor is unlocked
-    return Boolean(this.hdk && this.hdk.publicKey)
+    return !!(this.unlockedPath && this.unlockedPathKeyAddr)
   }
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
@@ -83,9 +79,6 @@ class TrezorController implements ExternalSignerController {
 
       this.unlockedPath = pathToUnlock
       this.unlockedPathKeyAddr = response.payload.publicKey
-
-      this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex')
-      this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex')
 
       return 'JUST_UNLOCKED'
     } catch (e: any) {
