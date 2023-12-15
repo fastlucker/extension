@@ -14,11 +14,11 @@ const TREZOR_CONNECT_MANIFEST = {
 class TrezorController implements ExternalSignerController {
   type = 'trezor'
 
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
+
   unlockedPath: string = ''
 
   unlockedPathKeyAddr: string = ''
-
-  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   deviceModel = 'unknown'
 
