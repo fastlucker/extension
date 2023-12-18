@@ -46,24 +46,22 @@ class TrezorController implements ExternalSignerController {
     this.unlockedPathKeyAddr = ''
   }
 
-  isUnlocked() {
-    // TODO: That's not the best way to check if the Trezor is unlocked
-    return !!(this.unlockedPath && this.unlockedPathKeyAddr)
-  }
+  isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
+    // If no path or expected key is provided, just check if there is any
+    // unlocked path, that's a valid case when retrieving accounts for import.
+    if (!path || !expectedKeyOnThisPath) {
+      return !!(this.unlockedPath && this.unlockedPathKeyAddr)
+    }
 
-  isUnlockedForPath(path?: string, expectedKeyOnThisPath?: string) {
-    return (
-      this.isUnlocked() &&
-      // Make sure it's unlocked with the right path and with the right key
-      this.unlockedPathKeyAddr === expectedKeyOnThisPath &&
-      this.unlockedPath === path
-    )
+    // Make sure it's unlocked with the right path and with the right key,
+    // otherwise - treat as not unlocked.
+    return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
   }
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
 
-    if (this.isUnlockedForPath(path, expectedKeyOnThisPath)) {
+    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
     }
 
