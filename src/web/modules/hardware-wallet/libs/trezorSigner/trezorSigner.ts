@@ -53,17 +53,21 @@ class TrezorSigner implements KeystoreSigner {
       throw new Error('trezorSigner: missing value in transaction request')
     }
 
-    await delayBetweenStarting()
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+
+    await delayBetweenStarting()
     const status = await this.controller.unlock(path)
+    await delayBetweenPopupsIfNeeded(status)
+
+    if (!this.controller.isUnlockedForPath(path, this.key.addr)) {
+      throw new Error('The Trezor is not unlocked with the right key!')
+    }
 
     // TODO: Check if this.key.addr is different than this.controller.hdk.publicKey,
     // if they are different, means that the user is trying to sign a transaction
     // but with a different account than the one that is unlocked in the Trezor.
-    console.log('this.key.addr', this.key.addr)
-    console.log('this.controller.hdk.publicKey', this.controller.hdk.publicKey)
-
-    await delayBetweenPopupsIfNeeded(status)
+    // console.log('this.key.addr', this.key.addr)
+    // console.log('this.controller.hdk.publicKey', this.controller.hdk.publicKey)
 
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
     const unsignedTxn: EthereumTransaction = {
