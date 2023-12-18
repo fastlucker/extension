@@ -53,7 +53,7 @@ class TrezorSigner implements KeystoreSigner {
 
     await delayBetweenStarting()
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const status = await this.controller.unlock(path)
+    const status = await this.controller.unlock(path, this.key.addr)
     await delayBetweenPopupsIfNeeded(status)
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
