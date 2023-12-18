@@ -27,13 +27,25 @@ class LedgerSigner implements KeystoreSigner {
     this.controller = externalDeviceController
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
-    if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
+  #prepareForSigning = async () => {
+    if (!this.controller || !this.controller.app) {
+      throw new Error(
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
+      )
     }
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    await this.controller.unlock(path)
+    await this.controller.unlock(path, this.key.addr)
+
+    if (!this.controller.isUnlocked(path, this.key.addr)) {
+      throw new Error(
+        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+      )
+    }
+  }
+
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+    await this.#prepareForSigning()
 
     try {
       const unsignedTxn: TransactionLike = {
@@ -48,7 +60,7 @@ class LedgerSigner implements KeystoreSigner {
       // Look for resolutions for external plugins and ERC20
       const resolution = await ledgerService.resolveTransaction(
         stripHexPrefix(unsignedSerializedTxn),
-        this.controller.app!.loadConfig,
+        this.controller!.app!.loadConfig,
         {
           externalPlugins: true,
           erc20: true,
@@ -56,7 +68,8 @@ class LedgerSigner implements KeystoreSigner {
         }
       )
 
-      const res = await this.controller.app!.signTransaction(
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      const res = await this.controller!.app!.signTransaction(
         path,
         stripHexPrefix(unsignedSerializedTxn),
         resolution
@@ -84,17 +97,11 @@ class LedgerSigner implements KeystoreSigner {
     message,
     primaryType
   }) => {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
-
-    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    await this.controller.unlock(path)
+    await this.#prepareForSigning()
 
     try {
-      const rsvRes = await this.controller.app!.signEIP712Message(path, {
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      const rsvRes = await this.controller!.app!.signEIP712Message(path, {
         domain,
         types,
         message,
@@ -112,23 +119,17 @@ class LedgerSigner implements KeystoreSigner {
   }
 
   signMessage: KeystoreSigner['signMessage'] = async (hex) => {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
-
     if (!stripHexPrefix(hex)) {
       throw new Error(
         'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
       )
     }
 
+    await this.#prepareForSigning()
+
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      await this.controller.unlock(path)
-
-      const rsvRes = await this.controller.app!.signPersonalMessage(path, stripHexPrefix(hex))
+      const rsvRes = await this.controller!.app!.signPersonalMessage(path, stripHexPrefix(hex))
 
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
       return signature

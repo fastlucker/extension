@@ -24,6 +24,10 @@ class LedgerController implements ExternalSignerController {
 
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
+  unlockedPath: string = ''
+
+  unlockedPathKeyAddr: string = ''
+
   isWebHID: boolean
 
   transport: TransportWebHID | null
@@ -46,8 +50,16 @@ class LedgerController implements ExternalSignerController {
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
   }
 
-  isUnlocked() {
-    return Boolean(this.hdk && this.hdk.publicKey)
+  isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
+    // If no path or expected key is provided, just check if there is any
+    // unlocked path, that's a valid case when retrieving accounts for import.
+    if (!path || !expectedKeyOnThisPath) {
+      return !!(this.unlockedPath && this.unlockedPathKeyAddr)
+    }
+
+    // Make sure it's unlocked with the right path and with the right key,
+    // otherwise - treat as not unlocked.
+    return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
   }
 
   async initAppIfNeeded() {
@@ -71,8 +83,10 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>) {
-    if (this.isUnlocked()) {
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+
+    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
     }
 
@@ -90,14 +104,12 @@ class LedgerController implements ExternalSignerController {
     }
 
     try {
-      const res = await this.app.getAddress(
-        path || getHdPathFromTemplate(this.hdPathTemplate, 0),
-        false,
-        true
+      const response = await this.app.getAddress(
+        pathToUnlock,
+        false // prioritize having less steps for the user
       )
-      const { publicKey, chainCode } = res
-      this.hdk.publicKey = Buffer.from(publicKey, 'hex')
-      this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
+      this.unlockedPath = pathToUnlock
+      this.unlockedPathKeyAddr = response.address
 
       return 'JUST_UNLOCKED'
     } catch (error: any) {
