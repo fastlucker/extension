@@ -59,7 +59,7 @@ class TrezorSigner implements KeystoreSigner {
     const status = await this.controller.unlock(path)
     await delayBetweenPopupsIfNeeded(status)
 
-    if (!this.controller.isUnlockedForPath(path, this.key.addr)) {
+    if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
         `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr}).`
       )
