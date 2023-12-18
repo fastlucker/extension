@@ -68,7 +68,13 @@ class TrezorController implements ExternalSignerController {
     try {
       const response = await trezorConnect.ethereumGetAddress({
         path: pathToUnlock,
-        showOnTrezor: false
+        // Do not use this validation option, because if the expected key is not
+        // on this path, the Trezor displays a not very user friendly error
+        // "Addresses do not match" in the Trezor popup. That might cause
+        // confusion. And we can't display a better message until the user
+        // closes the Trezor popup and we get the response from the Trezor.
+        // address: expectedKeyOnThisPath,
+        showOnTrezor: false // prioritize having less steps for the user
       })
 
       if (!response.success) {
