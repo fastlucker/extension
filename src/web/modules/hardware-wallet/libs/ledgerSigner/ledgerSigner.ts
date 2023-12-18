@@ -28,7 +28,7 @@ class LedgerSigner implements KeystoreSigner {
   }
 
   #prepareForSigning = async () => {
-    if (!this.controller || !this.controller.app) {
+    if (!this.controller) {
       throw new Error(
         'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
@@ -36,6 +36,13 @@ class LedgerSigner implements KeystoreSigner {
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
     await this.controller.unlock(path, this.key.addr)
+
+    // After unlocking, the app should always be initialized, double-check here
+    if (!this.controller.app) {
+      throw new Error(
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
+      )
+    }
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
