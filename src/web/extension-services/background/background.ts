@@ -397,7 +397,6 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
               const keyIterator = new LedgerKeyIterator({
-                hdk: ledgerCtrl.hdk,
                 app: ledgerCtrl.app
               })
               return mainCtrl.accountAdder.init({
@@ -411,7 +410,7 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-              const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
+              const keyIterator = new TrezorKeyIterator()
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,

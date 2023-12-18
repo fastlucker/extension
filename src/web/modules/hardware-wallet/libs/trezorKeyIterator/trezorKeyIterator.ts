@@ -1,32 +1,12 @@
-import HDKey from 'hdkey'
-
 import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect from '@trezor/connect-web'
 
-// DOCS
-// - Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
-
-// USAGE
-// const iterator = new TrezorKeyIterator({ hardware wallet props })
-// const keys = await iterator.retrieve(0, 9, "derivation-path")
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-type WALLET_TYPE = {
-  hdk: HDKey
-}
-
+/**
+ * Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
+ */
 class TrezorKeyIterator implements KeyIteratorInterface {
-  hdk: HDKey
-
-  constructor(_wallet: WALLET_TYPE) {
-    if (!Object.prototype.hasOwnProperty.call(_wallet, 'hdk'))
-      throw new Error('trezorKeyIterator: invalid props passed to the constructor')
-
-    this.hdk = _wallet.hdk
-  }
-
   async retrieve(from: number, to: number, hdPathTemplate?: HD_PATH_TEMPLATE_TYPE) {
     if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
       throw new Error('trezorKeyIterator: invalid or missing arguments')
