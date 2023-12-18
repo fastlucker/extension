@@ -224,11 +224,11 @@ module.exports = async function (env, argv) {
   ]
 
   if (config.mode === 'production') {
+    // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
+    delete config.optimization.splitChunks
     config.devtool = false // optimize bundle size for production by removing the source-map
   }
 
-  // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
-  config.optimization = { minimize: false }
   if (config.mode === 'development') {
     // writeToDisk: output dev bundled files (in /webkit-dev or /gecko-dev) to import them as unpacked extension in the browser
     config.devServer.devMiddleware.writeToDisk = true
