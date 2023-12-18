@@ -1,5 +1,3 @@
-import HDKey from 'hdkey'
-
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
@@ -20,8 +18,6 @@ export const wait = (fn: () => void, ms = 1000) => {
 }
 
 class LedgerController implements ExternalSignerController {
-  hdk: any
-
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   unlockedPath: string = ''
@@ -41,7 +37,6 @@ class LedgerController implements ExternalSignerController {
   deviceId = ''
 
   constructor() {
-    this.hdk = new HDKey()
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
@@ -125,7 +120,6 @@ class LedgerController implements ExternalSignerController {
     this.app = null
     if (this.transport) this.transport.close()
     this.transport = null
-    this.hdk = new HDKey()
   }
 }
 
