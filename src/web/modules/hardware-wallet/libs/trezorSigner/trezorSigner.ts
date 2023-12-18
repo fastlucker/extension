@@ -58,7 +58,7 @@ class TrezorSigner implements KeystoreSigner {
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
-        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr}).`
+        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
       )
     }
   }
