@@ -1,5 +1,6 @@
+import { ethers } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -39,11 +40,23 @@ export type FinalizedStatusType = {
 
 const activeStep: ActiveStepType = 'finalized'
 const finalizedStatus: FinalizedStatusType = {
-  status: 'cancelled',
-  reason: 'User cancelled'
+  status: 'confirmed'
+}
+
+const getDate = (timestamp: number) => {
+  return new Date(timestamp * 1000).toLocaleString('en-us', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hourCycle: 'h12'
+  })
 }
 
 const TransactionProgressScreen = () => {
+  const [txnData, setTxnData] = useState<null | ethers.TransactionResponse>(null)
+  const [blockData, setBlockData] = useState<null | ethers.Block>(null)
   const { theme, styles } = useTheme(getStyles)
   const route = useRoute()
   const { addToast } = useToast()
@@ -62,6 +75,30 @@ const TransactionProgressScreen = () => {
     // @TODO
     return <Text>Error loading transaction</Text>
   }
+
+  useMemo(() => {
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
+    provider
+      .getTransaction(txnId)
+      .then((fetchedTxnData) => {
+        if (!fetchedTxnData) {
+          // @TODO set the state to txn ID not found
+          return
+        }
+        provider
+          .getBlock(Number(fetchedTxnData.blockNumber))
+          .then((fetchedBlockData) => {
+            setTxnData(fetchedTxnData)
+            setBlockData(fetchedBlockData)
+          })
+          .catch(() => null)
+      })
+      .catch(() => null)
+  }, [txnId, network])
+
+  // @TODO
+  // 1. transaction fee
+  // 2. humanizer
 
   const handleOpenExplorer = useCallback(async () => {
     await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
@@ -129,7 +166,7 @@ const TransactionProgressScreen = () => {
               rows={[
                 {
                   label: 'Timestamp',
-                  value: '04 APR 2023, 1:45 PM'
+                  value: blockData ? getDate(blockData.timestamp) : 'Fetching...'
                 },
                 {
                   label: 'Transaction fee',
@@ -191,11 +228,14 @@ const TransactionProgressScreen = () => {
                 rows={[
                   {
                     label: 'Timestamp',
-                    value: '04 APR 2023, 1:45 PM'
+                    value: blockData ? getDate(blockData.timestamp) : 'Fetching...'
                   },
                   {
                     label: 'Block number',
-                    value: '17087709'
+                    value:
+                      txnData && txnData.blockNumber
+                        ? txnData.blockNumber.toString()
+                        : 'Fetching...'
                   }
                 ]}
               />
