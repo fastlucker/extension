@@ -164,7 +164,10 @@ const DetailsInner = ({
         </View>
       </View>
       {actions.map((actionRow, actionRowIndex) => (
-        <View style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? SPACING : 0 }]}>
+        <View
+          key={actionRow[0]?.text}
+          style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? SPACING : 0 }]}
+        >
           {actionRow.map((button, index) => {
             // Empty buttons to fill the space
             if (button === null) {
@@ -175,6 +178,7 @@ const DetailsInner = ({
 
               return (
                 <Button
+                  key={`empty-button-${Math.random() * 10}`}
                   size={isTab ? 'regular' : 'small'}
                   type="secondary"
                   style={buttonStyle}
@@ -192,6 +196,7 @@ const DetailsInner = ({
 
             return (
               <Button
+                key={button.text}
                 disabled={isDisabled || balance === 0}
                 onPress={() => {
                   onPress({ ...token, navigate })
