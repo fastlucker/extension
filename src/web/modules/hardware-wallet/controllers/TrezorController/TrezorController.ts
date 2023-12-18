@@ -66,14 +66,17 @@ class TrezorController implements ExternalSignerController {
     }
 
     try {
-      const response = await trezorConnect.getPublicKey({ path: pathToUnlock, coin: 'ETH' })
+      const response = await trezorConnect.ethereumGetAddress({
+        path: pathToUnlock,
+        showOnTrezor: false
+      })
 
       if (!response.success) {
         throw new Error(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
       }
 
-      this.unlockedPath = pathToUnlock
-      this.unlockedPathKeyAddr = response.payload.publicKey
+      this.unlockedPath = response.payload.serializedPath
+      this.unlockedPathKeyAddr = response.payload.address
 
       return 'JUST_UNLOCKED'
     } catch (e: any) {
