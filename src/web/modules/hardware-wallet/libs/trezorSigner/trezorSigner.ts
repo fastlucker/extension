@@ -65,12 +65,6 @@ class TrezorSigner implements KeystoreSigner {
       )
     }
 
-    // TODO: Check if this.key.addr is different than this.controller.hdk.publicKey,
-    // if they are different, means that the user is trying to sign a transaction
-    // but with a different account than the one that is unlocked in the Trezor.
-    // console.log('this.key.addr', this.key.addr)
-    // console.log('this.controller.hdk.publicKey', this.controller.hdk.publicKey)
-
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
     const unsignedTxn: EthereumTransaction = {
       ...txnRequest,
