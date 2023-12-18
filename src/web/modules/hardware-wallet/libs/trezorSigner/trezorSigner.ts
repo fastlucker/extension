@@ -60,7 +60,9 @@ class TrezorSigner implements KeystoreSigner {
     await delayBetweenPopupsIfNeeded(status)
 
     if (!this.controller.isUnlockedForPath(path, this.key.addr)) {
-      throw new Error('The Trezor is not unlocked with the right key!')
+      throw new Error(
+        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr}).`
+      )
     }
 
     // TODO: Check if this.key.addr is different than this.controller.hdk.publicKey,
