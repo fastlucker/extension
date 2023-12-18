@@ -40,11 +40,11 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
+    const csp = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
       manifest.content_security_policy = {
-        extension_pages:
-          "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
+        extension_pages: csp
       }
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
@@ -78,8 +78,7 @@ module.exports = async function (env, argv) {
       delete manifest.action
       manifest.externally_connectable = undefined
       manifest.permissions.push('<all_urls>')
-      manifest.content_security_policy =
-        "script-src 'self' 'wasm-eval'; object-src 'self'; frame-ancestors 'none';"
+      manifest.content_security_policy = csp
     }
 
     const manifestJSON = JSON.stringify(manifest, null, 2)

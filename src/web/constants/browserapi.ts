@@ -1,6 +1,8 @@
 /* eslint-disable import/no-mutable-exports */
 // @ts-nocheck
 
+import 'webextension-polyfill'
+
 let engine: 'webkit' | 'gecko' | null = null
 let isExtension: boolean = false
 let isManifestV3: boolean = false

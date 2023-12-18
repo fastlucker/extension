@@ -1,12 +1,10 @@
 import { EventEmitter } from 'events'
 
-import { engine, isManifestV3 } from '@web/constants/browserapi'
+import { browserAPI, isManifestV3 } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/constants/spacings'
 
 const event = new EventEmitter()
-
-const browserAPI = engine === 'gecko' ? browser : chrome
 
 // if focus other windows, then reject the notification request
 browserAPI.windows.onFocusChanged.addListener((winId) => {
