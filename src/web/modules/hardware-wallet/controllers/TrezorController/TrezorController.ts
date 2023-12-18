@@ -61,7 +61,7 @@ class TrezorController implements ExternalSignerController {
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
 
-    if (this.isUnlocked(path, expectedKeyOnThisPath)) {
+    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
     }
 
