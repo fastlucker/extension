@@ -1,10 +1,12 @@
 import { ethers } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
+import fetch from 'node-fetch'
 import React, { useCallback, useMemo, useState } from 'react'
 import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
+import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -55,8 +57,9 @@ const getDate = (timestamp: number) => {
 }
 
 const TransactionProgressScreen = () => {
-  const [txnData, setTxnData] = useState<null | ethers.TransactionResponse>(null)
+  const [txnData, setTxnData] = useState<null | ethers.TransactionReceipt>(null)
   const [blockData, setBlockData] = useState<null | ethers.Block>(null)
+  const [nativePrice, setNativePrice] = useState<number>(0)
   const { theme, styles } = useTheme(getStyles)
   const route = useRoute()
   const { addToast } = useToast()
@@ -79,7 +82,7 @@ const TransactionProgressScreen = () => {
   useMemo(() => {
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
-      .getTransaction(txnId)
+      .getTransactionReceipt(txnId)
       .then((fetchedTxnData) => {
         if (!fetchedTxnData) {
           // @TODO set the state to txn ID not found
@@ -94,11 +97,17 @@ const TransactionProgressScreen = () => {
           .catch(() => null)
       })
       .catch(() => null)
+    getNativePrice(network, fetch)
+      .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
+      .catch(() => setNativePrice(0))
   }, [txnId, network])
 
   // @TODO
-  // 1. transaction fee
-  // 2. humanizer
+  // 1. humanizer
+  let cost
+  if (txnData) {
+    cost = ethers.formatEther(txnData.gasUsed * txnData.gasPrice)
+  }
 
   const handleOpenExplorer = useCallback(async () => {
     await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
@@ -170,7 +179,9 @@ const TransactionProgressScreen = () => {
                 },
                 {
                   label: 'Transaction fee',
-                  value: '0.001487535107372448 ETH ($2.78)'
+                  value: cost
+                    ? `${cost} ${network.nativeAssetSymbol} ($${nativePrice})`
+                    : 'Fetching...'
                 },
                 {
                   label: 'Transaction ID',
