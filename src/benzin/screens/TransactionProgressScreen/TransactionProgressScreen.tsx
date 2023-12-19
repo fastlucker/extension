@@ -74,9 +74,56 @@ const humanizerModules: HumanizerCallModule[] = [
   fallbackHumanizer
 ]
 
+const executeInterface = new ethers.Interface([
+  'function execute(tuple(address, uint256, bytes)[] calldata calls, bytes calldata signature) public payable'
+])
+const transferInterface = new ethers.Interface([
+  'function transfer(address recipient, uint256 amount) external returns (bool)'
+])
+
+const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
+
 const emitedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emitedErrors.push(e)
 const standartOptions = { fetch, emitError: mockEmitError }
+
+const filterFeeCollectorCalls = (callsLength: number, callArray: any) => {
+  // if calls are exactly one, it means no fee collector calls
+  if (callsLength === 1) return true
+  if (
+    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
+    transferInterface.decodeFunctionData('transfer', callArray[2])[0] === feeCollector
+  ) {
+    return false
+  }
+  if (callArray[0] === feeCollector) return false
+
+  return true
+}
+
+const transformToAccOpCall = (call: any) => {
+  return {
+    to: call[0],
+    value: BigInt(call[1]),
+    data: call[2]
+  }
+}
+
+const reproduceCalls = (txn: ethers.TransactionResponse) => {
+  // txn.data
+  const executeSelector = executeInterface.getFunction('execute')!.selector
+  if (txn.data.slice(0, 10) === executeSelector) {
+    const data = executeInterface.decodeFunctionData('execute', txn.data)
+    return (
+      data[0]
+        // filter the fee collector calls
+        .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
+        .map((call: any) => transformToAccOpCall(call))
+    )
+  }
+
+  return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
+}
 
 const TransactionProgressScreen = () => {
   const [txn, setTxn] = useState<null | ethers.TransactionResponse>(null)
@@ -137,8 +184,6 @@ const TransactionProgressScreen = () => {
       .catch(() => setNativePrice(0))
   }, [txnId, network])
 
-  // @TODO
-  // 1. humanizer
   let cost
   let accountOp: AccountOp | null = null
   let calls: IrCall[] = []
@@ -150,15 +195,9 @@ const TransactionProgressScreen = () => {
       signingKeyAddr: txnReceipt.from, // irrelevant
       signingKeyType: 'internal', // irrelevant
       nonce: BigInt(0), // irrelevant
-      calls: [
-        {
-          to: txn.to!,
-          value: BigInt(txn.value),
-          data: txn.data
-        }
-      ],
+      calls: reproduceCalls(txn),
       gasLimit: Number(txn.gasLimit),
-      signature: '0x',
+      signature: '0x', // irrelevant
       gasFeePayment: null,
       accountOpToExecuteBefore: null,
       humanizerMeta: humanizerJSON
@@ -260,7 +299,7 @@ const TransactionProgressScreen = () => {
               {calls.map((call, i) => {
                 return (
                   <TransactionSummary
-                    key={call.data}
+                    key={call.data + ethers.randomBytes(6)}
                     style={i !== calls.length! - 1 ? spacings.mbSm : {}}
                     call={call}
                     networkId={network!.id}
