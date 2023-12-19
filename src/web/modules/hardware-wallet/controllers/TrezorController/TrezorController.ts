@@ -7,7 +7,7 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
 
 export type { TrezorConnect } from '@trezor/connect-web'
-export type { EthereumTransaction } from '@trezor/connect-web'
+export type { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'contactus@ambire.com',
