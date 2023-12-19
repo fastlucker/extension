@@ -11,9 +11,9 @@ import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { getNetworksWithFailedRPC } from '@ambire-common/libs/accountState/accountState'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
@@ -314,8 +314,7 @@ async function init() {
       // if there are failed networks, refresh the account state every 8 seconds
       // for them until we get a clean state
       const failedNetworkIds = getNetworksWithFailedRPC({
-        accountStates: mainCtrl.accountStates,
-        networks: mainCtrl.settings.networks
+        providers: mainCtrl.settings.providers
       })
       if (failedNetworkIds.length) {
         setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
