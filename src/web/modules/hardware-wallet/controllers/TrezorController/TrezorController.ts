@@ -4,7 +4,10 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import trezorConnect from '@trezor/connect-web'
+import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
+
+export type { TrezorConnect } from '@trezor/connect-web'
+export type { EthereumTransaction } from '@trezor/connect-web'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'contactus@ambire.com',
@@ -24,11 +27,13 @@ class TrezorController implements ExternalSignerController {
 
   deviceId = ''
 
+  walletSDK: TrezorConnect = trezorConnect
+
   constructor() {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
 
-    trezorConnect.on('DEVICE_EVENT', (event: any) => {
+    this.walletSDK.on('DEVICE_EVENT', (event: any) => {
       if (event?.payload?.features?.model) {
         this.deviceModel = event.payload.features.model
       }
@@ -38,7 +43,7 @@ class TrezorController implements ExternalSignerController {
       }
     })
 
-    trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+    this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
   }
 
   cleanUp() {
@@ -66,7 +71,7 @@ class TrezorController implements ExternalSignerController {
     }
 
     try {
-      const response = await trezorConnect.ethereumGetAddress({
+      const response = await this.walletSDK.ethereumGetAddress({
         path: pathToUnlock,
         // Do not use this validation option, because if the expected key is not
         // on this path, the Trezor displays a not very user friendly error

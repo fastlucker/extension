@@ -10,8 +10,9 @@ import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
+import TrezorController, {
+  EthereumTransaction
+} from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
 
@@ -45,7 +46,7 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   #prepareForSigning = async () => {
-    if (!this.controller) {
+    if (!this.controller || !this.controller.walletSDK) {
       throw new Error(
         'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
       )
@@ -83,7 +84,10 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const res = await trezorConnect.ethereumSignTransaction({ path, transaction: unsignedTxn })
+    const res = await this.controller!.walletSDK.ethereumSignTransaction({
+      path,
+      transaction: unsignedTxn
+    })
 
     if (!res.success) {
       throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
@@ -127,7 +131,7 @@ class TrezorSigner implements KeystoreSigner {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
 
-    const res = await trezorConnect.ethereumSignTypedData({
+    const res = await this.controller!.walletSDK.ethereumSignTypedData({
       path,
       data: {
         types,
@@ -155,7 +159,7 @@ class TrezorSigner implements KeystoreSigner {
     await this.#prepareForSigning()
 
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const res = await trezorConnect.ethereumSignMessage({
+    const res = await this.controller!.walletSDK.ethereumSignMessage({
       path,
       message: stripHexPrefix(hex),
       hex: true
