@@ -82,6 +82,7 @@ class LedgerController implements ExternalSignerController {
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+    await this.initAppIfNeeded()
 
     if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
@@ -93,7 +94,6 @@ class LedgerController implements ExternalSignerController {
       )
     }
 
-    await this.initAppIfNeeded()
     if (!this.walletSDK) {
       throw new Error(
         'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
