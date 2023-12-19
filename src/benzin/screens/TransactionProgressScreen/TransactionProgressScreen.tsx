@@ -4,8 +4,24 @@ import fetch from 'node-fetch'
 import React, { useCallback, useMemo, useState } from 'react'
 import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
+import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
-import { parse } from '@ambire-common/libs/bigintJson/bigintJson'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
+import { HumanizerCallModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { aaveHumanizer } from '@ambire-common/libs/humanizer/modules/Aave'
+import { fallbackHumanizer } from '@ambire-common/libs/humanizer/modules/fallBackHumanizer'
+import { gasTankModule } from '@ambire-common/libs/humanizer/modules/gasTankModule'
+import { sushiSwapModule } from '@ambire-common/libs/humanizer/modules/sushiSwapModule'
+import {
+  genericErc20Humanizer,
+  genericErc721Humanizer
+} from '@ambire-common/libs/humanizer/modules/tokens'
+import { uniswapHumanizer } from '@ambire-common/libs/humanizer/modules/Uniswap'
+import { WALLETModule } from '@ambire-common/libs/humanizer/modules/WALLET'
+import { wrappingModule } from '@ambire-common/libs/humanizer/modules/wrapped'
+import { yearnVaultModule } from '@ambire-common/libs/humanizer/modules/yearnTesseractVault'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
@@ -29,12 +45,6 @@ import getStyles, { IS_MOBILE_UP_BENZIN_BREAKPOINT } from './styles'
 
 type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
 
-const callsToVisualize = [
-  parse(
-    '{"to":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","value":{"$bigint":"0"},"data":"0xa9059cbb000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b700000000000000000000000000000000000000000000000000000010d947186a","fullVisualization":[{"type":"action","content":"Send"},{"type":"token","address":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","amount":{"$bigint":"72364791914"},"symbol":"AUSDT","decimals":6,"readableAmount":"72364.791914"},{"type":"label","content":"to"},{"type":"address","address":"0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7","name":"0xFe8...4b7"}],"warnings":[{"content":"Unknown address","level":"caution"}]}'
-  )
-]
-
 export type FinalizedStatusType = {
   status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed' | 'fetching'
   reason?: string
@@ -51,8 +61,26 @@ const getDate = (timestamp: number) => {
   })
 }
 
+const humanizerModules: HumanizerCallModule[] = [
+  genericErc20Humanizer,
+  genericErc721Humanizer,
+  gasTankModule,
+  uniswapHumanizer,
+  wrappingModule,
+  aaveHumanizer,
+  WALLETModule,
+  yearnVaultModule,
+  sushiSwapModule,
+  fallbackHumanizer
+]
+
+const emitedErrors: ErrorRef[] = []
+const mockEmitError = (e: ErrorRef) => emitedErrors.push(e)
+const standartOptions = { fetch, emitError: mockEmitError }
+
 const TransactionProgressScreen = () => {
-  const [txnData, setTxnData] = useState<null | ethers.TransactionReceipt>(null)
+  const [txn, setTxn] = useState<null | ethers.TransactionResponse>(null)
+  const [txnReceipt, setTxnReceipt] = useState<null | ethers.TransactionReceipt>(null)
   const [blockData, setBlockData] = useState<null | ethers.Block>(null)
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
@@ -82,6 +110,10 @@ const TransactionProgressScreen = () => {
   useMemo(() => {
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
+      .getTransaction(txnId)
+      .then((fetchedTxn) => setTxn(fetchedTxn))
+      .catch(() => null)
+    provider
       .getTransactionReceipt(txnId)
       .then((receipt) => {
         if (!receipt) {
@@ -91,10 +123,9 @@ const TransactionProgressScreen = () => {
         provider
           .getBlock(Number(receipt.blockNumber))
           .then((fetchedBlockData) => {
-            setTxnData(receipt)
+            setTxnReceipt(receipt)
             setBlockData(fetchedBlockData)
 
-            console.log(receipt)
             setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
             setActiveStep('finalized')
           })
@@ -109,8 +140,30 @@ const TransactionProgressScreen = () => {
   // @TODO
   // 1. humanizer
   let cost
-  if (txnData) {
-    cost = ethers.formatEther(txnData.gasUsed * txnData.gasPrice)
+  let accountOp: AccountOp | null = null
+  let calls: IrCall[] = []
+  if (txnReceipt && txn) {
+    cost = ethers.formatEther(txnReceipt.gasUsed * txnReceipt.gasPrice)
+    accountOp = {
+      accountAddr: txnReceipt.from,
+      networkId: network.id,
+      signingKeyAddr: txnReceipt.from, // irrelevant
+      signingKeyType: 'internal', // irrelevant
+      nonce: BigInt(0), // irrelevant
+      calls: [
+        {
+          to: txn.to!,
+          value: BigInt(txn.value),
+          data: txn.data
+        }
+      ],
+      gasLimit: Number(txn.gasLimit),
+      signature: '0x',
+      gasFeePayment: null,
+      accountOpToExecuteBefore: null,
+      humanizerMeta: humanizerJSON
+    }
+    calls = humanizeCalls(accountOp, humanizerModules, standartOptions)[0]
   }
 
   const handleOpenExplorer = useCallback(async () => {
@@ -204,11 +257,11 @@ const TransactionProgressScreen = () => {
               activeStep={activeStep}
               finalizedStatus={finalizedStatus}
             >
-              {callsToVisualize.map((call, i) => {
+              {calls.map((call, i) => {
                 return (
                   <TransactionSummary
                     key={call.data}
-                    style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                    style={i !== calls.length! - 1 ? spacings.mbSm : {}}
                     call={call}
                     networkId={network!.id}
                     explorerUrl={network!.explorerUrl}
@@ -252,8 +305,8 @@ const TransactionProgressScreen = () => {
                   {
                     label: 'Block number',
                     value:
-                      txnData && txnData.blockNumber
-                        ? txnData.blockNumber.toString()
+                      txnReceipt && txnReceipt.blockNumber
+                        ? txnReceipt.blockNumber.toString()
                         : 'Fetching...'
                   }
                 ]}
