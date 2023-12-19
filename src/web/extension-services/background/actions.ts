@@ -18,7 +18,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import { controllersMapping } from './types'
 
@@ -202,9 +201,6 @@ type LedgerControllerUnlockAction = {
 type LedgerControllerAppAction = {
   type: 'LEDGER_CONTROLLER_APP'
 }
-type TrezorControllerUnlockAction = {
-  type: 'TREZOR_CONTROLLER_UNLOCK'
-}
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
@@ -363,7 +359,6 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
   | LedgerControllerAppAction
-  | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
@@ -391,6 +386,5 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
