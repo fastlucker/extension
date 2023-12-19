@@ -425,8 +425,7 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
               const keyIterator = new LedgerKeyIterator({
-                hdk: ledgerCtrl.hdk,
-                app: ledgerCtrl.app
+                walletSDK: ledgerCtrl.walletSDK
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
@@ -439,7 +438,9 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-              const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
+              const keyIterator = new TrezorKeyIterator({
+                walletSDK: trezorCtrl.walletSDK
+              })
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -614,11 +615,6 @@ async function init() {
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock()
-            case 'LEDGER_CONTROLLER_APP':
-              return ledgerCtrl.app
-
-            case 'TREZOR_CONTROLLER_UNLOCK':
-              return trezorCtrl.unlock()
 
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
