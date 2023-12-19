@@ -38,7 +38,7 @@ class LedgerSigner implements KeystoreSigner {
     const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
     await this.controller.unlock(path, this.key.addr)
 
-    // After unlocking, the app should always be initialized, double-check here
+    // After unlocking, SDK instance should always be present, double-check here
     if (!this.controller.walletSDK) {
       throw new Error(
         'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
