@@ -55,8 +55,8 @@ class LedgerSigner implements KeystoreSigner {
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
-    // In case `maxFeePerGas` is provided, it is a EIP-1559 transaction,
-    // otherwise - it's a legacy one.
+    // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+    // since there's no other better way to distinguish between the two in here.
     const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
 
     try {
