@@ -4,7 +4,7 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import LedgerEth from '@ledgerhq/hw-app-eth'
+import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 
@@ -26,9 +26,9 @@ class LedgerController implements ExternalSignerController {
 
   isWebHID: boolean
 
-  transport: TransportWebHID | null
+  transport: Transport | null
 
-  app: null | LedgerEth
+  walletSDK: null | Eth
 
   type = 'ledger'
 
@@ -40,7 +40,7 @@ class LedgerController implements ExternalSignerController {
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
-    this.app = null
+    this.walletSDK = null
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
   }
@@ -58,12 +58,14 @@ class LedgerController implements ExternalSignerController {
   }
 
   async initAppIfNeeded() {
-    if (this.app) return
+    if (this.walletSDK) return
 
     try {
       // @ts-ignore
       this.transport = await TransportWebHID.create()
-      this.app = new LedgerEth(this.transport as Transport)
+      if (!this.transport) throw new Error('Transport failed to get initialized')
+
+      this.walletSDK = new Eth(this.transport)
 
       if (this.transport?.deviceModel?.id) {
         this.deviceModel = this.transport.deviceModel.id
@@ -92,14 +94,14 @@ class LedgerController implements ExternalSignerController {
     }
 
     await this.initAppIfNeeded()
-    if (!this.app) {
+    if (!this.walletSDK) {
       throw new Error(
         'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
       )
     }
 
     try {
-      const response = await this.app.getAddress(
+      const response = await this.walletSDK.getAddress(
         pathToUnlock,
         false // prioritize having less steps for the user
       )
@@ -117,10 +119,11 @@ class LedgerController implements ExternalSignerController {
   }
 
   async cleanUp() {
-    this.app = null
+    this.walletSDK = null
     if (this.transport) this.transport.close()
     this.transport = null
   }
 }
 
+export { Eth, ledgerService }
 export default LedgerController

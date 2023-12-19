@@ -397,7 +397,7 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
               const keyIterator = new LedgerKeyIterator({
-                app: ledgerCtrl.app
+                walletSDK: ledgerCtrl.walletSDK
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
@@ -587,11 +587,6 @@ async function init() {
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock()
-            case 'LEDGER_CONTROLLER_APP':
-              return ledgerCtrl.app
-
-            case 'TREZOR_CONTROLLER_UNLOCK':
-              return trezorCtrl.unlock()
 
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()

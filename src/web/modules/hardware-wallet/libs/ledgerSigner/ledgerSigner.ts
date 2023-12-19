@@ -4,8 +4,9 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import { ledgerService } from '@ledgerhq/hw-app-eth'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  ledgerService
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -38,7 +39,7 @@ class LedgerSigner implements KeystoreSigner {
     await this.controller.unlock(path, this.key.addr)
 
     // After unlocking, the app should always be initialized, double-check here
-    if (!this.controller.app) {
+    if (!this.controller.walletSDK) {
       throw new Error(
         'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
@@ -67,7 +68,7 @@ class LedgerSigner implements KeystoreSigner {
       // Look for resolutions for external plugins and ERC20
       const resolution = await ledgerService.resolveTransaction(
         stripHexPrefix(unsignedSerializedTxn),
-        this.controller!.app!.loadConfig,
+        this.controller!.walletSDK!.loadConfig,
         {
           externalPlugins: true,
           erc20: true,
@@ -76,7 +77,7 @@ class LedgerSigner implements KeystoreSigner {
       )
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const res = await this.controller!.app!.signTransaction(
+      const res = await this.controller!.walletSDK!.signTransaction(
         path,
         stripHexPrefix(unsignedSerializedTxn),
         resolution
@@ -108,7 +109,7 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.app!.signEIP712Message(path, {
+      const rsvRes = await this.controller!.walletSDK!.signEIP712Message(path, {
         domain,
         types,
         message,
@@ -136,7 +137,10 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.app!.signPersonalMessage(path, stripHexPrefix(hex))
+      const rsvRes = await this.controller!.walletSDK!.signPersonalMessage(
+        path,
+        stripHexPrefix(hex)
+      )
 
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
       return signature

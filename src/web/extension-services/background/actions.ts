@@ -198,9 +198,6 @@ type NotificationControllerRejectRequestAction = {
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
 }
-type LedgerControllerAppAction = {
-  type: 'LEDGER_CONTROLLER_APP'
-}
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
@@ -358,7 +355,6 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerAppAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
