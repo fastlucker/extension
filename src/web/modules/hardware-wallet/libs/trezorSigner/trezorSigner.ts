@@ -11,7 +11,8 @@ import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
 import TrezorController, {
-  EthereumTransaction
+  EthereumTransaction,
+  EthereumTransactionEIP1559
 } from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
@@ -71,14 +72,32 @@ class TrezorSigner implements KeystoreSigner {
 
     await this.#prepareForSigning()
 
+    // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+    // since there's no other better way to distinguish between the two in here.
+    // Note: Trezor doesn't support EIP-2930 yet (type `1`).
+    const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+
+    type UnsignedTxnType = typeof type extends 2 ? EthereumTransactionEIP1559 : EthereumTransaction
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
-    const unsignedTxn: EthereumTransaction = {
+    const unsignedTxn: UnsignedTxnType = {
       ...txnRequest,
       // The incoming `txnRequest` param types mismatch the Trezor expected ones,
       // so normalize the types before passing them to the Trezor API
       value: toBeHex(txnRequest.value),
       gasLimit: toBeHex(txnRequest.gasLimit),
-      gasPrice: toBeHex(txnRequest.gasPrice),
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `2` (EIP-1559)
+      gasPrice: typeof txnRequest.gasPrice === 'bigint' ? toBeHex(txnRequest.gasPrice) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxFeePerGas:
+        typeof txnRequest.maxFeePerGas === 'bigint' ? toBeHex(txnRequest.maxFeePerGas) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxPriorityFeePerGas:
+        typeof txnRequest.maxPriorityFeePerGas === 'bigint'
+          ? toBeHex(txnRequest.maxPriorityFeePerGas)
+          : undefined,
       nonce: toBeHex(txnRequest.nonce),
       chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
     }
@@ -106,10 +125,7 @@ class TrezorSigner implements KeystoreSigner {
         // with Trezor  mismatches the EthersJS supported type, so fallback to
         // the nonce incoming from the `txnRequest` param
         nonce: txnRequest.nonce,
-        // TODO: Temporary use the legacy transaction mode, because:
-        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
-        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
-        type: 0
+        type
       }).serialized
 
       return signedSerializedTxn
