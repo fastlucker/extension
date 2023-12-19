@@ -65,7 +65,10 @@ const Step: FC<StepProps> = ({
     finalizedStatus && finalizedStatus.status !== 'confirmed' && stepIndex === 1
   // True if the transaction has failed and we are on the last step, because only the last step shows the error message.
   const hasFailed =
-    finalizedStatus && finalizedStatus.status !== 'confirmed' && stepIndex === STEPS.length - 1
+    finalizedStatus &&
+    finalizedStatus.status !== 'confirmed' &&
+    finalizedStatus.status !== 'fetching' &&
+    stepIndex === STEPS.length - 1
 
   const getTitleAppearance = () => {
     if (hasFailed) {

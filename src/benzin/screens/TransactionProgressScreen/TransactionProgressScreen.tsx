@@ -31,19 +31,14 @@ type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
 
 const callsToVisualize = [
   parse(
-    '{"to":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","value":{"$bigint":"0"},"data":"0xa9059cbb000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b700000000000000000000000000000000000000000000000000000010d947186a","fromUserRequestId":1702630056993,"fullVisualization":[{"type":"action","content":"Send"},{"type":"token","address":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","amount":{"$bigint":"72364791914"},"symbol":"AUSDT","decimals":6,"readableAmount":"72364.791914"},{"type":"label","content":"to"},{"type":"address","address":"0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7","name":"0xFe8...4b7"}],"warnings":[{"content":"Unknown address","level":"caution"}]}'
+    '{"to":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","value":{"$bigint":"0"},"data":"0xa9059cbb000000000000000000000000fe89cc7abb2c4183683ab71653c4cdc9b02d44b700000000000000000000000000000000000000000000000000000010d947186a","fullVisualization":[{"type":"action","content":"Send"},{"type":"token","address":"0x6ab707Aca953eDAeFBc4fD23bA73294241490620","amount":{"$bigint":"72364791914"},"symbol":"AUSDT","decimals":6,"readableAmount":"72364.791914"},{"type":"label","content":"to"},{"type":"address","address":"0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7","name":"0xFe8...4b7"}],"warnings":[{"content":"Unknown address","level":"caution"}]}'
   )
 ]
 
 export type FinalizedStatusType = {
-  status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed'
+  status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed' | 'fetching'
   reason?: string
 } | null
-
-const activeStep: ActiveStepType = 'finalized'
-const finalizedStatus: FinalizedStatusType = {
-  status: 'confirmed'
-}
 
 const getDate = (timestamp: number) => {
   return new Date(timestamp * 1000).toLocaleString('en-us', {
@@ -60,6 +55,11 @@ const TransactionProgressScreen = () => {
   const [txnData, setTxnData] = useState<null | ethers.TransactionReceipt>(null)
   const [blockData, setBlockData] = useState<null | ethers.Block>(null)
   const [nativePrice, setNativePrice] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
+  const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
+    status: 'fetching'
+  })
+
   const { theme, styles } = useTheme(getStyles)
   const route = useRoute()
   const { addToast } = useToast()
@@ -83,16 +83,20 @@ const TransactionProgressScreen = () => {
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getTransactionReceipt(txnId)
-      .then((fetchedTxnData) => {
-        if (!fetchedTxnData) {
+      .then((receipt) => {
+        if (!receipt) {
           // @TODO set the state to txn ID not found
           return
         }
         provider
-          .getBlock(Number(fetchedTxnData.blockNumber))
+          .getBlock(Number(receipt.blockNumber))
           .then((fetchedBlockData) => {
-            setTxnData(fetchedTxnData)
+            setTxnData(receipt)
             setBlockData(fetchedBlockData)
+
+            console.log(receipt)
+            setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+            setActiveStep('finalized')
           })
           .catch(() => null)
       })
@@ -191,7 +195,11 @@ const TransactionProgressScreen = () => {
               ]}
             />
             <Step
-              title="Your transaction is in progress"
+              title={
+                activeStep === 'finalized'
+                  ? 'Transaction details'
+                  : 'Your transaction is in progress'
+              }
               stepName="in-progress"
               activeStep={activeStep}
               finalizedStatus={finalizedStatus}
@@ -199,7 +207,7 @@ const TransactionProgressScreen = () => {
               {callsToVisualize.map((call, i) => {
                 return (
                   <TransactionSummary
-                    key={call.data + call.fromUserRequestId}
+                    key={call.data}
                     style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                     call={call}
                     networkId={network!.id}
