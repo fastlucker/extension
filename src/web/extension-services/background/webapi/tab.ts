@@ -44,7 +44,17 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
     })
     return tabs[0]
   } catch (error) {
-    // Silent fail
+    return new Promise((resolve) => {
+      browserAPI.tabs.query(
+        {
+          active: true,
+          currentWindow: true
+        },
+        (tabs: any[]) => {
+          resolve(tabs[0])
+        }
+      )
+    })
   }
 }
 

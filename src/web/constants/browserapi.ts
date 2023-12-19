@@ -1,18 +1,16 @@
 /* eslint-disable import/no-mutable-exports */
 // @ts-nocheck
 
-import 'webextension-polyfill'
+import browser from 'webextension-polyfill'
 
+const browserAPI = chrome || browser
 let engine: 'webkit' | 'gecko' | null = null
 let isExtension: boolean = false
 let isManifestV3: boolean = false
-let browserAPI = chrome
 
 try {
-  isManifestV3 = chrome?.runtime?.getManifest()?.manifest_version === 3
-  if (!isManifestV3) {
-    browserAPI = browser
-  }
+  isManifestV3 = browserAPI.runtime?.getManifest()?.manifest_version === 3
+
   if (process.env.WEB_ENGINE === 'webkit') {
     engine = 'webkit'
   }

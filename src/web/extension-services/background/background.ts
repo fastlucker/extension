@@ -85,7 +85,7 @@ async function init() {
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
     // binding window to fetch provides the correct context
-    fetch,
+    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
@@ -784,7 +784,7 @@ browserAPI.runtime.onInstalled.addListener(({ reason }) => {
 })
 
 // Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
   let message = ''
   if (type === 'message') {
@@ -798,12 +798,11 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
   }
 
   const id = new Date().getTime()
-  browserAPI.notifications.create(id.toString(), {
+  await browserAPI.notifications.create(id.toString(), {
     type: 'basic',
     iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
     title,
-    message,
-    priority: 2
+    message
   })
 }
 

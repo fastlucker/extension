@@ -384,7 +384,7 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  notifyForClosedUserRequestThatAreStillPending = () => {
+  notifyForClosedUserRequestThatAreStillPending = async () => {
     if (SIGN_METHODS.includes(this.currentNotificationRequest?.params?.method)) {
       const title = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
         ? 'Added Pending Transaction Request'
@@ -394,7 +394,7 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
-      browserAPI.notifications.create(id.toString(), {
+      await browserAPI.notifications.create(id.toString(), {
         type: 'basic',
         iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
         title,

@@ -21,9 +21,9 @@ const AuthProvider: React.FC = ({ children }: any) => {
     if (!mainCtrlState.isReady) return
 
     setAuthStatus(
-      mainCtrlState.accounts.length ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
+      mainCtrlState?.accounts?.length ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
     )
-  }, [mainCtrlState.isReady, mainCtrlState.accounts.length])
+  }, [mainCtrlState.isReady, mainCtrlState?.accounts?.length])
 
   return (
     <AuthContext.Provider
