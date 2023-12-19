@@ -55,13 +55,12 @@ class LedgerSigner implements KeystoreSigner {
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
+    // In case `maxFeePerGas` is provided, it is a EIP-1559 transaction,
+    // otherwise - it's a legacy one.
+    const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+
     try {
-      const unsignedTxn: TransactionLike = {
-        ...txnRequest,
-        // TODO: Temporary use the legacy transaction mode, because Ambire
-        // extension doesn't support EIP-1559 yet (type: `2`)
-        type: 0
-      }
+      const unsignedTxn: TransactionLike = { ...txnRequest, type }
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
