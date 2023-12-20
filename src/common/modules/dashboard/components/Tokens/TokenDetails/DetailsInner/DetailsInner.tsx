@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
@@ -178,7 +179,7 @@ const DetailsInner = ({
 
               return (
                 <Button
-                  key={`empty-button-${Math.random() * 10}`}
+                  key={`empty-button-${uuidv4()}`}
                   size={isTab ? 'regular' : 'small'}
                   type="secondary"
                   style={buttonStyle}
