@@ -1,14 +1,13 @@
 import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
 import fetch from 'node-fetch'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
 import { HumanizerCallModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { aaveHumanizer } from '@ambire-common/libs/humanizer/modules/Aave'
@@ -24,6 +23,7 @@ import { WALLETModule } from '@ambire-common/libs/humanizer/modules/WALLET'
 import { wrappingModule } from '@ambire-common/libs/humanizer/modules/wrapped'
 import { yearnVaultModule } from '@ambire-common/libs/humanizer/modules/yearnTesseractVault'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { Bundler } from '@ambire-common/services/bundlers/bundler'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -199,6 +199,10 @@ const getFee = (
 
 const TransactionProgressScreen = () => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
+  const [userOp, setUserOp] = useState<{ status: null | string; txnId: null | string }>({
+    status: null,
+    txnId: null
+  })
   const [txnReceipt, setTxnReceipt] = useState<null | TransactionReceipt>(null)
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [nativePrice, setNativePrice] = useState<number>(0)
@@ -206,6 +210,8 @@ const TransactionProgressScreen = () => {
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
+  const [cost, setCost] = useState<null | string>(null)
+  const [calls, setCalls] = useState<IrCall[]>([])
 
   const { theme, styles } = useTheme(getStyles)
   const route = useRoute()
@@ -213,23 +219,55 @@ const TransactionProgressScreen = () => {
 
   const params = new URLSearchParams(route?.search)
 
-  const [txnId, networkId, isUserOp] = [
-    params.get('txnId'),
-    params.get('networkId'),
-    typeof params.get('userOp') === 'string'
-  ]
-
+  const txnId = userOp.txnId ?? params.get('txnId')
+  const [networkId, isUserOp] = [params.get('networkId'), typeof params.get('userOp') === 'string']
   const network = networks.find((n) => n.id === networkId)
 
-  if (!network || !txnId) {
-    // @TODO
-    return <Text>Error loading transaction</Text>
-  }
+  useEffect(() => {
+    if (!txnId || !network || !isUserOp || userOp.status !== null) return
+
+    Bundler.getStatusAndTxnId(txnId, network)
+      .then((userOpStatusAndId: { status: string; transactionHash: null | string }) => {
+        switch (userOpStatusAndId.status) {
+          case 'not_found':
+          case 'rejected':
+            setFinalizedStatus({ status: 'dropped' })
+            setActiveStep('finalized')
+            setUserOp({ status: userOpStatusAndId.status, txnId: null })
+            break
+
+          case 'not_submitted':
+            setFinalizedStatus({ status: 'fetching' })
+            setActiveStep('in-progress')
+            break
+
+          case 'submitted':
+          case 'included':
+          case 'failed':
+            setUserOp({
+              status: userOpStatusAndId.status,
+              txnId: userOpStatusAndId.transactionHash
+            })
+            setActiveStep('in-progress')
+            break
+
+          default:
+            throw new Error('Unhandled user operation status. Please contact support')
+        }
+      })
+      .catch(() => null)
+  }, [isUserOp, userOp, network, txnId])
 
   useMemo(() => {
+    if (!network) return
+
+    // no execution if the request is 4337 and we haven't fetched
+    // any info for the user operation
+    if (isUserOp && userOp.status === null) return
+
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
-      .getTransaction(txnId)
+      .getTransaction(txnId!)
       .then((fetchedTxn: null | TransactionResponse) => {
         // if there is no transaction, it means it has been dropped
         if (!fetchedTxn) {
@@ -242,7 +280,7 @@ const TransactionProgressScreen = () => {
       })
       .catch(() => null)
     provider
-      .getTransactionReceipt(txnId)
+      .getTransactionReceipt(txnId!)
       .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
           // @TODO: think what should happen here as it could be pending
@@ -267,32 +305,32 @@ const TransactionProgressScreen = () => {
     getNativePrice(network, fetch)
       .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
       .catch(() => setNativePrice(0))
-  }, [txnId, network])
+  }, [txnId, network, isUserOp, userOp])
 
-  let cost = null
-  let accountOp: AccountOp | null = null
-  let calls: IrCall[] = []
-  if (txnReceipt && txn) {
-    cost = ethers.formatEther(txnReceipt.gasUsed * txnReceipt.gasPrice)
-    accountOp = {
-      accountAddr: txnReceipt.from,
-      networkId: network.id,
-      signingKeyAddr: txnReceipt.from, // irrelevant
-      signingKeyType: 'internal', // irrelevant
-      nonce: BigInt(0), // irrelevant
-      calls: reproduceCalls(txn),
-      gasLimit: Number(txn.gasLimit),
-      signature: '0x', // irrelevant
-      gasFeePayment: null,
-      accountOpToExecuteBefore: null,
-      humanizerMeta: humanizerJSON
+  useEffect(() => {
+    if (network && txnReceipt && txn) {
+      setCost(ethers.formatEther(txnReceipt.gasUsed * txnReceipt.gasPrice))
+      const accountOp = {
+        accountAddr: txnReceipt.from,
+        networkId: network.id,
+        signingKeyAddr: txnReceipt.from, // irrelevant
+        signingKeyType: 'internal', // irrelevant
+        nonce: BigInt(0), // irrelevant
+        calls: reproduceCalls(txn),
+        gasLimit: Number(txn.gasLimit),
+        signature: '0x', // irrelevant
+        gasFeePayment: null,
+        accountOpToExecuteBefore: null,
+        humanizerMeta: humanizerJSON
+      }
+      setCalls(humanizeCalls(accountOp, humanizerModules, standartOptions)[0])
     }
-    calls = humanizeCalls(accountOp, humanizerModules, standartOptions)[0]
-  }
+  }, [network, txnReceipt, txn])
 
   const handleOpenExplorer = useCallback(async () => {
+    if (!network) return
     await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
-  }, [network.explorerUrl, txnId])
+  }, [network, txnId])
 
   const handleCopyText = async () => {
     try {
@@ -301,6 +339,11 @@ const TransactionProgressScreen = () => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
+  }
+
+  if (!network || !txnId) {
+    // @TODO
+    return <Text>Error loading transaction</Text>
   }
 
   return (
