@@ -504,8 +504,6 @@ async function init() {
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
-            case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
-              return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
               return mainCtrl.signMessage.init(data.params)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
