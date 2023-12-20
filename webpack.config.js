@@ -204,6 +204,10 @@ module.exports = async function (env, argv) {
         {
           from: './src/web/public/trezor-usb-permissions.html',
           to: 'trezor-usb-permissions.html'
+        },
+        {
+          from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+          to: 'browser-polyfill.min.js'
         }
       ]
     }),

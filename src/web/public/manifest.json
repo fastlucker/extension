@@ -33,7 +33,7 @@
     },
     {
       "matches": ["*://connect.trezor.io/*/popup.html", "https://connect.onekey.so/popup.html"],
-      "js": ["vendor/trezor/trezor-content-script.js"]
+      "js": ["browser-polyfill.min.js", "vendor/trezor/trezor-content-script.js"]
     }
   ]
 }
