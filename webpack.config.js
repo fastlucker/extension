@@ -17,8 +17,14 @@ const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    // manifest v3 for chromium browsers and manifest v2 for gecko browsers (like Firefox)
-    const manifestVersion = process.env.WEB_ENGINE === 'gecko' ? 2 : 3
+    // TODO: Manifest V3 support for Chromium browsers has also been implemented.
+    // However, there is one remaining unresolved issue: @trezor/connect-web is not intended to work in a service worker.
+    // Trezor is currently developing a new package, but it is still a work in progress.
+    // There is a workaround that enables the use of @trezor/connect-web with Manifest V3, but
+    // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
+    // https://github.com/trezor/trezor-suite/issues/6458
+    // https://github.com/trezor/trezor-suite/pull/9525
+    const manifestVersion = 2
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
