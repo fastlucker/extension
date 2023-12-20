@@ -824,6 +824,7 @@ const registerInPageContentScript = async () => {
   }
 }
 
+// For mv2 the injection is located in the content-script
 if (isManifestV3) {
   registerInPageContentScript()
 }
