@@ -93,6 +93,14 @@ const deployAndExecuteMultipleInterface = new ethers.Interface([
   'function deployAndExecuteMultiple(bytes calldata code, uint256 salt, tuple(tuple(address, uint256, bytes)[] calls, bytes signature)[] calldata toExec) external returns (address)'
 ])
 
+const handleOpsInterface = new ethers.Interface([
+  'function handleOps(tuple(address, uint256, bytes, bytes, uint256, uint256, uint256, uint256, uint256, bytes, bytes)[] calldata ops, address payable beneficiary) public'
+])
+
+const executeBySenderInterface = new ethers.Interface([
+  'function executeBySender(tuple(address, uint256, bytes)[] calls) external payable'
+])
+
 const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
 
 const emitedErrors: ErrorRef[] = []
@@ -121,28 +129,47 @@ const transformToAccOpCall = (call: any) => {
   }
 }
 
-const reproduceCalls = (txn: TransactionResponse) => {
+const getExecuteCalls = (callData: string) => {
+  const data = executeInterface.decodeFunctionData('execute', callData)
+  return data[0]
+    .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
+    .map((call: any) => transformToAccOpCall(call))
+}
+
+const getExecuteBySenderCalls = (callData: string) => {
+  const data = executeBySenderInterface.decodeFunctionData('executeBySender', callData)
+  return data[0]
+    .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
+    .map((call: any) => transformToAccOpCall(call))
+}
+
+const getExecuteMultipleCalls = (callData: string) => {
+  const data = executeMultipleInterface.decodeFunctionData('executeMultiple', callData)
+  const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
+  return calls
+    .filter((call: any) => filterFeeCollectorCalls(calls.length, call))
+    .map((call: any) => transformToAccOpCall(call))
+}
+
+const reproduceCalls = (txn: TransactionResponse, sender: string) => {
   const sigHash = txn.data.slice(0, 10)
 
   if (sigHash === executeInterface.getFunction('execute')!.selector) {
-    const data = executeInterface.decodeFunctionData('execute', txn.data)
-    return data[0]
-      .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
-      .map((call: any) => transformToAccOpCall(call))
+    return getExecuteCalls(txn.data)
+  }
+
+  if (sigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
+    return getExecuteBySenderCalls(txn.data)
+  }
+
+  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
+    return getExecuteMultipleCalls(txn.data)
   }
 
   if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
     const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
     return data[2]
       .filter((call: any) => filterFeeCollectorCalls(data[2].length, call))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-    const data = executeMultipleInterface.decodeFunctionData('executeMultiple', txn.data)
-    const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
-    return calls
-      .filter((call: any) => filterFeeCollectorCalls(calls.length, call))
       .map((call: any) => transformToAccOpCall(call))
   }
 
@@ -157,6 +184,27 @@ const reproduceCalls = (txn: TransactionResponse) => {
     return calls
       .filter((call: any) => filterFeeCollectorCalls(calls.length, call))
       .map((call: any) => transformToAccOpCall(call))
+  }
+
+  // user op
+  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
+    const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+    const userOps = handleOpsData[0].filter((op: any) => op[0] === sender)
+    if (!userOps.length) throw new Error('could not decode user op')
+    const callData = userOps[0][3]
+    const callDataSigHash = callData.slice(0, 10)
+
+    if (callDataSigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
+      return getExecuteBySenderCalls(callData)
+    }
+
+    if (sigHash === executeInterface.getFunction('execute')!.selector) {
+      return getExecuteCalls(callData)
+    }
+
+    if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
+      return getExecuteMultipleCalls(callData)
+    }
   }
 
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
@@ -365,7 +413,7 @@ const TransactionProgressScreen = () => {
   }, [network, txnReceipt, blockData])
 
   useEffect(() => {
-    if (network && txnReceipt && txn) {
+    if (network && txnReceipt.from && txn) {
       setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
       const accountOp = {
         accountAddr: txnReceipt.from!,
@@ -373,7 +421,7 @@ const TransactionProgressScreen = () => {
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn),
+        calls: reproduceCalls(txn, txnReceipt.from),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
