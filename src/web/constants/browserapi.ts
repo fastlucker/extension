@@ -1,10 +1,15 @@
 /* eslint-disable import/no-mutable-exports */
 // @ts-nocheck
 
+import browser from 'webextension-polyfill'
+
 let engine: 'webkit' | 'gecko' | null = null
 let isExtension: boolean = false
+let isManifestV3: boolean = false
 
 try {
+  isManifestV3 = browser.runtime?.getManifest()?.manifest_version === 3
+
   if (process.env.WEB_ENGINE === 'webkit') {
     engine = 'webkit'
   }
@@ -23,4 +28,4 @@ try {
   // Silent fail
 }
 
-export { engine, isExtension }
+export { engine, isExtension, isManifestV3, browser }

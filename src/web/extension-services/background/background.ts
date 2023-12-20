@@ -1,6 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
+import 'setImmediate'
+
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -18,6 +20,7 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/ser
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -41,6 +44,12 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
 
+function saveTimestamp() {
+  const timestamp = new Date().toISOString()
+
+  browser.storage.session.set({ timestamp })
+}
+
 async function init() {
   // Initialize rpc providers for all networks
   // @TODO: get rid of this and use the rpc providers from the settings controller
@@ -59,6 +68,14 @@ async function init() {
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  if (isManifestV3) {
+    // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
+    // miliseconds. This keeps the service worker alive.
+    const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
+
+    saveTimestamp()
+    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
+  }
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
@@ -68,7 +85,7 @@ async function init() {
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
     // binding window to fetch provides the correct context
-    fetch: window.fetch.bind(window),
+    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
@@ -761,7 +778,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 })
 
 // Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
   let message = ''
   if (type === 'message') {
@@ -775,11 +792,37 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
   }
 
   const id = new Date().getTime()
-  browser.notifications.create(id.toString(), {
+  // service_worker (mv3) - without await the notification doesn't show
+  await browser.notifications.create(id.toString(), {
     type: 'basic',
     iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
     title,
-    message,
-    priority: 2
+    message
   })
+}
+
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerInPageContentScript = async () => {
+  try {
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+// For mv2 the injection is located in the content-script
+if (isManifestV3) {
+  registerInPageContentScript()
 }

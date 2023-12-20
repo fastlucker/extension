@@ -3,6 +3,7 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn, isUndefined } from 'lodash'
+import { nanoid } from 'nanoid'
 
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
@@ -14,10 +15,9 @@ import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-declare const ambireChannelName: any
-declare const ambireIsDefaultWallet: any
-declare const ambireId: any
-declare const ambireIsOpera: any
+const ambireChannelName = 'ambire-inpage'
+const ambireId = nanoid()
+const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -541,7 +541,7 @@ const setOtherProvider = (otherProvider: EthereumProvider) => {
   }
 }
 
-const initProvider = (isDefaultWallet: boolean) => {
+const initProvider = (isDefaultWallet: boolean = true) => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
@@ -569,7 +569,7 @@ const initProvider = (isDefaultWallet: boolean) => {
 if (ambireIsOpera) {
   initOperaProvider()
 } else {
-  initProvider(!!ambireIsDefaultWallet)
+  initProvider()
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
