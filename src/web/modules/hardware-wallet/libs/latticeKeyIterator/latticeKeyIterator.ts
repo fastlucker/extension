@@ -27,24 +27,30 @@ class LatticeKeyIterator implements KeyIteratorInterface {
     this.sdkSession = _wallet.sdkSession
   }
 
-  async retrieve(from: number, to: number, hdPathTemplate?: HD_PATH_TEMPLATE_TYPE) {
-    if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
-      throw new Error('latticeKeyIterator: invalid or missing arguments')
-
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
     const keys: string[] = []
 
-    const keyData = {
-      startPath: getHDPathIndices(hdPathTemplate, from),
-      n: to - from + 1
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { from, to } of fromToArr) {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('latticeKeyIterator: invalid or missing arguments')
+
+      const keyData = {
+        startPath: getHDPathIndices(hdPathTemplate, from),
+        n: to - from + 1
+      }
+
+      // TODO: Figure out the corner cases when this returns Buffer[]
+      // eslint-disable-next-line no-await-in-loop
+      let res: string[] = await this.sdkSession?.getAddresses(keyData)
+      // For some reason, the addresses incoming from the device are not
+      // checksumed, that's why manually checksum them here.
+      res = res?.map((addr) => getAddress(addr)) || []
+      keys.push(...res)
     }
-
-    // TODO: Figure out the corner cases when this returns Buffer[]
-    let res: string[] = await this.sdkSession?.getAddresses(keyData)
-    // For some reason, the addresses incoming from the device are not
-    // checksumed, that's why manually checksum them here.
-    res = res?.map((addr) => getAddress(addr)) || []
-
-    keys.push(...res)
 
     return keys
   }
