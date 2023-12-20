@@ -794,6 +794,7 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
   }
 
   const id = new Date().getTime()
+  // service_worker (mv3) - without await the notification doesn't show
   await browser.notifications.create(id.toString(), {
     type: 'basic',
     iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),

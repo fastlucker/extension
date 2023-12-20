@@ -394,6 +394,7 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
+      // service_worker (mv3) - without await the notification doesn't show
       await browser.notifications.create(id.toString(), {
         type: 'basic',
         iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),

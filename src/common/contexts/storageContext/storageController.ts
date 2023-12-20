@@ -42,6 +42,7 @@ export class StorageController {
   async init() {
     if (isExtension) {
       const result = await browser.storage.local.get()
+
       this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
