@@ -6,7 +6,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
-import { browserAPI } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet Extension'
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
@@ -84,7 +84,7 @@ class LatticeController implements ExternalSignerController {
 
   async _openConnectorTab(url: string) {
     try {
-      const tab = await browserAPI.tabs.create({ url })
+      const tab = await browser.tabs.create({ url })
       return { tab }
     } catch (err) {
       throw new Error('Failed to open Lattice connector.')
@@ -92,7 +92,7 @@ class LatticeController implements ExternalSignerController {
   }
 
   async _findTabById(id) {
-    const tabs = await browserAPI.tabs.query({})
+    const tabs = await browser.tabs.query({})
     return tabs.find((tab) => tab.id === id)
   }
 
@@ -145,7 +145,7 @@ class LatticeController implements ExternalSignerController {
               // encoded as a base64 string.
               const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
               // Close the tab and return the credentials
-              browserAPI.tabs.remove(tab.id).then(() => {
+              browser.tabs.remove(tab.id).then(() => {
                 const creds = JSON.parse(_creds)
                 if (!creds.deviceID || !creds.password)
                   return reject(new Error('Invalid credentials returned from Lattice.'))

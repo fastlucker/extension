@@ -1,17 +1,17 @@
 import { EventEmitter } from 'events'
 
-import { browserAPI, isManifestV3 } from '@web/constants/browserapi'
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/constants/spacings'
 
 const event = new EventEmitter()
 
 // if focus other windows, then reject the notification request
-browserAPI.windows.onFocusChanged.addListener((winId) => {
+browser.windows.onFocusChanged.addListener((winId) => {
   event.emit('windowFocusChange', winId)
 })
 
-browserAPI.windows.onRemoved.addListener((winId) => {
+browser.windows.onRemoved.addListener((winId) => {
   event.emit('windowRemoved', winId)
 })
 
@@ -94,14 +94,14 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
     top: cTop,
     left: cLeft,
     width
-  } = await browserAPI.windows.getCurrent({
+  } = await browser.windows.getCurrent({
     windowTypes: ['normal']
   })
 
   const top = cTop
   const left = cLeft! + width! - WINDOW_SIZE.width
 
-  // const currentWindow = await browserAPI.windows.getCurrent()
+  // const currentWindow = await browser.windows.getCurrent()
   // For the new Ambire v2 we need a full-screen notification window to
   // display the all UI elements of the sign txn/msg screens therefore we hardcode it to 'fullscreen'
   const currentWindow: any = {}
@@ -111,7 +111,7 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
   if (currentWindow.state === 'fullscreen') {
     win = await createFullScreenWindow({ url, ...rest })
   } else {
-    win = await browserAPI.windows.create({
+    win = await browser.windows.create({
       focused: true,
       url,
       type: 'popup',
@@ -123,14 +123,14 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
   }
   // shim firefox
   if (win.left !== left && currentWindow.state !== 'fullscreen') {
-    await browserAPI.windows.update(win.id!, { left, top })
+    await browser.windows.update(win.id!, { left, top })
   }
 
   return win.id
 }
 
 const remove = async (winId: number) => {
-  return browserAPI.windows.remove(winId)
+  return browser.windows.remove(winId)
 }
 
 const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {

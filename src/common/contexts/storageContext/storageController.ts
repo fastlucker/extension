@@ -1,6 +1,6 @@
 import { MMKV } from 'react-native-mmkv'
 
-import { browserAPI, isExtension } from '@web/constants/browserapi'
+import { browser, isExtension } from '@web/constants/browserapi'
 import { getDataFromStorage } from '@web/extension-services/background/webapi/storage'
 
 export class StorageController {
@@ -46,8 +46,8 @@ export class StorageController {
       this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
-      // local `extensionSyncStorage` with the browserAPI.storage.local
-      browserAPI.storage.onChanged.addListener(this.handleOnExtensionStorageChange as any)
+      // local `extensionSyncStorage` with the browser.storage.local
+      browser.storage.onChanged.addListener(this.handleOnExtensionStorageChange as any)
     } else {
       this.mmkv = new MMKV()
     }
@@ -56,7 +56,7 @@ export class StorageController {
 
     return () =>
       isExtension
-        ? browserAPI.storage.onChanged.removeListener(this.handleOnExtensionStorageChange as any)
+        ? browser.storage.onChanged.removeListener(this.handleOnExtensionStorageChange as any)
         : null
   }
 
@@ -72,7 +72,7 @@ export class StorageController {
     if (isExtension) {
       this.extensionSyncStorage[key] = value
 
-      browserAPI.storage.local.set({ [key]: value })
+      browser.storage.local.set({ [key]: value })
     } else {
       this.mmkv?.set(key, value)
     }
@@ -82,7 +82,7 @@ export class StorageController {
     if (isExtension) {
       delete this.extensionSyncStorage[key]
 
-      browserAPI.storage.local.remove([key])
+      browser.storage.local.remove([key])
     } else {
       this.mmkv?.delete(key)
     }

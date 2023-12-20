@@ -20,7 +20,7 @@ import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/ser
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
-import { browserAPI, isManifestV3 } from '@web/constants/browserapi'
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -47,7 +47,7 @@ import { controllersNestedInMainMapping } from './types'
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
 
-  browserAPI.storage.session.set({ timestamp })
+  browser.storage.session.set({ timestamp })
 }
 
 async function init() {
@@ -388,7 +388,7 @@ async function init() {
   })
 
   // listen for messages from UI
-  browserAPI.runtime.onConnect.addListener(async (port) => {
+  browser.runtime.onConnect.addListener(async (port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
@@ -770,11 +770,11 @@ async function init() {
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
-browserAPI.runtime.onInstalled.addListener(({ reason }) => {
+browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     setTimeout(() => {
-      const extensionURL = browserAPI.runtime.getURL('tab.html')
-      browserAPI.tabs.create({ url: extensionURL })
+      const extensionURL = browser.runtime.getURL('tab.html')
+      browser.tabs.create({ url: extensionURL })
     }, 500)
   }
 })
@@ -794,9 +794,9 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
   }
 
   const id = new Date().getTime()
-  await browserAPI.notifications.create(id.toString(), {
+  await browser.notifications.create(id.toString(), {
     type: 'basic',
-    iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
+    iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
     title,
     message
   })
@@ -809,7 +809,7 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
  */
 const registerInPageContentScript = async () => {
   try {
-    await browserAPI.scripting.registerContentScripts([
+    await browser.scripting.registerContentScripts([
       {
         id: 'inpage',
         matches: ['file://*/*', 'http://*/*', 'https://*/*'],

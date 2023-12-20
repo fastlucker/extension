@@ -6,7 +6,7 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
-import { browserAPI } from '@web/constants/browserapi'
+import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -135,20 +135,20 @@ export class NotificationController extends EventEmitter {
     try {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
-        const windows = await browserAPI.windows.getAll()
+        const windows = await browser.windows.getAll()
         const existWindow = windows.find((window) => window.id === this.notificationWindowId)
         if (this.notificationWindowId !== null && !!existWindow) {
           const {
             top: cTop,
             left: cLeft,
             width
-          } = await browserAPI.windows.getCurrent({
+          } = await browser.windows.getCurrent({
             windowTypes: ['normal']
           })
 
           const top = cTop
           const left = cLeft! + width! - WINDOW_SIZE.width
-          browserAPI.windows.update(this.notificationWindowId, {
+          browser.windows.update(this.notificationWindowId, {
             focused: true,
             top,
             left
@@ -394,9 +394,9 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
-      await browserAPI.notifications.create(id.toString(), {
+      await browser.notifications.create(id.toString(), {
         type: 'basic',
-        iconUrl: browserAPI.runtime.getURL('assets/images/xicon@96.png'),
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
         title,
         message,
         priority: 2
