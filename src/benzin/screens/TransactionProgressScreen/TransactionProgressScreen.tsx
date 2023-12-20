@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
 import fetch from 'node-fetch'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -7,6 +7,7 @@ import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-nat
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
 import { HumanizerCallModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
@@ -119,7 +120,7 @@ const transformToAccOpCall = (call: any) => {
   }
 }
 
-const reproduceCalls = (txn: ethers.TransactionResponse) => {
+const reproduceCalls = (txn: TransactionResponse) => {
   const sigHash = txn.data.slice(0, 10)
 
   if (sigHash === executeInterface.getFunction('execute')!.selector) {
@@ -160,10 +161,46 @@ const reproduceCalls = (txn: ethers.TransactionResponse) => {
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
 }
 
+const shouldShowTxnProgress = (finalizedStatus: FinalizedStatusType) => {
+  if (!finalizedStatus) return true
+
+  const doNotShow = ['cancelled', 'dropped', 'replaced']
+  return doNotShow.indexOf(finalizedStatus.status) === -1
+}
+
+const getTimestamp = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
+  if (blockData) {
+    return getDate(blockData.timestamp)
+  }
+
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+}
+
+const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
+  if (blockData) {
+    return blockData.number.toString()
+  }
+
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+}
+
+const getFee = (
+  cost: null | string,
+  network: NetworkDescriptor,
+  nativePrice: number,
+  finalizedStatus: FinalizedStatusType
+) => {
+  if (cost) {
+    return `${cost} ${network.nativeAssetSymbol} ($${nativePrice})`
+  }
+
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+}
+
 const TransactionProgressScreen = () => {
-  const [txn, setTxn] = useState<null | ethers.TransactionResponse>(null)
-  const [txnReceipt, setTxnReceipt] = useState<null | ethers.TransactionReceipt>(null)
-  const [blockData, setBlockData] = useState<null | ethers.Block>(null)
+  const [txn, setTxn] = useState<null | TransactionResponse>(null)
+  const [txnReceipt, setTxnReceipt] = useState<null | TransactionReceipt>(null)
+  const [blockData, setBlockData] = useState<null | Block>(null)
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
@@ -193,13 +230,26 @@ const TransactionProgressScreen = () => {
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getTransaction(txnId)
-      .then((fetchedTxn) => setTxn(fetchedTxn))
+      .then((fetchedTxn: null | TransactionResponse) => {
+        // if there is no transaction, it means it has been dropped
+        if (!fetchedTxn) {
+          setFinalizedStatus({ status: 'dropped' })
+          setActiveStep('finalized')
+          return
+        }
+
+        setTxn(fetchedTxn)
+      })
       .catch(() => null)
     provider
       .getTransactionReceipt(txnId)
-      .then((receipt) => {
+      .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
-          // @TODO set the state to txn ID not found
+          // @TODO: think what should happen here as it could be pending
+          // maybe set an interval to refetch the transaction
+
+          // if there is not transaction, obv there will be no receipt
+          // in that case, we need to stop with dropped
           return
         }
         provider
@@ -219,7 +269,7 @@ const TransactionProgressScreen = () => {
       .catch(() => setNativePrice(0))
   }, [txnId, network])
 
-  let cost
+  let cost = null
   let accountOp: AccountOp | null = null
   let calls: IrCall[] = []
   if (txnReceipt && txn) {
@@ -306,13 +356,11 @@ const TransactionProgressScreen = () => {
               rows={[
                 {
                   label: 'Timestamp',
-                  value: blockData ? getDate(blockData.timestamp) : 'Fetching...'
+                  value: getTimestamp(blockData, finalizedStatus)
                 },
                 {
                   label: 'Transaction fee',
-                  value: cost
-                    ? `${cost} ${network.nativeAssetSymbol} ($${nativePrice})`
-                    : 'Fetching...'
+                  value: getFee(cost, network, nativePrice, finalizedStatus)
                 },
                 {
                   label: 'Transaction ID',
@@ -321,36 +369,38 @@ const TransactionProgressScreen = () => {
                 }
               ]}
             />
-            <Step
-              title={
-                activeStep === 'finalized'
-                  ? 'Transaction details'
-                  : 'Your transaction is in progress'
-              }
-              stepName="in-progress"
-              activeStep={activeStep}
-              finalizedStatus={finalizedStatus}
-            >
-              {calls.map((call, i) => {
-                return (
-                  <TransactionSummary
-                    key={call.data + ethers.randomBytes(6)}
-                    style={i !== calls.length! - 1 ? spacings.mbSm : {}}
-                    call={call}
-                    networkId={network!.id}
-                    explorerUrl={network!.explorerUrl}
-                    rightIcon={
-                      <OpenIcon
-                        width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                        height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                      />
-                    }
-                    onRightIconPress={handleOpenExplorer}
-                    size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-                  />
-                )
-              })}
-            </Step>
+            {shouldShowTxnProgress(finalizedStatus) && (
+              <Step
+                title={
+                  activeStep === 'finalized'
+                    ? 'Transaction details'
+                    : 'Your transaction is in progress'
+                }
+                stepName="in-progress"
+                activeStep={activeStep}
+                finalizedStatus={finalizedStatus}
+              >
+                {calls.map((call, i) => {
+                  return (
+                    <TransactionSummary
+                      key={call.data + ethers.randomBytes(6)}
+                      style={i !== calls.length! - 1 ? spacings.mbSm : {}}
+                      call={call}
+                      networkId={network!.id}
+                      explorerUrl={network!.explorerUrl}
+                      rightIcon={
+                        <OpenIcon
+                          width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                          height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                        />
+                      }
+                      onRightIconPress={handleOpenExplorer}
+                      size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
+                    />
+                  )
+                })}
+              </Step>
+            )}
             <Step
               title={
                 finalizedStatus && finalizedStatus?.status !== 'confirmed'
@@ -374,14 +424,11 @@ const TransactionProgressScreen = () => {
                 rows={[
                   {
                     label: 'Timestamp',
-                    value: blockData ? getDate(blockData.timestamp) : 'Fetching...'
+                    value: getTimestamp(blockData, finalizedStatus)
                   },
                   {
                     label: 'Block number',
-                    value:
-                      txnReceipt && txnReceipt.blockNumber
-                        ? txnReceipt.blockNumber.toString()
-                        : 'Fetching...'
+                    value: getBlockNumber(blockData, finalizedStatus)
                   }
                 ]}
               />
