@@ -5,18 +5,14 @@ import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
 import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 
-// DOCS
-// - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
-
-// USAGE
-// const iterator = new LatticeKeyIterator({ hardware wallet props })
-// const keys = await iterator.retrieve(0, 9, "derivation-path")
-
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type WALLET_TYPE = {
   sdkSession?: Client | null
 }
 
+/**
+ * Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
+ */
 class LatticeKeyIterator implements KeyIteratorInterface {
   sdkSession?: Client | null
 
