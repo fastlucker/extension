@@ -65,7 +65,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['setImmediate.js', 'background.js'],
+        scripts: ['background.js'],
         persistent: true
       }
       // Chrome extensions do not respect `browser_specific_settings`
@@ -188,10 +188,6 @@ module.exports = async function (env, argv) {
           from: './src/web/public/manifest.json',
           to: 'manifest.json',
           transform: processManifest
-        },
-        {
-          from: './node_modules/setimmediate/setImmediate.js',
-          to: 'setImmediate.js'
         },
         {
           from: './src/web/public/index.html',
