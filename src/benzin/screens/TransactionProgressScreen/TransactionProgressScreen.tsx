@@ -23,6 +23,7 @@ import { WALLETModule } from '@ambire-common/libs/humanizer/modules/WALLET'
 import { wrappingModule } from '@ambire-common/libs/humanizer/modules/wrapped'
 import { yearnVaultModule } from '@ambire-common/libs/humanizer/modules/yearnTesseractVault'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import bundler from '@ambire-common/services/bundlers'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
@@ -191,7 +192,7 @@ const getFee = (
   finalizedStatus: FinalizedStatusType
 ) => {
   if (cost) {
-    return `${cost} ${network.nativeAssetSymbol} ($${nativePrice})`
+    return `${cost} ${network.nativeAssetSymbol} ($${(Number(cost) * nativePrice).toFixed(2)})`
   }
 
   return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
@@ -203,7 +204,11 @@ const TransactionProgressScreen = () => {
     status: null,
     txnId: null
   })
-  const [txnReceipt, setTxnReceipt] = useState<null | TransactionReceipt>(null)
+  const [txnReceipt, setTxnReceipt] = useState<{
+    actualGasCost: null | BigInt
+    from: null | string
+    blockNumber: null | BigInt
+  }>({ actualGasCost: null, from: null, blockNumber: null })
   const [blockData, setBlockData] = useState<null | Block>(null)
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
@@ -219,23 +224,31 @@ const TransactionProgressScreen = () => {
 
   const params = new URLSearchParams(route?.search)
 
-  const txnId = userOp.txnId ?? params.get('txnId')
+  const txnId = params.get('txnId')
   const [networkId, isUserOp] = [params.get('networkId'), typeof params.get('userOp') === 'string']
   const network = networks.find((n) => n.id === networkId)
 
+  useMemo(() => {
+    if (!network) return
+
+    getNativePrice(network, fetch)
+      .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
+      .catch(() => setNativePrice(0))
+  }, [network])
+
   useEffect(() => {
-    if (!txnId || !network || !isUserOp || userOp.status !== null) return
+    if (!txnId || !network || !isUserOp || userOp.status !== null || txnReceipt.blockNumber) return
 
     Bundler.getStatusAndTxnId(txnId, network)
       .then((userOpStatusAndId: { status: string; transactionHash: null | string }) => {
         switch (userOpStatusAndId.status) {
-          case 'not_found':
           case 'rejected':
             setFinalizedStatus({ status: 'dropped' })
             setActiveStep('finalized')
             setUserOp({ status: userOpStatusAndId.status, txnId: null })
             break
 
+          case 'not_found':
           case 'not_submitted':
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
@@ -256,20 +269,50 @@ const TransactionProgressScreen = () => {
         }
       })
       .catch(() => null)
-  }, [isUserOp, userOp, network, txnId])
+  }, [isUserOp, userOp, network, txnId, txnReceipt])
 
   useMemo(() => {
-    if (!network) return
+    if (!txnId || !network || !isUserOp || txnReceipt.blockNumber) return
 
-    // no execution if the request is 4337 and we haven't fetched
-    // any info for the user operation
-    if (isUserOp && userOp.status === null) return
+    bundler
+      .getReceipt(txnId, network)
+      .then((userOpReceipt: any) => {
+        if (!userOpReceipt) {
+          if (userOp.status === 'not_found') {
+            setFinalizedStatus({ status: 'dropped' })
+            setActiveStep('finalized')
+            return
+          }
 
+          // TODO: this means we're in a pending state, think what to do
+          return
+        }
+
+        setTxnReceipt({
+          from: userOpReceipt.sender,
+          actualGasCost: BigInt(userOpReceipt.actualGasCost),
+          blockNumber: BigInt(userOpReceipt.receipt.blockNumber)
+        })
+        setUserOp({
+          status: 'included',
+          txnId: userOpReceipt.receipt.transactionHash
+        })
+        setFinalizedStatus(
+          userOpReceipt.receipt.status === '0x1' ? { status: 'confirmed' } : { status: 'failed' }
+        )
+        setActiveStep('finalized')
+      })
+      .catch(() => null)
+  }, [txnId, network, isUserOp, userOp, txnReceipt])
+
+  useMemo(() => {
+    if (!network || txn || (isUserOp && userOp.txnId === null)) return
+
+    const finalTxnId = userOp.txnId ?? txnId
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
-      .getTransaction(txnId!)
+      .getTransaction(finalTxnId!)
       .then((fetchedTxn: null | TransactionResponse) => {
-        // if there is no transaction, it means it has been dropped
         if (!fetchedTxn) {
           setFinalizedStatus({ status: 'dropped' })
           setActiveStep('finalized')
@@ -279,6 +322,12 @@ const TransactionProgressScreen = () => {
         setTxn(fetchedTxn)
       })
       .catch(() => null)
+  }, [txnId, network, userOp, isUserOp, txn])
+
+  useMemo(() => {
+    if (!network || isUserOp || txnReceipt.blockNumber) return
+
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getTransactionReceipt(txnId!)
       .then((receipt: null | TransactionReceipt) => {
@@ -290,30 +339,38 @@ const TransactionProgressScreen = () => {
           // in that case, we need to stop with dropped
           return
         }
-        provider
-          .getBlock(Number(receipt.blockNumber))
-          .then((fetchedBlockData) => {
-            setTxnReceipt(receipt)
-            setBlockData(fetchedBlockData)
 
-            setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
-            setActiveStep('finalized')
-          })
-          .catch(() => null)
+        setTxnReceipt({
+          from: receipt.from,
+          actualGasCost: receipt.gasUsed * receipt.gasPrice,
+          blockNumber: BigInt(receipt.blockNumber)
+        })
+        setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+        setActiveStep('finalized')
       })
       .catch(() => null)
-    getNativePrice(network, fetch)
-      .then((fetchedPrice) => setNativePrice(parseFloat(fetchedPrice.toFixed(2))))
-      .catch(() => setNativePrice(0))
-  }, [txnId, network, isUserOp, userOp])
+  }, [txnId, network, isUserOp, txnReceipt])
+
+  // get block
+  useMemo(() => {
+    if (!network || !txnReceipt.blockNumber || blockData !== null) return
+
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
+    provider
+      .getBlock(Number(txnReceipt.blockNumber))
+      .then((fetchedBlockData) => {
+        setBlockData(fetchedBlockData)
+      })
+      .catch(() => null)
+  }, [network, txnReceipt, blockData])
 
   useEffect(() => {
     if (network && txnReceipt && txn) {
-      setCost(ethers.formatEther(txnReceipt.gasUsed * txnReceipt.gasPrice))
+      setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
       const accountOp = {
-        accountAddr: txnReceipt.from,
+        accountAddr: txnReceipt.from!,
         networkId: network.id,
-        signingKeyAddr: txnReceipt.from, // irrelevant
+        signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
         calls: reproduceCalls(txn),
