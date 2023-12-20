@@ -16,11 +16,8 @@ import BroadcastChannelMessage from '@web/extension-services/message/broadcastCh
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 const ambireChannelName = 'ambire-inpage'
-let ambireIsDefaultWallet = true
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-
-if (ambireIsOpera) ambireIsDefaultWallet = false
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -544,7 +541,7 @@ const setOtherProvider = (otherProvider: EthereumProvider) => {
   }
 }
 
-const initProvider = (isDefaultWallet: boolean) => {
+const initProvider = (isDefaultWallet: boolean = true) => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
@@ -572,7 +569,7 @@ const initProvider = (isDefaultWallet: boolean) => {
 if (ambireIsOpera) {
   initOperaProvider()
 } else {
-  initProvider(!!ambireIsDefaultWallet)
+  initProvider()
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
