@@ -37,11 +37,15 @@ const openIndexPage = (route = ''): Promise<number | undefined> => {
 }
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
-  const tabs = await browser.tabs.query({
-    active: true,
-    currentWindow: true
-  })
-  return tabs[0]
+  try {
+    const tabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true
+    })
+    return tabs[0]
+  } catch (error) {
+    // TODO: add appropriate error handling that will notify the user
+  }
 }
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
