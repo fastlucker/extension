@@ -6,6 +6,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { browser } from '@web/constants/browserapi'
 
 const LATTICE_APP_NAME = 'Ambire Wallet Extension'
 const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
@@ -39,17 +40,21 @@ class LatticeController implements ExternalSignerController {
     return !!this._getCurrentWalletUID() && !!this.sdkSession
   }
 
-  // Initialize a session with the Lattice1 device using the GridPlus SDK
-  // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
-  // reconnecting to the target Lattice. This is only currently used for signing
-  // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
-  // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
-  // possible edge cases related to this new functionality (it's probably fine - just
-  // being cautious). In the future we may remove `bypassOnStateData` entirely.
-  async unlock(bypassOnStateData = false) {
+  async unlock() {
     if (this.isUnlocked()) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
+
+    // Initialize a session with the Lattice1 device using the GridPlus SDK
+    // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
+    // reconnecting to the target Lattice. This is only currently used for signing
+    // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
+    // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
+    // possible edge cases related to this new functionality (it's probably fine - just
+    // being cautious). In the future we may remove `bypassOnStateData` entirely.
+    // TODO: Currently not implemented
+    const bypassOnStateData = false
+
     const creds: any = await this._getCreds()
     if (creds) {
       this.creds.deviceID = creds.deviceID
@@ -60,10 +65,10 @@ class LatticeController implements ExternalSignerController {
     // If state data was provided and if we are authorized to
     // bypass reconnecting, we can exit here.
     if (includedStateData && bypassOnStateData) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
     await this._connect()
-    return 'Unlocked'
+    return 'JUST_UNLOCKED'
   }
 
   _resetDefaults() {
@@ -79,21 +84,8 @@ class LatticeController implements ExternalSignerController {
 
   async _openConnectorTab(url: string) {
     try {
-      const browserTab = window.open(url)
-      // Preferred option for Chromium browsers. This extension runs in a window
-      // for Chromium so we can do window-based communication very easily.
-      if (browserTab) {
-        return { chromium: browserTab }
-      }
-      if (browser && browser.tabs && browser.tabs.create) {
-        // FireFox extensions do not run in windows, so it will return `null` from
-        // `window.open`. Instead, we need to use the `browser` API to open a tab.
-        // We will surveille this tab to see if its URL parameters change, which
-        // will indicate that the user has logged in.
-        const tab = await browser.tabs.create({ url })
-        return { firefox: tab }
-      }
-      throw new Error('Unknown browser context. Cannot open Lattice connector.')
+      const tab = await browser.tabs.create({ url })
+      return { tab }
     } catch (err) {
       throw new Error('Failed to open Lattice connector.')
     }
@@ -130,52 +122,40 @@ class LatticeController implements ExternalSignerController {
 
       // Open the tab
       this._openConnectorTab(url).then((conn) => {
-        if (conn.chromium) {
-          // On a Chromium browser we can just listen for a window message
-          window.addEventListener('message', receiveMessage, false)
-          // Watch for the open window closing before creds are sent back
-          listenInterval = setInterval(() => {
-            if (conn.chromium.closed) {
-              clearInterval(listenInterval)
+        // For Firefox we cannot use `window` in the extension and can't
+        // directly communicate with the tabs very easily so we use a
+        // workaround: listen for changes to the URL, which will contain
+        // the login info.
+        // NOTE: This will only work if have `https://lattice.gridplus.io/*`
+        // host permissions in your manifest file (and also `activeTab` permission)
+        const loginUrlParam = '&loginCache='
+        listenInterval = setInterval(() => {
+          this._findTabById(conn.tab.id).then((tab) => {
+            if (!tab || !tab.url) {
               return reject(new Error('Lattice connector closed.'))
             }
-          }, 500)
-        } else if (conn.firefox) {
-          // For Firefox we cannot use `window` in the extension and can't
-          // directly communicate with the tabs very easily so we use a
-          // workaround: listen for changes to the URL, which will contain
-          // the login info.
-          // NOTE: This will only work if have `https://lattice.gridplus.io/*`
-          // host permissions in your manifest file (and also `activeTab` permission)
-          const loginUrlParam = '&loginCache='
-          listenInterval = setInterval(() => {
-            this._findTabById(conn.firefox.id).then((tab) => {
-              if (!tab || !tab.url) {
-                return reject(new Error('Lattice connector closed.'))
-              }
-              // If the tab we opened contains a new URL param
-              const paramLoc = tab.url.indexOf(loginUrlParam)
-              if (paramLoc < 0) return
-              const dataLoc = paramLoc + loginUrlParam.length
-              // Stop this interval
-              clearInterval(listenInterval)
-              try {
-                // Parse the login data. It is a stringified JSON object
-                // encoded as a base64 string.
-                const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
-                // Close the tab and return the credentials
-                browser.tabs.remove(tab.id).then(() => {
-                  const creds = JSON.parse(_creds)
-                  if (!creds.deviceID || !creds.password)
-                    return reject(new Error('Invalid credentials returned from Lattice.'))
-                  return resolve(creds)
-                })
-              } catch (err) {
-                return reject('Failed to get login data from Lattice. Please try again.')
-              }
-            })
-          }, 500)
-        }
+            // If the tab we opened contains a new URL param
+            const paramLoc = tab.url.indexOf(loginUrlParam)
+            if (paramLoc < 0) return
+            const dataLoc = paramLoc + loginUrlParam.length
+            // Stop this interval
+            clearInterval(listenInterval)
+            try {
+              // Parse the login data. It is a stringified JSON object
+              // encoded as a base64 string.
+              const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
+              // Close the tab and return the credentials
+              browser.tabs.remove(tab.id).then(() => {
+                const creds = JSON.parse(_creds)
+                if (!creds.deviceID || !creds.password)
+                  return reject(new Error('Invalid credentials returned from Lattice.'))
+                return resolve(creds)
+              })
+            } catch (err) {
+              return reject('Failed to get login data from Lattice. Please try again.')
+            }
+          })
+        }, 500)
       })
     })
   }

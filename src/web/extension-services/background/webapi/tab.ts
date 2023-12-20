@@ -2,6 +2,8 @@
 
 import { EventEmitter } from 'events'
 
+import { browser } from '@web/constants/browserapi'
+
 const tabEvent = new EventEmitter()
 
 try {
@@ -36,10 +38,13 @@ const openIndexPage = (route = ''): Promise<number | undefined> => {
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
   try {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    const tabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true
+    })
     return tabs[0]
   } catch (error) {
-    // Silent fail
+    // TODO: add appropriate error handling that will notify the user
   }
 }
 

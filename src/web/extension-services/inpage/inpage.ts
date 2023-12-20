@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
-import { JsonRpcProvider, WebSocketProvider } from 'ethers'
+import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { forIn, isUndefined } from 'lodash'
+import { nanoid } from 'nanoid'
 
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
@@ -20,10 +20,9 @@ import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-declare const ambireChannelName: any
-declare const ambireIsDefaultWallet: any
-declare const ambireId: any
-declare const ambireIsOpera: any
+const ambireChannelName = 'ambire-inpage'
+const ambireId = nanoid()
+const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 let shouldReplaceMM: boolean
 let isEIP6963: boolean
 
@@ -334,7 +333,7 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const network = networks.find((n) => intToHex(n.chainId) === this.chainId)
+        const network = networks.find((n) => toBeHex(n.chainId) === this.chainId)
         if (network?.id && this.dAppOwnProviders[network.id]) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
@@ -553,7 +552,7 @@ const setOtherProvider = (otherProvider: EthereumProvider) => {
   }
 }
 
-const initProvider = (isDefaultWallet: boolean) => {
+const initProvider = (isDefaultWallet: boolean = true) => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
@@ -581,7 +580,7 @@ const initProvider = (isDefaultWallet: boolean) => {
 if (ambireIsOpera) {
   initOperaProvider()
 } else {
-  initProvider(!!ambireIsDefaultWallet)
+  initProvider()
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
@@ -621,10 +620,18 @@ const observer = new MutationObserver((mutationsList) => {
 
   if (!shouldReplaceMM) return
 
-  const hasMMWordInPage = isWordInPage('metamask')
-  const hasWCWordInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+  const hasTrustWalletInPage = isWordInPage('trustwallet')
 
-  if (!hasMMWordInPage || !hasWCWordInPage || isEIP6963) {
+  if (
+    isEIP6963 ||
+    !(
+      hasMetaMaskInPage &&
+      (hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)
+    )
+  ) {
     return
   }
 

@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
+import Alert from '@common/components/Alert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { useTranslation } from '@common/config/localization'
@@ -20,6 +21,7 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
@@ -28,7 +30,6 @@ import PendingTokenSummary from '@web/modules/sign-account-op/components/Pending
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import Alert from '@common/components/Alert'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
@@ -39,6 +40,8 @@ const SignAccountOpScreen = () => {
   const activityState = useActivityControllerState()
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
+
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -107,10 +110,8 @@ const SignAccountOpScreen = () => {
   }, [mainState.accounts, signAccountOpState?.accountOp?.accountAddr])
 
   const network = useMemo(() => {
-    return mainState.settings.networks.find(
-      (n) => n.id === signAccountOpState?.accountOp?.networkId
-    )
-  }, [mainState.settings.networks, signAccountOpState?.accountOp?.networkId])
+    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
+  }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
     if (!signAccountOpState?.accountOp) return
@@ -298,7 +299,13 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             {hasEstimation ? (
-              <Estimation networkId={network!.id} isViewOnly={isViewOnly} />
+              <Estimation
+                mainState={mainState}
+                signAccountOpState={signAccountOpState}
+                accountPortfolio={portfolioState.accountPortfolio}
+                networkId={network!.id}
+                isViewOnly={isViewOnly}
+              />
             ) : (
               <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                 <Spinner style={styles.spinner} />

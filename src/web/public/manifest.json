@@ -27,21 +27,13 @@
     {
       "all_frames": true,
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
+      "exclude_matches": ["*://doInWebPack.lan/*"],
       "run_at": "document_start",
-      "js": ["browser-polyfill.js", "content-script.js"]
+      "js": ["content-script.js"]
     },
     {
       "matches": ["*://connect.trezor.io/*/popup.html", "https://connect.onekey.so/popup.html"],
-      "js": ["vendor/trezor/trezor-content-script.js"]
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["*"],
-      "exclude_matches": ["*://wallet.ambire.com/*"],
-      "matches": ["<all_urls>"],
-      "extension_ids": []
+      "js": ["browser-polyfill.min.js", "vendor/trezor/trezor-content-script.js"]
     }
   ]
 }

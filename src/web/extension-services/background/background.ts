@@ -1,6 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
+import 'setImmediate'
+
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -10,12 +12,15 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/accountState/accountState'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import provider from '@web/extension-services/background/provider/provider'
@@ -39,8 +44,15 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
 
+function saveTimestamp() {
+  const timestamp = new Date().toISOString()
+
+  browser.storage.session.set({ timestamp })
+}
+
 async function init() {
   // Initialize rpc providers for all networks
+  // @TODO: get rid of this and use the rpc providers from the settings controller
   const shouldInitProviders = !areRpcProvidersInitialized()
   if (shouldInitProviders) {
     initRpcProviders(rpcProviders)
@@ -54,7 +66,16 @@ async function init() {
 
   await permissionService.init()
 }
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  if (isManifestV3) {
+    // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
+    // miliseconds. This keeps the service worker alive.
+    const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
+
+    saveTimestamp()
+    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
+  }
   await init()
   const portMessageUIRefs: { [key: string]: PortMessage } = {}
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
@@ -64,7 +85,7 @@ async function init() {
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
     // binding window to fetch provides the correct context
-    fetch: window.fetch.bind(window),
+    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
@@ -142,7 +163,7 @@ async function init() {
   let accountStateInterval: any
   let selectedAccountStateInterval: any
   const accountStateIntervals = {
-    pending: 7500,
+    pending: 3000,
     standBy: 300000
   }
 
@@ -177,6 +198,19 @@ async function init() {
   }
   // Call it once to initialize the interval
   setAccountStateInterval(accountStateIntervals.standBy)
+
+  // re-estimate interval
+  let reestimateInterval: any
+  function setReestimateInterval(accountOp: AccountOp) {
+    clearInterval(reestimateInterval)
+
+    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    // 12 seconds is the time needed for a new ethereum block
+    const time = currentNetwork.reestimateOn ?? 12000
+    reestimateInterval = setInterval(async () => {
+      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+    }, time)
+  }
 
   // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
   // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
@@ -285,6 +319,24 @@ async function init() {
           mainControllersQueue.splice(i, 1)
         }
       }
+
+      // if the signAccountOp controller is active, reestimate
+      // at a set period of time
+      if (mainCtrl.signAccountOp !== null) {
+        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+      } else {
+        clearInterval(reestimateInterval)
+      }
+
+      // if there are failed networks, refresh the account state every 8 seconds
+      // for them until we get a clean state
+      const failedNetworkIds = getNetworksWithFailedRPC({
+        accountStates: mainCtrl.accountStates,
+        networks: mainCtrl.settings.networks
+      })
+      if (failedNetworkIds.length) {
+        setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
+      }
     }
 
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
@@ -373,8 +425,7 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
               const keyIterator = new LedgerKeyIterator({
-                hdk: ledgerCtrl.hdk,
-                app: ledgerCtrl.app
+                walletSDK: ledgerCtrl.walletSDK
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
@@ -387,7 +438,9 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-              const keyIterator = new TrezorKeyIterator({ hdk: trezorCtrl.hdk })
+              const keyIterator = new TrezorKeyIterator({
+                walletSDK: trezorCtrl.walletSDK
+              })
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -430,6 +483,18 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
               return mainCtrl.settings.addKeyPreferences(data.params)
             }
+            case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
+              return mainCtrl.updateNetworkPreferences(
+                data.params.networkPreferences,
+                data.params.networkId
+              )
+            }
+            case 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE': {
+              return mainCtrl.resetNetworkPreference(
+                data.params.preferenceKey,
+                data.params.networkId
+              )
+            }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
               return mainCtrl.selectAccount(data.params.accountAddr)
             }
@@ -456,14 +521,8 @@ async function init() {
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
               return mainCtrl.removeUserRequest(data.params.id)
-            case 'MAIN_CONTROLLER_REFETCH_PORTFOLIO':
-              return fetchPortfolioData()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init({
-                messageToSign: data.params.messageToSign,
-                accounts: data.params.accounts,
-                accountStates: data.params.accountStates
-              })
+              return mainCtrl.signMessage.init(data.params)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
@@ -484,6 +543,12 @@ async function init() {
               return mainCtrl.activity.init({
                 filters: data.params.filters
               })
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
+              return mainCtrl.activity.setFilters(data.params.filters)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
+              return mainCtrl.activity.setAccountsOpsPagination(data.params.pagination)
+            case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
+              return mainCtrl.activity.setSignedMessagesPagination(data.params.pagination)
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
 
@@ -510,8 +575,19 @@ async function init() {
               )
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
               return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP':
-              return mainCtrl.broadcastSignedAccountOp(data.params.accountOp)
+            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
+              const { accountOp } = data.params
+              const broadcastKeyType = accountOp.signingKeyType
+
+              if (broadcastKeyType === 'ledger')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
+              if (broadcastKeyType === 'trezor')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
+              if (broadcastKeyType === 'lattice')
+                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
+
+              return mainCtrl.broadcastSignedAccountOp(accountOp)
+            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
@@ -537,20 +613,16 @@ async function init() {
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock()
-            case 'LEDGER_CONTROLLER_APP':
-              return ledgerCtrl.app
-            case 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION':
-              return ledgerCtrl.authorizeHIDPermission()
-
-            case 'TREZOR_CONTROLLER_UNLOCK':
-              return trezorCtrl.unlock()
 
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return
-              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+              return mainCtrl.updateSelectedAccount(
+                mainCtrl.selectedAccount,
+                data.params?.forceUpdate
+              )
             }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
@@ -651,6 +723,7 @@ async function init() {
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
@@ -705,7 +778,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 })
 
 // Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-op') => {
+const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
   let message = ''
   if (type === 'message') {
@@ -719,11 +792,37 @@ const notifyForSuccessfulBroadcast = (type: 'message' | 'typed-data' | 'account-
   }
 
   const id = new Date().getTime()
-  browser.notifications.create(id.toString(), {
+  // service_worker (mv3) - without await the notification doesn't show
+  await browser.notifications.create(id.toString(), {
     type: 'basic',
     iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
     title,
-    message,
-    priority: 2
+    message
   })
+}
+
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerInPageContentScript = async () => {
+  try {
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
+  }
+}
+
+// For mv2 the injection is located in the content-script
+if (isManifestV3) {
+  registerInPageContentScript()
 }

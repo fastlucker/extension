@@ -17,7 +17,13 @@ const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 module.exports = async function (env, argv) {
   function processManifest(content) {
     const manifest = JSON.parse(content.toString())
-    // Temporarily the manifest is v2 for all browsers until the v3 is ready for prod and tested well
+    // TODO: Manifest V3 support for Chromium browsers has also been implemented.
+    // However, there is one remaining unresolved issue: @trezor/connect-web is not intended to work in a service worker.
+    // Trezor is currently developing a new package, but it is still a work in progress.
+    // There is a workaround that enables the use of @trezor/connect-web with Manifest V3, but
+    // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
+    // https://github.com/trezor/trezor-suite/issues/6458
+    // https://github.com/trezor/trezor-suite/pull/9525
     const manifestVersion = 2
 
     // Maintain the same versioning between the web extension and the mobile app
@@ -40,15 +46,18 @@ module.exports = async function (env, argv) {
     //   embed a page using <frame>, <iframe>, <object>, <embed>, or <applet>.
     // {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources}
     // {@link https://web.dev/csp/}
-    const csp = "script-src 'self' 'wasm-eval'; object-src 'self'; frame-ancestors 'none';"
+    const csp = "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; frame-ancestors 'none';"
 
     if (manifestVersion === 3) {
-      manifest.content_security_policy = { extension_pages: csp }
+      manifest.content_security_policy = {
+        extension_pages: csp
+      }
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
+      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display']
       manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 
@@ -56,7 +65,7 @@ module.exports = async function (env, argv) {
     if (manifestVersion === 2) {
       manifest.manifest_version = 2
       manifest.background = {
-        scripts: ['browser-polyfill.js', 'setimmediate.js', 'background.js'],
+        scripts: ['background.js'],
         persistent: true
       }
       // Chrome extensions do not respect `browser_specific_settings`
@@ -181,14 +190,6 @@ module.exports = async function (env, argv) {
           transform: processManifest
         },
         {
-          from: './node_modules/webextension-polyfill/dist/browser-polyfill.js',
-          to: 'browser-polyfill.js'
-        },
-        {
-          from: './node_modules/setimmediate/setImmediate.js',
-          to: 'setimmediate.js'
-        },
-        {
           from: './src/web/public/index.html',
           to: 'index.html'
         },
@@ -203,6 +204,10 @@ module.exports = async function (env, argv) {
         {
           from: './src/web/public/trezor-usb-permissions.html',
           to: 'trezor-usb-permissions.html'
+        },
+        {
+          from: './node_modules/webextension-polyfill/dist/browser-polyfill.min.js',
+          to: 'browser-polyfill.min.js'
         }
       ]
     }),
@@ -222,6 +227,10 @@ module.exports = async function (env, argv) {
       }
     })
   ]
+
+  if (config.mode === 'production') {
+    config.devtool = false // optimize bundle size for production by removing the source-map
+  }
 
   // Disables chunking, minimization, and other optimizations that alter the default transpilation of the extension services files.
   config.optimization = { minimize: false }

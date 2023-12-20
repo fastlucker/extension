@@ -1,0 +1,3 @@
+import TransactionHistorySettingsScreen from './TransactionHistorySettingsScreen'
+
+export default TransactionHistorySettingsScreen
