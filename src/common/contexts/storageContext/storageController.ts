@@ -43,7 +43,6 @@ export class StorageController {
   async init() {
     if (isExtension) {
       const result = await getDataFromStorage()
-
       this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
