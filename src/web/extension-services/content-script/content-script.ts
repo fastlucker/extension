@@ -38,18 +38,3 @@ document.addEventListener('beforeunload', () => {
 if (!isManifestV3) {
   injectProviderScript()
 }
-
-// TODO: keep alive for manifest v3
-// const WORKER_KEEP_ALIVE_INTERVAL = 1000
-// const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
-
-// const initKeepWorkerAlive = () => {
-//   setInterval(() => {
-//     browserapi.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
-//   }, WORKER_KEEP_ALIVE_INTERVAL)
-// }
-
-// // Keeps service_worker alive (prevents it to become inactive)
-// if (engine === 'webkit') {
-//   initKeepWorkerAlive()
-// }

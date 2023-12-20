@@ -3,7 +3,7 @@
 
 import browser from 'webextension-polyfill'
 
-const browserAPI = chrome || browser
+const browserAPI = browser
 let engine: 'webkit' | 'gecko' | null = null
 let isExtension: boolean = false
 let isManifestV3: boolean = false

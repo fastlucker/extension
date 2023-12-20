@@ -36,7 +36,7 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
   }
 
   return new Promise((resolve) => {
-    browserAPI.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
       const ratio = 0.88 // 88% of the screen/tab size
 
       let desiredWidth = screenWidth * ratio
@@ -46,8 +46,8 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
       let topPosition = (screenHeight - desiredHeight) / 2
 
       const activeTab = activeTabs[0]
-      if (!browserAPI.runtime.lastError && activeTab !== undefined) {
-        browserAPI.windows.getCurrent({ populate: true }, (currentWindow: any) => {
+      if (!chrome.runtime.lastError && activeTab !== undefined) {
+        chrome.windows.getCurrent({ populate: true }, (currentWindow: any) => {
           let leftOffset = 0
           let topOffset = 0
           if (currentWindow) {
@@ -66,7 +66,7 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
               activeTab.height
           }
 
-          browserAPI.windows.create(
+          chrome.windows.create(
             {
               focused: true,
               url,
