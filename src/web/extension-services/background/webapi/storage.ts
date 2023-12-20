@@ -2,14 +2,8 @@ import { Storage } from '@ambire-common/interfaces/storage'
 import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { browser } from '@web/constants/browserapi'
 
-export const getDataFromStorage = async (): Promise<{ [key: string]: any }> => {
-  const res = await browser.storage.local.get(null)
-
-  return res
-}
-
 export const get = async (key?: string, defaultValue?: any) => {
-  const res = await getDataFromStorage()
+  const res = await browser.storage.local.get(null)
 
   if (!res[key]) {
     return defaultValue

@@ -1,7 +1,6 @@
 import { MMKV } from 'react-native-mmkv'
 
 import { browser, isExtension } from '@web/constants/browserapi'
-import { getDataFromStorage } from '@web/extension-services/background/webapi/storage'
 
 export class StorageController {
   isInitialized = false
@@ -42,7 +41,7 @@ export class StorageController {
 
   async init() {
     if (isExtension) {
-      const result = await getDataFromStorage()
+      const result = await browser.storage.local.get()
       this.extensionSyncStorage = { ...result }
 
       // Subscribe to changes in order to always keep in sync the
