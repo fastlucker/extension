@@ -1,6 +1,5 @@
 import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import fetch from 'node-fetch'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
 
@@ -575,7 +574,7 @@ const TransactionProgressScreen = () => {
               <Text appearance="secondaryText" fontSize={14}>
                 Est time remaining 5 mins on
               </Text>
-              <NetworkIcon name="ethereum" />
+              <NetworkIcon name={network.id} />
               <Text appearance="secondaryText" fontSize={14}>
                 {network.name}
               </Text>
