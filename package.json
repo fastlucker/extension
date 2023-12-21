@@ -10,7 +10,7 @@
     "ios:production": "APP_ENV=production yarn ios",
     "web:webkit": "rm -rf ./webkit-dev && WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-dev APP_ENV=development expo start --web",
     "web:gecko": "rm -rf ./gecko-dev && WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-dev APP_ENV=development expo start --web",
-    "web:benzin": "rm -rf ./benzin-dev && WEBPACK_BUILD_OUTPUT_PATH=benzin-dev APP_ENV=development expo start --web",
+    "web:benzin": "rm -rf ./benzin-dev && WEBPACK_BUILD_OUTPUT_PATH=benzin-dev APP_ENV=development RCT_METRO_PORT=3006 WEB_PORT=3000 expo start --web",
     "start": "react-native start",
     "start:clean": "react-native start --reset-cache",
     "start:staging": "APP_ENV=staging yarn start",
