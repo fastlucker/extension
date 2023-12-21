@@ -612,39 +612,25 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 // MetaMask text and icon replacement for dApps using legacy connect only
 //
 
-let timeoutId: any
-const mutationsQueue = []
-
-const observer = new MutationObserver((mutationsList) => {
-  mutationsQueue.push(...mutationsList)
-  clearTimeout(timeoutId)
-
+const runReplacementScript = async () => {
   if (!shouldReplaceMM) return
 
-  const hasMetaMaskInPage = isWordInPage('metamask')
+  await delayPromise(30) // wait for DOM update
+
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  if (hasWalletConnectInPage) replaceMMImgInPage()
+
+  const hasMetaMaskInPage = isWordInPage('metamask')
   const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
   const hasTrustWalletInPage = isWordInPage('trustwallet')
 
-  if (hasWalletConnectInPage) {
-    replaceMMImgInPage()
-  }
+  if (isEIP6963) return
+  if (!hasMetaMaskInPage) return
+  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) return
 
-  if (
-    isEIP6963 ||
-    !(
-      hasMetaMaskInPage &&
-      (hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)
-    )
-  ) {
-    return
-  }
+  replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+}
 
-  timeoutId = setTimeout(() => {
-    replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
-
-    mutationsQueue.length = 0 // Clear the mutation queue
-  }, 60)
-})
-
+document.addEventListener('click', runReplacementScript)
+const observer = new MutationObserver(runReplacementScript)
 observer.observe(document, { childList: true, subtree: true, attributes: true })
