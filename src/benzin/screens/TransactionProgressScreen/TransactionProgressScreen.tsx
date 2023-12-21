@@ -76,6 +76,8 @@ const humanizerModules: HumanizerCallModule[] = [
   fallbackHumanizer
 ]
 
+const refetchTime = 10000 // 10 seconds
+
 const executeInterface = new ethers.Interface([
   'function execute(tuple(address, uint256, bytes)[] calldata calls, bytes calldata signature) public payable'
 ])
@@ -233,6 +235,28 @@ const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatu
   return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
 }
 
+const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
+  const rows = [
+    {
+      label: 'Timestamp',
+      value: getTimestamp(blockData, finalizedStatus)
+    },
+    {
+      label: 'Block number',
+      value: getBlockNumber(blockData, finalizedStatus)
+    }
+  ]
+
+  if (finalizedStatus?.reason) {
+    rows.unshift({
+      label: 'Failed reason',
+      value: finalizedStatus.reason
+    })
+  }
+
+  return rows
+}
+
 const getFee = (
   cost: null | string,
   network: NetworkDescriptor,
@@ -265,6 +289,7 @@ const TransactionProgressScreen = () => {
   })
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<IrCall[]>([])
+  const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
 
   const { theme, styles } = useTheme(getStyles)
   const route = useRoute()
@@ -300,6 +325,7 @@ const TransactionProgressScreen = () => {
           case 'not_submitted':
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
+            setUserOp({ status: userOpStatusAndId.status, txnId: null })
             break
 
           case 'submitted':
@@ -316,23 +342,32 @@ const TransactionProgressScreen = () => {
             throw new Error('Unhandled user operation status. Please contact support')
         }
       })
-      .catch(() => null)
+      .catch(() => setUserOp({ status: 'not_found', txnId: null }))
   }, [isUserOp, userOp, network, txnId, txnReceipt])
 
   useMemo(() => {
-    if (!txnId || !network || !isUserOp || txnReceipt.blockNumber) return
+    if (!txnId || !network || !isUserOp || !userOp.status || txnReceipt.blockNumber) return
 
     bundler
       .getReceipt(txnId, network)
       .then((userOpReceipt: any) => {
         if (!userOpReceipt) {
+          // if userOp.status is not found (not a recent user op)
+          // and we have to receipt, it means the txn was dropped
           if (userOp.status === 'not_found') {
             setFinalizedStatus({ status: 'dropped' })
             setActiveStep('finalized')
             return
           }
 
-          // TODO: this means we're in a pending state, think what to do
+          // rejection is handled on status level, no need to change the state
+          if (userOp.status === 'rejected') {
+            return
+          }
+
+          // if we have a status !== not_found | rejected, we are waiting
+          // for the receipt and we try to refetch after refetchTime
+          setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), refetchTime)
           return
         }
 
@@ -351,7 +386,7 @@ const TransactionProgressScreen = () => {
         setActiveStep('finalized')
       })
       .catch(() => null)
-  }, [txnId, network, isUserOp, userOp, txnReceipt])
+  }, [txnId, network, isUserOp, userOp, txnReceipt, refetchReceiptCounter])
 
   useMemo(() => {
     if (!network || txn || (isUserOp && userOp.txnId === null)) return
@@ -380,11 +415,17 @@ const TransactionProgressScreen = () => {
       .getTransactionReceipt(txnId!)
       .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
-          // @TODO: think what should happen here as it could be pending
-          // maybe set an interval to refetch the transaction
+          // if there is a txn but no receipt, it means it is pending
+          if (txn) {
+            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), refetchTime)
+            setFinalizedStatus({ status: 'fetching' })
+            setActiveStep('in-progress')
+            return
+          }
 
-          // if there is not transaction, obv there will be no receipt
-          // in that case, we need to stop with dropped
+          // just stop the execution if txn is null becase we might
+          // not have fetched it, yet
+          // if txn is null, logic for dropping the txn is handled there
           return
         }
 
@@ -397,7 +438,51 @@ const TransactionProgressScreen = () => {
         setActiveStep('finalized')
       })
       .catch(() => null)
-  }, [txnId, network, isUserOp, txnReceipt])
+  }, [txnId, network, isUserOp, txnReceipt, txn, refetchReceiptCounter])
+
+  // check for error reason
+  useMemo(() => {
+    if (
+      !network ||
+      !txn ||
+      (finalizedStatus && finalizedStatus.status !== 'failed') ||
+      (finalizedStatus && finalizedStatus.reason)
+    )
+      return
+
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
+    provider
+      .call({
+        to: txn.to,
+        from: txn.from,
+        nonce: txn.nonce,
+        gasLimit: txn.gasLimit,
+        gasPrice: txn.gasPrice,
+        data: txn.data,
+        value: txn.value,
+        chainId: txn.chainId,
+        type: txn.type ?? undefined,
+        accessList: txn.accessList
+      })
+      .then(() => null)
+      .catch((error: Error) => {
+        if (error.message.includes('missing revert data')) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Contract execution reverted'
+          })
+          return
+        }
+
+        setFinalizedStatus({
+          status: 'failed',
+          reason:
+            error.message.length > 20
+              ? `${error.message.substring(0, 25)}... (check link for further details)`
+              : error.message
+        })
+      })
+  }, [network, txn, finalizedStatus])
 
   // get block
   useMemo(() => {
@@ -551,11 +636,7 @@ const TransactionProgressScreen = () => {
             )}
             <Step
               title={
-                finalizedStatus && finalizedStatus?.status !== 'confirmed'
-                  ? `${finalizedStatus.status}${
-                      finalizedStatus?.reason ? `: ${finalizedStatus.reason}` : ''
-                    }`
-                  : 'Confirmed'
+                finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Fetching'
               }
               stepName="finalized"
               finalizedStatus={finalizedStatus}
@@ -569,16 +650,7 @@ const TransactionProgressScreen = () => {
                   ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
                   borderWidth: 0
                 }}
-                rows={[
-                  {
-                    label: 'Timestamp',
-                    value: getTimestamp(blockData, finalizedStatus)
-                  },
-                  {
-                    label: 'Block number',
-                    value: getBlockNumber(blockData, finalizedStatus)
-                  }
-                ]}
+                rows={getFinalizedRows(blockData, finalizedStatus)}
               />
             ) : null}
           </View>
