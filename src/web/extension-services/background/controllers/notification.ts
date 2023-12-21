@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { ethErrors } from 'eth-rpc-errors'
+import { Linking } from 'react-native'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -215,6 +216,15 @@ export class NotificationController extends EventEmitter {
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
+      const { hash, networkId, isUserOp } = data
+
+      if (hash && networkId) {
+        Linking.openURL(
+          `http://localhost:3000/?txnId=${hash}&networkId=${networkId}${
+            isUserOp ? '&isUserOp' : ''
+          }`
+        )
+      }
 
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
