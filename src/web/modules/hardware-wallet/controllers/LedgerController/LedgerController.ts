@@ -56,6 +56,8 @@ class LedgerController implements ExternalSignerController {
       this.transport = await TransportWebHID.create()
       if (!this.transport) throw new Error('Transport failed to get initialized')
 
+      this.transport.on('disconnect', () => this.cleanUp)
+
       this.walletSDK = new Eth(this.transport)
 
       if (this.transport?.deviceModel?.id) {
@@ -110,9 +112,12 @@ class LedgerController implements ExternalSignerController {
   }
 
   async cleanUp() {
+    if (this.transport) {
+      this.transport.off('disconnect', () => this.cleanUp)
+      await this.transport.close()
+      this.transport = null
+    }
     this.walletSDK = null
-    if (this.transport) this.transport.close()
-    this.transport = null
   }
 }
 
