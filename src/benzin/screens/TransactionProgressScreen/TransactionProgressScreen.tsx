@@ -233,6 +233,28 @@ const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatu
   return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
 }
 
+const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
+  const rows = [
+    {
+      label: 'Timestamp',
+      value: getTimestamp(blockData, finalizedStatus)
+    },
+    {
+      label: 'Block number',
+      value: getBlockNumber(blockData, finalizedStatus)
+    }
+  ]
+
+  if (finalizedStatus?.reason) {
+    rows.unshift({
+      label: 'Failed reason',
+      value: finalizedStatus.reason
+    })
+  }
+
+  return rows
+}
+
 const getFee = (
   cost: null | string,
   network: NetworkDescriptor,
@@ -300,6 +322,7 @@ const TransactionProgressScreen = () => {
           case 'not_submitted':
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
+            setUserOp({ status: userOpStatusAndId.status, txnId: null })
             break
 
           case 'submitted':
@@ -316,11 +339,11 @@ const TransactionProgressScreen = () => {
             throw new Error('Unhandled user operation status. Please contact support')
         }
       })
-      .catch(() => null)
+      .catch(() => setUserOp({ status: 'not_found', txnId: null }))
   }, [isUserOp, userOp, network, txnId, txnReceipt])
 
   useMemo(() => {
-    if (!txnId || !network || !isUserOp || txnReceipt.blockNumber) return
+    if (!txnId || !network || !isUserOp || !userOp.status || txnReceipt.blockNumber) return
 
     bundler
       .getReceipt(txnId, network)
@@ -398,6 +421,50 @@ const TransactionProgressScreen = () => {
       })
       .catch(() => null)
   }, [txnId, network, isUserOp, txnReceipt])
+
+  // check for error reason
+  useMemo(() => {
+    if (
+      !network ||
+      !txn ||
+      (finalizedStatus && finalizedStatus.status !== 'failed') ||
+      (finalizedStatus && finalizedStatus.reason)
+    )
+      return
+
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
+    provider
+      .call({
+        to: txn.to,
+        from: txn.from,
+        nonce: txn.nonce,
+        gasLimit: txn.gasLimit,
+        gasPrice: txn.gasPrice,
+        data: txn.data,
+        value: txn.value,
+        chainId: txn.chainId,
+        type: txn.type ?? undefined,
+        accessList: txn.accessList
+      })
+      .then(() => null)
+      .catch((error: Error) => {
+        if (error.message.includes('missing revert data')) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Contract execution reverted'
+          })
+          return
+        }
+
+        setFinalizedStatus({
+          status: 'failed',
+          reason:
+            error.message.length > 20
+              ? `${error.message.substring(0, 25)}... (check link for further details)`
+              : error.message
+        })
+      })
+  }, [network, txn, finalizedStatus])
 
   // get block
   useMemo(() => {
@@ -551,11 +618,7 @@ const TransactionProgressScreen = () => {
             )}
             <Step
               title={
-                finalizedStatus && finalizedStatus?.status !== 'confirmed'
-                  ? `${finalizedStatus.status}${
-                      finalizedStatus?.reason ? `: ${finalizedStatus.reason}` : ''
-                    }`
-                  : 'Confirmed'
+                finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Fetching'
               }
               stepName="finalized"
               finalizedStatus={finalizedStatus}
@@ -569,16 +632,7 @@ const TransactionProgressScreen = () => {
                   ...spacings[IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'pt' : 'ptSm'],
                   borderWidth: 0
                 }}
-                rows={[
-                  {
-                    label: 'Timestamp',
-                    value: getTimestamp(blockData, finalizedStatus)
-                  },
-                  {
-                    label: 'Block number',
-                    value: getBlockNumber(blockData, finalizedStatus)
-                  }
-                ]}
+                rows={getFinalizedRows(blockData, finalizedStatus)}
               />
             ) : null}
           </View>
