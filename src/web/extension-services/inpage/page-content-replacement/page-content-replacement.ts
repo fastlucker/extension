@@ -45,6 +45,15 @@ function isWordInPage(word: string) {
   return getNumberOfWordOccurrencesInPage(word) !== 0
 }
 
+function replaceMMImgInPage() {
+  const imgElements = document.getElementsByTagName('img')
+  for (let i = 0; i < imgElements.length; i++) {
+    if (imgElements[i].src.includes('metamask')) {
+      imgElements[i].src = ambireSvg
+    }
+  }
+}
+
 function replaceWordAndIcon(wordToFind: string, replacementWord: string, replacementIcon?: string) {
   let additionalNodes: any[] = []
   const onboardElement = document.querySelector('onboard-v2')
@@ -73,17 +82,8 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
               if (imgElement || svgElement || imgElementByRole) {
                 const newImgElement = document.createElement('img')
                 newImgElement.src = replacementIcon!
-
                 if (imgElement) {
-                  if (imgElement.clientHeight) {
-                    newImgElement.style.height = `${imgElement.clientHeight}px`
-                  }
-                  if (imgElement.clientWidth) {
-                    newImgElement.style.width = `${imgElement.clientWidth}px`
-                  }
-
-                  imgElement.parentNode.insertBefore(newImgElement, imgElement)
-                  imgElement.style.display = 'none'
+                  imgElement.src = replacementIcon
                 }
 
                 if (svgElement) {
@@ -138,4 +138,4 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
   })
 }
 
-export { ambireSvg, isWordInPage, replaceWordAndIcon }
+export { ambireSvg, isWordInPage, replaceWordAndIcon, replaceMMImgInPage }

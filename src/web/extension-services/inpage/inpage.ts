@@ -12,6 +12,7 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import {
   ambireSvg,
   isWordInPage,
+  replaceMMImgInPage,
   replaceWordAndIcon
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
@@ -624,6 +625,10 @@ const observer = new MutationObserver((mutationsList) => {
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
   const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
   const hasTrustWalletInPage = isWordInPage('trustwallet')
+
+  if (hasWalletConnectInPage) {
+    replaceMMImgInPage()
+  }
 
   if (
     isEIP6963 ||
