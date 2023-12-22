@@ -1,26 +1,12 @@
 import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
-import { setStringAsync } from 'expo-clipboard'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ImageBackground, Linking, Pressable, ScrollView, View } from 'react-native'
+import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
-import { HumanizerCallModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { aaveHumanizer } from '@ambire-common/libs/humanizer/modules/Aave'
-import { fallbackHumanizer } from '@ambire-common/libs/humanizer/modules/fallBackHumanizer'
-import { gasTankModule } from '@ambire-common/libs/humanizer/modules/gasTankModule'
-import { sushiSwapModule } from '@ambire-common/libs/humanizer/modules/sushiSwapModule'
-import {
-  genericErc20Humanizer,
-  genericErc721Humanizer
-} from '@ambire-common/libs/humanizer/modules/tokens'
-import { uniswapHumanizer } from '@ambire-common/libs/humanizer/modules/Uniswap'
-import { WALLETModule } from '@ambire-common/libs/humanizer/modules/WALLET'
-import { wrappingModule } from '@ambire-common/libs/humanizer/modules/wrapped'
-import { yearnVaultModule } from '@ambire-common/libs/humanizer/modules/yearnTesseractVault'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import bundler from '@ambire-common/services/bundlers'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
@@ -29,259 +15,26 @@ import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
 import meshGradient from '@benzin/assets/images/mesh-gradient.png'
 import Step from '@benzin/components/Step'
-import AmbireLogo from '@common/assets/svg/AmbireLogo'
-import CopyIcon from '@common/assets/svg/CopyIcon'
+import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
+import humanizerModules from '@benzin/screens/BenzinScreen/utils/humanizerModules'
+import reproduceCalls from '@benzin/screens/BenzinScreen/utils/reproduceCalls'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import Button from '@common/components/Button'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import Buttons from './components/Buttons'
+import Header from './components/Header'
 import getStyles, { IS_MOBILE_UP_BENZIN_BREAKPOINT } from './styles'
+import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
-type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
+const REFETCH_TIME = 10000 // 10 seconds
 
-export type FinalizedStatusType = {
-  status: 'confirmed' | 'dropped' | 'failed' | 'fetching'
-  reason?: string
-} | null
-
-const getDate = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleString('en-us', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hourCycle: 'h12'
-  })
-}
-
-const humanizerModules: HumanizerCallModule[] = [
-  genericErc20Humanizer,
-  genericErc721Humanizer,
-  gasTankModule,
-  uniswapHumanizer,
-  wrappingModule,
-  aaveHumanizer,
-  WALLETModule,
-  yearnVaultModule,
-  sushiSwapModule,
-  fallbackHumanizer
-]
-
-const refetchTime = 10000 // 10 seconds
-
-const executeInterface = new ethers.Interface([
-  'function execute(tuple(address, uint256, bytes)[] calldata calls, bytes calldata signature) public payable'
-])
-const executeMultipleInterface = new ethers.Interface([
-  'function executeMultiple(tuple(tuple(address, uint256, bytes)[] calls, bytes signature)[] calldata toExec) external payable'
-])
-const transferInterface = new ethers.Interface([
-  'function transfer(address recipient, uint256 amount) external returns (bool)'
-])
-const deployAndExecuteInterface = new ethers.Interface([
-  'function deployAndExecute(bytes calldata code, uint256 salt, tuple(address, uint256, bytes)[] calldata txns, bytes calldata signature) external returns (address)'
-])
-
-const deployAndExecuteMultipleInterface = new ethers.Interface([
-  'function deployAndExecuteMultiple(bytes calldata code, uint256 salt, tuple(tuple(address, uint256, bytes)[] calls, bytes signature)[] calldata toExec) external returns (address)'
-])
-
-const handleOpsInterface = new ethers.Interface([
-  'function handleOps(tuple(address, uint256, bytes, bytes, uint256, uint256, uint256, uint256, uint256, bytes, bytes)[] calldata ops, address payable beneficiary) public'
-])
-
-const executeBySenderInterface = new ethers.Interface([
-  'function executeBySender(tuple(address, uint256, bytes)[] calls) external payable'
-])
-
-const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
-
-const emitedErrors: ErrorRef[] = []
-const mockEmitError = (e: ErrorRef) => emitedErrors.push(e)
-const standartOptions = { fetch, emitError: mockEmitError }
-
-const filterFeeCollectorCalls = (callsLength: number, callArray: any) => {
-  // if calls are exactly one, it means no fee collector calls
-  if (callsLength === 1) return true
-  if (
-    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
-    transferInterface.decodeFunctionData('transfer', callArray[2])[0] === feeCollector
-  ) {
-    return false
-  }
-  if (callArray[0] === feeCollector) return false
-
-  return true
-}
-
-const transformToAccOpCall = (call: any) => {
-  return {
-    to: call[0],
-    value: BigInt(call[1]),
-    data: call[2]
-  }
-}
-
-const getExecuteCalls = (callData: string) => {
-  const data = executeInterface.decodeFunctionData('execute', callData)
-  return data[0]
-    .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
-    .map((call: any) => transformToAccOpCall(call))
-}
-
-const getExecuteBySenderCalls = (callData: string) => {
-  const data = executeBySenderInterface.decodeFunctionData('executeBySender', callData)
-  return data[0]
-    .filter((call: any) => filterFeeCollectorCalls(data[0].length, call))
-    .map((call: any) => transformToAccOpCall(call))
-}
-
-const getExecuteMultipleCalls = (callData: string) => {
-  const data = executeMultipleInterface.decodeFunctionData('executeMultiple', callData)
-  const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
-  return calls
-    .filter((call: any) => filterFeeCollectorCalls(calls.length, call))
-    .map((call: any) => transformToAccOpCall(call))
-}
-
-const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp: boolean) => {
-  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
-  const sigHashes = {
-    executeBySender: executeBySenderInterface.getFunction('executeBySender')!.selector,
-    execute: executeInterface.getFunction('execute')!.selector,
-    executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector
-  }
-  const sigHashValues = Object.values(sigHashes)
-  const userOps = isUserOp
-    ? handleOpsData[0].filter((op: any) => op[0] === sender)
-    : handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  if (!userOps.length) return null
-
-  const callData = userOps[0][3]
-  const callDataSigHash = callData.slice(0, 10)
-
-  if (callDataSigHash === sigHashes.executeBySender) {
-    return getExecuteBySenderCalls(callData)
-  }
-
-  if (sigHash === sigHashes.execute) {
-    return getExecuteCalls(callData)
-  }
-
-  if (sigHash === sigHashes.executeMultiple) {
-    return getExecuteMultipleCalls(callData)
-  }
-}
-
-const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: boolean) => {
-  const sigHash = txn.data.slice(0, 10)
-
-  if (sigHash === executeInterface.getFunction('execute')!.selector) {
-    return getExecuteCalls(txn.data)
-  }
-
-  if (sigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
-    return getExecuteBySenderCalls(txn.data)
-  }
-
-  if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-    return getExecuteMultipleCalls(txn.data)
-  }
-
-  if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
-    const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
-    return data[2]
-      .filter((call: any) => filterFeeCollectorCalls(data[2].length, call))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  if (
-    sigHash === deployAndExecuteMultipleInterface.getFunction('deployAndExecuteMultiple')!.selector
-  ) {
-    const data = deployAndExecuteMultipleInterface.decodeFunctionData(
-      'deployAndExecuteMultiple',
-      txn.data
-    )
-    const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
-    return calls
-      .filter((call: any) => filterFeeCollectorCalls(calls.length, call))
-      .map((call: any) => transformToAccOpCall(call))
-  }
-
-  // user op
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOp(txn.data, sigHash, sender, isUserOp)
-    if (decodedUserOp) return decodedUserOp
-  }
-
-  return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
-}
-
-const shouldShowTxnProgress = (finalizedStatus: FinalizedStatusType) => {
-  if (!finalizedStatus) return true
-
-  const doNotShow = ['dropped']
-  return doNotShow.indexOf(finalizedStatus.status) === -1
-}
-
-const getTimestamp = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
-  if (blockData) {
-    return getDate(blockData.timestamp)
-  }
-
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
-}
-
-const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
-  if (blockData) {
-    return blockData.number.toString()
-  }
-
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
-}
-
-const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
-  const rows = [
-    {
-      label: 'Timestamp',
-      value: getTimestamp(blockData, finalizedStatus)
-    },
-    {
-      label: 'Block number',
-      value: getBlockNumber(blockData, finalizedStatus)
-    }
-  ]
-
-  if (finalizedStatus?.reason) {
-    rows.unshift({
-      label: 'Failed reason',
-      value: finalizedStatus.reason
-    })
-  }
-
-  return rows
-}
-
-const getFee = (
-  cost: null | string,
-  network: NetworkDescriptor,
-  nativePrice: number,
-  finalizedStatus: FinalizedStatusType
-) => {
-  if (cost) {
-    return `${cost} ${network.nativeAssetSymbol} ($${(Number(cost) * nativePrice).toFixed(2)})`
-  }
-
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
-}
+const emittedErrors: ErrorRef[] = []
+const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
+const standardOptions = { fetch, emitError: mockEmitError }
 
 const BenzinScreen = () => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
@@ -304,9 +57,8 @@ const BenzinScreen = () => {
   const [calls, setCalls] = useState<IrCall[]>([])
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
 
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const route = useRoute()
-  const { addToast } = useToast()
 
   const params = new URLSearchParams(route?.search)
 
@@ -379,8 +131,8 @@ const BenzinScreen = () => {
           }
 
           // if we have a status !== not_found | rejected, we are waiting
-          // for the receipt and we try to refetch after refetchTime
-          setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), refetchTime)
+          // for the receipt and we try to refetch after REFETCH_TIME
+          setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
           return
         }
 
@@ -430,7 +182,7 @@ const BenzinScreen = () => {
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), refetchTime)
+            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
             return
@@ -526,7 +278,7 @@ const BenzinScreen = () => {
         accountOpToExecuteBefore: null,
         humanizerMeta: humanizerJSON
       }
-      setCalls(humanizeCalls(accountOp, humanizerModules, standartOptions)[0])
+      setCalls(humanizeCalls(accountOp, humanizerModules, standardOptions)[0])
     }
   }, [network, txnReceipt, txn, isUserOp])
 
@@ -534,15 +286,6 @@ const BenzinScreen = () => {
     if (!network) return
     await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
   }, [network, txnId])
-
-  const handleCopyText = async () => {
-    try {
-      await setStringAsync(window.location.href)
-    } catch {
-      addToast('Error copying to clipboard', { type: 'error' })
-    }
-    addToast('Copied to clipboard!')
-  }
 
   if (!network || !txnId) {
     // @TODO
@@ -557,43 +300,7 @@ const BenzinScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.content}>
-          <View
-            style={[
-              IS_MOBILE_UP_BENZIN_BREAKPOINT
-                ? {}
-                : { flexDirection: 'row-reverse', ...flexbox.justifySpaceBetween },
-              IS_MOBILE_UP_BENZIN_BREAKPOINT ? {} : spacings.mbXl,
-              flexbox.alignCenter
-            ]}
-          >
-            <View style={styles.logoWrapper}>
-              <AmbireLogo
-                width={148 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-                height={69 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-              />
-            </View>
-            <Text
-              fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}
-              weight="medium"
-              style={[
-                activeStep === 'finalized' && IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : {},
-                IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }
-              ]}
-            >
-              Transaction Progress
-            </Text>
-          </View>
-          {activeStep !== 'finalized' ? (
-            <View style={styles.estimate}>
-              <Text appearance="secondaryText" fontSize={14}>
-                Est time remaining 5 mins on
-              </Text>
-              <NetworkIcon name={network.id} />
-              <Text appearance="secondaryText" fontSize={14}>
-                {network.name}
-              </Text>
-            </View>
-          ) : null}
+          <Header activeStep={activeStep} network={network} />
           <View style={styles.steps}>
             <Step
               title="Signed"
@@ -667,41 +374,7 @@ const BenzinScreen = () => {
               />
             ) : null}
           </View>
-          <View style={styles.buttons}>
-            <Pressable style={styles.openExplorer}>
-              <OpenIcon
-                width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-                height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-                color={theme.primary}
-              />
-              <Text
-                fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
-                appearance="primary"
-                weight="medium"
-                style={styles.openExplorerText}
-                onPress={handleOpenExplorer}
-              >
-                Open explorer
-              </Text>
-            </Pressable>
-            <Button
-              style={{
-                width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
-                ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
-                ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
-              }}
-            >
-              <CopyIcon color="#fff" />
-              <Text
-                style={{ color: '#fff', ...spacings.mlSm }}
-                fontSize={16}
-                weight="medium"
-                onPress={handleCopyText}
-              >
-                Copy link
-              </Text>
-            </Button>
-          </View>
+          <Buttons handleOpenExplorer={handleOpenExplorer} />
         </View>
       </ScrollView>
     </ImageBackground>
