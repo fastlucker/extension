@@ -47,7 +47,7 @@ import getStyles, { IS_MOBILE_UP_BENZIN_BREAKPOINT } from './styles'
 type ActiveStepType = 'signed' | 'in-progress' | 'finalized'
 
 export type FinalizedStatusType = {
-  status: 'confirmed' | 'cancelled' | 'dropped' | 'replaced' | 'failed' | 'fetching'
+  status: 'confirmed' | 'dropped' | 'failed' | 'fetching'
   reason?: string
 } | null
 
@@ -152,7 +152,36 @@ const getExecuteMultipleCalls = (callData: string) => {
     .map((call: any) => transformToAccOpCall(call))
 }
 
-const reproduceCalls = (txn: TransactionResponse, sender: string) => {
+const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp: boolean) => {
+  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
+  const sigHashes = {
+    executeBySender: executeBySenderInterface.getFunction('executeBySender')!.selector,
+    execute: executeInterface.getFunction('execute')!.selector,
+    executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector
+  }
+  const sigHashValues = Object.values(sigHashes)
+  const userOps = isUserOp
+    ? handleOpsData[0].filter((op: any) => op[0] === sender)
+    : handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
+  if (!userOps.length) return null
+
+  const callData = userOps[0][3]
+  const callDataSigHash = callData.slice(0, 10)
+
+  if (callDataSigHash === sigHashes.executeBySender) {
+    return getExecuteBySenderCalls(callData)
+  }
+
+  if (sigHash === sigHashes.execute) {
+    return getExecuteCalls(callData)
+  }
+
+  if (sigHash === sigHashes.executeMultiple) {
+    return getExecuteMultipleCalls(callData)
+  }
+}
+
+const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: boolean) => {
   const sigHash = txn.data.slice(0, 10)
 
   if (sigHash === executeInterface.getFunction('execute')!.selector) {
@@ -189,23 +218,8 @@ const reproduceCalls = (txn: TransactionResponse, sender: string) => {
 
   // user op
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
-    const userOps = handleOpsData[0].filter((op: any) => op[0] === sender)
-    if (!userOps.length) throw new Error('could not decode user op')
-    const callData = userOps[0][3]
-    const callDataSigHash = callData.slice(0, 10)
-
-    if (callDataSigHash === executeBySenderInterface.getFunction('executeBySender')!.selector) {
-      return getExecuteBySenderCalls(callData)
-    }
-
-    if (sigHash === executeInterface.getFunction('execute')!.selector) {
-      return getExecuteCalls(callData)
-    }
-
-    if (sigHash === executeMultipleInterface.getFunction('executeMultiple')!.selector) {
-      return getExecuteMultipleCalls(callData)
-    }
+    const decodedUserOp = decodeUserOp(txn.data, sigHash, sender, isUserOp)
+    if (decodedUserOp) return decodedUserOp
   }
 
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
@@ -214,7 +228,7 @@ const reproduceCalls = (txn: TransactionResponse, sender: string) => {
 const shouldShowTxnProgress = (finalizedStatus: FinalizedStatusType) => {
   if (!finalizedStatus) return true
 
-  const doNotShow = ['cancelled', 'dropped', 'replaced']
+  const doNotShow = ['dropped']
   return doNotShow.indexOf(finalizedStatus.status) === -1
 }
 
@@ -505,7 +519,7 @@ const TransactionProgressScreen = () => {
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, txnReceipt.from),
+        calls: reproduceCalls(txn, txnReceipt.from, isUserOp),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
@@ -514,7 +528,7 @@ const TransactionProgressScreen = () => {
       }
       setCalls(humanizeCalls(accountOp, humanizerModules, standartOptions)[0])
     }
-  }, [network, txnReceipt, txn])
+  }, [network, txnReceipt, txn, isUserOp])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
