@@ -9,7 +9,7 @@ import useFonts from '@common/hooks/useFonts'
 import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 
-import TransactionProgressScreen from './screens/TransactionProgressScreen'
+import BenzinScreen from './screens/BenzinScreen'
 
 // Initialize rpc providers for all networks
 // @TODO: get rid of this and use the rpc providers from the settings controller
@@ -29,7 +29,7 @@ const BenzinInit = () => {
         <ThemeProvider>
           <SafeAreaProvider>
             <ToastProvider>
-              <TransactionProgressScreen />
+              <BenzinScreen />
               <PortalHost name="global" />
             </ToastProvider>
           </SafeAreaProvider>

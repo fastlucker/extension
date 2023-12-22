@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { View } from 'react-native'
 
-import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/TransactionProgressScreen/styles'
+import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'

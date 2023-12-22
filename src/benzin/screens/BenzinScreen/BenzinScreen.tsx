@@ -283,7 +283,7 @@ const getFee = (
   return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
 }
 
-const TransactionProgressScreen = () => {
+const BenzinScreen = () => {
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [userOp, setUserOp] = useState<{ status: null | string; txnId: null | string }>({
     status: null,
@@ -708,4 +708,4 @@ const TransactionProgressScreen = () => {
   )
 }
 
-export default TransactionProgressScreen
+export default BenzinScreen
