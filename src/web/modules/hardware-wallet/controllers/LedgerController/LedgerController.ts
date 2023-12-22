@@ -61,7 +61,7 @@ class LedgerController implements ExternalSignerController {
    * device is connected (after being disconnected). This method checks if there
    * is an existing SDK instance and creates a new one if needed.
    */
-  async initSDKSessionIfNeeded() {
+  async #initSDKSessionIfNeeded() {
     if (this.walletSDK) return
 
     const isSupported = await TransportWebHID.isSupported()
@@ -97,7 +97,7 @@ class LedgerController implements ExternalSignerController {
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
-    await this.initSDKSessionIfNeeded()
+    await this.#initSDKSessionIfNeeded()
 
     if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
