@@ -242,6 +242,9 @@ const SignMessageScreen = () => {
     // then directly calls 'handleSign', bypassing the problematic 'useEffect' logic.
     // A more robust and maintainable fix should be explored
     // to handle such edge cases effectively in the future!
+    // FIXME: this won't allow changing the signing key (if user has multiple)
+    // after the first time the user picks key and attempts to sign the message
+    // (which ultimately sets the signing key the first time it gets triggered).
     const hasSigningKey = signMessageState.signingKeyAddr && signMessageState.signingKeyType
     if (hasSigningKey) return handleSign()
 
