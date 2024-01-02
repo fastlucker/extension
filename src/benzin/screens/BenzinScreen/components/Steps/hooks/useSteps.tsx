@@ -5,19 +5,16 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
-import { HumanizerParsingModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { parseCalls } from '@ambire-common/libs/humanizer/parsers'
-import { nameParsing } from '@ambire-common/libs/humanizer/parsers/nameParsing'
-import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import bundler from '@ambire-common/services/bundlers'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 
 import humanizerModules from './utils/humanizerModules'
+import parsingModules from './utils/parsingModules'
 import reproduceCalls from './utils/reproduceCalls'
-
-const parsingModules: HumanizerParsingModule[] = [nameParsing, tokenParsing]
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 10000 // 10 seconds
