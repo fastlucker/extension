@@ -18,16 +18,15 @@ import Steps from './components/Steps'
 import getStyles from './styles'
 
 const BenzinScreen = () => {
-  const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
-
   const { styles } = useTheme(getStyles)
   const route = useRoute()
 
   const params = new URLSearchParams(route?.search)
-
   const txnId = params.get('txnId')
   const [networkId, isUserOp] = [params.get('networkId'), typeof params.get('userOp') === 'string']
   const network = networks.find((n) => n.id === networkId)
+
+  const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
