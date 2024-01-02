@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React, { FC } from 'react'
 import { TextStyle, View, ViewStyle } from 'react-native'
 
-import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/BenzinScreen'
+import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import ConfirmedIcon from '@common/assets/svg/ConfirmedIcon'
 import RejectedIcon from '@common/assets/svg/RejectedIcon'
