@@ -617,7 +617,10 @@ const runReplacementScript = async () => {
 
   await delayPromise(30) // wait for DOM update
 
+  if (isEIP6963) return
+
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+
   if (hasWalletConnectInPage) replaceMMImgInPage()
 
   const hasMetaMaskInPage = isWordInPage('metamask')
@@ -625,7 +628,6 @@ const runReplacementScript = async () => {
   const hasTrustWalletInPage = isWordInPage('trustwallet')
   const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
-  if (isEIP6963) return
   if (!hasMetaMaskInPage) return
   if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
     return
