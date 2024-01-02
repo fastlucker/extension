@@ -24,7 +24,7 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 const ambireChannelName = 'ambire-inpage'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-let shouldReplaceMM: boolean
+let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
 
 export interface Interceptor {
@@ -510,7 +510,7 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
       get() {
         // the webpage reads the proxy provider so treat the page as a dapp
         // should replace mm brand only for dapps
-        shouldReplaceMM = true
+        doesWebpageReadOurProvider = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
@@ -613,7 +613,7 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 //
 
 const runReplacementScript = async () => {
-  if (!shouldReplaceMM) return
+  if (!doesWebpageReadOurProvider) return
 
   await delayPromise(30) // wait for DOM update
 
@@ -623,10 +623,12 @@ const runReplacementScript = async () => {
   const hasMetaMaskInPage = isWordInPage('metamask')
   const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
   const hasTrustWalletInPage = isWordInPage('trustwallet')
+  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
   if (isEIP6963) return
   if (!hasMetaMaskInPage) return
-  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) return
+  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+    return
 
   replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
 }
