@@ -51,7 +51,7 @@ const Step: FC<StepProps> = ({
       </View>
     )
   }
-  // Steps have 3 stage:
+  // Steps have 3 stages:
   // 1. Initial (not yet started and not next step)
   // 2. Next (not yet started but next step)
   // 3. Completed (=< active step)
