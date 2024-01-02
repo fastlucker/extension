@@ -217,7 +217,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
           status: 'failed',
           reason:
             error.message.length > 20
-              ? `${error.message.substring(0, 25)}... (check link for further details)`
+              ? `${error.message.substring(0, 25)}... (open explorer for further details)`
               : error.message
         })
       })
