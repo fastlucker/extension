@@ -9,6 +9,12 @@ import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
+import {
+  ambireSvg,
+  isWordInPage,
+  replaceMMImgInPage,
+  replaceWordAndIcon
+} from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
@@ -18,6 +24,8 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 const ambireChannelName = 'ambire-inpage'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
+let doesWebpageReadOurProvider: boolean
+let isEIP6963: boolean
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -219,6 +227,7 @@ export class EthereumProvider extends EventEmitter {
         await this.requestInternalMethods({
           method: 'getProviderState'
         })
+
       if (isUnlocked) {
         this._isUnlocked = true
         this._state.isUnlocked = true
@@ -499,6 +508,9 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
+        // the webpage reads the proxy provider so treat the page as a dapp
+        // should replace mm brand only for dapps
+        doesWebpageReadOurProvider = true
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
@@ -588,9 +600,40 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestProviderEvent) => {
+  isEIP6963 = true
   announceEip6963Provider(ambireProvider)
 })
 
 announceEip6963Provider(ambireProvider)
 
 window.dispatchEvent(new Event('ethereum#initialized'))
+
+//
+// MetaMask text and icon replacement for dApps using legacy connect only
+//
+
+const runReplacementScript = async () => {
+  if (!doesWebpageReadOurProvider) return
+  if (isEIP6963) return
+
+  await delayPromise(30) // wait for DOM update
+
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+
+  if (hasWalletConnectInPage) replaceMMImgInPage()
+
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+  const hasTrustWalletInPage = isWordInPage('trustwallet')
+  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
+
+  if (!hasMetaMaskInPage) return
+  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+    return
+
+  replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+}
+
+document.addEventListener('click', runReplacementScript)
+const observer = new MutationObserver(runReplacementScript)
+observer.observe(document, { childList: true, subtree: true, attributes: true })
