@@ -44,7 +44,6 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
     status: 'fetching'
   })
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
-
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<IrCall[]>([])
 
