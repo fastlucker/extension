@@ -162,7 +162,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
             return
           }
 
-          // just stop the execution if txn is null becase we might
+          // just stop the execution if txn is null because we might
           // not have fetched it, yet
           // if txn is null, logic for dropping the txn is handled there
           return
