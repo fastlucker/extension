@@ -40,7 +40,8 @@ const HardwareWalletSelectorScreen = () => {
   const onTrezorPress = useCallback(async () => {
     try {
       await updateStepperState('connect-hardware-wallet', 'hw')
-      await dispatchAsync({ type: 'TREZOR_CONTROLLER_UNLOCK' })
+
+      // No need for a separate request to unlock Trezor, it's done in the background
       navigate(WEB_ROUTES.accountAdder, {
         state: { keyType: 'trezor' }
       })
@@ -48,7 +49,7 @@ const HardwareWalletSelectorScreen = () => {
       addToast(error.message, { type: 'error' })
       await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
-  }, [addToast, dispatchAsync, navigate, updateStepperState])
+  }, [addToast, navigate, updateStepperState])
 
   const onLedgerPress = useCallback(async () => {
     await updateStepperState('connect-hardware-wallet', 'hw')

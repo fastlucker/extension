@@ -1,12 +1,13 @@
-import HDKey from 'hdkey'
-
 import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import trezorConnect from '@trezor/connect-web'
+import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
+
+export type { TrezorConnect } from '@trezor/connect-web'
+export type { EthereumTransaction, EthereumTransactionEIP1559 } from '@trezor/connect-web'
 
 const TREZOR_CONNECT_MANIFEST = {
   email: 'contactus@ambire.com',
@@ -16,21 +17,23 @@ const TREZOR_CONNECT_MANIFEST = {
 class TrezorController implements ExternalSignerController {
   type = 'trezor'
 
-  hdk: any
-
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
+
+  unlockedPath: string = ''
+
+  unlockedPathKeyAddr: string = ''
 
   deviceModel = 'unknown'
 
   deviceId = ''
 
-  constructor() {
-    this.hdk = new HDKey()
+  walletSDK: TrezorConnect = trezorConnect
 
+  constructor() {
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
 
-    trezorConnect.on('DEVICE_EVENT', (event: any) => {
+    this.walletSDK.on('DEVICE_EVENT', (event: any) => {
       if (event?.payload?.features?.model) {
         this.deviceModel = event.payload.features.model
       }
@@ -40,41 +43,56 @@ class TrezorController implements ExternalSignerController {
       }
     })
 
-    trezorConnect.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
+    this.walletSDK.init({ manifest: TREZOR_CONNECT_MANIFEST, lazyLoad: true, popup: true })
   }
 
   cleanUp() {
-    this.hdk = new HDKey()
+    this.unlockedPath = ''
+    this.unlockedPathKeyAddr = ''
   }
 
-  isUnlocked() {
-    return Boolean(this.hdk && this.hdk.publicKey)
-  }
-
-  unlock() {
-    if (this.isUnlocked()) {
-      return Promise.resolve('already unlocked')
+  isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
+    // If no path or expected key is provided, just check if there is any
+    // unlocked path, that's a valid case when retrieving accounts for import.
+    if (!path || !expectedKeyOnThisPath) {
+      return !!(this.unlockedPath && this.unlockedPathKeyAddr)
     }
 
-    return new Promise((resolve, reject) => {
-      trezorConnect
-        .getPublicKey({
-          path: getHdPathFromTemplate(this.hdPathTemplate, 0),
-          coin: 'ETH'
-        })
-        .then((response) => {
-          if (!response.success) {
-            return reject(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
-          }
+    // Make sure it's unlocked with the right path and with the right key,
+    // otherwise - treat as not unlocked.
+    return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
+  }
 
-          this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex')
-          this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex')
-          resolve('just unlocked')
-        })
-        .catch((e) => {
-          reject(e?.message || e?.toString() || 'Failed to unlock Trezor for unknown reason.')
-        })
-    })
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+
+    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
+      return 'ALREADY_UNLOCKED'
+    }
+
+    try {
+      const response = await this.walletSDK.ethereumGetAddress({
+        path: pathToUnlock,
+        // Do not use this validation option, because if the expected key is not
+        // on this path, the Trezor displays a not very user friendly error
+        // "Addresses do not match" in the Trezor popup. That might cause
+        // confusion. And we can't display a better message until the user
+        // closes the Trezor popup and we get the response from the Trezor.
+        // address: expectedKeyOnThisPath,
+        showOnTrezor: false // prioritize having less steps for the user
+      })
+
+      if (!response.success) {
+        throw new Error(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
+      }
+
+      this.unlockedPath = response.payload.serializedPath
+      this.unlockedPathKeyAddr = response.payload.address
+
+      return 'JUST_UNLOCKED'
+    } catch (e: any) {
+      throw new Error(e?.message || e?.toString() || 'Failed to unlock Trezor for unknown reason.')
+    }
   }
 }
 

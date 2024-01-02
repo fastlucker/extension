@@ -14,7 +14,6 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 
 type Props = {
@@ -26,8 +25,6 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
-
-  const { dispatchAsync } = useBackgroundService()
 
   useEffect(() => {
     updateStepperState('connect-hardware-wallet', 'hw')
@@ -55,7 +52,6 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
       try {
         const transport = await TransportWebHID.create()
         await transport.close()
-        await dispatchAsync({ type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION' })
 
         navigate(WEB_ROUTES.accountAdder, {
           state: {

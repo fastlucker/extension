@@ -18,7 +18,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import { controllersMapping } from './types'
 
@@ -88,20 +87,23 @@ type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences
 }
-type MainControllerSettingsUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_UPDATE_NETWORK_PREFERENCES'
+
+type MainControllerUpdateNetworkPreferences = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
     networkPreferences: NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
-type MainControllerSettingsResetPreference = {
-  type: 'MAIN_CONTROLLER_SETTINGS_RESET_NETWORK_PREFERENCE'
+
+type MainControllerResetNetworkPreference = {
+  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
   params: {
     preferenceKey: keyof NetworkPreference
     networkId: NetworkDescriptor['id']
   }
 }
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -109,9 +111,6 @@ type MainControllerAddUserRequestAction = {
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
-}
-type MainControllerRefetchPortfolio = {
-  type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -196,20 +195,14 @@ type NotificationControllerRejectRequestAction = {
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
 }
-type LedgerControllerAppAction = {
-  type: 'LEDGER_CONTROLLER_APP'
-}
-type LedgerControllerAuthorizeHIDPermissionAction = {
-  type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION'
-}
-type TrezorControllerUnlockAction = {
-  type: 'TREZOR_CONTROLLER_UNLOCK'
-}
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+  params: {
+    forceUpdate?: boolean
+  }
 }
 type MainControllerSignAccountOpInitAction = {
   params: {
@@ -326,8 +319,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerSettingsUpdateNetworkPreferences
-  | MainControllerSettingsResetPreference
+  | MainControllerUpdateNetworkPreferences
+  | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
@@ -359,9 +352,6 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerAppAction
-  | LedgerControllerAuthorizeHIDPermissionAction
-  | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
@@ -389,7 +379,5 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
-  LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION: ReturnType<LedgerController['authorizeHIDPermission']>
 }

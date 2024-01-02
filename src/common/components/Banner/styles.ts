@@ -1,6 +1,6 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_SM, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -25,7 +25,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
       ...spacings.pr,
-      ...spacings.mbSm,
+      marginBottom: isTab ? SPACING_SM : SPACING_TY,
       backgroundColor: theme.secondaryBackground,
       ...commonStyles.borderRadiusPrimary,
       overflow: 'hidden',
