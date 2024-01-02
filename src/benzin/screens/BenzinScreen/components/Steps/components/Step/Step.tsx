@@ -12,17 +12,14 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import StepRow from './StepRow'
+import { StepRowProps as StepRowInterface } from './StepRow/StepRow'
 import getStyles from './styles'
 
 const STEPS = ['signed', 'in-progress', 'finalized'] as const
 
 interface StepProps {
   title?: string
-  rows?: {
-    label: string
-    value: string
-    isValueSmall?: boolean
-  }[]
+  rows?: StepRowInterface[]
   stepName?: typeof STEPS[number]
   activeStep?: typeof STEPS[number]
   finalizedStatus?: FinalizedStatusType
@@ -54,20 +51,24 @@ const Step: FC<StepProps> = ({
       </View>
     )
   }
+  // Steps have 3 stage:
+  // 1. Initial (not yet started and not next step)
+  // 2. Next (not yet started but next step)
+  // 3. Completed (=< active step)
   const stepIndex = STEPS.indexOf(stepName)
   const activeStepIndex = STEPS.indexOf(activeStep)
   const isInitial = stepIndex > activeStepIndex
   const isNext = stepIndex === activeStepIndex + 1
   const isCompleted = stepIndex <= activeStepIndex
-  // True if the transaction has failed and we are on the second step, because only the second step changes
-  // the color of the line to red.
-  const hasLastStepFailed =
-    finalizedStatus && finalizedStatus.status !== 'confirmed' && stepIndex === 1
+
+  // Whether the line gradient should have red in it.
+  const isRedDisplayedInLineGradient =
+    (finalizedStatus?.status === 'failed' && stepIndex === 1) ||
+    finalizedStatus?.status === 'dropped'
+
   // True if the transaction has failed and we are on the last step, because only the last step shows the error message.
   const hasFailed =
-    finalizedStatus &&
-    finalizedStatus.status !== 'confirmed' &&
-    finalizedStatus.status !== 'fetching' &&
+    (finalizedStatus?.status === 'failed' || finalizedStatus?.status === 'dropped') &&
     stepIndex === STEPS.length - 1
 
   const getTitleAppearance = () => {
@@ -101,7 +102,9 @@ const Step: FC<StepProps> = ({
             }}
             colors={[
               theme.successDecorative as string,
-              (hasLastStepFailed ? theme.errorDecorative : theme.successDecorative) as string
+              (isRedDisplayedInLineGradient
+                ? theme.errorDecorative
+                : theme.successDecorative) as string
             ]}
             locations={[0.5, 1]}
           />
@@ -133,7 +136,7 @@ const Step: FC<StepProps> = ({
             weight="medium"
             style={[styles.title, titleStyle]}
           >
-            {title}
+            {title === 'fetching' ? 'Confirmed' : title}
           </Text>
         )}
         {children}

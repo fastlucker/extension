@@ -49,6 +49,7 @@ const Steps: FC<Props> = ({
         title="Signed"
         stepName="signed"
         activeStep={activeStep}
+        finalizedStatus={finalizedStatus}
         rows={[
           {
             label: 'Timestamp',
@@ -96,7 +97,8 @@ const Steps: FC<Props> = ({
         </Step>
       )}
       <Step
-        title={finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Fetching'}
+        // We want to show the user the positive outcome of the transaction while it is still in progress
+        title={finalizedStatus && finalizedStatus.status ? finalizedStatus.status : 'Confirmed'}
         stepName="finalized"
         finalizedStatus={finalizedStatus}
         activeStep={activeStep}

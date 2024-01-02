@@ -26,7 +26,7 @@ const getTimestamp = (blockData: null | Block, finalizedStatus: FinalizedStatusT
     return getDate(blockData.timestamp)
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
 }
 
 const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
@@ -34,11 +34,15 @@ const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatu
     return blockData.number.toString()
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
 }
 
 const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
-  const rows = [
+  const rows: {
+    label: string
+    value: string
+    error?: true
+  }[] = [
     {
       label: 'Timestamp',
       value: getTimestamp(blockData, finalizedStatus)
@@ -52,7 +56,8 @@ const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedSta
   if (finalizedStatus?.reason) {
     rows.unshift({
       label: 'Failed reason',
-      value: finalizedStatus.reason
+      value: finalizedStatus.reason,
+      error: true
     })
   }
 
@@ -69,7 +74,7 @@ const getFee = (
     return `${cost} ${network.nativeAssetSymbol} ($${(Number(cost) * nativePrice).toFixed(2)})`
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'Fetching...'
+  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
 }
 
 export { shouldShowTxnProgress, getTimestamp, getBlockNumber, getFinalizedRows, getFee }
