@@ -1,5 +1,5 @@
 import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
@@ -84,7 +84,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
       .catch(() => setUserOp({ status: 'not_found', txnId: null }))
   }, [isUserOp, userOp, network, txnId, txnReceipt, setActiveStep])
 
-  useMemo(() => {
+  useEffect(() => {
     if (!txnId || !network || !isUserOp || !userOp.status || txnReceipt.blockNumber) return
 
     bundler
@@ -127,7 +127,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
       .catch(() => null)
   }, [txnId, network, isUserOp, userOp, txnReceipt, refetchReceiptCounter, setActiveStep])
 
-  useMemo(() => {
+  useEffect(() => {
     if (!network || txn || (isUserOp && userOp.txnId === null)) return
 
     const finalTxnId = userOp.txnId ?? txnId
@@ -146,7 +146,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
       .catch(() => null)
   }, [txnId, network, userOp, isUserOp, txn, setActiveStep])
 
-  useMemo(() => {
+  useEffect(() => {
     if (!network || isUserOp || txnReceipt.blockNumber) return
 
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
@@ -180,7 +180,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
   }, [txnId, network, isUserOp, txnReceipt, txn, refetchReceiptCounter, setActiveStep])
 
   // check for error reason
-  useMemo(() => {
+  useEffect(() => {
     if (
       !network ||
       !txn ||
@@ -224,7 +224,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
   }, [network, txn, finalizedStatus])
 
   // get block
-  useMemo(() => {
+  useEffect(() => {
     if (!network || !txnReceipt.blockNumber || blockData !== null) return
 
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
@@ -236,7 +236,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
       .catch(() => null)
   }, [network, txnReceipt, blockData])
 
-  useMemo(() => {
+  useEffect(() => {
     if (!network) return
 
     getNativePrice(network, fetch)
