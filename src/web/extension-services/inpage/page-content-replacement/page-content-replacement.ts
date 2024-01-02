@@ -84,6 +84,7 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
                 newImgElement.src = replacementIcon!
                 if (imgElement) {
                   imgElement.src = replacementIcon
+                  imgElement.removeAttribute('srcset')
                 }
 
                 if (svgElement) {
