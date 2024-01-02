@@ -4,8 +4,12 @@ import { useEffect, useState } from 'react'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { HumanizerParsingModule, IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { parseCalls } from '@ambire-common/libs/humanizer/parsers'
+import { nameParsing } from '@ambire-common/libs/humanizer/parsers/nameParsing'
+import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import bundler from '@ambire-common/services/bundlers'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
@@ -14,7 +18,10 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 import humanizerModules from './utils/humanizerModules'
 import reproduceCalls from './utils/reproduceCalls'
 
-const REFETCH_TIME = 10000 // 10 seconds
+const parsingModules: HumanizerParsingModule[] = [nameParsing, tokenParsing]
+
+const REFETCH_TXN_TIME = 3500 // 3.5 seconds
+const REFETCH_RECEIPT_TIME = 10000 // 10 seconds
 
 interface Props {
   txnId: string
@@ -43,6 +50,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
+  const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<IrCall[]>([])
@@ -104,8 +112,11 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
           }
 
           // if we have a status !== not_found | rejected, we are waiting
-          // for the receipt and we try to refetch after REFETCH_TIME
-          setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
+          // for the receipt and we try to refetch after REFETCH_RECEIPT_TIME
+          setTimeout(
+            () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
+            REFETCH_RECEIPT_TIME
+          )
           return
         }
 
@@ -132,9 +143,17 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
     const finalTxnId = userOp.txnId ?? txnId
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
-      .getTransaction(finalTxnId!)
+      .getTransaction(finalTxnId)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
+          // try to refetch 3 times; if it fails, mark it as dropped
+          if (refetchTxnCounter < 3) {
+            setTimeout(() => {
+              setRefetchTxnCounter(refetchTxnCounter + 1)
+            }, REFETCH_TXN_TIME)
+            return
+          }
+
           setFinalizedStatus({ status: 'dropped' })
           setActiveStep('finalized')
           return
@@ -143,7 +162,7 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
         setTxn(fetchedTxn)
       })
       .catch(() => null)
-  }, [txnId, network, userOp, isUserOp, txn, setActiveStep])
+  }, [txnId, network, userOp, isUserOp, txn, refetchTxnCounter, setActiveStep])
 
   useEffect(() => {
     if (!network || isUserOp || txnReceipt.blockNumber) return
@@ -155,7 +174,10 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
           if (txn) {
-            setTimeout(() => setRefetchReceiptCounter(refetchReceiptCounter + 1), REFETCH_TIME)
+            setTimeout(
+              () => setRefetchReceiptCounter(refetchReceiptCounter + 1),
+              REFETCH_RECEIPT_TIME
+            )
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
             return
@@ -259,7 +281,9 @@ const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: 
         accountOpToExecuteBefore: null,
         humanizerMeta: humanizerJSON
       }
-      setCalls(humanizeCalls(accountOp, humanizerModules, standardOptions)[0])
+      const humanize = humanizeCalls(accountOp, humanizerModules, standardOptions)
+      const [parsedCalls] = parseCalls(accountOp, humanize[0], parsingModules, standardOptions)
+      setCalls(parsedCalls)
     }
   }, [network, txnReceipt, txn, isUserOp, standardOptions])
 
