@@ -3,8 +3,7 @@
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
-import { JsonRpcProvider } from 'ethers'
+import { JsonRpcProvider, toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { networks as commonNetworks } from '@ambire-common/consts/networks'
@@ -129,9 +128,9 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   ethChainId = async ({ session: { origin } }: any) => {
     if (permissionService.hasPermission(origin)) {
-      return intToHex(permissionService.getConnectedSite(origin)?.chainId || 1)
+      return toBeHex(permissionService.getConnectedSite(origin)?.chainId || 1)
     }
-    return intToHex(1)
+    return toBeHex(1)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
@@ -156,10 +155,8 @@ export class ProviderController {
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(options.session.origin)
       const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
-      const account = this.mainCtrl.accounts.filter(
-        (acc) => acc.addr === this.mainCtrl.selectedAccount
-      )[0]
-      const is4337Broadcast = isErc4337Broadcast(network, account)
+      const accountState = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount!][network.id]
+      const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
         const receipt = await bundler.poll(hash, network)
@@ -262,7 +259,7 @@ export class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin
@@ -310,7 +307,7 @@ export class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin

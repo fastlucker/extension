@@ -2,6 +2,7 @@ import React from 'react'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
+
 import Input from '../Input'
 import { InputProps } from '../Input/Input'
 
@@ -38,7 +39,11 @@ const NumberInput = ({
   }
   return (
     <>
-      {!!label && <Text style={[spacings.mbMi]}>{label}</Text>}
+      {!!label && (
+        <Text weight="regular" appearance="secondaryText" fontSize={14} style={[spacings.mbMi]}>
+          {label}
+        </Text>
+      )}
       {!!labelComponent && labelComponent}
       <Input
         keyboardType="numeric"

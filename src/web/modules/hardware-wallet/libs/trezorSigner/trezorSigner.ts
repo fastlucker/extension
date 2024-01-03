@@ -1,4 +1,3 @@
-import { stripHexPrefix } from 'ethereumjs-util'
 import { Signature, toBeHex, Transaction } from 'ethers'
 
 import {
@@ -6,13 +5,29 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import { delayPromise } from '@common/utils/promises'
+import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
+import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect, { EthereumTransaction } from '@trezor/connect-web'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
+import TrezorController, {
+  EthereumTransaction,
+  EthereumTransactionEIP1559
+} from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
+
+/**
+ * This is necessary to avoid popup collision between the unlock & sign Trezor popups.
+ */
+const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
+  wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
+
+/**
+ * This is necessary to avoid popup collision between signing multiple times in
+ * a row or between signing a message and then a raw transaction.
+ */
+const delayBetweenStarting = () => wait(1000)
 
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
@@ -31,32 +46,65 @@ class TrezorSigner implements KeystoreSigner {
     this.controller = externalDeviceController
   }
 
-  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
-    if (!this.controller) {
-      throw new Error('trezorSigner: trezorController not initialized')
+  #prepareForSigning = async () => {
+    if (!this.controller || !this.controller.walletSDK) {
+      throw new Error(
+        'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
+      )
     }
 
+    await delayBetweenStarting()
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const status = await this.controller.unlock(path, this.key.addr)
+    await delayBetweenPopupsIfNeeded(status)
+
+    if (!this.controller.isUnlocked(path, this.key.addr)) {
+      throw new Error(
+        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+      )
+    }
+  }
+
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     if (typeof txnRequest.value === 'undefined') {
       throw new Error('trezorSigner: missing value in transaction request')
     }
 
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+    await this.#prepareForSigning()
 
+    // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+    // since there's no other better way to distinguish between the two in here.
+    // Note: Trezor doesn't support EIP-2930 yet (type `1`).
+    const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+
+    type UnsignedTxnType = typeof type extends 2 ? EthereumTransactionEIP1559 : EthereumTransaction
     // Note: Trezor auto-detects the transaction `type`, based on the txn params
-    const unsignedTxn: EthereumTransaction = {
+    const unsignedTxn: UnsignedTxnType = {
       ...txnRequest,
       // The incoming `txnRequest` param types mismatch the Trezor expected ones,
       // so normalize the types before passing them to the Trezor API
       value: toBeHex(txnRequest.value),
       gasLimit: toBeHex(txnRequest.gasLimit),
-      gasPrice: toBeHex(txnRequest.gasPrice),
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `2` (EIP-1559)
+      gasPrice: typeof txnRequest.gasPrice === 'bigint' ? toBeHex(txnRequest.gasPrice) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxFeePerGas:
+        typeof txnRequest.maxFeePerGas === 'bigint' ? toBeHex(txnRequest.maxFeePerGas) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxPriorityFeePerGas:
+        typeof txnRequest.maxPriorityFeePerGas === 'bigint'
+          ? toBeHex(txnRequest.maxPriorityFeePerGas)
+          : undefined,
       nonce: toBeHex(txnRequest.nonce),
       chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
     }
 
-    const res = await trezorConnect.ethereumSignTransaction({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const res = await this.controller!.walletSDK.ethereumSignTransaction({
+      path,
       transaction: unsignedTxn
     })
 
@@ -77,10 +125,7 @@ class TrezorSigner implements KeystoreSigner {
         // with Trezor  mismatches the EthersJS supported type, so fallback to
         // the nonce incoming from the `txnRequest` param
         nonce: txnRequest.nonce,
-        // TODO: Temporary use the legacy transaction mode, because:
-        //   1) Trezor doesn't support EIP-2930 yet (type `1`).
-        //   2) Ambire extension doesn't support EIP-1559 yet (type: `2`)
-        type: 0
+        type
       }).serialized
 
       return signedSerializedTxn
@@ -95,24 +140,15 @@ class TrezorSigner implements KeystoreSigner {
     message,
     primaryType
   }) => {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
+    await this.#prepareForSigning()
 
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
     const dataWithHashes = transformTypedData({ domain, types, message, primaryType }, true)
-
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
 
-    // This is necessary to avoid popup collision
-    // between the unlock & sign trezor popups
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
-
-    const res = await trezorConnect.ethereumSignTypedData({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+    const res = await this.controller!.walletSDK.ethereumSignTypedData({
+      path,
       data: {
         types,
         message,
@@ -136,17 +172,11 @@ class TrezorSigner implements KeystoreSigner {
   }
 
   signMessage: KeystoreSigner['signMessage'] = async (hex) => {
-    if (!this.controller) {
-      throw new Error(
-        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
-      )
-    }
+    await this.#prepareForSigning()
 
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
-
-    const res = await trezorConnect.ethereumSignMessage({
-      path: getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index),
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const res = await this.controller!.walletSDK.ethereumSignMessage({
+      path,
       message: stripHexPrefix(hex),
       hex: true
     })
@@ -158,7 +188,7 @@ class TrezorSigner implements KeystoreSigner {
       )
     }
 
-    return `0x${res.payload.signature}`
+    return addHexPrefix(res.payload.signature)
   }
 }
 

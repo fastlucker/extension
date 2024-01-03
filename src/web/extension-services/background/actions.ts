@@ -1,11 +1,15 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Filters } from '@ambire-common/controllers/activity/activity'
+import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
+import {
+  AccountPreferences,
+  KeyPreferences,
+  NetworkPreference
+} from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -14,7 +18,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import { controllersMapping } from './types'
 
@@ -85,6 +88,22 @@ type MainControllerSettingsAddKeyPreferences = {
   params: KeyPreferences
 }
 
+type MainControllerUpdateNetworkPreferences = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
+  params: {
+    networkPreferences: NetworkPreference
+    networkId: NetworkDescriptor['id']
+  }
+}
+
+type MainControllerResetNetworkPreference = {
+  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
+  params: {
+    preferenceKey: keyof NetworkPreference
+    networkId: NetworkDescriptor['id']
+  }
+}
+
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -93,12 +112,17 @@ type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
 }
-type MainControllerRefetchPortfolio = {
-  type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
-}
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
-  params: { messageToSign: Message; accounts: Account[]; accountStates: AccountStates }
+  params: {
+    dapp: {
+      name: string
+      icon: string
+    }
+    messageToSign: Message
+    accounts: Account[]
+    accountStates: AccountStates
+  }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
@@ -112,11 +136,23 @@ type MainControllerSignMessageSetSignKeyAction = {
 }
 type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
-  params: { signedMessage: Message }
+  params: { signedMessage: SignedMessage }
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
   params: { filters: Filters }
+}
+type MainControllerActivitySetFiltersAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
+  params: { filters: Filters }
+}
+type MainControllerActivitySetAccountOpsPaginationAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
+  params: { pagination: Pagination }
+}
+type MainControllerActivitySetSignedMessagesPaginationAction = {
+  type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION'
+  params: { pagination: Pagination }
 }
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
@@ -159,20 +195,14 @@ type NotificationControllerRejectRequestAction = {
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
 }
-type LedgerControllerAppAction = {
-  type: 'LEDGER_CONTROLLER_APP'
-}
-type LedgerControllerAuthorizeHIDPermissionAction = {
-  type: 'LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION'
-}
-type TrezorControllerUnlockAction = {
-  type: 'TREZOR_CONTROLLER_UNLOCK'
-}
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+  params: {
+    forceUpdate?: boolean
+  }
 }
 type MainControllerSignAccountOpInitAction = {
   params: {
@@ -293,6 +323,8 @@ export type Action =
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
   | MainControllerSettingsAddKeyPreferences
+  | MainControllerUpdateNetworkPreferences
+  | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
@@ -305,6 +337,9 @@ export type Action =
   | MainControllerSignMessageSetSignKeyAction
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
+  | MainControllerActivitySetFiltersAction
+  | MainControllerActivitySetAccountOpsPaginationAction
+  | MainControllerActivitySetSignedMessagesPaginationAction
   | MainControllerActivityResetAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
@@ -318,13 +353,9 @@ export type Action =
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
   | MainControllerTransferOnRecipientAddressChangeAction
-  | MainControllerTransferHandleTokenChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerAppAction
-  | LedgerControllerAuthorizeHIDPermissionAction
-  | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
@@ -353,7 +384,5 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
-  LEDGER_CONTROLLER_AUTHORIZE_HID_PERMISSION: ReturnType<LedgerController['authorizeHIDPermission']>
 }

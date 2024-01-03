@@ -111,7 +111,10 @@ const DashboardScreen = () => {
     )
     setFakeIsLoading(true)
     dispatch({
-      type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
+      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
+      params: {
+        forceUpdate: true
+      }
     })
   }, [dispatch])
 

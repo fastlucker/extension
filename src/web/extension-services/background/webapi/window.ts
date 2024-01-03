@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events'
 
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/constants/spacings'
 
@@ -21,13 +22,22 @@ export const WINDOW_SIZE = {
 
 // creates a browser new window that is 15% smaller
 // of the current page and is centered in the browser app
-const createFullScreenWindow = ({ url, ...rest }: any) => {
+const createFullScreenWindow = async ({ url, ...rest }: any) => {
+  let screenWidth = 0
+  let screenHeight = 0
+
+  if (isManifestV3) {
+    const displayInfo = await chrome.system.display.getInfo()
+    screenWidth = displayInfo?.[0]?.workArea?.width
+    screenHeight = displayInfo?.[0]?.workArea?.height
+  } else {
+    screenWidth = window.screen.width
+    screenHeight = window.screen.height
+  }
+
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
-      const ratio = 0.9
-
-      const screenWidth = window.screen.width
-      const screenHeight = window.screen.height
+      const ratio = 0.88 // 88% of the screen/tab size
 
       let desiredWidth = screenWidth * ratio
       let desiredHeight = screenHeight * ratio
@@ -44,17 +54,18 @@ const createFullScreenWindow = ({ url, ...rest }: any) => {
             leftOffset = currentWindow.left
             topOffset = currentWindow.top
           }
+
           if (activeTab.width && activeTab.height) {
             desiredWidth = activeTab.width * ratio
-            desiredHeight = activeTab.height * ratio
-
             leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
+            desiredHeight = activeTab.height * ratio
             topPosition =
               (activeTab.height - desiredHeight) / 2 +
               topOffset +
               currentWindow.height -
               activeTab.height
           }
+
           chrome.windows.create(
             {
               focused: true,
@@ -67,6 +78,7 @@ const createFullScreenWindow = ({ url, ...rest }: any) => {
               top: Math.round(topPosition),
               state: 'normal'
             },
+            // @ts-ignore
             (win) => {
               resolve(win)
             }
@@ -97,7 +109,6 @@ const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
 
   let win: any
   if (currentWindow.state === 'fullscreen') {
-    // browser.windows.create not pass state to chrome
     win = await createFullScreenWindow({ url, ...rest })
   } else {
     win = await browser.windows.create({

@@ -2,6 +2,7 @@ import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
 import * as SDK from 'gridplus-sdk'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
@@ -50,12 +51,10 @@ class LatticeSigner implements KeystoreSigner {
 
     try {
       const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const unsignedTxn: TransactionLike = {
-        ...txnRequest,
-        // TODO: Temporary use the legacy transaction mode, because Ambire
-        // extension doesn't support EIP-1559 yet (type: `2`)
-        type: 0
-      }
+      // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+      // since there's no other better way to distinguish between the two in here.
+      const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+      const unsignedTxn: TransactionLike = { ...txnRequest, type }
 
       const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
@@ -168,7 +167,7 @@ class LatticeSigner implements KeystoreSigner {
       throw new Error('latticeSigner: key not found in the current Lattice1 wallet')
     }
 
-    return `0x${res.sig.r}${res.sig.s}${v}`
+    return addHexPrefix(`${res.sig.r}${res.sig.s}${v}`)
   }
 
   async _onBeforeLatticeRequest() {

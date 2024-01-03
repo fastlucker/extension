@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
@@ -9,7 +10,6 @@ import {
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
-import useToast from '@common/hooks/useToast'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
 let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
