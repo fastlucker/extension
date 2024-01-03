@@ -8,14 +8,15 @@ import {
   SignAccountOpController,
   SigningStatus
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
@@ -25,6 +26,7 @@ import getStyles from './styles'
 type Props = {
   mainState: MainController
   accountPortfolio: AccountPortfolio | null
+  gasTankTokens: TokenResult[]
   signAccountOpState: SignAccountOpController
   networkId: NetworkDescriptor['id']
   isViewOnly: boolean
@@ -33,6 +35,7 @@ type Props = {
 const Estimation = ({
   mainState,
   accountPortfolio,
+  gasTankTokens,
   signAccountOpState,
   networkId,
   isViewOnly
@@ -45,15 +48,19 @@ const Estimation = ({
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
-      const token = accountPortfolio?.tokens.find(
-        (t) => t.address === feeOption.address && t.networkId === networkId
-      )
+
+      const token = feeOption.isGasTank
+        ? gasTankTokens.find((t) => t.address === feeOption.address)
+        : accountPortfolio?.tokens.find(
+            (t) => t.address === feeOption.address && t.networkId === networkId
+          )
+
       // TODO: validate - should never happen but there are some cases in which account is undefined
       if (!account || !token) return undefined
 
       return {
         value: feeOption.paidBy + feeOption.address,
-        label: <PayOption account={account} token={token} />,
+        label: <PayOption account={account} token={token} isGasTank={feeOption.isGasTank} />,
         paidBy: feeOption.paidBy,
         token
       }
@@ -72,7 +79,7 @@ const Estimation = ({
 
     return payOptions.find(
       ({ value }: any) =>
-        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
+        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr
     )
   }, [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
 
@@ -80,10 +87,11 @@ const Estimation = ({
 
   useEffect(() => {
     if (payValue && payValue.token) {
+      console.log(payValue.token)
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
-          feeTokenAddr: payValue.token.address,
+          feeToken: payValue.token,
           paidBy: payValue.paidBy
         }
       })

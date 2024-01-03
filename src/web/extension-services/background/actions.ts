@@ -235,7 +235,7 @@ type MainControllerSignAccountOpUpdateAction = {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: EstimateResult
-    feeTokenAddr?: string
+    feeToken?: TokenResult
     paidBy?: string
     speed?: string
     signingKeyAddr?: string
