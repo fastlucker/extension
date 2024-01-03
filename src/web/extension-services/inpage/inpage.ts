@@ -614,9 +614,10 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 
 const runReplacementScript = async () => {
   if (!doesWebpageReadOurProvider) return
-  if (isEIP6963) return
 
   await delayPromise(30) // wait for DOM update
+
+  if (isEIP6963) return
 
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
 
