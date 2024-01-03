@@ -36,6 +36,7 @@ const getStyles = (theme: ThemeProps) =>
       paddingTop: SPACING_LG * 2
     },
     contentContainer: {
+      ...spacings.pv2Xl,
       ...flexbox.flex1,
       ...flexbox.directionRow,
       ...commonWebStyles.contentContainer

@@ -1,19 +1,28 @@
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 
-import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import {
+  HD_PATH_TEMPLATE_TYPE,
+  SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+} from '@ambire-common/consts/derivation'
 import { Key } from '@ambire-common/interfaces/keystore'
+import {
+  derivePrivateKeyFromAnotherPrivateKey,
+  getPrivateKeyFromSeed,
+  isValidPrivateKey
+} from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
+import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 import { getDefaultSelectedAccount } from '../../helpers/account'
-import getPrivateKeyFromSeed from '../../services/getPrivateKeyFromSeed'
 
 interface Props {
   keyType: Key['type']
@@ -26,9 +35,15 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch, dispatchAsync } = useBackgroundService()
+  const { addToast } = useToast()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
   const keystoreState = useKeystoreControllerState()
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return ''
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const setPage: any = React.useCallback(
     (page = 1) => {
@@ -48,7 +63,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (!mainControllerState.isReady) return
     if (accountAdderState.isInitialized) return
 
-    const init = {
+    const init: any = {
       internal: () => {
         if (!privKeyOrSeed) return
 
@@ -94,10 +109,9 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
       const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
       if (!defaultSelectedAccount) {
-        // TODO: display error toast instead
-        // eslint-disable-next-line no-alert
-        alert(
-          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
+        addToast(
+          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.',
+          { timeout: 4000, type: 'error' }
         )
         return
       }
@@ -118,21 +132,25 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           const keysToAddToKeystore = accountAdderState.selectedAccounts.map((acc) => {
             let privateKey = privKeyOrSeed
 
-            // in case props.privKeyOrSeed is a seed the private keys have to be extracted
+            // In case it is a seed, the private keys have to be extracted
             if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
               privateKey = getPrivateKeyFromSeed(
                 privKeyOrSeed,
-                // The slot is the key index from the derivation path
-                acc.slot - 1,
+                acc.index,
                 // should always be provided, otherwise it would have thrown an error above
                 accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
               )
             }
 
-            return {
-              privateKey,
-              label: `${keyLabel} for the account on slot ${acc.slot}`
+            // Private keys for accounts used as smart account keys should be derived
+            const isPrivateKeyThatShouldBeDerived =
+              isValidPrivateKey(privKeyOrSeed) &&
+              acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+            if (isPrivateKeyThatShouldBeDerived) {
+              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
             }
+
+            return { privateKey }
           })
 
           dispatch({
@@ -141,10 +159,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           })
         } catch (error: any) {
           console.error(error)
-          // TODO: display error toast
-          // eslint-disable-next-line no-alert
-          alert(
-            'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.'
+
+          addToast(
+            'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.',
+            { timeout: 4000, type: 'error' }
           )
         }
       } else {
@@ -153,14 +171,42 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           params: { keyType }
         })
       }
+
+      const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+        ({ accountKeyAddr, slot, index }) => ({
+          addr: accountKeyAddr,
+          type: keyType,
+          label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
+        })
+      )
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+        params: keyPreferencesToAdd
+      })
     }
-  })
+  }, [
+    accountAdderState.addAccountsStatus,
+    accountAdderState.hdPathTemplate,
+    accountAdderState.readyToAddAccounts,
+    accountAdderState.selectedAccounts,
+    dispatch,
+    keyLabel,
+    keyType,
+    privKeyOrSeed
+  ])
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/')
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
+        state: {
+          accounts: accountAdderState.readyToAddAccounts,
+          keyType,
+          keyTypeInternalSubtype
+        }
+      })
     },
-    [navigate]
+    [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
   )
 
   useEffect(() => {
@@ -174,7 +220,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     if (accountAdderState.selectedAccounts.length) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-        params: { accounts: accountAdderState.selectedAccounts }
+        params: { selectedAccounts: accountAdderState.selectedAccounts }
       })
       return
     }

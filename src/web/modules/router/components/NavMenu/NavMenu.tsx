@@ -1,70 +1,82 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
-import DashboardIcon from '@common/assets/svg/DashboardIcon'
-import DiscordIcon from '@common/assets/svg/DiscordIcon'
-import TelegramIcon from '@common/assets/svg/TelegramIcon'
-import TwitterIcon from '@common/assets/svg/TwitterIcon'
+// import DiscordIcon from '@common/assets/svg/DiscordIcon'
+// import TelegramIcon from '@common/assets/svg/TelegramIcon'
+// import TwitterIcon from '@common/assets/svg/TwitterIcon'
+import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+// import flexboxStyles from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 
-const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
-const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
+// const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
+// const TWITTER_URL = 'https://twitter.com/AmbireWallet'
+// const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
+
+// const SOCIAL = [
+//   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },
+//   { Icon: TelegramIcon, url: TELEGRAM_URL, label: 'Telegram' },
+//   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
+// ]
 
 const NavMenu = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { theme } = useTheme()
 
-  const handleNavigate = useCallback((route: ROUTES) => navigate(route), [navigate])
-
-  const menu = [{ Icon: DashboardIcon, name: t('Accounts'), route: ROUTES.accounts }]
-
-  const social = [
-    { Icon: DiscordIcon, url: DISCORD_URL },
-    { Icon: TwitterIcon, url: TWITTER_URL },
-    { Icon: TelegramIcon, url: TELEGRAM_URL }
-  ]
+  const settingsPages = getSettingsPages(t)
 
   return (
-    <Wrapper>
-      <View style={[spacings.mhMi, spacings.mvTy]}>
-        <View style={(flexboxStyles.directionRow, commonWebStyles.contentContainer)}>
-          {menu.map(({ Icon, name, route }) => {
+    <TabLayoutContainer
+      hideFooterInPopup
+      footer={<BackButton />}
+      header={<Header withPopupBackButton />}
+    >
+      <TabLayoutWrapperMainContent>
+        <View style={commonWebStyles.contentContainer}>
+          {settingsPages.map(({ Icon, label, path, key }) => {
             return (
               <TouchableOpacity
-                key={name}
-                onPress={() => handleNavigate(route)}
-                style={[styles.menuItem]}
+                key={key}
+                onPress={() => {
+                  if (path in ROUTES) {
+                    navigate(path)
+                    return
+                  }
+
+                  alert('Not implemented yet')
+                }}
+                style={styles.menuItem}
               >
-                {!!Icon && <Icon color={colors.black} />}
-                <Text style={spacings.mlTy} appearance="primaryText">
-                  {name}
+                {!!Icon && <Icon color={theme.primaryText} />}
+                <Text fontSize={16} style={spacings.ml} weight="medium" appearance="primaryText">
+                  {label}
                 </Text>
               </TouchableOpacity>
             )
           })}
         </View>
-
         {/* <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
-          {social.map(({ Icon, url }) => (
-            <TouchableOpacity key={url} onPress={() => Linking.openURL(url)}>
+          {SOCIAL.map(({ Icon, url }) => (
+            <TouchableOpacity key={url} onPress={() => console.log(url)}>
               <Icon style={spacings.mr} />
             </TouchableOpacity>
           ))}
         </View> */}
-
-        {/* <AppVersion /> */}
-      </View>
-    </Wrapper>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

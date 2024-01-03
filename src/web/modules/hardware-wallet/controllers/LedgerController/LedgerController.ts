@@ -1,38 +1,25 @@
-import HDKey from 'hdkey'
-
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
+import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
-import LedgerEth from '@ledgerhq/hw-app-eth'
+import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterator'
 
-export const wait = (fn: () => void, ms = 1000) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      fn()
-      resolve(true)
-    }, ms)
-  })
-}
-
-class LedgerController {
-  hdk: any
-
-  hasHIDPermission: boolean | null
-
-  accounts: any
-
+class LedgerController implements ExternalSignerController {
   hdPathTemplate: HD_PATH_TEMPLATE_TYPE
+
+  unlockedPath: string = ''
+
+  unlockedPathKeyAddr: string = ''
 
   isWebHID: boolean
 
-  transport: TransportWebHID | null
+  transport: Transport | null
 
-  app: null | LedgerEth
+  walletSDK: null | Eth
 
   type = 'ledger'
 
@@ -41,136 +28,93 @@ class LedgerController {
   deviceId = ''
 
   constructor() {
-    this.hdk = new HDKey()
-    this.hasHIDPermission = null
     // TODO: make it optional (by default should be false and set it to true only when there is ledger connected via usb)
     this.isWebHID = true
     this.transport = null
-    this.app = null
+    this.walletSDK = null
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
   }
 
-  isUnlocked() {
-    return Boolean(this.hdk && this.hdk.publicKey)
-  }
-
-  setHdPath(hdPathTemplate: HD_PATH_TEMPLATE_TYPE) {
-    // Reset HDKey if the path changes
-    if (this.hdPathTemplate !== hdPathTemplate) {
-      this.hdk = new HDKey()
+  isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
+    // If no path or expected key is provided, just check if there is any
+    // unlocked path, that's a valid case when retrieving accounts for import.
+    if (!path || !expectedKeyOnThisPath) {
+      return !!(this.unlockedPath && this.unlockedPathKeyAddr)
     }
-    this.hdPathTemplate = hdPathTemplate
+
+    // Make sure it's unlocked with the right path and with the right key,
+    // otherwise - treat as not unlocked.
+    return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
   }
 
-  async makeApp() {
-    if (!this.app) {
-      try {
-        // @ts-ignore
-        this.transport = await TransportWebHID.create()
-        this.app = new LedgerEth(this.transport as Transport)
+  async initAppIfNeeded() {
+    if (this.walletSDK) return
 
-        if (this.transport?.deviceModel?.id) {
-          this.deviceModel = this.transport.deviceModel.id
-        }
-        if (this.transport?.device?.productId) {
-          this.deviceId = this.transport.device.productId.toString()
-        }
-      } catch (e: any) {
-        Promise.reject(new Error('ledgerController: permission rejected'))
+    try {
+      // @ts-ignore
+      this.transport = await TransportWebHID.create()
+      if (!this.transport) throw new Error('Transport failed to get initialized')
+
+      this.walletSDK = new Eth(this.transport)
+
+      if (this.transport?.deviceModel?.id) {
+        this.deviceModel = this.transport.deviceModel.id
       }
-    }
-  }
-
-  async unlock(path?: string) {
-    if (this.isUnlocked()) {
-      return 'ledgerController: already unlocked'
-    }
-
-    if (this.isWebHID) {
-      try {
-        await this.makeApp()
-        const res = await this.app!.getAddress(
-          path || getHdPathFromTemplate(this.hdPathTemplate, 0),
-          false,
-          true
-        )
-        const { address, publicKey, chainCode } = res
-
-        this.hdk.publicKey = Buffer.from(publicKey, 'hex')
-        this.hdk.chainCode = Buffer.from(chainCode!, 'hex')
-
-        return address
-      } catch (error: any) {
-        if (error?.statusCode === 25871 || error?.statusCode === 27404) {
-          throw new Error('Please make sure your ledger is unlocked and running the Ethereum app.')
-        }
-
-        console.error(error)
-        throw new Error(
-          'Could not connect to your ledger device. Please make sure it is connected, unlocked and running the Ethereum app.'
-        )
+      if (this.transport?.device?.productId) {
+        this.deviceId = this.transport.device.productId.toString()
       }
+    } catch (e: any) {
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
+    }
+  }
+
+  async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
+    const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
+    await this.initAppIfNeeded()
+
+    if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
+      return 'ALREADY_UNLOCKED'
     }
 
-    return null
-    // TODO: impl when isWebHID is false
-  }
+    if (!this.isWebHID) {
+      throw new Error(
+        'Ledger only supports USB connection between Ambire and your device. Please connect your device via USB.'
+      )
+    }
 
-  authorizeHIDPermission() {
-    this.hasHIDPermission = true
-  }
+    if (!this.walletSDK) {
+      throw new Error(
+        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
+      )
+    }
 
-  async getKeys(from: number = 0, to: number = 4) {
-    return new Promise((resolve, reject) => {
-      const unlockPromises = []
+    try {
+      const response = await this.walletSDK.getAddress(
+        pathToUnlock,
+        false // prioritize having less steps for the user
+      )
+      this.unlockedPath = pathToUnlock
+      this.unlockedPathKeyAddr = response.address
 
-      for (let i = from; i <= to; i++) {
-        const path = getHdPathFromTemplate(this.hdPathTemplate, i)
-        unlockPromises.push(this.unlock(path))
-      }
+      return 'JUST_UNLOCKED'
+    } catch (error: any) {
+      const message = error?.message || error?.toString() || 'Ledger device: no response.'
 
-      Promise.all(unlockPromises)
-        .then(async () => {
-          const iterator = new LedgerKeyIterator({
-            hdk: this.hdk,
-            app: this.app
-          })
-          const keys = await iterator.retrieve(from, to, this.hdPathTemplate)
-
-          resolve(keys)
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
+      throw new Error(
+        `Could not connect to your Ledger device. Please make sure it is connected, unlocked and running the Ethereum app. \n${message}`
+      )
+    }
   }
 
   async cleanUp() {
-    this.app = null
+    this.walletSDK = null
     if (this.transport) this.transport.close()
     this.transport = null
-    this.hdk = new HDKey()
-  }
-
-  async _reconnect() {
-    if (this.isWebHID) {
-      await this.cleanUp()
-
-      let count = 0
-      // wait connect the WebHID
-      while (!this.app) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.makeApp()
-        // eslint-disable-next-line no-await-in-loop, @typescript-eslint/no-loop-func
-        await wait(() => {
-          if (count++ > 50) {
-            throw new Error('Ledger: Failed to connect to Ledger')
-          }
-        }, 100)
-      }
-    }
   }
 }
 
+export { Eth, ledgerService }
 export default LedgerController

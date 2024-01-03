@@ -39,7 +39,7 @@ const ThemeColors = {
   },
   secondaryBorder: {
     [THEME_TYPES.DARK]: colors.greenHaze,
-    [THEME_TYPES.LIGHT]: '#B8BDE0'
+    [THEME_TYPES.LIGHT]: '#CACDE6'
   },
   primaryBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
@@ -52,6 +52,10 @@ const ThemeColors = {
   tertiaryBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#E7E9FB'
+  },
+  backdrop: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#54597ACC'
   },
   // Success
   successText: {
@@ -107,6 +111,12 @@ const ThemeColors = {
   }
 }
 
+export const iconColors = {
+  warning: '#CA7E04',
+  primary: '#54597A',
+  secondary: colors.martinique
+}
+
 export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
@@ -117,9 +127,6 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.ambireAccountJsonLogin,
-  WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm,
-  WEB_ROUTES.ambireAccountLoginPasswordConfirm,
   WEB_ROUTES.externalSigner,
   WEB_ROUTES.onboarding,
   WEB_ROUTES.hardwareWalletSelect,

@@ -4,7 +4,6 @@
  */
 .toggle {
   align-items: center;
-  margin-bottom: 30px;
   --width: 25px;
   --height: calc(var(--width) / 2);
   --border-radius: calc(var(--height));
@@ -25,7 +24,7 @@
   border-radius: var(--border-radius);
   background: #f7f8ff;
   transition: border 0.2s;
-  border: 2px solid #2D314DA6;
+  border: 2px solid #2d314da6;
 }
 .toggle__fill::after {
   content: '';
@@ -34,7 +33,7 @@
   left: 2px;
   height: var(--height);
   width: var(--height);
-  background: #2D314DA6;
+  background: #2d314da6;
   border-radius: var(--border-radius);
   transition: transform 0.2s;
 }

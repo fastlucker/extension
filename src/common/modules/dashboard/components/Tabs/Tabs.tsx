@@ -5,7 +5,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   openTab: 'tokens' | 'collectibles'
@@ -15,7 +15,7 @@ interface Props {
 
 const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { styles } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
@@ -26,18 +26,11 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         }}
       >
         {/* todo: add the border radius here */}
-        <View
-          style={{
-            borderBottomColor: openTab === 'tokens' ? theme.primary : 'transparent',
-            ...styles.toggleItem
-          }}
-        >
+        <View style={[styles.toggleItem, openTab === 'tokens' ? styles.toggleItemActive : {}]}>
           <Text
-            shouldScale={false}
             weight="regular"
             appearance={openTab === 'tokens' ? 'primary' : 'secondaryText'}
             fontSize={16}
-            style={styles.tabItemText}
           >
             {t('Tokens')}
           </Text>
@@ -50,17 +43,12 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         }}
       >
         <View
-          style={{
-            borderBottomColor: openTab === 'collectibles' ? theme.primary : 'transparent',
-            ...styles.toggleItem
-          }}
+          style={[styles.toggleItem, openTab === 'collectibles' ? styles.toggleItemActive : {}]}
         >
           <Text
-            shouldScale={false}
             weight="regular"
             appearance={openTab === 'collectibles' ? 'primary' : 'secondaryText'}
             fontSize={16}
-            style={styles.tabItemText}
           >
             {t('Collectibles')}
           </Text>

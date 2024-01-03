@@ -101,7 +101,7 @@ const flowContext = flow
         try {
           await notificationCtrl.requestNotificationRequest({
             params: { origin, name, icon },
-            screen: 'PermissionRequest'
+            screen: 'DappConnectRequest'
           })
           connectOrigins.delete(origin)
           permissionService.addConnectedSite(origin, name, icon, 1)

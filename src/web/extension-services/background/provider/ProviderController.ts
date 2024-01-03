@@ -3,17 +3,20 @@
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
+import { JsonRpcProvider, toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
+import bundler from '@ambire-common/services/bundlers'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks, { NETWORKS } from '@common/constants/networks'
+import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService, { Session } from '@web/extension-services/background/services/session'
-import { storage } from '@web/extension-services/background/webapi/storage'
 
 interface RequestRes {
   type?: string
@@ -62,7 +65,7 @@ export class ProviderController {
     this.mainCtrl = mainCtrl
   }
 
-  getDappNetwork = () => {
+  getDappNetwork = (origin: string) => {
     const defaultNetwork = networks.find((n) => n.id === NETWORKS.ethereum)
     if (!defaultNetwork)
       throw new Error(
@@ -78,46 +81,17 @@ export class ProviderController {
     )
   }
 
-  ethRpc = async (req) => {
+  ethRpc = async (req: any) => {
     const {
       data: { method, params },
       session: { origin }
     } = req
 
-    const networkId = this.getDappNetwork().id
-    const provider = getProvider(networkId)
+    const networkId = this.getDappNetwork(origin).id
+    const provider: JsonRpcProvider = getProvider(networkId)
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
-    }
-
-    // Ambire modifies the txn data but dapps need the original txn data that has been requested on ethSendTransaction
-    // therefore we override the data stored on the blockchain with the original one
-    if (method === 'eth_getTransactionByHash') {
-      let fetchedTx = null
-      let failed = 0
-      while (fetchedTx === null && failed < 3) {
-        fetchedTx = await provider.getTransaction(params[0])
-        if (fetchedTx === null) {
-          await new Promise((r) => setTimeout(r, 1500))
-          failed++
-        }
-      }
-
-      if (fetchedTx) {
-        const response = provider._wrapTransaction(fetchedTx, params[0])
-        const txs = await storage.get('transactionHistory')
-        if (txs[params[0]]) {
-          const txn = JSON.parse(txs[params[0]])
-          if (txn?.data) {
-            response.data = txn?.data
-          }
-        }
-
-        return response
-      }
-
-      return provider.getTransaction(params[0])
     }
 
     return provider.send(method, params)
@@ -154,9 +128,9 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   ethChainId = async ({ session: { origin } }: any) => {
     if (permissionService.hasPermission(origin)) {
-      return intToHex(permissionService.getConnectedSite(origin)?.chainId || 1)
+      return toBeHex(permissionService.getConnectedSite(origin)?.chainId || 1)
     }
-    return intToHex(1)
+    return toBeHex(1)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
@@ -172,25 +146,33 @@ export class ProviderController {
   }) => {
     if (options.pushed) return options.result
 
-    const {
-      data: {
-        params: [txParams]
-      },
-      requestRes
-    } = cloneDeep(options)
+    const { requestRes } = cloneDeep(options)
 
-    if (requestRes) {
-      const txnHistory = (await storage.get('transactionHistory')) || {}
-      txnHistory[requestRes.hash || ''] = JSON.stringify(txParams)
-      await storage.set('transactionHistory', txnHistory)
-      return requestRes?.hash
+    if (requestRes?.hash) {
+      // @erc4337
+      // check if the request is erc4337
+      // if it is, the received requestRes?.hash is an userOperationHash
+      // Call the bundler to receive the transaction hash needed by the dapp
+      const dappNetwork = this.getDappNetwork(options.session.origin)
+      const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
+      const accountState = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount!][network.id]
+      const is4337Broadcast = isErc4337Broadcast(network, accountState)
+      let hash = requestRes?.hash
+      if (is4337Broadcast) {
+        const receipt = await bundler.poll(hash, network)
+        hash = receipt.receipt.transactionHash
+      }
+
+      // delay just for better UX
+      await delayPromise(400)
+      return hash
     }
 
     throw new Error('Transaction failed!')
   }
 
   @Reflect.metadata('SAFE', true)
-  netVersion = () => this.getDappNetwork().chainId.toString()
+  netVersion = ({ session: { origin } }: any) => this.getDappNetwork(origin).chainId.toString()
 
   @Reflect.metadata('SAFE', true)
   web3ClientVersion = () => {
@@ -277,7 +259,7 @@ export class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin
@@ -325,7 +307,7 @@ export class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin

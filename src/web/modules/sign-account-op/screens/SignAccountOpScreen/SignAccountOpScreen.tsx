@@ -1,63 +1,330 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { Account } from '@ambire-common/interfaces/account'
-import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
-import Text from '@common/components/Text'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
+import Alert from '@common/components/Alert'
+import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text/'
+import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
-import { mapTokenOptions } from '@web/utils/maps'
+import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import Estimation from '@web/modules/sign-account-op/components/Estimation'
+import Footer from '@web/modules/sign-account-op/components/Footer'
+import Header from '@web/modules/sign-account-op/components/Header'
+import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
+import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import { getUiType } from '@web/utils/uiType'
 
-import SignAccountOpTabScreen from '../SignAccountOpTabScreen'
-
-// @TODO: - get accounts from controller
-const ACCOUNTS = [
-  {
-    addr: '0xe1B0aB5DfBbBb7eAeC1FfBfE3B5e4FfFfFfFfFfF',
-    label: 'Account.Name.eth',
-    pfp: 'https://mars-images.imgix.net/nft/1629012092532.png?auto=compress&w=600'
-  },
-  {
-    addr: '0x2',
-    label: '0x2.eth',
-    pfp: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTiA3zMVkqgS_qHXKNkxgDs4IYwc387AMfesyPxHerLdt0dLiu7Zs8UfCsEmz7wSLqfz4&usqp=CAU'
-  }
-]
-
-// @TODO: - get tokens from portfolio based on currently selected account
-const TOKENS = [
-  {
-    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-    symbol: 'USDC',
-    networkId: 'ethereum'
-  },
-  {
-    address: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
-    symbol: 'MATIC',
-    networkId: 'polygon'
-  }
-]
-
-const mapAccountOptions = (values: Account[]) =>
-  values.map((value) => ({
-    value: value.addr,
-    label: <Text weight="medium">{value.label}</Text>,
-    icon: value.pfp
-  }))
+import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const signAccountOpState = useSignAccountOpControllerState()
+  const mainState = useMainControllerState()
+  const activityState = useActivityControllerState()
+  const portfolioState = usePortfolioControllerState()
+  const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
+
+  const { t } = useTranslation()
+  const { styles, theme } = useTheme(getStyles)
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+
+  const hasEstimation = useMemo(
+    () => !!signAccountOpState?.availableFeeOptions.length,
+    [signAccountOpState?.availableFeeOptions]
+  )
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+      params: {
+        accountAddr: params?.accountAddr,
+        networkId: params?.network?.id
+      }
+    })
+  }, [params, dispatch])
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
+    const estimateAccountOp = () => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE',
+        params: {
+          accountAddr: params.accountAddr,
+          networkId: params.network.id
+        }
+      })
+    }
+
+    const interval = setInterval(estimateAccountOp, 60000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [params, dispatch])
+
+  useEffect(() => {
+    if (!params?.accountAddr || !params?.network) {
+      return
+    }
+
+    if (!activityState.isInitialized) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+        params: {
+          filters: {
+            account: params.accountAddr,
+            network: params.network.id
+          }
+        }
+      })
+    }
+  }, [activityState.isInitialized, dispatch, params])
+
+  const account = useMemo(() => {
+    return mainState.accounts.find((acc) => acc.addr === signAccountOpState?.accountOp?.accountAddr)
+  }, [mainState.accounts, signAccountOpState?.accountOp?.accountAddr])
+
+  const network = useMemo(() => {
+    return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
+  }, [networks, signAccountOpState?.accountOp?.networkId])
+
+  const handleRejectAccountOp = useCallback(() => {
+    if (!signAccountOpState?.accountOp) return
+
+    signAccountOpState.accountOp.calls.forEach((call) => {
+      if (call.fromUserRequestId)
+        dispatch({
+          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
+        })
+    })
+  }, [dispatch, signAccountOpState?.accountOp])
+
+  const handleAddToCart = useCallback(() => {
+    if (getUiType().isNotification) {
+      window.close()
+    } else {
       navigate('/')
     }
-  }, [params?.accountAddr, params?.network, navigate])
+  }, [navigate])
 
-  const mappedAccounts = mapAccountOptions(ACCOUNTS as Account[])
-  const mappedTokens = mapTokenOptions(TOKENS as TokenResult[])
+  const callsToVisualize: IrCall[] = useMemo(() => {
+    if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
+    if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
+    return signAccountOpState.accountOp?.calls || []
+  }, [signAccountOpState?.accountOp?.calls, signAccountOpState?.humanReadable])
 
-  return <SignAccountOpTabScreen tokens={mappedTokens} accounts={mappedAccounts} />
+  const pendingTokens = useMemo(() => {
+    if (signAccountOpState?.accountOp && network) {
+      return calculateTokensPendingState(
+        signAccountOpState?.accountOp.accountAddr,
+        network,
+        portfolioState.state
+      )
+    }
+    return []
+  }, [network, portfolioState.state, signAccountOpState?.accountOp])
+
+  useEffect(() => {
+    const destroy = () => {
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
+    }
+    window.addEventListener('beforeunload', destroy)
+
+    return () => {
+      destroy()
+      window.removeEventListener('beforeunload', destroy)
+    }
+  }, [dispatch])
+
+  const handleSign = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
+    })
+  }, [dispatch])
+
+  const handleChangeSigningKey = useCallback(
+    (signingKeyAddr: string, signingKeyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: { signingKeyAddr, signingKeyType }
+      })
+
+      handleSign()
+    },
+    [dispatch, handleSign]
+  )
+
+  const onSignButtonClick = () => {
+    // If the account has only one signer, we don't need to show the select signer overlay,
+    // and we will sign the transaction with the only one available signer (it is set by default in the controller).
+    if (signAccountOpState?.accountKeyStoreKeys.length === 1) {
+      handleSign()
+      return
+    }
+
+    setIsChooseSignerShown(true)
+  }
+
+  const isViewOnly = useMemo(
+    () => signAccountOpState?.accountKeyStoreKeys.length === 0,
+    [signAccountOpState?.accountKeyStoreKeys]
+  )
+
+  if (mainState.signAccOpInitError) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Alert type="error" title={mainState.signAccOpInitError} />
+      </View>
+    )
+  }
+
+  // We want to show the errors one by one.
+  // Once the user resolves an error, it will be removed from the array,
+  // and we are going to show the next one, if it exists.
+  if (!signAccountOpState?.accountOp) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
+
+  return (
+    <TabLayoutContainer
+      width="full"
+      header={
+        <Header
+          networkId={network!.id as any}
+          isEOA={!account?.creation}
+          networkName={network?.name}
+        />
+      }
+      footer={
+        <Footer
+          onReject={handleRejectAccountOp}
+          onAddToCart={handleAddToCart}
+          isEOA={!account?.creation}
+          isSignLoading={
+            signAccountOpState.status?.type === SigningStatus.InProgress ||
+            signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
+            signAccountOpState.status?.type === SigningStatus.Done ||
+            mainState.broadcastStatus === 'LOADING'
+          }
+          readyToSign={signAccountOpState.readyToSign}
+          isChooseSignerShown={isChooseSignerShown}
+          isViewOnly={isViewOnly}
+          handleChangeSigningKey={handleChangeSigningKey}
+          selectedAccountKeyStoreKeys={signAccountOpState?.accountKeyStoreKeys}
+          onSign={onSignButtonClick}
+        />
+      }
+    >
+      <TabLayoutWrapperMainContent>
+        <View style={styles.container}>
+          <View style={styles.leftSideContainer}>
+            <View style={styles.transactionsContainer}>
+              <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+                {t('Waiting Transactions')}
+              </Text>
+              <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+                {callsToVisualize.map((call, i) => {
+                  return (
+                    <TransactionSummary
+                      key={call.data + call.fromUserRequestId}
+                      style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                      call={call}
+                      networkId={network!.id}
+                      explorerUrl={network!.explorerUrl}
+                    />
+                  )
+                })}
+              </ScrollView>
+            </View>
+            {!!pendingTokens.length && (
+              <View style={flexbox.flex1}>
+                <View style={spacings.pr}>
+                  <View style={styles.pendingTokensSeparatorContainer}>
+                    <View style={styles.separatorHorizontal} />
+                    <View style={styles.pendingTokensHeadingWrapper}>
+                      <Text fontSize={16} color={theme.secondaryText} weight="medium">
+                        {t('Balance changes')}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
+                  {pendingTokens.map((token) => {
+                    return (
+                      <PendingTokenSummary
+                        key={token.address}
+                        token={token}
+                        networkId={network!.id}
+                      />
+                    )
+                  })}
+                </ScrollView>
+              </View>
+            )}
+          </View>
+          <View style={styles.separator} />
+          <View style={styles.estimationContainer}>
+            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              {t('Estimation')}
+            </Text>
+            {hasEstimation ? (
+              <Estimation
+                mainState={mainState}
+                signAccountOpState={signAccountOpState}
+                accountPortfolio={portfolioState.accountPortfolio}
+                networkId={network!.id}
+                isViewOnly={isViewOnly}
+              />
+            ) : (
+              <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+                <Spinner style={styles.spinner} />
+              </View>
+            )}
+
+            {signAccountOpState.errors.length ? (
+              <View style={styles.errorContainer}>
+                <Alert
+                  type="error"
+                  title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+                />
+              </View>
+            ) : null}
+          </View>
+        </View>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
+  )
 }
 
 export default SignAccountOpScreen

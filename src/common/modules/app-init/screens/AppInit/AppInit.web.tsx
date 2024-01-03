@@ -30,11 +30,12 @@ import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControlle
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
+import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
-import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
+// @TODO: get rid of this and use the rpc providers from the settings controller
 const shouldInitProviders = !areRpcProvidersInitialized()
 if (shouldInitProviders) {
   initRpcProviders(rpcProviders)
@@ -43,33 +44,35 @@ if (shouldInitProviders) {
 const Router = isExtension ? HashRouter : BrowserRouter
 
 const AppInit = () => {
-  const { fontsLoaded } = useFonts()
+  const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded) return null
+  if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
-    <BackgroundServiceProvider>
-      <Router>
-        <MainControllerStateProvider>
-          <AccountAdderControllerStateProvider>
-            <KeystoreControllerStateProvider>
-              <SignMessageControllerStateProvider>
-                <ActivityControllerStateProvider>
-                  <NotificationControllerStateProvider>
-                    <PortfolioControllerStateProvider>
-                      <EmailVaultControllerStateProvider>
+    <Router>
+      <PortalProvider>
+        <ThemeProvider>
+          <SafeAreaProvider>
+            <ToastProvider>
+              <BackgroundServiceProvider>
+                <MainControllerStateProvider>
+                  <SettingsControllerStateProvider>
+                    <AccountAdderControllerStateProvider>
+                      <KeystoreControllerStateProvider>
+                        <SignMessageControllerStateProvider>
+                          <ActivityControllerStateProvider>
+                            <NotificationControllerStateProvider>
+                              <PortfolioControllerStateProvider>
+                                <EmailVaultControllerStateProvider>
                         <TransferControllerStateProvider>
                           <ControllersStateLoadedProvider>
-                            <PortalProvider>
+
                               <LoaderProvider>
                                 <StorageProvider>
                                   <OnboardingProvider>
-                                    <ThemeProvider>
-                                      <SafeAreaProvider>
-                                        <KeyboardProvider>
+                                    <KeyboardProvider>
                                           <NetInfoProvider>
-                                            <ToastProvider>
-                                              <ConstantsProvider>
+                                            <ConstantsProvider>
                                                 <AuthProvider>
                                                   <ExtensionProvider>
                                                     <BiometricsProvider>
@@ -81,27 +84,29 @@ const AppInit = () => {
                                                   </ExtensionProvider>
                                                 </AuthProvider>
                                               </ConstantsProvider>
-                                            </ToastProvider>
+
                                           </NetInfoProvider>
                                         </KeyboardProvider>
-                                      </SafeAreaProvider>
-                                    </ThemeProvider>
-                                  </OnboardingProvider>
+                                      </OnboardingProvider>
                                 </StorageProvider>
                               </LoaderProvider>
-                            </PortalProvider>
-                          </ControllersStateLoadedProvider>
+                            </ControllersStateLoadedProvider>
                         </TransferControllerStateProvider>
                       </EmailVaultControllerStateProvider>
-                    </PortfolioControllerStateProvider>
-                  </NotificationControllerStateProvider>
-                </ActivityControllerStateProvider>
-              </SignMessageControllerStateProvider>
-            </KeystoreControllerStateProvider>
-          </AccountAdderControllerStateProvider>
-        </MainControllerStateProvider>
-      </Router>
-    </BackgroundServiceProvider>
+                              </PortfolioControllerStateProvider>
+                            </NotificationControllerStateProvider>
+                          </ActivityControllerStateProvider>
+                        </SignMessageControllerStateProvider>
+                      </KeystoreControllerStateProvider>
+                    </AccountAdderControllerStateProvider>
+                  </SettingsControllerStateProvider>
+                </MainControllerStateProvider>
+              </BackgroundServiceProvider>
+            </ToastProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </PortalProvider>
+    </Router>
   )
 }
 

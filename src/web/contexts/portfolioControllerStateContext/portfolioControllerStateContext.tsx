@@ -10,7 +10,7 @@ import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-interface AccountPortfolio {
+export interface AccountPortfolio {
   tokens: TokenResultInterface[]
   collections: CollectionResultInterface[]
   totalAmount: number
@@ -92,14 +92,16 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {
-      Object.values(state?.latest[mainCtrl.selectedAccount as string]).forEach((network: any) => {
-        if (
-          network?.result?.updateStarted &&
-          (!startedLoading || network?.result?.updateStarted < startedLoading)
-        ) {
-          setStartedLoading(network.result.updateStarted)
+      Object.values(state?.latest[mainCtrl.selectedAccount as string] || {}).forEach(
+        (network: any) => {
+          if (
+            network?.result?.updateStarted &&
+            (!startedLoading || network?.result?.updateStarted < startedLoading)
+          ) {
+            setStartedLoading(network.result.updateStarted)
+          }
         }
-      })
+      )
     }
   }, [state?.latest, mainCtrl.selectedAccount, startedLoading])
 

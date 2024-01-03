@@ -7,6 +7,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 const ControllersStateLoadedContext = createContext<boolean>(false)
@@ -20,6 +21,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const notificationState = useNotificationControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
+  const settingsState = useSettingsControllerState()
   const emailVaultState = useEmailVaultControllerState()
 
   useEffect(() => {
@@ -35,6 +37,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(notificationState).length &&
       Object.keys(portfolioState).length &&
       Object.keys(activityState).length &&
+      Object.keys(settingsState).length &&
       Object.keys(emailVaultState).length &&
       emailVaultState.isReady
     ) {
@@ -48,6 +51,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     notificationState,
     portfolioState,
     activityState,
+    settingsState,
     emailVaultState
   ])
 

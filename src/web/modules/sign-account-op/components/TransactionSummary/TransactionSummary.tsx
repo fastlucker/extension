@@ -1,84 +1,251 @@
-import React, { useState } from 'react'
-import { Image, Pressable, View, ViewStyle } from 'react-native'
+/* eslint-disable react/no-array-index-key */
+import { formatUnits } from 'ethers'
+import React, { Fragment, ReactNode, useCallback } from 'react'
+import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import NavIconWrapper from '@common/components/NavIconWrapper'
+import OpenIcon from '@common/assets/svg/OpenIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
+import Label from '@common/components/Label'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   style: ViewStyle
+  call: IrCall
+  networkId: NetworkDescriptor['id']
+  explorerUrl: NetworkDescriptor['explorerUrl']
+  rightIcon?: ReactNode
+  onRightIconPress?: () => void
 }
 
-const TransactionSummary = ({ style }: Props) => {
-  const { theme } = useTheme()
+const TransactionSummary = ({
+  style,
+  call,
+  networkId,
+  explorerUrl,
+  rightIcon,
+  onRightIconPress
+}: Props) => {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
+
+  const { dispatch } = useBackgroundService()
+  const { styles } = useTheme(getStyles)
+
+  const handleRemoveCall = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
+    })
+  }, [call.fromUserRequestId, dispatch])
+
+  const fallbackVisualization = useCallback(() => {
+    return (
+      <View
+        style={[
+          flexbox.flex1,
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          flexbox.wrap,
+          spacings.mhSm
+        ]}
+      >
+        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+          {t(' Interacting with (to): ')}
+        </Text>
+        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+          {` ${call.to} `}
+        </Text>
+        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+          {t(' Value to be sent (value): ')}
+        </Text>
+        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+          {` ${formatUnits(call.value || '0x0', 18)} `}
+        </Text>
+      </View>
+    )
+  }, [call, t])
+
+  const humanizedVisualization = useCallback(
+    (dataToVisualize: IrCall['fullVisualization'] = []) => {
+      return (
+        <View
+          style={[
+            flexbox.flex1,
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.wrap,
+            spacings.mhSm
+          ]}
+        >
+          {dataToVisualize.map((item, i) => {
+            if (!item) return null
+
+            if (item.type === 'token') {
+              return (
+                <Fragment key={Number(item.id) || i}>
+                  {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
+                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                      {` ${
+                        item.readableAmount ||
+                        formatUnits(item.amount || '0x0', item.decimals || 18)
+                      } `}
+                    </Text>
+                  ) : null}
+
+                  {item.address ? (
+                    <TokenIcon
+                      width={24}
+                      height={24}
+                      networkId={networkId}
+                      address={item.address}
+                    />
+                  ) : null}
+                  {item.symbol ? (
+                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                      {` ${item.symbol || ''} `}
+                    </Text>
+                  ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
+                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                      {t(' units of unknown token ')}
+                    </Text>
+                  ) : null}
+                </Fragment>
+              )
+            }
+
+            if (item.type === 'address')
+              return (
+                <Fragment key={Number(item.id) || i}>
+                  <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    {` ${item.name ? item.name : item.address} `}
+                  </Text>
+                  {!!item.address && !!explorerUrl && (
+                    <TouchableOpacity
+                      disabled={!explorerUrl}
+                      onPress={() => {
+                        Linking.openURL(`${explorerUrl}/address/${item.address}`)
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <OpenIcon width={14} height={14} strokeWidth="2" />
+                    </TouchableOpacity>
+                  )}
+                </Fragment>
+              )
+
+            if (item.type === 'nft') {
+              return (
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={16}
+                  weight="medium"
+                  color={colors.martinique}
+                >
+                  {` ${item.name || item.address} `}
+                </Text>
+              )
+            }
+
+            if (item.content) {
+              return (
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={16}
+                  weight={
+                    item.type === 'label'
+                      ? 'regular'
+                      : item.type === 'action'
+                      ? 'semiBold'
+                      : 'medium'
+                  }
+                  color={
+                    item.type === 'label'
+                      ? colors.martinique_65
+                      : item.type === 'action'
+                      ? colors.greenHaze
+                      : colors.martinique
+                  }
+                >{` ${item.content} `}</Text>
+              )
+            }
+
+            return null
+          })}
+        </View>
+      )
+    },
+    [networkId, explorerUrl, t]
+  )
 
   return (
-    <View style={[styles.container, style]}>
-      <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
-        <View style={styles.header}>
-          <NavIconWrapper
-            hoverBackground={theme.primaryLight}
-            style={{ borderColor: 'transparent', borderRadius: 10 }}
-            onPress={() => setIsExpanded((prevState) => !prevState)}
-          >
-            <DownArrowIcon width={36} height={36} isActive={isExpanded} withRect />
-          </NavIconWrapper>
-          <View style={styles.headerContent}>
-            <Text weight="semiBold" style={[styles.action, styles.mr5, styles.text]}>
-              {t('Send')}
-            </Text>
-            <Text style={[styles.mr5, styles.text]} weight="medium">
-              10000.0
-            </Text>
-            <Image
-              source={{
-                uri: 'https://storage.googleapis.com/zapper-fi-assets/tokens/ethereum/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
-              }}
-              style={[styles.tokenImg, styles.mr5]}
-            />
-            <Text weight="medium" style={[styles.text, styles.mr5]}>
-              USDC
-            </Text>
-            <Text weight="regular" style={[styles.to, styles.mr5, styles.text]}>
-              {t('to')}
-            </Text>
-            <Text style={styles.text} weight="medium">
-              0x5a2fae94BDaa7B30B6049b1f5c9C86C3E4fd212F
-            </Text>
-          </View>
-          <NavIconWrapper
-            hoverBackground={theme.primaryLight}
-            hoverBorderColor={theme.primary}
-            style={{ borderRadius: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}
-            onPress={() => null}
-          >
-            <DeleteIcon width={18} height={20} />
-          </NavIconWrapper>
-        </View>
-      </Pressable>
-      {!!isExpanded && (
+    <ExpandableCard
+      style={{
+        ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })
+      }}
+      content={
+        <>
+          {call.fullVisualization
+            ? humanizedVisualization(call.fullVisualization)
+            : fallbackVisualization()}
+          {!!rightIcon && (
+            <TouchableOpacity onPress={onRightIconPress}>{rightIcon}</TouchableOpacity>
+          )}
+          {!!call.fromUserRequestId && !rightIcon && (
+            <TouchableOpacity onPress={handleRemoveCall}>
+              <DeleteIcon />
+            </TouchableOpacity>
+          )}
+        </>
+      }
+      expandedContent={
         <View style={styles.body}>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Interacting with (to):')} 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 (USDC token)
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Interacting with (to): ')}
+            </Text>
+            {call.to}
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Value to be sent (value):')} 0.0 MATIC
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Value to be sent (value): ')}
+            </Text>
+            {formatUnits(call.value || '0x0', 18)}
           </Text>
           <Text fontSize={12} style={styles.bodyText}>
-            {t('Data')}:
-            0xa9059cbb0000000000000000000000009876b9765f7327f323faf7ec9b33760ae9b3910900000000000000000000000000000000000000000000000000000000000f4240
+            <Text fontSize={12} style={styles.bodyText} weight="regular">
+              {t('Data: ')}
+            </Text>
+            <Text fontSize={12} style={styles.bodyText}>
+              {call.data}
+            </Text>
           </Text>
         </View>
-      )}
-    </View>
+      }
+    >
+      <View
+        style={{
+          paddingHorizontal: 42 // magic number
+        }}
+      >
+        {call.warnings?.map((warning) => {
+          return (
+            <Label key={warning.content + warning.level} text={warning.content} type="warning" />
+          )
+        })}
+      </View>
+    </ExpandableCard>
   )
 }
 
-export default TransactionSummary
+export default React.memo(TransactionSummary)

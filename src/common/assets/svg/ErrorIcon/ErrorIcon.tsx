@@ -3,22 +3,21 @@ import Svg, { Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const ErrorIcon: React.FC<Props> = ({ width = 20, height = 18 }) => (
-  <Svg width={width} height={height} viewBox="0 0 20 18">
+const ErrorIcon: React.FC<SvgProps> = ({ width = 24, height = 24, color = colors.martinique }) => (
+  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24">
     <Path
-      d="M9.7,5.956a3.638,3.638,0,0,1,6.243,0l6.417,11.081a3.462,3.462,0,0,1-3.121,5.15H6.4a3.462,3.462,0,0,1-3.121-5.15Z"
-      transform="translate(-2.819 -4.187)"
-      fill={colors.pink}
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M12 7.75V13m9.08-4.42v6.84c0 1.12-.6 2.16-1.57 2.73l-5.94 3.43c-.97.56-2.17.56-3.15 0l-5.94-3.43a3.15 3.15 0 0 1-1.57-2.73V8.58c0-1.12.6-2.16 1.57-2.73l5.94-3.43c.97-.56 2.17-.56 3.15 0l5.94 3.43c.97.57 1.57 1.6 1.57 2.73Z"
     />
     <Path
-      d="M-3970,15.931a1,1,0,0,1-1-.994,1,1,0,0,1,1-.994,1,1,0,0,1,1,.994A1,1,0,0,1-3970,15.931Zm0-3.975a1,1,0,0,1-1-.994V5.994A1,1,0,0,1-3970,5a1,1,0,0,1,1,.994v4.969A1,1,0,0,1-3970,11.956Z"
-      transform="translate(3979.999 -0.239)"
-      fill="#fff"
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M12 16.2v.1"
     />
   </Svg>
 )
