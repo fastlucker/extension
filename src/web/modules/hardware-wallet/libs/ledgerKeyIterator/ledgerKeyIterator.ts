@@ -19,23 +19,31 @@ class LedgerKeyIterator implements KeyIteratorInterface {
     this.walletSDK = walletSDK
   }
 
-  async retrieve(from: number, to: number, hdPathTemplate?: HD_PATH_TEMPLATE_TYPE) {
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
     if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
-
-    if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
-      throw new Error('ledgerKeyIterator: invalid or missing arguments')
 
     const keys: string[] = []
 
-    for (let i = from; i <= to; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      const key = await this.walletSDK.getAddress(
-        getHdPathFromTemplate(hdPathTemplate, i),
-        false,
-        true
-      )
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { from, to } of fromToArr) {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('ledgerKeyIterator: invalid or missing arguments')
 
-      !!key && keys.push(key.address)
+      for (let i = from; i <= to; i++) {
+        // Purposely await in loop to avoid sending multiple requests at once,
+        // because the Ledger device can't handle them in parallel.
+        // eslint-disable-next-line no-await-in-loop
+        const key = await this.walletSDK.getAddress(
+          getHdPathFromTemplate(hdPathTemplate, i),
+          false, // no need to show on display
+          false // no need for the chain code
+        )
+
+        !!key && keys.push(key.address)
+      }
     }
 
     return keys
