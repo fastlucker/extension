@@ -2,9 +2,7 @@ import React from 'react'
 import { Pressable, View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -25,7 +23,7 @@ const TokenItem = ({
   handleTokenSelect: ({ address, networkId, flags }: TokenResult) => void
 }) => {
   const { symbol, address, networkId, flags } = token
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const onGasTank = flags.onGasTank
 
@@ -56,11 +54,12 @@ const TokenItem = ({
             <TokenIcon
               withContainer
               address={address}
-              networkId={networkId}
+              networkId={!onGasTank && !isRewards && !isVesting ? networkId : null}
+              onGasTank={onGasTank}
               containerHeight={40}
               containerWidth={40}
-              width={24}
-              height={24}
+              width={28}
+              height={28}
             />
           )}
         </View>
@@ -78,18 +77,6 @@ const TokenItem = ({
               {onGasTank && t('Gas Tank')}
               {!onGasTank && !isRewards && !isVesting && networkData?.name}
             </Text>
-            {onGasTank && <GasTankIcon width={18} height={18} color={theme.primary} />}
-            {!onGasTank && !isRewards && !isVesting && (
-              <NetworkIcon
-                name={networkId}
-                style={{
-                  width: 14,
-                  height: 14,
-                  backgroundColor: theme.secondaryBackground,
-                  borderRadius: 12
-                }}
-              />
-            )}
           </View>
         </View>
       </View>
