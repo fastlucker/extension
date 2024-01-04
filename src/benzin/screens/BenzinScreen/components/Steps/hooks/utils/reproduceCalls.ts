@@ -79,11 +79,11 @@ const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp
     return getExecuteBySenderCalls(callData)
   }
 
-  if (sigHash === sigHashes.execute) {
+  if (callDataSigHash === sigHashes.execute) {
     return getExecuteCalls(callData)
   }
 
-  if (sigHash === sigHashes.executeMultiple) {
+  if (callDataSigHash === sigHashes.executeMultiple) {
     return getExecuteMultipleCalls(callData)
   }
 }
