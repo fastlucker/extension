@@ -291,6 +291,10 @@ module.exports = async function (env, argv) {
           {
             from: './src/benzin/public/index.html',
             to: 'index.html'
+          },
+          {
+            from: './src/benzin/public/favicon.ico',
+            to: 'favicon.ico'
           }
         ]
       }),
