@@ -77,11 +77,8 @@ const Estimation = ({
   const defaultPayOption = useMemo(() => {
     if (!payOptions) return undefined
 
-    return payOptions.find(
-      ({ value }: any) =>
-        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr
-    )
-  }, [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
+    return payOptions[0]
+  }, [payOptions])
 
   const [payValue, setPayValue] = useState(defaultPayOption)
 
