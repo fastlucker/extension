@@ -29,7 +29,10 @@ const BenzinScreen = () => {
 
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId')
-  const [networkId, isUserOp] = [params.get('networkId'), typeof params.get('userOp') === 'string']
+  const [networkId, isUserOp] = [
+    params.get('networkId'),
+    typeof params.get('isUserOp') === 'string'
+  ]
   const network = networks.find((n) => n.id === networkId)
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
