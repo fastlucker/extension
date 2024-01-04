@@ -7,6 +7,7 @@ import {
   executeInterface,
   executeMultipleInterface,
   handleOpsInterface,
+  quickAccManagerSendInterface,
   transferInterface
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 
@@ -124,6 +125,14 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: bool
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
     const decodedUserOp = decodeUserOp(txn.data, sigHash, sender, isUserOp)
     if (decodedUserOp) return decodedUserOp
+  }
+
+  // v1
+  if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
+    const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
+    return data[3]
+      .filter((call: any) => filterFeeCollectorCalls(data[3].length, call))
+      .map((call: any) => transformToAccOpCall(call))
   }
 
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]

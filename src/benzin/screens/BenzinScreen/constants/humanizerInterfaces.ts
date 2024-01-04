@@ -25,6 +25,10 @@ const executeBySenderInterface = new ethers.Interface([
   'function executeBySender(tuple(address, uint256, bytes)[] calls) external payable'
 ])
 
+const quickAccManagerSendInterface = new ethers.Interface([
+  'function send(address identity, tuple(uint, address, address) calldata acc, tuple(bool, bytes, bytes) calldata sigs, tuple(address, uint256, bytes)[] calldata txns) external'
+])
+
 export {
   executeInterface,
   executeMultipleInterface,
@@ -32,5 +36,6 @@ export {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
   handleOpsInterface,
-  executeBySenderInterface
+  executeBySenderInterface,
+  quickAccManagerSendInterface
 }
