@@ -19,16 +19,21 @@ class TrezorKeyIterator implements KeyIteratorInterface {
     this.walletSDK = walletSDK
   }
 
-  async retrieve(from: number, to: number, hdPathTemplate?: HD_PATH_TEMPLATE_TYPE) {
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
     if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
 
-    if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
-      throw new Error('trezorKeyIterator: invalid or missing arguments')
-
     const bundle = []
-    for (let i = from; i <= to; i++) {
-      bundle.push({ path: getHdPathFromTemplate(hdPathTemplate, i), showOnTrezor: false })
-    }
+    fromToArr.forEach(({ from, to }) => {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('trezorKeyIterator: invalid or missing arguments')
+
+      for (let i = from; i <= to; i++) {
+        bundle.push({ path: getHdPathFromTemplate(hdPathTemplate, i), showOnTrezor: false })
+      }
+    })
     const res = await this.walletSDK.ethereumGetAddress({ bundle })
 
     if (!res.success) throw new Error('trezorKeyIterator: failed to retrieve keys')
