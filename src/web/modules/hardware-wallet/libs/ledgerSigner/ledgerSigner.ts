@@ -4,9 +4,7 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, {
-  ledgerService
-} from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -52,6 +50,40 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
+  /**
+   * This method is designed to handle the scenario where Ledger device loses
+   * connectivity during an operation. Without this method, if the Ledger device
+   * disconnects, the Ledger SDK hangs indefinitely because the promise
+   * associated with the operation never resolves or rejects.
+   */
+  async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
+    let transportCbRef: (...args: Array<any>) => any = () => {}
+    const disconnectHandler = (reject: (reason?: any) => void) => () => {
+      reject(new Error('Ledger device got disconnected.'))
+    }
+
+    try {
+      // Race the operation against a new Promise that rejects if a 'disconnect'
+      // event is emitted from the Ledger device. If the device disconnects
+      // before the operation completes, the new Promise rejects and the method
+      // returns, preventing the SDK from hanging. If the operation completes
+      // before the device disconnects, the result of the operation is returned.
+      const result = await Promise.race<T>([
+        operation(),
+        new Promise((_, reject) => {
+          transportCbRef = disconnectHandler(reject)
+          this.controller!.transport?.on('disconnect', transportCbRef)
+        })
+      ])
+
+      return result
+    } finally {
+      // In either case, the 'disconnect' event listener should be removed
+      // after the operation to clean up resources.
+      if (transportCbRef) this.controller!.transport?.off('disconnect', transportCbRef)
+    }
+  }
+
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
@@ -76,10 +108,13 @@ class LedgerSigner implements KeystoreSigner {
       )
 
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const res = await this.controller!.walletSDK!.signTransaction(
-        path,
-        stripHexPrefix(unsignedSerializedTxn),
-        resolution
+
+      const res = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signTransaction(
+          path,
+          stripHexPrefix(unsignedSerializedTxn),
+          resolution
+        )
       )
 
       const signature = Signature.from({
@@ -108,12 +143,14 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.walletSDK!.signEIP712Message(path, {
-        domain,
-        types,
-        message,
-        primaryType
-      })
+      const rsvRes = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signEIP712Message(path, {
+          domain,
+          types,
+          message,
+          primaryType
+        })
+      )
 
       const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
       return signature
@@ -136,9 +173,8 @@ class LedgerSigner implements KeystoreSigner {
 
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-      const rsvRes = await this.controller!.walletSDK!.signPersonalMessage(
-        path,
-        stripHexPrefix(hex)
+      const rsvRes = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
       )
 
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
