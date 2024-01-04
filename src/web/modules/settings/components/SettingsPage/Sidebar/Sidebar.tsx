@@ -37,10 +37,10 @@ export const getSettingsPages = (t: (string: string) => string) => [
     path: ROUTES.transactions
   },
   {
-    key: 'keystore-settings',
+    key: 'device-password',
     Icon: ({ color }: { color: ColorValue }) => <KeyStoreSettingsIcon color={color} />,
-    label: t('Ambire Key Store'),
-    path: '/settings/keystore-settings'
+    label: t('Device Password'),
+    path: ROUTES.devicePassword
   },
   {
     key: 'email-vault',
@@ -93,7 +93,8 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           <Pressable
             key={item.key}
             onPress={() => {
-              if (item.path in ROUTES) {
+              console.log(item.path)
+              if (Object.values(ROUTES).includes(item.path)) {
                 navigate(item.path)
                 return
               }

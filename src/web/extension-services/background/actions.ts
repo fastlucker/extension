@@ -277,7 +277,7 @@ type KeystoreControllerResetErrorStateAction = {
 }
 type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
-  params: { secretId: string; secret: string; newSecret: string }
+  params: { secret: string; newSecret: string }
 }
 
 type WalletControllerGetConnectedSiteAction = {
