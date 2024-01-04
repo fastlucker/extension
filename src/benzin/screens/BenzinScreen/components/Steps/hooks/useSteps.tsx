@@ -30,7 +30,21 @@ interface Props {
   setActiveStep: (step: ActiveStepType) => void
 }
 
-const useSteps = ({ txnId, network, isUserOp, standardOptions, setActiveStep }: Props) => {
+export interface StepsData {
+  nativePrice: number
+  blockData: null | Block
+  finalizedStatus: FinalizedStatusType
+  cost: null | string
+  calls: IrCall[]
+}
+
+const useSteps = ({
+  txnId,
+  network,
+  isUserOp,
+  standardOptions,
+  setActiveStep
+}: Props): StepsData => {
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [userOp, setUserOp] = useState<{ status: null | string; txnId: null | string }>({

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -15,7 +16,12 @@ import { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import Buttons from './components/Buttons'
 import Header from './components/Header'
 import Steps from './components/Steps'
+import useSteps from './components/Steps/hooks/useSteps'
 import getStyles from './styles'
+
+const emittedErrors: ErrorRef[] = []
+const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
+const standardOptions = { fetch, emitError: mockEmitError }
 
 const BenzinScreen = () => {
   const { styles } = useTheme(getStyles)
@@ -38,6 +44,14 @@ const BenzinScreen = () => {
     return <Text>Error loading transaction</Text>
   }
 
+  const stepsState = useSteps({
+    txnId,
+    network,
+    isUserOp,
+    standardOptions,
+    setActiveStep
+  })
+
   return (
     <ImageBackground
       style={styles.backgroundImage}
@@ -50,10 +64,9 @@ const BenzinScreen = () => {
           <Steps
             activeStep={activeStep}
             network={network}
-            isUserOp={isUserOp}
             txnId={txnId}
             handleOpenExplorer={handleOpenExplorer}
-            setActiveStep={setActiveStep}
+            stepsState={stepsState}
           />
           <Buttons handleOpenExplorer={handleOpenExplorer} />
         </View>

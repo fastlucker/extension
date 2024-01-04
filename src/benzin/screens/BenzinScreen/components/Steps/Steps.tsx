@@ -2,7 +2,6 @@ import { ethers } from 'ethers'
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -11,37 +10,19 @@ import spacings from '@common/styles/spacings'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import Step from './components/Step'
-import useSteps from './hooks/useSteps'
+import { StepsData } from './hooks/useSteps'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
-
-const emittedErrors: ErrorRef[] = []
-const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
-const standardOptions = { fetch, emitError: mockEmitError }
 
 interface Props {
   activeStep: ActiveStepType
   network: NetworkDescriptor
-  isUserOp: boolean
   txnId: string
   handleOpenExplorer: () => void
-  setActiveStep: (step: ActiveStepType) => void
+  stepsState: StepsData
 }
 
-const Steps: FC<Props> = ({
-  activeStep,
-  network,
-  isUserOp,
-  txnId,
-  handleOpenExplorer,
-  setActiveStep
-}) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls } = useSteps({
-    txnId,
-    network,
-    isUserOp,
-    standardOptions,
-    setActiveStep
-  })
+const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, stepsState }) => {
+  const { nativePrice, blockData, finalizedStatus, cost, calls } = stepsState
 
   return (
     <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
