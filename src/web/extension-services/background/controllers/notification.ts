@@ -196,7 +196,7 @@ export class NotificationController extends EventEmitter {
 
       if (hash && networkId) {
         Linking.openURL(
-          `http://localhost:3000/?txnId=${hash}&networkId=${networkId}${
+          `https://benzin.ambire.com/index.html?txnId=${hash}&networkId=${networkId}${
             isUserOp ? '&isUserOp' : ''
           }`
         )
