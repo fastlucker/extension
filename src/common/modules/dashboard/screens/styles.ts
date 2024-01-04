@@ -13,6 +13,7 @@ interface Style {
   overviewLoader: ViewStyle
   networks: ViewStyle
   networkIconContainer: ViewStyle
+  networkIconContainerHovered: ViewStyle
   networkIcon: ViewStyle
   accountButton: ViewStyle
   accountButtonRightIcon: ViewStyle
@@ -53,6 +54,10 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.secondaryBorder,
       backgroundColor: theme.secondaryBackground,
       marginLeft: -SPACING_MI
+    },
+    networkIconContainerHovered: {
+      backgroundColor: theme.primaryBackground,
+      transform: [{ scale: 1.1 }]
     },
     networkIcon: {
       width: 18,
