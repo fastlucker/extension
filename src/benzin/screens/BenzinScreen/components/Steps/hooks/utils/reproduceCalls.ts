@@ -91,6 +91,9 @@ const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp
 const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: boolean) => {
   const sigHash = txn.data.slice(0, 10)
 
+  console.log('THE SIGHASH')
+  console.log(sigHash)
+
   if (sigHash === executeInterface.getFunction('execute')!.selector) {
     return getExecuteCalls(txn.data)
   }
@@ -130,6 +133,8 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: bool
   }
 
   // v1
+  console.log('Send sighash')
+  console.log(quickAccManagerSendInterface.getFunction('send')!.selector)
   if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
     const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
     return data[3]
