@@ -7,13 +7,15 @@ import {
   executeInterface,
   executeMultipleInterface,
   handleOpsInterface,
+  quickAccManagerCancelInterface,
+  quickAccManagerExecScheduledInterface,
   quickAccManagerSendInterface,
   transferInterface
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 
 const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
 
-const filterFeeCollectorCalls = (callsLength: number, callArray: any) => {
+const filterFeeCollectorCalls = (callsLength: number, callArray: any): boolean => {
   // if calls are exactly one, it means no fee collector calls
   if (callsLength === 1) return true
   if (
@@ -130,6 +132,22 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: bool
   // v1
   if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
     const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
+    return data[3]
+      .filter((call: any) => filterFeeCollectorCalls(data[3].length, call))
+      .map((call: any) => transformToAccOpCall(call))
+  }
+
+  // v1
+  if (sigHash === quickAccManagerCancelInterface.getFunction('cancel')!.selector) {
+    const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txn.data)
+    return data[4]
+      .filter((call: any) => filterFeeCollectorCalls(data[4].length, call))
+      .map((call: any) => transformToAccOpCall(call))
+  }
+
+  // v1
+  if (sigHash === quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector) {
+    const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txn.data)
     return data[3]
       .filter((call: any) => filterFeeCollectorCalls(data[3].length, call))
       .map((call: any) => transformToAccOpCall(call))

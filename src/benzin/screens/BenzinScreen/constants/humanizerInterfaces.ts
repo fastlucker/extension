@@ -29,6 +29,14 @@ const quickAccManagerSendInterface = new ethers.Interface([
   'function send(address identity, tuple(uint, address, address) calldata acc, tuple(bool, bytes, bytes) calldata sigs, tuple(address, uint256, bytes)[] calldata txns) external'
 ])
 
+const quickAccManagerCancelInterface = new ethers.Interface([
+  'function cancel(address identity, tuple(uint, address, address) calldata acc, uint nonce, bytes calldata sig, tuple(address, uint256, bytes)[] calldata txns) external'
+])
+
+const quickAccManagerExecScheduledInterface = new ethers.Interface([
+  'function execScheduled(address identity, bytes32 accHash, uint nonce, tuple(address, uint256, bytes)[] calldata txns) external'
+])
+
 export {
   executeInterface,
   executeMultipleInterface,
@@ -37,5 +45,7 @@ export {
   deployAndExecuteMultipleInterface,
   handleOpsInterface,
   executeBySenderInterface,
-  quickAccManagerSendInterface
+  quickAccManagerSendInterface,
+  quickAccManagerCancelInterface,
+  quickAccManagerExecScheduledInterface
 }
