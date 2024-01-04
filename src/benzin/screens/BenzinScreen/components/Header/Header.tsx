@@ -11,15 +11,18 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
+import { StepsData } from '../Steps/hooks/useSteps'
 import getStyles from './styles'
 
 interface Props {
   activeStep: ActiveStepType
   network: NetworkDescriptor
+  stepsState: StepsData
 }
 
-const Header: FC<Props> = ({ activeStep, network }) => {
+const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
   const { styles } = useTheme(getStyles)
+  const { pendingTime } = stepsState
 
   return (
     <>
@@ -49,11 +52,12 @@ const Header: FC<Props> = ({ activeStep, network }) => {
           Transaction Progress
         </Text>
       </View>
-      {activeStep !== 'finalized' ? (
+      {activeStep === 'in-progress' ? (
         <View style={styles.estimate}>
           <Text appearance="secondaryText" fontSize={14}>
             {/* TODO: FIX estimated time */}
-            Est time remaining 5 mins on
+            Est time remaining {pendingTime === 30 ? 30 : 5}{' '}
+            {pendingTime === 30 ? 'seconds' : 'minutes'} on
           </Text>
           {/* @ts-ignore */}
           <NetworkIcon name={network.id} />

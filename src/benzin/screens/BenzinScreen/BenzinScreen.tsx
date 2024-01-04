@@ -60,7 +60,7 @@ const BenzinScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.content}>
-          <Header activeStep={activeStep} network={network} />
+          <Header activeStep={activeStep} network={network} stepsState={stepsState} />
           <Steps
             activeStep={activeStep}
             network={network}

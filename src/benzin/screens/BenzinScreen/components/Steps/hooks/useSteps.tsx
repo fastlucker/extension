@@ -36,6 +36,7 @@ export interface StepsData {
   finalizedStatus: FinalizedStatusType
   cost: null | string
   calls: IrCall[]
+  pendingTime: number
 }
 
 const useSteps = ({
@@ -64,6 +65,7 @@ const useSteps = ({
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<IrCall[]>([])
+  const [pendingTime, setPendingTime] = useState<number>(30)
 
   useEffect(() => {
     if (!txnId || !network || !isUserOp || userOp.status !== null || txnReceipt.blockNumber) return
@@ -254,6 +256,36 @@ const useSteps = ({
       })
   }, [network, txn, finalizedStatus])
 
+  // calculate pending time
+  useEffect(() => {
+    if (!network || !txn || txnReceipt.blockNumber) return
+
+    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
+    provider
+      .getBlock('latest', true)
+      .then((latestBlockData) => {
+        if (!latestBlockData) return
+
+        const gasPrice = txn.maxFeePerGas ?? txn.gasPrice
+        if (network.feeOptions.is1559 && latestBlockData.baseFeePerGas != null) {
+          setPendingTime(gasPrice > latestBlockData.baseFeePerGas ? 30 : 300)
+        } else {
+          const prices = latestBlockData.prefetchedTransactions
+            .map((x) => x.gasPrice)
+            .filter((x) => x > 0)
+
+          if (prices.length === 0) {
+            setPendingTime(30)
+            return
+          }
+
+          const average = prices.reduce((a, b) => a + b, 0n) / BigInt(prices.length)
+          setPendingTime(average - average / 8n > gasPrice ? 30 : 300)
+        }
+      })
+      .catch(() => null)
+  }, [txn, txnReceipt, network])
+
   // get block
   useEffect(() => {
     if (!network || !txnReceipt.blockNumber || blockData !== null) return
@@ -302,7 +334,8 @@ const useSteps = ({
     blockData,
     finalizedStatus,
     cost,
-    calls
+    calls,
+    pendingTime
   }
 }
 
