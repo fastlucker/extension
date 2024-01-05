@@ -60,8 +60,18 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
   const imgElement = node.querySelector('img')
   const svgElement = node.querySelector('svg')
   const imgElementByRole = node.querySelector('[role="img"]')
+  const allDivs = node.querySelectorAll('div')
 
-  if (imgElement || svgElement || imgElementByRole) {
+  const mmIconDivs = Array.from(allDivs)
+    .filter((div: any) => {
+      const background = window.getComputedStyle(div).getPropertyValue('background')
+      if (background.includes('metamask')) return div
+
+      return undefined
+    })
+    .filter((i) => i !== undefined)
+
+  if (imgElement || svgElement || imgElementByRole || mmIconDivs.length) {
     const newImgElement = document.createElement('img')
     newImgElement.src = replacementIcon!
     if (imgElement) {
@@ -93,13 +103,25 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
       imgElementByRole.style.display = 'none'
     }
 
+    mmIconDivs.forEach((div: any) => {
+      if (div.clientHeight) {
+        newImgElement.style.height = `${div.clientHeight}px`
+      }
+      if (div.clientWidth) {
+        newImgElement.style.width = `${div.clientWidth}px`
+      }
+
+      div.parentNode.insertBefore(newImgElement, div)
+      div.style.display = 'none'
+    })
+
     return true
   }
 
   return false
 }
 
-function replaceWordAndIcon(wordToFind: string, replacementWord: string, replacementIcon?: string) {
+function replaceMMBrandInPage(replacementIcon?: string) {
   let additionalNodes: any[] = []
   const onboardElement = document.querySelector('onboard-v2')
   const allShadowRoots = findAllShadowRoots()
@@ -113,7 +135,11 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
       if (childNode.nodeType === Node.TEXT_NODE) {
         const text = childNode.nodeValue
 
-        if (replacementIcon && new RegExp(`^${wordToFind}$`, 'i').test(text.trim())) {
+        if (
+          replacementIcon &&
+          (new RegExp('^metamask$', 'i').test(text.trim()) ||
+            new RegExp('^connect by metamask$', 'i').test(text.trim()))
+        ) {
           function lookForIcon() {
             let ancestorNode = childNode.parentNode
             let maxLevels = 4
@@ -150,7 +176,7 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
           }
         }
 
-        const replacedText = text.replace(new RegExp(wordToFind, 'gi'), replacementWord)
+        const replacedText = text.replace(new RegExp('metamask', 'gi'), 'Ambire')
 
         if (text !== replacedText) {
           childNode.nodeValue = replacedText
@@ -160,4 +186,4 @@ function replaceWordAndIcon(wordToFind: string, replacementWord: string, replace
   })
 }
 
-export { ambireSvg, isWordInPage, replaceWordAndIcon, replaceMMImgInPage }
+export { ambireSvg, isWordInPage, replaceMMBrandInPage, replaceMMImgInPage }

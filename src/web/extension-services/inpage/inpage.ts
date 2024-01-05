@@ -12,8 +12,8 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import {
   ambireSvg,
   isWordInPage,
-  replaceMMImgInPage,
-  replaceWordAndIcon
+  replaceMMBrandInPage,
+  replaceMMImgInPage
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
@@ -647,7 +647,7 @@ const runReplacementScript = async () => {
   if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
     return
 
-  replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+  replaceMMBrandInPage(ambireSvg)
 }
 
 document.addEventListener('click', runReplacementScript)
