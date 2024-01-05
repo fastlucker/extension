@@ -93,7 +93,6 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           <Pressable
             key={item.key}
             onPress={() => {
-              console.log(item.path)
               if (Object.values(ROUTES).includes(item.path)) {
                 navigate(item.path)
                 return
