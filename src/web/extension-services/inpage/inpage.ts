@@ -509,18 +509,16 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
       },
       get() {
         // script to determine wether the page is a dapp or not
+        // (only pages that are dapps should read the ethereum provider)
         // the provider is called from multiple instances (current page and other extensions)
         // we need only the calls from the current page
         if (!doesWebpageReadOurProvider) {
           try {
             throw new Error()
           } catch (error: any) {
-            // Parse the stack trace to get the caller information
-            const stack = error.stack
+            const stack = error.stack // Parse the stack trace to get the caller info
             if (stack) {
               const callerPage = stack.split('\n')[2].trim()
-              // the webpage reads the proxy provider so treat the page as a dapp
-              // should replace mm brand only for dapps
               if (callerPage.includes(window.location.hostname)) {
                 doesWebpageReadOurProvider = true
               }
