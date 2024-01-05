@@ -508,9 +508,26 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        // the webpage reads the proxy provider so treat the page as a dapp
-        // should replace mm brand only for dapps
-        doesWebpageReadOurProvider = true
+        // script to determine wether the page is a dapp or not
+        // the provider is called from multiple instances (current page and other extensions)
+        // we need only the calls from the current page
+        if (!doesWebpageReadOurProvider) {
+          try {
+            throw new Error()
+          } catch (error: any) {
+            // Parse the stack trace to get the caller information
+            const stack = error.stack
+            if (stack) {
+              const callerPage = stack.split('\n')[2].trim()
+              // the webpage reads the proxy provider so treat the page as a dapp
+              // should replace mm brand only for dapps
+              if (callerPage.includes(window.location.hostname)) {
+                doesWebpageReadOurProvider = true
+              }
+            }
+          }
+        }
+
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
