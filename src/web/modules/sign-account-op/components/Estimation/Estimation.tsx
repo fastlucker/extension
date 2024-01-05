@@ -87,21 +87,6 @@ const Estimation = ({
     }
   }, [dispatch, payValue])
 
-  // FIXME: Should be handled in the background process, because this logic
-  // should not rely on the UI being open (focused).
-  // Signing is ready therefore broadcast transaction
-  // useEffect(() => {
-  //   if (
-  //     signAccountOpState.accountOp?.signature &&
-  //     signAccountOpState.status?.type === SigningStatus.Done
-  //   ) {
-  //     dispatch({
-  //       type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP',
-  //       params: { accountOp: signAccountOpState.accountOp }
-  //     })
-  //   }
-  // }, [signAccountOpState, dispatch])
-
   const selectedFee = useMemo(
     () =>
       signAccountOpState.feeSpeeds.find(

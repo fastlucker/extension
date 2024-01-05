@@ -81,6 +81,9 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
+  const ledgerCtrl = new LedgerController()
+  const trezorCtrl = new TrezorController()
+  const latticeCtrl = new LatticeController()
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -93,6 +96,11 @@ async function init() {
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
+    },
+    externalSignerControllers: {
+      ledger: ledgerCtrl,
+      trezor: trezorCtrl,
+      lattice: latticeCtrl
     },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
@@ -110,9 +118,6 @@ async function init() {
     },
     pinned: pinnedTokens
   })
-  const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
@@ -572,21 +577,6 @@ async function init() {
                 data.params.accountAddr,
                 data.params.networkId
               )
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
-              const { accountOp } = data.params
-              const broadcastKeyType = accountOp.signingKeyType
-
-              if (broadcastKeyType === 'ledger')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
-              if (broadcastKeyType === 'trezor')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
-              if (broadcastKeyType === 'lattice')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
-
-              return mainCtrl.broadcastSignedAccountOp(accountOp)
-            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
