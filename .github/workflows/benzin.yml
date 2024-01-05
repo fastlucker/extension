@@ -42,7 +42,7 @@ jobs:
       run: yarn build:web:benzin
 
     - name: Deploy 🚀🌕 
-      if: github.ref == 'refs/heads/v2
+      if: github.ref == 'refs/heads/v2'
       uses: JamesIves/github-pages-deploy-action@v4.4.1
       with:
         branch: gh-pages
