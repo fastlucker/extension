@@ -48,7 +48,7 @@ const DevicePasswordSettingsScreen = () => {
   }, [state.errorMessage, setError])
 
   useEffect(() => {
-    if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'DONE') {
+    if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'SUCCESS') {
       setChangePasswordReady(true)
     }
   }, [state.latestMethodCall, state.status])
