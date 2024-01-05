@@ -29,11 +29,6 @@ const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED'
  */
 const delayBetweenStarting = () => wait(DELAY_BETWEEN_POPUPS)
 
-/**
- * This is necessary
- */
-const delayAfterCompletion = () => wait(DELAY_BETWEEN_POPUPS)
-
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey
 
@@ -112,8 +107,6 @@ class TrezorSigner implements KeystoreSigner {
       path,
       transaction: unsignedTxn
     })
-    // TODO: Remove, because it's not a sustainable solution
-    // await delayAfterCompletion()
 
     if (!res.success) {
       throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
@@ -167,8 +160,6 @@ class TrezorSigner implements KeystoreSigner {
       domain_separator_hash,
       message_hash
     } as any)
-    // TODO: Remove, because it's not a sus
-    // await delayAfterCompletion()
 
     if (!res.success) {
       throw new Error(
@@ -189,8 +180,6 @@ class TrezorSigner implements KeystoreSigner {
       message: stripHexPrefix(hex),
       hex: true
     })
-    // TODO: Remove, because it's not a sus
-    // await delayAfterCompletion()
 
     if (!res.success) {
       throw new Error(
