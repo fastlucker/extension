@@ -52,19 +52,8 @@ if (isExtension) {
   })
 
   dispatch = (action) => {
-    // FIXME:
-    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
-    // from all opened extension instances, leading to some unpredictable behaviors of the state.
-    console.log('document.hidden?', document.hidden)
-    console.log('dispatch', action.type, action?.params)
-    // 2. if we are not focused - return Promise.resolve(undefined), but fill actions in set
-    // 3. in useEffect here (service context) listen for focus event and dispatch all actions from set
-    // if the current and all other Ambire window documents are hidden
-    if (document.hidden) {
-      // dispatch another action (with this action) to the background process that stores set of actions (unique)
-      // check in the background - only if none of the tabs is active
-      return Promise.resolve(undefined)
-    }
+    if (document.hidden) return Promise.resolve(undefined)
+
     return portMessageChannel.request({
       type: action.type,
       // TypeScript being unable to guarantee that every member of the Action
@@ -83,13 +72,6 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
-
-  // TODO: Maybe catch and do something if the document gets focused?
-  // useEffect(() => {
-  // listen if visible
-  // if visible - dispatch all actions from set
-  // check if in the background process we can check if window is focused
-  // }, [])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
