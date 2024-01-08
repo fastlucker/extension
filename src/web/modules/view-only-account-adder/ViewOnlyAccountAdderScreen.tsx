@@ -147,6 +147,7 @@ const ViewOnlyScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
+      width="xl"
       footer={
         <>
           <BackButton />

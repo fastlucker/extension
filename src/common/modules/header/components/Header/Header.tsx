@@ -86,51 +86,53 @@ const Header: React.FC<Props> = ({
 
   return (
     <View style={[styles.container, !!backgroundColor && { backgroundColor }]}>
-      {mode === 'title' && (
-        <>
-          <View style={styles.sideContainer}>
-            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
-          </View>
-          <View style={styles.containerInner}>
-            <Text
-              weight="regular"
-              fontSize={isTab ? 24 : 20}
-              style={styles.title}
-              numberOfLines={2}
-            >
-              {customTitle || title || ''}
-            </Text>
-          </View>
-          <View style={[styles.sideContainer, flexbox.alignEnd]}>
-            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-          </View>
-        </>
-      )}
-      {mode === 'image-and-title' && (
-        <>
-          <View style={styles.sideContainer}>
-            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
-          </View>
-          <View style={styles.imageAndTitleContainer}>
-            {image && <Image source={{ uri: image }} style={styles.image} />}
-            <Text weight="medium" fontSize={20}>
-              {customTitle || title}
-            </Text>
-          </View>
-          <View style={styles.sideContainer} />
-        </>
-      )}
-      {mode === 'custom-inner-content' && (
-        <>
-          <View style={styles.sideContainer}>
-            {showBackButtonInPopup && !!canGoBack && renderBackButton()}
-          </View>
-          <View style={styles.containerInner}>{children}</View>
-          <View style={[styles.sideContainer, flexbox.alignEnd]}>
-            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-          </View>
-        </>
-      )}
+      <View style={styles.widthContainer}>
+        {mode === 'title' && (
+          <>
+            <View style={styles.sideContainer}>
+              {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+            </View>
+            <View style={styles.containerInner}>
+              <Text
+                weight="regular"
+                fontSize={isTab ? 24 : 20}
+                style={styles.title}
+                numberOfLines={2}
+              >
+                {customTitle || title || ''}
+              </Text>
+            </View>
+            <View style={[styles.sideContainer, flexbox.alignEnd]}>
+              {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+            </View>
+          </>
+        )}
+        {mode === 'image-and-title' && (
+          <>
+            <View style={styles.sideContainer}>
+              {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+            </View>
+            <View style={styles.imageAndTitleContainer}>
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+              <Text weight="medium" fontSize={20}>
+                {customTitle || title}
+              </Text>
+            </View>
+            <View style={styles.sideContainer} />
+          </>
+        )}
+        {mode === 'custom-inner-content' && (
+          <>
+            <View style={styles.sideContainer}>
+              {showBackButtonInPopup && !!canGoBack && renderBackButton()}
+            </View>
+            <View style={styles.containerInner}>{children}</View>
+            <View style={[styles.sideContainer, flexbox.alignEnd]}>
+              {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+            </View>
+          </>
+        )}
+      </View>
       {mode === 'custom' && children}
     </View>
   )

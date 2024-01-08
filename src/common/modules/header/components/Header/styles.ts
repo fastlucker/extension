@@ -1,18 +1,15 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, {
-  IS_SCREEN_SIZE_DESKTOP_LARGE,
-  SPACING,
-  SPACING_3XL,
-  SPACING_LG,
-  SPACING_XL
-} from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+import { paddingHorizontalStyle } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
-const { isTab, isNotification } = getUiType()
+const { isTab } = getUiType()
 
 export const HEADER_HEIGHT = Platform.select({
   web: 40 + (isTab ? SPACING_LG : SPACING) * 2,
@@ -21,6 +18,7 @@ export const HEADER_HEIGHT = Platform.select({
 
 interface Styles {
   container: ViewStyle
+  widthContainer: ViewStyle
   containerInner: ViewStyle
   imageAndTitleContainer: ViewStyle
   navIconContainerRegular: ViewStyle
@@ -34,17 +32,17 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       zIndex: 9,
       width: '100%',
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal:
-        isTab || isNotification
-          ? IS_SCREEN_SIZE_DESKTOP_LARGE
-            ? SPACING_3XL
-            : SPACING_XL
-          : SPACING,
+      ...paddingHorizontalStyle,
       backgroundColor: theme.secondaryBackground,
       ...spacings.pv,
       height: HEADER_HEIGHT
+    },
+    widthContainer: {
+      maxWidth: TAB_WIDE_CONTENT_WIDTH,
+      width: '100%',
+      marginHorizontal: 'auto',
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter
     },
     containerInner: {
       flexDirection: 'row',
