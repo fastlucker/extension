@@ -530,13 +530,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-              if (mainCtrl.signMessage.signingKeyType === 'ledger')
-                return mainCtrl.signMessage.sign(ledgerCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'trezor')
-                return mainCtrl.signMessage.sign(trezorCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'lattice')
-                return mainCtrl.signMessage.sign(latticeCtrl)
-
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
@@ -559,13 +552,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
-                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
-                return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
-
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
