@@ -46,7 +46,6 @@
     "node": "16.13.0"
   },
   "dependencies": {
-    "@arbitrum/sdk": "^3.1.13",
     "@ambire/signature-validator": "^1.0.3",
     "@babel/plugin-proposal-decorators": "~7.22.7",
     "@babel/plugin-proposal-private-methods": "~7.18.6",
