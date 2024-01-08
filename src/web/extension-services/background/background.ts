@@ -13,10 +13,12 @@ import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
+import { isDev } from '@common/config/env'
 import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
@@ -245,6 +247,10 @@ async function init() {
             params: mainCtrl
           })
         })
+        if (isDev) {
+          // stringify and then parse to add the getters to the public state
+          console.log('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
+        }
       }
       ctrlOnUpdateIsDirtyFlags.main = false
     }, 0)
@@ -296,6 +302,10 @@ async function init() {
                   params: (mainCtrl as any)[ctrl]
                 })
               })
+              if (isDev) {
+                // stringify and then parse to add the getters to the public state
+                console.log(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
+              }
             }
             ctrlOnUpdateIsDirtyFlags[ctrl] = false
           }, 0)
@@ -304,6 +314,10 @@ async function init() {
           const errors = (mainCtrl as any)[ctrl].getErrors()
           const lastError = errors[errors.length - 1]
           if (lastError) console.error(lastError.error)
+          if (isDev) {
+            // stringify and then parse to add the getters to the public state
+            console.log(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
+          }
           Object.keys(portMessageUIRefs).forEach((key: string) => {
             portMessageUIRefs[key]?.request({
               type: 'broadcast-error',
@@ -348,6 +362,10 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
+    if (isDev) {
+      // stringify and then parse to add the getters to the public state
+      console.log('onError (main ctrl)', parse(stringify(mainCtrl)))
+    }
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
