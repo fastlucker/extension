@@ -70,7 +70,13 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: { selectedAccounts: AccountAdderController['selectedAccounts'] }
+  params: {
+    selectedAccounts: AccountAdderController['selectedAccounts']
+    readyToAddKeys: {
+      internal: { privateKey: string }[]
+      externalTypeOnly: Key['type']
+    }
+  }
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
@@ -250,6 +256,7 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
+// TODO: Remove
 type KeystoreControllerAddKeysExternallyStored = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
   params: { keyType: Exclude<Key['type'], 'internal'> }
@@ -258,6 +265,7 @@ type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
 }
+// TODO: Remove
 type KeystoreControllerAddKeysAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
   params: { keys: { privateKey: string }[] }
