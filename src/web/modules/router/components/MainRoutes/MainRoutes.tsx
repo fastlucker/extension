@@ -29,6 +29,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
@@ -87,6 +88,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>
       </Route>
