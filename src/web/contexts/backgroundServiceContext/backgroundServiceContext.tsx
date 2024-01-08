@@ -52,8 +52,9 @@ if (isExtension) {
   })
 
   dispatch = (action) => {
+    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
+    // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden) return Promise.resolve(undefined)
-
     return portMessageChannel.request({
       type: action.type,
       // TypeScript being unable to guarantee that every member of the Action
