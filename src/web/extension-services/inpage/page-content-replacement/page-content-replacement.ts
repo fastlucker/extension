@@ -62,14 +62,11 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
   const imgElementByRole = node.querySelector('[role="img"]')
   const allDivs = node.querySelectorAll('div')
 
-  const mmIconDivs = Array.from(allDivs)
-    .filter((div: any) => {
-      const background = window.getComputedStyle(div).getPropertyValue('background')
-      if (background.includes('metamask')) return div
-
-      return undefined
-    })
-    .filter((i) => i !== undefined)
+  const mmIconDivs = Array.from(allDivs).filter((div: any) => {
+    const background = window.getComputedStyle(div).getPropertyValue('background')
+    const backgroundImg = window.getComputedStyle(div).getPropertyValue('background-image')
+    return background.includes('metamask') || backgroundImg.includes('metamask')
+  })
 
   if (imgElement || svgElement || imgElementByRole || mmIconDivs.length) {
     const newImgElement = document.createElement('img')
@@ -80,27 +77,43 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
     }
 
     if (svgElement) {
+      let shouldReplace = true
       if (svgElement.clientHeight) {
+        if (svgElement.clientHeight < 14) {
+          shouldReplace = false
+        }
         newImgElement.style.height = `${svgElement.clientHeight}px`
       }
       if (svgElement.clientWidth) {
+        if (svgElement.clientWidth < 14) {
+          shouldReplace = false
+        }
         newImgElement.style.width = `${svgElement.clientWidth}px`
       }
-
-      svgElement.parentNode.insertBefore(newImgElement, svgElement)
-      svgElement.style.display = 'none'
+      if (shouldReplace) {
+        svgElement.parentNode.insertBefore(newImgElement, svgElement)
+        svgElement.style.display = 'none'
+      }
     }
 
     if (imgElementByRole) {
+      let shouldReplace = true
       if (imgElementByRole.clientHeight) {
+        if (imgElementByRole.clientHeight < 14) {
+          shouldReplace = false
+        }
         newImgElement.style.height = `${imgElementByRole.clientHeight}px`
       }
       if (imgElementByRole.clientWidth) {
+        if (imgElementByRole.clientWidth < 14) {
+          shouldReplace = false
+        }
         newImgElement.style.width = `${imgElementByRole.clientWidth}px`
       }
-
-      imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole)
-      imgElementByRole.style.display = 'none'
+      if (shouldReplace) {
+        imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole)
+        imgElementByRole.style.display = 'none'
+      }
     }
 
     mmIconDivs.forEach((div: any) => {

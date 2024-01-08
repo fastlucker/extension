@@ -628,18 +628,23 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 //
 
 const runReplacementScript = async () => {
-  if (!doesWebpageReadOurProvider) return
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+
+  // most of the dapps read the provider but some don't till connection
+  if (
+    !doesWebpageReadOurProvider &&
+    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
+  )
+    return
 
   await delayPromise(30) // wait for DOM update
 
   if (isEIP6963) return
 
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-
   if (hasWalletConnectInPage) replaceMMImgInPage()
 
-  const hasMetaMaskInPage = isWordInPage('metamask')
-  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
   const hasTrustWalletInPage = isWordInPage('trustwallet')
   const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
