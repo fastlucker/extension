@@ -8,7 +8,8 @@ module.exports = function (api) {
     '@ambire-common-v1': './src/ambire-common/v1',
     '@common': './src/common',
     '@mobile': './src/mobile',
-    '@web': './src/web'
+    '@web': './src/web',
+    '@benzin': './src/benzin'
   }
 
   const config = {
@@ -93,7 +94,8 @@ module.exports = function (api) {
     ]
   }
 
-  const isMobile = !process.env.WEB_ENGINE
+  const isMobile =
+    !process.env.WEB_ENGINE && !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('benzin')
 
   return isMobile ? mobileConfig : webConfig
 }

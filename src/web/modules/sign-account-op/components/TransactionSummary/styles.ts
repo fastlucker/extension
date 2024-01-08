@@ -7,7 +7,6 @@ import common from '@common/styles/utils/common'
 interface Style {
   container: ViewStyle
   warningContainer: ViewStyle
-  body: ViewStyle
   bodyText: TextStyle
 }
 
@@ -23,10 +22,6 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       backgroundColor: theme.warningBackground,
       borderColor: theme.warningDecorative
-    },
-    body: {
-      ...spacings.pvTy,
-      ...spacings.phSm
     },
     bodyText: {
       ...spacings.mbTy,

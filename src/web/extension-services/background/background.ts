@@ -341,6 +341,8 @@ async function init() {
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
     }
+
+    mainCtrl.activity.setAccounts(mainCtrl.accountStates)
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()

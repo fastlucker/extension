@@ -54,7 +54,7 @@ const TokenItem = ({
             <TokenIcon
               withContainer
               address={address}
-              networkId={!onGasTank && !isRewards && !isVesting ? networkId : null}
+              networkId={networkId}
               onGasTank={onGasTank}
               containerHeight={40}
               containerWidth={40}
