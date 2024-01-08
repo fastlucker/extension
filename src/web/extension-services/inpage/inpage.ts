@@ -508,7 +508,7 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        // script to determine wether the page is a dapp or not
+        // script to determine whether the page is a dapp or not
         // (only pages that are dapps should read the ethereum provider)
         // the provider is called from multiple instances (current page and other extensions)
         // we need only the calls from the current page
