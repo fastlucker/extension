@@ -127,6 +127,7 @@ const DetailsInner = ({
           networkSize={16}
           withContainer
           address={address}
+          onGasTank={onGasTank}
           networkId={networkId}
         />
         <View style={styles.tokenInfo}>

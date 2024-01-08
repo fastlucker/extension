@@ -13,6 +13,7 @@ import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -40,6 +41,7 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
@@ -250,6 +252,8 @@ async function init() {
             params: mainCtrl
           })
         })
+        // stringify and then parse to add the getters to the public state
+        logInfoWithPrefix('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
       }
       ctrlOnUpdateIsDirtyFlags.main = false
     }, 0)
@@ -301,6 +305,8 @@ async function init() {
                   params: (mainCtrl as any)[ctrl]
                 })
               })
+              // stringify and then parse to add the getters to the public state
+              logInfoWithPrefix(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
             }
             ctrlOnUpdateIsDirtyFlags[ctrl] = false
           }, 0)
@@ -309,6 +315,8 @@ async function init() {
           const errors = (mainCtrl as any)[ctrl].getErrors()
           const lastError = errors[errors.length - 1]
           if (lastError) console.error(lastError.error)
+          // stringify and then parse to add the getters to the public state
+          logInfoWithPrefix(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
           Object.keys(portMessageUIRefs).forEach((key: string) => {
             portMessageUIRefs[key]?.request({
               type: 'broadcast-error',
@@ -346,11 +354,15 @@ async function init() {
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
     }
+
+    mainCtrl.activity.setAccounts(mainCtrl.accountStates)
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
+    // stringify and then parse to add the getters to the public state
+    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
@@ -645,7 +657,11 @@ async function init() {
               return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
-
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
+              return mainCtrl.keystore.changeKeystorePassword(
+                data.params.secret,
+                data.params.newSecret
+              )
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
