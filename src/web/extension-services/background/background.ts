@@ -42,6 +42,7 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
@@ -247,10 +248,8 @@ async function init() {
             params: mainCtrl
           })
         })
-        if (isDev) {
-          // stringify and then parse to add the getters to the public state
-          console.log('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
-        }
+        // stringify and then parse to add the getters to the public state
+        logInfoWithPrefix('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
       }
       ctrlOnUpdateIsDirtyFlags.main = false
     }, 0)
@@ -302,10 +301,8 @@ async function init() {
                   params: (mainCtrl as any)[ctrl]
                 })
               })
-              if (isDev) {
-                // stringify and then parse to add the getters to the public state
-                console.log(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
-              }
+              // stringify and then parse to add the getters to the public state
+              logInfoWithPrefix(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
             }
             ctrlOnUpdateIsDirtyFlags[ctrl] = false
           }, 0)
@@ -314,10 +311,8 @@ async function init() {
           const errors = (mainCtrl as any)[ctrl].getErrors()
           const lastError = errors[errors.length - 1]
           if (lastError) console.error(lastError.error)
-          if (isDev) {
-            // stringify and then parse to add the getters to the public state
-            console.log(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
-          }
+          // stringify and then parse to add the getters to the public state
+          logInfoWithPrefix(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
           Object.keys(portMessageUIRefs).forEach((key: string) => {
             portMessageUIRefs[key]?.request({
               type: 'broadcast-error',
@@ -362,10 +357,8 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    if (isDev) {
-      // stringify and then parse to add the getters to the public state
-      console.log('onError (main ctrl)', parse(stringify(mainCtrl)))
-    }
+    // stringify and then parse to add the getters to the public state
+    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
