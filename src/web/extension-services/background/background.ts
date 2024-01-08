@@ -83,6 +83,9 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
+  const ledgerCtrl = new LedgerController()
+  const trezorCtrl = new TrezorController()
+  const latticeCtrl = new LatticeController()
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -95,6 +98,11 @@ async function init() {
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
+    },
+    externalSignerControllers: {
+      ledger: ledgerCtrl,
+      trezor: trezorCtrl,
+      lattice: latticeCtrl
     },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
@@ -112,9 +120,6 @@ async function init() {
     },
     pinned: pinnedTokens
   })
-  const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
@@ -537,13 +542,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-              if (mainCtrl.signMessage.signingKeyType === 'ledger')
-                return mainCtrl.signMessage.sign(ledgerCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'trezor')
-                return mainCtrl.signMessage.sign(trezorCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'lattice')
-                return mainCtrl.signMessage.sign(latticeCtrl)
-
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
@@ -566,13 +564,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
-                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
-                return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
-
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
@@ -584,21 +575,6 @@ async function init() {
                 data.params.accountAddr,
                 data.params.networkId
               )
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
-              const { accountOp } = data.params
-              const broadcastKeyType = accountOp.signingKeyType
-
-              if (broadcastKeyType === 'ledger')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
-              if (broadcastKeyType === 'trezor')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
-              if (broadcastKeyType === 'lattice')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
-
-              return mainCtrl.broadcastSignedAccountOp(accountOp)
-            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
