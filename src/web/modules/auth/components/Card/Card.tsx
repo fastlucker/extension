@@ -1,17 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   style?: ViewStyle | ViewStyle[]
@@ -22,6 +21,7 @@ interface Props {
   onPress?: () => void
   buttonText?: string
   isDisabled?: boolean
+  isSecondary?: boolean
 }
 
 const Card: React.FC<Props> = ({
@@ -32,9 +32,11 @@ const Card: React.FC<Props> = ({
   icon: Icon,
   onPress,
   isDisabled,
-  buttonText
+  buttonText,
+  isSecondary = false
 }) => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
+  const [isButtonHovered, setIsButtonHovered] = useState(false)
   const { t } = useTranslation()
 
   return (
@@ -42,7 +44,16 @@ const Card: React.FC<Props> = ({
       onPress={!isDisabled ? onPress : () => {}}
       style={({ hovered }: any) => [
         styles.container,
-        !isDisabled && { borderWidth: 1, borderColor: hovered ? theme.primary : 'transparent' },
+        isSecondary && styles.secondaryContainer,
+        !isDisabled && {
+          borderWidth: 1,
+          borderColor:
+            hovered || isButtonHovered
+              ? theme.primary
+              : isSecondary
+              ? theme.secondaryBorder
+              : 'transparent'
+        },
         isDisabled && { opacity: 0.7 },
         style
       ]}
@@ -53,7 +64,7 @@ const Card: React.FC<Props> = ({
         </View>
       )}
       {!!title && (
-        <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={18}>
+        <Text weight="medium" style={[spacings.mb, textStyles.center]} fontSize={20}>
           {t(title)}
         </Text>
       )}
@@ -69,10 +80,12 @@ const Card: React.FC<Props> = ({
       {!!buttonText && (
         <Button
           disabled={isDisabled}
-          textStyle={{ fontSize: 14 }}
           style={{ width: '100%' }}
           text={t(buttonText)}
+          type={isSecondary ? 'secondary' : 'primary'}
           onPress={!isDisabled ? onPress : () => {}}
+          onHoverIn={() => setIsButtonHovered(true)}
+          onHoverOut={() => setIsButtonHovered(false)}
           hasBottomSpacing={false}
         />
       )}

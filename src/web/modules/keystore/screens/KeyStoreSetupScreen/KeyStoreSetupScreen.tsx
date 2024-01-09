@@ -105,7 +105,6 @@ const KeyStoreSetupScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="xl"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>

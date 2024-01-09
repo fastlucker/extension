@@ -1,21 +1,20 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useRef, useState } from 'react'
+import { View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import EmailIcon from '@common/assets/svg/EmailIcon'
+import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
+import HotWalletIcon from '@common/assets/svg/HotWalletIcon/HotWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
-import Button from '@common/components/Button'
+import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import Modal from '@common/components/Modal'
 import Panel from '@common/components/Panel'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -28,15 +27,15 @@ import Card from '@web/modules/auth/components/Card'
 import getStyles from './styles'
 
 const GetStartedScreen = () => {
-  const { styles, theme } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
-  const [seeMoreOptionsEnabled, setSeeMoreOptionsEnabled] = useState(false)
   const wrapperRef: any = useRef(null)
+  const [isNewHotWalletModalOpen, setIsNewHotWalletModalOpen] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    async (flow: 'email' | 'hw' | 'legacy' | 'view-only') => {
+    async (flow: 'email' | 'hw' | 'new-hot-wallet' | 'view-only') => {
       const hasTerms = await storage.get('termsState', false)
 
       if (!hasTerms) {
@@ -59,111 +58,106 @@ const GetStartedScreen = () => {
         navigate(WEB_ROUTES.hardwareWalletSelect)
         return
       }
-      if (flow === 'legacy') {
-        navigate(WEB_ROUTES.externalSigner)
+      if (flow === 'new-hot-wallet') {
+        setIsNewHotWalletModalOpen(true)
       }
     },
     [navigate, keystoreState]
   )
 
-  useEffect(() => {
-    if (seeMoreOptionsEnabled) {
-      setTimeout(() => {
-        if (wrapperRef.current && seeMoreOptionsEnabled) {
-          wrapperRef.current.scrollToEnd({ animated: true })
-        }
-      }, 300)
-    }
-  }, [seeMoreOptionsEnabled])
-
-  const handleSeeMoreOptionsPress = useCallback(() => {
-    setSeeMoreOptionsEnabled((prev) => !prev)
-  }, [])
-
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="lg"
       header={<Header withAmbireLogo />}
     >
+      <Modal
+        modalStyle={{
+          alignItems: 'flex-start',
+          minWidth: 'initial',
+          ...spacings.pbXl,
+          ...spacings.phXl,
+          ...spacings.pbLg
+        }}
+        onClose={() => setIsNewHotWalletModalOpen(false)}
+        isOpen={isNewHotWalletModalOpen}
+        hideLeftSideContainer
+        title={t('Select the recovery option of your new wallet')}
+      >
+        <View style={[flexboxStyles.directionRow]}>
+          <Card
+            title={t('Set up with an email')}
+            text={t(
+              'This option lets you quickly and easily open a secure Smart Account wallet with just an email. It also allows you to recover your account with your email. Learn more'
+            )}
+            style={flexboxStyles.flex1}
+            icon={EmailRecoveryIcon}
+            buttonText={t('Proceed')}
+            onPress={() => handleAuthButtonPress('todo')}
+          />
+          <Card
+            title={t('Set up with a Seed Phrase')}
+            style={{
+              ...flexboxStyles.flex1,
+              ...spacings.ml
+            }}
+            text={t(
+              'This option lets you open a secure Smart Account wallet with a traditional 24-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity. Learn more'
+            )}
+            icon={SeedPhraseRecoveryIcon}
+            buttonText={t('Proceed')}
+            onPress={() => handleAuthButtonPress('todo')}
+          />
+        </View>
+      </Modal>
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
-        <Panel title={t('Choose Account Type')} style={spacings.mbMd}>
+        <Panel title={t('Select one of the following options')} style={spacings.mbMd}>
           <View style={[flexboxStyles.directionRow]}>
             <Card
-              title={t('Hardware wallet')}
+              title={t('Connect a\nHardware Wallet')}
               text={t(
-                'Import multiple accounts from a hardware wallet device: we support Trezor, Ledger and Grid+ Lattice.\n\nYou can import your existing legacy accounts and smart accounts.'
+                'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
               )}
               style={flexboxStyles.flex1}
               icon={HWIcon}
-              buttonText={t('Import From Hardware Wallet')}
+              buttonText={t('Connect')}
               onPress={() => handleAuthButtonPress('hw')}
             />
             <Card
-              title={t('Legacy Account')}
+              title={t('Import an existing\nhot wallet')}
               style={{
                 ...flexboxStyles.flex1,
-                ...spacings.mhSm
+                ...spacings.mh
               }}
               text={t(
-                'Import a private key or seed phrase from a traditional wallet like Metamask.\n\nYou can import a legacy account but also create a fresh smart account from the same keys.'
+                'Securely import an existing wallet from a Seed Phrase, Private Key, or with an Email Vault.'
               )}
               icon={ImportAccountIcon}
-              buttonText={t('Import Legacy Account')}
+              buttonText={t('Import')}
               onPress={() => handleAuthButtonPress('legacy')}
             />
             <Card
-              title={t('Email account')}
+              title={t('Create a new\nhot wallet')}
               text={t(
-                'Create a smart account with email and password. This account will be recoverable via your email address.'
+                'Create a fresh hot wallet with modern features, including optional smart recovery.'
               )}
-              icon={EmailIcon}
+              icon={HotWalletIcon}
+              style={{ ...flexboxStyles.flex1, ...spacings.mr }}
+              onPress={() => handleAuthButtonPress('new-hot-wallet')}
+              buttonText={t('Create')}
+            />
+            <Card
+              title={t('Watch an\naddress')}
+              text={t(
+                'Import an address in View-only mode to see its balance and simulate transactions.'
+              )}
+              icon={ViewOnlyIcon}
               style={flexboxStyles.flex1}
-              onPress={() => handleAuthButtonPress('email')}
-              buttonText={t('Create Email Account')}
-              isDisabled
+              onPress={() => handleAuthButtonPress('view-only')}
+              buttonText={t('Add')}
+              isSecondary
             />
           </View>
         </Panel>
-        <View style={styles.showMoreOptionsButtonContainer}>
-          <View style={styles.separatorHorizontal} />
-
-          <TouchableOpacity
-            style={styles.showMoreOptionsButton}
-            activeOpacity={1}
-            onPress={handleSeeMoreOptionsPress}
-          >
-            {seeMoreOptionsEnabled ? (
-              <UpArrowIcon color={iconColors.secondary} />
-            ) : (
-              <DownArrowIcon color={iconColors.secondary} />
-            )}
-            <Text fontSize={16} appearance="secondaryText" style={[spacings.mlMi]} weight="medium">
-              {t('Show more options')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View>
-          {seeMoreOptionsEnabled && (
-            <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, spacings.mb]}>
-              <Button
-                textStyle={{ fontSize: 14 }}
-                accentColor={theme.primary}
-                text={t('View Mode')}
-                onPress={() => handleAuthButtonPress('view-only')}
-                type="outline"
-                hasBottomSpacing={false}
-                style={[{ minWidth: 190 }, spacings.mrLg]}
-              />
-              <Text fontSize={14} appearance="secondaryText">
-                {t(
-                  'Import an account in view-only mode, only via the address. You can import multiple at once.'
-                )}
-              </Text>
-            </View>
-          )}
-        </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

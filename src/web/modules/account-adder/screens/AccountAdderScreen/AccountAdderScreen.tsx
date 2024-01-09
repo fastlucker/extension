@@ -66,11 +66,10 @@ const AccountAdderScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="xl"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
+          <Stepper />
         </Header>
       }
       footer={

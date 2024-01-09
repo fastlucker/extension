@@ -53,7 +53,7 @@ const SideContentHeader = ({
         />
         <Text
           appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance['appearance']}
-          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 16}
+          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 18 : 16}
           weight="medium"
           numberOfLines={1}
           style={spacings.mr}

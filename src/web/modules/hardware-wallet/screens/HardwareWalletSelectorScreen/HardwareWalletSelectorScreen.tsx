@@ -14,7 +14,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -80,8 +79,8 @@ const HardwareWalletSelectorScreen = () => {
       width="lg"
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
+        <Header width="xl" mode="custom-inner-content" withAmbireLogo>
+          <Stepper />
         </Header>
       }
       footer={<BackButton />}
