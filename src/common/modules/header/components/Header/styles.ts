@@ -1,18 +1,17 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING, SPACING_LG } from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { paddingHorizontalStyle } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
 const { isTab } = getUiType()
 
 export const HEADER_HEIGHT = Platform.select({
-  web: 40 + (isTab ? SPACING_LG : SPACING) * 2,
+  web: (isTab ? 50 : 40) + SPACING * 2,
   default: 60
 })
 
@@ -38,11 +37,11 @@ const getStyles = (theme: ThemeProps) =>
       height: HEADER_HEIGHT
     },
     widthContainer: {
-      maxWidth: TAB_WIDE_CONTENT_WIDTH,
       width: '100%',
       marginHorizontal: 'auto',
       ...flexbox.directionRow,
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      ...flexbox.flex1
     },
     containerInner: {
       flexDirection: 'row',

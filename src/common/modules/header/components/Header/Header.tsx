@@ -11,6 +11,7 @@ import useTheme from '@common/hooks/useTheme'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -25,6 +26,7 @@ interface Props {
   backgroundColor?: ColorValue
   forceBack?: boolean
   onGoBackPress?: () => void
+  width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
 const { isTab, isPopup } = getUiType()
@@ -38,7 +40,8 @@ const Header: React.FC<Props> = ({
   backgroundColor,
   forceBack,
   onGoBackPress,
-  image
+  image,
+  width = 'xl'
 }) => {
   const { styles } = useTheme(getStyles)
 
@@ -86,12 +89,13 @@ const Header: React.FC<Props> = ({
 
   return (
     <View style={[styles.container, !!backgroundColor && { backgroundColor }]}>
-      <View style={styles.widthContainer}>
-        {mode === 'title' && (
-          <>
-            <View style={styles.sideContainer}>
-              {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
-            </View>
+      {mode !== 'custom' ? (
+        <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>
+          <View style={styles.sideContainer}>
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+          </View>
+          {/* Middle content start */}
+          {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
                 weight="regular"
@@ -102,38 +106,24 @@ const Header: React.FC<Props> = ({
                 {customTitle || title || ''}
               </Text>
             </View>
-            <View style={[styles.sideContainer, flexbox.alignEnd]}>
-              {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-            </View>
-          </>
-        )}
-        {mode === 'image-and-title' && (
-          <>
-            <View style={styles.sideContainer}>
-              {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
-            </View>
+          )}
+          {mode === 'image-and-title' && (
             <View style={styles.imageAndTitleContainer}>
               {image && <Image source={{ uri: image }} style={styles.image} />}
               <Text weight="medium" fontSize={20}>
                 {customTitle || title}
               </Text>
             </View>
-            <View style={styles.sideContainer} />
-          </>
-        )}
-        {mode === 'custom-inner-content' && (
-          <>
-            <View style={styles.sideContainer}>
-              {showBackButtonInPopup && !!canGoBack && renderBackButton()}
-            </View>
-            <View style={styles.containerInner}>{children}</View>
-            <View style={[styles.sideContainer, flexbox.alignEnd]}>
-              {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
-            </View>
-          </>
-        )}
-      </View>
-      {mode === 'custom' && children}
+          )}
+          {mode === 'custom-inner-content' && <View style={styles.containerInner}>{children}</View>}
+          {/* Middle content end */}
+          <View style={[styles.sideContainer, flexbox.alignEnd]}>
+            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+          </View>
+        </View>
+      ) : (
+        children
+      )}
     </View>
   )
 }
