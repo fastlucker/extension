@@ -1,16 +1,16 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_LG, SPACING_XL } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  buttons: ViewStyle
+  border: ViewStyle
   currentDApp: ViewStyle
   icon: ImageStyle
-  button: ViewStyle
+  titleWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -19,10 +19,7 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       backgroundColor: theme.secondaryBackground,
       ...spacings.ph,
-      ...spacings.pvSm,
-      ...flexbox.directionRow,
-      ...flexbox.alignCenter,
-      ...flexbox.justifySpaceBetween
+      ...spacings.pvSm
     },
     currentDApp: {
       ...flexbox.directionRow,
@@ -33,13 +30,23 @@ const getStyles = (theme: ThemeProps) =>
       height: 32,
       ...common.borderRadiusPrimary
     },
-    buttons: {
-      ...flexbox.directionRow
+    border: {
+      borderWidth: 1,
+      ...common.borderRadiusPrimary,
+      borderColor: theme.secondaryBorder,
+      ...flexbox.directionRow,
+      ...spacings.phSm,
+      ...spacings.pvTy,
+      ...flexbox.alignCenter,
+      ...flexbox.justifySpaceBetween
     },
-    button: {
-      width: 100,
-      ...spacings.mlSm,
-      marginBottom: 0
+    titleWrapper: {
+      backgroundColor: theme.secondaryBackground,
+      ...spacings.phTy,
+      position: 'absolute',
+      top: 4,
+      left: SPACING_XL,
+      zIndex: 5
     }
   })
 
