@@ -3,7 +3,11 @@ import { ColorValue, View } from 'react-native'
 
 import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
-import { IS_SCREEN_SIZE_DESKTOP_LARGE, SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING_3XL,
+  SPACING_XL
+} from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH, TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
@@ -38,14 +42,14 @@ export const paddingHorizontalStyle =
     ? {
         paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL
       }
-    : {}
+    : spacings.ph
 
 export const TabLayoutContainer = ({
   backgroundColor,
   header,
   footer,
   hideFooterInPopup = false,
-  width = 'full',
+  width = 'xl',
   children
 }: TabLayoutContainerProps) => {
   const { theme, styles } = useTheme(getStyles)
