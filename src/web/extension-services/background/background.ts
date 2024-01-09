@@ -496,9 +496,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
             }
-            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-              return mainCtrl.settings.addKeyPreferences(data.params)
-            }
             case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
               return mainCtrl.updateNetworkPreferences(
                 data.params.networkPreferences,

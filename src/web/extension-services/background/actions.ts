@@ -76,6 +76,7 @@ type MainControllerAccountAdderAddAccounts = {
       internal: { privateKey: string }[]
       externalTypeOnly: Key['type']
     }
+    readyToAddKeyPreferences: KeyPreferences
   }
 }
 type MainControllerAddAccounts = {
@@ -89,6 +90,7 @@ type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
 }
+// TODO: Remove
 type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences

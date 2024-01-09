@@ -176,18 +176,18 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       // }
 
       // TODO: step 2
-      const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
-        ({ accountKeyAddr, slot, index }) => ({
-          addr: accountKeyAddr,
-          type: keyType,
-          label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
-        })
-      )
+      // const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
+      //   ({ accountKeyAddr, slot, index }) => ({
+      //     addr: accountKeyAddr,
+      //     type: keyType,
+      //     label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
+      //   })
+      // )
 
-      dispatch({
-        type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
-        params: keyPreferencesToAdd
-      })
+      // dispatch({
+      //   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+      //   params: keyPreferencesToAdd
+      // })
     }
   }, [
     accountAdderState.addAccountsStatus,
@@ -276,9 +276,21 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       readyToAddKeys.externalTypeOnly = keyType
     }
 
+    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.map(
+      ({ accountKeyAddr, slot, index }) => ({
+        addr: accountKeyAddr,
+        type: keyType,
+        label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
+      })
+    )
+
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-      params: { selectedAccounts: accountAdderState.selectedAccounts, readyToAddKeys }
+      params: {
+        selectedAccounts: accountAdderState.selectedAccounts,
+        readyToAddKeys,
+        readyToAddKeyPreferences
+      }
     })
   }, [accountAdderState.selectedAccounts, dispatch, completeStep])
 
