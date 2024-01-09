@@ -6,7 +6,6 @@ import {
   PressableProps,
   Text,
   TextStyle,
-  TouchableOpacityProps,
   ViewStyle
 } from 'react-native'
 
@@ -19,7 +18,7 @@ import getStyles from './styles'
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small' | 'large'
-export interface Props extends TouchableOpacityProps {
+export interface Props extends PressableProps {
   text?: string
   type?: ButtonTypes
   size?: ButtonSizes
@@ -28,6 +27,7 @@ export interface Props extends TouchableOpacityProps {
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
+  children?: React.ReactNode
 }
 
 const Button = ({
@@ -92,17 +92,19 @@ const Button = ({
   return (
     <Pressable
       disabled={disabled}
-      style={({ hovered }: any) => [
-        containerStylesSizes[size],
-        styles.buttonContainer,
-        containerStyles[type],
-        hovered ? hoveredContainerStyles[type] : {},
-        style,
-        !!accentColor && { borderColor: accentColor },
-        !hasBottomSpacing && spacings.mb0,
-        disabled && disabledStyle ? disabledStyle : {},
-        disabled && !disabledStyle ? styles.disabled : {}
-      ]}
+      style={({ hovered }: any) =>
+        [
+          containerStylesSizes[size],
+          styles.buttonContainer,
+          containerStyles[type],
+          hovered ? hoveredContainerStyles[type] : {},
+          style,
+          !!accentColor && { borderColor: accentColor },
+          !hasBottomSpacing && spacings.mb0,
+          disabled && disabledStyle ? disabledStyle : {},
+          disabled && !disabledStyle ? styles.disabled : {}
+        ] as ViewStyle
+      }
       // Animates all other components to mimic the TouchableOpacity effect
       onPressIn={type === 'primary' ? null : fadeIn}
       onPressOut={type === 'primary' ? null : fadeOut}
