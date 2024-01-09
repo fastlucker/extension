@@ -22,8 +22,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
-import { getDefaultSelectedAccount } from '../../helpers/account'
-
 interface Props {
   keyType: Key['type']
   keyLabel?: string
@@ -107,22 +105,20 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
   useEffect(() => {
     // FIXME: Move these connected dispatched actions to the background process
-    // TODO: step 3
     if (accountAdderState.addAccountsStatus === 'SUCCESS') {
-      const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
-      if (!defaultSelectedAccount) {
-        addToast(
-          'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.',
-          { timeout: 4000, type: 'error' }
-        )
-        return
-      }
-
-      dispatch({
-        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: defaultSelectedAccount.addr }
-      })
-
+      // TODO: step 3
+      // const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
+      // if (!defaultSelectedAccount) {
+      //   addToast(
+      //     'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.',
+      //     { timeout: 4000, type: 'error' }
+      //   )
+      //   return
+      // }
+      // dispatch({
+      //   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+      //   params: { accountAddr: defaultSelectedAccount.addr }
+      // })
       // TODO: step 1
       // if (keyType === 'internal') {
       //   try {
@@ -131,10 +127,8 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       //       throw new Error(
       //         'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
       //       )
-
       //     const readyToAddInternalKeys = accountAdderState.selectedAccounts.map((acc) => {
       //       let privateKey = privKeyOrSeed
-
       //       // In case it is a seed, the private keys have to be extracted
       //       if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
       //         privateKey = getPrivateKeyFromSeed(
@@ -144,7 +138,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       //           accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
       //         )
       //       }
-
       //       // Private keys for accounts used as smart account keys should be derived
       //       const isPrivateKeyThatShouldBeDerived =
       //         isValidPrivateKey(privKeyOrSeed) &&
@@ -152,17 +145,14 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       //       if (isPrivateKeyThatShouldBeDerived) {
       //         privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
       //       }
-
       //       return { privateKey }
       //     })
-
       //     dispatch({
       //       type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
       //       params: { keys: keysToAddToKeystore }
       //     })
       //   } catch (error: any) {
       //     console.error(error)
-
       //     addToast(
       //       'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.',
       //       { timeout: 4000, type: 'error' }
@@ -174,7 +164,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       //     params: { keyType }
       //   })
       // }
-
       // TODO: step 2
       // const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
       //   ({ accountKeyAddr, slot, index }) => ({
@@ -183,7 +172,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       //     label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
       //   })
       // )
-
       // dispatch({
       //   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
       //   params: keyPreferencesToAdd
@@ -292,7 +280,16 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
         readyToAddKeyPreferences
       }
     })
-  }, [accountAdderState.selectedAccounts, dispatch, completeStep])
+  }, [
+    accountAdderState.selectedAccounts,
+    accountAdderState.hdPathTemplate,
+    completeStep,
+    keyType,
+    dispatch,
+    privKeyOrSeed,
+    addToast,
+    keyLabel
+  ])
 
   return { setPage, onImportReady }
 }
