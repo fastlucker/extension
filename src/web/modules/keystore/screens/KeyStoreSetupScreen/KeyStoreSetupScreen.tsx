@@ -105,6 +105,7 @@ const KeyStoreSetupScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="xl"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
@@ -187,31 +188,23 @@ const KeyStoreSetupScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Title>
-            Set up Your Ambire Key Store
-          </TabLayoutWrapperSideContentItem.Title>
+        <TabLayoutWrapperSideContentItem title="Device Password">
           <TabLayoutWrapperSideContentItem.Text>
-            Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the
-            keys that are stored locally with this passphrase through secure AES encryption.
+            Device Password protects your Ambire Wallet with a secret string of characters,
+            encrypting all the keys stored locally with the Device Password through secure AES
+            encryption.
           </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Group>
-            <TabLayoutWrapperSideContentItem.Text>
-              1. First, pick your passphrase. It should be long and you shouldn&apos;t reuse other
-              passphrases.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group>
-            <TabLayoutWrapperSideContentItem.Text>
-              2. You will use your passphrase to unlock the Ambire extension and sign transactions
-              on this device.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group noMb>
-            <TabLayoutWrapperSideContentItem.Text noMb>
-              3. This passphrase can only be reset if you enable recovery via your email vault.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Text>
+            The first step is to select the password. It should be long, contain different types of
+            characters and you should not reuse older passwords, and must not use it anywhere else.
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Text>
+            You will use the Device password to unlock the Ambire Wallet extension and sign
+            transactions on the authorized device.
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            This password can be reset only if you have enabled recovery by your Email vault.
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
       <Modal isOpen={keystoreReady} modalStyle={{ minWidth: 'unset' }}>

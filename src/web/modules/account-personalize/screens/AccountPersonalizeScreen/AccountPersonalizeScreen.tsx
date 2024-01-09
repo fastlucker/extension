@@ -128,12 +128,12 @@ const AccountPersonalizeScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon} title="Account personalization" />
+        <TabLayoutWrapperSideContentItem title="Account personalization">
           <TabLayoutWrapperSideContentItem.Text noMb>
-            The account label is any arbitrary label that you choose. Both the label and the avatar
-            are only local and for own organizational purposes - none of this will be uploaded on
-            the blockchain or anywhere else.
+            Account personalization allows you to assign a label and avatar to any accounts
+            you&apos;ve chosen to import. Both options are stored locally on your device and serve
+            only to help you organize your accounts. None of these options are uploaded to the
+            blockchain or anywhere else.
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

@@ -4,7 +4,6 @@ import { Pressable, View } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -217,16 +216,15 @@ const ViewOnlyScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row
-            Icon={InfoIcon}
-            title="Importing view-only accounts"
-          />
+        <TabLayoutWrapperSideContentItem title="View-only mode">
+          <TabLayoutWrapperSideContentItem.Text>
+            Importing an account in the view-only mode lets you preview any public wallet address on
+            any supported network. You can observe its balances or connect to dApps with it. Of
+            course, in the view-only mode, you won&apos;t be able to sign any transaction, message,
+            or authorize this account in any form.
+          </TabLayoutWrapperSideContentItem.Text>
           <TabLayoutWrapperSideContentItem.Text noMb>
-            Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
-            course, you cannot sign any transactions or messages, or authorize with this account in
-            any form. This is possible due to the public nature of the Web3 itself.
+            All this is possible due to the public nature of the Web3 itself.
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

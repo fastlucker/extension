@@ -195,7 +195,8 @@ const ExternalSignerLoginScreen = () => {
           />
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
+      {/* This screen will be split up into two screens so there is no need to have side content rn. */}
+      {/* <TabLayoutWrapperSideContent>
         <TabLayoutWrapperSideContentItem>
           <TabLayoutWrapperSideContentItem.Group>
             <TabLayoutWrapperSideContentItem.Row
@@ -232,7 +233,7 @@ const ExternalSignerLoginScreen = () => {
             </TabLayoutWrapperSideContentItem.Text>
           </TabLayoutWrapperSideContentItem.Group>
         </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
+      </TabLayoutWrapperSideContent> */}
     </TabLayoutContainer>
   )
 }
