@@ -54,14 +54,10 @@ const Buttons: FC<Props> = ({ handleOpenExplorer }) => {
           ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
           ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
         }}
+        onPress={handleCopyText}
       >
         <CopyIcon color="#fff" />
-        <Text
-          style={{ color: '#fff', ...spacings.mlSm }}
-          fontSize={16}
-          weight="medium"
-          onPress={handleCopyText}
-        >
+        <Text style={{ color: '#fff', ...spacings.mlSm }} fontSize={16} weight="medium">
           Copy link
         </Text>
       </Button>
