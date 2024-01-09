@@ -258,9 +258,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
           { timeout: 4000, type: 'error' }
         )
       }
-    }
-
-    if (keyType === 'external') {
+    } else {
       readyToAddKeys.externalTypeOnly = keyType
     }
 

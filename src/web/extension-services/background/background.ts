@@ -568,7 +568,11 @@ async function init() {
                 readyToAddKeys.external = readyToAddExternalKeys
               }
 
-              return mainCtrl.accountAdder.addAccounts(data.params.selectedAccounts, readyToAddKeys)
+              return mainCtrl.accountAdder.addAccounts(
+                data.params.selectedAccounts,
+                readyToAddKeys,
+                data.params.readyToAddKeyPreferences
+              )
             }
             case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
               return mainCtrl.addAccounts(data.params.accounts)
