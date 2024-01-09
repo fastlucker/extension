@@ -13,7 +13,7 @@ import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { KeyIterator, getPrivateKeyFromSeed } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -30,7 +30,6 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
-import getPrivateKeyFromSeed from '@web/modules/account-adder/services/getPrivateKeyFromSeed'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -521,24 +520,33 @@ async function init() {
               try {
                 await mainCtrl.keystore.generateEmailVaultSeed(data.params.email)
                 const seed = await mainCtrl.keystore.getEmailVaultSeed(data.params.email)
-                const privateKey = getPrivateKeyFromSeed(seed, 1, BIP44_HD_PATH)
+                const privateKey = getPrivateKeyFromSeed(
+                  seed,
+                  1,
+                  // TODO - check which hd path to use
+                  BIP44_STANDARD_DERIVATION_TEMPLATE
+                )
                 const keyIterator = new KeyIterator(privateKey)
 
                 mainCtrl.accountAdder.init({
                   keyIterator,
-                  preselectedAccounts: []
+                  preselectedAccounts: [],
+                  // TODO - check which hd path to use
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
                 })
 
                 await mainCtrl.accountAdder.createAndAddEmailAccount(
-                  data.params.email,
-                  data.params.recoveryKey
+                  data.params.email
+                  // TODO - should we pass the recovery key?
+                  // data.params.recoveryKey
                 )
 
                 if (mainCtrl.accountAdder.readyToAddAccounts.length) {
                   mainCtrl.keystore.addKeys([
                     {
                       privateKey,
-                      label: `Key for account with email: ${data.params.email}`
+                      // TODO - how we set the label?
+                      // label: `Key for account with email: ${data.params.email}`
                     }
                   ])
                 }
