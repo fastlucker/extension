@@ -1,6 +1,8 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  ReadyToAddKeys
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -73,7 +75,7 @@ type MainControllerAccountAdderAddAccounts = {
   params: {
     selectedAccounts: AccountAdderController['selectedAccounts']
     readyToAddKeys: {
-      internal: { privateKey: string }[]
+      internal: ReadyToAddKeys['internal']
       externalTypeOnly: Key['type']
     }
     readyToAddKeyPreferences: KeyPreferences
@@ -89,11 +91,6 @@ type MainControllerAccountAdderReset = {
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
-}
-// TODO: Remove
-type MainControllerSettingsAddKeyPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
-  params: KeyPreferences
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -258,19 +255,9 @@ type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
-// TODO: Remove
-type KeystoreControllerAddKeysExternallyStored = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-  params: { keyType: Exclude<Key['type'], 'internal'> }
-}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-// TODO: Remove
-type KeystoreControllerAddKeysAction = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
@@ -325,7 +312,6 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
-  | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
@@ -359,10 +345,8 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
-  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
-  | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | WalletControllerGetConnectedSiteAction

@@ -10,8 +10,9 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { ExternalKey, Key } from '@ambire-common/interfaces/keystore'
+import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -527,11 +528,7 @@ async function init() {
                 providers: rpcProviders
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
-              // TODO: re-use ReadyToAddKeys type
-              const readyToAddKeys: {
-                internal: { privateKey: string }[]
-                external: { addr: Key['addr']; type: Key['type']; meta: Key['meta'] }[]
-              } = {
+              const readyToAddKeys: ReadyToAddKeys = {
                 internal: data.params.readyToAddKeys.internal,
                 external: []
               }

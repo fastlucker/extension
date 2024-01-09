@@ -5,6 +5,7 @@ import {
   HD_PATH_TEMPLATE_TYPE,
   SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
 } from '@ambire-common/consts/derivation'
+import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Key } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
@@ -103,91 +104,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     }
   }, [dispatch])
 
-  useEffect(() => {
-    // FIXME: Move these connected dispatched actions to the background process
-    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
-      // TODO: step 3
-      // const defaultSelectedAccount = getDefaultSelectedAccount(accountAdderState.readyToAddAccounts)
-      // if (!defaultSelectedAccount) {
-      //   addToast(
-      //     'Failed to select default account. Please try to start the process of selecting accounts again. If the problem persist, please contact support.',
-      //     { timeout: 4000, type: 'error' }
-      //   )
-      //   return
-      // }
-      // dispatch({
-      //   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-      //   params: { accountAddr: defaultSelectedAccount.addr }
-      // })
-      // TODO: step 1
-      // if (keyType === 'internal') {
-      //   try {
-      //     if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
-      //     if (!accountAdderState.hdPathTemplate)
-      //       throw new Error(
-      //         'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
-      //       )
-      //     const readyToAddInternalKeys = accountAdderState.selectedAccounts.map((acc) => {
-      //       let privateKey = privKeyOrSeed
-      //       // In case it is a seed, the private keys have to be extracted
-      //       if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
-      //         privateKey = getPrivateKeyFromSeed(
-      //           privKeyOrSeed,
-      //           acc.index,
-      //           // should always be provided, otherwise it would have thrown an error above
-      //           accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
-      //         )
-      //       }
-      //       // Private keys for accounts used as smart account keys should be derived
-      //       const isPrivateKeyThatShouldBeDerived =
-      //         isValidPrivateKey(privKeyOrSeed) &&
-      //         acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-      //       if (isPrivateKeyThatShouldBeDerived) {
-      //         privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
-      //       }
-      //       return { privateKey }
-      //     })
-      //     dispatch({
-      //       type: 'KEYSTORE_CONTROLLER_ADD_KEYS',
-      //       params: { keys: keysToAddToKeystore }
-      //     })
-      //   } catch (error: any) {
-      //     console.error(error)
-      //     addToast(
-      //       'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.',
-      //       { timeout: 4000, type: 'error' }
-      //     )
-      //   }
-      // } else {
-      //   dispatch({
-      //     type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED',
-      //     params: { keyType }
-      //   })
-      // }
-      // TODO: step 2
-      // const keyPreferencesToAdd = accountAdderState.selectedAccounts.map(
-      //   ({ accountKeyAddr, slot, index }) => ({
-      //     addr: accountKeyAddr,
-      //     type: keyType,
-      //     label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
-      //   })
-      // )
-      // dispatch({
-      //   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
-      //   params: keyPreferencesToAdd
-      // })
-    }
-  }, [
-    accountAdderState.addAccountsStatus,
-    accountAdderState.hdPathTemplate,
-    accountAdderState.readyToAddAccounts,
-    accountAdderState.selectedAccounts,
-    dispatch,
-    keyLabel,
-    keyType,
-    privKeyOrSeed
-  ])
-
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
@@ -211,9 +127,8 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)
 
-    // TODO: partially re-use the ReadyToAddKeys type
     const readyToAddKeys: {
-      internal: { privateKey: string }[]
+      internal: ReadyToAddKeys['internal']
       externalTypeOnly: Key['type']
     } = { internal: [], externalTypeOnly: '' }
     if (keyType === 'internal') {
