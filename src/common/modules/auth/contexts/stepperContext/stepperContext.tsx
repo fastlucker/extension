@@ -11,10 +11,9 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
   },
   hw: {
-    [WEB_ROUTES.hardwareWalletSelect]: 'Choose Hardware Wallet',
-    'connect-hardware-wallet': 'Login with Hardware Wallet',
-    [WEB_ROUTES.accountAdder]: 'Pick Accounts To Import',
-    [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
+    [WEB_ROUTES.hardwareWalletSelect]: 'Select your\nhardware device',
+    [WEB_ROUTES.accountAdder]: 'Select accounts\nto import',
+    [WEB_ROUTES.accountPersonalize]: 'Personalize\nyour Accounts'
   },
   legacy: {
     [WEB_ROUTES.keyStoreSetup]: 'Set up Key\nStore',

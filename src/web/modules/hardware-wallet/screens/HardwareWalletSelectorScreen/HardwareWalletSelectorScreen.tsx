@@ -38,36 +38,29 @@ const HardwareWalletSelectorScreen = () => {
 
   const onTrezorPress = useCallback(async () => {
     try {
-      await updateStepperState('connect-hardware-wallet', 'hw')
-
       // No need for a separate request to unlock Trezor, it's done in the background
       navigate(WEB_ROUTES.accountAdder, {
         state: { keyType: 'trezor' }
       })
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
-      await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
-  }, [addToast, navigate, updateStepperState])
+  }, [addToast, navigate])
 
   const onLedgerPress = useCallback(async () => {
-    await updateStepperState('connect-hardware-wallet', 'hw')
     setLedgerModalOpened(true)
-  }, [setLedgerModalOpened, updateStepperState])
+  }, [setLedgerModalOpened])
 
   const onGridPlusPress = useCallback(async () => {
     try {
-      await updateStepperState('connect-hardware-wallet', 'hw')
-
       await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
       navigate(WEB_ROUTES.accountAdder, {
         state: { keyType: 'lattice' }
       })
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
-      await updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
     }
-  }, [addToast, dispatchAsync, navigate, updateStepperState])
+  }, [addToast, dispatchAsync, navigate])
 
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),
@@ -79,21 +72,21 @@ const HardwareWalletSelectorScreen = () => {
       width="lg"
       backgroundColor={theme.secondaryBackground}
       header={
-        <Header width="xl" mode="custom-inner-content" withAmbireLogo>
+        <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper />
         </Header>
       }
       footer={<BackButton />}
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Choose Hardware Wallet')}>
+        <Panel title={t('Select your Hardware Wallet device')}>
           <View style={[flexbox.directionRow]}>
             {options.map((option, index) => (
               <HardwareWalletSelectorItem
                 style={[flexbox.flex1, index === 1 ? spacings.mh : {}]}
                 key={option.title}
                 title={option.title}
-                text={option.text}
+                models={option.models}
                 image={option.image}
                 onPress={option.onPress}
               />

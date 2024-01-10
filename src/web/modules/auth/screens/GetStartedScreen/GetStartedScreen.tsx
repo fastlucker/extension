@@ -38,6 +38,10 @@ const GetStartedScreen = () => {
     async (flow: 'email' | 'hw' | 'new-hot-wallet' | 'view-only') => {
       const hasTerms = await storage.get('termsState', false)
 
+      if (flow === 'new-hot-wallet') {
+        setIsNewHotWalletModalOpen(true)
+        return
+      }
       if (!hasTerms) {
         navigate(WEB_ROUTES.terms, { state: { flow } })
         return
@@ -56,10 +60,6 @@ const GetStartedScreen = () => {
       }
       if (flow === 'hw') {
         navigate(WEB_ROUTES.hardwareWalletSelect)
-        return
-      }
-      if (flow === 'new-hot-wallet') {
-        setIsNewHotWalletModalOpen(true)
       }
     },
     [navigate, keystoreState]

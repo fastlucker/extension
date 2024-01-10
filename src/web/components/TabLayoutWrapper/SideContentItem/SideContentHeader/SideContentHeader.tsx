@@ -50,6 +50,7 @@ const SideContentHeader = ({
           height={20}
           color={theme[TYPE_TO_ICON_MAP[type] as keyof ThemeProps]}
           style={spacings.mrTy}
+          // If style has no effect, check if ...rest is passed to the icon
         />
         <Text
           appearance={TYPE_TO_TEXT_TYPE_MAP[type] as TextAppearance['appearance']}

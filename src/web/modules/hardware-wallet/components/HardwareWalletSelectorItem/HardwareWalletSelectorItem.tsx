@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react'
-import { ViewStyle } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
@@ -8,26 +9,33 @@ import Card from '@web/modules/auth/components/Card'
 
 type Props = {
   title: string
-  text: string
+  models: string[]
   image?: () => ReactElement
   onPress: () => void
   style?: ViewStyle | ViewStyle[]
 }
 
-const HardwareWalletSelectorItem = ({ title, text, image, style, onPress }: Props) => {
+const HardwareWalletSelectorItem = ({ title, models, image, style, onPress }: Props) => {
+  const { t } = useTranslation()
+
   return (
     <Card
       style={style}
       textStyle={[textStyles.center, spacings.mt2Xl]}
       text={
-        <Text fontSize={14}>
-          <Text fontSize={14} appearance="primaryText" weight="semiBold">
-            {'Supported: '}
-          </Text>
+        <View>
           <Text fontSize={14} appearance="primaryText">
-            {text}
+            {t('Supported')}:
           </Text>
-        </Text>
+          <View>
+            {models.map((model, index) => (
+              <Text key={model} fontSize={14} appearance="primaryText" weight="semiBold">
+                {model}
+                {index !== models.length - 1 ? ',' : ''}
+              </Text>
+            ))}
+          </View>
+        </View>
       }
       icon={image}
       onPress={onPress}
