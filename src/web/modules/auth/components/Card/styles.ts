@@ -20,8 +20,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...flexbox.alignCenter,
       ...common.borderRadiusPrimary,
-      ...spacings.phSm,
-      ...spacings.pbSm,
+      ...spacings.ph,
+      ...spacings.pb,
       ...spacings.ptLg
     },
     secondaryContainer: {
