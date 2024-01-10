@@ -4,6 +4,8 @@ import { isWeb } from '@common/config/env'
 import { DEVICE_HEIGHT, SPACING, SPACING_LG, SPACING_MD } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   root: ViewStyle
@@ -13,6 +15,7 @@ interface Style {
   dragger: ViewStyle
   backDrop: ViewStyle
 }
+const { isTab } = getUiType()
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -25,7 +28,16 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
-      paddingTop: 23
+      paddingTop: 23,
+      ...(isTab
+        ? {
+            borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
+            borderBottomStartRadius: BORDER_RADIUS_PRIMARY,
+            maxWidth: TAB_CONTENT_WIDTH,
+            width: '100%',
+            margin: 'auto'
+          }
+        : {})
     },
     containerInnerWrapper: {
       paddingBottom: SPACING_MD,

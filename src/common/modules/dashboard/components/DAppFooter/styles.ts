@@ -56,7 +56,8 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       ...common.borderRadiusPrimary,
       borderColor: theme.primary,
-      ...flexbox.directionRow
+      ...flexbox.directionRow,
+      ...spacings.mbLg
     }
   })
 

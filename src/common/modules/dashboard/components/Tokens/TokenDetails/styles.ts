@@ -1,46 +1,48 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import { isWeb } from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
-import { getUiType } from '@web/utils/uiType'
+import flexbox from '@common/styles/utils/flexbox'
 
-interface Style {
-  container: ViewStyle
-  content: ViewStyle
+const buttonStyle = {
+  flex: 1,
+  marginBottom: 0
 }
 
-const { isTab } = getUiType()
+interface Style {
+  closeIcon: ViewStyle
+  tokenInfoAndIcon: ViewStyle
+  tokenInfo: ViewStyle
+  tokenSymbolAndNetwork: ViewStyle
+  balance: ViewStyle
+  network: ViewStyle
+  networkIcon: ViewStyle
+  buttons: ViewStyle
+  button: ViewStyle
+  emptyButton: ViewStyle
+}
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      height: '100%',
-      width: '100%',
-      backgroundColor: 'rgba(45, 49, 77, 0.6)',
-      alignItems: 'center',
-      zIndex: 99,
-      justifyContent: isTab ? 'center' : 'flex-end'
+    closeIcon: { position: 'absolute', zIndex: 1, right: 0, top: 0 },
+    tokenInfoAndIcon: { ...flexbox.directionRow, ...spacings.mb3Xl },
+    tokenInfo: { ...spacings.mlSm },
+    balance: { ...flexbox.directionRow },
+    network: { ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.mlSm },
+    networkIcon: {
+      width: 20,
+      height: 20,
+      backgroundColor: theme.secondaryBackground,
+      borderRadius: 12
     },
-    content: {
-      height: isTab ? 'auto' : 400,
-      maxWidth: isTab ? TAB_CONTENT_WIDTH : '100%',
-      width: '100%',
-      backgroundColor: theme.primaryBackground,
-      borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
-      borderTopRightRadius: BORDER_RADIUS_PRIMARY,
-      borderBottomLeftRadius: isTab ? BORDER_RADIUS_PRIMARY : 0,
-      borderBottomRightRadius: isTab ? BORDER_RADIUS_PRIMARY : 0,
-      zIndex: 100,
-      ...spacings.ph,
-      ...spacings.pv,
-      // @ts-ignore removes the hover effect on web
-      ...(isWeb ? { cursor: 'default' } : {})
+    tokenSymbolAndNetwork: { ...flexbox.directionRow },
+    buttons: { ...flexbox.directionRow },
+    button: buttonStyle,
+    emptyButton: {
+      ...buttonStyle,
+      opacity: 0,
+      backgroundColor: 'transparent',
+      borderColor: 'transparent'
     }
   })
 

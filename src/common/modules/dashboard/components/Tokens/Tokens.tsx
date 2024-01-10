@@ -1,8 +1,10 @@
 import { formatUnits } from 'ethers'
 import React, { useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -26,6 +28,8 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
 
 const Tokens = ({ tokens, searchValue }: Props) => {
   const { t } = useTranslation()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
   const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
 
   const sortedTokens = useMemo(
@@ -76,6 +80,7 @@ const Tokens = ({ tokens, searchValue }: Props) => {
       ) || null
 
     setSelectedToken(token)
+    openBottomSheet()
   }
 
   const handleTokenDetailsClose = () => {
@@ -84,7 +89,13 @@ const Tokens = ({ tokens, searchValue }: Props) => {
 
   return (
     <View>
-      <TokenDetails token={selectedToken} handleClose={handleTokenDetailsClose} />
+      <BottomSheet
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        onClosed={handleTokenDetailsClose}
+      >
+        <TokenDetails token={selectedToken} handleClose={closeBottomSheet} />
+      </BottomSheet>
 
       <View style={spacings.mb}>
         {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}

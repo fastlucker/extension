@@ -166,6 +166,14 @@ const DAppFooter = () => {
             value={networksOptions.filter((opt) => opt.value === network.id)[0]}
           />
         </View>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+          <Text style={spacings.mrLg} fontSize={12}>
+            {t(
+              'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
+            )}
+          </Text>
+          <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
+        </View>
       </BottomSheet>
     </View>
   )

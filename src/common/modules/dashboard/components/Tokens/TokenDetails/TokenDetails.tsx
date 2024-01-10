@@ -1,18 +1,87 @@
-import React, { useEffect } from 'react'
-import { Pressable } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Pressable, View } from 'react-native'
+import { v4 as uuidv4 } from 'uuid'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import BridgeIcon from '@common/assets/svg/BridgeIcon'
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import DepositIcon from '@common/assets/svg/DepositIcon'
+import EarnIcon from '@common/assets/svg/EarnIcon'
+import SendIcon from '@common/assets/svg/SendIcon'
+import SwapIcon from '@common/assets/svg/SwapIcon'
+import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
+import Button from '@common/components/Button'
+import Text from '@common/components/Text'
+import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import { Portal } from '@gorhom/portal'
+import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
+import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
+import spacings, { SPACING, SPACING_SM } from '@common/styles/spacings'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
-import DetailsInner from './DetailsInner'
 import getStyles from './styles'
 
+const actions = [
+  [
+    {
+      text: 'Send',
+      icon: SendIcon,
+      onPress: ({
+        networkId,
+        address,
+        navigate
+      }: TokenResult & { navigate: (url: string) => void }) =>
+        navigate(`transfer?networkId=${networkId}&address=${address}`),
+      isDisabled: false
+    },
+    {
+      text: 'Swap',
+      icon: SwapIcon,
+      onPress: ({ networkId, address }: TokenResult) =>
+        createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+      isDisabled: false
+    },
+    {
+      text: 'Bridge',
+      icon: BridgeIcon,
+      onPress: () => createTab(BRIDGE_URL),
+      isDisabled: false
+    },
+    {
+      text: 'Deposit',
+      icon: DepositIcon,
+      onPress: () => {},
+      isDisabled: true
+    }
+  ],
+  [
+    {
+      text: 'Earn',
+      icon: EarnIcon,
+      onPress: () => {},
+      isDisabled: true
+    },
+    {
+      text: 'Top Up',
+      icon: TopUpIcon,
+      onPress: () => {},
+      isDisabled: true
+    },
+    {
+      text: 'Withdraw',
+      icon: WithdrawIcon,
+      onPress: () => {},
+      isDisabled: true
+    },
+    // Empty buttons to fill the space
+    null
+  ]
+]
 const { isTab } = getUiType()
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 const TokenDetails = ({
   token,
@@ -21,73 +90,128 @@ const TokenDetails = ({
   token: TokenResult | null
   handleClose: () => void
 }) => {
-  const [debouncedToken, setDebouncedToken] = React.useState<TokenResult | null>(null)
-  const bottom = useSharedValue(isTab ? 0 : -400)
-  const opacity = useSharedValue(isTab ? 0 : 1)
-  const scale = useSharedValue(isTab ? 0.5 : 1)
+  const { theme, styles } = useTheme(getStyles)
+  const { navigate } = useNavigation()
+  const { t } = useTranslation()
 
-  const { styles } = useTheme(getStyles)
+  if (!token) return null
 
-  // If we don't debounce the token the exit animation won't work properly.
-  useEffect(() => {
-    if (!debouncedToken && token) {
-      setDebouncedToken(token)
-      return
-    }
+  const {
+    flags: { onGasTank },
+    networkId,
+    symbol,
+    address
+  } = token
 
-    const timeout = setTimeout(() => {
-      setDebouncedToken(token)
-    }, 200)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [token, debouncedToken])
-
-  useEffect(() => {
-    // Tab animation
-    if (isTab) {
-      if (token && opacity.value !== 1 && scale.value !== 1) {
-        opacity.value = withTiming(1, { duration: 150 })
-        scale.value = withTiming(1, { duration: 200 })
-      } else {
-        opacity.value = withTiming(0, { duration: 150 })
-        scale.value = withTiming(0.5, { duration: 200 })
-      }
-
-      return
-    }
-
-    // Popup animation
-    if (token && bottom.value !== 0) {
-      bottom.value = withTiming(0, { duration: 200 })
-    } else {
-      bottom.value = withTiming(-400, { duration: 200 })
-    }
-  }, [token, bottom, opacity, scale])
-
-  const reanimatedStyle = useAnimatedStyle(() => ({
-    bottom: bottom.value,
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }]
-  }))
+  const {
+    balance,
+    balanceFormatted,
+    priceUSDFormatted,
+    balanceUSDFormatted,
+    isRewards,
+    isVesting,
+    networkData
+  } = getTokenDetails(token)
 
   return (
-    <Portal hostName="global">
-      <Pressable
-        onPress={handleClose}
-        style={[
-          styles.container,
-          {
-            display: debouncedToken ? 'flex' : 'none'
-          }
-        ]}
-      >
-        <AnimatedPressable style={[styles.content, reanimatedStyle]}>
-          <DetailsInner token={debouncedToken} handleClose={handleClose} />
-        </AnimatedPressable>
+    <View>
+      <Pressable onPress={handleClose} style={styles.closeIcon}>
+        <CloseIcon width={isTab ? 16 : 12} height={isTab ? 16 : 12} color={theme.primaryText} />
       </Pressable>
-    </Portal>
+      <View style={styles.tokenInfoAndIcon}>
+        <TokenIcon
+          containerHeight={48}
+          containerWidth={48}
+          width={36}
+          height={36}
+          networkSize={16}
+          withContainer
+          address={address}
+          onGasTank={onGasTank}
+          networkId={networkId}
+        />
+        <View style={styles.tokenInfo}>
+          <View style={styles.tokenSymbolAndNetwork}>
+            <Text fontSize={20} weight="semiBold">
+              {symbol}
+            </Text>
+            <View style={styles.network}>
+              <Text weight="regular" shouldScale={false} fontSize={16}>
+                {isRewards && t('rewards for claim')}
+                {isVesting && t('claimable early supporters vesting')}
+                {!isRewards && !isVesting && t('on')}{' '}
+              </Text>
+              <Text weight="regular" style={spacings.mrMi} fontSize={16}>
+                {onGasTank && t('Gas Tank')}
+                {!onGasTank && !isRewards && !isVesting && networkData?.name}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.balance}>
+            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" numberOfLines={1}>
+              {balanceFormatted} {symbol}
+            </Text>
+            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
+              ≈ ${balanceUSDFormatted}
+            </Text>
+            <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+              (1 ${symbol} ≈ ${priceUSDFormatted})
+            </Text>
+          </View>
+        </View>
+      </View>
+      {actions.map((actionRow, actionRowIndex) => (
+        <View
+          key={actionRow[0]?.text}
+          style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? SPACING : 0 }]}
+        >
+          {actionRow.map((button, index) => {
+            // Empty buttons to fill the space
+            if (button === null) {
+              const buttonStyle = {
+                ...styles.emptyButton,
+                marginLeft: index !== 0 ? SPACING_SM : 0
+              }
+
+              return (
+                <Button
+                  key={`empty-button-${uuidv4()}`}
+                  size={isTab ? 'regular' : 'small'}
+                  type="secondary"
+                  style={buttonStyle}
+                  disabled
+                />
+              )
+            }
+
+            const { text, icon: Icon, isDisabled, onPress } = button
+
+            const buttonStyle = {
+              ...styles.button,
+              marginLeft: index !== 0 ? SPACING_SM : 0
+            }
+
+            return (
+              <Button
+                key={button.text}
+                disabled={isDisabled || balance === 0}
+                onPress={() => {
+                  onPress({ ...token, navigate })
+                  handleClose()
+                }}
+                text={text}
+                size={isTab ? 'regular' : 'small'}
+                type="secondary"
+                textStyle={spacings.mrMi}
+                style={buttonStyle}
+              >
+                <Icon color={theme.primary} width={isTab ? 20 : 16} height={isTab ? 20 : 16} />
+              </Button>
+            )
+          })}
+        </View>
+      ))}
+    </View>
   )
 }
 
