@@ -1,6 +1,6 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_LG, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -11,6 +11,7 @@ interface Style {
   currentDApp: ViewStyle
   icon: ImageStyle
   titleWrapper: ViewStyle
+  networkSelectorContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -44,9 +45,18 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...spacings.phTy,
       position: 'absolute',
-      top: 4,
-      left: SPACING_XL,
-      zIndex: 5
+      top: -7,
+      left: SPACING_SM,
+      zIndex: 50
+    },
+    networkSelectorContainer: {
+      ...spacings.phSm,
+      ...spacings.pvSm,
+      backgroundColor: theme.infoBackground,
+      borderWidth: 1,
+      ...common.borderRadiusPrimary,
+      borderColor: theme.primary,
+      ...flexbox.directionRow
     }
   })
 

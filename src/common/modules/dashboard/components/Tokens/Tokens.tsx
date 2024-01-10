@@ -93,10 +93,10 @@ const Tokens = ({ tokens, searchValue }: Props) => {
           <View>
             <View style={{ flexDirection: 'row', ...spacings.mbTy, ...spacings.phTy }}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
-                ASSET/AMOUNT
+                {t('ASSET/AMOUNT')}
               </Text>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 0.7 }}>
-                PRICE
+                {t('PRICE')}
               </Text>
               <Text
                 appearance="secondaryText"
@@ -104,7 +104,7 @@ const Tokens = ({ tokens, searchValue }: Props) => {
                 weight="medium"
                 style={{ flex: 0.8, textAlign: 'right' }}
               >
-                USD VALUE
+                {t('USD VALUE')}
               </Text>
             </View>
             {sortedTokens.map((token: TokenResult) => (
