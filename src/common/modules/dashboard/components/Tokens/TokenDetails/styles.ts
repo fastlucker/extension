@@ -2,12 +2,8 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-
-const buttonStyle = {
-  flex: 1,
-  marginBottom: 0
-}
 
 interface Style {
   closeIcon: ViewStyle
@@ -17,15 +13,14 @@ interface Style {
   balance: ViewStyle
   network: ViewStyle
   networkIcon: ViewStyle
-  buttons: ViewStyle
-  button: ViewStyle
-  emptyButton: ViewStyle
+  actionsContainer: ViewStyle
+  action: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     closeIcon: { position: 'absolute', zIndex: 1, right: 0, top: 0 },
-    tokenInfoAndIcon: { ...flexbox.directionRow, ...spacings.mb3Xl },
+    tokenInfoAndIcon: { ...flexbox.directionRow, ...spacings.mb },
     tokenInfo: { ...spacings.mlSm },
     balance: { ...flexbox.directionRow },
     network: { ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.mlSm },
@@ -36,13 +31,21 @@ const getStyles = (theme: ThemeProps) =>
       borderRadius: 12
     },
     tokenSymbolAndNetwork: { ...flexbox.directionRow },
-    buttons: { ...flexbox.directionRow },
-    button: buttonStyle,
-    emptyButton: {
-      ...buttonStyle,
-      opacity: 0,
-      backgroundColor: 'transparent',
-      borderColor: 'transparent'
+    actionsContainer: {
+      ...spacings.phLg,
+      ...spacings.pv,
+      backgroundColor: theme.primaryBackground,
+      ...common.borderRadiusPrimary,
+      ...flexbox.directionRow,
+      ...flexbox.wrap
+    },
+    action: {
+      width: '25%',
+      maxWidth: '25%',
+      ...flexbox.alignCenter,
+      ...spacings.phSm,
+      ...spacings.pvSm,
+      ...common.borderRadiusPrimary
     }
   })
 

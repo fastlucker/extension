@@ -1,85 +1,89 @@
+import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
-import { v4 as uuidv4 } from 'uuid'
+import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
-import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
-import spacings, { SPACING, SPACING_SM } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
+import text from '@common/styles/utils/text'
+import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
 const actions = [
-  [
-    {
-      text: 'Send',
-      icon: SendIcon,
-      onPress: ({
-        networkId,
-        address,
-        navigate
-      }: TokenResult & { navigate: (url: string) => void }) =>
-        navigate(`transfer?networkId=${networkId}&address=${address}`),
-      isDisabled: false
-    },
-    {
-      text: 'Swap',
-      icon: SwapIcon,
-      onPress: ({ networkId, address }: TokenResult) =>
-        createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
-      isDisabled: false
-    },
-    {
-      text: 'Bridge',
-      icon: BridgeIcon,
-      onPress: () => createTab(BRIDGE_URL),
-      isDisabled: false
-    },
-    {
-      text: 'Deposit',
-      icon: DepositIcon,
-      onPress: () => {},
-      isDisabled: true
-    }
-  ],
-  [
-    {
-      text: 'Earn',
-      icon: EarnIcon,
-      onPress: () => {},
-      isDisabled: true
-    },
-    {
-      text: 'Top Up',
-      icon: TopUpIcon,
-      onPress: () => {},
-      isDisabled: true
-    },
-    {
-      text: 'Withdraw',
-      icon: WithdrawIcon,
-      onPress: () => {},
-      isDisabled: true
-    },
-    // Empty buttons to fill the space
-    null
-  ]
+  {
+    text: 'Send',
+    icon: SendIcon,
+    onPress: ({
+      networkId,
+      address,
+      navigate
+    }: TokenResult & { navigate: (url: string) => void }) =>
+      navigate(`transfer?networkId=${networkId}&address=${address}`),
+    isDisabled: false
+  },
+  {
+    text: 'Swap',
+    icon: SwapIcon,
+    onPress: ({ networkId, address }: TokenResult) =>
+      createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+    isDisabled: false
+  },
+  {
+    text: 'Deposit',
+    icon: DepositIcon,
+    onPress: () => {},
+    isDisabled: true
+  },
+  {
+    text: 'Top Up',
+    icon: TopUpIcon,
+    onPress: () => {},
+    isDisabled: true
+  },
+  {
+    text: 'Earn',
+    icon: EarnIcon,
+    onPress: () => {},
+    isDisabled: true
+  },
+  {
+    text: 'Bridge',
+    icon: BridgeIcon,
+    onPress: () => createTab(BRIDGE_URL),
+    isDisabled: false
+  },
+  {
+    text: 'Withdraw',
+    icon: WithdrawIcon,
+    onPress: () => {},
+    isDisabled: true
+  },
+  {
+    text: 'Token Info',
+    icon: InfoIcon,
+    onPress: () => {},
+    isDisabled: true
+  }
 ]
 const { isTab } = getUiType()
 
@@ -92,6 +96,7 @@ const TokenDetails = ({
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
+  const { addToast } = useToast()
   const { t } = useTranslation()
 
   if (!token) return null
@@ -145,6 +150,18 @@ const TokenDetails = ({
                 {onGasTank && t('Gas Tank')}
                 {!onGasTank && !isRewards && !isVesting && networkData?.name}
               </Text>
+              <Text fontSize={16} style={spacings.mrMi}>
+                ({shortenAddress(address, 20)})
+              </Text>
+              <TouchableOpacity
+                style={spacings.mrTy}
+                onPress={() => {
+                  Clipboard.setStringAsync(address)
+                  addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+                }}
+              >
+                <CopyIcon width={16} height={16} />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.balance}>
@@ -160,57 +177,33 @@ const TokenDetails = ({
           </View>
         </View>
       </View>
-      {actions.map((actionRow, actionRowIndex) => (
-        <View
-          key={actionRow[0]?.text}
-          style={[styles.buttons, { marginBottom: actionRowIndex === 0 ? SPACING : 0 }]}
-        >
-          {actionRow.map((button, index) => {
-            // Empty buttons to fill the space
-            if (button === null) {
-              const buttonStyle = {
-                ...styles.emptyButton,
-                marginLeft: index !== 0 ? SPACING_SM : 0
-              }
-
-              return (
-                <Button
-                  key={`empty-button-${uuidv4()}`}
-                  size={isTab ? 'regular' : 'small'}
-                  type="secondary"
-                  style={buttonStyle}
-                  disabled
-                />
-              )
-            }
-
-            const { text, icon: Icon, isDisabled, onPress } = button
-
-            const buttonStyle = {
-              ...styles.button,
-              marginLeft: index !== 0 ? SPACING_SM : 0
-            }
-
-            return (
-              <Button
-                key={button.text}
-                disabled={isDisabled || balance === 0}
-                onPress={() => {
-                  onPress({ ...token, navigate })
-                  handleClose()
-                }}
-                text={text}
-                size={isTab ? 'regular' : 'small'}
-                type="secondary"
-                textStyle={spacings.mrMi}
-                style={buttonStyle}
-              >
-                <Icon color={theme.primary} width={isTab ? 20 : 16} height={isTab ? 20 : 16} />
-              </Button>
-            )
-          })}
-        </View>
-      ))}
+      <View style={styles.actionsContainer}>
+        {actions.map((action) => {
+          const Icon = action.icon
+          return (
+            <Pressable
+              key={action.text}
+              style={({ hovered }: any) => [
+                styles.action,
+                action.isDisabled && { opacity: 0.4 },
+                hovered && { backgroundColor: theme.secondaryBackground }
+              ]}
+              disabled={action.isDisabled}
+              onPress={() => {
+                action.onPress({ ...token, navigate })
+                handleClose()
+              }}
+            >
+              <View style={spacings.mbMi}>
+                <Icon color={theme.primary} width={32} height={32} strokeWidth="1" />
+              </View>
+              <Text fontSize={14} weight="medium" style={text.center}>
+                {action.text}
+              </Text>
+            </Pressable>
+          )
+        })}
+      </View>
     </View>
   )
 }
