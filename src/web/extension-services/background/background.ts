@@ -13,6 +13,7 @@ import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -40,6 +41,7 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
@@ -81,6 +83,9 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
+  const ledgerCtrl = new LedgerController()
+  const trezorCtrl = new TrezorController()
+  const latticeCtrl = new LatticeController()
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -93,6 +98,11 @@ async function init() {
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
+    },
+    externalSignerControllers: {
+      ledger: ledgerCtrl,
+      trezor: trezorCtrl,
+      lattice: latticeCtrl
     },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
@@ -110,9 +120,6 @@ async function init() {
     },
     pinned: pinnedTokens
   })
-  const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
@@ -245,6 +252,8 @@ async function init() {
             params: mainCtrl
           })
         })
+        // stringify and then parse to add the getters to the public state
+        logInfoWithPrefix('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
       }
       ctrlOnUpdateIsDirtyFlags.main = false
     }, 0)
@@ -296,6 +305,8 @@ async function init() {
                   params: (mainCtrl as any)[ctrl]
                 })
               })
+              // stringify and then parse to add the getters to the public state
+              logInfoWithPrefix(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
             }
             ctrlOnUpdateIsDirtyFlags[ctrl] = false
           }, 0)
@@ -304,6 +315,8 @@ async function init() {
           const errors = (mainCtrl as any)[ctrl].getErrors()
           const lastError = errors[errors.length - 1]
           if (lastError) console.error(lastError.error)
+          // stringify and then parse to add the getters to the public state
+          logInfoWithPrefix(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
           Object.keys(portMessageUIRefs).forEach((key: string) => {
             portMessageUIRefs[key]?.request({
               type: 'broadcast-error',
@@ -341,13 +354,13 @@ async function init() {
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
     }
-
-    mainCtrl.activity.setAccounts(mainCtrl.accountStates)
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
+    // stringify and then parse to add the getters to the public state
+    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
@@ -527,13 +540,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-              if (mainCtrl.signMessage.signingKeyType === 'ledger')
-                return mainCtrl.signMessage.sign(ledgerCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'trezor')
-                return mainCtrl.signMessage.sign(trezorCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'lattice')
-                return mainCtrl.signMessage.sign(latticeCtrl)
-
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
@@ -556,13 +562,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
-                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
-                return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
-
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
@@ -574,21 +573,6 @@ async function init() {
                 data.params.accountAddr,
                 data.params.networkId
               )
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
-              const { accountOp } = data.params
-              const broadcastKeyType = accountOp.signingKeyType
-
-              if (broadcastKeyType === 'ledger')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
-              if (broadcastKeyType === 'trezor')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
-              if (broadcastKeyType === 'lattice')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
-
-              return mainCtrl.broadcastSignedAccountOp(accountOp)
-            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)

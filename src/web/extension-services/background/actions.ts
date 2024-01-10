@@ -245,13 +245,6 @@ type MainControllerSignAccountOpUpdateAction = {
 type MainControllerSignAccountOpSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
 }
-type MainControllerSignAccountOpResetAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
-}
-type MainControllerBroadcastSignedAccountOpAction = {
-  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP'
-  params: { accountOp: AccountOp }
-}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
@@ -330,7 +323,6 @@ export type Action =
   | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
-  | MainControllerRefetchPortfolio
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
@@ -347,8 +339,6 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerSignAccountOpResetAction
-  | MainControllerBroadcastSignedAccountOpAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
