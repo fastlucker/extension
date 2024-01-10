@@ -565,6 +565,7 @@ async function init() {
 
               return mainCtrl.accountAdder.addAccounts(
                 data.params.selectedAccounts,
+                data.params.readyToAddAccountPreferences,
                 readyToAddKeys,
                 data.params.readyToAddKeyPreferences
               )

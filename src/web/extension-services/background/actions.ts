@@ -74,6 +74,7 @@ type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
   params: {
     selectedAccounts: AccountAdderController['selectedAccounts']
+    readyToAddAccountPreferences: AccountPreferences
     readyToAddKeys: {
       internal: ReadyToAddKeys['internal']
       externalTypeOnly: Key['type']

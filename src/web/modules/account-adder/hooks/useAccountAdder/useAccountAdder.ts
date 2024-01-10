@@ -7,6 +7,7 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
   getPrivateKeyFromSeed,
@@ -20,7 +21,11 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
+import {
+  getDefaultAccountLabel,
+  getDefaultAccountPfp,
+  getDefaultKeyLabel
+} from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
@@ -187,10 +192,27 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       })
     )
 
+    const readyToAddAccountPreferences: AccountPreferences = {}
+    const prevAccountsCount = mainControllerState.accounts.length
+    accountAdderState.selectedAccounts.forEach((selectedAcc, i) => {
+      const label = getDefaultAccountLabel(
+        selectedAcc.account,
+        prevAccountsCount,
+        i,
+        keyType,
+        keyTypeInternalSubtype
+      )
+      const pfp = getDefaultAccountPfp(prevAccountsCount, i)
+
+      readyToAddAccountPreferences[selectedAcc.account.addr] = { label, pfp }
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({
       type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
       params: {
         selectedAccounts: accountAdderState.selectedAccounts,
+        readyToAddAccountPreferences,
         readyToAddKeys,
         readyToAddKeyPreferences
       }
@@ -200,10 +222,12 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     accountAdderState.hdPathTemplate,
     completeStep,
     keyType,
+    mainControllerState.accounts.length,
     dispatch,
     privKeyOrSeed,
     addToast,
-    keyLabel
+    keyLabel,
+    keyTypeInternalSubtype
   ])
 
   return { setPage, onImportReady }
