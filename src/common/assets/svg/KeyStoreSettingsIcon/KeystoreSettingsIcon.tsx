@@ -6,9 +6,10 @@ import colors from '@common/styles/colors'
 const KeyStoreSettingsIcon: React.FC<SvgProps> = ({
   width = 24,
   height = 24,
-  color = colors.martinique
+  color = colors.martinique,
+  ...rest
 }) => (
-  <Svg width={width} height={height} viewBox="0 0 17.5 24.973">
+  <Svg width={width} height={height} viewBox="0 0 17.5 24.973" {...rest}>
     <G>
       <G>
         <G>
