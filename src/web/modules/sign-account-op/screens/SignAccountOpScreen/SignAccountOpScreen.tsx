@@ -303,9 +303,6 @@ const SignAccountOpScreen = () => {
                 mainState={mainState}
                 signAccountOpState={signAccountOpState}
                 accountPortfolio={portfolioState.accountPortfolio}
-                gasTankTokens={
-                  portfolioState.state.latest[params?.accountAddr].gasTank?.result?.tokens || []
-                }
                 networkId={network!.id}
                 isViewOnly={isViewOnly}
               />

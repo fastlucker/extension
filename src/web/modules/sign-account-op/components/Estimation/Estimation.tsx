@@ -6,7 +6,6 @@ import { View } from 'react-native'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { TokenResult } from '@ambire-common/libs/portfolio'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -23,7 +22,6 @@ import getStyles from './styles'
 type Props = {
   mainState: MainController
   accountPortfolio: AccountPortfolio | null
-  gasTankTokens: TokenResult[]
   signAccountOpState: SignAccountOpController
   networkId: NetworkDescriptor['id']
   isViewOnly: boolean
@@ -32,7 +30,6 @@ type Props = {
 const Estimation = ({
   mainState,
   accountPortfolio,
-  gasTankTokens,
   signAccountOpState,
   networkId,
   isViewOnly
@@ -46,11 +43,11 @@ const Estimation = ({
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
 
-      const token = feeOption.isGasTank
-        ? gasTankTokens.find((t) => t.address === feeOption.address)
-        : accountPortfolio?.tokens.find(
-            (t) => t.address === feeOption.address && t.networkId === networkId
-          )
+      const token = accountPortfolio?.tokens.find(
+        (t) =>
+          t.address === feeOption.address &&
+          ((t.networkId === networkId && !feeOption.isGasTank) || t.flags.onGasTank)
+      )
 
       // TODO: validate - should never happen but there are some cases in which account is undefined
       if (!account || !token) return undefined
