@@ -8,13 +8,11 @@ import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
-import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Button from '@common/components/Button'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
@@ -124,10 +122,12 @@ const DetailsInner = ({
         <TokenIcon
           containerHeight={48}
           containerWidth={48}
-          width={32}
-          height={32}
+          width={36}
+          height={36}
+          networkSize={16}
           withContainer
           address={address}
+          onGasTank={onGasTank}
           networkId={networkId}
         />
         <View style={styles.tokenInfo}>
@@ -145,10 +145,6 @@ const DetailsInner = ({
                 {onGasTank && t('Gas Tank')}
                 {!onGasTank && !isRewards && !isVesting && networkData?.name}
               </Text>
-              {onGasTank && <GasTankIcon width={20} height={20} color={theme.primary} />}
-              {!onGasTank && !isRewards && !isVesting && (
-                <NetworkIcon name={networkId} style={styles.networkIcon} />
-              )}
             </View>
           </View>
           <View style={styles.balance}>

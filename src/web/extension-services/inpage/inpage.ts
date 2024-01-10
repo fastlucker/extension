@@ -12,8 +12,8 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import {
   ambireSvg,
   isWordInPage,
-  replaceMMImgInPage,
-  replaceWordAndIcon
+  replaceMMBrandInPage,
+  replaceMMImgInPage
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
@@ -508,9 +508,24 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        // the webpage reads the proxy provider so treat the page as a dapp
-        // should replace mm brand only for dapps
-        doesWebpageReadOurProvider = true
+        // script to determine whether the page is a dapp or not
+        // (only pages that are dapps should read the ethereum provider)
+        // the provider is called from multiple instances (current page and other extensions)
+        // we need only the calls from the current page
+        if (!doesWebpageReadOurProvider) {
+          try {
+            throw new Error()
+          } catch (error: any) {
+            const stack = error.stack // Parse the stack trace to get the caller info
+            if (stack) {
+              const callerPage = stack.split('\n')[2].trim()
+              if (callerPage.includes(window.location.hostname)) {
+                doesWebpageReadOurProvider = true
+              }
+            }
+          }
+        }
+
         return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
@@ -613,18 +628,23 @@ window.dispatchEvent(new Event('ethereum#initialized'))
 //
 
 const runReplacementScript = async () => {
-  if (!doesWebpageReadOurProvider) return
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+
+  // most of the dapps read the provider but some don't till connection
+  if (
+    !doesWebpageReadOurProvider &&
+    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
+  )
+    return
 
   await delayPromise(30) // wait for DOM update
 
   if (isEIP6963) return
 
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-
   if (hasWalletConnectInPage) replaceMMImgInPage()
 
-  const hasMetaMaskInPage = isWordInPage('metamask')
-  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
   const hasTrustWalletInPage = isWordInPage('trustwallet')
   const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
@@ -632,7 +652,7 @@ const runReplacementScript = async () => {
   if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
     return
 
-  replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
+  replaceMMBrandInPage(ambireSvg)
 }
 
 document.addEventListener('click', runReplacementScript)

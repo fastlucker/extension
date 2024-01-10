@@ -47,6 +47,7 @@ const WEB_ROUTES = {
   createEmailVault: 'create-email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
+  devicePassword: 'device-password',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   dappConnectRequest: 'dapp-connect-request',

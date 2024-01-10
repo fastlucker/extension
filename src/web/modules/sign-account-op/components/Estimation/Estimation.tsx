@@ -4,10 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { MainController } from '@ambire-common/controllers/main/main'
-import {
-  SignAccountOpController,
-  SigningStatus
-} from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Select from '@common/components/Select'
@@ -94,19 +91,6 @@ const Estimation = ({
       })
     }
   }, [dispatch, payValue])
-
-  // Signing is ready therefore broadcast transaction
-  useEffect(() => {
-    if (
-      signAccountOpState.accountOp?.signature &&
-      signAccountOpState.status?.type === SigningStatus.Done
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP',
-        params: { accountOp: signAccountOpState.accountOp }
-      })
-    }
-  }, [signAccountOpState, dispatch])
 
   const selectedFee = useMemo(
     () =>
