@@ -118,11 +118,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   )
 
   useEffect(() => {
-    const latestMethodCall = keyType === 'internal' ? 'addKeys' : 'addKeysExternallyStored'
-    if (keystoreState.status === 'DONE' && keystoreState.latestMethodCall === latestMethodCall) {
+    if (
+      mainControllerState.status === 'SUCCESS' &&
+      mainControllerState.latestMethodCall === 'onAccountAdderSuccess'
+    ) {
       completeStep()
     }
-  }, [completeStep, keystoreState, keyType])
+  }, [completeStep, mainControllerState.status, mainControllerState.latestMethodCall])
 
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)
