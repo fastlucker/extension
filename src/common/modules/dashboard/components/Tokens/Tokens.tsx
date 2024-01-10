@@ -139,4 +139,4 @@ const Tokens = ({ tokens, searchValue }: Props) => {
   )
 }
 
-export default Tokens
+export default React.memo(Tokens)
