@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import 'setImmediate'
+import 'setimmediate'
 
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
