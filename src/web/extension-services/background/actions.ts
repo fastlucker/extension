@@ -301,6 +301,10 @@ type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
   params: { id: number }
 }
+type ChangeCurrentDappNetworkAction = {
+  type: 'CHANGE_CURRENT_DAPP_NETWORK'
+  params: { chainId: number; origin: string }
+}
 
 export type Action =
   | InitControllerStateAction
@@ -358,6 +362,7 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
+  | ChangeCurrentDappNetworkAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

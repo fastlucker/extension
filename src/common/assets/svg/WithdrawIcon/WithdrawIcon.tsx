@@ -8,10 +8,15 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const WithdrawIcon: React.FC<Props> = ({ width = 30, height = 30, color = colors.martinique }) => (
+const WithdrawIcon: React.FC<Props> = ({
+  width = 30,
+  height = 30,
+  color = colors.martinique,
+  strokeWidth = '1.5'
+}) => (
   <Svg width={width} height={height} viewBox="0 0 16 16">
     <G fill="none">
-      <G stroke={color} strokeWidth="1.5">
+      <G stroke={color} strokeWidth={strokeWidth}>
         <Path
           strokeLinecap="round"
           strokeLinejoin="round"

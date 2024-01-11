@@ -41,7 +41,7 @@ const getStyles = (theme: ThemeProps) =>
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: 'transparent',
       ...commonStyles.borderRadiusPrimary
     },

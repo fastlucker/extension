@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import 'setImmediate'
+import 'setimmediate'
 
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
@@ -715,6 +715,18 @@ async function init() {
             case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
               sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
               permissionService.removeConnectedSite(data.params.origin)
+              break
+            }
+            case 'CHANGE_CURRENT_DAPP_NETWORK': {
+              permissionService.updateConnectSite(
+                data.params.origin,
+                { chainId: data.params.chainId },
+                true
+              )
+              sessionService.broadcastEvent('chainChanged', {
+                chain: `0x${data.params.chainId.toString(16)}`,
+                networkVersion: `${data.params.chainId}`
+              })
               break
             }
 
