@@ -122,7 +122,7 @@ const GetStartedScreen = () => {
                 'Start using accounts secured by Trezor, Ledger, or another Hardware Wallet.'
               )}
               style={flexboxStyles.flex1}
-              icon={HWIcon}
+              icon={() => <HWIcon width={60} height={60} />}
               buttonText={t('Connect')}
               onPress={() => handleAuthButtonPress('hw')}
             />
@@ -135,7 +135,7 @@ const GetStartedScreen = () => {
               text={t(
                 'Securely import an existing wallet from a Seed Phrase, Private Key, or with an Email Vault.'
               )}
-              icon={ImportAccountIcon}
+              icon={() => <ImportAccountIcon width={60} height={60} />}
               buttonText={t('Import')}
               onPress={() => handleAuthButtonPress('import-hot-wallet')}
             />
