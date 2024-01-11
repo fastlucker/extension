@@ -46,16 +46,18 @@ const AccountSelectScreen = () => {
             ))
           ) : (
             // @TODO: add a proper label
-            <Text>No accounts found</Text>
+            <Text>{t('No accounts found')}</Text>
           )}
         </Wrapper>
-        <Button
-          text={t('+ Add Account')}
-          type="secondary"
-          hasBottomSpacing={false}
-          onPress={openBottomSheet as any}
-          style={{ maxWidth: TAB_CONTENT_WIDTH, alignSelf: 'center', width: '100%' }}
-        />
+        <View style={[spacings.ptSm, { width: '100%' }]}>
+          <Button
+            text={t('+ Add Account')}
+            type="secondary"
+            hasBottomSpacing={false}
+            onPress={openBottomSheet as any}
+            style={{ maxWidth: TAB_CONTENT_WIDTH, alignSelf: 'center', width: '100%' }}
+          />
+        </View>
       </View>
       <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <AddAccount />
