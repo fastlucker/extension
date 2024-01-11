@@ -13,6 +13,7 @@ import {
 } from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
+import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
@@ -55,9 +56,10 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   )
 
   useEffect(() => {
-    const step = keyType === 'internal' ? 'legacy' : 'hw'
+    const step: keyof typeof STEPPER_FLOWS = keyTypeInternalSubtype || 'hw'
+
     updateStepperState(WEB_ROUTES.accountAdder, step)
-  }, [keyType, updateStepperState])
+  }, [keyTypeInternalSubtype, updateStepperState])
 
   useEffect(() => {
     if (!mainControllerState.isReady) return

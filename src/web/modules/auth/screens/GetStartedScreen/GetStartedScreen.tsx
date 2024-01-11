@@ -35,11 +35,15 @@ const GetStartedScreen = () => {
   const [isNewHotWalletModalOpen, setIsNewHotWalletModalOpen] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    async (flow: 'email' | 'hw' | 'new-hot-wallet' | 'view-only') => {
+    async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'new-hot-wallet' | 'view-only') => {
       const hasTerms = await storage.get('termsState', false)
 
       if (flow === 'new-hot-wallet') {
         setIsNewHotWalletModalOpen(true)
+        return
+      }
+      if (flow === 'import-hot-wallet') {
+        navigate(WEB_ROUTES.importHotWallet)
         return
       }
       if (!hasTerms) {
@@ -92,7 +96,7 @@ const GetStartedScreen = () => {
             style={flexboxStyles.flex1}
             icon={EmailRecoveryIcon}
             buttonText={t('Proceed')}
-            onPress={() => handleAuthButtonPress('todo')}
+            isDisabled
           />
           <Card
             title={t('Set up with a Seed Phrase')}
@@ -133,7 +137,7 @@ const GetStartedScreen = () => {
               )}
               icon={ImportAccountIcon}
               buttonText={t('Import')}
-              onPress={() => handleAuthButtonPress('legacy')}
+              onPress={() => handleAuthButtonPress('import-hot-wallet')}
             />
             <Card
               title={t('Create a new\nhot wallet')}

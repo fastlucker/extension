@@ -6,7 +6,6 @@ import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -35,6 +34,7 @@ import {
   getDefaultAccountLabel,
   getDefaultAccountPfp
 } from '@web/modules/account-personalize/libs/defaults'
+import Stepper from '@web/modules/router/components/Stepper'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -93,7 +93,11 @@ const AccountPersonalizeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withAmbireLogo />}
+      header={
+        <Header mode="custom-inner-content" withAmbireLogo>
+          <Stepper />
+        </Header>
+      }
       footer={
         <>
           <BackButton />
