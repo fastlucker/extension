@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
+import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
@@ -39,6 +40,13 @@ const Routes = ({
       label: t('Bridge'),
       route: BRIDGE_URL,
       isExternal: true
+    },
+    {
+      icon: DAppsIcon,
+      label: t('dApps'),
+      route: '',
+      isExternal: true,
+      disabled: true
     }
   ]
 
@@ -50,6 +58,7 @@ const Routes = ({
           style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mrMd]}
         >
           <NavIconWrapper
+            disabled={routeItem.disabled}
             onPress={() => {
               if (routeItem?.onPress) {
                 routeItem.onPress()
@@ -73,7 +82,7 @@ const Routes = ({
           >
             <routeItem.icon color={theme.primary} width={24} height={24} />
           </NavIconWrapper>
-          <Text weight="regular" fontSize={14}>
+          <Text weight="regular" fontSize={14} style={routeItem.disabled && { opacity: 0.4 }}>
             {routeItem.label}
           </Text>
         </View>

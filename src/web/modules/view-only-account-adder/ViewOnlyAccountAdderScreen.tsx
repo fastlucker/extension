@@ -28,6 +28,7 @@ import {
 } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
   const accountAddresses = accounts.map((account) => account.address.toLowerCase())
@@ -48,6 +49,7 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
+  const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const {
@@ -115,23 +117,21 @@ const ViewOnlyScreen = () => {
 
     const accountsToAdd = await Promise.all(accountsToAddP)
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_ACCOUNTS',
+      type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
       params: { accounts: accountsToAdd }
     })
   }, [accounts, dispatch])
 
   useEffect(() => {
+    // Navigate when the default preferences for the new accounts are added,
+    // indicating the final steps for the view-only account adding flow completes.
     const newAccountsAddresses = accounts.map((x) => x.address)
-    const areNewAccountsAdded = mainControllerState.accounts.some((account) =>
-      newAccountsAddresses.includes(account.addr)
-    )
-    if (areNewAccountsAdded) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: newAccountsAddresses[0] }
-      })
-
+    const areDefaultAccountPreferencesAdded = Object.keys(
+      settingsControllerState.accountPreferences
+    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
+    if (areDefaultAccountPreferencesAdded) {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: {
           accounts: mainControllerState.accounts.filter((account) =>
@@ -140,7 +140,13 @@ const ViewOnlyScreen = () => {
         }
       })
     }
-  }, [accounts, dispatch, mainControllerState.accounts, navigate])
+  }, [
+    accounts,
+    dispatch,
+    mainControllerState.accounts,
+    navigate,
+    settingsControllerState.accountPreferences
+  ])
 
   return (
     <TabLayoutContainer

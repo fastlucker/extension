@@ -3,7 +3,6 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
-import { Key } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -27,13 +26,9 @@ import {
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
-import {
-  getDefaultAccountLabel,
-  getDefaultAccountPfp
-} from '@web/modules/account-personalize/libs/defaults'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const AccountPersonalizeScreen = () => {
@@ -42,18 +37,15 @@ const AccountPersonalizeScreen = () => {
   const { stepperState, updateStepperState } = useStepper()
   const { params } = useRoute()
   const { theme } = useTheme()
-  const mainCtrl = useMainControllerState()
+  const settingsCtrl = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const newAccounts: Account[] = params?.accounts || []
-  const keyType: Key['type'] = params?.keyType || ''
-  const keyTypeInternalSubtype: 'seed' | 'private-key' = params?.keyTypeInternalSubtype || ''
-  const prevAccountsCount = mainCtrl.accounts.length - newAccounts.length
   const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
       preferences: newAccounts.map((acc, i) => ({
         account: acc,
-        label: getDefaultAccountLabel(acc, prevAccountsCount, i, keyType, keyTypeInternalSubtype),
-        pfp: getDefaultAccountPfp(prevAccountsCount, i)
+        label: settingsCtrl.accountPreferences[acc.addr].label,
+        pfp: settingsCtrl.accountPreferences[acc.addr].pfp
       }))
     }
   })

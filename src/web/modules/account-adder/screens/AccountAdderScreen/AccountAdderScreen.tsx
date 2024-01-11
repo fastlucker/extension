@@ -24,6 +24,7 @@ import {
   TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -46,6 +47,7 @@ const AccountAdderScreen = () => {
   const { goBack } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
   const [enableEmailVaultRecovery, setEnableEmailVaultRecovery] = useState(false)
   const { keyType, privKeyOrSeed, label } = params as {
@@ -114,10 +116,14 @@ const AccountAdderScreen = () => {
               accountAdderState.accountsLoading ||
               accountAdderState.addAccountsStatus === 'LOADING' ||
               (!accountAdderState.selectedAccounts.length &&
-                !accountAdderState.preselectedAccounts.length)
+                !accountAdderState.preselectedAccounts.length) ||
+              (mainControllerState.status === 'LOADING' &&
+                mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
             }
             text={
-              accountAdderState.addAccountsStatus === 'LOADING'
+              accountAdderState.addAccountsStatus === 'LOADING' ||
+              (mainControllerState.status === 'LOADING' &&
+                mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
                 ? t('Importing...')
                 : accountAdderState.preselectedAccounts.length &&
                   !accountAdderState.selectedAccounts.length
