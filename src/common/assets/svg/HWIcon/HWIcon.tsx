@@ -1,55 +1,35 @@
 import React from 'react'
 import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 interface Props extends SvgProps {
   width?: number
   height?: number
 }
 
-const HWIcon: React.FC<Props> = ({ width = 96, height = 96, color, ...rest }) => (
-  <Svg width={width} height={height} viewBox="0 0 96 96" {...rest}>
-    <G transform="translate(-350.5 -242.5)">
-      <G transform="translate(-237.337 -111.756)">
-        <Path
-          d="M41.459,0H6.541A6.441,6.441,0,0,0,0,6.338l.01,39.2a6.194,6.194,0,0,0,1.077,3.481L9.325,61.146A6.6,6.6,0,0,0,14.789,64H33.148a6.6,6.6,0,0,0,5.464-2.854l8.241-12.133a6.2,6.2,0,0,0,1.077-3.472L48,6.348A6.441,6.441,0,0,0,41.459,0"
-          transform="translate(609.337 366.756)"
-          fill={color || colors.violet}
-          stroke={color || colors.melrose}
-          strokeWidth="1"
-          opacity="0"
-        />
-        <Path
-          d="M41.459,0H6.541A6.441,6.441,0,0,0,0,6.338l.01,39.2a6.194,6.194,0,0,0,1.077,3.481L9.325,61.146A6.6,6.6,0,0,0,14.789,64H33.148a6.6,6.6,0,0,0,5.464-2.854l8.241-12.133a6.2,6.2,0,0,0,1.077-3.472L48,6.348A6.441,6.441,0,0,0,41.459,0"
-          transform="translate(609.337 366.756)"
-          fill="none"
-          stroke={color || colors.melrose}
-          strokeWidth="2"
-        />
-        <G transform="translate(617.224 379.729)">
-          <G fill="none" stroke={color || colors.melrose} strokeWidth="2">
-            <Rect width="32.226" height="20.293" rx="2" stroke="none" />
-            <Rect x="1" y="1" width="30.226" height="18.293" rx="1" fill="none" />
-          </G>
-          <G
-            transform="translate(0 24.976)"
-            fill="none"
-            stroke={color || colors.melrose}
-            strokeWidth="2"
-          >
-            <Rect width="12.89" height="6.244" rx="2" stroke="none" />
-            <Rect x="1" y="1" width="10.89" height="4.244" rx="1" fill="none" />
-          </G>
-          <G
-            transform="translate(19.335 24.976)"
-            fill="none"
-            stroke={color || colors.melrose}
-            strokeWidth="2"
-          >
-            <Rect width="12.89" height="6.244" rx="2" stroke="none" />
-            <Rect x="1" y="1" width="10.89" height="4.244" rx="1" fill="none" />
-          </G>
+const HWIcon: React.FC<Props> = ({ width = 27, height = 36, color = iconColors.primary }) => (
+  <Svg width={width} height={height} viewBox="0 0 27.167 35.722">
+    <G transform="translate(0.75 0.75)">
+      <Path
+        d="M22.169,0H3.5A3.444,3.444,0,0,0,0,3.389l.006,20.96a3.312,3.312,0,0,0,.576,1.862l4.4,6.485a3.528,3.528,0,0,0,2.922,1.526h9.817A3.528,3.528,0,0,0,20.647,32.7l4.407-6.488a3.313,3.313,0,0,0,.576-1.857l.038-20.958A3.444,3.444,0,0,0,22.169,0"
+        transform="translate(0 0)"
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+      />
+      <G transform="translate(4.217 6.937)">
+        <G fill="none" stroke={color} strokeWidth="1.5">
+          <Rect width="17.232" height="10.851" rx="2" stroke="none" />
+          <Rect x="0.75" y="0.75" width="15.732" height="9.351" rx="1.25" fill="none" />
+        </G>
+        <G transform="translate(0 13.355)" fill="none" stroke={color} strokeWidth="1.5">
+          <Rect width="6.893" height="3.339" rx="1.669" stroke="none" />
+          <Rect x="0.75" y="0.75" width="5.393" height="1.839" rx="0.919" fill="none" />
+        </G>
+        <G transform="translate(10.339 13.355)" fill="none" stroke={color} strokeWidth="1.5">
+          <Rect width="6.893" height="3.339" rx="1.669" stroke="none" />
+          <Rect x="0.75" y="0.75" width="5.393" height="1.839" rx="0.919" fill="none" />
         </G>
       </G>
     </G>

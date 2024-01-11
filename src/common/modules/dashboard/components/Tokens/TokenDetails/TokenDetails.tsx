@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 
@@ -29,62 +29,6 @@ import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
-const actions = [
-  {
-    text: 'Send',
-    icon: SendIcon,
-    onPress: ({
-      networkId,
-      address,
-      navigate
-    }: TokenResult & { navigate: (url: string) => void }) =>
-      navigate(`transfer?networkId=${networkId}&address=${address}`),
-    isDisabled: false
-  },
-  {
-    text: 'Swap',
-    icon: SwapIcon,
-    onPress: ({ networkId, address }: TokenResult) =>
-      createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
-    isDisabled: false
-  },
-  {
-    text: 'Deposit',
-    icon: DepositIcon,
-    onPress: () => {},
-    isDisabled: true
-  },
-  {
-    text: 'Top Up',
-    icon: TopUpIcon,
-    onPress: () => {},
-    isDisabled: true
-  },
-  {
-    text: 'Earn',
-    icon: EarnIcon,
-    onPress: () => {},
-    isDisabled: true
-  },
-  {
-    text: 'Bridge',
-    icon: BridgeIcon,
-    onPress: () => createTab(BRIDGE_URL),
-    isDisabled: false
-  },
-  {
-    text: 'Withdraw',
-    icon: WithdrawIcon,
-    onPress: () => {},
-    isDisabled: true
-  },
-  {
-    text: 'Token Info',
-    icon: InfoIcon,
-    onPress: () => {},
-    isDisabled: true
-  }
-]
 const { isTab } = getUiType()
 
 const TokenDetails = ({
@@ -98,6 +42,62 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+
+  const actions = useMemo(
+    () => [
+      {
+        text: t('Send'),
+        icon: SendIcon,
+        onPress: ({ networkId, address }: TokenResult) =>
+          navigate(`transfer?networkId=${networkId}&address=${address}`),
+        isDisabled: false
+      },
+      {
+        text: t('Swap'),
+        icon: SwapIcon,
+        onPress: ({ networkId, address }: TokenResult) =>
+          createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+        isDisabled: false
+      },
+      {
+        text: t('Deposit'),
+        icon: DepositIcon,
+        onPress: () => {},
+        isDisabled: true
+      },
+      {
+        text: t('Top Up'),
+        icon: TopUpIcon,
+        onPress: () => {},
+        isDisabled: true
+      },
+      {
+        text: t('Earn'),
+        icon: EarnIcon,
+        onPress: () => {},
+        isDisabled: true
+      },
+      {
+        text: t('Bridge'),
+        icon: BridgeIcon,
+        onPress: () => createTab(BRIDGE_URL),
+        isDisabled: false
+      },
+      {
+        text: t('Withdraw'),
+        icon: WithdrawIcon,
+        onPress: () => {},
+        isDisabled: true
+      },
+      {
+        text: t('Token Info'),
+        icon: InfoIcon,
+        onPress: () => {},
+        isDisabled: true
+      }
+    ],
+    [navigate, t]
+  )
 
   if (!token) return null
 
@@ -190,7 +190,7 @@ const TokenDetails = ({
               ]}
               disabled={action.isDisabled}
               onPress={() => {
-                action.onPress({ ...token, navigate })
+                action.onPress(token)
                 handleClose()
               }}
             >
