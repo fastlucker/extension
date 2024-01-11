@@ -32,6 +32,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
+import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -570,8 +571,26 @@ async function init() {
                 data.params.readyToAddKeyPreferences
               )
             }
-            case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
-              return mainCtrl.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
+              const prevAccountsCount = mainCtrl.accounts.length
+              const defaultAccountPreferences = getDefaultAccountPreferences(
+                data.params.accounts,
+                prevAccountsCount
+              )
+
+              // Since these accounts are view-only, directly add them in the
+              // MainController, bypassing the AccountAdder flow.
+              await mainCtrl.addAccounts(data.params.accounts)
+
+              // And manually trigger some of the `onAccountAdderSuccess` steps
+              // that are needed for view-only accounts, since the AccountAdder
+              // flow was bypassed and the `onAccountAdderSuccess` subscription
+              // in the MainController won't click.
+              return Promise.all([
+                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.selectAccount(data.params.accounts[0].addr)
+              ])
+            }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':

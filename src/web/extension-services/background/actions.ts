@@ -83,7 +83,7 @@ type MainControllerAccountAdderAddAccounts = {
   }
 }
 type MainControllerAddAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
+  type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
   params: { accounts: Account[] }
 }
 type MainControllerAccountAdderReset = {
