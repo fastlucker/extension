@@ -48,7 +48,12 @@ const getStyles = (theme: ThemeProps) =>
       height: 3,
       borderRadius: 4,
       backgroundColor: theme.secondaryBorder,
-      top: 10
+      top: 10,
+      ...(isTab
+        ? {
+            display: 'none'
+          }
+        : {})
     },
     backDrop: {
       width: '100%',

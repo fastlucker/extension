@@ -63,7 +63,7 @@ const DAppFooter = () => {
                     color={site?.isConnected ? theme.successText : theme.errorText}
                     fontSize={10}
                   >
-                    {site?.isConnected ? `Connected on ${network.name}` : 'Not connected'}
+                    {site?.isConnected ? t(`Connected on ${network.name}`) : t('Not connected')}
                   </Text>
                 </View>
               </View>
@@ -85,7 +85,7 @@ const DAppFooter = () => {
                 type="danger"
                 size="small"
                 hasBottomSpacing={false}
-                text="Disconnect"
+                text={t('Disconnect')}
                 style={spacings.mrSm}
                 disabled={!site?.isConnected}
                 onPress={() => {
@@ -102,7 +102,7 @@ const DAppFooter = () => {
                 type="secondary"
                 size="small"
                 hasBottomSpacing={false}
-                text="Settings"
+                text={t('Settings')}
                 disabled={!site?.isConnected}
                 onPress={() => {
                   settingsButtonType === 'open' && openBottomSheet()

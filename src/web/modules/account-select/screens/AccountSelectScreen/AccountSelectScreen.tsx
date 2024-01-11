@@ -14,7 +14,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import Account from '@web/modules/account-select/components/Account'
@@ -34,7 +34,7 @@ const AccountSelectScreen = () => {
       footer={<BackButton />}
       hideFooterInPopup
     >
-      <View style={[flexboxStyles.flex1, spacings.pv]}>
+      <View style={[flexbox.flex1, spacings.pv]}>
         <View style={styles.container}>
           <Search control={control} placeholder="Search for account" style={styles.searchBar} />
         </View>
@@ -55,7 +55,7 @@ const AccountSelectScreen = () => {
             type="secondary"
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
-            style={{ maxWidth: TAB_CONTENT_WIDTH, alignSelf: 'center', width: '100%' }}
+            style={{ maxWidth: TAB_CONTENT_WIDTH, ...flexbox.alignSelfCenter, width: '100%' }}
           />
         </View>
       </View>
