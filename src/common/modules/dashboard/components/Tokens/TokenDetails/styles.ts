@@ -6,12 +6,10 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  closeIcon: ViewStyle
   tokenInfoAndIcon: ViewStyle
   tokenInfo: ViewStyle
   tokenSymbolAndNetwork: ViewStyle
   balance: ViewStyle
-  network: ViewStyle
   networkIcon: ViewStyle
   actionsContainer: ViewStyle
   action: ViewStyle
@@ -19,18 +17,28 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    closeIcon: { position: 'absolute', zIndex: 1, right: 0, top: 0 },
-    tokenInfoAndIcon: { ...flexbox.directionRow, ...spacings.mb },
-    tokenInfo: { ...spacings.mlSm },
-    balance: { ...flexbox.directionRow },
-    network: { ...flexbox.directionRow, ...flexbox.alignCenter, ...spacings.mlSm },
+    tokenInfoAndIcon: {
+      ...flexbox.directionRow,
+      ...spacings.mb,
+      ...flexbox.flex1,
+      ...flexbox.alignCenter
+    },
+    tokenInfo: {
+      ...spacings.plTy,
+      ...flexbox.flex1
+    },
+    balance: {
+      ...flexbox.directionRow
+    },
     networkIcon: {
       width: 20,
       height: 20,
       backgroundColor: theme.secondaryBackground,
       borderRadius: 12
     },
-    tokenSymbolAndNetwork: { ...flexbox.directionRow },
+    tokenSymbolAndNetwork: {
+      ...flexbox.directionRow
+    },
     actionsContainer: {
       ...spacings.phLg,
       ...spacings.pv,

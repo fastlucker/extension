@@ -21,6 +21,8 @@ import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
+import { iconColors } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
@@ -120,9 +122,6 @@ const TokenDetails = ({
 
   return (
     <View>
-      <Pressable onPress={handleClose} style={styles.closeIcon}>
-        <CloseIcon width={isTab ? 16 : 12} height={isTab ? 16 : 12} color={theme.primaryText} />
-      </Pressable>
       <View style={styles.tokenInfoAndIcon}>
         <TokenIcon
           containerHeight={48}
@@ -137,31 +136,31 @@ const TokenDetails = ({
         />
         <View style={styles.tokenInfo}>
           <View style={styles.tokenSymbolAndNetwork}>
-            <Text fontSize={20} weight="semiBold">
-              {symbol}
-            </Text>
-            <View style={styles.network}>
-              <Text weight="regular" shouldScale={false} fontSize={16}>
-                {isRewards && t('rewards for claim')}
-                {isVesting && t('claimable early supporters vesting')}
-                {!isRewards && !isVesting && t('on')}{' '}
+            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
+              <Text>
+                <Text fontSize={20} weight="semiBold" style={spacings.mrSm}>
+                  {symbol}
+                </Text>
+                <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
+                <Text fontSize={16}>{isVesting && t('claimable early supporters vesting')}</Text>
+                <Text fontSize={16}>{!isRewards && !isVesting && t('on')}</Text>
+                <Text fontSize={16}>{onGasTank && t('Gas Tank')}</Text>
+                <Text fontSize={16}>
+                  {!onGasTank && !isRewards && !isVesting && networkData?.name}
+                </Text>{' '}
+                <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+                  ({shortenAddress(address, isRewards || isVesting ? 10 : 22)})
+                </Text>
+                <TouchableOpacity
+                  style={spacings.mlMi}
+                  onPress={() => {
+                    Clipboard.setStringAsync(address)
+                    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+                  }}
+                >
+                  <CopyIcon width={16} height={16} color={iconColors.secondary} strokeWidth="1.5" />
+                </TouchableOpacity>
               </Text>
-              <Text weight="regular" style={spacings.mrMi} fontSize={16}>
-                {onGasTank && t('Gas Tank')}
-                {!onGasTank && !isRewards && !isVesting && networkData?.name}
-              </Text>
-              <Text fontSize={16} style={spacings.mrMi}>
-                ({shortenAddress(address, 20)})
-              </Text>
-              <TouchableOpacity
-                style={spacings.mrTy}
-                onPress={() => {
-                  Clipboard.setStringAsync(address)
-                  addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-                }}
-              >
-                <CopyIcon width={16} height={16} />
-              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.balance}>
