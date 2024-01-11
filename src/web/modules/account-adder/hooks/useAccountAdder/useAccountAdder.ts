@@ -7,7 +7,6 @@ import {
 } from '@ambire-common/consts/derivation'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
   getPrivateKeyFromSeed,
@@ -19,11 +18,9 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import {
-  getDefaultAccountLabel,
-  getDefaultAccountPfp,
+  getDefaultAccountPreferences,
   getDefaultKeyLabel
 } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
@@ -42,9 +39,8 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const { addToast } = useToast()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
-  const keystoreState = useKeystoreControllerState()
   const keyTypeInternalSubtype = useMemo(() => {
-    if (keyType !== 'internal' || !privKeyOrSeed) return ''
+    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
 
     return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
   }, [keyType, privKeyOrSeed])
@@ -192,20 +188,13 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       })
     )
 
-    const readyToAddAccountPreferences: AccountPreferences = {}
     const prevAccountsCount = mainControllerState.accounts.length
-    accountAdderState.selectedAccounts.forEach((selectedAcc, i) => {
-      const label = getDefaultAccountLabel(
-        selectedAcc.account,
-        prevAccountsCount,
-        i,
-        keyType,
-        keyTypeInternalSubtype
-      )
-      const pfp = getDefaultAccountPfp(prevAccountsCount, i)
-
-      readyToAddAccountPreferences[selectedAcc.account.addr] = { label, pfp }
-    })
+    const readyToAddAccountPreferences = getDefaultAccountPreferences(
+      accountAdderState.selectedAccounts.map(({ account }) => account),
+      prevAccountsCount,
+      keyType,
+      keyTypeInternalSubtype
+    )
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({

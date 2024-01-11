@@ -1,5 +1,6 @@
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
   isDerivedForSmartAccountKeyOnly,
   isSmartAccount
@@ -20,14 +21,14 @@ export const getDefaultAccountLabel = (
   account: Account,
   prevAccountsCount: number,
   i: number,
-  keyType: Key['type'],
-  keyTypeInternalSubtype: keyof typeof KEY_SUBTYPE_TO_LABEL | ''
+  keyType?: Key['type'],
+  keyTypeInternalSubtype?: keyof typeof KEY_SUBTYPE_TO_LABEL
 ) => {
   const suffix =
     !keyType && !keyTypeInternalSubtype
       ? '(View Only)'
       : `(${isSmartAccount(account) ? 'Ambire via' : 'Legacy from'} ${
-          HARDWARE_WALLET_DEVICE_NAMES[keyType] ||
+          (keyType && HARDWARE_WALLET_DEVICE_NAMES[keyType]) ||
           KEY_SUBTYPE_TO_LABEL[keyTypeInternalSubtype as keyof typeof KEY_SUBTYPE_TO_LABEL] ||
           keyTypeInternalSubtype
         })`
@@ -55,4 +56,28 @@ export const getDefaultKeyLabel = (
     customLabel || (keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType])
 
   return `${prefix} (${from}) from slot ${slot}`
+}
+
+export const getDefaultAccountPreferences = (
+  accounts: Account[],
+  prevAccountsCount: number,
+  keyType?: Key['type'],
+  keyTypeInternalSubtype?: 'seed' | 'private-key'
+) => {
+  const defaultAccountPreferences: AccountPreferences = {}
+
+  accounts.forEach((account, i) => {
+    const label = getDefaultAccountLabel(
+      account,
+      prevAccountsCount,
+      i,
+      keyType,
+      keyTypeInternalSubtype
+    )
+    const pfp = getDefaultAccountPfp(prevAccountsCount, i)
+
+    defaultAccountPreferences[account.addr] = { label, pfp }
+  })
+
+  return defaultAccountPreferences
 }
