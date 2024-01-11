@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import 'setImmediate'
+import 'setimmediate'
 
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
@@ -10,6 +10,7 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -31,6 +32,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
+import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -354,8 +356,6 @@ async function init() {
     if (mainCtrl.isReady && mainCtrl.selectedAccount) {
       fetchPortfolioData()
     }
-
-    mainCtrl.activity.setAccounts(mainCtrl.accountStates)
   })
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
@@ -496,9 +496,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
             }
-            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-              return mainCtrl.settings.addKeyPreferences(data.params)
-            }
             case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
               return mainCtrl.updateNetworkPreferences(
                 data.params.networkPreferences,
@@ -529,10 +526,71 @@ async function init() {
                 networks,
                 providers: rpcProviders
               })
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
-              return mainCtrl.accountAdder.addAccounts(data.params.selectedAccounts)
-            case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
-              return mainCtrl.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
+              const readyToAddKeys: ReadyToAddKeys = {
+                internal: data.params.readyToAddKeys.internal,
+                external: []
+              }
+
+              if (data.params.readyToAddKeys.externalTypeOnly) {
+                const keyType = data.params.readyToAddKeys.externalTypeOnly
+
+                const deviceIds: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceId,
+                  trezor: trezorCtrl.deviceId,
+                  lattice: latticeCtrl.deviceId
+                }
+
+                const deviceModels: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceModel,
+                  trezor: trezorCtrl.deviceModel,
+                  lattice: latticeCtrl.deviceModel
+                }
+
+                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
+                  ({ accountKeyAddr, index }) => ({
+                    addr: accountKeyAddr,
+                    type: keyType,
+                    meta: {
+                      deviceId: deviceIds[keyType],
+                      deviceModel: deviceModels[keyType],
+                      // always defined in the case of external keys
+                      hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                      index
+                    }
+                  })
+                )
+
+                readyToAddKeys.external = readyToAddExternalKeys
+              }
+
+              return mainCtrl.accountAdder.addAccounts(
+                data.params.selectedAccounts,
+                data.params.readyToAddAccountPreferences,
+                readyToAddKeys,
+                data.params.readyToAddKeyPreferences
+              )
+            }
+            case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
+              const prevAccountsCount = mainCtrl.accounts.length
+              const defaultAccountPreferences = getDefaultAccountPreferences(
+                data.params.accounts,
+                prevAccountsCount
+              )
+
+              // Since these accounts are view-only, directly add them in the
+              // MainController, bypassing the AccountAdder flow.
+              await mainCtrl.addAccounts(data.params.accounts)
+
+              // And manually trigger some of the `onAccountAdderSuccess` steps
+              // that are needed for view-only accounts, since the AccountAdder
+              // flow was bypassed and the `onAccountAdderSuccess` subscription
+              // in the MainController won't click.
+              return Promise.all([
+                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.selectAccount(data.params.accounts[0].addr)
+              ])
+            }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
@@ -618,43 +676,10 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { keyType } = data.params
-
-              const deviceIds: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceId,
-                trezor: trezorCtrl.deviceId,
-                lattice: latticeCtrl.deviceId
-              }
-
-              const deviceModels: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceModel,
-                trezor: trezorCtrl.deviceModel,
-                lattice: latticeCtrl.deviceModel
-              }
-
-              const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, index }) => ({
-                  addr: accountKeyAddr,
-                  type: keyType,
-                  meta: {
-                    deviceId: deviceIds[keyType],
-                    deviceModel: deviceModels[keyType],
-                    // always defined in the case of external keys
-                    hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                    index
-                  }
-                })
-              )
-
-              return mainCtrl.keystore.addKeysExternallyStored(keys)
-            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
               return mainCtrl.keystore.lock()
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
-              return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
             case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
