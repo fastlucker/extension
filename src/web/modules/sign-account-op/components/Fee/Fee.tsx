@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -11,9 +12,9 @@ import getStyles from './styles'
 
 interface Props {
   label: string
-  type: string
+  type: FeeSpeed
   amount: string
-  onPress: (fee: string) => void
+  onPress: (fee: FeeSpeed) => void
   isSelected: boolean
   isLastItem: boolean
   isViewOnly: boolean
