@@ -717,6 +717,18 @@ async function init() {
               permissionService.removeConnectedSite(data.params.origin)
               break
             }
+            case 'CHANGE_CURRENT_DAPP_NETWORK': {
+              permissionService.updateConnectSite(
+                data.params.origin,
+                { chainId: data.params.chainId },
+                true
+              )
+              sessionService.broadcastEvent('chainChanged', {
+                chain: `0x${data.params.chainId.toString(16)}`,
+                networkVersion: `${data.params.chainId}`
+              })
+              break
+            }
 
             default:
               return console.error(
