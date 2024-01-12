@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react'
-import { ColorValue, Pressable, View, ViewStyle } from 'react-native'
+import { ColorValue, Pressable, PressableProps, View, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import commonStyles from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-interface Props {
+interface Props extends PressableProps {
   children: ReactNode
   onPress: () => any
   hoverBackground?: ColorValue
@@ -14,6 +14,7 @@ interface Props {
   style?: ViewStyle
   width?: number
   height?: number
+  disabled?: boolean
 }
 
 const NavIconWrapper = ({
@@ -25,11 +26,12 @@ const NavIconWrapper = ({
   width = 40,
   height = 40,
   hoverBorderColor,
+  disabled,
   ...rest
 }: Props) => {
   const childrenArray = React.Children.toArray(children)
   return (
-    <Pressable onPress={onPress} {...rest}>
+    <Pressable onPress={onPress} style={disabled && { opacity: 0.4 }} disabled={disabled} {...rest}>
       {({ hovered }: any) => (
         <View
           style={{

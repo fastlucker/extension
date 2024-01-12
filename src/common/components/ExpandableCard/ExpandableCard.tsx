@@ -18,6 +18,7 @@ type Props = {
   hasArrow?: boolean
   arrowPosition?: 'left' | 'right'
   children?: ReactElement | ReactElement[]
+  contentStyle?: ViewStyle
 }
 
 const ExpandableCard = ({
@@ -27,7 +28,8 @@ const ExpandableCard = ({
   arrowPosition = 'left',
   content,
   expandedContent,
-  children
+  children,
+  contentStyle
 }: Props) => {
   const { styles } = useTheme(getStyles)
   const [isExpanded, setIsExpanded] = useState(!enableExpand)
@@ -35,7 +37,15 @@ const ExpandableCard = ({
   return (
     <View style={[styles.container, style]}>
       <Pressable onPress={() => !!enableExpand && setIsExpanded((prevState) => !prevState)}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.phSm,
+            spacings.pvSm,
+            contentStyle
+          ]}
+        >
           {!!hasArrow &&
             arrowPosition === 'left' &&
             (isExpanded ? <UpArrowIcon /> : <DownArrowIcon />)}

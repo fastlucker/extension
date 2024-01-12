@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
-import Button from '@common/components/Button'
 import { isWeb } from '@common/config/env'
 import usePrevious from '@common/hooks/usePrevious'
+import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
-import { DEVICE_HEIGHT } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
 
 import Backdrop from './Backdrop'
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   id?: string
@@ -21,8 +19,6 @@ interface Props {
   onClosed?: () => void
   children?: React.ReactNode
   // Preferences
-  cancelText?: string
-  displayCancel?: boolean
   adjustToContentHeight?: boolean
   style?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
@@ -36,10 +32,8 @@ const BottomSheet: React.FC<Props> = ({
   id,
   sheetRef,
   children,
-  displayCancel = true,
-  cancelText: _cancelText,
   closeBottomSheet = () => {},
-  adjustToContentHeight = !isWeb,
+  adjustToContentHeight = true,
   style = {},
   onClosed,
   onBackdropPress,
@@ -48,9 +42,7 @@ const BottomSheet: React.FC<Props> = ({
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
-
-  const { t } = useTranslation()
-
+  const { styles } = useTheme(getStyles)
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
       setTimeout(() => {
@@ -81,7 +73,7 @@ const BottomSheet: React.FC<Props> = ({
 
   return (
     <Portal hostName="global">
-      {isBackdropVisible && (
+      {!!isBackdropVisible && (
         <Backdrop
           isVisible={isBackdropVisible}
           isBottomSheetVisible={isOpen}
@@ -99,9 +91,8 @@ const BottomSheet: React.FC<Props> = ({
         handlePosition="inside"
         useNativeDriver={!isWeb}
         avoidKeyboardLikeIOS
-        {...(!isWeb ? { modalTopOffset: HEADER_HEIGHT + 10 } : {})}
-        {...(isWeb ? { modalHeight: DEVICE_HEIGHT - HEADER_HEIGHT - 10 } : {})}
-        threshold={100}
+        modalTopOffset={isWeb ? HEADER_HEIGHT - 20 : HEADER_HEIGHT + 10}
+        threshold={90}
         adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}
         withOverlay={false}
@@ -137,20 +128,7 @@ const BottomSheet: React.FC<Props> = ({
         onClose={() => setIsOpen(false)}
         onClosed={() => !!onClosed && onClosed()}
       >
-        {!flatListProps && (
-          <View style={styles.containerInnerWrapper}>
-            {children}
-            {displayCancel && (
-              <Button
-                type="ghost"
-                onPress={closeBottomSheet}
-                style={styles.cancelBtn}
-                text={_cancelText || (t('Cancel') as string)}
-                hitSlop={{ top: 15, bottom: 15 }}
-              />
-            )}
-          </View>
-        )}
+        {!flatListProps && <View style={styles.containerInnerWrapper}>{children}</View>}
       </Modalize>
     </Portal>
   )

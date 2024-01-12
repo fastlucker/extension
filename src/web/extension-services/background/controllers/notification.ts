@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { ethErrors } from 'eth-rpc-errors'
+import { Linking } from 'react-native'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
+import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -115,31 +117,6 @@ export class NotificationController extends EventEmitter {
         this.openNotificationRequest(this.notificationRequests[0].id)
       }
     })
-
-    // Temporarily disabled because of an unexpected notification window closing on prod.
-    // TODO: needs further investigation to determine where the issue comes from
-    // we will see how a prod build behaves without this logic and if there are no issues
-    // we can permanently delete that part of the code
-    // winMgr.event.on('windowFocusChange', (winId: number) => {
-    //   // Otherwise, inspecting the notification popup (opening console) is
-    //   // triggering the logic and firing `this.rejectNotificationRequest()` call,
-    //   // which is closing the notification popup, and one can't inspect it.
-    //   if (isDev) return
-
-    //   if (IS_CHROME && winId === chrome.windows.WINDOW_ID_NONE && IS_LINUX) {
-    //     // When sign on Linux, will focus on -1 first then focus on sign window
-    //     return
-    //   }
-
-    //   if (this.notificationWindowId && winId !== this.notificationWindowId) {
-    //     if (
-    //       this.currentNotificationRequest &&
-    //       !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
-    //     ) {
-    //       this.rejectNotificationRequest()
-    //     }
-    //   }
-    // })
   }
 
   reopenCurrentNotificationRequest = async () => {
@@ -215,6 +192,14 @@ export class NotificationController extends EventEmitter {
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
+
+      if (data?.hash && data?.networkId) {
+        Linking.openURL(
+          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
+            data?.isUserOp ? '&isUserOp' : ''
+          }`
+        )
+      }
 
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
@@ -408,7 +393,7 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  notifyForClosedUserRequestThatAreStillPending = () => {
+  notifyForClosedUserRequestThatAreStillPending = async () => {
     if (SIGN_METHODS.includes(this.currentNotificationRequest?.params?.method)) {
       const title = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
         ? 'Added Pending Transaction Request'
@@ -418,7 +403,8 @@ export class NotificationController extends EventEmitter {
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
       const id = new Date().getTime()
-      browser.notifications.create(id.toString(), {
+      // service_worker (mv3) - without await the notification doesn't show
+      await browser.notifications.create(id.toString(), {
         type: 'basic',
         iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
         title,

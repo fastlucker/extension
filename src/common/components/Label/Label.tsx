@@ -14,10 +14,23 @@ type Props = {
   type: 'error' | 'warning' | 'info' | 'success'
   hasBottomSpacing?: boolean
   hasRightSpacing?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
-const Label = ({ text, type, hasBottomSpacing = true, hasRightSpacing = true }: Props) => {
-  const { styles } = useTheme(getStyles)
+const sizeMultiplier = {
+  sm: 0.75,
+  md: 0.85,
+  lg: 1
+}
+
+const Label = ({
+  text,
+  type,
+  hasBottomSpacing = true,
+  hasRightSpacing = true,
+  size = 'lg'
+}: Props) => {
+  const { styles, theme } = useTheme(getStyles)
 
   const textStyle = [
     textStyles.capitalize,
@@ -34,13 +47,19 @@ const Label = ({ text, type, hasBottomSpacing = true, hasRightSpacing = true }: 
       ]}
     >
       <View style={spacings.mrTy}>
-        {type === 'warning' && <WarningIcon width={20} height={19} />}
+        {type === 'warning' && (
+          <WarningIcon
+            color={theme.warningDecorative}
+            width={20 * sizeMultiplier[size]}
+            height={19 * sizeMultiplier[size]}
+          />
+        )}
       </View>
       <Text>
-        <Text fontSize={16} weight="semiBold" style={textStyle}>
+        <Text fontSize={16 * sizeMultiplier[size]} weight="semiBold" style={textStyle}>
           {`${type}: `}
         </Text>
-        <Text fontSize={16} weight="regular" style={textStyle}>
+        <Text fontSize={16 * sizeMultiplier[size]} weight="regular" style={textStyle}>
           {text}
         </Text>
       </Text>

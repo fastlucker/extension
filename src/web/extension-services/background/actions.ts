@@ -1,6 +1,8 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  ReadyToAddKeys
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -18,7 +20,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 import { controllersMapping } from './types'
 
@@ -71,10 +72,18 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: { selectedAccounts: AccountAdderController['selectedAccounts'] }
+  params: {
+    selectedAccounts: AccountAdderController['selectedAccounts']
+    readyToAddAccountPreferences: AccountPreferences
+    readyToAddKeys: {
+      internal: ReadyToAddKeys['internal']
+      externalTypeOnly: Key['type']
+    }
+    readyToAddKeyPreferences: KeyPreferences
+  }
 }
 type MainControllerAddAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
+  type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
   params: { accounts: Account[] }
 }
 type MainControllerAccountAdderReset = {
@@ -83,10 +92,6 @@ type MainControllerAccountAdderReset = {
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
-}
-type MainControllerSettingsAddKeyPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
-  params: KeyPreferences
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -112,9 +117,6 @@ type MainControllerAddUserRequestAction = {
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
-}
-type MainControllerRefetchPortfolio = {
-  type: 'MAIN_CONTROLLER_REFETCH_PORTFOLIO'
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -199,12 +201,6 @@ type NotificationControllerRejectRequestAction = {
 type LedgerControllerUnlockAction = {
   type: 'LEDGER_CONTROLLER_UNLOCK'
 }
-type LedgerControllerAppAction = {
-  type: 'LEDGER_CONTROLLER_APP'
-}
-type TrezorControllerUnlockAction = {
-  type: 'TREZOR_CONTROLLER_UNLOCK'
-}
 type LatticeControllerUnlockAction = {
   type: 'LATTICE_CONTROLLER_UNLOCK'
 }
@@ -255,35 +251,24 @@ type MainControllerSignAccountOpUpdateAction = {
 type MainControllerSignAccountOpSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
 }
-type MainControllerSignAccountOpResetAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
-}
-type MainControllerBroadcastSignedAccountOpAction = {
-  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP'
-  params: { accountOp: AccountOp }
-}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
-type KeystoreControllerAddKeysExternallyStored = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-  params: { keyType: Exclude<Key['type'], 'internal'> }
-}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-type KeystoreControllerAddKeysAction = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
+}
+type KeystoreControllerChangePasswordAction = {
+  type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
+  params: { secret: string; newSecret: string }
 }
 
 type WalletControllerGetConnectedSiteAction = {
@@ -316,6 +301,10 @@ type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
   params: { id: number }
 }
+type ChangeCurrentDappNetworkAction = {
+  type: 'CHANGE_CURRENT_DAPP_NETWORK'
+  params: { chainId: number; origin: string }
+}
 
 export type Action =
   | InitControllerStateAction
@@ -328,7 +317,6 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
-  | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
@@ -336,7 +324,6 @@ export type Action =
   | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
-  | MainControllerRefetchPortfolio
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
@@ -353,8 +340,6 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerSignAccountOpResetAction
-  | MainControllerBroadcastSignedAccountOpAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
@@ -362,16 +347,13 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
-  | LedgerControllerAppAction
-  | TrezorControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
-  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
-  | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
+  | KeystoreControllerChangePasswordAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
@@ -380,6 +362,7 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
+  | ChangeCurrentDappNetworkAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
@@ -391,6 +374,5 @@ export type AsyncActionTypes = {
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  TREZOR_CONTROLLER_UNLOCK: ReturnType<TrezorController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
