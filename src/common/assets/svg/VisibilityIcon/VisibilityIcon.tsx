@@ -1,22 +1,27 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
-import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
+import Svg, { Path, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  color?: ColorValue
-}
-
-const VisibilityIcon: React.FC<Props> = ({ width = 24, height = 24, color = colors.titan }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
-    <Rect width="24" height="24" fill="none" />
+const VisibilityIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = iconColors.primary
+}) => (
+  <Svg width={width} fill="none" height={height} viewBox="0 0 24 24">
     <Path
-      d="M11,15a11.731,11.731,0,0,1-6.726-2.1A11.837,11.837,0,0,1,0,7.5a11.818,11.818,0,0,1,22,0,11.836,11.836,0,0,1-4.273,5.4A11.731,11.731,0,0,1,11,15ZM11,2.5a5,5,0,1,0,5,5A5.005,5.005,0,0,0,11,2.5Zm0,8a3,3,0,1,1,3-3A3,3,0,0,1,11,10.5Z"
-      transform="translate(1 4.5)"
-      fill={color}
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M15.58 12c0 1.98-1.6 3.58-3.58 3.58S8.42 13.98 8.42 12s1.6-3.58 3.58-3.58 3.58 1.6 3.58 3.58Z"
+    />
+    <Path
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+      d="M12 20.27c3.53 0 6.82-2.08 9.11-5.68.9-1.41.9-3.78 0-5.19-2.29-3.6-5.58-5.68-9.11-5.68-3.53 0-6.82 2.08-9.11 5.68-.9 1.41-.9 3.78 0 5.19 2.29 3.6 5.58 5.68 9.11 5.68Z"
     />
   </Svg>
 )
