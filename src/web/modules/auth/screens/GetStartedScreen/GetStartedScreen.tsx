@@ -32,14 +32,14 @@ const GetStartedScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
   const wrapperRef: any = useRef(null)
-  const [isNewHotWalletModalOpen, setIsNewHotWalletModalOpen] = useState(false)
+  const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'new-hot-wallet' | 'view-only') => {
+    async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-hot-wallet' | 'view-only') => {
       const hasTerms = await storage.get('termsState', false)
 
-      if (flow === 'new-hot-wallet') {
-        setIsNewHotWalletModalOpen(true)
+      if (flow === 'create-hot-wallet') {
+        setIsCreateHotWalletModalOpen(true)
         return
       }
       if (flow === 'import-hot-wallet') {
@@ -82,8 +82,8 @@ const GetStartedScreen = () => {
           ...spacings.phXl,
           ...spacings.pbLg
         }}
-        onClose={() => setIsNewHotWalletModalOpen(false)}
-        isOpen={isNewHotWalletModalOpen}
+        onClose={() => setIsCreateHotWalletModalOpen(false)}
+        isOpen={isCreateHotWalletModalOpen}
         hideLeftSideContainer
         title={t('Select the recovery option of your new wallet')}
       >
@@ -161,7 +161,7 @@ const GetStartedScreen = () => {
                 strokeWidth: 1.1
               }}
               style={{ ...flexboxStyles.flex1, ...spacings.mr }}
-              onPress={() => handleAuthButtonPress('new-hot-wallet')}
+              onPress={() => handleAuthButtonPress('create-hot-wallet')}
               buttonText={t('Create')}
             />
             <Card
