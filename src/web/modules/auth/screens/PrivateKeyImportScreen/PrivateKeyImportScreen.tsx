@@ -62,7 +62,7 @@ const PrivateKeyImportScreen = () => {
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
 
-    if (!trimmedValue.length) return ''
+    if (!trimmedValue.length) return 'Field is required.'
 
     if (!isValidPrivateKey(trimmedValue)) {
       return 'Invalid private key.'
