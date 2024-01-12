@@ -202,6 +202,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
+                    onSubmitEditing={handleFormSubmit}
                   />
                   {index !== 0 && (
                     <Pressable style={[spacings.ml]} onPress={() => remove(index)}>

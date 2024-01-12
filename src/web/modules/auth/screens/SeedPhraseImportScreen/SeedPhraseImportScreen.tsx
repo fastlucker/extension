@@ -206,6 +206,7 @@ const SeedPhraseImportScreen = () => {
         <>
           <BackButton />
           <Button
+            accessibilityRole="button"
             text={t('Import')}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
@@ -280,6 +281,7 @@ const SeedPhraseImportScreen = () => {
                       onChangeText={(e) => {
                         onChange(e)
                       }}
+                      onSubmitEditing={handleFormSubmit}
                       onKeyPress={(e) => handlePaste(e, index)}
                       onBlur={onBlur}
                     />
