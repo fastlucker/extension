@@ -143,8 +143,6 @@ const SeedPhraseImportScreen = () => {
 
   const handlePaste = useCallback(
     async (e: any, index: number) => {
-      if (index !== 0) return
-
       if (e.key === 'v' && e.ctrlKey) {
         try {
           const clipboardContent = await Clipboard.getStringAsync()
@@ -250,7 +248,7 @@ const SeedPhraseImportScreen = () => {
           <Alert
             style={spacings.mbLg}
             type="info"
-            title="You can paste your entire Seed Phrase in the first field"
+            title="You can paste your entire Seed Phrase in any field"
           />
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {fields.map((field, index) => (
@@ -268,7 +266,6 @@ const SeedPhraseImportScreen = () => {
                   {index + 1}.
                 </Text>
                 <Controller
-                  key={field.id}
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { onChange, onBlur, value } }) => (
