@@ -119,11 +119,7 @@ const KeyStoreSetupScreen = () => {
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}
             disabled={isSubmitting || isKeystoreSetupLoading || !isValid}
-            text={
-              isSubmitting || isKeystoreSetupLoading
-                ? t('Creating a Device Password...')
-                : t('Create a Device Password')
-            }
+            text={isSubmitting || isKeystoreSetupLoading ? t('Creating...') : t('Create')}
             onPress={handleKeystoreSetup}
           >
             <View style={spacings.pl}>
@@ -149,7 +145,7 @@ const KeyStoreSetupScreen = () => {
                   value={value}
                   error={
                     errors.password &&
-                    (t('Please fill in at least 8 characters for password.') as string)
+                    (t('Your password must be unique and at least 8 characters long.') as string)
                   }
                   containerStyle={[spacings.mbTy, { maxWidth: 330 }]}
                   onSubmitEditing={handleKeystoreSetup}
