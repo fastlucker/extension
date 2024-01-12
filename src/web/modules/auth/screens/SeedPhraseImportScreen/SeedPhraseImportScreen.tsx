@@ -100,7 +100,7 @@ const SeedPhraseImportScreen = () => {
       if (!Mnemonic.isValidMnemonic(formattedSeed)) {
         setError('seedFields', {
           type: 'custom',
-          message: 'Invalid Seed Phrase. Please review every field carefully.'
+          message: t('Invalid Seed Phrase. Please review every field carefully.')
         })
         return
       }
@@ -108,7 +108,7 @@ const SeedPhraseImportScreen = () => {
       clearErrors('seedFields')
     })
     return () => unsubscribe()
-  }, [watch, setError, clearErrors])
+  }, [watch, setError, clearErrors, t])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seedFields }) => {
@@ -153,7 +153,7 @@ const SeedPhraseImportScreen = () => {
             words.forEach((word, wordIndex) => {
               setValue(`seedFields.${wordIndex}.value`, word)
             })
-            addToast('Seed Phrase successfully pasted from clipboard')
+            addToast(t('Seed Phrase successfully pasted from clipboard'))
             return
           }
 
@@ -169,20 +169,24 @@ const SeedPhraseImportScreen = () => {
               setValue(`seedFields.${wordIndex}.value`, word)
             })
 
-            addToast(`Updated Seed Length to ${words.length} in order to match clipboard content`)
+            addToast(
+              t('Updated Seed Length to {{seedLength}} in order to match clipboard content', {
+                seedLength: words.length
+              })
+            )
             return
           }
 
           // The user may want to paste the words one by one
           if (words.length === 1) return
 
-          addToast('Invalid Seed Phrase', {
+          addToast(t('Invalid Seed Phrase'), {
             type: 'error'
           })
         } catch (err: any) {
           // console.log(err?.message)
           if (err?.message === 'User denied permission to access clipboard') {
-            addToast('Clipboard access denied. Cannot fill Seed Phrase from contents.', {
+            addToast(t('Clipboard access denied. Cannot fill Seed Phrase from contents.'), {
               type: 'error'
             })
             // Clear the field
@@ -191,7 +195,7 @@ const SeedPhraseImportScreen = () => {
         }
       }
     },
-    [fields, setValue, addToast, updateFieldsLength]
+    [fields, setValue, addToast, updateFieldsLength, t]
   )
 
   return (
@@ -250,7 +254,7 @@ const SeedPhraseImportScreen = () => {
           <Alert
             style={spacings.mbLg}
             type="info"
-            title="You can paste your entire Seed Phrase in any field"
+            title={t('You can paste your entire Seed Phrase in any field')}
           />
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {fields.map((field, index) => (

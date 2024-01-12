@@ -44,8 +44,8 @@ const PrivateKeyImportScreen = () => {
     updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
   }, [updateStepperState])
 
-  const handleFormSubmit = useCallback(() => {
-    handleSubmit(({ privateKey }) => {
+  const handleFormSubmit = useCallback(async () => {
+    await handleSubmit(({ privateKey }) => {
       let formattedPrivateKey = privateKey.trim()
 
       formattedPrivateKey = privateKey.slice(0, 2) === '0x' ? privateKey.slice(2) : privateKey
@@ -62,10 +62,10 @@ const PrivateKeyImportScreen = () => {
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
 
-    if (!trimmedValue.length) return 'Field is required.'
+    if (!trimmedValue.length) return t('Field is required.')
 
     if (!isValidPrivateKey(trimmedValue)) {
-      return 'Invalid private key.'
+      return t('Invalid private key.')
     }
 
     return undefined
