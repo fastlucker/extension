@@ -15,6 +15,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import Card from '../../components/Card'
 import options from './options'
@@ -23,12 +24,17 @@ const HotWalletImportSelectorScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
+  const { isReadyToStoreKeys } = useKeystoreControllerState()
 
   const onOptionPress = async (flow: string) => {
     const termsAccepted = await storage.get('termsState', false)
 
     if (!termsAccepted) {
       navigate(WEB_ROUTES.terms, { state: { flow } })
+      return
+    }
+    if (!isReadyToStoreKeys) {
+      navigate(WEB_ROUTES.keyStoreSetup, { state: { flow } })
       return
     }
     if (flow === 'private-key') {
