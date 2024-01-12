@@ -16,6 +16,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -59,6 +60,7 @@ const DashboardScreen = () => {
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
+  const [networkExplorersHovered, setNetworkExplorersHovered] = useState(false)
   const route = useRoute()
 
   const { control, watch } = useForm({
@@ -204,21 +206,34 @@ const DashboardScreen = () => {
                     <RefreshIcon width={16} height={16} />
                   </AnimatedPressable>
                 </View>
-                <View style={styles.networks}>
-                  {networksWithAssets.map((networkId, index) => (
-                    <Pressable
-                      onPress={() => openExplorer(networkId)}
-                      key={networkId}
-                      style={({ hovered }: any) => [
-                        styles.networkIconContainer,
-                        { zIndex: networksWithAssets.length - index },
-                        hovered && styles.networkIconContainerHovered
-                      ]}
-                    >
-                      <NetworkIcon style={styles.networkIcon} name={networkId} />
-                    </Pressable>
-                  ))}
-                </View>
+                <Pressable
+                  // @ts-ignore cursor:default is web style
+                  style={({ hovered }: any) => [
+                    styles.networks,
+                    hovered && isWeb ? { cursor: 'default' } : {}
+                  ]}
+                >
+                  {({ hovered: parentHovered }: any) =>
+                    networksWithAssets.map((networkId, index) => (
+                      <Pressable
+                        onPress={() => openExplorer(networkId)}
+                        key={networkId}
+                        style={({ hovered: networkHovered }: any) => [
+                          styles.networkIconContainer,
+                          { zIndex: networksWithAssets.length - index },
+                          networkHovered && styles.networkIconContainerHovered,
+                          {
+                            marginRight: parentHovered || networkExplorersHovered ? 8 : 0
+                          }
+                        ]}
+                        onHoverIn={() => setNetworkExplorersHovered(true)}
+                        onHoverOut={() => setNetworkExplorersHovered(false)}
+                      >
+                        <NetworkIcon style={styles.networkIcon} name={networkId} />
+                      </Pressable>
+                    ))
+                  }
+                </Pressable>
               </View>
               <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
             </View>
