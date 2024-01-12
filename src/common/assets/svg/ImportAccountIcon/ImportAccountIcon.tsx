@@ -3,15 +3,11 @@ import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const ImportAccountIcon: React.FC<Props> = ({
+const ImportAccountIcon: React.FC<SvgProps> = ({
   width = 32,
   height = 32,
-  color = iconColors.primary
+  color = iconColors.primary,
+  strokeWidth = 1.5
 }) => (
   <Svg width={width} height={height} viewBox="0 0 32.186 32.259">
     <G transform="translate(0.75 0.75)">
@@ -23,7 +19,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M21.568,22.2c0-3.434-3.419-6.234-7.648-6.234S6.271,18.755,6.271,22.2"
@@ -32,7 +28,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M30,17A13.956,13.956,0,1,1,21.454,4.091a5.974,5.974,0,0,0-.295,1.857,5.778,5.778,0,0,0,.855,3.036,5.428,5.428,0,0,0,1.12,1.341,5.778,5.778,0,0,0,3.92,1.518,5.432,5.432,0,0,0,1.842-.31A14.1,14.1,0,0,1,30,17Z"
@@ -41,7 +37,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           stroke={color}
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
       </G>
       <G transform="translate(19.132)">
@@ -53,7 +49,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeMiterlimit="10"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M21.815,4.98h-4.3"
@@ -63,7 +59,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeMiterlimit="10"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
         <Path
           d="M19,3.52V7.838"
@@ -73,7 +69,7 @@ const ImportAccountIcon: React.FC<Props> = ({
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeMiterlimit="10"
-          strokeWidth="1.5"
+          strokeWidth={strokeWidth}
         />
       </G>
     </G>
