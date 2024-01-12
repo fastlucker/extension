@@ -4,8 +4,8 @@ import { Circle, G, Path, Svg, SvgProps } from 'react-native-svg'
 import colors from '@common/styles/colors'
 
 const ViewOnlyIcon: FC<SvgProps> = ({
-  width = 63,
-  height = 40,
+  width = 65,
+  height = 42,
   color = colors.martinique,
   ...rest
 }) => {
