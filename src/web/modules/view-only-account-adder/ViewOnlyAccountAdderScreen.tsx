@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native'
 import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -157,9 +158,10 @@ const ViewOnlyScreen = () => {
           <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
+            style={{ minWidth: 180 }}
             disabled={!isValid || duplicateAccountsIndexes.length > 0}
             hasBottomSpacing={false}
-            text={t('Import View-Only Accounts')}
+            text={t('Import')}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -170,7 +172,7 @@ const ViewOnlyScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('View-Only Accounts')}>
+        <Panel title={t('Import A Wallet In View-Only Mode')}>
           {fields.map((field, index) => (
             <Controller
               key={field.id}
@@ -221,7 +223,7 @@ const ViewOnlyScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="View-only mode">
+        <TabLayoutWrapperSideContentItem icon={ViewOnlyIcon} title="View-only mode">
           <TabLayoutWrapperSideContentItem.Text>
             Importing an account in the view-only mode lets you preview any public wallet address on
             any supported network. You can observe its balances or connect to dApps with it. Of
