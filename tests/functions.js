@@ -51,12 +51,10 @@ export async function setAmbKeyStoreForLegacy(page) {
     try {
         await page.waitForXPath('//*[contains(text(), "Welcome to Ambire")]')
 
-        /* Check the checkbox "I agree...".  */
-        const importLegacyButton = await page.waitForSelector('xpath///div[contains(text(), "Import Legacy Account")]');
-        await importLegacyButton.click();
+        /* Select Tab 'Import Legacy Account' */
+        await clickOnElement(page, '[data-testid="Import Legacy Account"]')
 
         await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
-
         /* Check the checkbox "I agree...". */
         const iAgreeCheckbox = await page.waitForSelector('xpath///div[contains(text(), "I agree to the Terms of Service and Privacy Policy.")]');
         await iAgreeCheckbox.click();

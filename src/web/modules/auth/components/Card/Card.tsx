@@ -68,6 +68,7 @@ const Card: React.FC<Props> = ({
       )}
       {!!buttonText && (
         <Button
+          testID={buttonText}
           disabled={isDisabled}
           textStyle={{ fontSize: 14 }}
           style={{ width: '100%' }}

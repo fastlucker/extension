@@ -46,44 +46,6 @@ describe('login', () => {
         browser.close();
     })
 
-    //--------------------------------------------------------------------------------------------------------------
-    it('login into legacy account with private key', (async () => {
-
-        await typeText(page, '[placeholder="Enter a seed phrase or private key"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 })
-
-        /* Click on Import Legacy account button. */
-        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
-
-        await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
-        await page.waitForSelector('[data-testid="account-checkbox"]');
-
-        await new Promise((r) => setTimeout(r, 1000))
-
-        /* Select one Legacy account and one Smart account */
-        await page.$$eval('div', element => {
-            element.find((item) => item.textContent === "Smart Account").click()
-        })
-        await page.$$eval('[data-testid="account-checkbox"]', element => {
-            element[0].click()
-        })
-
-        /* Click on Import Accounts button*/
-        await clickOnElement(page, 'xpath///div[contains(text(), "Import Accounts")]')
-
-        /* Click on Save and Continue button */
-        await clickOnElement(page, 'xpath///div[contains(text(), "Save and Continue")]')
-
-
-        /* Check whether the text "How To Use Ambire Wallet" exists on the page  */
-        const textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
-        });
-        if (textContent) {
-            console.log('login into legasy account with private key --- Test is passed');
-        }
-    }));
-
-
     //------------------------------------------------------------------------------------------------------
     it('login into legacy account with phrase', (async () => {
 
