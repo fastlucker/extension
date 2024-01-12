@@ -87,7 +87,7 @@ const Input = ({
     },
     !!error && { borderColor: theme.errorDecorative },
     isFocused && { borderColor: theme.primary },
-    isValid && isFocused && { borderColor: theme.successDecorative },
+    isValid && !isFocused && { borderColor: theme.successDecorative },
     disabled && styles.disabled,
     inputWrapperStyle
   ]

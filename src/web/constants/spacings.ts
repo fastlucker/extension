@@ -4,6 +4,7 @@ import { engine } from '@web/constants/browserapi'
 
 export const POPUP_WIDTH = 600
 export const TAB_CONTENT_WIDTH = 1048
+export const TAB_WIDE_CONTENT_WIDTH = 1360
 
 // The browser popup window has a top bar that takes some of the height.
 // So this is about the size of this tab bar (magic number), that hopefully 🙏

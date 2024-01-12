@@ -1,0 +1,3 @@
+import HotWalletImportSelectorScreen from './HotWalletImportSelectorScreen'
+
+export default HotWalletImportSelectorScreen

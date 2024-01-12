@@ -3,12 +3,12 @@ import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const HWIcon: React.FC<Props> = ({ width = 27, height = 36, color = iconColors.primary }) => (
+const HWIcon: React.FC<SvgProps> = ({
+  width = 27,
+  height = 36,
+  color = iconColors.primary,
+  strokeWidth = 1.5
+}) => (
   <Svg width={width} height={height} viewBox="0 0 27.167 35.722">
     <G transform="translate(0.75 0.75)">
       <Path
@@ -16,18 +16,23 @@ const HWIcon: React.FC<Props> = ({ width = 27, height = 36, color = iconColors.p
         transform="translate(0 0)"
         fill="none"
         stroke={color}
-        strokeWidth="1.5"
+        strokeWidth={strokeWidth}
       />
       <G transform="translate(4.217 6.937)">
-        <G fill="none" stroke={color} strokeWidth="1.5">
+        <G fill="none" stroke={color} strokeWidth={strokeWidth}>
           <Rect width="17.232" height="10.851" rx="2" stroke="none" />
           <Rect x="0.75" y="0.75" width="15.732" height="9.351" rx="1.25" fill="none" />
         </G>
-        <G transform="translate(0 13.355)" fill="none" stroke={color} strokeWidth="1.5">
+        <G transform="translate(0 13.355)" fill="none" stroke={color} strokeWidth={strokeWidth}>
           <Rect width="6.893" height="3.339" rx="1.669" stroke="none" />
           <Rect x="0.75" y="0.75" width="5.393" height="1.839" rx="0.919" fill="none" />
         </G>
-        <G transform="translate(10.339 13.355)" fill="none" stroke={color} strokeWidth="1.5">
+        <G
+          transform="translate(10.339 13.355)"
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+        >
           <Rect width="6.893" height="3.339" rx="1.669" stroke="none" />
           <Rect x="0.75" y="0.75" width="5.393" height="1.839" rx="0.919" fill="none" />
         </G>

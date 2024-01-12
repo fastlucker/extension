@@ -16,9 +16,9 @@ const getStyles = (theme: ThemeProps) =>
     sideItem: {
       borderWidth: 1,
       ...common.borderRadiusPrimary,
-      ...(IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.phXl : spacings.phMd),
-      ...(IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.pvXl : spacings.pvMd),
-      ...spacings.mbLg
+      ...(IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.phLg : spacings.phMd),
+      ...spacings.pvSm,
+      ...spacings.mbSm
     },
     infoSideItem: {
       borderColor: theme.infoDecorative,

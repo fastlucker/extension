@@ -13,8 +13,10 @@ import AccountSelectScreen from '@web/modules/account-select/screens/AccountSele
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
-import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
+import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
+import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
@@ -58,7 +60,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-
+          <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
           <Route
             path={WEB_ROUTES.hardwareWalletSelect}
             element={<HardwareWalletSelectorScreen />}
@@ -69,7 +71,8 @@ const MainRoutes = () => {
           />
           <Route path={WEB_ROUTES.viewOnlyAccountAdder} element={<ViewOnlyAccountAdderScreen />} />
 
-          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
+          <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
+          <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
