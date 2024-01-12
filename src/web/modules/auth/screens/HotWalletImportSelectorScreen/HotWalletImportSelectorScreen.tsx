@@ -7,7 +7,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -52,7 +52,7 @@ const HotWalletImportSelectorScreen = () => {
       width="lg"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={<BackButton />}
+      footer={<BackButton fallbackBackRoute={ROUTES.getStarted} />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Select one of the following options')}>

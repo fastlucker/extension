@@ -9,7 +9,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -76,7 +76,7 @@ const HardwareWalletSelectorScreen = () => {
           <Stepper />
         </Header>
       }
-      footer={<BackButton />}
+      footer={<BackButton fallbackBackRoute={ROUTES.getStarted} />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Select your Hardware Wallet device')}>

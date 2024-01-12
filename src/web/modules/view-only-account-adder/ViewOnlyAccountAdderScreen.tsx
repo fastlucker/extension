@@ -15,7 +15,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -155,7 +155,7 @@ const ViewOnlyScreen = () => {
       header={<Header withAmbireLogo />}
       footer={
         <>
-          <BackButton />
+          <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
             textStyle={{ fontSize: 14 }}
             style={{ minWidth: 180 }}
