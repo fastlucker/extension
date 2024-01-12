@@ -207,6 +207,7 @@ const SeedPhraseImportScreen = () => {
           <BackButton />
           <Button
             text={t('Import')}
+            style={{ minWidth: 180 }}
             hasBottomSpacing={false}
             disabled={!isValid || !!errors.seedFields?.message}
             onPress={handleFormSubmit}
