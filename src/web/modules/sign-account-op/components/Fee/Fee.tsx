@@ -70,4 +70,4 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly 
   )
 }
 
-export default Fee
+export default React.memo(Fee)

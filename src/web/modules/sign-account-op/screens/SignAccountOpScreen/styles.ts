@@ -36,8 +36,7 @@ const getStyles = (theme: ThemeProps) =>
       height: '100%'
     },
     transactionsContainer: {
-      flex: 1,
-      maxHeight: '50%'
+      flex: 1
     },
     transactionsScrollView: {
       height: '100%',
@@ -51,7 +50,8 @@ const getStyles = (theme: ThemeProps) =>
     },
     simulationSection: {
       ...spacings.mbXl,
-      maxHeight: '50%'
+      maxHeight: '50%',
+      ...spacings.mr
     },
     simulationScrollView: {
       ...spacings.pr,
@@ -73,9 +73,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     separator: {
       width: 1,
-      backgroundColor: theme.secondaryBorder,
-      ...spacings.mr3Xl,
-      ...spacings.ml2Xl
+      backgroundColor: theme.secondaryBorder
     },
     estimationContainer: {
       ...flexbox.flex1

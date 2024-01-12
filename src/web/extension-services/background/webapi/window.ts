@@ -4,7 +4,6 @@ import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
 import {
   MIN_NOTIFICATION_WINDOW_HEIGHT,
-  MIN_NOTIFICATION_WINDOW_WIDTH,
   NOTIFICATION_WINDOW_HEIGHT,
   NOTIFICATION_WINDOW_WIDTH
 } from '@web/constants/spacings'
@@ -77,9 +76,9 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
               : MIN_NOTIFICATION_WINDOW_HEIGHT
 
           const width =
-            Math.round(desiredWidth) > MIN_NOTIFICATION_WINDOW_WIDTH
+            Math.round(desiredWidth) > NOTIFICATION_WINDOW_WIDTH
               ? Math.round(desiredWidth)
-              : MIN_NOTIFICATION_WINDOW_WIDTH
+              : NOTIFICATION_WINDOW_WIDTH
 
           chrome.windows.create(
             {

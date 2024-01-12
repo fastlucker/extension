@@ -59,12 +59,12 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
       <Text fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatUnits(token.amountToSend, token.decimals || 18)}`}
         <Text fontSize={16} weight="medium">{` ${token.symbol}`}</Text>
+        {!!priceInUsd && (
+          <Text fontSize={16} weight="medium">{` ($${
+            Number(priceInUsd) > 0.00099 ? priceInUsd : '0.00'
+          }) `}</Text>
+        )}
       </Text>
-      {!!priceInUsd && (
-        <Text fontSize={16} weight="medium">{` ($${
-          Number(priceInUsd) > 0.00099 ? priceInUsd : '0.00'
-        }) `}</Text>
-      )}
     </View>
   )
 }

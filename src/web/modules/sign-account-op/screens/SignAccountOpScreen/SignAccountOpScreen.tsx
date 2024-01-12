@@ -49,7 +49,6 @@ const SignAccountOpScreen = () => {
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
-
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -145,7 +144,7 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState?.accountOp?.calls, signAccountOpState?.humanReadable])
+  }, [signAccountOpState])
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -202,6 +201,16 @@ const SignAccountOpScreen = () => {
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
+  )
+
+  const pendingSendTokens = useMemo(
+    () => pendingTokens.filter((token) => token.type === 'send'),
+    [pendingTokens]
+  )
+
+  const pendingReceiveTokens = useMemo(
+    () => pendingTokens.filter((token) => token.type === 'receive'),
+    [pendingTokens]
   )
 
   if (mainState.signAccOpInitError) {
@@ -269,49 +278,58 @@ const SignAccountOpScreen = () => {
                 <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                   {t('Simulation results')}
                 </Text>
-                <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignStart]}>
-                  <View style={[styles.simulationContainer, spacings.mrTy]}>
-                    <View style={styles.simulationContainerHeader}>
-                      <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                        {t('Tokens out')}
-                      </Text>
-                    </View>
-                    <ScrollView
-                      style={styles.simulationScrollView}
-                      contentContainerStyle={{ flexGrow: 1 }}
-                      scrollEnabled
+                <View style={[flexbox.directionRow, flexbox.flex1]}>
+                  {!!pendingSendTokens.length && (
+                    <View
+                      style={[
+                        styles.simulationContainer,
+                        !!pendingReceiveTokens.length && spacings.mrTy
+                      ]}
                     >
-                      {pendingTokens.map((token, i) => {
-                        return (
-                          <PendingTokenSummary
-                            key={token.address}
-                            token={token}
-                            networkId={network!.id}
-                            hasBottomSpacing={i < pendingTokens.length - 1}
-                          />
-                        )
-                      })}
-                    </ScrollView>
-                  </View>
-                  <View style={styles.simulationContainer}>
-                    <View style={styles.simulationContainerHeader}>
-                      <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                        {t('Tokens in')}
-                      </Text>
+                      <View style={styles.simulationContainerHeader}>
+                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                          {t('Tokens out')}
+                        </Text>
+                      </View>
+                      <ScrollView
+                        style={styles.simulationScrollView}
+                        contentContainerStyle={{ flexGrow: 1 }}
+                        scrollEnabled
+                      >
+                        {pendingSendTokens.map((token, i) => {
+                          return (
+                            <PendingTokenSummary
+                              key={token.address}
+                              token={token}
+                              networkId={network!.id}
+                              hasBottomSpacing={i < pendingTokens.length - 1}
+                            />
+                          )
+                        })}
+                      </ScrollView>
                     </View>
-                    <ScrollView style={styles.simulationScrollView} scrollEnabled>
-                      {pendingTokens.map((token, i) => {
-                        return (
-                          <PendingTokenSummary
-                            key={token.address}
-                            token={token}
-                            networkId={network!.id}
-                            hasBottomSpacing={i < pendingTokens.length - 1}
-                          />
-                        )
-                      })}
-                    </ScrollView>
-                  </View>
+                  )}
+                  {!!pendingReceiveTokens.length && (
+                    <View style={styles.simulationContainer}>
+                      <View style={styles.simulationContainerHeader}>
+                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                          {t('Tokens in')}
+                        </Text>
+                      </View>
+                      <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                        {pendingReceiveTokens.map((token, i) => {
+                          return (
+                            <PendingTokenSummary
+                              key={token.address}
+                              token={token}
+                              networkId={network!.id}
+                              hasBottomSpacing={i < pendingTokens.length - 1}
+                            />
+                          )
+                        })}
+                      </ScrollView>
+                    </View>
+                  )}
                 </View>
               </View>
             )}
@@ -334,7 +352,14 @@ const SignAccountOpScreen = () => {
               </ScrollView>
             </View>
           </View>
-          <View style={styles.separator} />
+          <View
+            style={[
+              styles.separator,
+              IS_SCREEN_SIZE_DESKTOP_LARGE
+                ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
+                : { ...spacings.mrXl, ...spacings.ml }
+            ]}
+          />
           <View style={styles.estimationContainer}>
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
