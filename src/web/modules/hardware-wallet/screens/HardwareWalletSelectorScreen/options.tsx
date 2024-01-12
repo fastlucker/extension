@@ -12,19 +12,19 @@ const getOptions = ({ onTrezorPress, onLedgerPress, onGridPlusPress }: Props) =>
   {
     title: 'Trezor',
     models: ['Trezor One', 'Trezor Model 3', 'Trezor Model T'],
-    image: () => <TrezorIcon height={80} />,
+    image: TrezorIcon,
     onPress: onTrezorPress
   },
   {
     title: 'Ledger',
     models: ['Ledger Nano', 'Ledger Nano X', 'Ledger Nano S Plus', 'Ledger Stax'],
-    image: () => <LedgerIcon height={80} />,
+    image: LedgerIcon,
     onPress: onLedgerPress
   },
   {
     title: 'GRID+',
     models: ['GRID+ Lattice1'],
-    image: () => <LatticeIcon height={80} />,
+    image: LatticeIcon,
     onPress: onGridPlusPress
   }
 ]

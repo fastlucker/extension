@@ -1,6 +1,7 @@
-import React, { ReactElement } from 'react'
+import React, { FunctionComponent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
@@ -10,7 +11,7 @@ import Card from '@web/modules/auth/components/Card'
 type Props = {
   title: string
   models: string[]
-  image?: () => ReactElement
+  image?: FunctionComponent<SvgProps>
   onPress: () => void
   style?: ViewStyle | ViewStyle[]
 }
@@ -38,6 +39,9 @@ const HardwareWalletSelectorItem = ({ title, models, image, style, onPress }: Pr
         </View>
       }
       icon={image}
+      iconProps={{
+        height: 80
+      }}
       onPress={onPress}
       buttonText={title}
     />
