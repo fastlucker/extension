@@ -1,12 +1,12 @@
 import React from 'react'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 const EmailRecoveryIcon: React.FC<SvgProps> = ({
   width = 50,
   height = 50,
-  color = colors.martinique,
+  color = iconColors.secondary,
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 50 50" {...rest}>

@@ -1,8 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { View } from 'react-native'
 
+import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
-import HotWalletIcon from '@common/assets/svg/HotWalletIcon/HotWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
@@ -154,7 +154,12 @@ const GetStartedScreen = () => {
               text={t(
                 'Create a fresh hot wallet with modern features, including optional smart recovery.'
               )}
-              icon={HotWalletIcon}
+              icon={CreateWalletIcon}
+              iconProps={{
+                width: 60,
+                height: 60,
+                strokeWidth: 1.1
+              }}
               style={{ ...flexboxStyles.flex1, ...spacings.mr }}
               onPress={() => handleAuthButtonPress('new-hot-wallet')}
               buttonText={t('Create')}
