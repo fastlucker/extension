@@ -13,7 +13,15 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
-const PayOption = ({ account, token }: { account: Account; token: TokenResult }) => {
+const PayOption = ({
+  account,
+  token,
+  isGasTank
+}: {
+  account: Account
+  token: TokenResult
+  isGasTank: boolean
+}) => {
   const settingsCtrl = useSettingsControllerState()
   const accountPref = settingsCtrl.accountPreferences[account.addr]
   const pfpSource = getAccountPfpSource(accountPref?.pfp)
@@ -26,7 +34,7 @@ const PayOption = ({ account, token }: { account: Account; token: TokenResult })
         source={pfpSource}
       />
       <Text weight="medium">
-        {label} ({shortenAddress(account.addr, 11)})
+        {label} ({!isGasTank ? shortenAddress(account.addr, 11) : 'Gas Tank'})
       </Text>
       <Text weight="medium"> - </Text>
       <TokenIcon
