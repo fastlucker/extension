@@ -2,16 +2,21 @@ import { EventEmitter } from 'events'
 
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { IS_WINDOWS } from '@web/constants/common'
-import { NOTIFICATION_WINDOW_HEIGHT, NOTIFICATION_WINDOW_WIDTH } from '@web/constants/spacings'
+import {
+  MIN_NOTIFICATION_WINDOW_HEIGHT,
+  MIN_NOTIFICATION_WINDOW_WIDTH,
+  NOTIFICATION_WINDOW_HEIGHT,
+  NOTIFICATION_WINDOW_WIDTH
+} from '@web/constants/spacings'
 
 const event = new EventEmitter()
 
 // if focus other windows, then reject the notification request
-browser.windows.onFocusChanged.addListener((winId) => {
+browser.windows.onFocusChanged.addListener((winId: any) => {
   event.emit('windowFocusChange', winId)
 })
 
-browser.windows.onRemoved.addListener((winId) => {
+browser.windows.onRemoved.addListener((winId: any) => {
   event.emit('windowRemoved', winId)
 })
 
@@ -66,14 +71,24 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
               activeTab.height
           }
 
+          const height =
+            Math.round(desiredHeight) > MIN_NOTIFICATION_WINDOW_HEIGHT
+              ? Math.round(desiredHeight)
+              : MIN_NOTIFICATION_WINDOW_HEIGHT
+
+          const width =
+            Math.round(desiredWidth) > MIN_NOTIFICATION_WINDOW_WIDTH
+              ? Math.round(desiredWidth)
+              : MIN_NOTIFICATION_WINDOW_WIDTH
+
           chrome.windows.create(
             {
               focused: true,
               url,
               type: 'popup',
               ...rest,
-              width: Math.round(desiredWidth),
-              height: Math.round(desiredHeight),
+              width,
+              height,
               left: Math.round(leftPosition),
               top: Math.round(topPosition),
               state: 'normal'
@@ -90,42 +105,7 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
 }
 
 const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
-  const {
-    top: cTop,
-    left: cLeft,
-    width
-  } = await browser.windows.getCurrent({
-    windowTypes: ['normal']
-  })
-
-  const top = cTop
-  const left = cLeft! + width! - WINDOW_SIZE.width
-
-  // const currentWindow = await browser.windows.getCurrent()
-  // For the new Ambire v2 we need a full-screen notification window to
-  // display the all UI elements of the sign txn/msg screens therefore we hardcode it to 'fullscreen'
-  const currentWindow: any = {}
-  currentWindow.state = 'fullscreen'
-
-  let win: any
-  if (currentWindow.state === 'fullscreen') {
-    win = await createFullScreenWindow({ url, ...rest })
-  } else {
-    win = await browser.windows.create({
-      focused: true,
-      url,
-      type: 'popup',
-      top,
-      left,
-      ...WINDOW_SIZE,
-      ...rest
-    })
-  }
-  // shim firefox
-  if (win.left !== left && currentWindow.state !== 'fullscreen') {
-    await browser.windows.update(win.id!, { left, top })
-  }
-
+  const win: any = await createFullScreenWindow({ url, ...rest })
   return win.id
 }
 

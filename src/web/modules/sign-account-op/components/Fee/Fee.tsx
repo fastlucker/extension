@@ -25,11 +25,16 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly 
 
   return (
     <Pressable
-      style={
-        maxWidthSize('xxl')
-          ? [flexbox.flex1, !isLastItem && spacings.mrTy]
-          : [flexbox.flex1, !isLastItem && spacings.mbTy]
-      }
+      style={[
+        flexbox.flex1,
+        maxWidthSize('xxl') && !isLastItem && spacings.mrTy,
+        minWidthSize('xxl') && {
+          minWidth: '50%',
+          maxWidth: '50%',
+          ...spacings.phMi,
+          ...spacings.pvMi
+        }
+      ]}
       disabled={isViewOnly}
       onPress={() => onPress(type)}
     >

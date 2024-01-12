@@ -11,7 +11,13 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import spacings, {
+  IS_SCREEN_SIZE_DESKTOP_LARGE,
+  SPACING,
+  SPACING_2XL,
+  SPACING_3XL,
+  SPACING_XL
+} from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -32,6 +38,8 @@ import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
+const { isTab, isNotification } = getUiType()
+
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
@@ -43,7 +51,7 @@ const SignAccountOpScreen = () => {
   const { networks } = useSettingsControllerState()
 
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
 
   const hasEstimation = useMemo(
@@ -244,12 +252,71 @@ const SignAccountOpScreen = () => {
           onSign={onSignButtonClick}
         />
       }
+      style={
+        isTab || isNotification
+          ? {
+              paddingLeft: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
+              paddingRight: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_2XL : SPACING
+            }
+          : {}
+      }
     >
-      <TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
+            {!!pendingTokens.length && (
+              <View style={styles.simulationSection}>
+                <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+                  {t('Simulation results')}
+                </Text>
+                <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignStart]}>
+                  <View style={[styles.simulationContainer, spacings.mrTy]}>
+                    <View style={styles.simulationContainerHeader}>
+                      <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                        {t('Tokens out')}
+                      </Text>
+                    </View>
+                    <ScrollView
+                      style={styles.simulationScrollView}
+                      contentContainerStyle={{ flexGrow: 1 }}
+                      scrollEnabled
+                    >
+                      {pendingTokens.map((token, i) => {
+                        return (
+                          <PendingTokenSummary
+                            key={token.address}
+                            token={token}
+                            networkId={network!.id}
+                            hasBottomSpacing={i < pendingTokens.length - 1}
+                          />
+                        )
+                      })}
+                    </ScrollView>
+                  </View>
+                  <View style={styles.simulationContainer}>
+                    <View style={styles.simulationContainerHeader}>
+                      <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                        {t('Tokens in')}
+                      </Text>
+                    </View>
+                    <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                      {pendingTokens.map((token, i) => {
+                        return (
+                          <PendingTokenSummary
+                            key={token.address}
+                            token={token}
+                            networkId={network!.id}
+                            hasBottomSpacing={i < pendingTokens.length - 1}
+                          />
+                        )
+                      })}
+                    </ScrollView>
+                  </View>
+                </View>
+              </View>
+            )}
             <View style={styles.transactionsContainer}>
-              <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
               </Text>
               <ScrollView style={styles.transactionsScrollView} scrollEnabled>
@@ -266,60 +333,36 @@ const SignAccountOpScreen = () => {
                 })}
               </ScrollView>
             </View>
-            {!!pendingTokens.length && (
-              <View style={flexbox.flex1}>
-                <View style={spacings.pr}>
-                  <View style={styles.pendingTokensSeparatorContainer}>
-                    <View style={styles.separatorHorizontal} />
-                    <View style={styles.pendingTokensHeadingWrapper}>
-                      <Text fontSize={16} color={theme.secondaryText} weight="medium">
-                        {t('Balance changes')}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
-                  {pendingTokens.map((token) => {
-                    return (
-                      <PendingTokenSummary
-                        key={token.address}
-                        token={token}
-                        networkId={network!.id}
-                      />
-                    )
-                  })}
-                </ScrollView>
-              </View>
-            )}
           </View>
           <View style={styles.separator} />
           <View style={styles.estimationContainer}>
-            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+            <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            {hasEstimation ? (
-              <Estimation
-                mainState={mainState}
-                signAccountOpState={signAccountOpState}
-                accountPortfolio={portfolioState.accountPortfolio}
-                networkId={network!.id}
-                isViewOnly={isViewOnly}
-              />
-            ) : (
-              <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-                <Spinner style={styles.spinner} />
-              </View>
-            )}
-
-            {signAccountOpState.errors.length ? (
-              <View style={styles.errorContainer}>
-                <Alert
-                  type="error"
-                  title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+            <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
+              {hasEstimation ? (
+                <Estimation
+                  mainState={mainState}
+                  signAccountOpState={signAccountOpState}
+                  accountPortfolio={portfolioState.accountPortfolio}
+                  networkId={network!.id}
+                  isViewOnly={isViewOnly}
                 />
-              </View>
-            ) : null}
+              ) : (
+                <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
+
+              {signAccountOpState.errors.length ? (
+                <View style={styles.errorContainer}>
+                  <Alert
+                    type="error"
+                    title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+                  />
+                </View>
+              ) : null}
+            </ScrollView>
           </View>
         </View>
       </TabLayoutWrapperMainContent>

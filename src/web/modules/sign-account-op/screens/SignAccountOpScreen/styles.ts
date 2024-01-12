@@ -1,7 +1,8 @@
-import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -10,11 +11,13 @@ interface Style {
   transactionsContainer: ViewStyle
   transactionsScrollView: ViewStyle
   separatorHorizontal: ViewStyle
-  pendingTokensSeparatorContainer: ViewStyle
-  pendingTokensHeadingWrapper: ViewStyle
-  pendingTokensScrollView: ViewStyle
+  simulationSection: ViewStyle
+  simulationScrollView: ViewStyle
+  simulationContainer: ViewStyle
+  simulationContainerHeader: ViewStyle
   separator: ViewStyle
   estimationContainer: ViewStyle
+  estimationScrollView: ViewStyle
   estimationHeading: ViewStyle
   spinner: ViewStyle
   accountSelect: ViewStyle
@@ -28,10 +31,13 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow
     },
     leftSideContainer: {
-      flexBasis: '60%'
+      flexBasis: '60%',
+      justifyContent: 'flex-start',
+      height: '100%'
     },
     transactionsContainer: {
-      flex: 1.5
+      flex: 1,
+      maxHeight: '50%'
     },
     transactionsScrollView: {
       height: '100%',
@@ -43,22 +49,27 @@ const getStyles = (theme: ThemeProps) =>
       height: 1,
       backgroundColor: theme.secondaryBorder
     },
-    pendingTokensSeparatorContainer: {
-      backgroundColor: theme.primaryBackground,
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...spacings.pbTy,
-      ...spacings.ptSm,
-      ...spacings.mbTy,
-      width: '100%'
+    simulationSection: {
+      ...spacings.mbXl,
+      maxHeight: '50%'
     },
-    pendingTokensHeadingWrapper: {
-      backgroundColor: theme.primaryBackground,
-      ...spacings.ph
+    simulationScrollView: {
+      ...spacings.pr,
+      ...spacings.phSm,
+      ...spacings.pvSm
     },
-    pendingTokensScrollView: {
-      height: '100%',
-      ...spacings.pr
+    simulationContainer: {
+      borderWidth: 1,
+      ...common.borderRadiusPrimary,
+      borderColor: theme.secondaryBorder,
+      overflow: 'hidden',
+      ...flexbox.flex1,
+      maxHeight: '100%'
+    },
+    simulationContainerHeader: {
+      backgroundColor: theme.secondaryBackground,
+      ...spacings.phTy,
+      ...spacings.pvMi
     },
     separator: {
       width: 1,
@@ -68,6 +79,10 @@ const getStyles = (theme: ThemeProps) =>
     },
     estimationContainer: {
       ...flexbox.flex1
+    },
+    estimationScrollView: {
+      height: '100%',
+      ...spacings.pr
     },
     estimationHeading: {
       ...spacings.mbLg
