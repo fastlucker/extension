@@ -230,11 +230,6 @@ const KeyStoreSetupScreen = () => {
               })
               return
             }
-            if (params?.flow === 'legacy') {
-              navigate(WEB_ROUTES.externalSigner, {
-                state: { backTo: WEB_ROUTES.getStarted }
-              })
-            }
             if (params?.flow === 'seed') {
               navigate(WEB_ROUTES.importSeedPhrase, {
                 state: { backTo: WEB_ROUTES.importHotWallet }

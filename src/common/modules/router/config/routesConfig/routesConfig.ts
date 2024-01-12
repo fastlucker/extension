@@ -107,10 +107,6 @@ const routesConfig: {
       default: i18n.t('Personalize Your Accounts')
     })
   },
-  [ROUTES.externalSigner]: {
-    route: ROUTES.externalSigner,
-    title: ''
-  },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
     title: ''
