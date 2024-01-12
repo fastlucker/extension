@@ -51,7 +51,7 @@ const NavMenu = () => {
               <TouchableOpacity
                 key={key}
                 onPress={() => {
-                  if (path in ROUTES) {
+                  if (Object.values(ROUTES).includes(path)) {
                     navigate(path)
                     return
                   }

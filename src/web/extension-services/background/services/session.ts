@@ -1,4 +1,3 @@
-
 import permissionService from '@web/extension-services/background/services/permission'
 import PortMessage from '@web/extension-services/message/portMessage'
 

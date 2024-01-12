@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import 'setImmediate'
+import 'setimmediate'
 
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
@@ -10,9 +10,11 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -30,6 +32,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
+import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -40,6 +43,7 @@ import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
 import { controllersNestedInMainMapping } from './types'
@@ -81,6 +85,9 @@ async function init() {
   let onResoleDappNotificationRequest: (data: any, id?: number) => void
   let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
+  const ledgerCtrl = new LedgerController()
+  const trezorCtrl = new TrezorController()
+  const latticeCtrl = new LatticeController()
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -93,6 +100,11 @@ async function init() {
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
+    },
+    externalSignerControllers: {
+      ledger: ledgerCtrl,
+      trezor: trezorCtrl,
+      lattice: latticeCtrl
     },
     onResolveDappRequest: (data, id) => {
       !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
@@ -110,9 +122,6 @@ async function init() {
     },
     pinned: pinnedTokens
   })
-  const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
@@ -245,6 +254,8 @@ async function init() {
             params: mainCtrl
           })
         })
+        // stringify and then parse to add the getters to the public state
+        logInfoWithPrefix('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
       }
       ctrlOnUpdateIsDirtyFlags.main = false
     }, 0)
@@ -296,6 +307,8 @@ async function init() {
                   params: (mainCtrl as any)[ctrl]
                 })
               })
+              // stringify and then parse to add the getters to the public state
+              logInfoWithPrefix(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
             }
             ctrlOnUpdateIsDirtyFlags[ctrl] = false
           }, 0)
@@ -304,6 +317,8 @@ async function init() {
           const errors = (mainCtrl as any)[ctrl].getErrors()
           const lastError = errors[errors.length - 1]
           if (lastError) console.error(lastError.error)
+          // stringify and then parse to add the getters to the public state
+          logInfoWithPrefix(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
           Object.keys(portMessageUIRefs).forEach((key: string) => {
             portMessageUIRefs[key]?.request({
               type: 'broadcast-error',
@@ -346,6 +361,8 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
+    // stringify and then parse to add the getters to the public state
+    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(portMessageUIRefs).forEach((key: string) => {
       portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
@@ -479,9 +496,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
             }
-            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-              return mainCtrl.settings.addKeyPreferences(data.params)
-            }
             case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
               return mainCtrl.updateNetworkPreferences(
                 data.params.networkPreferences,
@@ -512,10 +526,72 @@ async function init() {
                 networks,
                 providers: rpcProviders
               })
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
-              return mainCtrl.accountAdder.addAccounts(data.params.selectedAccounts)
-            case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
-              return mainCtrl.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
+              const readyToAddKeys: ReadyToAddKeys = {
+                internal: data.params.readyToAddKeys.internal,
+                external: []
+              }
+
+              if (data.params.readyToAddKeys.externalTypeOnly) {
+                const keyType = data.params.readyToAddKeys.externalTypeOnly
+
+                const deviceIds: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceId,
+                  trezor: trezorCtrl.deviceId,
+                  lattice: latticeCtrl.deviceId
+                }
+
+                const deviceModels: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceModel,
+                  trezor: trezorCtrl.deviceModel,
+                  lattice: latticeCtrl.deviceModel
+                }
+
+                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
+                  ({ accountKeyAddr, index }) => ({
+                    addr: accountKeyAddr,
+                    type: keyType,
+                    dedicatedToOneSA: true,
+                    meta: {
+                      deviceId: deviceIds[keyType],
+                      deviceModel: deviceModels[keyType],
+                      // always defined in the case of external keys
+                      hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                      index
+                    }
+                  })
+                )
+
+                readyToAddKeys.external = readyToAddExternalKeys
+              }
+
+              return mainCtrl.accountAdder.addAccounts(
+                data.params.selectedAccounts,
+                data.params.readyToAddAccountPreferences,
+                readyToAddKeys,
+                data.params.readyToAddKeyPreferences
+              )
+            }
+            case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
+              const prevAccountsCount = mainCtrl.accounts.length
+              const defaultAccountPreferences = getDefaultAccountPreferences(
+                data.params.accounts,
+                prevAccountsCount
+              )
+
+              // Since these accounts are view-only, directly add them in the
+              // MainController, bypassing the AccountAdder flow.
+              await mainCtrl.addAccounts(data.params.accounts)
+
+              // And manually trigger some of the `onAccountAdderSuccess` steps
+              // that are needed for view-only accounts, since the AccountAdder
+              // flow was bypassed and the `onAccountAdderSuccess` subscription
+              // in the MainController won't click.
+              return Promise.all([
+                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.selectAccount(data.params.accounts[0].addr)
+              ])
+            }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
@@ -525,13 +601,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-              if (mainCtrl.signMessage.signingKeyType === 'ledger')
-                return mainCtrl.signMessage.sign(ledgerCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'trezor')
-                return mainCtrl.signMessage.sign(trezorCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'lattice')
-                return mainCtrl.signMessage.sign(latticeCtrl)
-
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
@@ -554,13 +623,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
-                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
-                return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
-
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
@@ -572,21 +634,6 @@ async function init() {
                 data.params.accountAddr,
                 data.params.networkId
               )
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
-              const { accountOp } = data.params
-              const broadcastKeyType = accountOp.signingKeyType
-
-              if (broadcastKeyType === 'ledger')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
-              if (broadcastKeyType === 'trezor')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
-              if (broadcastKeyType === 'lattice')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
-
-              return mainCtrl.broadcastSignedAccountOp(accountOp)
-            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
@@ -630,47 +677,17 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { keyType, dedicatedToOneSA } = data.params
-
-              const deviceIds: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceId,
-                trezor: trezorCtrl.deviceId,
-                lattice: latticeCtrl.deviceId
-              }
-
-              const deviceModels: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceModel,
-                trezor: trezorCtrl.deviceModel,
-                lattice: latticeCtrl.deviceModel
-              }
-
-              const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, index }) => ({
-                  addr: accountKeyAddr,
-                  type: keyType,
-                  dedicatedToOneSA,
-                  meta: {
-                    deviceId: deviceIds[keyType],
-                    deviceModel: deviceModels[keyType],
-                    // always defined in the case of external keys
-                    hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                    index
-                  }
-                })
-              )
-
-              return mainCtrl.keystore.addKeysExternallyStored(keys)
-            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
               return mainCtrl.keystore.lock()
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
-              return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
-
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
+              return mainCtrl.keystore.changeKeystorePassword(
+                data.params.secret,
+                data.params.newSecret
+              )
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
@@ -699,6 +716,18 @@ async function init() {
             case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
               sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
               permissionService.removeConnectedSite(data.params.origin)
+              break
+            }
+            case 'CHANGE_CURRENT_DAPP_NETWORK': {
+              permissionService.updateConnectSite(
+                data.params.origin,
+                { chainId: data.params.chainId },
+                true
+              )
+              sessionService.broadcastEvent('chainChanged', {
+                chain: `0x${data.params.chainId.toString(16)}`,
+                networkVersion: `${data.params.chainId}`
+              })
               break
             }
 

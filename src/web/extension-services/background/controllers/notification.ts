@@ -192,12 +192,11 @@ export class NotificationController extends EventEmitter {
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
-      const { hash, networkId, isUserOp } = data
 
-      if (hash && networkId) {
+      if (data?.hash && data?.networkId) {
         Linking.openURL(
-          `https://benzin.ambire.com/index.html?txnId=${hash}&networkId=${networkId}${
-            isUserOp ? '&isUserOp' : ''
+          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
+            data?.isUserOp ? '&isUserOp' : ''
           }`
         )
       }
