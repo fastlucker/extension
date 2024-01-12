@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const path = require('path')
 
-import { bootStrap, typeText, clickOnElement } from './functions.js';
+import { bootStrap, typeText, clickOnElement, confirmTransaction } from './functions.js';
 
 
 describe('transactions', () => {
@@ -67,6 +67,7 @@ describe('transactions', () => {
         await new Promise((r) => setTimeout(r, 2000));
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
+
         await page.setDefaultNavigationTimeout(6000)
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
 
@@ -75,6 +76,7 @@ describe('transactions', () => {
         pages = await browser.pages()
         // pages[0].close()
         pages[1].close()
+
         await page.reload({ waitUntil: 'load', });
 
         /*Type keystore password */
@@ -84,9 +86,9 @@ describe('transactions', () => {
         await new Promise((r) => setTimeout(r, 2000))
     })
 
-    // afterAll(async () => {
-    //     await browser.close();
-    // });
+    afterAll(async () => {
+        await browser.close();
+    });
 
     //--------------------------------------------------------------------------------------------------------------
     it('Make valid transaction', (async () => {
@@ -124,33 +126,11 @@ describe('transactions', () => {
         /* Check the checkbox "Confirm sending to a previously unknown address" */
         await clickOnElement(page, '[data-testid="checkbox"]')
 
-
         /* Check the checkbox "I confirm this address is not a Binance wallets...." */
         await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
 
-        /* Click on "Send" button */
-        await clickOnElement(page, 'xpath///div[contains(text(), "Send")]')
-        
-        // Wait for the new window to be created and switch to it 
-        const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`);
-        const newPage = await newTarget.page();
-
-        /* Click on "Medium" button */
-        await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
-
-        /* Click on "Sign" button */
-        await clickOnElement(newPage, 'xpath///div[contains(text(), "Sign")]')
-
-        await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
-        await new Promise((r) => setTimeout(r, 500))
-
-        /* Verify that the transaction is signed and sent */
-        const targetText = 'Transaction successfully signed and sent!';
-        // Wait until the specified text appears on the page
-        await page.waitForFunction((text) => {
-            const element = document.querySelector('body');
-            return element && element.textContent.includes(text);
-        }, {}, targetText);
+        /* Click on "Send" button and cofirm transaction */
+        await confirmTransaction(page, extensionRootUrl, browser,  'xpath///div[contains(text(), "Send")]')
     }));
 
 
@@ -179,7 +159,6 @@ describe('transactions', () => {
             const element = document.querySelector('body');
             return element && element.textContent.includes(text);
         }, {}, targetText);
-
     }));
 
     //--------------------------------------------------------------------------------------------------------------
@@ -189,8 +168,8 @@ describe('transactions', () => {
 
         await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load', })
 
-       /* Type the amount */
-       await typeText(page, amountField, "0.0001")
+        /* Type the amount */
+        await typeText(page, amountField, "0.0001")
 
         /* Type the adress of smart contract in the "Add Recipient" field */
         await typeText(page, recipientField, '0x4e15361fd6b4bb609fa63c81a2be19d873717870')
@@ -201,7 +180,124 @@ describe('transactions', () => {
         await page.waitForFunction((text) => {
             const element = document.querySelector('body');
             return element && element.textContent.includes(text);
-        }, {}, targetText);
+        }, {}, targetText)
+    }));
+
+
+
+    //--------------------------------------------------------------------------------------------------------------
+    it('Send sign message ', (async () => {
+
+        /* Allow permissions for read and write in clipboard */
+        context = browser.defaultBrowserContext();
+        context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write']);
+
+        await new Promise((r) => setTimeout(r, 2000))
+        await page.goto('https://sigtool.ambire.com/#dummyTodo', { waitUntil: 'load', })
+
+        /* Click on 'connect wallet' button */
+        await clickOnElement(page, 'button[class="button-connect"]')
+        /* Select 'MetaMask' */
+        await page.click('>>>[class^="name"]')
+
+        /* Type message in the 'Message' field */
+        let textMessage = 'text message'
+        await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
+        await new Promise((r) => setTimeout(r, 500))
+        /* Click on "Sign" button */
+        await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
+
+        // Wait for the new window to be created and switch to it 
+        const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-message`);
+        const newPage = await newTarget.page();
+        /* Click on "Sign" button */
+        await clickOnElement(newPage, '[data-testid="sign-button"]')
+        await page.waitForSelector('.signatureResult-signature')
+        /* Get the Message signature text */
+        const messageSignature = await page.evaluate(() => {
+            const message = document.querySelector('.signatureResult-signature')
+            return message.textContent
+        })
+
+        /* !THIS IS NOT WORKING WITH PUPPETEER. IT CAN'T BE COPIED IN CLIPBOARD. THAT'S WHY copiedAddress 
+        IS TAKEN FROM selectedAccount OBJECT IN LOCAL STORAGE! */
+        /* Click on a button that triggers a copy to clipboard. */
+        await page.click('.copyButton');
+
+        let copiedAddress = envSelectedAccount
+        /* Click on "Verify" tab */
+        await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
+        /* Fill copied address in the Signer field */
+        await typeText(page, '[placeholder="Signer address (0x....)"]', copiedAddress)
+        /* Fill copied address in the Message field */
+        await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
+        /* Fill copied address in the Hexadecimal signature field */
+        await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
+
+        /* Click on "Verify" button */
+        await clickOnElement(page, '#verifyButton')
+
+        /* Verify that sign message is valid*/
+        const validateMessage = 'Signature is Valid';
+        /* Wait until the 'Signature is Valid' text appears on the page */
+        await page.waitForFunction((text) => {
+            const element = document.querySelector('body');
+            return element && element.textContent.includes(text);
+        }, {}, validateMessage);
+    }));
+
+
+
+    //--------------------------------------------------------------------------------------------------------------
+    it('Make valid swap ', (async () => {
+
+        await new Promise((r) => setTimeout(r, 2000))
+        await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load', })
+
+        /* Click on 'connect' button */
+        await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
+        /* Select 'MetaMask' */
+        await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+        /* Click on 'Select token' and type 'USDC' and select 'USDC' token */
+        await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
+        await typeText(page, '[data-testid="token-search-input"]', 'USDC')
+        await new Promise((r) => setTimeout(r, 500))
+        await clickOnElement(page, 'div[title="USDCoin"]')
+
+        await new Promise((r) => setTimeout(r, 500))
+
+        await typeText(page, '#swap-currency-output', '0.0001')
+
+        const selector = '[data-testid="swap-button"]';
+        await page.waitForSelector(selector);
+
+        let isClickable = false;
+        let hasInsufficientBalanceText = false;
+
+        // Check every 500ms if the button is clickable for up to 4 seconds
+        for (let i = 0; i < 8; i++) {
+            isClickable = await page.evaluate(selector => {
+                const element = document.querySelector(selector);
+                return element && !element.disabled;
+            }, selector);
+
+            if (isClickable) break;
+            await page.waitForTimeout(500); // Wait for 500ms before checking again
+        }
+        if (isClickable) {
+            await page.click(selector);
+        } else {
+            hasInsufficientBalanceText = await page.evaluate(() => {
+                const element = document.querySelector('[data-testid="swap-button"]');
+                return element && element.textContent.includes('Insufficient MATIC balance');
+            });
+            if (hasInsufficientBalanceText) {
+                throw new Error('Insufficient MATIC balance');
+            }
+        }
+        await new Promise((r) => setTimeout(r, 500))
+         /* Click on 'Confirm Swap' button and confirm transaction */
+        await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
 
     }));
 

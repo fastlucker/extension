@@ -281,6 +281,7 @@ const SignMessageScreen = () => {
               type="primary"
               style={styles.signButton}
               onPress={onSignButtonClick}
+              testID='sign-button'
             />
           </View>
         </View>

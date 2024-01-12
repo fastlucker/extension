@@ -57,6 +57,7 @@ const Account = ({
 
   return (
     <Pressable
+      testID='account'
       key={addr}
       onPress={() => {
         selectAccount(addr)

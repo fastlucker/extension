@@ -6,6 +6,10 @@ let puppeteerArgs = [
     `--disable-extensions-except=${__dirname}/../webkit-prod/`,
     `--load-extension=${__dirname}/webkit-prod/`,
     '--disable-features=DialMediaRouteProvider',
+    // '--disable-features=ClipboardContentSetting',
+    // '--clipboard-write: granted', 
+    // '--clipboard-read: prompt',  
+
     // ' --runInBand'    
     // '--enable-automation'
     // '--detectOpenHandles',
@@ -99,11 +103,44 @@ export async function typeText(page, selector, text) {
 }
 
 
-export async function clickOnElement(page, selector){
+export async function clickOnElement(page, selector) {
     try {
         let elementToClick = await page.waitForSelector(selector);
         await elementToClick.click();
-    } catch (error) { 
+    } catch (error) {
         throw new Error(`Could not click on selector: ${selector}`)
     }
+}
+
+export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
+    try {
+        let elementToClick = await page.waitForSelector(triggerTransactionSelector);
+        await elementToClick.click();
+
+        await new Promise((r) => setTimeout(r, 1000))
+
+        // Wait for the new window to be created and switch to it 
+        const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`);
+        const newPage = await newTarget.page();
+
+        /* Click on "Medium" button */
+        await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
+
+        /* Click on "Sign" button */
+        await clickOnElement(newPage, 'xpath///div[contains(text(), "Sign")]')
+
+        await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
+        await new Promise((r) => setTimeout(r, 500))
+
+        /* Verify that the transaction is signed and sent */
+        const targetText = 'Transaction successfully signed and sent!';
+        // Wait until the specified text appears on the page
+        await page.waitForFunction((text) => {
+            const element = document.querySelector('body');
+            return element && element.textContent.includes(text);
+        }, {}, targetText);
+    } catch (error) {
+        throw new Error(`Could not click on selector: ${selector}`)
+    }
+
 }

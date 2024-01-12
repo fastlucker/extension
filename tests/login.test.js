@@ -29,6 +29,8 @@ describe('login', () => {
         const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
+        await new Promise((r) => setTimeout(r, 1000))
+
         const pages = await browser.pages()
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
@@ -45,7 +47,7 @@ describe('login', () => {
     })
 
     //--------------------------------------------------------------------------------------------------------------
-    it('login into legasy account with private key', (async () => {
+    it('login into legacy account with private key', (async () => {
 
         await typeText(page, '[placeholder="Enter a seed phrase or private key"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 })
 
@@ -83,7 +85,7 @@ describe('login', () => {
 
 
     //------------------------------------------------------------------------------------------------------
-    it('login into legasy account with phrase', (async () => {
+    it('login into legacy account with phrase', (async () => {
 
         await typeText(page, '[placeholder="Enter a seed phrase or private key"]', process.env.PHRASE_LEGACY_ACCOUNT, { delay: 10 })
 
