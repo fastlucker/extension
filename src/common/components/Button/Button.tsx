@@ -27,6 +27,7 @@ export interface Props extends PressableProps {
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
+  forceHoveredStyle?: boolean
   children?: React.ReactNode
 }
 
@@ -41,6 +42,7 @@ const Button = ({
   hasBottomSpacing = true,
   children,
   disabledStyle,
+  forceHoveredStyle = false,
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
@@ -63,8 +65,10 @@ const Button = ({
     primary: {
       backgroundColor: theme.primaryLight
     },
+    secondary: {
+      backgroundColor: theme.secondaryBackground
+    },
     // @TODO: add hover styles for other button types
-    secondary: styles.buttonContainerSecondary,
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
     ghost: styles.buttonContainerGhost
@@ -97,7 +101,7 @@ const Button = ({
           containerStylesSizes[size],
           styles.buttonContainer,
           containerStyles[type],
-          hovered ? hoveredContainerStyles[type] : {},
+          hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
           style,
           !!accentColor && { borderColor: accentColor },
           !hasBottomSpacing && spacings.mb0,
