@@ -143,8 +143,7 @@ const SeedPhraseImportScreen = () => {
 
   const handlePaste = useCallback(
     async (e: any, index: number) => {
-      console.log('e', e)
-      if (e.code === 'KeyV') {
+      if (e.code === 'KeyV' && e.ctrlKey) {
         try {
           const clipboardContent = await Clipboard.getStringAsync()
           const separators = /[\s,;\n]+/
