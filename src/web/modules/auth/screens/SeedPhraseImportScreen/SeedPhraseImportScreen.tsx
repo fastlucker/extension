@@ -68,6 +68,7 @@ const SeedPhraseImportScreen = () => {
     control,
     handleSubmit,
     clearErrors,
+    getValues,
     setError,
     setValue,
     formState: { isValid, errors }
@@ -147,9 +148,12 @@ const SeedPhraseImportScreen = () => {
       const words = text.trim().split(separators)
 
       if (words.length === fields.length) {
-        words.forEach((word, wordIndex) => {
-          setValue(`seedFields.${wordIndex}.value`, word)
-        })
+        // Wait for the input to register (react-hook-form)
+        setTimeout(() => {
+          words.forEach((word, wordIndex) => {
+            setValue(`seedFields.${wordIndex}.value`, word)
+          })
+        }, 1)
         addToast(t('Seed Phrase successfully pasted from clipboard'))
         return
       }
@@ -162,9 +166,12 @@ const SeedPhraseImportScreen = () => {
         setValue('seedLength', correspondingLengthOption)
         updateFieldsLength(correspondingLengthOption.value)
 
-        words.forEach((word, wordIndex) => {
-          setValue(`seedFields.${wordIndex}.value`, word)
-        })
+        // Wait for the input to register (react-hook-form)
+        setTimeout(() => {
+          words.forEach((word, wordIndex) => {
+            setValue(`seedFields.${wordIndex}.value`, word)
+          })
+        }, 1)
 
         addToast(
           t('Updated Seed Length to {{seedLength}} in order to match clipboard content', {
@@ -271,9 +278,11 @@ const SeedPhraseImportScreen = () => {
                       // any type, because nativeEvent?.inputType is web only
                       onChange={(e: any) => {
                         if (!isWeb) return onChange(e)
+                        const prevValue = getValues(`seedFields.${index}.value`)
+                        const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
 
                         if (e.nativeEvent?.inputType === 'insertFromPaste') {
-                          handlePaste(e.nativeEvent.text)
+                          handlePaste(newValueWithoutPrevValue)
                         }
                         onChange(e)
                       }}
