@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ColorValue, View } from 'react-native'
+import { ColorValue, View, ViewStyle } from 'react-native'
 
 import Wrapper, { WrapperProps } from '@common/components/Wrapper'
 import useTheme from '@common/hooks/useTheme'
@@ -35,6 +35,7 @@ type TabLayoutContainerProps = {
   hideFooterInPopup?: boolean
   width?: Width
   children: ReactElement | ReactElement[]
+  style?: ViewStyle
 }
 
 export const paddingHorizontalStyle =
@@ -50,7 +51,8 @@ export const TabLayoutContainer = ({
   footer,
   hideFooterInPopup = false,
   width = 'xl',
-  children
+  children,
+  style
 }: TabLayoutContainerProps) => {
   const { theme, styles } = useTheme(getStyles)
   const isFooterHiddenInPopup = hideFooterInPopup && !isTab
@@ -68,7 +70,8 @@ export const TabLayoutContainer = ({
               backgroundColor: backgroundColor || theme.primaryBackground,
               maxWidth: tabLayoutWidths[width],
               width: '100%'
-            }
+            },
+            style
           ]}
         >
           {children}

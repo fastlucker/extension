@@ -13,7 +13,7 @@ import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -40,7 +40,7 @@ const Estimation = ({
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { minWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
@@ -141,7 +141,15 @@ const Estimation = ({
         <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
           {t('Transaction speed')}
         </Text>
-        <View style={[maxWidthSize('xxl') && flexbox.directionRow, isViewOnly && { opacity: 0.6 }]}>
+        <View
+          style={[
+            minWidthSize('xxl') && flexbox.wrap,
+            flexbox.flex1,
+            flexbox.directionRow,
+            isViewOnly && { opacity: 0.6 },
+            minWidthSize('xxl') && { margin: -SPACING_MI }
+          ]}
+        >
           {signAccountOpState.feeSpeeds.map((fee, i) => (
             <Fee
               isViewOnly={isViewOnly}
