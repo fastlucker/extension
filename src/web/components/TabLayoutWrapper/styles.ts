@@ -4,7 +4,6 @@ import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
   contentContainer: ViewStyle
@@ -56,7 +55,6 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
       ...flexbox.directionRow,
-      maxWidth: TAB_WIDE_CONTENT_WIDTH,
       width: '100%',
       marginHorizontal: 'auto'
     },

@@ -76,7 +76,17 @@ export const TabLayoutContainer = ({
       </View>
       {!!footer && !isFooterHiddenInPopup && (
         <View style={[styles.footerContainer, paddingHorizontalStyle]}>
-          <View style={styles.footer}>{footer}</View>
+          <View
+            style={[
+              styles.footer,
+              {
+                // Must be TAB_WIDE_CONTENT_WIDTH for every width except 'full'
+                maxWidth: width === 'full' ? '100%' : TAB_WIDE_CONTENT_WIDTH
+              }
+            ]}
+          >
+            {footer}
+          </View>
         </View>
       )}
     </View>
