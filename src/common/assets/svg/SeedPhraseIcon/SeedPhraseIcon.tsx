@@ -1,12 +1,12 @@
 import React from 'react'
 import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 const SeedPhraseIcon: React.FC<SvgProps> = ({
   width = 43,
   height = 50,
-  color = colors.martinique,
+  color = iconColors.primary,
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 43.285 50.116" {...rest}>

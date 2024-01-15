@@ -1,12 +1,12 @@
 import React, { FC } from 'react'
 import { Circle, G, Path, Svg, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 const ViewOnlyIcon: FC<SvgProps> = ({
   width = 65,
   height = 42,
-  color = colors.martinique,
+  color = iconColors.primary,
   ...rest
 }) => {
   return (
