@@ -15,3 +15,5 @@ export const POPUP_HEIGHT = Math.round(BROWSER_WINDOW_TOP_BAR_HEIGHT + 600)
 // by default the notification window will be full screen and won't be with these dimensions
 export const NOTIFICATION_WINDOW_WIDTH = 1100
 export const NOTIFICATION_WINDOW_HEIGHT = 800
+export const BROWSER_WINDOW_BAR_BUFFER = 50
+export const MIN_NOTIFICATION_WINDOW_HEIGHT = 600 + BROWSER_WINDOW_BAR_BUFFER
