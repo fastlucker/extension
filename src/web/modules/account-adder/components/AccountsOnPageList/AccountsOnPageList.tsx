@@ -9,6 +9,7 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Pagination from '@common/components/Pagination'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
@@ -23,16 +24,19 @@ import styles from './styles'
 const AccountsList = ({
   state,
   setPage,
-  keyType
+  keyType,
+  lookingForLinkedAccounts
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
   keyType: string
+  lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(true)
 
   const getDerivationLabel = (_path: HDPath['path']) => {
     const path = HD_PATHS.find((x) => x.path === _path)
@@ -77,30 +81,43 @@ const AccountsList = ({
 
   const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
 
-  const getAccounts = (accounts: any) => {
-    return accounts.map((acc: any, i: any) => {
-      const isSelected = state.selectedAccounts.some(
-        (selectedAcc) => selectedAcc.account.addr === acc.account.addr
-      )
-      const isPreselected = state.preselectedAccounts.some(
-        (selectedAcc) => selectedAcc.addr === acc.account.addr
-      )
+  const getAccounts = useCallback(
+    (accounts: any) => {
+      return accounts.map((acc: any, i: any) => {
+        const isSelected = state.selectedAccounts.some(
+          (selectedAcc) => selectedAcc.account.addr === acc.account.addr
+        )
+        const isPreselected = state.preselectedAccounts.some(
+          (selectedAcc) => selectedAcc.addr === acc.account.addr
+        )
 
-      return (
-        <Account
-          key={acc.account.addr}
-          account={acc.account}
-          type={setType(acc)}
-          isLastInSlot={i === accounts.length - 1}
-          unused={!acc.account.usedOnNetworks.length}
-          isSelected={isSelected || isPreselected}
-          isDisabled={isPreselected}
-          onSelect={handleSelectAccount}
-          onDeselect={handleDeselectAccount}
-        />
-      )
-    })
-  }
+        if (hideEmptyAccounts && setType(acc) === 'legacy' && !acc.account.usedOnNetworks.length) {
+          return null
+        }
+
+        return (
+          <Account
+            key={acc.account.addr}
+            account={acc.account}
+            type={setType(acc)}
+            isLastInSlot={i === accounts.length - 1}
+            unused={!acc.account.usedOnNetworks.length}
+            isSelected={isSelected || isPreselected}
+            isDisabled={isPreselected}
+            onSelect={handleSelectAccount}
+            onDeselect={handleDeselectAccount}
+          />
+        )
+      })
+    },
+    [
+      handleDeselectAccount,
+      handleSelectAccount,
+      hideEmptyAccounts,
+      state.preselectedAccounts,
+      state.selectedAccounts
+    ]
+  )
 
   return (
     <View style={flexbox.flex1}>
@@ -138,7 +155,13 @@ const AccountsList = ({
           </Pressable>
         )}
       </View>
-
+      <View style={[spacings.mbLg, flexbox.alignStart]}>
+        <Toggle
+          isOn={hideEmptyAccounts}
+          onToggle={() => setHideEmptyAccounts((p) => !p)}
+          label={t('Hide empty legacy accounts')}
+        />
+      </View>
       <Wrapper
         style={shouldEnablePagination && spacings.mbLg}
         contentContainerStyle={{
@@ -161,22 +184,38 @@ const AccountsList = ({
             <Spinner style={{ width: 28, height: 28 }} />
           </View>
         ) : (
-          Object.keys(slots).map((key) => {
+          Object.keys(slots).map((key, i) => {
             return (
-              <Slot key={key} slot={+key}>
+              <Slot key={key} slot={+key} isLastItem={i === Object.keys(slots).length - 1}>
                 {getAccounts(slots[key])}
               </Slot>
             )
           })
         )}
       </Wrapper>
-      {!!shouldEnablePagination && (
-        <Pagination
-          page={state.page}
-          setPage={setPage}
-          isDisabled={state.accountsLoading || disablePagination}
-        />
-      )}
+      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+        <View
+          style={[
+            flexbox.alignCenter,
+            spacings.ptSm,
+            { opacity: lookingForLinkedAccounts ? 1 : 0 }
+          ]}
+        >
+          <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
+            <Spinner style={{ width: 16, height: 16 }} />
+            <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
+              {t('Looking for linked smart accounts')}
+            </Text>
+          </View>
+        </View>
+        {!!shouldEnablePagination && (
+          <Pagination
+            page={state.page}
+            setPage={setPage}
+            isDisabled={state.accountsLoading || disablePagination}
+          />
+        )}
+      </View>
     </View>
   )
 }

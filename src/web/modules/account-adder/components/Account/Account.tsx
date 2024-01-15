@@ -10,7 +10,6 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -52,7 +51,7 @@ const Account = ({
   return (
     <View
       key={account.addr}
-      style={[flexbox.directionRow, flexbox.alignCenter, !isLastInSlot && spacings.mbTy]}
+      style={[flexbox.directionRow, flexbox.alignCenter, !isLastInSlot && styles.bottomBorder]}
     >
       <View style={styles.container}>
         <Checkbox
@@ -76,38 +75,23 @@ const Account = ({
                 ? shortenAddress(account.addr, 32)
                 : account.addr}
             </Text>
-            {(!!unused || type === 'linked') && (
-              <View style={[flexbox.directionRow]}>
-                {type === 'linked' && (
-                  <View
-                    style={
-                      !!isAmbireV1LinkedAccount(account.creation?.factoryAddr) && spacings.mrMi
-                    }
-                  >
-                    <Badge text={t('linked')} type="info" />
-                  </View>
-                )}
-                {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-                  <Badge text={t('v1')} type="info" />
-                )}
-              </View>
-            )}
           </View>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <Text
-              weight="regular"
-              fontSize={12}
-              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.husk}
-              style={[spacings.mbMi, flexbox.flex1]}
-              onPress={isDisabled ? undefined : toggleSelectedState}
-            >
+            <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
               {type === 'legacy' ? (
-                <Badge withIcon text={t('Legacy Account')} type="warning" />
+                <Badge withRightSpacing withIcon text={t('Legacy Account')} type="warning" />
               ) : (
-                <Badge withIcon text={t('Smart Account')} type="success" />
+                <Badge withRightSpacing withIcon text={t('Smart Account')} type="success" />
               )}
-            </Text>
-            {!!unused && <Badge text={t('unused')} />}
+              {!!unused && <Badge withRightSpacing withIcon text={t('unused')} />}
+              {type === 'linked' && (
+                <Badge withRightSpacing withIcon text={t('linked')} type="info" />
+              )}
+              {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+                <Badge withRightSpacing withIcon text={t('v.1')} type="info" />
+              )}
+            </View>
+
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text fontSize={12} weight="regular">

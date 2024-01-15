@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -18,7 +18,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  tabLayoutWidths,
   TabLayoutWrapperMainContent,
   TabLayoutWrapperSideContent,
   TabLayoutWrapperSideContentItem
@@ -39,9 +38,6 @@ export interface Account {
   balance?: number
 }
 
-// TODO:
-const showEmailVaultRecoveryToggle = true
-
 const AccountAdderScreen = () => {
   const { params } = useRoute()
   const { goBack } = useNavigation()
@@ -49,7 +45,6 @@ const AccountAdderScreen = () => {
   const { theme } = useTheme()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
-  const [enableEmailVaultRecovery, setEnableEmailVaultRecovery] = useState(false)
   const { keyType, privKeyOrSeed, label } = params as {
     keyType: Key['type']
     privKeyOrSeed?: string
@@ -86,28 +81,8 @@ const AccountAdderScreen = () => {
                 {t('Back')}
               </Text>
             </TouchableOpacity>
-            {/* TODO: {!!showEmailVaultRecoveryToggle && (
-              <Toggle
-                isOn={enableEmailVaultRecovery}
-                onToggle={() => setEnableEmailVaultRecovery((p) => !p)}
-                label={t('Enable email recovery for new Smart Accounts')}
-              />
-            )} */}
           </View>
-          <View
-            style={[
-              flexbox.alignCenter,
-              spacings.ptSm,
-              { opacity: accountAdderState.linkedAccountsLoading ? 1 : 0 }
-            ]}
-          >
-            <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-              <Spinner style={{ width: 16, height: 16 }} />
-              <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
-                {t('Looking for linked smart accounts')}
-              </Text>
-            </View>
-          </View>
+
           <Button
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
@@ -139,8 +114,13 @@ const AccountAdderScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel style={{ maxHeight: '100%' }}>
-          <AccountsOnPageList state={accountAdderState} setPage={setPage} keyType={keyType} />
+        <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
+          <AccountsOnPageList
+            state={accountAdderState}
+            setPage={setPage}
+            keyType={keyType}
+            lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
+          />
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
