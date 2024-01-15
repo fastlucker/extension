@@ -645,7 +645,7 @@ const runReplacementScript = async () => {
 
   if (hasWalletConnectInPage) replaceMMImgInPage()
 
-  const hasTrustWalletInPage = isWordInPage('trustwallet')
+  const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
   const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
   if (!hasMetaMaskInPage) return

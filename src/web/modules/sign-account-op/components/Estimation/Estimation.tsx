@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { MainController } from '@ambire-common/controllers/main/main'
-import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import {
+  FeeSpeed,
+  SignAccountOpController
+} from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -42,15 +45,34 @@ const Estimation = ({
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
-      const token = accountPortfolio?.tokens.find(
-        (t) => t.address === feeOption.address && t.networkId === networkId
-      )
+
+      // the logic below may seem overextended but please proceed
+      // with caution if you wish to make it more tidy. Especially the
+      // checkNetworkIfNative var. If the code is copied in the final return
+      // statement, it stops working as it should and it starts returning
+      // always true
+      const token = accountPortfolio?.tokens.find((t) => {
+        if (!feeOption.isGasTank) {
+          return t.address === feeOption.address && t.networkId === networkId && !t.flags.onGasTank
+        }
+
+        // native fee tokens should be from the same network
+        // other gas tank tokens (USDT, USDC) have a networkId of ethereum
+        // hardcoded. We should skip network check for them
+        const checkNetworkIfNative =
+          feeOption.address === '0x0000000000000000000000000000000000000000'
+            ? t.networkId === networkId
+            : true
+        return t.address === feeOption.address && t.flags.onGasTank && checkNetworkIfNative
+      })
+
       // TODO: validate - should never happen but there are some cases in which account is undefined
       if (!account || !token) return undefined
 
+      const gasTankKey = token.flags.onGasTank === true ? 'gasTank' : ''
       return {
-        value: feeOption.paidBy + feeOption.address,
-        label: <PayOption account={account} token={token} />,
+        value: feeOption.paidBy + feeOption.address + gasTankKey,
+        label: <PayOption account={account} token={token} isGasTank={feeOption.isGasTank} />,
         paidBy: feeOption.paidBy,
         token
       }
@@ -67,11 +89,8 @@ const Estimation = ({
   const defaultPayOption = useMemo(() => {
     if (!payOptions) return undefined
 
-    return payOptions.find(
-      ({ value }: any) =>
-        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
-    )
-  }, [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
+    return payOptions[0]
+  }, [payOptions])
 
   const [payValue, setPayValue] = useState(defaultPayOption)
 
@@ -80,7 +99,7 @@ const Estimation = ({
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
-          feeTokenAddr: payValue.token.address,
+          feeToken: payValue.token,
           paidBy: payValue.paidBy
         }
       })
@@ -96,7 +115,7 @@ const Estimation = ({
   )
 
   const onFeeSelect = useCallback(
-    (speed: string) => {
+    (speed: FeeSpeed) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
