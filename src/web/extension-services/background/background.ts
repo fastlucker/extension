@@ -551,6 +551,7 @@ async function init() {
                   ({ accountKeyAddr, index }) => ({
                     addr: accountKeyAddr,
                     type: keyType,
+                    dedicatedToOneSA: true,
                     meta: {
                       deviceId: deviceIds[keyType],
                       deviceModel: deviceModels[keyType],

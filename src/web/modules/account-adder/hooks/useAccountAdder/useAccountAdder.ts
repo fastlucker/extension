@@ -164,7 +164,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
           }
 
-          return { privateKey }
+          return { privateKey, dedicatedToOneSA: true }
         })
 
         readyToAddKeys.internal = readyToAddInternalKeys
