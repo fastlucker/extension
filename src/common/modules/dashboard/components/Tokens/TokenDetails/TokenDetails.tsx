@@ -5,7 +5,6 @@ import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -27,11 +26,8 @@ import text from '@common/styles/utils/text'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import shortenAddress from '@web/utils/shortenAddress'
-import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-
-const { isTab } = getUiType()
 
 const TokenDetails = ({
   token,
@@ -45,6 +41,9 @@ const TokenDetails = ({
   const { addToast } = useToast()
   const { t } = useTranslation()
 
+  // if the token is a gas tank token, all actions except
+  // top up and maybe token info should be disabled
+  const isGasTank = token?.flags.onGasTank
   const actions = useMemo(
     () => [
       {
@@ -52,14 +51,14 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: false
+        isDisabled: isGasTank
       },
       {
         text: t('Swap'),
         icon: SwapIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
-        isDisabled: false
+        isDisabled: isGasTank
       },
       {
         text: t('Deposit'),
@@ -83,7 +82,7 @@ const TokenDetails = ({
         text: t('Bridge'),
         icon: BridgeIcon,
         onPress: () => createTab(BRIDGE_URL),
-        isDisabled: false
+        isDisabled: isGasTank
       },
       {
         text: t('Withdraw'),
@@ -98,7 +97,7 @@ const TokenDetails = ({
         isDisabled: true
       }
     ],
-    [navigate, t]
+    [navigate, t, isGasTank]
   )
 
   if (!token) return null
@@ -111,7 +110,6 @@ const TokenDetails = ({
   } = token
 
   const {
-    balance,
     balanceFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
@@ -144,7 +142,7 @@ const TokenDetails = ({
                 <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
                 <Text fontSize={16}>{isVesting && t('claimable early supporters vesting')}</Text>
                 <Text fontSize={16}>{!isRewards && !isVesting && t('on')}</Text>
-                <Text fontSize={16}>{onGasTank && t('Gas Tank')}</Text>
+                <Text fontSize={16}>{onGasTank && t(' Gas Tank')}</Text>
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}
@@ -154,7 +152,7 @@ const TokenDetails = ({
                 <TouchableOpacity
                   style={spacings.mlMi}
                   onPress={() => {
-                    Clipboard.setStringAsync(address)
+                    Clipboard.setStringAsync(address).catch(() => null)
                     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
                   }}
                 >
@@ -174,6 +172,19 @@ const TokenDetails = ({
               (1 ${symbol} ≈ ${priceUSDFormatted})
             </Text>
           </View>
+          {onGasTank && (
+            <View style={styles.balance}>
+              <Text
+                style={spacings.mtMi}
+                color={iconColors.danger}
+                fontSize={12}
+                weight="number_regular"
+                numberOfLines={1}
+              >
+                (This token is a gas tank one and therefore actions are limited)
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       <View style={styles.actionsContainer}>
