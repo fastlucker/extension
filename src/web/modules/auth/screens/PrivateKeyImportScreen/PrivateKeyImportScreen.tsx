@@ -123,20 +123,21 @@ const PrivateKeyImportScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="Importing legacy accounts">
+        <TabLayoutWrapperSideContentItem title={t('Importing basic accounts')}>
           <TabLayoutWrapperSideContentItem.Text>
-            By inserting a private key or a seed phrase, you can import traditional legacy accounts
-            (also known as EOAs - externally owned accounts).
+            {t(
+              'By inserting a private key or a seed phrase, you can import traditional legacy accounts (also known as EOAs - externally owned accounts).'
+            )}
           </TabLayoutWrapperSideContentItem.Text>
           <TabLayoutWrapperSideContentItem.Text>
-            If you enter a seed phrase, you will be given a list of multiple legacy accounts to
-            choose from.
+            {t(
+              'If you enter a seed phrase, you will be given a list of multiple legacy accounts to choose from.'
+            )}
           </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Text>
-            For each legacy account you import, you also have the option to import a smart account,
-            powered by the same private key. This smart account will have a different address. Smart
-            accounts have many benefits, including account recovery, transaction batching and much
-            more.
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            {t(
+              'For each legacy account you import, you also have the option to import a smart account, powered by the same private key. This smart account will have a different address. Smart accounts have many benefits, including account recovery, transaction batching and much more.'
+            )}
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

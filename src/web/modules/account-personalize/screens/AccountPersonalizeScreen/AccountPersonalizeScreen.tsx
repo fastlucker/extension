@@ -123,12 +123,11 @@ const AccountPersonalizeScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="Account personalization">
+        <TabLayoutWrapperSideContentItem title={t('Account personalization')}>
           <TabLayoutWrapperSideContentItem.Text noMb>
-            Account personalization allows you to assign a label and avatar to any accounts
-            you&apos;ve chosen to import. Both options are stored locally on your device and serve
-            only to help you organize your accounts. None of these options are uploaded to the
-            blockchain or anywhere else.
+            {t(
+              "Account personalization allows you to assign a label and avatar to any accounts you've chosen to import. Both options are stored locally on your device and serve only to help you organize your accounts. None of these options are uploaded to the blockchain or anywhere else."
+            )}
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
