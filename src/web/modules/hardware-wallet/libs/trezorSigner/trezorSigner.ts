@@ -27,7 +27,7 @@ const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED'
  * This is necessary to avoid popup collision between signing multiple times in
  * a row or between signing a message and then a raw transaction.
  */
-const delayBetweenStarting = () => wait(1000)
+const delayBetweenStarting = () => wait(DELAY_BETWEEN_POPUPS)
 
 class TrezorSigner implements KeystoreSigner {
   key: ExternalKey

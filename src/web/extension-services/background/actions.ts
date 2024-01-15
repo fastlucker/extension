@@ -1,7 +1,10 @@
 import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  ReadyToAddKeys
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
@@ -70,10 +73,18 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: { selectedAccounts: AccountAdderController['selectedAccounts'] }
+  params: {
+    selectedAccounts: AccountAdderController['selectedAccounts']
+    readyToAddAccountPreferences: AccountPreferences
+    readyToAddKeys: {
+      internal: ReadyToAddKeys['internal']
+      externalTypeOnly: Key['type']
+    }
+    readyToAddKeyPreferences: KeyPreferences
+  }
 }
 type MainControllerAddAccounts = {
-  type: 'MAIN_CONTROLLER_ADD_ACCOUNTS'
+  type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
   params: { accounts: Account[] }
 }
 type MainControllerAccountAdderReset = {
@@ -82,10 +93,6 @@ type MainControllerAccountAdderReset = {
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
-}
-type MainControllerSettingsAddKeyPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
-  params: KeyPreferences
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -235,9 +242,9 @@ type MainControllerSignAccountOpUpdateAction = {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: EstimateResult
-    feeTokenAddr?: string
+    feeToken?: TokenResult
     paidBy?: string
-    speed?: string
+    speed?: FeeSpeed
     signingKeyAddr?: string
     signingKeyType?: string
   }
@@ -245,35 +252,24 @@ type MainControllerSignAccountOpUpdateAction = {
 type MainControllerSignAccountOpSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN'
 }
-type MainControllerSignAccountOpResetAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET'
-}
-type MainControllerBroadcastSignedAccountOpAction = {
-  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP'
-  params: { accountOp: AccountOp }
-}
 
 type KeystoreControllerAddSecretAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_SECRET'
   params: { secretId: string; secret: string; extraEntropy: string; leaveUnlocked: boolean }
 }
-type KeystoreControllerAddKeysExternallyStored = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED'
-  params: { keyType: Exclude<Key['type'], 'internal'>; dedicatedToOneSA: boolean }
-}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
-}
-type KeystoreControllerAddKeysAction = {
-  type: 'KEYSTORE_CONTROLLER_ADD_KEYS'
-  params: { keys: { privateKey: string; dedicatedToOneSA: boolean }[] }
 }
 type KeystoreControllerLockAction = {
   type: 'KEYSTORE_CONTROLLER_LOCK'
 }
 type KeystoreControllerResetErrorStateAction = {
   type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE'
+}
+type KeystoreControllerChangePasswordAction = {
+  type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
+  params: { secret: string; newSecret: string }
 }
 
 type WalletControllerGetConnectedSiteAction = {
@@ -306,6 +302,10 @@ type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
   params: { id: number }
 }
+type ChangeCurrentDappNetworkAction = {
+  type: 'CHANGE_CURRENT_DAPP_NETWORK'
+  params: { chainId: number; origin: string }
+}
 
 export type Action =
   | InitControllerStateAction
@@ -318,7 +318,6 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderReset
   | MainControllerSettingsAddAccountPreferences
-  | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
@@ -326,7 +325,6 @@ export type Action =
   | MainControllerAddAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
-  | MainControllerRefetchPortfolio
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
@@ -343,8 +341,6 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerSignAccountOpResetAction
-  | MainControllerBroadcastSignedAccountOpAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
@@ -355,11 +351,10 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
-  | KeystoreControllerAddKeysExternallyStored
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
-  | KeystoreControllerAddKeysAction
   | KeystoreControllerResetErrorStateAction
+  | KeystoreControllerChangePasswordAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
@@ -368,6 +363,7 @@ export type Action =
   | WalletControllerGetConnectedSitesAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
+  | ChangeCurrentDappNetworkAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

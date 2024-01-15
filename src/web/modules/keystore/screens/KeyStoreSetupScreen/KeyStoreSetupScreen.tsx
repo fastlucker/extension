@@ -77,7 +77,7 @@ const KeyStoreSetupScreen = () => {
   }, [params?.flow, navigate])
 
   useEffect(() => {
-    if (state.latestMethodCall === 'addSecret' && state.status === 'DONE') {
+    if (state.latestMethodCall === 'addSecret' && state.status === 'SUCCESS') {
       setKeystoreReady(true)
     }
   }, [state.latestMethodCall, state.status])
