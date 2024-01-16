@@ -11,13 +11,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings, {
-  IS_SCREEN_SIZE_DESKTOP_LARGE,
-  SPACING,
-  SPACING_2XL,
-  SPACING_3XL,
-  SPACING_XL
-} from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -37,8 +31,6 @@ import TransactionSummary from '@web/modules/sign-account-op/components/Transact
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-
-const { isTab, isNotification } = getUiType()
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
