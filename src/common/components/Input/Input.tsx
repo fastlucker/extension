@@ -17,7 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-import getStyles from './styles'
+import getStyles, { INPUT_WRAPPER_HEIGHT } from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string | boolean
@@ -35,6 +35,7 @@ export interface InputProps extends TextInputProps {
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
+  tooltipText?: string
 }
 
 const Input = ({
@@ -54,9 +55,11 @@ const Input = ({
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
+  tooltipText,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
+  const [tooltipHeight, setTooltipHeight] = useState(0)
   const { theme, styles } = useTheme(getStyles)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -139,6 +142,24 @@ const Input = ({
           )}
         </View>
       </View>
+      {!!tooltipText && isFocused && (
+        <View
+          style={{
+            ...styles.tooltipWrapper,
+            // Centers the tooltip vertically
+            top: (INPUT_WRAPPER_HEIGHT - tooltipHeight) / 2
+          }}
+          onLayout={(e) => {
+            setTooltipHeight(e.nativeEvent.layout.height)
+          }}
+        >
+          <View style={styles.tooltip}>
+            <Text fontSize={12} appearance="secondaryText">
+              {tooltipText}
+            </Text>
+          </View>
+        </View>
+      )}
       {!!error && (
         <Text
           style={styles.errorText}

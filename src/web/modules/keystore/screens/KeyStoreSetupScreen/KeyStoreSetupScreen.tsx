@@ -143,6 +143,7 @@ const KeyStoreSetupScreen = () => {
                   isValid={isValidPassword(value)}
                   autoFocus={isWeb}
                   value={value}
+                  tooltipText="Your password must be unique and at least 8 characters long"
                   error={
                     errors.password &&
                     (t('Your password must be unique and at least 8 characters long.') as string)
