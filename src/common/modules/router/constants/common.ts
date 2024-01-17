@@ -61,7 +61,10 @@ const WEB_ROUTES = {
   collection: 'collection',
   accountSelect: 'account-select',
   viewOnlyAccountAdder: 'view-only-account-adder',
-  networks: 'networks'
+  networks: 'networks',
+  importHotWallet: 'import-hot-wallet',
+  importPrivateKey: 'import-private-key',
+  importSeedPhrase: 'import-seed-phrase'
 }
 
 const ROUTES = {

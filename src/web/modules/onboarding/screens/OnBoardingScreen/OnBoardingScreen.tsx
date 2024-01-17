@@ -47,40 +47,14 @@ const OnBoardingScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent style={spacings.pt2Xl}>
-        <TabLayoutWrapperSideContentItem>
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbXl]}
-            onPress={() => {
-              // TODO:
-            }}
-          >
-            <RightArrowIcon color={theme.primary} width={6} style={spacings.mr} weight="2" />
-            <TabLayoutWrapperSideContentItem.Text noMb underline>
-              {t('How to pin Ambire Wallet extension?')}
-            </TabLayoutWrapperSideContentItem.Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbXl]}
-            onPress={() => {
-              // TODO:
-            }}
-          >
-            <RightArrowIcon color={theme.primary} width={6} style={spacings.mr} weight="2" />
-            <TabLayoutWrapperSideContentItem.Text noMb underline>
-              {t('How to fund your wallet?')}
-            </TabLayoutWrapperSideContentItem.Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[flexbox.directionRow, flexbox.alignCenter]}
-            onPress={() => {
-              // TODO:
-            }}
-          >
-            <RightArrowIcon color={theme.primary} width={6} style={spacings.mr} weight="2" />
-            <TabLayoutWrapperSideContentItem.Text noMb underline>
-              {t('What are the Wallet Reward?')}
-            </TabLayoutWrapperSideContentItem.Text>
-          </TouchableOpacity>
+        <TabLayoutWrapperSideContentItem title="How to pin Ambire Wallet extension">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+        <TabLayoutWrapperSideContentItem title="How to fund your wallet?">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+        <TabLayoutWrapperSideContentItem title="What are the Wallet Reward?">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>

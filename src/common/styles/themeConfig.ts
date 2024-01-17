@@ -128,7 +128,6 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.externalSigner,
   WEB_ROUTES.onboarding,
   WEB_ROUTES.hardwareWalletSelect,
   WEB_ROUTES.hardwareWalletLedger,

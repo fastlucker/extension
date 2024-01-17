@@ -10,8 +10,6 @@ import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 
-import styles from './styles'
-
 type Props = {
   containerStyle?: ViewStyle | ViewStyle[]
 }
@@ -68,8 +66,9 @@ const StepperComponent = ({ containerStyle }: Props) => {
   }) => (
     <Text
       fontSize={11}
+      weight="regular"
       style={[text.center, spacings.phMi]}
-      appearance={stepStatus === 'finished' ? 'successText' : 'secondaryText'}
+      appearance={stepStatus === 'finished' ? 'successText' : 'primaryText'}
       numberOfLines={2}
     >
       {label}
@@ -77,16 +76,7 @@ const StepperComponent = ({ containerStyle }: Props) => {
   )
 
   return (
-    <View
-      style={[
-        styles.container,
-        spacings.phLg,
-        spacings.mtTy,
-        flexboxStyles.flex1,
-        flexboxStyles.justifyCenter,
-        containerStyle
-      ]}
-    >
+    <View style={[spacings.mtTy, flexboxStyles.flex1, flexboxStyles.justifyCenter, containerStyle]}>
       <StepIndicator
         customStyles={customStyles}
         currentPosition={currentStep}
