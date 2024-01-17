@@ -1,19 +1,18 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const TrezorIcon: React.FC<Props> = ({ width = 53, height = 77 }) => (
-  <Svg width={width} height={height} viewBox="0 0 53.355 77.455">
-    <Path
-      d="M0,64.829V23.809H8.032v-5.02a18.789,18.789,0,1,1,37.578,0v5.02h7.745v41.02L26.8,77.455ZM10.614,58.1l16.164,7.616,15.964-7.59v-23.7H10.614Zm25.53-34.288v-5.02a9.323,9.323,0,1,0-18.645,0v5.02Z"
-      fill={iconColors.primary}
-    />
+const TrezorIcon: React.FC<SvgProps> = ({
+  width = 46,
+  height = 69,
+  color = iconColors.primary
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 45.639 69.135">
+    <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
+      <Path d="M1 25h43.639v32.182l-21.65 10.953L1.001 57.182Z" />
+      <Path d="M23 1h0a14 14 0 0 1 14 14v10h0H9h0V15A14 14 0 0 1 23 1Z" />
+    </G>
   </Svg>
 )
 

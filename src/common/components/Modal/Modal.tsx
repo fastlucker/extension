@@ -13,12 +13,21 @@ type Props = {
   isOpen: boolean
   onClose?: () => void
   title?: string
+  hideLeftSideContainer?: boolean
   modalStyle?: ViewStyle | ViewStyle[]
   children: ReactElement | ReactElement[]
   withBackButton?: boolean
 }
 
-const Modal = ({ isOpen, onClose, title, modalStyle, children, withBackButton }: Props) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  modalStyle,
+  children,
+  withBackButton,
+  hideLeftSideContainer = false
+}: Props) => {
   const { styles } = useTheme(getStyles)
 
   return (
@@ -30,13 +39,15 @@ const Modal = ({ isOpen, onClose, title, modalStyle, children, withBackButton }:
       >
         <Pressable style={[styles.modal, modalStyle]}>
           <View style={styles.modalHeader}>
-            <View style={styles.sideContainer}>
-              {!!onClose && withBackButton && (
-                <View style={styles.backButton}>
-                  <BackButton onPress={onClose} />
-                </View>
-              )}
-            </View>
+            {!hideLeftSideContainer && (
+              <View style={styles.sideContainer}>
+                {!!onClose && withBackButton && (
+                  <View style={styles.backButton}>
+                    <BackButton onPress={onClose} />
+                  </View>
+                )}
+              </View>
+            )}
             {!!title && (
               <Text fontSize={20} weight="medium">
                 {title}

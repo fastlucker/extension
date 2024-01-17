@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { TouchableOpacity, View } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Button from '@common/components/Button'
@@ -72,7 +71,7 @@ const AccountAdderScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper containerStyle={{ maxWidth: tabLayoutWidths.lg }} />
+          <Stepper />
         </Header>
       }
       footer={
@@ -145,35 +144,11 @@ const AccountAdderScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon} title="Importing accounts" />
-          <TabLayoutWrapperSideContentItem.Group>
-            <TabLayoutWrapperSideContentItem.Text>
-              Here you can choose which accounts to import. For every individual key, there exists
-              both a legacy account and a smart account that you can individually choose to import.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group noMb={keyType !== 'internal'}>
-            <TabLayoutWrapperSideContentItem.Title>
-              Linked Smart Accounts
-            </TabLayoutWrapperSideContentItem.Title>
-            <TabLayoutWrapperSideContentItem.Text>
-              Linked smart accounts are accounts that were not created with a given key originally,
-              but this key was authorized for that given account on any supported network.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          {keyType === 'internal' ? (
-            <TabLayoutWrapperSideContentItem.Group noMb>
-              <TabLayoutWrapperSideContentItem.Title>
-                Email recovery
-              </TabLayoutWrapperSideContentItem.Title>
-              <TabLayoutWrapperSideContentItem.Text noMb>
-                Email recovery can be enabled for Smart Accounts, and it allows you to use your
-                email vault to trigger a timelocked recovery procedure that enables you to regain
-                access to an account if you&apos;ve lost it&apos;s keys.
-              </TabLayoutWrapperSideContentItem.Text>
-            </TabLayoutWrapperSideContentItem.Group>
-          ) : null}
+        <TabLayoutWrapperSideContentItem title="Importing accounts">
+          <TabLayoutWrapperSideContentItem.Text>
+            Select which accounts to import. For every unique key, you can find a Basic Account and
+            a Smart Account, and you can import them individually.
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
