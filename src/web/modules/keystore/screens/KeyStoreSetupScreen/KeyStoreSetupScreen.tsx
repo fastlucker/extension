@@ -236,6 +236,12 @@ const KeyStoreSetupScreen = () => {
               navigate(WEB_ROUTES.importPrivateKey, {
                 state: { backTo: WEB_ROUTES.importHotWallet }
               })
+              return
+            }
+            if (params?.flow === 'create-seed') {
+              navigate(WEB_ROUTES.createSeedPhrasePrepare, {
+                state: { backTo: WEB_ROUTES.getStarted }
+              })
             }
           }}
         >

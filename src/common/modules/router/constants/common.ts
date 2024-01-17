@@ -64,7 +64,10 @@ const WEB_ROUTES = {
   networks: 'networks',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
-  importSeedPhrase: 'import-seed-phrase'
+  importSeedPhrase: 'import-seed-phrase',
+  createSeedPhrasePrepare: 'create-seed-phrase/prepare',
+  createSeedPhraseWrite: 'create-seed-phrase/write',
+  createSeedPhraseConfirm: 'create-seed-phrase/confirm'
 }
 
 const ROUTES = {

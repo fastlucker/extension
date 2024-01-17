@@ -10,6 +10,9 @@ import { TransferControllerStateProvider } from '@web/contexts/transferControlle
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
+import CreateSeedPhraseConfirmScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseConfirmScreen'
+import CreateSeedPhrasePrepareScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhrasePrepareScreen'
+import CreateSeedPhraseWriteScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseWriteScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
@@ -73,6 +76,19 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
           <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
+
+          <Route
+            path={WEB_ROUTES.createSeedPhrasePrepare}
+            element={<CreateSeedPhrasePrepareScreen />}
+          />
+          <Route
+            path={WEB_ROUTES.createSeedPhraseWrite}
+            element={<CreateSeedPhraseWriteScreen />}
+          />
+          <Route
+            path={WEB_ROUTES.createSeedPhraseConfirm}
+            element={<CreateSeedPhraseConfirmScreen />}
+          />
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />

@@ -13,12 +13,16 @@ interface Style {
   container: ViewStyle
 }
 
+export const panelPaddingStyle = {
+  paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
+  paddingVertical: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_XL : SPACING_LG
+}
+
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
-      paddingVertical: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_XL : SPACING_LG,
       ...common.borderRadiusPrimary,
+      ...panelPaddingStyle,
       borderWidth: 1,
       borderColor: theme.secondaryBorder,
       backgroundColor: theme.primaryBackground

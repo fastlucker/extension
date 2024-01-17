@@ -35,7 +35,9 @@ const GetStartedScreen = () => {
   const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(false)
 
   const handleAuthButtonPress = useCallback(
-    async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-hot-wallet' | 'view-only') => {
+    async (
+      flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
+    ) => {
       const hasTerms = await storage.get('termsState', false)
 
       if (flow === 'create-hot-wallet') {
@@ -64,6 +66,10 @@ const GetStartedScreen = () => {
       }
       if (flow === 'hw') {
         navigate(WEB_ROUTES.hardwareWalletSelect)
+        return
+      }
+      if (flow === 'create-seed') {
+        navigate(WEB_ROUTES.createSeedPhrasePrepare)
       }
     },
     [navigate, keystoreState]
@@ -105,11 +111,11 @@ const GetStartedScreen = () => {
               ...spacings.ml
             }}
             text={t(
-              'This option lets you open a secure Smart Account wallet with a traditional 24-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity. Learn more'
+              'This option lets you open a secure Smart Account wallet with a traditional 12-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity. Learn more'
             )}
             icon={SeedPhraseRecoveryIcon}
             buttonText={t('Proceed')}
-            onPress={() => handleAuthButtonPress('todo')}
+            onPress={() => handleAuthButtonPress('create-seed')}
           />
         </View>
       </Modal>

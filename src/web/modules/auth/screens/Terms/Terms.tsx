@@ -80,6 +80,10 @@ const Terms = () => {
     }
     if (flow === 'private-key') {
       navigate(WEB_ROUTES.importPrivateKey, { state: { backTo: WEB_ROUTES.importHotWallet } })
+      return
+    }
+    if (flow === 'create-seed') {
+      navigate(WEB_ROUTES.createSeedPhrasePrepare)
     }
   }
 
