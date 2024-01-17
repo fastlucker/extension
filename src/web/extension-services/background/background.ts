@@ -73,52 +73,43 @@ async function init() {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   if (isManifestV3) {
+    saveTimestamp()
     // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
     // miliseconds. This keeps the service worker alive.
     const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-
-    saveTimestamp()
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
   await init()
 
   const backgroundState: {
-    fetchPortfolioIntervalId: any
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
-    activityIntervalId: any
-    accountStateInterval: any
-    selectedAccountStateInterval: any
     accountStateIntervals: {
       pending: number
       standBy: number
     }
-    reestimateInterval: any
     prevSelectedAccount: string | null
     hasSignAccountOpCtrlInitialized: boolean
     portMessageUIRefs: { [key: string]: PortMessage }
+    fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    activityIntervalId?: ReturnType<typeof setInterval>
+    reestimateInterval?: ReturnType<typeof setInterval>
+    accountStateInterval?: ReturnType<typeof setInterval>
+    selectedAccountStateInterval?: number
     onResoleDappNotificationRequest?: (data: any, id?: number) => void
     onRejectDappNotificationRequest?: (data: any, id?: number) => void
   } = {
-    fetchPortfolioIntervalId: undefined,
-    /** ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl
-    when it receives an update in the ctrl.onUpdate callback. While the flag is truthy and there are new updates coming for that ctrl
-    in the same tick, they will be debounced and only one event will be executed at the end
+    /**
+      ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
+      While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
     ctrlOnUpdateIsDirtyFlags: {},
-    activityIntervalId: undefined,
-    // refresh the account state once every 5 minutes. If there are BroadcastedButNotConfirmed account ops, start refreshing once every 7.5 seconds until they are cleared
-    accountStateInterval: undefined,
-    selectedAccountStateInterval: undefined,
     accountStateIntervals: {
       pending: 3000,
       standBy: 300000
     },
-    reestimateInterval: undefined,
     prevSelectedAccount: null,
     hasSignAccountOpCtrlInitialized: false,
-    portMessageUIRefs: {},
-    onResoleDappNotificationRequest: undefined,
-    onRejectDappNotificationRequest: undefined
+    portMessageUIRefs: {}
   }
 
   const ledgerCtrl = new LedgerController()
@@ -174,7 +165,7 @@ async function init() {
 
   function setPortfolioFetchInterval() {
     !!backgroundState.fetchPortfolioIntervalId &&
-      clearInterval(backgroundState.fetchPortfolioIntervalId) // Clear existing interval
+      clearInterval(backgroundState.fetchPortfolioIntervalId)
     backgroundState.fetchPortfolioIntervalId = setInterval(
       fetchPortfolioData,
       // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
@@ -183,11 +174,10 @@ async function init() {
     )
   }
 
-  // Call it once to initialize the interval
-  setPortfolioFetchInterval()
+  setPortfolioFetchInterval() // Call it once to initialize the interval
 
   function setActivityInterval(timeout: number) {
-    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId) // Clear existing interval
+    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
     backgroundState.activityIntervalId = setInterval(
       () => mainCtrl.updateAccountsOpsStatuses(),
       timeout
@@ -198,9 +188,8 @@ async function init() {
     !!backgroundState.accountStateInterval && clearInterval(backgroundState.accountStateInterval)
     backgroundState.selectedAccountStateInterval = intervalLength
 
-    // if setAccountStateInterval is called with a pending request
-    // (this happens after broadcast), update the account state
-    // with the pending block without waiting
+    // if setAccountStateInterval is called with a pending request (this happens after broadcast),
+    // update the account state with the pending block without waiting
     if (
       backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
     ) {
@@ -208,9 +197,8 @@ async function init() {
     }
 
     backgroundState.accountStateInterval = setInterval(async () => {
-      // update the account state with the latest block in normal
-      // circumstances and with the pending block when there are
-      // pending account ops
+      // update the account state with the latest block in normal circumstances
+      // and with the pending block when there are pending account ops
       const blockTag =
         backgroundState.selectedAccountStateInterval ===
         backgroundState.accountStateIntervals.standBy
@@ -218,8 +206,7 @@ async function init() {
           : 'pending'
       mainCtrl.updateAccountStates(blockTag)
 
-      // if we're in a pending update interval but there are no
-      // broadcastedButNotConfirmed account Ops, set the interval to standBy
+      // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
       if (
         backgroundState.selectedAccountStateInterval ===
           backgroundState.accountStateIntervals.pending &&
@@ -229,8 +216,8 @@ async function init() {
       }
     }, intervalLength)
   }
-  // Call it once to initialize the interval
-  setAccountStateInterval(backgroundState.accountStateIntervals.standBy)
+
+  setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
 
   function setReestimateInterval(accountOp: AccountOp) {
     !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
@@ -270,8 +257,8 @@ async function init() {
   }
 
   /**
-   * Initialize the onUpdate callback for the MainController.
-   * Once the mainCtrl load is ready, initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
+    Initialize the onUpdate callback for the MainController. Once the mainCtrl load is ready,
+    initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
    */
   mainCtrl.onUpdate(() => {
     const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl)
@@ -303,8 +290,7 @@ async function init() {
             if (res === 'DEBOUNCED') return
 
             if (ctrlName === 'activity') {
-              // Start the interval for updating the accounts ops statuses,
-              // only if there are broadcasted but not confirmed accounts ops
+              // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
               if (controller?.broadcastedButNotConfirmed.length) {
                 // If the interval is already set, then do nothing.
                 if (!backgroundState.activityIntervalId) {
@@ -313,7 +299,7 @@ async function init() {
               } else {
                 !!backgroundState.activityIntervalId &&
                   clearInterval(backgroundState.activityIntervalId)
-                backgroundState.activityIntervalId = null
+                delete backgroundState.activityIntervalId
               }
             }
           }, 'background')
