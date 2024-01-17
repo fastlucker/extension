@@ -176,9 +176,8 @@ async function init() {
     !!backgroundState.fetchPortfolioIntervalId &&
       clearInterval(backgroundState.fetchPortfolioIntervalId) // Clear existing interval
     backgroundState.fetchPortfolioIntervalId = setInterval(
-      () => fetchPortfolioData(),
-      // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently (1 minute).
+      fetchPortfolioData,
+      // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       Object.keys(backgroundState.portMessageUIRefs).length ? 60000 : 600000
     )
