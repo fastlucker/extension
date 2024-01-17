@@ -243,29 +243,39 @@ async function init() {
     }, time)
   }
 
+  function debounceFrontEndEventUpdatesOnSameTick(
+    ctrlName: string,
+    ctrl: any
+  ): 'DEBOUNCED' | 'EMITTED' {
+    if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
+    backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
+
+    // Debounce multiple emits in the same tick and only execute one if them
+    setTimeout(() => {
+      if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
+        Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+          backgroundState.portMessageUIRefs[key]?.request({
+            type: 'broadcast',
+            method: ctrlName,
+            params: ctrl
+          })
+        })
+        // stringify and then parse to add the getters to the public state
+        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+      }
+      backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
+    }, 0)
+
+    return 'EMITTED'
+  }
+
   /**
    * Initialize the onUpdate callback for the MainController.
    * Once the mainCtrl load is ready, initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
    */
   mainCtrl.onUpdate(() => {
-    if (backgroundState.ctrlOnUpdateIsDirtyFlags.main) return
-    backgroundState.ctrlOnUpdateIsDirtyFlags.main = true
-
-    // Debounce multiple emits in the same tick and only execute one if them
-    setTimeout(() => {
-      if (backgroundState.ctrlOnUpdateIsDirtyFlags.main) {
-        Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.request({
-            type: 'broadcast',
-            method: 'main',
-            params: mainCtrl
-          })
-        })
-        // stringify and then parse to add the getters to the public state
-        logInfoWithPrefix('onUpdate (main ctrl)', parse(stringify(mainCtrl)))
-      }
-      backgroundState.ctrlOnUpdateIsDirtyFlags.main = false
-    }, 0)
+    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl)
+    if (res === 'DEBOUNCED') return
 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
@@ -278,21 +288,21 @@ async function init() {
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
     }
 
-    Object.keys(controllersNestedInMainMapping).forEach((ctrl) => {
-      const controller = (mainCtrl as any)[ctrl]
-      if (Array.isArray(controller?.callbacks)) {
+    Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
+      const controller = (mainCtrl as any)[ctrlName]
+      if (Array.isArray(controller?.onUpdateIds)) {
         /**
          * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
          * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
          */
-        const hasOnUpdateInitialized = controller.callbacks.find((c: any) => c.id === 'background')
+        const hasOnUpdateInitialized = controller.onUpdateIds.includes('background')
 
         if (!hasOnUpdateInitialized) {
           controller?.onUpdate(() => {
-            if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrl]) return
-            backgroundState.ctrlOnUpdateIsDirtyFlags[ctrl] = true
+            const res = debounceFrontEndEventUpdatesOnSameTick(ctrlName, controller)
+            if (res === 'DEBOUNCED') return
 
-            if (ctrl === 'activity') {
+            if (ctrlName === 'activity') {
               // Start the interval for updating the accounts ops statuses,
               // only if there are broadcasted but not confirmed accounts ops
               if (controller?.broadcastedButNotConfirmed.length) {
@@ -306,42 +316,25 @@ async function init() {
                 backgroundState.activityIntervalId = null
               }
             }
-
-            setTimeout(() => {
-              if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrl]) {
-                Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-                  backgroundState.portMessageUIRefs[key]?.request({
-                    type: 'broadcast',
-                    method: ctrl,
-                    params: controller
-                  })
-                })
-                // stringify and then parse to add the getters to the public state
-                logInfoWithPrefix(`onUpdate (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
-              }
-              backgroundState.ctrlOnUpdateIsDirtyFlags[ctrl] = false
-            }, 0)
           }, 'background')
         }
       }
 
-      if (Array.isArray(controller?.errorCallbacks)) {
-        const hasOnErrorInitialized = controller.errorCallbacks.find(
-          (c: any) => c.id === 'background'
-        )
+      if (Array.isArray(controller?.onErrorIds)) {
+        const hasOnErrorInitialized = controller.onErrorIds.includes('background')
 
         if (!hasOnErrorInitialized) {
-          ;(mainCtrl as any)[ctrl]?.onError(() => {
-            const errors = (mainCtrl as any)[ctrl].getErrors()
+          ;(mainCtrl as any)[ctrlName]?.onError(() => {
+            const errors = (mainCtrl as any)[ctrlName].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
             // stringify and then parse to add the getters to the public state
-            logInfoWithPrefix(`onError (${ctrl} ctrl)`, parse(stringify(mainCtrl)))
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
               backgroundState.portMessageUIRefs[key]?.request({
                 type: 'broadcast-error',
-                method: ctrl,
-                params: { errors, controller: ctrl }
+                method: ctrlName,
+                params: { errors, controller: ctrlName }
               })
             })
           }, 'background')
@@ -382,21 +375,7 @@ async function init() {
 
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate(() => {
-    if (backgroundState.ctrlOnUpdateIsDirtyFlags.notification) return
-    backgroundState.ctrlOnUpdateIsDirtyFlags.notification = true
-    // Debounce multiple emits in the same tick and only execute one if them
-    setTimeout(() => {
-      if (backgroundState.ctrlOnUpdateIsDirtyFlags.notification) {
-        Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.request({
-            type: 'broadcast',
-            method: 'notification',
-            params: notificationCtrl
-          })
-        })
-      }
-      backgroundState.ctrlOnUpdateIsDirtyFlags.notification = false
-    }, 0)
+    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
