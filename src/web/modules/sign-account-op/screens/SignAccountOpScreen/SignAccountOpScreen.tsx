@@ -46,8 +46,8 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
 
   const hasEstimation = useMemo(
-    () => !!signAccountOpState?.availableFeeOptions.length,
-    [signAccountOpState?.availableFeeOptions]
+    () => !!signAccountOpState?.availableFeeOptions.length && !!signAccountOpState?.gasPrices,
+    [signAccountOpState?.availableFeeOptions, signAccountOpState?.gasPrices]
   )
 
   useEffect(() => {
