@@ -91,7 +91,7 @@ const KeyStoreUnlockScreen = () => {
 
             <View style={[isWeb && spacings.ph, flexboxStyles.flex1, flexboxStyles.justifyEnd]}>
               <Text weight="regular" style={[spacings.mbTy, spacings.phTy]} fontSize={12}>
-                {t('Enter your Ambire Key Store passphrase to unlock your wallet')}
+                {t('Enter your Ambire Device Password to unlock your wallet')}
               </Text>
 
               <Controller
@@ -99,7 +99,7 @@ const KeyStoreUnlockScreen = () => {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <InputPassword
                     onBlur={onBlur}
-                    placeholder={t('Passphrase')}
+                    placeholder={t('Password')}
                     autoFocus={isWeb}
                     onChangeText={onChange}
                     isValid={isValidPassword(value)}
@@ -108,7 +108,7 @@ const KeyStoreUnlockScreen = () => {
                     error={
                       errors.password &&
                       (errors.password.message ||
-                        t('Please fill in at least 8 characters for passphrase.'))
+                        t('Please fill in at least 8 characters for password.'))
                     }
                     containerStyle={spacings.mbTy}
                   />
@@ -134,7 +134,7 @@ const KeyStoreUnlockScreen = () => {
               <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow]}>
                 <TouchableOpacity onPress={() => null} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
                   <Text weight="medium" fontSize={12} underline>
-                    {t('Forgot Key Store passphrase?')}
+                    {t('Forgot Device Password?')}
                   </Text>
                 </TouchableOpacity>
               </View>

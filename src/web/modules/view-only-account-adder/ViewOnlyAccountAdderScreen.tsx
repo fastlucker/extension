@@ -4,8 +4,8 @@ import { Pressable, View } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -15,7 +15,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -155,12 +155,13 @@ const ViewOnlyScreen = () => {
       header={<Header withAmbireLogo />}
       footer={
         <>
-          <BackButton />
+          <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
             textStyle={{ fontSize: 14 }}
+            style={{ minWidth: 180 }}
             disabled={!isValid || duplicateAccountsIndexes.length > 0}
             hasBottomSpacing={false}
-            text={t('Import View-Only Accounts')}
+            text={t('Import')}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -171,7 +172,7 @@ const ViewOnlyScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('View-Only Accounts')}>
+        <Panel title={t('Import A Wallet In View-Only Mode')}>
           {fields.map((field, index) => (
             <Controller
               key={field.id}
@@ -201,6 +202,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
+                    onSubmitEditing={handleFormSubmit}
                   />
                   {index !== 0 && (
                     <Pressable style={[spacings.ml]} onPress={() => remove(index)}>
@@ -222,16 +224,14 @@ const ViewOnlyScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row
-            Icon={InfoIcon}
-            title="Importing view-only accounts"
-          />
+        <TabLayoutWrapperSideContentItem icon={ViewOnlyIcon} title={t('View-only mode')}>
+          <TabLayoutWrapperSideContentItem.Text>
+            {t(
+              'Importing an account in the view-only mode lets you preview any public wallet address on any supported network. You can observe its balances or connect to dApps with it. Of course, in the view-only mode, you won&apos;t be able to sign any transaction, message, or authorize this account in any form.'
+            )}
+          </TabLayoutWrapperSideContentItem.Text>
           <TabLayoutWrapperSideContentItem.Text noMb>
-            Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
-            course, you cannot sign any transactions or messages, or authorize with this account in
-            any form. This is possible due to the public nature of the Web3 itself.
+            {t('All this is possible due to the public nature of the Web3 itself.')}
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

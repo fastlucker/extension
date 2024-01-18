@@ -9,14 +9,14 @@ import spacings, {
   SPACING_XL
 } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import { TAB_CONTENT_WIDTH, TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
 import TabLayoutWrapperSideContent from './SideContent'
 import TabLayoutWrapperSideContentItem from './SideContentItem/SideContentItem'
 import getStyles from './styles'
 
-type Width = 'sm' | 'md' | 'lg' | 'full'
+type Width = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
 const { isTab, isNotification } = getUiType()
 
@@ -24,6 +24,7 @@ export const tabLayoutWidths = {
   sm: 770,
   md: 900,
   lg: TAB_CONTENT_WIDTH,
+  xl: TAB_WIDE_CONTENT_WIDTH,
   full: '100%'
 }
 
@@ -37,12 +38,19 @@ type TabLayoutContainerProps = {
   style?: ViewStyle
 }
 
+export const paddingHorizontalStyle =
+  isTab || isNotification
+    ? {
+        paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL
+      }
+    : spacings.ph
+
 export const TabLayoutContainer = ({
   backgroundColor,
   header,
   footer,
   hideFooterInPopup = false,
-  width = 'full',
+  width = 'xl',
   children,
   style
 }: TabLayoutContainerProps) => {
@@ -52,28 +60,38 @@ export const TabLayoutContainer = ({
   return (
     <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
       {!!header && header}
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.flex1,
-          width !== 'full' ? flexbox.alignSelfCenter : {},
-          width === 'full' && (isTab || isNotification)
-            ? {
-                paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL
-              }
-            : {},
-          width === 'full' && !isTab && !isNotification ? spacings.ph : {},
-          {
-            backgroundColor: backgroundColor || theme.primaryBackground,
-            maxWidth: tabLayoutWidths[width],
-            width: '100%'
-          },
-          style
-        ]}
-      >
-        {children}
+      <View style={[flexbox.flex1, paddingHorizontalStyle]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.flex1,
+            width !== 'full' ? flexbox.alignSelfCenter : {},
+            {
+              backgroundColor: backgroundColor || theme.primaryBackground,
+              maxWidth: tabLayoutWidths[width],
+              width: '100%'
+            },
+            style
+          ]}
+        >
+          {children}
+        </View>
       </View>
-      {!!footer && !isFooterHiddenInPopup && <View style={styles.footerContainer}>{footer}</View>}
+      {!!footer && !isFooterHiddenInPopup && (
+        <View style={[styles.footerContainer, paddingHorizontalStyle]}>
+          <View
+            style={[
+              styles.footer,
+              {
+                // Must be TAB_WIDE_CONTENT_WIDTH for every width except 'full'
+                maxWidth: width === 'full' ? '100%' : TAB_WIDE_CONTENT_WIDTH
+              }
+            ]}
+          >
+            {footer}
+          </View>
+        </View>
+      )}
     </View>
   )
 }

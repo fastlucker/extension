@@ -60,7 +60,7 @@ const NavMenu = () => {
                 }}
                 style={styles.menuItem}
               >
-                {!!Icon && <Icon color={theme.primaryText} />}
+                {!!Icon && <Icon width={24} height={24} color={theme.primaryText} />}
                 <Text fontSize={16} style={spacings.ml} weight="medium" appearance="primaryText">
                   {label}
                 </Text>

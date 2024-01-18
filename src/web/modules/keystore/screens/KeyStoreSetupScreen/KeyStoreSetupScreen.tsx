@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { isValidPassword } from '@ambire-common/services/validations'
+import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -22,7 +23,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_3XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
@@ -118,11 +119,7 @@ const KeyStoreSetupScreen = () => {
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}
             disabled={isSubmitting || isKeystoreSetupLoading || !isValid}
-            text={
-              isSubmitting || isKeystoreSetupLoading
-                ? t('Setting Up Your Key Store...')
-                : t('Set up Ambire Key Store')
-            }
+            text={isSubmitting || isKeystoreSetupLoading ? t('Creating...') : t('Create')}
             onPress={handleKeystoreSetup}
           >
             <View style={spacings.pl}>
@@ -133,94 +130,85 @@ const KeyStoreSetupScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Ambire Key Store')}>
-          <View style={[flexbox.directionRow]}>
-            <View style={{ flex: 1, maxWidth: 330 }}>
-              <Controller
-                control={control}
-                rules={{ validate: isValidPassword }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <InputPassword
-                    onBlur={onBlur}
-                    placeholder={t('Enter Passphrase')}
-                    onChangeText={onChange}
-                    isValid={isValidPassword(value)}
-                    autoFocus={isWeb}
-                    value={value}
-                    error={
-                      errors.password &&
-                      (t('Please fill in at least 8 characters for passphrase.') as string)
-                    }
-                    containerStyle={[spacings.mbTy, { maxWidth: 330 }]}
-                    onSubmitEditing={handleKeystoreSetup}
-                  />
-                )}
-                name="password"
-              />
-              <Controller
-                control={control}
-                rules={{
-                  validate: (value) => watch('password', '') === value
-                }}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    onBlur={onBlur}
-                    placeholder={t('Repeat Passphrase')}
-                    onChangeText={onChange}
-                    value={value}
-                    isValid={!!value && watch('password', '') === value}
-                    validLabel={t('✅ Passwords match, you are ready to continue')}
-                    secureTextEntry
-                    error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
-                    autoCorrect={false}
-                    containerStyle={spacings.mb0}
-                    onSubmitEditing={handleKeystoreSetup}
-                  />
-                )}
-                name="confirmPassword"
-              />
-            </View>
-            <View style={spacings.plMd}>
-              <KeyStoreLogo width={117} height={117} />
-            </View>
+        <Panel title={t('Create a Device Password')}>
+          <View style={{ flex: 1, maxWidth: 330 }}>
+            <Controller
+              control={control}
+              rules={{ validate: isValidPassword }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <InputPassword
+                  onBlur={onBlur}
+                  placeholder={t('Enter Password')}
+                  onChangeText={onChange}
+                  isValid={isValidPassword(value)}
+                  autoFocus={isWeb}
+                  value={value}
+                  tooltipText="Your password must be unique and at least 8 characters long"
+                  error={
+                    errors.password &&
+                    (t('Your password must be unique and at least 8 characters long.') as string)
+                  }
+                  containerStyle={[spacings.mbTy, { maxWidth: 330 }]}
+                  onSubmitEditing={handleKeystoreSetup}
+                />
+              )}
+              name="password"
+            />
+            <Controller
+              control={control}
+              rules={{
+                validate: (value) => watch('password', '') === value
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  onBlur={onBlur}
+                  placeholder={t('Repeat Password')}
+                  onChangeText={onChange}
+                  value={value}
+                  isValid={!!value && watch('password', '') === value}
+                  validLabel={t('✅ Passwords match, you are ready to continue')}
+                  secureTextEntry
+                  error={errors.confirmPassword && (t("Passwords don't match.") as string)}
+                  autoCorrect={false}
+                  containerStyle={spacings.mb0}
+                  onSubmitEditing={handleKeystoreSetup}
+                />
+              )}
+              name="confirmPassword"
+            />
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Title>
-            Set up Your Ambire Key Store
-          </TabLayoutWrapperSideContentItem.Title>
+        <TabLayoutWrapperSideContentItem icon={KeyStoreSettingsIcon} title="Device Password">
           <TabLayoutWrapperSideContentItem.Text>
-            Ambire Keystore will protect your Ambire Wallet with a passphrase, encrypting all the
-            keys that are stored locally with this passphrase through secure AES encryption.
+            Device Password protects your Ambire Wallet with a secret string of characters,
+            encrypting all the keys stored locally with the Device Password through secure AES
+            encryption.
           </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Group>
-            <TabLayoutWrapperSideContentItem.Text>
-              1. First, pick your passphrase. It should be long and you shouldn&apos;t reuse other
-              passphrases.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group>
-            <TabLayoutWrapperSideContentItem.Text>
-              2. You will use your passphrase to unlock the Ambire extension and sign transactions
-              on this device.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
-          <TabLayoutWrapperSideContentItem.Group noMb>
-            <TabLayoutWrapperSideContentItem.Text noMb>
-              3. This passphrase can only be reset if you enable recovery via your email vault.
-            </TabLayoutWrapperSideContentItem.Text>
-          </TabLayoutWrapperSideContentItem.Group>
+          <TabLayoutWrapperSideContentItem.Text>
+            The first step is to select the password. It should be long, contain different types of
+            characters and you should not reuse older passwords, and must not use it anywhere else.
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Text>
+            You will use the Device password to unlock the Ambire Wallet extension and sign
+            transactions on the authorized device.
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            This password can be reset only if you have enabled recovery by your Email vault.
+          </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
-      <Modal isOpen={keystoreReady} modalStyle={{ minWidth: 'unset' }}>
+      <Modal
+        isOpen={keystoreReady}
+        modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
+      >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
-          {t('Ambire Key Store')}
+          {t('Device Password')}
         </Text>
-        <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
-        <Text fontSize={16} style={[spacings.mbLg, text.center]}>
-          {t('Your Ambire Key Store is\nready!')}
+        <KeyStoreLogo width={112} height={112} style={[flexbox.alignSelfCenter, spacings.mbXl]} />
+        <Text fontSize={16} style={[spacings.mb2Xl, text.center]}>
+          {t('Your Device Password is set!')}
         </Text>
         <Button
           text={t('Continue')}
@@ -239,9 +227,15 @@ const KeyStoreSetupScreen = () => {
               })
               return
             }
-            if (params?.flow === 'legacy') {
-              navigate(WEB_ROUTES.externalSigner, {
-                state: { backTo: WEB_ROUTES.getStarted }
+            if (params?.flow === 'seed') {
+              navigate(WEB_ROUTES.importSeedPhrase, {
+                state: { backTo: WEB_ROUTES.importHotWallet }
+              })
+              return
+            }
+            if (params?.flow === 'private-key') {
+              navigate(WEB_ROUTES.importPrivateKey, {
+                state: { backTo: WEB_ROUTES.importHotWallet }
               })
             }
           }}

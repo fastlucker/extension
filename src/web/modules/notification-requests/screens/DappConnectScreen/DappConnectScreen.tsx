@@ -62,6 +62,7 @@ const DappConnectScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="full"
       header={
         <Header withAmbireLogo mode="custom">
           <View
