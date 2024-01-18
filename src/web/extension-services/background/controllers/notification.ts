@@ -116,7 +116,7 @@ export class NotificationController extends EventEmitter {
         this.notificationRequests = [...notificationRequestsToAdd, ...this.notificationRequests]
         this.openNotificationRequest(this.notificationRequests[0].id)
       }
-    })
+    }, 'notification')
   }
 
   reopenCurrentNotificationRequest = async () => {
