@@ -482,9 +482,11 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
+              const pageSize = data.params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                pageSize,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,

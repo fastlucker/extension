@@ -71,7 +71,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
         dispatch({
           type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-          params: { privKeyOrSeed }
+          params: { privKeyOrSeed, keyTypeInternalSubtype }
         })
       },
       trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
