@@ -44,11 +44,25 @@ const SignAccountOpScreen = () => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [slowRequest, setSlowRequest] = useState<boolean>(false)
 
   const hasEstimation = useMemo(
     () => !!signAccountOpState?.availableFeeOptions.length && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.availableFeeOptions, signAccountOpState?.gasPrices]
   )
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!hasEstimation) {
+        setSlowRequest(true)
+      }
+    }, 5000)
+
+    if (hasEstimation) {
+      clearTimeout(timeout)
+      setSlowRequest(false)
+    }
+  }, [hasEstimation, slowRequest])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -363,11 +377,20 @@ const SignAccountOpScreen = () => {
                 </View>
               )}
 
-              {signAccountOpState.errors.length ? (
+              {!hasEstimation && slowRequest ? (
+                <View style={styles.errorContainer}>
+                  <Alert
+                    type="warning"
+                    title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
+                  />
+                </View>
+              ) : null}
+
+              {signAccountOpState?.errors.length ? (
                 <View style={styles.errorContainer}>
                   <Alert
                     type="error"
-                    title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+                    title={`We are unable to sign your transaction. ${signAccountOpState?.errors[0]}`}
                   />
                 </View>
               ) : null}
