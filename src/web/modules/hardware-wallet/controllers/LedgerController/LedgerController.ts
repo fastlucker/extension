@@ -142,12 +142,7 @@ class LedgerController implements ExternalSignerController {
       if (this.transport) {
         this.transport.off('disconnect', this.cleanUp)
 
-        // For some reason, calling the `close` method on the transport causes
-        // something in the transport instance to get stuck or crash
-        // and this doesn't even gets counted as an error, so the catch block
-        // never gets executed. So we just set the transport to null here,
-        // which works just fine and doesn't cause any issues.
-        // await this.transport.close()
+        await this.transport.close()
         this.transport = null
       }
     } catch {
