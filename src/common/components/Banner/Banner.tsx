@@ -6,9 +6,11 @@ import EditIcon from '@common/assets/svg/EditIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useNavigation from '@common/hooks/useNavigation'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
+import { ROUTES } from '@common/modules/router/constants/common'
 import Button from '../Button'
 import getStyles from './styles'
 
@@ -19,6 +21,7 @@ const ERROR_ACTIONS = ['reject']
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -47,6 +50,10 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
           type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
           params: { email: action.meta.email, keys: action.meta.keys }
         })
+      }
+
+      if (action.actionName === 'backup-keystore-secret' && topic === 'WARNING') {
+        navigate(ROUTES.emailVaultKeystoreSecretBackup)
       }
     },
     [dispatch, topic]

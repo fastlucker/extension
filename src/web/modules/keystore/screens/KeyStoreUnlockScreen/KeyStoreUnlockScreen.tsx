@@ -17,6 +17,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
@@ -132,7 +133,10 @@ const KeyStoreUnlockScreen = () => {
                 />
               </View>
               <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow]}>
-                <TouchableOpacity onPress={() => null} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
+                <TouchableOpacity
+                  onPress={() => navigate(WEB_ROUTES.emailVaultKeystoreRecover)}
+                  hitSlop={FOOTER_BUTTON_HIT_SLOP}
+                >
                   <Text weight="medium" fontSize={12} underline>
                     {t('Forgot Key Store passphrase?')}
                   </Text>

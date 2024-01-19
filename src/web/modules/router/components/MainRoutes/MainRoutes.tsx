@@ -19,6 +19,8 @@ import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import EmailVaultScreen from '@web/modules/emailVault/screens/EmailVaultScreen'
+import KeystoreSecretBackup from '@web/modules/emailVault/screens/KeystoreSecretBackup'
+import KeystoreRecover from '@web/modules/emailVault/screens/KeystoreRecover'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
@@ -55,6 +57,8 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
 
           <Route path={WEB_ROUTES.emailVault} element={<EmailVaultScreen />} />
+          <Route path={WEB_ROUTES.emailVaultKeystoreSecretBackup} element={<KeystoreSecretBackup />} />
+          <Route path={WEB_ROUTES.emailVaultKeystoreRecover} element={<KeystoreRecover />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
 
