@@ -53,7 +53,7 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
       }
 
       if (action.actionName === 'backup-keystore-secret' && topic === 'WARNING') {
-        navigate(ROUTES.emailVaultKeystoreSecretBackup)
+        navigate(ROUTES.keystore)
       }
     },
     [dispatch, topic]

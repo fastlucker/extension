@@ -37,10 +37,10 @@ export const getSettingsPages = (t: (string: string) => string) => [
     path: ROUTES.transactions
   },
   {
-    key: 'keystore-settings',
+    key: 'keystore',
     Icon: ({ color }: { color: ColorValue }) => <KeyStoreSettingsIcon color={color} />,
-    label: t('Ambire Key Store'),
-    path: '/settings/keystore-settings'
+    label: t('Device Password'),
+    path: ROUTES.keystore
   },
   {
     key: 'email-vault',
