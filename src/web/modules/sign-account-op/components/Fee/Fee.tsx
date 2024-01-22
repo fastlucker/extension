@@ -17,10 +17,10 @@ interface Props {
   onPress: (fee: FeeSpeed) => void
   isSelected: boolean
   isLastItem: boolean
-  isViewOnly: boolean
+  disabled: boolean
 }
 
-const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly }: Props) => {
+const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
@@ -36,7 +36,7 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly 
           ...spacings.pvMi
         }
       ]}
-      disabled={isViewOnly}
+      disabled={disabled}
       onPress={() => onPress(type)}
     >
       {({ hovered }: any) => (
