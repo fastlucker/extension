@@ -21,6 +21,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
+import { RELAYER_URL } from '@env'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent,
@@ -80,7 +81,7 @@ const ViewOnlyScreen = () => {
 
     const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
-        `https://staging-relayer.ambire.com/v2/identity/${account.address}`
+        `${RELAYER_URL}/v2/identity/${account.address}`
       )
 
       const accountIdentity: any = accountIdentityResponse?.body
