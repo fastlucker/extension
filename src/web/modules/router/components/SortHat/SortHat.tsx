@@ -43,6 +43,9 @@ const SortHat = () => {
       if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
         return navigate(ROUTES.dappConnectRequest)
       }
+      if (notificationState.currentNotificationRequest?.screen === 'AddChain') {
+        return navigate(ROUTES.addChain)
+      }
       if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
         if (
           mainState.userRequests.find(

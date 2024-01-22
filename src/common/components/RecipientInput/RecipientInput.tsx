@@ -45,7 +45,7 @@ const RecipientInput: React.FC<Props> = ({
       return t('Valid Ethereum Name ServicesⓇ domain')
     }
     return ''
-  }, [isValidUDomain, isValidEns, t])
+  }, [isValidUDomain, isValidEns, isRecipientDomainResolving, t])
 
   const handleOnScan = useCallback(
     (code: string) => {
