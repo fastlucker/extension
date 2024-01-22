@@ -151,7 +151,11 @@ const SeedPhraseImportScreen = () => {
         // Wait for the input to register (react-hook-form)
         setTimeout(() => {
           words.forEach((word, wordIndex) => {
-            setValue(`seedFields.${wordIndex}.value`, word)
+            setValue(`seedFields.${wordIndex}.value`, word, {
+              shouldDirty: true,
+              shouldValidate: true,
+              shouldTouch: true
+            })
           })
         }, 1)
         addToast(t('Seed Phrase successfully pasted from clipboard'))
@@ -169,7 +173,11 @@ const SeedPhraseImportScreen = () => {
         // Wait for the input to register (react-hook-form)
         setTimeout(() => {
           words.forEach((word, wordIndex) => {
-            setValue(`seedFields.${wordIndex}.value`, word)
+            setValue(`seedFields.${wordIndex}.value`, word, {
+              shouldDirty: true,
+              shouldValidate: true,
+              shouldTouch: true
+            })
           })
         }, 1)
 
