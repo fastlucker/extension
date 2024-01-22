@@ -166,7 +166,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
           }
 
-          return { privateKey, dedicatedToOneSA: true }
+          return { privateKey, dedicatedToOneSA: !acc.isLinked }
         })
 
         readyToAddKeys.internal = readyToAddInternalKeys
