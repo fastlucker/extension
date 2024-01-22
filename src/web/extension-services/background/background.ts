@@ -523,10 +523,10 @@ async function init() {
                 }
 
                 const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
-                  ({ accountKeyAddr, index }) => ({
+                  ({ accountKeyAddr, index, isLinked }) => ({
                     addr: accountKeyAddr,
                     type: keyType,
-                    dedicatedToOneSA: true,
+                    dedicatedToOneSA: !isLinked,
                     meta: {
                       deviceId: deviceIds[keyType],
                       deviceModel: deviceModels[keyType],
