@@ -116,6 +116,7 @@ const Button = ({
     >
       {!!text && (
         <Text
+          selectable={false}
           style={[
             styles.buttonText,
             buttonTextStyles[type],
