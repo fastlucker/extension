@@ -378,7 +378,7 @@ const SignAccountOpScreen = () => {
                 </View>
               )}
 
-              {!hasEstimation && slowRequest ? (
+              {!hasEstimation && slowRequest && !signAccountOpState?.errors.length ? (
                 <View style={styles.errorContainer}>
                   <Alert
                     type="warning"
