@@ -27,7 +27,7 @@ type Props = {
   accountPortfolio: AccountPortfolio | null
   signAccountOpState: SignAccountOpController
   networkId: NetworkDescriptor['id']
-  isViewOnly: boolean
+  disabled: boolean
 }
 
 const Estimation = ({
@@ -35,7 +35,7 @@ const Estimation = ({
   accountPortfolio,
   signAccountOpState,
   networkId,
-  isViewOnly
+  disabled
 }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -134,7 +134,7 @@ const Estimation = ({
         options={payOptions}
         style={spacings.mb}
         value={payValue || {}}
-        disabled={isViewOnly}
+        disabled={disabled}
         defaultValue={payValue}
       />
       <View style={[spacings.mbMd]}>
@@ -146,13 +146,13 @@ const Estimation = ({
             minWidthSize('xxl') && flexbox.wrap,
             flexbox.flex1,
             flexbox.directionRow,
-            isViewOnly && { opacity: 0.6 },
+            disabled && { opacity: 0.6 },
             minWidthSize('xxl') && { margin: -SPACING_MI }
           ]}
         >
           {signAccountOpState.feeSpeeds.map((fee, i) => (
             <Fee
-              isViewOnly={isViewOnly}
+              disabled={disabled}
               isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
               key={fee.amount + fee.type}
               label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}

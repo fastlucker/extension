@@ -238,6 +238,12 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const isSignLoading =
+    signAccountOpState.status?.type === SigningStatus.InProgress ||
+    signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
+    signAccountOpState.status?.type === SigningStatus.Done ||
+    mainState.broadcastStatus === 'LOADING'
+
   return (
     <TabLayoutContainer
       width="full"
@@ -253,12 +259,7 @@ const SignAccountOpScreen = () => {
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
           isEOA={!account?.creation}
-          isSignLoading={
-            signAccountOpState.status?.type === SigningStatus.InProgress ||
-            signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
-            signAccountOpState.status?.type === SigningStatus.Done ||
-            mainState.broadcastStatus === 'LOADING'
-          }
+          isSignLoading={isSignLoading}
           readyToSign={signAccountOpState.readyToSign}
           isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
@@ -369,7 +370,7 @@ const SignAccountOpScreen = () => {
                   signAccountOpState={signAccountOpState}
                   accountPortfolio={portfolioState.accountPortfolio}
                   networkId={network!.id}
-                  isViewOnly={isViewOnly}
+                  disabled={isViewOnly || isSignLoading}
                 />
               ) : (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
