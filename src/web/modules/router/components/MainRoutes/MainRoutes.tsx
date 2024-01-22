@@ -24,6 +24,7 @@ import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNew
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
@@ -111,6 +112,8 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 
         <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
+        <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+
         <Route
           path={WEB_ROUTES.getEncryptionPublicKeyRequest}
           element={<GetEncryptionPublicKeyRequestScreen />}
