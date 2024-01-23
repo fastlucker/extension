@@ -4,12 +4,12 @@ import { isManifestV3 } from '@web/constants/browserapi'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-const injectProviderScript = () => {
-  // the script element with src won't execute immediately
-  // use inline script element instead!
+const injectProviderScript = (isDefaultWallet: boolean) => {
+  // the script element with src won't execute immediately use inline script element instead!
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
   let content = ';(function () {'
+  content += `const isAmbireDefaultWallet = ${isDefaultWallet};`
   content += '#PAGEPROVIDER#'
   content += '\n})();'
   ele.textContent = content
@@ -29,7 +29,17 @@ document.addEventListener('beforeunload', () => {
   pm.dispose()
 })
 
+const getIsDefaultWallet = () => {
+  return pm.request({ method: 'isDefaultWallet' }) as Promise<boolean>
+}
+
 // the injection for manifest v3 is located in background.js
 if (!isManifestV3) {
-  injectProviderScript()
+  getIsDefaultWallet()
+    .then((isDefaultWallet) => {
+      injectProviderScript(!!isDefaultWallet)
+    })
+    .catch(() => {
+      injectProviderScript(true)
+    })
 }

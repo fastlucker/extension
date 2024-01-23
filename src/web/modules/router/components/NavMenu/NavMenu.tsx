@@ -7,17 +7,20 @@ import { TouchableOpacity, View } from 'react-native'
 // import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import styles from '@common/modules/nav-menu/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 // import flexboxStyles from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 
@@ -35,7 +38,7 @@ const NavMenu = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
-
+  const { setIsDefaultWallet, isDefaultWallet } = useBackgroundService()
   const settingsPages = getSettingsPages(t)
 
   return (
@@ -67,6 +70,23 @@ const NavMenu = () => {
               </TouchableOpacity>
             )
           })}
+          <View style={[spacings.ph, spacings.ptLg]}>
+            <Text fontSize={20} weight="medium" style={spacings.mbSm}>
+              Set Default Wallet for connecting to dApps
+            </Text>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text fontSize={14} weight="medium" style={spacings.mr}>
+                {t('Other wallets')}
+              </Text>
+              <Toggle
+                isOn={!!isDefaultWallet}
+                onToggle={() => setIsDefaultWallet(!isDefaultWallet)}
+              />
+              <Text fontSize={14} weight="medium">
+                {t('Ambire Wallet')}
+              </Text>
+            </View>
+          </View>
         </View>
         {/* <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
           {SOCIAL.map(({ Icon, url }) => (

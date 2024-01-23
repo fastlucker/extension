@@ -6,6 +6,7 @@ import EditIcon from '@common/assets/svg/EditIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
@@ -18,7 +19,8 @@ const ERROR_ACTIONS = ['reject']
 
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
-  const { dispatch } = useBackgroundService()
+  const { dispatch, setIsDefaultWallet } = useBackgroundService()
+  const { addToast } = useToast()
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -41,8 +43,13 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
       if (action.actionName === 'open-external-url' && topic === 'TRANSACTION') {
         window.open(action.meta.url, '_blank')
       }
+
+      if (action.actionName === 'enable-default-wallet') {
+        setIsDefaultWallet(true)
+        addToast('Ambire now overrides other wallets for dApps connection', { timeout: 2000 })
+      }
     },
-    [dispatch, topic]
+    [dispatch, setIsDefaultWallet, addToast, topic]
   )
 
   return (
