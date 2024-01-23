@@ -24,7 +24,7 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 const ambireChannelName = 'ambire-inpage'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-declare const isAmbireDefaultWallet: boolean
+let isAmbireDefaultWallet: boolean = true
 let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
 
@@ -297,6 +297,13 @@ export class EthereumProvider extends EventEmitter {
   }
 
   private _handleBackgroundMessage = ({ event, data }: any) => {
+    console.log('1', data)
+    if (data?.type === 'setDefaultWallet') {
+      console.log('in', data)
+      isAmbireDefaultWallet = data?.value
+      this._pushEventHandlers.disconnect()
+    }
+
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data)
     }
@@ -495,10 +502,10 @@ const requestHasOtherProvider = () => {
   })
 }
 
-const setAmbireProvider = (isDefaultWallet: boolean) => {
+const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
-      configurable: !isDefaultWallet,
+      configurable: false,
       enumerable: true,
       set(val) {
         if (val?._isAmbire) {
@@ -526,8 +533,9 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
             }
           }
         }
+        console.log('xczczxczxczc', isAmbireDefaultWallet)
 
-        return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
+        return isAmbireDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
   } catch (e) {
@@ -552,24 +560,24 @@ const initOperaProvider = () => {
   patchProvider(ambireProvider)
 }
 
-const setOtherProvider = (otherProvider: EthereumProvider) => {
-  if (window.ethereum === otherProvider) {
-    return
-  }
-  const existingProvider = Object.getOwnPropertyDescriptor(window, 'ethereum')
-  if (existingProvider?.configurable) {
-    Object.defineProperty(window, 'ethereum', {
-      value: otherProvider,
-      writable: false,
-      configurable: false,
-      enumerable: true
-    })
-  } else {
-    window.ethereum = otherProvider
-  }
-}
+// const setOtherProvider = (otherProvider: EthereumProvider) => {
+//   if (window.ethereum === otherProvider) {
+//     return
+//   }
+//   const existingProvider = Object.getOwnPropertyDescriptor(window, 'ethereum')
+//   if (existingProvider?.configurable) {
+//     Object.defineProperty(window, 'ethereum', {
+//       value: otherProvider,
+//       writable: false,
+//       configurable: false,
+//       enumerable: true
+//     })
+//   } else {
+//     window.ethereum = otherProvider
+//   }
+// }
 
-const initProvider = (isDefaultWallet: boolean = true) => {
+const initProvider = () => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
@@ -578,14 +586,10 @@ const initProvider = (isDefaultWallet: boolean = true) => {
     cacheOtherProvider = window.ethereum
   }
 
-  if (isDefaultWallet || !cacheOtherProvider) {
-    finalProvider = ambireProvider
-    patchProvider(ambireProvider)
-    setAmbireProvider(isDefaultWallet)
-  } else {
-    finalProvider = cacheOtherProvider
-    setOtherProvider(cacheOtherProvider)
-  }
+  finalProvider = ambireProvider
+  patchProvider(ambireProvider)
+  setAmbireProvider()
+
   if (!window.web3) {
     window.web3 = {
       currentProvider: finalProvider
@@ -597,7 +601,7 @@ const initProvider = (isDefaultWallet: boolean = true) => {
 if (ambireIsOpera) {
   initOperaProvider()
 } else {
-  initProvider(!!isAmbireDefaultWallet)
+  initProvider()
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
@@ -656,6 +660,7 @@ const runReplacementScript = async () => {
   replaceMMBrandInPage(ambireSvg)
 }
 
+// TODO: fix when isAmbireDefaultWallet is set to false in the same session
 if (isAmbireDefaultWallet) {
   document.addEventListener('click', runReplacementScript)
   const observer = new MutationObserver(runReplacementScript)

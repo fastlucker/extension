@@ -4,12 +4,13 @@ import { isManifestV3 } from '@web/constants/browserapi'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-const injectProviderScript = (isDefaultWallet: boolean) => {
+import { storage } from '../background/webapi/storage'
+
+const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
   let content = ';(function () {'
-  content += `const isAmbireDefaultWallet = ${isDefaultWallet};`
   content += '#PAGEPROVIDER#'
   content += '\n})();'
   ele.textContent = content
@@ -29,17 +30,23 @@ document.addEventListener('beforeunload', () => {
   pm.dispose()
 })
 
-const getIsDefaultWallet = () => {
-  return pm.request({ method: 'isDefaultWallet' }) as Promise<boolean>
-}
-
 // the injection for manifest v3 is located in background.js
 if (!isManifestV3) {
-  getIsDefaultWallet()
-    .then((isDefaultWallet) => {
-      injectProviderScript(!!isDefaultWallet)
-    })
-    .catch(() => {
-      injectProviderScript(true)
-    })
+  injectProviderScript()
 }
+
+browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
+  // eslint-disable-next-line no-prototype-builtins
+  if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
+    const newValue = changes.isDefaultWallet.newValue
+    console.log(newValue, typeof newValue, typeof JSON.parse(newValue))
+    bcm.send('message', { data: { type: 'setDefaultWallet', value: JSON.parse(newValue) } })
+  }
+})
+
+const initIsDefaultWallet = async () => {
+  const isDefaultWallet = await storage.get('isDefaultWallet', true)
+  bcm.send('message', { data: { type: 'setDefaultWallet', value: isDefaultWallet } })
+}
+
+initIsDefaultWallet()

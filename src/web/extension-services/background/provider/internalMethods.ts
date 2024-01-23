@@ -1,7 +1,5 @@
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 
-import { storage } from '../webapi/storage'
-
 const tabCheckin = ({
   data: {
     params: { name, icon }
@@ -51,14 +49,9 @@ const hasOtherProvider = () => {
   return true
 }
 
-const isDefaultWallet = async () => {
-  return storage.get('isDefaultWallet', true)
-}
-
 export default {
   tabCheckin,
   getProviderState,
   providerOverwrite,
-  hasOtherProvider,
-  isDefaultWallet
+  hasOtherProvider
 }
