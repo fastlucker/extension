@@ -244,6 +244,9 @@ const SignAccountOpScreen = () => {
     signAccountOpState.status?.type === SigningStatus.Done ||
     mainState.broadcastStatus === 'LOADING'
 
+  const portfolioStatePending =
+    portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
+
   return (
     <TabLayoutContainer
       width="full"
@@ -272,11 +275,11 @@ const SignAccountOpScreen = () => {
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            {!!pendingTokens.length && (
-              <View style={styles.simulationSection}>
-                <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-                  {t('Simulation results')}
-                </Text>
+            <View style={styles.simulationSection}>
+              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+                {t('Simulation results')}
+              </Text>
+              {!!pendingTokens.length && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -330,8 +333,18 @@ const SignAccountOpScreen = () => {
                     </View>
                   )}
                 </View>
-              </View>
-            )}
+              )}
+              {portfolioStatePending?.isLoading && !portfolioStatePending?.errors.length && (
+                <View style={spacings.mt}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
+              {!portfolioStatePending?.isLoading && !!portfolioStatePending?.errors.length && (
+                <View style={spacings.mt}>
+                  <Alert type="error" title="We were unable to simulate the transaction." />
+                </View>
+              )}
+            </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
