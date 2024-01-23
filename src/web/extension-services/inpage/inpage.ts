@@ -24,6 +24,7 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 const ambireChannelName = 'ambire-inpage'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
+declare const isAmbireDefaultWallet: boolean
 let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
 
@@ -295,7 +296,7 @@ export class EthereumProvider extends EventEmitter {
     }
   }
 
-  private _handleBackgroundMessage = ({ event, data }) => {
+  private _handleBackgroundMessage = ({ event, data }: any) => {
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data)
     }
@@ -596,7 +597,7 @@ const initProvider = (isDefaultWallet: boolean = true) => {
 if (ambireIsOpera) {
   initOperaProvider()
 } else {
-  initProvider()
+  initProvider(!!isAmbireDefaultWallet)
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
@@ -655,6 +656,8 @@ const runReplacementScript = async () => {
   replaceMMBrandInPage(ambireSvg)
 }
 
-document.addEventListener('click', runReplacementScript)
-const observer = new MutationObserver(runReplacementScript)
-observer.observe(document, { childList: true, subtree: true, attributes: true })
+if (isAmbireDefaultWallet) {
+  document.addEventListener('click', runReplacementScript)
+  const observer = new MutationObserver(runReplacementScript)
+  observer.observe(document, { childList: true, subtree: true, attributes: true })
+}
