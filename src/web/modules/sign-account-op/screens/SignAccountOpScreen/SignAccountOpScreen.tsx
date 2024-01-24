@@ -348,6 +348,17 @@ const SignAccountOpScreen = () => {
                     <Alert type="error" title="We were unable to simulate the transaction." />
                   </View>
                 )}
+              {!portfolioStatePending?.isLoading &&
+                !pendingTokens.length &&
+                !portfolioStatePending?.errors.length &&
+                !portfolioStatePending?.criticalError && (
+                  <View>
+                    <Alert
+                      type="info"
+                      title="No token balance changes detected. Please carefully review the transaction preview below."
+                    />
+                  </View>
+                )}
             </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
