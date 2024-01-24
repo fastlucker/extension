@@ -69,7 +69,7 @@ Object.defineProperty(window, 'defaultWallet', {
   get() {
     return _defaultWallet
   },
-  set(value: 'AMBIRE' | 'OTHER') {
+  set(value: DefaultWallet) {
     _defaultWallet = value
     if (value === 'AMBIRE') {
       document.addEventListener('click', runReplacementScript)
