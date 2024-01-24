@@ -778,6 +778,16 @@ async function init() {
   })
 })()
 
+// Open the get-started screen in a new tab right after the extension is installed.
+browser.runtime.onInstalled.addListener(({ reason }: any) => {
+  if (reason === 'install') {
+    setTimeout(() => {
+      const extensionURL = browser.runtime.getURL('tab.html')
+      browser.tabs.create({ url: extensionURL })
+    }, 500)
+  }
+})
+
 // Send a browser notification when the signing process of a message or account op is finalized
 const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
   const title = 'Successfully signed'
@@ -801,16 +811,6 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
     message
   })
 }
-
-// Open the get-started screen in a new tab right after the extension is installed.
-browser.runtime.onInstalled.addListener(({ reason }: any) => {
-  if (reason === 'install') {
-    setTimeout(() => {
-      const extensionURL = browser.runtime.getURL('tab.html')
-      browser.tabs.create({ url: extensionURL })
-    }, 500)
-  }
-})
 
 /*
  * This content script is injected programmatically because
