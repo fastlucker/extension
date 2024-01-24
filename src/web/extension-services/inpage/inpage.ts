@@ -29,7 +29,7 @@ let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
 
 //
-// MetaMask text and icon replacement for dApps using legacy connect only
+// MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
 //
 
 const runReplacementScript = async () => {
@@ -77,6 +77,10 @@ Object.defineProperty(window, 'isAmbireDefaultWallet', {
     }
   }
 })
+
+//
+// EthereumProvider Injection
+//
 
 export interface Interceptor {
   onRequest?: (data: any) => any
