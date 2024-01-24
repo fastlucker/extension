@@ -1,4 +1,4 @@
-import { toChecksumAddress } from 'ethereumjs-util'
+import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -24,6 +24,7 @@ const SortHat = () => {
   const keystoreState = useKeystoreControllerState()
   const notificationState = useNotificationControllerState()
   const mainState = useMainControllerState()
+
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
@@ -39,8 +40,11 @@ const SortHat = () => {
     }
 
     if (isNotification && notificationState.currentNotificationRequest) {
-      if (notificationState.currentNotificationRequest?.screen === 'PermissionRequest') {
-        return navigate(ROUTES.permissionRequest)
+      if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
+        return navigate(ROUTES.dappConnectRequest)
+      }
+      if (notificationState.currentNotificationRequest?.screen === 'AddChain') {
+        return navigate(ROUTES.addChain)
       }
       if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
         if (
@@ -56,7 +60,7 @@ const SortHat = () => {
           if (accountAddr && network) {
             return navigate(ROUTES.signAccountOp, {
               state: {
-                accountAddr: toChecksumAddress(accountAddr as string),
+                accountAddr: getAddress(accountAddr),
                 network
               }
             })
@@ -84,7 +88,7 @@ const SortHat = () => {
 
         return navigate(ROUTES.signMessage, {
           state: {
-            accountAddr: toChecksumAddress(accountAddr as string)
+            accountAddr: accountAddr ? getAddress(accountAddr) : accountAddr
           }
         })
       }

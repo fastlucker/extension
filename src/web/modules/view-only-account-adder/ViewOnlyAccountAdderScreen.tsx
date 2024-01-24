@@ -4,21 +4,33 @@ import { Pressable, View } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
-import styles from '@web/components/TabLayoutWrapper/styles'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import { RELAYER_URL } from '@env'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent,
+  TabLayoutWrapperSideContentItem
+} from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
   const accountAddresses = accounts.map((account) => account.address.toLowerCase())
@@ -39,9 +51,9 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
-  const accountAdderState = useAccountAdderControllerState()
-  const isLoading = accountAdderState.addAccountsStatus === 'LOADING'
+  const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const {
     control,
     watch,
@@ -62,21 +74,6 @@ const ViewOnlyScreen = () => {
 
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
-  useEffect(() => {
-    if (!mainControllerState.isReady) return
-    if (accountAdderState.isInitialized) return
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_VIEW_ONLY'
-    })
-  }, [accountAdderState.isInitialized, dispatch, mainControllerState.isReady])
-
-  useEffect(() => {
-    return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-    }
-  }, [dispatch])
-
   const handleFormSubmit = useCallback(async () => {
     // wait state update before Wallet calcs because
     // when Wallet method is called on devices with slow CPU the UI freezes
@@ -84,13 +81,12 @@ const ViewOnlyScreen = () => {
 
     const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
-        `https://staging-relayer.ambire.com/v2/identity/${account.address}`
+        `${RELAYER_URL}/v2/identity/${account.address}`
       )
 
-      const accountIdentity = accountIdentityResponse?.body
-
+      const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
-
+      let associatedKeys = [account.address]
       if (
         typeof accountIdentity === 'object' &&
         accountIdentity !== null &&
@@ -108,117 +104,139 @@ const ViewOnlyScreen = () => {
         }
       }
 
+      if (accountIdentity && accountIdentity?.associatedKeys) {
+        associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
+      }
+
       return {
         addr: account.address,
         label: '',
         pfp: '',
-        associatedKeys: [],
+        associatedKeys,
         creation
       }
     })
 
     const accountsToAdd = await Promise.all(accountsToAddP)
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
+      type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
       params: { accounts: accountsToAdd }
     })
   }, [accounts, dispatch])
 
   useEffect(() => {
-    if (accountAdderState.addAccountsStatus === 'SUCCESS') {
-      const selectedAccount = accountAdderState.readyToAddAccounts[0]
-      dispatch({
-        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: selectedAccount.addr }
-      }).then(() => {
-        navigate(WEB_ROUTES.accountPersonalize)
+    // Navigate when the default preferences for the new accounts are added,
+    // indicating the final steps for the view-only account adding flow completes.
+    const newAccountsAddresses = accounts.map((x) => x.address)
+    const areDefaultAccountPreferencesAdded = Object.keys(
+      settingsControllerState.accountPreferences
+    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
+    if (areDefaultAccountPreferencesAdded) {
+      navigate(WEB_ROUTES.accountPersonalize, {
+        state: {
+          accounts: mainControllerState.accounts.filter((account) =>
+            newAccountsAddresses.includes(account.addr)
+          )
+        }
       })
     }
   }, [
-    accountAdderState.addAccountsStatus,
-    accountAdderState.readyToAddAccounts,
+    accounts,
     dispatch,
-    navigate
+    mainControllerState.accounts,
+    navigate,
+    settingsControllerState.accountPreferences
   ])
 
   return (
-    <TabLayoutWrapperMainContent pageTitle={t('View-Only Accounts')} hideStepper>
-      <View style={[styles.mainContentWrapper, { alignItems: 'center' }]}>
-        {fields.map((field, index) => (
-          <Controller
-            key={field.id}
-            control={control}
-            rules={{
-              validate: (value) => {
-                if (!value) return 'Please fill in an address.'
-                if (!isValidAddress(value)) return 'Please fill in a valid address.'
-                if (mainControllerState.accounts.find((account) => account.addr === value))
-                  return 'This address is already in your wallet.'
-                return true
-              },
-              required: true
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  width: 400,
-                  ...spacings.mbTy
-                }}
-              >
-                <Input
-                  containerStyle={{ width: '100%', marginBottom: 0 }}
-                  onBlur={onBlur}
-                  placeholder={t('Enter an address')}
-                  onChangeText={onChange}
-                  value={value}
-                  autoFocus
-                  isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
-                  validLabel={t('Address is valid.')}
-                  error={
-                    errors?.accounts?.[index]?.address?.message ||
-                    (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
-                  }
-                />
-                {index !== 0 && (
-                  <Pressable style={[spacings.mlMi, spacings.mtMi]} onPress={() => remove(index)}>
-                    <CloseIcon color={colors.martinique} />
-                  </Pressable>
-                )}
-              </View>
-            )}
-            name={`accounts.${index}.address`}
-          />
-        ))}
-        <Pressable
-          onPress={() =>
-            append({
-              address: ''
-            })
-          }
-        >
-          <Text
-            fontSize={14}
-            weight="regular"
-            style={[spacings.mbXl, { borderBottomColor: colors.martinique, borderBottomWidth: 1 }]}
+    <TabLayoutContainer
+      backgroundColor={theme.secondaryBackground}
+      header={<Header withAmbireLogo />}
+      footer={
+        <>
+          <BackButton fallbackBackRoute={ROUTES.getStarted} />
+          <Button
+            textStyle={{ fontSize: 14 }}
+            style={{ minWidth: 180 }}
+            disabled={!isValid || duplicateAccountsIndexes.length > 0}
+            hasBottomSpacing={false}
+            text={t('Import')}
+            onPress={handleFormSubmit}
           >
-            {t('Add one more address')}
-          </Text>
-        </Pressable>
-        <Button
-          textStyle={{ fontSize: 14 }}
-          disabled={!isValid || isLoading || duplicateAccountsIndexes.length > 0}
-          style={{ width: 300 }}
-          type="primary"
-          text={
-            // eslint-disable-next-line no-nested-ternary
-            isLoading ? t('Loading...') : t('Import View-Only Accounts')
-          }
-          onPress={handleFormSubmit}
-        />
-      </View>
-    </TabLayoutWrapperMainContent>
+            <View style={spacings.pl}>
+              <RightArrowIcon color={colors.titan} />
+            </View>
+          </Button>
+        </>
+      }
+    >
+      <TabLayoutWrapperMainContent>
+        <Panel title={t('Import A Wallet In View-Only Mode')}>
+          {fields.map((field, index) => (
+            <Controller
+              key={field.id}
+              control={control}
+              rules={{
+                validate: (value) => {
+                  if (!value) return 'Please fill in an address.'
+                  if (!isValidAddress(value)) return 'Please fill in a valid address.'
+                  if (mainControllerState.accounts.find((account) => account.addr === value))
+                    return 'This address is already in your wallet.'
+                  return true
+                },
+                required: true
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
+                  <Input
+                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
+                    onBlur={onBlur}
+                    placeholder={t('Enter an address')}
+                    onChangeText={onChange}
+                    value={value}
+                    autoFocus
+                    isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
+                    validLabel={t('Address is valid.')}
+                    error={
+                      errors?.accounts?.[index]?.address?.message ||
+                      (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
+                    }
+                    onSubmitEditing={handleFormSubmit}
+                  />
+                  {index !== 0 && (
+                    <Pressable style={[spacings.ml]} onPress={() => remove(index)}>
+                      <CloseIcon color={colors.martinique} />
+                    </Pressable>
+                  )}
+                </View>
+              )}
+              name={`accounts.${index}.address`}
+            />
+          ))}
+          <View>
+            <Pressable onPress={() => append({ address: '' })} style={spacings.ptTy}>
+              <Text fontSize={14} underline>
+                {t('+ Add one more address')}
+              </Text>
+            </Pressable>
+          </View>
+        </Panel>
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent>
+        <TabLayoutWrapperSideContentItem icon={ViewOnlyIcon} title={t('View-only mode')}>
+          <TabLayoutWrapperSideContentItem.Text>
+            {t(
+              'Importing an account in the view-only mode lets you preview any public wallet address on any supported network. You can observe its balances or connect to dApps with it. Of course, in the view-only mode, you won&apos;t be able to sign any transaction, message, or authorize this account in any form.'
+            )}
+          </TabLayoutWrapperSideContentItem.Text>
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            {t('All this is possible due to the public nature of the Web3 itself.')}
+          </TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+      </TabLayoutWrapperSideContent>
+    </TabLayoutContainer>
   )
 }
 

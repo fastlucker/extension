@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -36,6 +37,10 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
           })
         })
       }
+
+      if (action.actionName === 'open-external-url' && topic === 'TRANSACTION') {
+        window.open(action.meta.url, '_blank')
+      }
     },
     [dispatch, topic]
   )
@@ -45,13 +50,17 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
       <View style={styles.content}>
         <View style={styles.icon}>
           {/* icon */}
-          <EditIcon color={theme.primaryBackground} width={24} height={24} />
+          {topic !== 'WARNING' ? (
+            <EditIcon color={theme.primaryBackground} width={24} height={24} />
+          ) : (
+            <WarningIcon color={theme.primaryBackground} width={24} height={24} />
+          )}
         </View>
         <View style={styles.contentInner}>
           <Text style={styles.title} fontSize={isTab ? 16 : 14} weight="medium">
             {title}
           </Text>
-          <Text appearance="secondaryText" fontSize={14} weight="regular">
+          <Text appearance="secondaryText" fontSize={isTab ? 14 : 12} weight="regular">
             {text}
           </Text>
         </View>

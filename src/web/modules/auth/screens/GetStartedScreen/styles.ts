@@ -1,27 +1,38 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
-import { SPACING_MD } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import flexbox from '@common/styles/utils/flexbox'
 
-interface Styles {
-  hr: ViewStyle
-  logo: ViewStyle
+interface Style {
+  separatorHorizontal: ViewStyle
+  showMoreOptionsButtonContainer: ViewStyle
+  showMoreOptionsButton: ViewStyle
 }
 
-const styles = StyleSheet.create<Styles>({
-  hr: {
-    marginVertical: SPACING_MD * 2,
-    height: 1,
-    width: 330,
-    backgroundColor: colors.scampi_20
-  },
-  logo: {
-    position: 'absolute',
-    bottom: 27,
-    right: '50%',
-    marginRight: -(SPACING_MD * 2),
-    zIndex: 10
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    separatorHorizontal: {
+      position: 'absolute',
+      width: '100%',
+      height: 1,
+      backgroundColor: theme.secondaryBorder
+    },
+    showMoreOptionsButtonContainer: {
+      backgroundColor: theme.secondaryBackground,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...spacings.pbTy,
+      ...spacings.ptSm,
+      ...spacings.mbMd,
+      width: '100%'
+    },
+    showMoreOptionsButton: {
+      backgroundColor: theme.secondaryBackground,
+      ...spacings.ph,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter
+    }
+  })
 
-export default styles
+export default getStyles

@@ -3,24 +3,35 @@ import React, { createContext, useCallback, useEffect, useMemo, useState } from 
 import useRoute from '@common/hooks/useRoute'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
+const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
+const DEVICE_PASSWORD_STEP = 'Set up a\nDevice Password'
+const PERSONALIZE_STEP = 'Personalize\nyour Accounts'
+
 export const STEPPER_FLOWS = {
   email: {
-    [WEB_ROUTES.keyStoreSetup]: 'Setup Key\nStore',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
     [WEB_ROUTES.createEmailVault]: 'Create Email\nVault',
     'email-confirmation': 'Email\nConfirmation',
-    [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
   hw: {
-    [WEB_ROUTES.hardwareWalletSelect]: 'Choose Hardware Wallet',
-    'connect-hardware-wallet': 'Login with Hardware Wallet',
-    [WEB_ROUTES.accountAdder]: 'Pick Accounts To Import',
-    [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
+    [WEB_ROUTES.hardwareWalletSelect]: 'Select your\nhardware device',
+    [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
-  legacy: {
-    [WEB_ROUTES.keyStoreSetup]: 'Setup Key\nStore',
-    [WEB_ROUTES.externalSigner]: 'Import Legacy Account',
-    [WEB_ROUTES.accountAdder]: 'Pick Accounts To Import',
-    [WEB_ROUTES.accountPersonalize]: 'Personalize\nAccounts'
+  'private-key': {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importPrivateKey]: 'Enter your Private Key',
+    [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
+  },
+  seed: {
+    [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    [WEB_ROUTES.importSeedPhrase]: 'Enter your\nSeed Phrase',
+    [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   }
 }
 

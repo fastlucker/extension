@@ -13,6 +13,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       ...flexbox.directionRow,
+      ...flexbox.alignCenter,
       ...common.borderRadiusSecondary
     },
     warningText: {

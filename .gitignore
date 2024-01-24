@@ -497,6 +497,10 @@ credentials.json
 /gecko-dev
 /gecko-prod
 
+# Benzin(web) build output folders
+/benzin-dev
+/benzin-prod
+
 # Mobile injection provider
 /ios/EthereumProvider.js
 /android/app/src/main/assets/EthereumProvider.js

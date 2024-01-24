@@ -1,11 +1,9 @@
-import React, { useState } from 'react'
-import { Pressable, View } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import React from 'react'
+import { ScrollView } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 
@@ -19,55 +17,23 @@ interface Props {
   kind: IrMessage['content']['kind']
 }
 
-export function formatFloatTokenAmount(
-  amount: any,
-  useGrouping = true,
-  maximumFractionDigits = 18
-) {
-  if (
-    Number.isNaN(amount) ||
-    Number.isNaN(parseFloat(amount)) ||
-    !(typeof amount === 'number' || typeof amount === 'string')
-  )
-    return amount
-
-  try {
-    const minimumFractionDigits = Math.min(2, maximumFractionDigits || 0)
-    return (typeof amount === 'number' ? amount : parseFloat(amount)).toLocaleString(undefined, {
-      useGrouping,
-      maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
-      minimumFractionDigits
-    })
-  } catch (err) {
-    console.error(err)
-    return amount
-  }
-}
-
 const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
   const { styles } = useTheme(getStyles)
   const isTypedMessage = kind === 'typedMessage'
-  const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <View style={[styles.container, isTypedMessage && isExpanded ? { flex: 1 } : {}]}>
-      <Pressable onPress={() => setIsExpanded((prev) => !prev)} style={styles.header}>
-        {isTypedMessage && (
-          <Pressable
-            onPress={() => setIsExpanded((prev) => !prev)}
-            style={{ width: 24, justifyContent: 'center' }}
-          >
-            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
-          </Pressable>
-        )}
+    <ExpandableCard
+      enableExpand={isTypedMessage}
+      hasArrow={isTypedMessage}
+      content={
         <HumanizedVisualization
           data={message.fullVisualization}
           networkId={networkId}
           explorerUrl={explorerUrl}
           kind={kind}
         />
-      </Pressable>
-      {isTypedMessage && isExpanded && (
+      }
+      expandedContent={
         <ScrollView contentContainerStyle={styles.rawMessage}>
           <Text
             appearance="secondaryText"
@@ -81,8 +47,8 @@ const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
             {JSON.stringify(message.content, null, 4)}
           </Text>
         </ScrollView>
-      )}
-    </View>
+      }
+    />
   )
 }
 

@@ -36,8 +36,8 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome'),
-      web: ''
+      default: i18n.t('Welcome to your Ambire Wallet'),
+      web: i18n.t('Welcome to your Ambire Wallet')
     })
   },
   [ROUTES.terms]: {
@@ -81,27 +81,6 @@ const routesConfig: {
       web: ''
     })
   },
-  [ROUTES.ambireAccountLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
-  [ROUTES.ambireAccountJsonLogin]: {
-    route: ROUTES.ambireAccountJsonLogin,
-    title: Platform.select({
-      web: i18n.t('Import From JSON File'),
-      default: i18n.t('Import From File')
-    })
-  },
-  [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
   [ROUTES.hardwareWallet]: {
     route: ROUTES.hardwareWallet,
     title: Platform.select({
@@ -127,10 +106,6 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Personalize Your Accounts')
     })
-  },
-  [ROUTES.externalSigner]: {
-    route: ROUTES.externalSigner,
-    title: ''
   },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
@@ -220,8 +195,8 @@ const routesConfig: {
       default: i18n.t('Manage Signers')
     })
   },
-  [ROUTES.permissionRequest]: {
-    route: ROUTES.permissionRequest,
+  [ROUTES.dappConnectRequest]: {
+    route: ROUTES.dappConnectRequest,
     title: Platform.select({
       web: i18n.t('Webpage Wants to Connect'),
       default: i18n.t('dApp Wants to Connect')

@@ -1,21 +1,21 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, useCallback, useState } from 'react'
-import { Linking, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
+import React, { Fragment, ReactNode, useCallback } from 'react'
+import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
+import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
@@ -26,36 +26,29 @@ interface Props {
   call: IrCall
   networkId: NetworkDescriptor['id']
   explorerUrl: NetworkDescriptor['explorerUrl']
+  rightIcon?: ReactNode
+  onRightIconPress?: () => void
+  size?: 'sm' | 'md' | 'lg'
 }
 
-export function formatFloatTokenAmount(
-  amount: any,
-  useGrouping = true,
-  maximumFractionDigits = 18
-) {
-  if (
-    Number.isNaN(amount) ||
-    Number.isNaN(parseFloat(amount)) ||
-    !(typeof amount === 'number' || typeof amount === 'string')
-  )
-    return amount
-
-  try {
-    const minimumFractionDigits = Math.min(2, maximumFractionDigits || 0)
-    return (typeof amount === 'number' ? amount : parseFloat(amount)).toLocaleString(undefined, {
-      useGrouping,
-      maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
-      minimumFractionDigits
-    })
-  } catch (err) {
-    console.error(err)
-    return amount
-  }
+const sizeMultiplier = {
+  sm: 0.75,
+  md: 0.85,
+  lg: 1
 }
 
-const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
+const TransactionSummary = ({
+  style,
+  call,
+  networkId,
+  explorerUrl,
+  rightIcon,
+  onRightIconPress,
+  size = 'lg'
+}: Props) => {
+  const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
+
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
 
@@ -74,24 +67,26 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.wrap,
-          spacings.mhSm
+          {
+            paddingHorizontal: SPACING_SM * sizeMultiplier[size]
+          }
         ]}
       >
-        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
           {` ${call.to} `}
         </Text>
-        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
     )
-  }, [call, t])
+  }, [call, t, textSize, size])
 
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
@@ -102,7 +97,9 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
             flexbox.directionRow,
             flexbox.alignCenter,
             flexbox.wrap,
-            spacings.mhSm
+            {
+              marginHorizontal: SPACING_SM * sizeMultiplier[size]
+            }
           ]}
         >
           {dataToVisualize.map((item, i) => {
@@ -112,7 +109,7 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {` ${
                         item.readableAmount ||
                         formatUnits(item.amount || '0x0', item.decimals || 18)
@@ -122,18 +119,18 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
 
                   {item.address ? (
                     <TokenIcon
-                      width={24}
-                      height={24}
+                      width={24 * sizeMultiplier[size]}
+                      height={24 * sizeMultiplier[size]}
                       networkId={networkId}
                       address={item.address}
                     />
                   ) : null}
                   {item.symbol ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {` ${item.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {t(' units of unknown token ')}
                     </Text>
                   ) : null}
@@ -143,13 +140,10 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
 
             if (item.type === 'address')
               return (
-                <Text
-                  key={Number(item.id) || i}
-                  fontSize={16}
-                  weight="medium"
-                  color={colors.martinique}
-                >
-                  {` ${item.name ? item.name : item.address} `}
+                <Fragment key={Number(item.id) || i}>
+                  <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    {` ${item.name ? item.name : item.address} `}
+                  </Text>
                   {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
                       disabled={!explorerUrl}
@@ -157,19 +151,18 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
                         Linking.openURL(`${explorerUrl}/address/${item.address}`)
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={styles.explorerIcon}
                     >
-                      <OpenIcon width={20} height={20} color={colors.martinique_80} />
+                      <OpenIcon width={14} height={14} strokeWidth="2" />
                     </TouchableOpacity>
                   )}
-                </Text>
+                </Fragment>
               )
 
             if (item.type === 'nft') {
               return (
                 <Text
                   key={Number(item.id) || i}
-                  fontSize={16}
+                  fontSize={textSize}
                   weight="medium"
                   color={colors.martinique}
                 >
@@ -178,11 +171,22 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
               )
             }
 
+            if (item.type === 'deadline')
+              return (
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={textSize}
+                  weight="medium"
+                  color={colors.martinique}
+                >
+                  {` ${getDeadlineText(item.amount!)} `}
+                </Text>
+              )
             if (item.content) {
               return (
                 <Text
                   key={Number(item.id) || i}
-                  fontSize={16}
+                  fontSize={textSize}
                   weight={
                     item.type === 'label'
                       ? 'regular'
@@ -206,39 +210,40 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
         </View>
       )
     },
-    [networkId, explorerUrl, styles.explorerIcon, t]
+    [networkId, explorerUrl, t, textSize, size]
   )
 
   return (
-    <View style={[styles.container, !!call.warnings?.length && styles.warningContainer, style]}>
-      <Pressable onPress={() => setIsExpanded((prevState) => !prevState)}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.phSm, spacings.pvSm]}>
-          <TouchableOpacity onPress={() => setIsExpanded((prevState) => !prevState)}>
-            {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
-          </TouchableOpacity>
+    <ExpandableCard
+      style={{
+        ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })
+      }}
+      contentStyle={{
+        paddingHorizontal: SPACING_SM * sizeMultiplier[size],
+        paddingVertical: SPACING_TY * sizeMultiplier[size]
+      }}
+      content={
+        <>
           {call.fullVisualization
             ? humanizedVisualization(call.fullVisualization)
             : fallbackVisualization()}
-          {!!call.fromUserRequestId && (
+          {!!rightIcon && (
+            <TouchableOpacity onPress={onRightIconPress}>{rightIcon}</TouchableOpacity>
+          )}
+          {!!call.fromUserRequestId && !rightIcon && (
             <TouchableOpacity onPress={handleRemoveCall}>
               <DeleteIcon />
             </TouchableOpacity>
           )}
-        </View>
+        </>
+      }
+      expandedContent={
         <View
           style={{
-            paddingHorizontal: 42 // magic number
+            paddingHorizontal: SPACING_SM * sizeMultiplier[size],
+            paddingVertical: SPACING_TY * sizeMultiplier[size]
           }}
         >
-          {call.warnings?.map((warning) => {
-            return (
-              <Label key={warning.content + warning.level} text={warning.content} type="warning" />
-            )
-          })}
-        </View>
-      </Pressable>
-      {!!isExpanded && (
-        <View style={styles.body}>
           <Text fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Interacting with (to): ')}
@@ -260,8 +265,25 @@ const TransactionSummary = ({ style, call, networkId, explorerUrl }: Props) => {
             </Text>
           </Text>
         </View>
-      )}
-    </View>
+      }
+    >
+      <View
+        style={{
+          paddingHorizontal: 42 * sizeMultiplier[size] // magic number
+        }}
+      >
+        {call.warnings?.map((warning) => {
+          return (
+            <Label
+              size={size}
+              key={warning.content + warning.level}
+              text={warning.content}
+              type="warning"
+            />
+          )
+        })}
+      </View>
+    </ExpandableCard>
   )
 }
 

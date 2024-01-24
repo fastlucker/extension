@@ -1,20 +1,29 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import PlayButton from '@common/assets/svg/PlayButton'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import Panel from '@common/components/Panel'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent,
+  TabLayoutWrapperSideContent,
+  TabLayoutWrapperSideContentItem
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
 import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
 import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const OnBoardingScreen = () => {
   const { t } = useTranslation()
+  const { theme, styles } = useTheme(getStyles)
 
   const { setOnboardingStatus } = useOnboarding()
   useEffect(() => {
@@ -22,47 +31,33 @@ const OnBoardingScreen = () => {
   }, [setOnboardingStatus])
 
   return (
-    <TabLayoutWrapperMainContent width="md" hideHeader>
-      <View style={styles.wrapper}>
-        <Text shouldScale={false} fontSize={20} weight="medium" style={styles.title}>
-          {t('How To Use Ambire Wallet')}
-        </Text>
-        <View style={styles.videoBackground}>
-          <PlayButton />
-        </View>
-        <Text style={styles.link} underline>
-          <RightArrowIcon
-            withRect={false}
-            color={colors.martinique}
-            width={20}
-            height={20}
-            style={{ marginBottom: -4 }}
-          />
-          {t('How to pin Ambire Wallet extension?')}
-        </Text>
-        <Text style={styles.link} underline>
-          <RightArrowIcon
-            withRect={false}
-            color={colors.martinique}
-            width={20}
-            height={20}
-            style={{ marginBottom: -4 }}
-          />
-          {t('How to fund your wallet?')}
-        </Text>
-        <Text style={styles.link} underline>
-          <RightArrowIcon
-            withRect={false}
-            color={colors.martinique}
-            width={20}
-            height={20}
-            style={{ marginBottom: -4 }}
-          />
-          {t('What are the Wallet Reward?')}
-        </Text>
-      </View>
-      <PinExtension style={styles.pinExtension} />
-    </TabLayoutWrapperMainContent>
+    <TabLayoutContainer
+      backgroundColor={theme.secondaryBackground}
+      header={
+        <Header mode="custom-inner-content">
+          <PinExtension style={styles.pinExtension} />
+        </Header>
+      }
+    >
+      <TabLayoutWrapperMainContent style={spacings.pt2Xl}>
+        <Panel title={t('How To Use Ambire Wallet')}>
+          <View style={styles.videoBackground}>
+            <PlayButton />
+          </View>
+        </Panel>
+      </TabLayoutWrapperMainContent>
+      <TabLayoutWrapperSideContent style={spacings.pt2Xl}>
+        <TabLayoutWrapperSideContentItem title="How to pin Ambire Wallet extension">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+        <TabLayoutWrapperSideContentItem title="How to fund your wallet?">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+        <TabLayoutWrapperSideContentItem title="What are the Wallet Reward?">
+          <TabLayoutWrapperSideContentItem.Text>TODO</TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
+      </TabLayoutWrapperSideContent>
+    </TabLayoutContainer>
   )
 }
 

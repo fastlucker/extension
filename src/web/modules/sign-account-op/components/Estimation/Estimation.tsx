@@ -3,47 +3,76 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { MainController } from '@ambire-common/controllers/main/main'
+import {
+  FeeSpeed,
+  SignAccountOpController
+} from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
-import CustomFee from '@web/modules/sign-account-op/components/CustomFee'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import getStyles from './styles'
 
 type Props = {
+  mainState: MainController
+  accountPortfolio: AccountPortfolio | null
+  signAccountOpState: SignAccountOpController
   networkId: NetworkDescriptor['id']
+  disabled: boolean
 }
 
-const Estimation = ({ networkId }: Props) => {
-  const signAccountOpState = useSignAccountOpControllerState()
-  const mainState = useMainControllerState()
-  const portfolioState = usePortfolioControllerState()
+const Estimation = ({
+  mainState,
+  accountPortfolio,
+  signAccountOpState,
+  networkId,
+  disabled
+}: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
+  const { minWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
-      const token = portfolioState.accountPortfolio?.tokens.find(
-        (t) => t.address === feeOption.address && t.networkId === networkId
-      )
+
+      // the logic below may seem overextended but please proceed
+      // with caution if you wish to make it more tidy. Especially the
+      // checkNetworkIfNative var. If the code is copied in the final return
+      // statement, it stops working as it should and it starts returning
+      // always true
+      const token = accountPortfolio?.tokens.find((t) => {
+        if (!feeOption.isGasTank) {
+          return t.address === feeOption.address && t.networkId === networkId && !t.flags.onGasTank
+        }
+
+        // native fee tokens should be from the same network
+        // other gas tank tokens (USDT, USDC) have a networkId of ethereum
+        // hardcoded. We should skip network check for them
+        const checkNetworkIfNative =
+          feeOption.address === '0x0000000000000000000000000000000000000000'
+            ? t.networkId === networkId
+            : true
+        return t.address === feeOption.address && t.flags.onGasTank && checkNetworkIfNative
+      })
+
       // TODO: validate - should never happen but there are some cases in which account is undefined
       if (!account || !token) return undefined
 
+      const gasTankKey = token.flags.onGasTank === true ? 'gasTank' : ''
       return {
-        value: feeOption.paidBy + feeOption.address,
-        label: <PayOption account={account} token={token} />,
+        value: feeOption.paidBy + feeOption.address + gasTankKey,
+        label: <PayOption account={account} token={token} isGasTank={feeOption.isGasTank} />,
         paidBy: feeOption.paidBy,
         token
       }
@@ -53,18 +82,15 @@ const Estimation = ({ networkId }: Props) => {
   }, [
     signAccountOpState.availableFeeOptions,
     mainState.accounts,
-    portfolioState.accountPortfolio?.tokens,
+    accountPortfolio?.tokens,
     networkId
   ])
 
   const defaultPayOption = useMemo(() => {
     if (!payOptions) return undefined
 
-    return payOptions.find(
-      ({ value }: any) =>
-        value === signAccountOpState.paidBy! + signAccountOpState.selectedTokenAddr!
-    )
-  }, [payOptions, signAccountOpState.paidBy, signAccountOpState.selectedTokenAddr])
+    return payOptions[0]
+  }, [payOptions])
 
   const [payValue, setPayValue] = useState(defaultPayOption)
 
@@ -73,25 +99,12 @@ const Estimation = ({ networkId }: Props) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
-          feeTokenAddr: payValue.token.address,
+          feeToken: payValue.token,
           paidBy: payValue.paidBy
         }
       })
     }
   }, [dispatch, payValue])
-
-  // Signing is ready therefore broadcast transaction
-  useEffect(() => {
-    if (
-      signAccountOpState.accountOp?.signature &&
-      signAccountOpState.status?.type === SigningStatus.Done
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP',
-        params: { accountOp: signAccountOpState.accountOp }
-      })
-    }
-  }, [signAccountOpState, dispatch])
 
   const selectedFee = useMemo(
     () =>
@@ -102,7 +115,7 @@ const Estimation = ({ networkId }: Props) => {
   )
 
   const onFeeSelect = useCallback(
-    (speed: string) => {
+    (speed: FeeSpeed) => {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
         params: {
@@ -121,25 +134,35 @@ const Estimation = ({ networkId }: Props) => {
         options={payOptions}
         style={spacings.mb}
         value={payValue || {}}
+        disabled={disabled}
         defaultValue={payValue}
       />
-      <View style={spacings.mbMd}>
+      <View style={[spacings.mbMd]}>
         <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
           {t('Transaction speed')}
         </Text>
-        <View style={flexbox.directionRow}>
-          {signAccountOpState.feeSpeeds.map((fee) => (
+        <View
+          style={[
+            minWidthSize('xxl') && flexbox.wrap,
+            flexbox.flex1,
+            flexbox.directionRow,
+            disabled && { opacity: 0.6 },
+            minWidthSize('xxl') && { margin: -SPACING_MI }
+          ]}
+        >
+          {signAccountOpState.feeSpeeds.map((fee, i) => (
             <Fee
+              disabled={disabled}
+              isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
               key={fee.amount + fee.type}
               label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
               type={fee.type}
               amount={fee.amountFormatted}
               onPress={onFeeSelect}
               isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-              style={spacings.mrTy}
             />
           ))}
-          <CustomFee onPress={() => {}} />
+          {/* TODO: <CustomFee onPress={() => {}} /> */}
         </View>
       </View>
       <View>
@@ -150,12 +173,14 @@ const Estimation = ({ networkId }: Props) => {
                 {t('Fee')}:
               </Text>
               <Text fontSize={16} weight="medium">
-                {selectedFee.amountFormatted} {payValue.token?.symbol}
+                {parseFloat(Number(selectedFee.amountFormatted).toFixed(6)).toString()}{' '}
+                {payValue.token?.symbol}
+              </Text>
+              <Text weight="medium" fontSize={16} appearance="primary">
+                {' '}
+                (~ ${Number(selectedFee.amountUsd).toFixed(2)})
               </Text>
             </View>
-            <Text weight="medium" style={styles.feeUsd}>
-              ~ ${Number(selectedFee.amountUsd).toFixed(4)}
-            </Text>
           </View>
         )}
         {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}

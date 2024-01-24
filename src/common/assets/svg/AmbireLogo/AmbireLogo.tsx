@@ -1,8 +1,13 @@
 import React from 'react'
-import Svg, { Defs, G, Path, Stop, LinearGradient } from 'react-native-svg'
+import Svg, { Defs, G, LinearGradient, Path, Stop } from 'react-native-svg'
 
-const AmbireLogo: React.FC<any> = (props) => (
-  <Svg width="218.072" height="101.235" viewBox="0 0 218.072 101.235" {...props}>
+type Props = {
+  width?: number
+  height?: number
+}
+
+const AmbireLogo: React.FC<any> = ({ width = 218, height = 101, ...rest }: Props) => (
+  <Svg width={width} height={height} viewBox="0 0 218.072 101.235" {...rest}>
     <Defs>
       <LinearGradient
         id="linear-gradient"

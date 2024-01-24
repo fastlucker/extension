@@ -4,9 +4,11 @@ import {
   TextInput,
   TextInputFocusEventData,
   TextInputProps,
+  TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View
+  View,
+  ViewStyle
 } from 'react-native'
 
 import Text from '@common/components/Text'
@@ -14,9 +16,8 @@ import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import commonStyles from '@common/styles/utils/common'
 
-import styles from './styles'
+import getStyles, { INPUT_WRAPPER_HEIGHT } from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string | boolean
@@ -29,11 +30,12 @@ export interface InputProps extends TextInputProps {
   buttonProps?: TouchableOpacityProps
   onButtonPress?: () => void
   disabled?: boolean
-  containerStyle?: any
-  inputStyle?: any
-  inputWrapperStyle?: any
-  infoTextStyle?: any
+  containerStyle?: ViewStyle | ViewStyle[]
+  inputStyle?: ViewStyle | ViewStyle[]
+  inputWrapperStyle?: ViewStyle | ViewStyle[]
+  infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
+  tooltipText?: string
 }
 
 const Input = ({
@@ -53,21 +55,32 @@ const Input = ({
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
+  tooltipText,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const { theme } = useTheme()
+  const [tooltipHeight, setTooltipHeight] = useState(0)
+  const { theme, styles } = useTheme(getStyles)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
     setIsFocused(true)
     return onFocus(e)
   }
   const handleOnBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+    if (disabled) return
     setIsFocused(false)
     return onBlur(e)
   }
 
   const hasButton = !!button
+
+  const borderWrapperStyles = [
+    styles.borderWrapper,
+    !!error && { borderColor: theme.errorBackground },
+    isFocused && { borderColor: theme.infoBackground },
+    isValid && isFocused && { borderColor: theme.successBackground }
+  ]
 
   const inputWrapperStyles = [
     styles.inputWrapper,
@@ -75,38 +88,23 @@ const Input = ({
       backgroundColor: theme.secondaryBackground,
       borderColor: theme.secondaryBorder
     },
+    !!error && { borderColor: theme.errorDecorative },
+    isFocused && { borderColor: theme.primary },
+    isValid && !isFocused && { borderColor: theme.successDecorative },
     disabled && styles.disabled,
     inputWrapperStyle
   ]
 
-  const inputStyles = [
-    styles.input,
-    !!hasButton && spacings.pr0,
-    {
-      color: theme.secondaryText,
-      borderBottomColor: 'transparent'
-    },
-    inputStyle,
-    !!error && { borderBottomColor: theme.errorDecorative },
-    isFocused && { borderBottomColor: theme.primary },
-    isValid && { borderBottomColor: theme.successDecorative }
-  ]
+  const inputStyles = [styles.input, !!hasButton && spacings.pr0, inputStyle]
 
-  const buttonStyles = [
-    styles.button,
-    { borderBottomColor: 'transparent' },
-    !!error && { borderBottomColor: theme.errorDecorative },
-    isFocused && { borderBottomColor: theme.primary },
-    isValid && { borderBottomColor: theme.successDecorative }
-  ]
   return (
     <View style={[styles.inputContainer, containerStyle]}>
       {!!label && (
-        <Text fontSize={12} weight="regular" style={styles.label}>
+        <Text appearance="secondaryText" fontSize={14} weight="regular" style={styles.label}>
           {label}
         </Text>
       )}
-      <View style={[commonStyles.borderRadiusPrimary, commonStyles.hidden]}>
+      <View style={borderWrapperStyles}>
         <View style={inputWrapperStyles}>
           {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
           {/* TextInput doesn't support border styles so we wrap it in a View */}
@@ -119,7 +117,7 @@ const Input = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={{ height: '100%' }}
+              style={styles.nativeInput}
             />
           </View>
           {!!hasButton && (
@@ -132,7 +130,7 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={[buttonStyles]}
+              style={styles.button}
               {...buttonProps}
             >
               {typeof button === 'string' || button instanceof String ? (
@@ -144,6 +142,24 @@ const Input = ({
           )}
         </View>
       </View>
+      {!!tooltipText && isFocused && (
+        <View
+          style={{
+            ...styles.tooltipWrapper,
+            // Centers the tooltip vertically
+            top: (INPUT_WRAPPER_HEIGHT - tooltipHeight) / 2
+          }}
+          onLayout={(e) => {
+            setTooltipHeight(e.nativeEvent.layout.height)
+          }}
+        >
+          <View style={styles.tooltip}>
+            <Text fontSize={12} appearance="secondaryText">
+              {tooltipText}
+            </Text>
+          </View>
+        </View>
+      )}
       {!!error && (
         <Text
           style={styles.errorText}
