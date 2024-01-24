@@ -60,17 +60,18 @@ const runReplacementScript = async () => {
   replaceMMBrandInPage(ambireSvg)
 }
 
-declare let isAmbireDefaultWallet: boolean
-let _isAmbireDefaultWallet: boolean = true
-let isDefaultWalletInitialized: boolean = false
-Object.defineProperty(window, 'isAmbireDefaultWallet', {
+export type DefaultWallet = 'AMBIRE' | 'OTHER' | 'UNSET'
+
+declare let defaultWallet: DefaultWallet
+let _defaultWallet: DefaultWallet = 'UNSET'
+Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
   get() {
-    return _isAmbireDefaultWallet
+    return _defaultWallet
   },
-  set(isDefault) {
-    _isAmbireDefaultWallet = isDefault
-    if (isDefault) {
+  set(value: 'AMBIRE' | 'OTHER') {
+    _defaultWallet = value
+    if (value === 'AMBIRE') {
       document.addEventListener('click', runReplacementScript)
       const observer = new MutationObserver(runReplacementScript)
       observer.observe(document, { childList: true, subtree: true, attributes: true })
@@ -352,11 +353,14 @@ export class EthereumProvider extends EventEmitter {
 
   private _handleBackgroundMessage = ({ event, data }: any) => {
     if (data?.type === 'setDefaultWallet') {
-      isAmbireDefaultWallet = data?.value
-      if (isDefaultWalletInitialized) {
+      // dont reload the page when initializing the defaultWallet value
+      if (defaultWallet !== 'UNSET') {
+        defaultWallet = data?.value
         window.location.reload()
+        return
       }
-      isDefaultWalletInitialized = true
+      defaultWallet = data?.value
+      return
     }
 
     if (this._pushEventHandlers[event]) {
@@ -589,7 +593,7 @@ const setAmbireProvider = () => {
           }
         }
 
-        return isAmbireDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
+        return defaultWallet !== 'OTHER' ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
   } catch (e) {

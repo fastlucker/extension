@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+
+//
 // Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
+//
 
 import { isManifestV3 } from '@web/constants/browserapi'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
@@ -38,15 +42,18 @@ if (!isManifestV3) {
 browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
   // eslint-disable-next-line no-prototype-builtins
   if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
-    const newValue = changes.isDefaultWallet.newValue
-    console.log(newValue, typeof newValue, typeof JSON.parse(newValue))
-    bcm.send('message', { data: { type: 'setDefaultWallet', value: JSON.parse(newValue) } })
+    const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
+    bcm.send('message', {
+      data: { type: 'setDefaultWallet', value: isDefaultWallet ? 'AMBIRE' : 'OTHER' }
+    })
   }
 })
 
 const initIsDefaultWallet = async () => {
   const isDefaultWallet = await storage.get('isDefaultWallet', true)
-  bcm.send('message', { data: { type: 'setDefaultWallet', value: isDefaultWallet } })
+  bcm.send('message', {
+    data: { type: 'setDefaultWallet', value: isDefaultWallet ? 'AMBIRE' : 'OTHER' }
+  })
 }
 
 initIsDefaultWallet()
