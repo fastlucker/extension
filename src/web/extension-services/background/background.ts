@@ -80,7 +80,6 @@ async function init() {
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
   await init()
-  const isDefaultWallet = await storage.get('isDefaultWallet', true)
 
   const backgroundState: {
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
@@ -98,7 +97,6 @@ async function init() {
     selectedAccountStateInterval?: number
     onResoleDappNotificationRequest?: (data: any, id?: number) => void
     onRejectDappNotificationRequest?: (data: any, id?: number) => void
-    isDefaultWallet: boolean
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
@@ -111,8 +109,7 @@ async function init() {
     },
     prevSelectedAccount: null,
     hasSignAccountOpCtrlInitialized: false,
-    portMessageUIRefs: {},
-    isDefaultWallet
+    portMessageUIRefs: {}
   }
 
   const ledgerCtrl = new LedgerController()
@@ -769,25 +766,8 @@ async function init() {
         return true
       }
 
-      if (req.data.method === 'isDefaultWallet') {
-        return backgroundState.isDefaultWallet
-      }
-
       return provider({ ...req, mainCtrl, notificationCtrl })
     })
-  })
-
-  browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
-      const newValue = JSON.parse(changes.isDefaultWallet.newValue)
-      backgroundState.isDefaultWallet = !!newValue
-      if (newValue) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any) => {
-          if (tabs?.[0]?.id) chrome.tabs.reload(tabs[0].id)
-        })
-      }
-    }
   })
 })()
 

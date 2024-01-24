@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
@@ -24,9 +25,58 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 const ambireChannelName = 'ambire-inpage'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-let isAmbireDefaultWallet: boolean = true
 let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
+
+//
+// MetaMask text and icon replacement for dApps using legacy connect only
+//
+
+const runReplacementScript = async () => {
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+
+  // most of the dapps read the provider but some don't till connection
+  if (
+    !doesWebpageReadOurProvider &&
+    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
+  )
+    return
+
+  await delayPromise(30) // wait for DOM update
+
+  if (isEIP6963) return
+
+  if (hasWalletConnectInPage) replaceMMImgInPage()
+
+  const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
+  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
+
+  if (!hasMetaMaskInPage) return
+  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+    return
+
+  replaceMMBrandInPage(ambireSvg)
+}
+
+declare let isAmbireDefaultWallet: boolean
+let _isAmbireDefaultWallet: boolean = true
+let isDefaultWalletInitialized: boolean = false
+Object.defineProperty(window, 'isAmbireDefaultWallet', {
+  configurable: false,
+  get() {
+    return _isAmbireDefaultWallet
+  },
+  set(isDefault) {
+    _isAmbireDefaultWallet = isDefault
+    if (isDefault) {
+      document.addEventListener('click', runReplacementScript)
+      const observer = new MutationObserver(runReplacementScript)
+      observer.observe(document, { childList: true, subtree: true, attributes: true })
+    }
+  }
+})
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -297,11 +347,12 @@ export class EthereumProvider extends EventEmitter {
   }
 
   private _handleBackgroundMessage = ({ event, data }: any) => {
-    console.log('1', data)
     if (data?.type === 'setDefaultWallet') {
-      console.log('in', data)
       isAmbireDefaultWallet = data?.value
-      this._pushEventHandlers.disconnect()
+      if (isDefaultWalletInitialized) {
+        window.location.reload()
+      }
+      isDefaultWalletInitialized = true
     }
 
     if (this._pushEventHandlers[event]) {
@@ -533,7 +584,6 @@ const setAmbireProvider = () => {
             }
           }
         }
-        console.log('xczczxczxczc', isAmbireDefaultWallet)
 
         return isAmbireDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
       }
@@ -627,42 +677,3 @@ window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestPr
 announceEip6963Provider(ambireProvider)
 
 window.dispatchEvent(new Event('ethereum#initialized'))
-
-//
-// MetaMask text and icon replacement for dApps using legacy connect only
-//
-
-const runReplacementScript = async () => {
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-  const hasMetaMaskInPage = isWordInPage('metamask')
-  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
-
-  // most of the dapps read the provider but some don't till connection
-  if (
-    !doesWebpageReadOurProvider &&
-    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
-  )
-    return
-
-  await delayPromise(30) // wait for DOM update
-
-  if (isEIP6963) return
-
-  if (hasWalletConnectInPage) replaceMMImgInPage()
-
-  const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
-  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
-
-  if (!hasMetaMaskInPage) return
-  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
-    return
-
-  replaceMMBrandInPage(ambireSvg)
-}
-
-// TODO: fix when isAmbireDefaultWallet is set to false in the same session
-if (isAmbireDefaultWallet) {
-  document.addEventListener('click', runReplacementScript)
-  const observer = new MutationObserver(runReplacementScript)
-  observer.observe(document, { childList: true, subtree: true, attributes: true })
-}
