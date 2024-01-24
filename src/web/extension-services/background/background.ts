@@ -69,6 +69,13 @@ async function init() {
   }
 
   await permissionService.init()
+
+  // @ts-ignore
+  const isDefaultWallet = await storage.get('isDefaultWallet')
+  // Initialize isDefaultWallet in storage if needed
+  if (isDefaultWallet === undefined) {
+    await storage.set('isDefaultWallet', true)
+  }
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
