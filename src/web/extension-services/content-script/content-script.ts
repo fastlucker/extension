@@ -22,46 +22,51 @@ const injectProviderScript = () => {
   container.removeChild(ele)
 }
 
-const pm = new PortMessage().connect()
+// we run this content script in all_frames (see the manifest file) for better injection
+// but we want the BroadcastChannelMessage to send messages to the service_worker/background only from one of the frames
+// to avoid duplicated requests (window.top is the top-level frame)
+if (window === window.top) {
+  const pm = new PortMessage().connect()
 
-const bcm = new BroadcastChannelMessage('ambire-inpage').listen((data: any) => pm.request(data))
+  const bcm = new BroadcastChannelMessage('ambire-inpage').listen((data: any) => pm.request(data))
 
-// messages coming from the background service and will be passed to the injected script (handled in inpage.ts)
-pm.on('message', (data) => bcm.send('message', data))
+  // messages coming from the background service and will be passed to the injected script (handled in inpage.ts)
+  pm.on('message', (data) => bcm.send('message', data))
 
-document.addEventListener('beforeunload', () => {
-  bcm.dispose()
-  pm.dispose()
-})
+  document.addEventListener('beforeunload', () => {
+    bcm.dispose()
+    pm.dispose()
+  })
+
+  browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
+    // eslint-disable-next-line no-prototype-builtins
+    if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
+      const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
+      bcm.send('message', {
+        data: {
+          type: 'setDefaultWallet',
+          value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+          shouldReload: true
+        }
+      })
+    }
+  })
+
+  const initIsDefaultWallet = async () => {
+    const isDefaultWallet = await storage.get('isDefaultWallet', true)
+    bcm.send('message', {
+      data: {
+        type: 'setDefaultWallet',
+        value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+        shouldReload: false
+      }
+    })
+  }
+
+  initIsDefaultWallet()
+}
 
 // the injection for manifest v3 is located in background.js
 if (!isManifestV3) {
   injectProviderScript()
 }
-
-browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
-  // eslint-disable-next-line no-prototype-builtins
-  if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
-    const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
-    bcm.send('message', {
-      data: {
-        type: 'setDefaultWallet',
-        value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
-        shouldReload: true
-      }
-    })
-  }
-})
-
-const initIsDefaultWallet = async () => {
-  const isDefaultWallet = await storage.get('isDefaultWallet', true)
-  bcm.send('message', {
-    data: {
-      type: 'setDefaultWallet',
-      value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
-      shouldReload: false
-    }
-  })
-}
-
-initIsDefaultWallet()
