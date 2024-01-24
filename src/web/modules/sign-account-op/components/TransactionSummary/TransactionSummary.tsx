@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, ReactNode, useCallback } from 'react'
+import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -35,6 +35,19 @@ const sizeMultiplier = {
   sm: 0.75,
   md: 0.85,
   lg: 1
+}
+
+const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
+  const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setDeadlineText(getDeadlineText(deadline))
+    }, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [])
+  return <p>{deadlineText}</p>
 }
 
 const TransactionSummary = ({
@@ -179,7 +192,7 @@ const TransactionSummary = ({
                   weight="medium"
                   color={colors.martinique}
                 >
-                  {` ${getDeadlineText(item.amount!)} `}
+                  <DeadlineVisualization deadline={item.amount!} />
                 </Text>
               )
             if (item.content) {
