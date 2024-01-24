@@ -44,7 +44,11 @@ browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
   if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
     const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
     bcm.send('message', {
-      data: { type: 'setDefaultWallet', value: isDefaultWallet ? 'AMBIRE' : 'OTHER' }
+      data: {
+        type: 'setDefaultWallet',
+        value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+        shouldReload: true
+      }
     })
   }
 })
@@ -52,7 +56,11 @@ browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
 const initIsDefaultWallet = async () => {
   const isDefaultWallet = await storage.get('isDefaultWallet', true)
   bcm.send('message', {
-    data: { type: 'setDefaultWallet', value: isDefaultWallet ? 'AMBIRE' : 'OTHER' }
+    data: {
+      type: 'setDefaultWallet',
+      value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+      shouldReload: false
+    }
   })
 }
 

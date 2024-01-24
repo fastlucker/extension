@@ -60,10 +60,10 @@ const runReplacementScript = async () => {
   replaceMMBrandInPage(ambireSvg)
 }
 
-export type DefaultWallet = 'AMBIRE' | 'OTHER' | 'UNSET'
+export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
 declare let defaultWallet: DefaultWallet
-let _defaultWallet: DefaultWallet = 'UNSET'
+let _defaultWallet: DefaultWallet = 'AMBIRE'
 Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
   get() {
@@ -353,13 +353,10 @@ export class EthereumProvider extends EventEmitter {
 
   private _handleBackgroundMessage = ({ event, data }: any) => {
     if (data?.type === 'setDefaultWallet') {
-      // dont reload the page when initializing the defaultWallet value
-      if (defaultWallet !== 'UNSET') {
-        defaultWallet = data?.value
-        window.location.reload()
-        return
-      }
       defaultWallet = data?.value
+      if (data.shouldReload) {
+        window.location.reload()
+      }
       return
     }
 
@@ -593,7 +590,7 @@ const setAmbireProvider = () => {
           }
         }
 
-        return defaultWallet !== 'OTHER' ? ambireProvider : cacheOtherProvider || ambireProvider
+        return defaultWallet === 'AMBIRE' ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
   } catch (e) {
