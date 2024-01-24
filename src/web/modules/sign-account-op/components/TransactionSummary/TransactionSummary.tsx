@@ -5,6 +5,7 @@ import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -170,6 +171,17 @@ const TransactionSummary = ({
               )
             }
 
+            if (item.type === 'deadline')
+              return (
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={textSize}
+                  weight="medium"
+                  color={colors.martinique}
+                >
+                  {` ${getDeadlineText(item.amount!)} `}
+                </Text>
+              )
             if (item.content) {
               return (
                 <Text
