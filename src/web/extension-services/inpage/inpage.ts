@@ -618,23 +618,6 @@ const initOperaProvider = () => {
   patchProvider(ambireProvider)
 }
 
-// const setOtherProvider = (otherProvider: EthereumProvider) => {
-//   if (window.ethereum === otherProvider) {
-//     return
-//   }
-//   const existingProvider = Object.getOwnPropertyDescriptor(window, 'ethereum')
-//   if (existingProvider?.configurable) {
-//     Object.defineProperty(window, 'ethereum', {
-//       value: otherProvider,
-//       writable: false,
-//       configurable: false,
-//       enumerable: true
-//     })
-//   } else {
-//     window.ethereum = otherProvider
-//   }
-// }
-
 const initProvider = () => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
