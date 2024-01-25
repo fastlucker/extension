@@ -94,8 +94,6 @@ const Estimation = ({
 
   const [payValue, setPayValue] = useState(defaultPayOption)
 
-  // FIXME: Figure out why this causes infinite loop sometimes (when CoinGecko fails)
-  // Figure out if this is even needed. It seems to be working without it.
   useEffect(() => {
     if (payValue && payValue.token) {
       dispatch({
