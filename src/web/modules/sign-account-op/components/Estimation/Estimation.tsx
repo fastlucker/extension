@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -96,20 +96,17 @@ const Estimation = ({
 
   // FIXME: Figure out why this causes infinite loop sometimes (when CoinGecko fails)
   // Figure out if this is even needed. It seems to be working without it.
-  // useEffect(() => {
-  //   if (payValue && payValue.token) {
-  //     debugger
-  //     dispatch({
-  //       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-  //       params: {
-  //         feeToken: payValue.token,
-  //         paidBy: payValue.paidBy
-  //       }
-  //     })
-  //   }
-  // }, [dispatch, payValue])
-
-  // console.log('signAccountOpState.feeSpeeds', signAccountOpState.feeSpeeds)
+  useEffect(() => {
+    if (payValue && payValue.token) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: {
+          feeToken: payValue.token,
+          paidBy: payValue.paidBy
+        }
+      })
+    }
+  }, [dispatch, payValue])
 
   const selectedFee = useMemo(
     () =>
