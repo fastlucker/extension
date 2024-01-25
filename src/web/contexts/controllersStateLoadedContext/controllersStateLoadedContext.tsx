@@ -8,6 +8,7 @@ import useNotificationControllerState from '@web/hooks/useNotificationController
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const ControllersStateLoadedContext = createContext<boolean>(false)
 
@@ -16,6 +17,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const notificationState = useNotificationControllerState()
   const activityState = useActivityControllerState()
@@ -29,6 +31,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // so we update the isStateLoaded to true
     if (
       Object.keys(mainState).length &&
+      Object.keys(walletState).length &&
+      walletState?.isReady &&
       Object.keys(accountAdderState).length &&
       Object.keys(keystoreState).length &&
       Object.keys(signMessageState).length &&
@@ -41,6 +45,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     }
   }, [
     mainState,
+    walletState,
     accountAdderState,
     keystoreState,
     signMessageState,
