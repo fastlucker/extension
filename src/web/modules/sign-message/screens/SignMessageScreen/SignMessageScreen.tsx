@@ -262,6 +262,7 @@ const SignMessageScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="full"
       header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
       footer={
         <View style={styles.buttonsContainer}>

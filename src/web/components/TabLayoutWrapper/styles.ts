@@ -1,10 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, {
-  IS_SCREEN_SIZE_DESKTOP_LARGE,
-  SPACING_3XL,
-  SPACING_XL
-} from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -14,6 +10,7 @@ interface Style {
   sideContentContainer: ViewStyle
   informationCircle: ViewStyle
   footerContainer: ViewStyle
+  footer: ViewStyle
   primarySideItem: ViewStyle
   errorSideItem: ViewStyle
 }
@@ -40,13 +37,9 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbLg
     },
     footerContainer: {
-      maxHeight: 96,
       ...flexbox.flex1,
-      ...flexbox.justifySpaceBetween,
-      ...flexbox.alignCenter,
-      ...flexbox.directionRow,
+      maxHeight: 96,
       ...spacings.ph3Xl,
-      paddingHorizontal: IS_SCREEN_SIZE_DESKTOP_LARGE ? SPACING_3XL : SPACING_XL,
       backgroundColor: theme.primaryBackground,
       shadowColor: '#B8BDE080',
       shadowOffset: {
@@ -56,6 +49,14 @@ const getStyles = (theme: ThemeProps) =>
       shadowOpacity: 1,
       shadowRadius: 4,
       elevation: 7
+    },
+    footer: {
+      ...flexbox.flex1,
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.alignCenter,
+      ...flexbox.directionRow,
+      width: '100%',
+      marginHorizontal: 'auto'
     },
     primarySideItem: {
       borderColor: theme.primaryLight,

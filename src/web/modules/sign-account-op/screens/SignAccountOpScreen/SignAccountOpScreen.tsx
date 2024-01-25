@@ -11,7 +11,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
+import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -41,15 +41,28 @@ const SignAccountOpScreen = () => {
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
-
   const { t } = useTranslation()
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const [slowRequest, setSlowRequest] = useState<boolean>(false)
 
   const hasEstimation = useMemo(
-    () => !!signAccountOpState?.availableFeeOptions.length,
-    [signAccountOpState?.availableFeeOptions]
+    () => !!signAccountOpState?.availableFeeOptions.length && !!signAccountOpState?.gasPrices,
+    [signAccountOpState?.availableFeeOptions, signAccountOpState?.gasPrices]
   )
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!hasEstimation) {
+        setSlowRequest(true)
+      }
+    }, 5000)
+
+    if (hasEstimation) {
+      clearTimeout(timeout)
+      setSlowRequest(false)
+    }
+  }, [hasEstimation, slowRequest])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -137,7 +150,7 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
     return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState?.accountOp?.calls, signAccountOpState?.humanReadable])
+  }, [signAccountOpState])
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -196,6 +209,16 @@ const SignAccountOpScreen = () => {
     [signAccountOpState?.accountKeyStoreKeys]
   )
 
+  const pendingSendTokens = useMemo(
+    () => pendingTokens.filter((token) => token.type === 'send'),
+    [pendingTokens]
+  )
+
+  const pendingReceiveTokens = useMemo(
+    () => pendingTokens.filter((token) => token.type === 'receive'),
+    [pendingTokens]
+  )
+
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -215,6 +238,17 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const isSignLoading =
+    signAccountOpState.status?.type === SigningStatus.InProgress ||
+    signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
+    signAccountOpState.status?.type === SigningStatus.Done ||
+    mainState.broadcastStatus === 'LOADING'
+
+  const portfolioStatePending =
+    portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
+
+  const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
+
   return (
     <TabLayoutContainer
       width="full"
@@ -230,12 +264,7 @@ const SignAccountOpScreen = () => {
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
           isEOA={!account?.creation}
-          isSignLoading={
-            signAccountOpState.status?.type === SigningStatus.InProgress ||
-            signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
-            signAccountOpState.status?.type === SigningStatus.Done ||
-            mainState.broadcastStatus === 'LOADING'
-          }
+          isSignLoading={isSignLoading}
           readyToSign={signAccountOpState.readyToSign}
           isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
@@ -245,11 +274,103 @@ const SignAccountOpScreen = () => {
         />
       }
     >
-      <TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
+            <View style={styles.simulationSection}>
+              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+                {t('Simulation results')}
+              </Text>
+              {!!pendingTokens.length && (
+                <View style={[flexbox.directionRow, flexbox.flex1]}>
+                  {!!pendingSendTokens.length && (
+                    <View
+                      style={[
+                        styles.simulationContainer,
+                        !!pendingReceiveTokens.length && spacings.mrTy
+                      ]}
+                    >
+                      <View style={styles.simulationContainerHeader}>
+                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                          {t('Tokens out')}
+                        </Text>
+                      </View>
+                      <ScrollView
+                        style={styles.simulationScrollView}
+                        contentContainerStyle={{ flexGrow: 1 }}
+                        scrollEnabled
+                      >
+                        {pendingSendTokens.map((token, i) => {
+                          return (
+                            <PendingTokenSummary
+                              key={token.address}
+                              token={token}
+                              networkId={network!.id}
+                              hasBottomSpacing={i < pendingTokens.length - 1}
+                            />
+                          )
+                        })}
+                      </ScrollView>
+                    </View>
+                  )}
+                  {!!pendingReceiveTokens.length && (
+                    <View style={styles.simulationContainer}>
+                      <View style={styles.simulationContainerHeader}>
+                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
+                          {t('Tokens in')}
+                        </Text>
+                      </View>
+                      <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                        {pendingReceiveTokens.map((token, i) => {
+                          return (
+                            <PendingTokenSummary
+                              key={token.address}
+                              token={token}
+                              networkId={network!.id}
+                              hasBottomSpacing={i < pendingTokens.length - 1}
+                            />
+                          )
+                        })}
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+              )}
+              {portfolioStatePending?.isLoading && (
+                <View style={spacings.mt}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
+              {!portfolioStatePending?.isLoading &&
+                (!!portfolioStatePending?.errors.length ||
+                  !!portfolioStatePending?.criticalError) && (
+                  <View>
+                    <Alert type="error" title="We were unable to simulate the transaction." />
+                  </View>
+                )}
+              {!portfolioStatePending?.isLoading &&
+                !pendingTokens.length &&
+                !portfolioStatePending?.errors.length &&
+                !portfolioStatePending?.criticalError && (
+                  <View>
+                    <Alert
+                      type="info"
+                      isTypeLabelHidden
+                      title={
+                        <>
+                          No token balance changes detected. Please{' '}
+                          <Text appearance="infoText" weight="semiBold">
+                            carefully
+                          </Text>{' '}
+                          review the transaction preview below.
+                        </>
+                      }
+                    />
+                  </View>
+                )}
+            </View>
             <View style={styles.transactionsContainer}>
-              <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
               </Text>
               <ScrollView style={styles.transactionsScrollView} scrollEnabled>
@@ -266,60 +387,53 @@ const SignAccountOpScreen = () => {
                 })}
               </ScrollView>
             </View>
-            {!!pendingTokens.length && (
-              <View style={flexbox.flex1}>
-                <View style={spacings.pr}>
-                  <View style={styles.pendingTokensSeparatorContainer}>
-                    <View style={styles.separatorHorizontal} />
-                    <View style={styles.pendingTokensHeadingWrapper}>
-                      <Text fontSize={16} color={theme.secondaryText} weight="medium">
-                        {t('Balance changes')}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <ScrollView style={styles.pendingTokensScrollView} scrollEnabled>
-                  {pendingTokens.map((token) => {
-                    return (
-                      <PendingTokenSummary
-                        key={token.address}
-                        token={token}
-                        networkId={network!.id}
-                      />
-                    )
-                  })}
-                </ScrollView>
-              </View>
-            )}
           </View>
-          <View style={styles.separator} />
+          <View
+            style={[
+              styles.separator,
+              IS_SCREEN_SIZE_DESKTOP_LARGE
+                ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
+                : { ...spacings.mrXl, ...spacings.ml }
+            ]}
+          />
           <View style={styles.estimationContainer}>
-            <Text fontSize={20} weight="medium" style={spacings.mbXl}>
+            <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            {hasEstimation ? (
-              <Estimation
-                mainState={mainState}
-                signAccountOpState={signAccountOpState}
-                accountPortfolio={portfolioState.accountPortfolio}
-                networkId={network!.id}
-                isViewOnly={isViewOnly}
-              />
-            ) : (
-              <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-                <Spinner style={styles.spinner} />
-              </View>
-            )}
-
-            {signAccountOpState.errors.length ? (
-              <View style={styles.errorContainer}>
-                <Alert
-                  type="error"
-                  title={`We are unable to sign your transaction. ${signAccountOpState.errors[0]}`}
+            <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
+              {hasEstimation && !estimationFailed && (
+                <Estimation
+                  mainState={mainState}
+                  signAccountOpState={signAccountOpState}
+                  accountPortfolio={portfolioState.accountPortfolio}
+                  networkId={network!.id}
+                  disabled={isViewOnly || isSignLoading}
                 />
-              </View>
-            ) : null}
+              )}
+              {!hasEstimation && !estimationFailed && (
+                <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
+
+              {!hasEstimation && slowRequest && !signAccountOpState?.errors.length ? (
+                <View style={styles.errorContainer}>
+                  <Alert
+                    type="warning"
+                    title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
+                  />
+                </View>
+              ) : null}
+
+              {signAccountOpState?.errors.length ? (
+                <View style={styles.errorContainer}>
+                  <Alert
+                    type="error"
+                    title={`We are unable to sign your transaction. ${signAccountOpState?.errors[0]}`}
+                  />
+                </View>
+              ) : null}
+            </ScrollView>
           </View>
         </View>
       </TabLayoutWrapperMainContent>

@@ -39,7 +39,7 @@ const AddAccount = () => {
       {
         text: t('Import an existing hot wallet'),
         icon: ImportAccountIcon,
-        onPress: () => navigate(ROUTES.externalSigner)
+        onPress: () => navigate(ROUTES.importHotWallet)
       },
       {
         text: t('Create a new hot wallet'),

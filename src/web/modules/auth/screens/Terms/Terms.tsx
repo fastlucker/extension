@@ -74,10 +74,12 @@ const Terms = () => {
       navigate(WEB_ROUTES.hardwareWalletSelect, { state: { backTo: WEB_ROUTES.getStarted } })
       return
     }
-    if (flow === 'legacy') {
-      navigate(WEB_ROUTES.externalSigner, {
-        state: { backTo: WEB_ROUTES.getStarted, flow: 'legacy' }
-      })
+    if (flow === 'seed') {
+      navigate(WEB_ROUTES.importSeedPhrase, { state: { backTo: WEB_ROUTES.importHotWallet } })
+      return
+    }
+    if (flow === 'private-key') {
+      navigate(WEB_ROUTES.importPrivateKey, { state: { backTo: WEB_ROUTES.importHotWallet } })
     }
   }
 

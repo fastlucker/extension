@@ -5,7 +5,6 @@ import { View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -30,6 +29,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
+import Stepper from '@web/modules/router/components/Stepper'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
@@ -85,7 +85,11 @@ const AccountPersonalizeScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withAmbireLogo />}
+      header={
+        <Header mode="custom-inner-content" withAmbireLogo>
+          <Stepper />
+        </Header>
+      }
       footer={
         <>
           <BackButton />
@@ -119,12 +123,11 @@ const AccountPersonalizeScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row Icon={InfoIcon} title="Account personalization" />
+        <TabLayoutWrapperSideContentItem title={t('Account personalization')}>
           <TabLayoutWrapperSideContentItem.Text noMb>
-            The account label is any arbitrary label that you choose. Both the label and the avatar
-            are only local and for own organizational purposes - none of this will be uploaded on
-            the blockchain or anywhere else.
+            {t(
+              "Account personalization allows you to assign a label and avatar to any accounts you've chosen to import. Both options are stored locally on your device and serve only to help you organize your accounts. None of these options are uploaded to the blockchain or anywhere else."
+            )}
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

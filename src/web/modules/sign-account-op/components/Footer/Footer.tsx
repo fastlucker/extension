@@ -67,6 +67,7 @@ const Footer = ({
             accentColor={theme.primary}
             text={t('Add to Cart')}
             onPress={onAddToCart}
+            disabled={isSignLoading || isViewOnly}
             hasBottomSpacing={false}
             style={[spacings.phLg, spacings.mr]}
           >

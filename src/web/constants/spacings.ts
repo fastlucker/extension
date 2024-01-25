@@ -4,6 +4,7 @@ import { engine } from '@web/constants/browserapi'
 
 export const POPUP_WIDTH = 600
 export const TAB_CONTENT_WIDTH = 1048
+export const TAB_WIDE_CONTENT_WIDTH = 1360
 
 // The browser popup window has a top bar that takes some of the height.
 // So this is about the size of this tab bar (magic number), that hopefully 🙏
@@ -15,3 +16,5 @@ export const POPUP_HEIGHT = Math.round(BROWSER_WINDOW_TOP_BAR_HEIGHT + 600)
 // by default the notification window will be full screen and won't be with these dimensions
 export const NOTIFICATION_WINDOW_WIDTH = 1100
 export const NOTIFICATION_WINDOW_HEIGHT = 800
+export const BROWSER_WINDOW_BAR_BUFFER = 50
+export const MIN_NOTIFICATION_WINDOW_HEIGHT = 600 + BROWSER_WINDOW_BAR_BUFFER

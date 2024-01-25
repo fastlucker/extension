@@ -57,9 +57,12 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     if (tokens?.length && selectedTokenFromUrl && !state.selectedToken) {
       const tokenToSelect = tokens.find(
         (t) =>
-          t.address === selectedTokenFromUrl.addr && t.networkId === selectedTokenFromUrl.networkId
+          t.address === selectedTokenFromUrl.addr &&
+          t.networkId === selectedTokenFromUrl.networkId &&
+          t.flags.onGasTank === false
       )
       if (tokenToSelect) {
+        console.log(tokenToSelect)
         dispatch({
           type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
           params: { selectedToken: tokenToSelect }
