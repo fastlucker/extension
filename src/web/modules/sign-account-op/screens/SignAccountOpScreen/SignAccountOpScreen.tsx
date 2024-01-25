@@ -244,6 +244,11 @@ const SignAccountOpScreen = () => {
     signAccountOpState.status?.type === SigningStatus.Done ||
     mainState.broadcastStatus === 'LOADING'
 
+  const portfolioStatePending =
+    portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
+
+  const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
+
   return (
     <TabLayoutContainer
       width="full"
@@ -272,11 +277,11 @@ const SignAccountOpScreen = () => {
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            {!!pendingTokens.length && (
-              <View style={styles.simulationSection}>
-                <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-                  {t('Simulation results')}
-                </Text>
+            <View style={styles.simulationSection}>
+              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+                {t('Simulation results')}
+              </Text>
+              {!!pendingTokens.length && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -330,8 +335,40 @@ const SignAccountOpScreen = () => {
                     </View>
                   )}
                 </View>
-              </View>
-            )}
+              )}
+              {portfolioStatePending?.isLoading && (
+                <View style={spacings.mt}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
+              {!portfolioStatePending?.isLoading &&
+                (!!portfolioStatePending?.errors.length ||
+                  !!portfolioStatePending?.criticalError) && (
+                  <View>
+                    <Alert type="error" title="We were unable to simulate the transaction." />
+                  </View>
+                )}
+              {!portfolioStatePending?.isLoading &&
+                !pendingTokens.length &&
+                !portfolioStatePending?.errors.length &&
+                !portfolioStatePending?.criticalError && (
+                  <View>
+                    <Alert
+                      type="info"
+                      isTypeLabelHidden
+                      title={
+                        <>
+                          No token balance changes detected. Please{' '}
+                          <Text appearance="infoText" weight="semiBold">
+                            carefully
+                          </Text>{' '}
+                          review the transaction preview below.
+                        </>
+                      }
+                    />
+                  </View>
+                )}
+            </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
@@ -364,7 +401,7 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
-              {hasEstimation ? (
+              {hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
                   signAccountOpState={signAccountOpState}
@@ -372,7 +409,8 @@ const SignAccountOpScreen = () => {
                   networkId={network!.id}
                   disabled={isViewOnly || isSignLoading}
                 />
-              ) : (
+              )}
+              {!hasEstimation && !estimationFailed && (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                   <Spinner style={styles.spinner} />
                 </View>

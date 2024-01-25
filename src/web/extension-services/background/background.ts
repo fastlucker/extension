@@ -12,6 +12,7 @@ import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
@@ -69,6 +70,13 @@ async function init() {
   }
 
   await permissionService.init()
+
+  // @ts-ignore
+  const isDefaultWallet = await storage.get('isDefaultWallet')
+  // Initialize isDefaultWallet in storage if needed
+  if (isDefaultWallet === undefined) {
+    await storage.set('isDefaultWallet', true)
+  }
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -266,13 +274,29 @@ async function init() {
 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
-      if (mainCtrl.signAccountOp) {
+      if (
+        mainCtrl.signAccountOp &&
+        (mainCtrl.signAccountOp.status === null ||
+          mainCtrl.signAccountOp.status.type !== SigningStatus.EstimationError)
+      ) {
         setReestimateInterval(mainCtrl.signAccountOp.accountOp)
       } else {
         !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
+
+      // if we have a signAccountOp initialized, set an onUpdate listener that
+      // checks if the statet moves to a fatal EstimationError. If it does, stop
+      // the reestimation
+      if (mainCtrl.signAccountOp) {
+        mainCtrl.signAccountOp?.onUpdate(() => {
+          if (mainCtrl.signAccountOp?.status?.type === SigningStatus.EstimationError) {
+            !!backgroundState.reestimateInterval &&
+              clearInterval(backgroundState.reestimateInterval)
+          }
+        })
+      }
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
