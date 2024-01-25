@@ -150,6 +150,8 @@ const ViewOnlyScreen = () => {
     settingsControllerState.accountPreferences
   ])
 
+  const disabled = !isValid || duplicateAccountsIndexes.length > 0
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -160,7 +162,7 @@ const ViewOnlyScreen = () => {
           <Button
             textStyle={{ fontSize: 14 }}
             style={{ minWidth: 180 }}
-            disabled={!isValid || duplicateAccountsIndexes.length > 0}
+            disabled={disabled}
             hasBottomSpacing={false}
             text={t('Import')}
             onPress={handleFormSubmit}
@@ -203,7 +205,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
-                    onSubmitEditing={handleFormSubmit}
+                    onSubmitEditing={disabled ? undefined : handleFormSubmit}
                   />
                   {index !== 0 && (
                     <Pressable style={[spacings.ml]} onPress={() => remove(index)}>
