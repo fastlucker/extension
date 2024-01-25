@@ -154,9 +154,7 @@ const Estimation = ({
             {signAccountOpState.feeSpeeds.map((fee, i) => (
               <Fee
                 disabled={disabled}
-                isLastItem={
-                  !!signAccountOpState.feeSpeeds && i === signAccountOpState.feeSpeeds.length - 1
-                }
+                isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
                 key={fee.amount + fee.type}
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                 type={fee.type}
