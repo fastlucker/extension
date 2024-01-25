@@ -10,6 +10,8 @@ import React from 'react'
 import { View } from 'react-native'
 import Svg, { Rect } from 'react-native-svg'
 
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+
 const randseed = new Array(4)
 
 interface Props {
@@ -33,7 +35,7 @@ const Blockie: React.FC<Props> = ({
   size = 8,
   scale = 4,
   isRound = true,
-  borderRadius = 15,
+  borderRadius = BORDER_RADIUS_PRIMARY,
   borderWidth = 0,
   borderColor
 }) => {

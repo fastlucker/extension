@@ -1,103 +1,176 @@
-import { Image, Pressable, View } from 'react-native'
+import * as Clipboard from 'expo-clipboard'
+import { useTranslation } from 'react-i18next'
+import { Pressable, View } from 'react-native'
 
-// @ts-ignore
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
+import CopyIcon from '@common/assets/svg/CopyIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import CopyText from '@common/components/CopyText'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import Blockies from '@common/components/Blockies'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import Header from '@common/modules/header/components/Header'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
+import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
+  const { t } = useTranslation()
+  const { addToast } = useToast()
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
-
+  const keystoreCtrl = useKeystoreControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
+  const selectedAccountData = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
-  const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
   const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
+
+  const isViewOnly = keystoreCtrl.keys.every(
+    (k) => !selectedAccountData?.associatedKeys.includes(k.addr)
+  )
+
+  const handleCopyText = async () => {
+    try {
+      await Clipboard.setStringAsync(selectedAccount)
+      addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
+    } catch {
+      addToast(t('Failed to copy address to clipboard!') as string, {
+        timeout: 2500,
+        type: 'error'
+      })
+    }
+  }
+
   return (
-    <Header backgroundColor={theme.primaryBackground} mode="custom">
+    <View
+      style={[
+        flexboxStyles.directionRow,
+        flexboxStyles.alignCenter,
+        flexboxStyles.flex1,
+        commonWebStyles.contentContainer,
+        spacings.mbXl
+      ]}
+    >
       <View
-        style={[
-          flexboxStyles.directionRow,
-          flexboxStyles.alignCenter,
-          flexboxStyles.flex1,
-          commonWebStyles.contentContainer
-        ]}
+        style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
       >
-        <View
-          style={[
-            flexboxStyles.directionRow,
-            flexboxStyles.flex1,
-            flexboxStyles.justifySpaceBetween
-          ]}
-        >
-          <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          <Pressable
+            style={({ hovered }: any) => [
+              styles.accountButton,
+              {
+                backgroundColor: hovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND_HOVERED
+              }
+            ]}
+            onPress={() => navigate('account-select')}
+          >
             <View style={styles.accountButtonInfo}>
-              <Image
-                style={styles.accountButtonInfoIcon}
-                source={selectedAccPfpSource}
-                resizeMode="contain"
-              />
-              <View style={styles.accountAddressAndLabel}>
-                <Text numberOfLines={1} weight="number_bold" fontSize={14}>
-                  {selectedAccLabel}
-                </Text>
-                <Text weight="number_medium" style={styles.accountButtonInfoText} fontSize={14}>
-                  ({shortenAddress(selectedAccount, 11)})
-                </Text>
+              <View>
+                <Blockies seed={selectedAccount} />
+                {isViewOnly && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      right: -4,
+                      top: -4,
+                      backgroundColor: theme.primaryBackground,
+                      padding: 2,
+                      borderRadius: 50
+                    }}
+                  >
+                    <ViewOnlyIcon
+                      width={14}
+                      height={14}
+                      strokeWidth={4}
+                      color={theme.infoDecorative}
+                    />
+                  </View>
+                )}
               </View>
+              <Text
+                numberOfLines={1}
+                weight="semiBold"
+                style={[spacings.mlTy, spacings.mrLg]}
+                color={theme.primaryBackground}
+                fontSize={14}
+              >
+                {selectedAccLabel}
+              </Text>
             </View>
-            <CopyText
-              iconHeight={20}
-              iconWidth={20}
-              text={selectedAccount}
-              style={styles.accountCopyIcon}
-              iconColor={theme.secondaryText}
-            />
             <Pressable
               onPress={() => navigate('account-select')}
               style={styles.accountButtonRightIcon}
             >
-              <RightArrowIcon width={12} color={theme.secondaryText} />
+              <RightArrowIcon width={12} color={theme.primaryBackground} />
             </Pressable>
           </Pressable>
-          <View style={styles.maximizeAndMenu}>
-            {isPopup && (
-              <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
-                <MaximizeIcon width={20} height={20} />
-              </Pressable>
-            )}
-            <Pressable
-              style={{ ...spacings.mlLg, ...spacings.mrTy }}
-              onPress={() => navigate('menu')}
+          <Pressable
+            style={({ hovered }: any) => [
+              flexboxStyles.directionRow,
+              flexboxStyles.alignCenter,
+              { opacity: hovered ? 1 : 0.7 }
+            ]}
+            onPress={handleCopyText}
+          >
+            <Text
+              color={theme.primaryBackground}
+              style={spacings.mrMi}
+              weight="medium"
+              fontSize={14}
             >
-              <BurgerIcon width={20} height={20} />
+              ({shortenAddress(selectedAccount, 13)})
+            </Text>
+            <CopyIcon width={20} height={20} color={theme.primaryBackground} />
+          </Pressable>
+        </View>
+
+        <View style={styles.maximizeAndMenu}>
+          {isPopup && (
+            <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
+              {({ hovered }: any) => (
+                <MaximizeIcon
+                  opacity={hovered ? 1 : 0.7}
+                  color={theme.secondaryBackground}
+                  width={16}
+                  height={16}
+                />
+              )}
             </Pressable>
-          </View>
+          )}
+          <Pressable
+            style={{ ...spacings.mlLg, ...spacings.mrTy }}
+            onPress={() => navigate('menu')}
+          >
+            {({ hovered }: any) => (
+              <BurgerIcon
+                opacity={hovered ? 1 : 0.7}
+                color={theme.primaryBackground}
+                width={20}
+                height={20}
+              />
+            )}
+          </Pressable>
         </View>
       </View>
-    </Header>
+    </View>
   )
 }
 

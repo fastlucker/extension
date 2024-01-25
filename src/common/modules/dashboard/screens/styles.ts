@@ -24,6 +24,9 @@ interface Style {
   accountCopyIcon: ViewStyle
 }
 
+export const NEUTRAL_BACKGROUND = '#1418333D'
+export const NEUTRAL_BACKGROUND_HOVERED = '#14183352'
+
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     contentContainer: commonWebStyles.contentContainer,
@@ -32,13 +35,8 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.primaryBackground
     },
     overview: {
-      backgroundColor: theme.secondaryBackground,
       ...flexbox.directionRow,
-      ...flexbox.justifySpaceBetween,
-      ...spacings.mb,
-      ...spacings.phSm,
-      ...spacings.pvLg,
-      ...common.borderRadiusPrimary
+      ...flexbox.justifySpaceBetween
     },
     overviewLoader: {
       width: 150,

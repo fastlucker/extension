@@ -1,6 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Linking, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,25 +10,21 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import Banners from '@common/components/Banners'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
@@ -52,16 +49,13 @@ const handleChangeQuery = (openTab: string) => {
 const { isPopup } = getUiType()
 
 const DashboardScreen = () => {
-  const { styles } = useTheme(getStyles)
-  const { networks } = useSettingsControllerState()
-  const { selectedAccount } = useMainControllerState()
-  const { addToast } = useToast()
+  const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
-  const [networkExplorersHovered, setNetworkExplorersHovered] = useState(false)
   const route = useRoute()
+  const gradientColors = ['#573FA7', '#459193', '#343E6E']
 
   const { control, watch } = useForm({
     mode: 'all',
@@ -74,7 +68,7 @@ const DashboardScreen = () => {
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
 
-    return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
+    return (params.get('tab') as 'tokens' | 'collectibles' | 'defi') || 'tokens'
   })
 
   const { accountPortfolio, startedLoading } = usePortfolioControllerState()
@@ -93,12 +87,6 @@ const DashboardScreen = () => {
       }),
     [accountPortfolio?.tokens, searchValue]
   )
-
-  const networksWithAssets = useMemo(() => {
-    const nonZeroBalanceTokens = tokens?.filter((token) => token.amount !== 0n)
-
-    return [...new Set(nonZeroBalanceTokens?.map((token) => token.networkId) || [])]
-  }, [tokens])
 
   useEffect(() => {
     if (searchValue.length > 0 && openTab === 'collectibles') {
@@ -133,28 +121,6 @@ const DashboardScreen = () => {
     }
   })
 
-  const openExplorer = useCallback(
-    async (networkId: NetworkDescriptor['id']) => {
-      const explorerUrl = networks.find((network) => network.id === networkId)?.explorerUrl
-
-      if (!explorerUrl) {
-        addToast('This network does not have an explorer.', {
-          type: 'error'
-        })
-        return
-      }
-
-      try {
-        await Linking.openURL(`${explorerUrl}/address/${selectedAccount}`)
-      } catch {
-        addToast('An error occurred while opening the explorer.', {
-          type: 'error'
-        })
-      }
-    },
-    [networks, selectedAccount, addToast]
-  )
-
   // Fake loading
   useEffect(() => {
     setFakeIsLoading(false)
@@ -170,74 +136,82 @@ const DashboardScreen = () => {
 
   return (
     <>
-      <DashboardHeader />
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
-        <View style={spacings.ph}>
-          <View style={[styles.contentContainer]}>
-            <View style={styles.overview}>
-              <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!fakeIsLoading ? (
-                    <Text style={spacings.mbTy}>
-                      <Text
-                        fontSize={32}
-                        shouldScale={false}
-                        style={{ lineHeight: 34 }}
-                        weight="number_bold"
-                      >
-                        {t('$')}
-                        {Number(
-                          accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
-                        ).toLocaleString('en-US')}
+        <View style={[spacings.phSm, spacings.ptSm]}>
+          <View style={[styles.contentContainer, spacings.mb]}>
+            <LinearGradient
+              start={{
+                x: 0.0,
+                y: 0
+              }}
+              end={{
+                x: 1.0,
+                y: 0.0
+              }}
+              locations={[0, 0.3, 1]}
+              style={[common.borderRadiusPrimary, spacings.pvTy, spacings.phSm, spacings.pbMd]}
+              colors={gradientColors}
+            >
+              <DashboardHeader />
+              <View style={styles.overview}>
+                <View>
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    {!fakeIsLoading ? (
+                      <Text style={spacings.mbTy}>
+                        <Text
+                          fontSize={32}
+                          shouldScale={false}
+                          style={{ lineHeight: 34 }}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('$')}
+                          {Number(
+                            accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
+                          ).toLocaleString('en-US')}
+                        </Text>
+                        <Text
+                          fontSize={20}
+                          shouldScale={false}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('.')}
+                          {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
+                        </Text>
                       </Text>
-                      <Text fontSize={20} shouldScale={false} weight="semiBold">
-                        {t('.')}
-                        {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
-                      </Text>
-                    </Text>
-                  ) : (
-                    <View style={styles.overviewLoader} />
-                  )}
-                  <AnimatedPressable
-                    onPress={refreshPortfolio}
-                    style={[animatedStyle, spacings.mlTy]}
+                    ) : (
+                      <View style={styles.overviewLoader} />
+                    )}
+                    <AnimatedPressable
+                      onPress={refreshPortfolio}
+                      style={[animatedStyle, spacings.mlTy]}
+                    >
+                      <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                    </AnimatedPressable>
+                  </View>
+                  <Pressable
+                    style={({ hovered }: any) => [
+                      flexbox.directionRow,
+                      flexbox.alignCenter,
+                      { opacity: hovered ? 1 : 0.7 }
+                    ]}
                   >
-                    <RefreshIcon width={16} height={16} />
-                  </AnimatedPressable>
+                    <Text fontSize={14} color={theme.primaryBackground} weight="medium">
+                      All Networks
+                    </Text>
+                    <DownArrowIcon
+                      style={spacings.mlSm}
+                      color={theme.primaryBackground}
+                      width={12}
+                      height={6.5}
+                    />
+                  </Pressable>
                 </View>
-                <Pressable
-                  // @ts-ignore cursor:default is web style
-                  style={({ hovered }: any) => [
-                    styles.networks,
-                    hovered && isWeb ? { cursor: 'default' } : {}
-                  ]}
-                >
-                  {({ hovered: parentHovered }: any) =>
-                    networksWithAssets.map((networkId, index) => (
-                      <Pressable
-                        onPress={() => openExplorer(networkId)}
-                        key={networkId}
-                        style={({ hovered: networkHovered }: any) => [
-                          styles.networkIconContainer,
-                          { zIndex: networksWithAssets.length - index },
-                          networkHovered && styles.networkIconContainerHovered,
-                          {
-                            marginRight: parentHovered || networkExplorersHovered ? 8 : 0
-                          }
-                        ]}
-                        onHoverIn={() => setNetworkExplorersHovered(true)}
-                        onHoverOut={() => setNetworkExplorersHovered(false)}
-                      >
-                        <NetworkIcon style={styles.networkIcon} name={networkId} />
-                      </Pressable>
-                    ))
-                  }
-                </Pressable>
+                <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
               </View>
-              <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
-            </View>
-
+            </LinearGradient>
             <Banners />
           </View>
           <View
@@ -249,7 +223,12 @@ const DashboardScreen = () => {
               spacings.mbMd
             ]}
           >
-            <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
+            <Tabs
+              gradientColors={gradientColors}
+              handleChangeQuery={handleChangeQuery}
+              setOpenTab={setOpenTab}
+              openTab={openTab}
+            />
             <Search
               containerStyle={{ flex: 1, maxWidth: 206 }}
               control={control}

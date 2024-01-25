@@ -1,59 +1,61 @@
 import React from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
-import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 
 import getStyles from './styles'
+import Tab from './Tab'
 
 interface Props {
-  openTab: 'tokens' | 'collectibles'
-  setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles'>>
+  openTab: 'tokens' | 'collectibles' | 'defi'
+  setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
   handleChangeQuery: (openTab: string) => void
+  gradientColors: string[]
 }
 
-const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
-  const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery, gradientColors }) => {
+  const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <Pressable
-        onPress={() => {
-          handleChangeQuery('tokens')
-          setOpenTab('tokens')
+      <Tab
+        openTab={openTab}
+        tab="tokens"
+        tabLabel="Tokens"
+        setOpenTab={setOpenTab}
+        handleChangeQuery={handleChangeQuery}
+        gradientColors={gradientColors}
+      />
+      <View
+        style={{
+          width: 1,
+          height: 24,
+          backgroundColor: openTab === 'defi' ? theme.secondaryBorder : 'transparent'
         }}
-      >
-        {/* todo: add the border radius here */}
-        <View style={[styles.toggleItem, openTab === 'tokens' ? styles.toggleItemActive : {}]}>
-          <Text
-            weight="regular"
-            appearance={openTab === 'tokens' ? 'primary' : 'secondaryText'}
-            fontSize={16}
-          >
-            {t('Tokens')}
-          </Text>
-        </View>
-      </Pressable>
-      <Pressable
-        onPress={() => {
-          handleChangeQuery('collectibles')
-          setOpenTab('collectibles')
+      />
+      <Tab
+        openTab={openTab}
+        tab="collectibles"
+        tabLabel="NFTs"
+        setOpenTab={setOpenTab}
+        handleChangeQuery={handleChangeQuery}
+        gradientColors={gradientColors}
+      />
+      <View
+        style={{
+          width: 1,
+          height: 24,
+          backgroundColor: openTab === 'tokens' ? theme.secondaryBorder : 'transparent'
         }}
-      >
-        <View
-          style={[styles.toggleItem, openTab === 'collectibles' ? styles.toggleItemActive : {}]}
-        >
-          <Text
-            weight="regular"
-            appearance={openTab === 'collectibles' ? 'primary' : 'secondaryText'}
-            fontSize={16}
-          >
-            {t('Collectibles')}
-          </Text>
-        </View>
-      </Pressable>
+      />
+      <Tab
+        openTab={openTab}
+        tab="defi"
+        tabLabel="DeFi positions"
+        setOpenTab={setOpenTab}
+        handleChangeQuery={handleChangeQuery}
+        gradientColors={gradientColors}
+      />
     </View>
   )
 }

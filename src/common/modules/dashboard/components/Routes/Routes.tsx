@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
@@ -14,8 +14,11 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+
+import { NEUTRAL_BACKGROUND, NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
 const Routes = ({
   setIsReceiveModalVisible
@@ -55,9 +58,9 @@ const Routes = ({
       {routeItems.map((routeItem, index) => (
         <View
           key={routeItem.label}
-          style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mrMd]}
+          style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mr]}
         >
-          <NavIconWrapper
+          {/* <NavIconWrapper
             disabled={routeItem.disabled}
             onPress={() => {
               if (routeItem?.onPress) {
@@ -71,18 +74,46 @@ const Routes = ({
               }
               navigate(routeItem.route)
             }}
-            hoverBackground="transparent"
-            hoverColor={theme.primary}
+            width={44}
+            height={44}
+            hoverBackground={NEUTRAL_BACKGROUND_HOVERED}
+            // hoverColor={theme.primaryBackground}
             style={{
-              borderColor: theme.primary,
-              borderWidth: 2,
               ...spacings.mbMi,
-              backgroundColor: 'transparent'
+              backgroundColor: NEUTRAL_BACKGROUND
             }}
           >
-            <routeItem.icon color={theme.primary} width={24} height={24} />
-          </NavIconWrapper>
-          <Text weight="regular" fontSize={14} style={routeItem.disabled && { opacity: 0.4 }}>
+            <routeItem.icon color={theme.primaryBackground} width={26} height={26} />
+          </NavIconWrapper> */}
+          <Pressable
+            style={({ hovered }: any) => ({
+              width: 44,
+              height: 44,
+              borderRadius: BORDER_RADIUS_PRIMARY,
+              backgroundColor: hovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND,
+              ...flexbox.center,
+              opacity: routeItem.disabled ? 0.4 : 1,
+              ...spacings.mbTy
+            })}
+            disabled={routeItem.disabled}
+          >
+            {({ hovered }: any) => (
+              <routeItem.icon
+                style={{
+                  opacity: hovered ? 1 : 0.7
+                }}
+                color={theme.primaryBackground}
+                width={26}
+                height={26}
+              />
+            )}
+          </Pressable>
+          <Text
+            color={theme.primaryBackground}
+            weight="regular"
+            fontSize={12}
+            style={routeItem.disabled && { opacity: 0.4 }}
+          >
             {routeItem.label}
           </Text>
         </View>

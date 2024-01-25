@@ -1,46 +1,35 @@
 import React from 'react'
-import { ColorValue } from 'react-native'
-import Svg, { G, Rect, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-  color?: ColorValue
-}
-
-const DAppsIcon: React.FC<Props> = ({ width = 18, height = 18, color }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
-    <G transform="translate(-769.335 389.665)">
-      <G transform="translate(769.335 -389.665)">
-        <G transform="translate(0)" fill="none" stroke={color || colors.titan} strokeWidth="2">
-          <Rect width="11.294" height="11.294" rx="2" stroke="none" />
-          <Rect x="1" y="1" width="9.294" height="9.294" rx="1" fill="none" />
+const DAppsIcon: React.FC<SvgProps> = ({
+  width = 26,
+  height = 26,
+  color = iconColors.secondary,
+  ...rest
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 26 26" {...rest}>
+    <G fill="none">
+      <G stroke={color} stroke-width="1.5">
+        <G transform="translate(3.667 3.667)">
+          <Rect width="8.784" height="8.784" stroke="none" rx="3" />
+          <Rect width="7.284" height="7.284" x=".75" y=".75" rx="2.25" />
         </G>
-        <G
-          transform="translate(0 12.706)"
-          fill="none"
-          stroke={color || colors.titan}
-          strokeWidth="2"
-        >
-          <Rect width="11.294" height="11.294" rx="2" stroke="none" />
-          <Rect x="1" y="1" width="9.294" height="9.294" rx="1" fill="none" />
+        <G transform="translate(3.667 13.549)">
+          <Rect width="8.784" height="8.784" stroke="none" rx="3" />
+          <Rect width="7.284" height="7.284" x=".75" y=".75" rx="2.25" />
         </G>
-        <G transform="translate(12.706)" fill="none" stroke={color || colors.titan} strokeWidth="2">
-          <Rect width="11.294" height="11.294" rx="2" stroke="none" />
-          <Rect x="1" y="1" width="9.294" height="9.294" rx="1" fill="none" />
+        <G transform="translate(13.549 3.667)">
+          <Rect width="8.784" height="8.784" stroke="none" rx="3" />
+          <Rect width="7.284" height="7.284" x=".75" y=".75" rx="2.25" />
         </G>
-        <G
-          transform="translate(12.706 12.706)"
-          fill="none"
-          stroke={color || colors.titan}
-          strokeWidth="2"
-        >
-          <Rect width="11.294" height="11.294" rx="2" stroke="none" />
-          <Rect x="1" y="1" width="9.294" height="9.294" rx="1" fill="none" />
+        <G transform="translate(13.549 13.549)">
+          <Rect width="8.784" height="8.784" stroke="none" rx="3" />
+          <Rect width="7.284" height="7.284" x=".75" y=".75" rx="2.25" />
         </G>
       </G>
+      <Path d="M0 26V0h26v26z" />
     </G>
   </Svg>
 )
