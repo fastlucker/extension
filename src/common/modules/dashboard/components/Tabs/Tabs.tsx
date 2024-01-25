@@ -37,6 +37,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         </View>
       </Pressable>
       <Pressable
+        testID='collectibles-tab'
         onPress={() => {
           handleChangeQuery('collectibles')
           setOpenTab('collectibles')

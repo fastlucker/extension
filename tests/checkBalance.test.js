@@ -2,7 +2,6 @@ const puppeteer = require('puppeteer');
 
 import { bootStrap, typeText, clickOnElement, typeSeedPhrase } from './functions.js';
 
-
 describe('balance', () => {
     let browser;
     let page;
@@ -96,69 +95,28 @@ describe('balance', () => {
         await page.evaluate(() => {
             location.reload(true)
         })
-       await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
+        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
 
     })
 
     afterEach(async () => {
         await browser.close();
     });
-   
-    //--------------------------------------------------------------------------------------------------------------
-    it('check if networks Ethereum, USDC and Polygon exist in the account  ', (async () => {
+    // the login is only in the first test, the next tests don't include it, if the first one  fails the other will fail too
+    it('check the balance in account ', (async () => {
 
         await page.waitForSelector('[data-testid="full-balance"]')
+        /* Get the available balance */
+        const availableAmmount = await page.evaluate(() => {
+            const balance = document.querySelector('[data-testid="full-balance"]')
+            return balance.innerText
+        })
 
-        await new Promise((r) => setTimeout(r, 2000))
+        let availableAmmountNum = availableAmmount.replace(/\n/g, "");
+        availableAmmountNum = availableAmmountNum.split('$')[1]
 
-        /* Verify that USDC, ETH, WALLET */
-        const text = await page.$eval('*', el => el.innerText);
-
-        expect(text).toMatch(/\bUSDC\b/);
-        console.log('USDC exists on the page');
-
-        expect(text).toMatch(/\bETH\b/);
-        console.log('ETH exists on the page');
-
-        expect(text).toMatch(/\bWALLET\b/);
-        console.log('WALLET exists on the page');
-    }));
-
-    //--------------------------------------------------------------------------------------------------------------
-    it('check if item exist in Collectibles tab', (async () => {
-
-        await new Promise((r) => setTimeout(r, 2000))
-        /* Click on "Collectibles" button */
-        await clickOnElement(page, '[data-testid="collectibles-tab"]')
-
-
-        const collectionItem = '[data-testid="collection-item"]';
-        await page.waitForSelector(collectionItem)
-
-        /* Get the text content of the first item */
-        let firstCollectiblesItem = await page.$$eval(collectionItem, element => {
-            return element[0].textContent
-        });
-
-        let firstCollectiblesItemCut = firstCollectiblesItem.split(' ')[0]
-
-        /* Click on the first item */
-        let elements = await page.$$(collectionItem);
-        /* Loop trough items */          
-        for (let i = 0; i < elements.length; i++) {
-            let text = await page.evaluate(el => el.innerText, elements[i]);
-            if (text.indexOf(firstCollectiblesItemCut) > -1) {
-                await elements[i].click();
-            }
-        }
-
-        /* Verify that the correct url os loaded */
-        const url = page.url()
-        expect(url).toContain('collection');
-
-        /* Verify that selected item exist on the page */
-        const text = await page.$eval('*', el => el.innerText);
-        expect(text).toContain(firstCollectiblesItemCut);
+        /* Verify that the balance is bigger than 0 */
+        expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
     }));
 })
 

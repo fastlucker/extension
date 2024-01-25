@@ -47,6 +47,7 @@ const Checkbox = ({
             },
             !!value && { backgroundColor: theme.successDecorative }
           ]}
+          testID='checkbox'
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}
@@ -56,7 +57,7 @@ const Checkbox = ({
       </View>
       <View style={flexboxStyles.flex1}>
         {label ? (
-          <Text testID='checkbox' shouldScale={false} onPress={onChange} weight="regular" fontSize={12}>
+          <Text shouldScale={false} onPress={onChange} weight="regular" fontSize={12}>
             {label}
           </Text>
         ) : (

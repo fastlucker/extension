@@ -91,6 +91,7 @@ const Button = ({
   }
   return (
     <Pressable
+      testID='button'
       disabled={disabled}
       style={({ hovered }: any) => [
         containerStylesSizes[size],

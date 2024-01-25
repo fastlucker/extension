@@ -145,6 +145,7 @@ const ExternalSignerLoginScreen = () => {
             render={({ field: { onChange, onBlur, value } }) => {
               return (
                 <TextArea
+                  testID='enter-seed-phrase-field'
                   value={value}
                   editable
                   autoFocus

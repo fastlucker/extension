@@ -61,7 +61,8 @@ const AddAccount = () => {
       const Icon = option.icon
       return (
         <Pressable
-          style={({ hovered }: any) => [
+        testID={`add-address-${option.text.split(' ')[0]}`}
+        style={({ hovered }: any) => [
             styles.addAccountOptionContainer,
             hovered && styles.addAccountOptionContainerHovered,
             option.hasLargerBottomSpace && spacings.mbXl

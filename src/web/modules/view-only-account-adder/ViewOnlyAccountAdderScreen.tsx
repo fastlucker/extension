@@ -189,9 +189,10 @@ const ViewOnlyScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
                   <Input
+                    testID='view-only-address-field'
                     containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
                     onBlur={onBlur}
-                    placeholder={t('Enter an address')}
+                    placeholder={t('View-Only Accounts')}
                     onChangeText={onChange}
                     value={value}
                     autoFocus

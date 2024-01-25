@@ -1,29 +1,28 @@
 const puppeteer = require('puppeteer');
-const path = require('path')
 
-import { bootStrap, typeText, clickOnElement, confirmTransaction } from './functions.js';
+import { bootStrap, typeText, clickOnElement, clickWhenClickable, confirmTransaction, typeSeedPhrase } from './functions.js';
 
 
 describe('transactions', () => {
 
-
-    let browser
-    let page
-    let pages
-    let extensionRootUrl
+    let browser;
+    let page;
+    let extensionRootUrl;
+    let extensionId;
+    let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
 
     let recipientField = '[data-testid="recepient-address-field"]';
     let amountField = '[data-testid="amount-field"]'
 
 
-    beforeAll(async () => {
-        const context = await bootStrap(page, browser)
-
-        // page = context.page
-        // pages = context.pages
-        browser = context.browser
+    beforeEach(async () => {
+        /* Initialize browser and page using bootStrap */
+        const context = await bootStrap({ headless: false, slowMo: 10 });
+        browser = context.browser;
+        page = context.page;
         extensionRootUrl = context.extensionRootUrl
         extensionId = context.extensionId
+        extensionTarget = context.extensionTarget
 
         page = (await browser.pages())[0];
         let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/keystore-unlock`
@@ -39,54 +38,73 @@ describe('transactions', () => {
         envTermState = (process.env.KEYSTORE_TERMSTATE_1)
         parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
 
-
         const executionContext = await page.mainFrame().executionContext()
-        await executionContext.evaluate((parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
-            envSelectedAccount, envTermState, parsedPreviousHints) => {
-            browser.storage.local.set({
-                accounts: parsedKeystoreAccounts,
-                keyStoreUid: parsedKeystoreUID,
-                keystoreKeys: parsedKeystoreKeys,
-                keystoreSecrets: parsedKeystoreSecrets,
-                onboardingStatus: envOnboardingStatus,
-                permission: envPermission,
-                selectedAccount: envSelectedAccount,
-                termsState: envTermState,
-                previousHints: parsedPreviousHints
-            })
-        }, parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission,
-            envSelectedAccount, envTermState, parsedPreviousHints)
+        const backgroundPage = await extensionTarget.page(); // Access the background page
 
-        await new Promise((r) => setTimeout(r, 500));
+        /*  interact with chrome.storage.local in the context of the extension's background page */
+        await backgroundPage.evaluate(
+            (
+                parsedKeystoreAccounts,
+                parsedKeystoreUID,
+                parsedKeystoreKeys,
+                parsedKeystoreSecrets,
+                envOnboardingStatus,
+                envPermission,
+                envSelectedAccount,
+                envTermState,
+                parsedPreviousHints
+            ) => {
+                chrome.storage.local.set({
+                    accounts: parsedKeystoreAccounts,
+                    keyStoreUid: parsedKeystoreUID,
+                    keystoreKeys: parsedKeystoreKeys,
+                    keystoreSecrets: parsedKeystoreSecrets,
+                    onboardingStatus: envOnboardingStatus,
+                    permission: envPermission,
+                    selectedAccount: envSelectedAccount,
+                    termsState: envTermState,
+                    previousHints: parsedPreviousHints
+                });
+            },
+            parsedKeystoreAccounts,
+            parsedKeystoreUID,
+            parsedKeystoreKeys,
+            parsedKeystoreSecrets,
+            envOnboardingStatus,
+            envPermission,
+            envSelectedAccount,
+            envTermState,
+            parsedPreviousHints
+        );
+
+        await new Promise((r) => setTimeout(r, 2000));
 
         let pages = await browser.pages()
         pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
-        // pages[2].close() // tab always opened after extension installation
 
         await new Promise((r) => setTimeout(r, 2000));
+
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
 
-        await page.setDefaultNavigationTimeout(6000)
-        await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load', })
 
+        // Navigate to a specific URL if necessary
+        await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
         await new Promise((r) => setTimeout(r, 2000));
 
         pages = await browser.pages()
         // pages[0].close()
         pages[1].close()
 
-        await page.reload({ waitUntil: 'load', });
-
-        /*Type keystore password */
-        await typeText(page, '[placeholder="Passphrase"]', process.env.KEYSTORE_PASS_PHRASE_1)
-        await clickOnElement(page, 'xpath///div[contains(text(), "Unlock")]')
-
-        await new Promise((r) => setTimeout(r, 2000))
+        await page.evaluate(() => {
+            location.reload(true)
+        })
+        
+        await typeSeedPhrase(page,process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await browser.close();
     });
 
@@ -107,15 +125,9 @@ describe('transactions', () => {
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
 
-        await page.waitForSelector('[data-testid="dashboard-button"]');
+        // await page.waitForSelector('[data-testid="dashboard-button-Send"]');
         /* Click on "Send" button */
-        let buttons = await page.$$('[data-testid="dashboard-button"]');
-        for (let i = 0; i < buttons.length; i++) {
-            let text = await page.evaluate(el => el.innerText, buttons[i]);
-            if (text.indexOf("Send") > -1) {
-                await buttons[i].click();
-            }
-        }
+        await clickOnElement(page, '[data-testid="dashboard-button-Send"]')
 
         /* Type the amount */
         await typeText(page, amountField, "0.0001")
@@ -123,14 +135,18 @@ describe('transactions', () => {
         /* Type the adress of the recipient  */
         await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
 
-        /* Check the checkbox "Confirm sending to a previously unknown address" */
-        await clickOnElement(page, '[data-testid="checkbox"]')
+        await page.waitForXPath(`//div[contains(text(), "You're trying to send to an unknown address. If you're really sure, confirm using the checkbox below.")]`);
+
+        await page.waitForSelector('[data-testid="checkbox"]')
 
         /* Check the checkbox "I confirm this address is not a Binance wallets...." */
         await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
 
+        /* Check the checkbox "Confirm sending to a previously unknown address" */
+        await clickOnElement(page, '[data-testid="checkbox"]')
+
         /* Click on "Send" button and cofirm transaction */
-        await confirmTransaction(page, extensionRootUrl, browser,  'xpath///div[contains(text(), "Send")]')
+        await confirmTransaction(page, extensionRootUrl, browser, 'xpath///div[contains(text(), "Send")]')
     }));
 
 
@@ -260,9 +276,9 @@ describe('transactions', () => {
         await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
         /* Click on 'Select token' and type 'USDC' and select 'USDC' token */
         await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
-        await typeText(page, '[data-testid="token-search-input"]', 'USDC')
+        // await typeText(page, '[data-testid="token-search-input"]', 'USDC')
         await new Promise((r) => setTimeout(r, 500))
-        await clickOnElement(page, 'div[title="USDCoin"]')
+        await clickOnElement(page, '[data-testid="common-base-USDC"]')
 
         await new Promise((r) => setTimeout(r, 500))
 
@@ -296,9 +312,53 @@ describe('transactions', () => {
             }
         }
         await new Promise((r) => setTimeout(r, 500))
-         /* Click on 'Confirm Swap' button and confirm transaction */
+        /* Click on 'Confirm Swap' button and confirm transaction */
         await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
-
     }));
 
+
+    //--------------------------------------------------------------------------------------------------------------
+    it('Add View-only account', (async () => {
+        /* Click on "Account"  */
+        await clickOnElement(page, '[data-testid="account-select"]')
+
+        /* Click on "+ Add Account"  */
+        await clickOnElement(page, '[data-testid="button"]')
+
+        /* Seleck "Watch an address" */
+        await clickOnElement(page, '[data-testid="add-address-Watch"]')
+
+        let viewOnlyAddress = '0xC254b41be9582e45a8aCE62D5adD3F8092D4ea6C'
+        await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+
+        /* Click on "Import View-Only Accounts" button*/
+        await clickWhenClickable(page, '[data-testid="button"]')
+
+        /* Click on "Account"  */
+        await clickWhenClickable(page, '[ data-testid="account-select"]')
+
+        /* Find the element containing the specified address */
+        const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`);
+
+        if (addressElement.length > 0) {
+            /* Get the parent element of the element with the specified address */
+            const parentElement = await addressElement[0].$x('..');
+
+            if (parentElement.length > 0) {
+                /* Get the text content of the parent element and all elements within it */
+                const parentTextContent = await page.evaluate(element => {
+                    const elements = element.querySelectorAll('*');
+                    return Array.from(elements, el => el.textContent).join('\n');
+                }, parentElement[0]);
+
+                /* Verify that somewhere in the content there is the text 'View-only' */
+                const containsViewOnly = parentTextContent.includes('View-only');
+
+                if (containsViewOnly) {
+                } else {
+                    throw new Error('The content does not contain the text "View-only".');
+                }
+            }
+        }
+    }))
 })

@@ -54,7 +54,7 @@ const Routes = ({
     <View style={[flexbox.directionRow]}>
       {routeItems.map((routeItem, index) => (
         <View
-          testID='dashboard-button'
+          testID={'dashboard-button-' + routeItem.label}
           key={routeItem.label}
           style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mrMd]}
         >

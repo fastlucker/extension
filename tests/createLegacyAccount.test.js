@@ -1,8 +1,7 @@
 const puppeteer = require('puppeteer');
-const path = require('path')
 
 
-import { bootStrap, setAmbKeyStoreForLegacy, clickOnElement, typeText } from './functions.js';
+import { bootStrap, setAmbKeyStoreForLegacy, generateEthereumPrivateKey, clickOnElement, typeText } from './functions.js';
 
 
 describe('login', () => {
@@ -41,26 +40,26 @@ describe('login', () => {
 
         await setAmbKeyStoreForLegacy(page);
     })
-    //--------------------------------------------------------------------------------------------------------------
+
+      afterEach(async () => {
+        browser.close();
+    })
+
     it('Create legacy account', (async () => {
+        const privateKey = await generateEthereumPrivateKey();
 
-        await page.waitForSelector('[placeholder="Enter a seed phrase or private key"]');
-        const repeatPhrase = await page.$('[placeholder="Enter a seed phrase or private key"]');
-        await repeatPhrase.type(process.env.PRIVATE_KEY_LEGACY_ACCOUNT, { delay: 10 });
-
+        await typeText(page, '[data-testid="enter-seed-phrase-field"]', privateKey )
         /* Click on Import Legacy account button. */
-        await page.click('[data-testid="button-ext-signer-login-screen"]')
-        await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
-        await page.waitForSelector('[data-testid="account-checkbox"]');
+        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
 
         await new Promise((r) => setTimeout(r, 1000))
 
+        await page.waitForSelector('[data-testid="account-checkbox"]')
         /* Select one Legacy account and one Smart account */
         let firstSelectedLegacyAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
             element[0].click()
             return element[0].textContent
         })
-
 
         /* Keep the first and the last part of the address and use it later for verification later */
         firstSelectedLegacyAccount1 = firstSelectedLegacyAccount.slice(0, 15)
@@ -75,13 +74,13 @@ describe('login', () => {
         firstSelectedSmartAccount2 = firstSelectedSmartAccount.slice(18, firstSelectedSmartAccount.length);
 
         /* Click on Import Accounts button*/
-        const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
-        await Button.click();
+        await clickOnElement(page, '[data-testid="button"]')        
+        
+        await page.waitForSelector('xpath///div[contains(text(), "Personalize Your Accounts")]');
 
         /* Click on Save and Continue button */
-        const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
-        await SaveButton.click();
-
+        await clickOnElement(page, '[data-testid="button"]') 
+        
         /* Move to account select page */
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load', })
 

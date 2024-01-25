@@ -76,6 +76,7 @@ const DashboardHeader = () => {
               iconColor={theme.secondaryText}
             />
             <Pressable
+              testID='account-select'
               onPress={() => navigate('account-select')}
               style={styles.accountButtonRightIcon}
             >

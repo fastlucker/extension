@@ -98,6 +98,7 @@ const KeyStoreUnlockScreen = () => {
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <InputPassword
+                    testID='passphrase-field'
                     onBlur={onBlur}
                     placeholder={t('Passphrase')}
                     autoFocus={isWeb}

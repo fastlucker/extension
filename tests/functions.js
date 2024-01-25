@@ -1,92 +1,105 @@
 const puppeteer = require('puppeteer');
-const path = require('path')
 
 
 let puppeteerArgs = [
     `--disable-extensions-except=${__dirname}/../webkit-prod/`,
     `--load-extension=${__dirname}/webkit-prod/`,
     '--disable-features=DialMediaRouteProvider',
+    
     // '--disable-features=ClipboardContentSetting',
     // '--clipboard-write: granted', 
     // '--clipboard-read: prompt',  
 
-    // ' --runInBand'    
-    // '--enable-automation'
     // '--detectOpenHandles',
     // '--start-maximized'
 ];
 
-export async function bootStrap(page, browser, options = {}) {
-    const { devtools = false, slowMo = 10 } = options
 
-    browser = await puppeteer.launch({
-        headless: false,
-        devtools,
+export async function bootStrap(options = {}) {
+    const { devtools = false, slowMo = 10, headless = false } = options;
+
+    let browser = await puppeteer.launch({
+        headless: headless,
+        devtools: devtools,
         args: puppeteerArgs,
         defaultViewport: null,
-        slowMo: options.slowMo,
-    })
-    const targets = await browser.targets()
+        slowMo: slowMo,
+    });
 
-    await new Promise((r) => setTimeout(r, 500))
 
-    const extensionTarget = targets.find((target) => {
-        return target.url().includes('chrome-extension')
-    })
-    const partialExtensionUrl = extensionTarget.url() || ''
-    const [, , extensionId] = partialExtensionUrl.split('/')
+    // Extract the extension ID from the browser targets
+    const targets = await browser.targets();
+    const extensionTarget = targets.find(target => target.url().includes('chrome-extension'));
+    const partialExtensionUrl = extensionTarget.url() || '';
+    const [, , extractedExtensionId] = partialExtensionUrl.split('/');
+    extensionId = extractedExtensionId;
+    extensionRootUrl = `chrome-extension://${extensionId}`;
 
     return {
         browser,
         page,
-        // pages,
-        extensionRootUrl: `chrome-extension://${extensionId}`,
+        extensionRootUrl,
         extensionId,
-        targets,
-        options
-    }
+        extensionTarget
+    };
 }
-
+//----------------------------------------------------------------------------------------------
 export async function setAmbKeyStoreForLegacy(page) {
     try {
-        await page.waitForXPath('//*[contains(text(), "Welcome to Ambire")]')
+        await new Promise((r) => setTimeout(r, 1000));
+        const importLegacyAccoutButton = '[data-testid="Import Legacy Account"]'
+
+        let attempts = 0;
+        let element = null;
+
+        while (attempts < 5) {
+            element = await page.$(importLegacyAccoutButton)
+            if (element) {
+                break;
+            } else {
+                console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
+                await new Promise((r) => setTimeout(r, 1000));
+
+                await page.reload();
+                attempts++;
+            }
+        }
+        if (!element) {
+            console.log('Welcome to Ambire screen not displayed after 5 attempts.');
+        }
 
         /* Select Tab 'Import Legacy Account' */
-        await clickOnElement(page, '[data-testid="Import Legacy Account"]')
+        await clickOnElement(page, importLegacyAccoutButton)
 
         await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
+
         /* Check the checkbox "I agree...". */
-        const iAgreeCheckbox = await page.waitForSelector('xpath///div[contains(text(), "I agree to the Terms of Service and Privacy Policy.")]');
-        await iAgreeCheckbox.click();
+        await clickOnElement(page, '[data-testid="checkbox"]')
+
         /* Click on "Continue" button */
-        const ContinueButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
-        await ContinueButton.click();
+        await clickOnElement(page, '[data-testid="button"]')
 
-        //type message 
+        /* type phrase */
         const phrase = 'Password'
-        await page.waitForSelector('[placeholder="Enter Passphrase"]');
-        const phraseField = await page.$('[placeholder="Enter Passphrase"]');
-        await phraseField.type(phrase);
+        await typeText(page, '[data-testid="enter-pass-field"]', phrase)
+        await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
 
-        // await typeText(page, '[placeholder="Enter Passphrase"]', phrase  )
+        /* Click on "Set up Ambire Key Store" button */
+        await clickOnElement(page, '[data-testid="button"]')
 
-        await page.waitForSelector('[placeholder="Repeat Passphrase"]');
-        const repeatPhrase = await page.$('[placeholder="Repeat Passphrase"]');
-        await repeatPhrase.type(phrase);
+        const modalSelector = '[aria-modal="true"]'; // Selector for the modal
+        const buttonSelector = `${modalSelector} [data-testid="button"]`;
 
-        const setupAmbireKeyStoreButton = await page.waitForSelector('xpath///div[contains(text(), "Set up Ambire Key Store")]');
-        await setupAmbireKeyStoreButton.click();
-
-        const continueToAccountButton = await page.waitForSelector('xpath///div[contains(text(), "Continue")]');
-        await continueToAccountButton.click();
+        await page.waitForSelector(modalSelector); // Wait for the modal to appear
+        await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
+        await page.click(buttonSelector);
 
         await page.waitForXPath('//div[contains(text(), "Import Legacy Account")]');
     } catch (error) {
         throw new Error(' Failed when try to set Ambire key store for legacy account ')
     }
 }
-
-
+//----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
     try {
         await page.waitForSelector(selector);
@@ -99,8 +112,7 @@ export async function typeText(page, selector, text) {
         in the selector: ${selector}`)
     }
 }
-
-
+//----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector) {
     try {
         let elementToClick = await page.waitForSelector(selector);
@@ -110,6 +122,27 @@ export async function clickOnElement(page, selector) {
     }
 }
 
+//----------------------------------------------------------------------------------------------
+export async function clickWhenClickable(page, selector) {
+
+    let isClickable = false;
+    // Check every 500ms if the button is clickable for up to 4 seconds
+    for (let i = 0; i < 8; i++) {
+        isClickable = await page.evaluate(selector => {
+            const element = document.querySelector(selector);
+            return element && !element.disabled;
+        }, selector);
+        if (isClickable) break;
+        await page.waitForTimeout(500); // Wait for 500ms before checking again
+    }
+    if (isClickable) {
+        await page.click(selector);
+    }
+    else {
+        throw new Error(`Element ${selector} is not clickable`);
+    }
+}
+//----------------------------------------------------------------------------------------------
 export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
     try {
         let elementToClick = await page.waitForSelector(triggerTransactionSelector);
@@ -125,20 +158,76 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
         await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
 
         /* Click on "Sign" button */
-        await clickOnElement(newPage, 'xpath///div[contains(text(), "Sign")]')
+        await newPage.$$eval('[data-testid="button"]', (buttons) => {
+            const button = buttons.find(btn => btn.textContent.includes("Sign"))
+            button.click();
+        });
 
-        await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load', })
-        await new Promise((r) => setTimeout(r, 500))
+        /* Set up a promise to await on the new page being created */
+        const newPagePromise = new Promise(x => browser.once('targetcreated', target => x(target.page())));
 
-        /* Verify that the transaction is signed and sent */
-        const targetText = 'Transaction successfully signed and sent!';
-        // Wait until the specified text appears on the page
-        await page.waitForFunction((text) => {
-            const element = document.querySelector('body');
-            return element && element.textContent.includes(text);
-        }, {}, targetText);
+        /* Perform the click that opens the new window or tab */
+        await newPage.$$eval('[data-testid="button"]', (buttons) => {
+            const button = buttons.find(btn => btn.textContent.includes("Sign"))
+            button.click();
+        });
+        /* Wait for the new page to be created */
+        const newPage2 = await newPagePromise;
+        const two = await newPage2.waitForFunction(() => {
+            const pageText = document.documentElement.innerText;
+            const occurrences = (pageText.match(/Timestamp/g) || []).length;
+            return occurrences >= 2;
+        }, {})
+
+        const doesFailedExist = await newPage2.evaluate(() => {
+            return document.documentElement.innerText.includes('Failed');
+        });
+
+        await new Promise((r) => setTimeout(r, 300))
+        expect(doesFailedExist).toBe(false); // This will fail the test if 'Failed' exists
+
     } catch (error) {
-        throw new Error(`Could not click on selector: ${selector}`)
+        throw new Error(`Can not sign the transaction`)
     }
+}
+//----------------------------------------------------------------------------------------------
+export async function generateEthereumPrivateKey() {
+    try {
+        let key = '0x';
+        const characters = '0123456789abcdef';
+        for (let i = 0; i < 64; i++) {
+            key += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return key;
+    } catch (error) {
+        throw new Error(`Can't generate ethereum private key`)
+    }
+}
+//----------------------------------------------------------------------------------------------
+export async function typeSeedPhrase(page, seedPhrase) {
+    await new Promise((r) => setTimeout(r, 2000));
 
+    /* This loop check if Passphrase field exist on the page if not the page will be reloaded */
+    let attempts = 0;
+    let element = null;
+
+    while (attempts < 5) {
+        element = await page.$('[data-testid="passphrase-field"]');
+        if (element) {
+            break;
+        } else {
+            console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
+            await new Promise((r) => setTimeout(r, 1000));
+
+            await page.reload();
+            attempts++;
+        }
+    }
+    if (!element) {
+        console.log('Passphrase field not found after 5 attempts.');
+    }
+    /*Type keystore password */
+    await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
+    /* Click on "Unlock button" */
+    await clickOnElement(page, '[data-testid="button"]')
 }
