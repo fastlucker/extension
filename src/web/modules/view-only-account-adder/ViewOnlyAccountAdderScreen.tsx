@@ -127,19 +127,19 @@ const ViewOnlyScreen = () => {
   }, [accounts, dispatch])
 
   useEffect(() => {
-    // Navigate when the default preferences for the new accounts are added,
-    // indicating the final steps for the view-only account adding flow completes.
     const newAccountsAddresses = accounts.map((x) => x.address)
-    const areDefaultAccountPreferencesAdded = Object.keys(
+    const newAccountsAdded = mainControllerState.accounts.filter((account) =>
+      newAccountsAddresses.includes(account.addr)
+    )
+    const newAccountsDefaultPreferencesImported = Object.keys(
       settingsControllerState.accountPreferences
     ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
-    if (areDefaultAccountPreferencesAdded) {
+
+    // Navigate when the new accounts and their default preferences are imported,
+    // indicating the final step for the view-only account adding flow completes.
+    if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
       navigate(WEB_ROUTES.accountPersonalize, {
-        state: {
-          accounts: mainControllerState.accounts.filter((account) =>
-            newAccountsAddresses.includes(account.addr)
-          )
-        }
+        state: { accounts: newAccountsAdded }
       })
     }
   }, [
