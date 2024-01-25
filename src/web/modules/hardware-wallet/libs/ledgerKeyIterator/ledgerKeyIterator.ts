@@ -1,48 +1,49 @@
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
-import HDKey from 'hdkey'
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { Eth } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
-import LedgerEth from '@ledgerhq/hw-app-eth'
-
-// DOCS
-// - Serves for retrieving a range of addresses/keys from a Ledger hardware wallet
-
-// USAGE
-// const iterator = new LedgerKeyIterator({ hardware wallet props })
-// const keys = await iterator.retrieve(0, 9)
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-type WALLET_TYPE = {
-  hdk: HDKey
-  app: LedgerEth | null
+interface KeyIteratorProps {
+  walletSDK: Eth
 }
 
+/**
+ * Serves for retrieving a range of addresses/keys from a Ledger hardware wallet
+ */
 class LedgerKeyIterator implements KeyIteratorInterface {
-  hdk?: HDKey
+  walletSDK: KeyIteratorProps['walletSDK']
 
-  app?: LedgerEth | null
+  constructor({ walletSDK }: KeyIteratorProps) {
+    if (!walletSDK) throw new Error('ledgerKeyIterator: missing walletSDK prop')
 
-  constructor(_wallet: WALLET_TYPE) {
-    if (
-      !Object.prototype.hasOwnProperty.call(_wallet, 'hdk') ||
-      !Object.prototype.hasOwnProperty.call(_wallet, 'app')
-    )
-      throw new Error('ledgerKeyIterator: invalid props passed to the constructor')
-
-    this.hdk = _wallet.hdk
-    this.app = _wallet.app
+    this.walletSDK = walletSDK
   }
 
-  async retrieve(from: number, to: number, derivation: string = "m/44'/60'/0'") {
-    if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
-      throw new Error('ledgerKeyIterator: invalid or missing arguments')
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
+    if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
 
     const keys: string[] = []
 
-    for (let i = from; i <= to; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      const key = await this.app!.getAddress(`44'/60'/${i}'/0/0`, false, true)
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { from, to } of fromToArr) {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('ledgerKeyIterator: invalid or missing arguments')
 
-      !!key && keys.push(key.address)
+      for (let i = from; i <= to; i++) {
+        // Purposely await in loop to avoid sending multiple requests at once,
+        // because the Ledger device can't handle them in parallel.
+        // eslint-disable-next-line no-await-in-loop
+        const key = await this.walletSDK.getAddress(
+          getHdPathFromTemplate(hdPathTemplate, i),
+          false, // no need to show on display
+          false // no need for the chain code
+        )
+
+        !!key && keys.push(key.address)
+      }
     }
 
     return keys

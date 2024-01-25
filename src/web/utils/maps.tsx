@@ -1,8 +1,7 @@
-import { TokenResult } from 'ambire-common/src/libs/portfolio/interfaces'
 import React from 'react'
 import { View } from 'react-native'
 
-import NetworkIcon from '@common/components/NetworkIcon'
+import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import networks from '@common/constants/networks'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
@@ -15,6 +14,7 @@ const mapTokenOptions = (values: TokenResult[]) =>
         <TokenIcon
           containerHeight={30}
           containerWidth={30}
+          networkSize={12}
           withContainer
           address={value.address}
           networkId={value.networkId}
@@ -22,11 +22,10 @@ const mapTokenOptions = (values: TokenResult[]) =>
         <Text weight="medium" style={{ marginLeft: 10 }}>
           {value.symbol}
         </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
-          <Text fontSize={14}>on</Text>
-          <NetworkIcon name={value.networkId} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 8 }}>
           <Text fontSize={14}>
-            {networks.find((network) => network.id === value?.networkId)?.name}
+            on{' '}
+            {networks.find((network) => network.id === value?.networkId)?.name || 'Unknown network'}
           </Text>
         </View>
       </View>

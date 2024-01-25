@@ -1,7 +1,7 @@
-import { Token, UsePortfolioReturnType } from 'ambire-common/v1/hooks/usePortfolio'
 import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
+import { Token, UsePortfolioReturnType } from '@ambire-common-v1/hooks/usePortfolio'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -126,7 +126,7 @@ const WatchTokenRequestScreen = () => {
                 fontSize={14}
                 weight="regular"
                 style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                appearance="danger"
+                appearance="errorText"
               >
                 {error}
               </Text>

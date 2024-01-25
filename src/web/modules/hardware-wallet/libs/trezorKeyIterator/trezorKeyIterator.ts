@@ -1,44 +1,44 @@
-import { TREZOR_PATH_BASE } from 'ambire-common/src/consts/derivation'
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
-import { publicToAddress, toChecksumAddress } from 'ethereumjs-util'
-import HDKey from 'hdkey'
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { TrezorConnect } from '@web/modules/hardware-wallet/controllers/TrezorController'
 
-// DOCS
-// - Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
-
-// USAGE
-// const iterator = new TrezorKeyIterator({ hardware wallet props })
-// const keys = await iterator.retrieve(0, 9, "derivation-path")
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-type WALLET_TYPE = {
-  hdk: HDKey
+interface KeyIteratorProps {
+  walletSDK: TrezorConnect
 }
 
+/**
+ * Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
+ */
 class TrezorKeyIterator implements KeyIteratorInterface {
-  hdk: HDKey
+  walletSDK: KeyIteratorProps['walletSDK']
 
-  constructor(_wallet: WALLET_TYPE) {
-    if (!Object.prototype.hasOwnProperty.call(_wallet, 'hdk'))
-      throw new Error('trezorKeyIterator: invalid props passed to the constructor')
+  constructor({ walletSDK }: KeyIteratorProps) {
+    if (!walletSDK) throw new Error('trezorKeyIterator: missing walletSDK prop')
 
-    this.hdk = _wallet.hdk
+    this.walletSDK = walletSDK
   }
 
-  async retrieve(from: number, to: number, derivation: string = TREZOR_PATH_BASE) {
-    if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
-      throw new Error('trezorKeyIterator: invalid or missing arguments')
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
+    if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
 
-    const keys: string[] = []
+    const bundle = []
+    fromToArr.forEach(({ from, to }) => {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('trezorKeyIterator: invalid or missing arguments')
 
-    for (let i = from; i <= to; i++) {
-      const dkey = this.hdk?.derive(`${derivation}/${i}`)
-      const key = publicToAddress(dkey?.publicKey, true).toString('hex')
+      for (let i = from; i <= to; i++) {
+        bundle.push({ path: getHdPathFromTemplate(hdPathTemplate, i), showOnTrezor: false })
+      }
+    })
+    const res = await this.walletSDK.ethereumGetAddress({ bundle })
 
-      !!key && keys.push(toChecksumAddress(`0x${key}`))
-    }
+    if (!res.success) throw new Error('trezorKeyIterator: failed to retrieve keys')
 
-    return keys
+    return res.payload.map(({ address }) => address)
   }
 }
 

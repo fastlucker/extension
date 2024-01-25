@@ -1,30 +1,48 @@
 import React from 'react'
-import { View, ViewProps } from 'react-native'
-import { TextInput } from 'react-native-gesture-handler'
+import { Control, Controller } from 'react-hook-form'
+import { ViewStyle } from 'react-native'
 
 import SearchIcon from '@common/assets/svg/SearchIcon'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 
-import styles from './styles'
+import Input from '../Input'
 
 type Props = {
   placeholder?: string
-  style?: ViewProps
+  style?: ViewStyle
+  containerStyle?: ViewStyle
+  control: Control<{ search: string }, any>
+  height?: number
 }
 
-const Search = ({ placeholder = 'Search', style }: Props) => {
+const Search = ({
+  placeholder = 'Search',
+  style,
+  control,
+  containerStyle = {},
+  height = 40
+}: Props) => {
+  const { theme } = useTheme()
   return (
-    <View style={[styles.searchSection, style]}>
-      <SearchIcon color={colors.martinique_65} />
-      <TextInput
-        editable
-        numberOfLines={1}
-        maxLength={25}
-        placeholder={placeholder}
-        style={[styles.textarea]}
-        placeholderTextColor={colors.martinique_65}
-      />
-    </View>
+    <Controller
+      control={control}
+      name="search"
+      render={({ field: { onChange, onBlur, value } }) => (
+        <Input
+          containerStyle={[spacings.mb0, containerStyle]}
+          leftIcon={() => <SearchIcon color={theme.secondaryText} />}
+          placeholder={placeholder}
+          style={style}
+          inputWrapperStyle={{ height }}
+          inputStyle={{ height }}
+          placeholderTextColor={theme.secondaryText}
+          onBlur={onBlur}
+          onChange={onChange}
+          value={value}
+        />
+      )}
+    />
   )
 }
 

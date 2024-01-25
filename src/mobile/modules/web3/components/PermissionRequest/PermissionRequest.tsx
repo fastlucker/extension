@@ -1,7 +1,7 @@
-import { DappManifestData } from 'ambire-common/v1/hooks/useDapps'
 import React, { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
+import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'

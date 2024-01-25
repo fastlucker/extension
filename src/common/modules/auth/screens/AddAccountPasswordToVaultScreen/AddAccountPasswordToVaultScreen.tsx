@@ -1,8 +1,8 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
 import React, { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Image, Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 
+import { isValidPassword } from '@ambire-common/services/validations'
 import logo from '@common/assets/images/Ambire-Wallet-logo-colored-white-vertical.png'
 import KeyStoreIcon from '@common/assets/svg/KeyStoreIcon'
 import Button from '@common/components/Button'
@@ -42,7 +42,7 @@ const AddAccountPasswordToVaultScreen = () => {
     watch,
     formState: { errors, isSubmitting }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       password: ''
     }

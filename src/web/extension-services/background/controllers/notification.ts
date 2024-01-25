@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import { networks } from 'ambire-common/src/consts/networks'
-import EventEmitter from 'ambire-common/src/controllers/eventEmitter'
-import { MainController } from 'ambire-common/src/controllers/main/main'
-import { UserRequest } from 'ambire-common/src/interfaces/userRequest'
 import { ethErrors } from 'eth-rpc-errors'
+import { Linking } from 'react-native'
 
-import { isDev } from '@common/config/env'
-import { IS_CHROME, IS_LINUX } from '@web/constants/common'
+import EventEmitter from '@ambire-common/controllers/eventEmitter'
+import { MainController } from '@ambire-common/controllers/main/main'
+import { Account } from '@ambire-common/interfaces/account'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { delayPromise } from '@common/utils/promises'
+import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
@@ -80,6 +81,7 @@ export class NotificationController extends EventEmitter {
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
+        this.notifyForClosedUserRequestThatAreStillPending()
         this.rejectAllNotificationRequestsThatAreNotSignRequests()
       }
     })
@@ -114,28 +116,7 @@ export class NotificationController extends EventEmitter {
         this.notificationRequests = [...notificationRequestsToAdd, ...this.notificationRequests]
         this.openNotificationRequest(this.notificationRequests[0].id)
       }
-    })
-
-    winMgr.event.on('windowFocusChange', (winId: number) => {
-      // Otherwise, inspecting the notification popup (opening console) is
-      // triggering the logic and firing `this.rejectNotificationRequest()` call,
-      // which is closing the notification popup, and one can't inspect it.
-      if (isDev) return
-
-      if (IS_CHROME && winId === chrome.windows.WINDOW_ID_NONE && IS_LINUX) {
-        // When sign on Linux, will focus on -1 first then focus on sign window
-        return
-      }
-
-      if (this.notificationWindowId !== null && winId !== this.notificationWindowId) {
-        if (
-          this.currentNotificationRequest &&
-          !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(this.currentNotificationRequest.screen)
-        ) {
-          this.rejectNotificationRequest()
-        }
-      }
-    })
+    }, 'notification')
   }
 
   reopenCurrentNotificationRequest = async () => {
@@ -201,7 +182,7 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  resolveNotificationRequest = async (data: any, requestId?: number) => {
+  resolveNotificationRequest = (data: any, requestId?: number) => {
     let notificationRequest = this.currentNotificationRequest
 
     if (requestId) {
@@ -211,6 +192,14 @@ export class NotificationController extends EventEmitter {
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
+
+      if (data?.hash && data?.networkId) {
+        Linking.openURL(
+          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
+            data?.isUserOp ? '&isUserOp' : ''
+          }`
+        )
+      }
 
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
@@ -236,7 +225,7 @@ export class NotificationController extends EventEmitter {
   }
 
   // eslint-disable-next-line default-param-last
-  rejectNotificationRequest = async (err: string = 'Request rejected', requestId?: number) => {
+  rejectNotificationRequest = (err: string = 'Request rejected', requestId?: number) => {
     let notificationRequest = this.currentNotificationRequest
 
     if (requestId) {
@@ -251,7 +240,22 @@ export class NotificationController extends EventEmitter {
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
         this.deleteNotificationRequest(notificationRequest)
-        this.currentNotificationRequest = null
+
+        let nextNotificationUserRequest = null
+        if (isSignAccountOpMethod(notificationRequest?.params?.method)) {
+          const account =
+            this.#mainCtrl.accounts.find((a) => a.addr === this.#mainCtrl.selectedAccount) ||
+            ({} as Account)
+          if (account.creation) {
+            nextNotificationUserRequest =
+              this.notificationRequests.find(
+                (req) =>
+                  req.accountAddr === notificationRequest?.accountAddr &&
+                  req.networkId === notificationRequest?.networkId
+              ) || null
+          }
+        }
+        this.currentNotificationRequest = nextNotificationUserRequest
       } else {
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
@@ -267,7 +271,7 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  requestNotificationRequest = async (data: any, winProps?: any): Promise<any> => {
+  requestNotificationRequest = (data: any, winProps?: any): Promise<any> => {
     return new Promise((resolve, reject) => {
       const id = new Date().getTime()
       const notificationRequest: NotificationRequest = {
@@ -305,7 +309,8 @@ export class NotificationController extends EventEmitter {
           chainId = Number(chainId)
         }
 
-        const network = networks.find((n) => Number(n.chainId) === chainId)
+        const network = this.#mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
+
         if (network) {
           this.resolveNotificationRequest(null, notificationRequest.id)
           return
@@ -376,20 +381,6 @@ export class NotificationController extends EventEmitter {
     })
   }
 
-  clear = async () => {
-    this.notificationRequests = []
-    this.currentNotificationRequest = null
-    if (this.notificationWindowId !== null) {
-      try {
-        await winMgr.remove(this.notificationWindowId)
-      } catch (e) {
-        // ignore error
-      }
-      this.notificationWindowId = null
-    }
-    this.emitUpdate()
-  }
-
   rejectAllNotificationRequestsThatAreNotSignRequests = () => {
     this.notificationRequests.forEach((notificationReq) => {
       if (!SIGN_METHODS.includes(notificationReq?.params?.method)) {
@@ -402,7 +393,30 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  openNotification = (winProps: any) => {
+  notifyForClosedUserRequestThatAreStillPending = async () => {
+    if (SIGN_METHODS.includes(this.currentNotificationRequest?.params?.method)) {
+      const title = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+        ? 'Added Pending Transaction Request'
+        : 'Added Pending Message Request'
+      const message = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+        ? 'Transaction added to your cart. You can add more transactions and sign them all together (thus saving on network fees).'
+        : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
+
+      const id = new Date().getTime()
+      // service_worker (mv3) - without await the notification doesn't show
+      await browser.notifications.create(id.toString(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title,
+        message,
+        priority: 2
+      })
+    }
+  }
+
+  openNotification = async (winProps: any) => {
+    // Open on next tick to ensure that state update is emitted to FE before opening the window
+    await delayPromise(1)
     if (this.notificationWindowId !== null) {
       winMgr.remove(this.notificationWindowId)
       this.notificationWindowId = null

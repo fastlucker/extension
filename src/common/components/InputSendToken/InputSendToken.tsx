@@ -10,25 +10,25 @@ import styles from './styles'
 
 const MaxAmount = ({
   maxAmount,
-  selectedAssetSymbol
+  selectedTokenSymbol
 }: {
   maxAmount: number | null
-  selectedAssetSymbol: string
+  selectedTokenSymbol: string
 }) => {
   const { t } = useTranslation()
 
   return (
     <View style={styles.maxAmount}>
-      <Text weight="regular" style={styles.maxAmountLabel}>
+      <Text weight="regular" fontSize={14} appearance="secondaryText" style={styles.maxAmountLabel}>
         {t('Available Amount:')}
       </Text>
 
-      {maxAmount ? (
+      {maxAmount !== undefined && maxAmount !== null ? (
         <View style={styles.maxAmountValueWrapper}>
           <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
-            {maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+            {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
           </Text>
-          {!!selectedAssetSymbol && <Text>{` ${selectedAssetSymbol.toUpperCase()}`}</Text>}
+          {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
         </View>
       ) : null}
     </View>
@@ -36,8 +36,8 @@ const MaxAmount = ({
 }
 
 interface Props {
-  amount: number
-  selectedAssetSymbol: string
+  amount: string
+  selectedTokenSymbol: string
   maxAmount: number | null
   errorMessage: string
   onAmountChange: (value: any) => void
@@ -46,7 +46,7 @@ interface Props {
 
 const InputSendToken = ({
   amount,
-  selectedAssetSymbol,
+  selectedTokenSymbol,
   onAmountChange,
   setMaxAmount,
   maxAmount,
@@ -68,12 +68,12 @@ const InputSendToken = ({
 
   return (
     <>
-      <MaxAmount maxAmount={maxAmount} selectedAssetSymbol={selectedAssetSymbol} />
+      <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
       <View style={styles.inputWrapper}>
         <NumberInput
           onChangeText={handleOnTokenAmountChange}
           containerStyle={styles.inputContainerStyle}
-          value={amount.toString()}
+          value={amount}
           placeholder={t('0')}
           error={errorMessage || undefined}
           button={maxAmount ? t('MAX') : null}

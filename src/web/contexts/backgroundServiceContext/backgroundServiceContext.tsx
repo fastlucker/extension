@@ -1,12 +1,14 @@
-import { ErrorRef } from 'ambire-common/src/controllers/eventEmitter'
-import React, { createContext, useEffect, useMemo } from 'react'
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import alert from '@common/services/alert'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
@@ -52,6 +54,9 @@ if (isExtension) {
   })
 
   dispatch = (action) => {
+    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
+    // from all opened extension instances, leading to some unpredictable behaviors of the state.
+    if (document.hidden) return Promise.resolve(undefined)
     return portMessageChannel.request({
       type: action.type,
       // TypeScript being unable to guarantee that every member of the Action
@@ -69,13 +74,28 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 )
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
+  const { addToast } = useToast()
+  const [isDefaultWallet, setIsDefaultWallet] = useState(true)
+
+  useEffect(() => {
+    ;(async () => {
+      const isDefault = await storage.get('isDefaultWallet', true)
+      setIsDefaultWallet(!!isDefault)
+    })()
+  }, [])
+
+  const handleSetIsDefaultWallet = useCallback((val: boolean) => {
+    setIsDefaultWallet(val)
+    storage.set('isDefaultWallet', val)
+  }, [])
+
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
       const lastError = newState.errors[newState.errors.length - 1]
-
       if (lastError) {
-        // TODO: display error toast instead
-        alert(lastError.message)
+        if (lastError.level !== 'silent')
+          addToast(lastError.message, { timeout: 4000, type: 'error' })
+
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`
         )
@@ -85,10 +105,20 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     eventBus.addEventListener('error', onError)
 
     return () => eventBus.removeEventListener('error', onError)
-  }, [])
+  }, [addToast])
 
   return (
-    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
+    <BackgroundServiceContext.Provider
+      value={useMemo(
+        () => ({
+          dispatch,
+          dispatchAsync,
+          isDefaultWallet,
+          setIsDefaultWallet: handleSetIsDefaultWallet
+        }),
+        [isDefaultWallet, handleSetIsDefaultWallet]
+      )}
+    >
       {children}
     </BackgroundServiceContext.Provider>
   )

@@ -1,95 +1,129 @@
-import React from 'react'
-import { View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import React, { useCallback, useEffect, useState } from 'react'
+import { ColorValue, Image, TouchableOpacity, View } from 'react-native'
 
-import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
-import NavIconWrapper from '@common/components/NavIconWrapper'
+import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
-import { isiOS } from '@common/config/env'
-import { DrawerHeaderProps } from '@react-navigation/drawer'
-import { getHeaderTitle } from '@react-navigation/elements'
+import { useTranslation } from '@common/config/localization'
+import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
+import routesConfig from '@common/modules/router/config/routesConfig'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
+import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import getStyles from './styles'
 
-interface Props extends DrawerHeaderProps {
-  mode?: 'title' | 'bottom-sheet'
-  withHamburger?: boolean
-  withHeaderRight?: boolean
+interface Props {
+  mode?: 'title' | 'image-and-title' | 'custom-inner-content' | 'custom'
+  customTitle?: string
+  withPopupBackButton?: boolean
+  withAmbireLogo?: boolean
+  image?: string
+  children?: any
+  backgroundColor?: ColorValue
+  forceBack?: boolean
+  onGoBackPress?: () => void
+  width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
+const { isTab, isPopup } = getUiType()
+
 const Header: React.FC<Props> = ({
-  mode = 'bottom-sheet',
-  withHamburger = false,
-  withHeaderRight = false,
-  navigation,
-  route,
-  options
+  mode = 'title',
+  customTitle,
+  withPopupBackButton = false,
+  withAmbireLogo,
+  children,
+  backgroundColor,
+  forceBack,
+  onGoBackPress,
+  image,
+  width = 'xl'
 }) => {
-  const insets = useSafeAreaInsets()
-  const canGoBack = navigation.canGoBack()
-  const title = getHeaderTitle(options, route.name)
+  const { styles } = useTheme(getStyles)
 
-  const renderHeaderLeft = () => {
-    if (typeof options.headerLeft === 'function') {
-      return options.headerLeft({})
-    }
+  const { path, params } = useRoute()
+  const { navigate } = useNavigation()
+  const { t } = useTranslation()
 
-    if (withHamburger) {
-      return (
-        <NavIconWrapper onPress={navigation.openDrawer}>
-          <BurgerIcon />
-        </NavIconWrapper>
-      )
-    }
+  const [title, setTitle] = useState('')
+  const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
+  const showBackButtonInPopup = isPopup && withPopupBackButton
 
-    if (canGoBack) {
-      return (
-        <NavIconWrapper onPress={navigation.goBack}>
-          <LeftArrowIcon withRect={mode !== 'bottom-sheet'} />
-        </NavIconWrapper>
-      )
-    }
-    return null
+  const navigationEnabled = !getUiType().isNotification
+
+  const canGoBack =
+    !!params?.prevRoute?.key &&
+    params?.prevRoute?.pathname !== '/' &&
+    path !== '/get-started' &&
+    navigationEnabled
+
+  useEffect(() => {
+    if (!path) return
+
+    const nextRoute = path?.substring(1)
+    setTitle((routesConfig as any)?.[nextRoute]?.title || '')
+  }, [path])
+
+  useEffect(() => {
+    const subscription = titleChangeEventStream!.subscribe({ next: (v) => setTitle(v) })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const renderBackButton = () => {
+    return (
+      <TouchableOpacity
+        style={[flexbox.directionRow, flexbox.alignCenter]}
+        onPress={onGoBackPress || handleGoBack}
+      >
+        <LeftArrowIcon />
+        <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
+          {t('Back')}
+        </Text>
+      </TouchableOpacity>
+    )
   }
 
-  const renderHeaderRight = null
-
-  // On the left and on the right side, there is always reserved space
-  // for the nav bar buttons. And so that in case a title is present,
-  // it is centered always in the logical horizontal middle.
-  const navIconContainer =
-    mode === 'bottom-sheet' ? styles.navIconContainerSmall : styles.navIconContainerRegular
-
-  // The header should start a little bit below the end of the notch
-  const notchInset = insets.top + 5
-
-  // Using the `<Header />` from the '@react-navigation/elements' created
-  // many complications in terms of styling the UI, calculating the header
-  // height and the spacings between the `headerLeftContainerStyle` and the
-  // `headerRightContainerStyle`. The calculations never match.
-  // Probably due to the fact the box model of the `<Header />` behaves
-  // in different manner. And styling it was hell. So instead - implement
-  // custom components that fully match the design we follow.
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: notchInset
-        }
-      ]}
-    >
-      <View style={navIconContainer}>{renderHeaderLeft()}</View>
-
-      {mode === 'title' && (
-        <Text fontSize={18} weight="regular" style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
+    <View style={[styles.container, !!backgroundColor && { backgroundColor }]}>
+      {mode !== 'custom' ? (
+        <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>
+          <View style={styles.sideContainer}>
+            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+          </View>
+          {/* Middle content start */}
+          {mode === 'title' && (
+            <View style={styles.containerInner}>
+              <Text
+                weight="medium"
+                fontSize={isTab ? 24 : 20}
+                style={styles.title}
+                numberOfLines={2}
+              >
+                {customTitle || title || ''}
+              </Text>
+            </View>
+          )}
+          {mode === 'image-and-title' && (
+            <View style={styles.imageAndTitleContainer}>
+              {image && <Image source={{ uri: image }} style={styles.image} />}
+              <Text weight="medium" fontSize={20}>
+                {customTitle || title}
+              </Text>
+            </View>
+          )}
+          {mode === 'custom-inner-content' && <View style={styles.containerInner}>{children}</View>}
+          {/* Middle content end */}
+          <View style={[styles.sideContainer, flexbox.alignEnd]}>
+            {!!withAmbireLogo && <AmbireLogoHorizontal width={72} />}
+          </View>
+        </View>
+      ) : (
+        children
       )}
-
-      {mode === 'title' && <View style={navIconContainer}>{renderHeaderRight}</View>}
-      {isiOS && mode === 'title' && <View style={navIconContainer} />}
     </View>
   )
 }

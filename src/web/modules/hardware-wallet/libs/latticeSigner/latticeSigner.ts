@@ -1,104 +1,117 @@
-import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
-import { addHexPrefix } from 'ethereumjs-util'
+import { hexlify, Signature, Transaction, TransactionLike } from 'ethers'
 import * as SDK from 'gridplus-sdk'
 
-import { Transaction } from '@ethereumjs/tx'
-import { serialize } from '@ethersproject/transactions'
+import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
+import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
-
-const EIP_155_CONSTANT = 35
-
 class LatticeSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: LatticeController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
-  }
-
-  async signRawTransaction(params: any) {
-    if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+  // TODO: the ExternalSignerController type is missing some properties from
+  // type 'LatticeController', sync the types mismatch
+  // @ts-ignore
+  init(externalSignerController?: LatticeController) {
+    if (!externalSignerController) {
+      throw new Error('latticeSigner: externalSignerController not initialized')
     }
 
-    if (!this.key) {
-      throw new Error('latticeSigner: key not found')
+    this.controller = externalSignerController
+  }
+
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+    if (!this.controller) {
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     await this._onBeforeLatticeRequest()
 
+    if (!this.controller.sdkSession) {
+      throw new Error(
+        'Something went wrong with initiating a session with the device. Please try again or contact support if the problem persists.'
+      )
+    }
+
+    // EIP1559 and EIP2930 support was added to Lattice in firmware v0.11.0,
+    // "general signing" was introduced in v0.14.0. In order to avoid supporting
+    // legacy firmware, throw an error and prompt user to update.
     const fwVersion = this.controller.sdkSession.getFwVersion()
-
-    const tx = Transaction.fromTxData(params)
-
-    if (fwVersion?.major === 0 && fwVersion?.minor <= 11 && params.type) {
-      throw new Error('Please update Lattice firmware.')
+    if (fwVersion?.major === 0 && fwVersion?.minor <= 14) {
+      throw new Error('Please update Lattice1 firmware.')
     }
 
-    const data: any = {}
-    data.payload = this.getLegacyTxReq(tx)
-    data.chainId = params.chainId
-    data.signerPath = this.controller._getHDPathIndices(
-      LATTICE_STANDARD_HD_PATH,
-      this.key.meta!.index
-    )
+    try {
+      const signerPath = getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
+      // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+      // since there's no other better way to distinguish between the two in here.
+      const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+      const unsignedTxn: TransactionLike = { ...txnRequest, type }
 
-    const res = await this.controller.sdkSession!.sign({ currency: 'ETH', data })
+      const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
 
-    if (!res.sig || !res.sig.r || !res.sig.s) {
-      throw new Error('latticeSigner: no signature returned')
+      const res = await this.controller.sdkSession.sign({
+        // Prior to general signing, request data was sent to the device in
+        // preformatted ways and was used to build the transaction in firmware.
+        // GridPlus are phasing out this mechanism, for signing raw transactions
+        // flip to using the "general signing" mechanism, instead of the legacy
+        // one that was getting triggered by passing `currency: 'ETH'` flag.
+        data: {
+          signerPath,
+          payload: unsignedSerializedTxn,
+          curveType: SDK.Constants.SIGNING.CURVES.SECP256K1,
+          hashType: SDK.Constants.SIGNING.HASHES.KECCAK256,
+          encodingType: SDK.Constants.SIGNING.ENCODINGS.EVM
+        }
+      })
+
+      // Ensure we got a signature back
+      if (!res?.sig || !res.sig.r || !res.sig.s || !res.sig.v) {
+        throw new Error('latticeSigner: no signature returned')
+      }
+
+      // GridPlus SDK's type for the signature is any, either because of bad
+      // types, either because of bad typescript import/export configuration.
+      type MissingSignatureType = {
+        v: Uint8Array
+        r: Uint8Array
+        s: Uint8Array
+      }
+      const { r, s, v } = res.sig as MissingSignatureType
+
+      const signature = Signature.from({
+        r: hexlify(r),
+        s: hexlify(s),
+        v: Signature.getNormalizedV(hexlify(v))
+      })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature
+      }).serialized
+
+      return signedSerializedTxn
+    } catch (error: any) {
+      throw new Error(
+        // An `error.err` message might come from the Lattice .sign() failure
+        error?.message || error?.err || 'latticeSigner: singing failed for unknown reason'
+      )
     }
-
-    let v
-    // Construct the `v` signature param
-    if (res.sig.v === undefined) {
-      // V2 signature needs `v` calculated
-      v = SDK.Utils.getV(tx, res)
-    } else {
-      // Legacy signatures have `v` in the response
-      v = res.sig.v.length === 0 ? '0' : res.sig.v.toString('hex')
-    }
-
-    const intV = parseInt(v, 16)
-    const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-    if (signedChainId !== params.chainId) {
-      throw new Error(`ledgerSigner: invalid returned V 0x${res.sig.v}`)
-    }
-
-    const unsignedTxObj = {
-      ...params,
-      gasLimit: params.gasLimit || params.gas
-    }
-
-    delete unsignedTxObj.from
-    delete unsignedTxObj.gas
-    delete unsignedTxObj.v
-
-    const signature = serialize(unsignedTxObj, {
-      r: addHexPrefix(res.sig.r.toString('hex')),
-      s: addHexPrefix(res.sig.s.toString('hex')),
-      v: intV
-    })
-
-    return signature
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
     if (!types.EIP712Domain) {
       throw new Error('latticeSigner: only EIP712 messages are supported')
     }
@@ -106,13 +119,15 @@ class LatticeSigner implements KeystoreSigner {
     return this._signMsgRequest({ domain, types, primaryType, message }, 'eip712')
   }
 
-  async signMessage(hash: string) {
+  signMessage: KeystoreSigner['signMessage'] = async (hash) => {
     return this._signMsgRequest(hash, 'signPersonal')
   }
 
   async _signMsgRequest(payload: any, protocol: 'signPersonal' | 'eip712') {
     if (!this.controller) {
-      throw new Error('latticeSigner: trezorController not initialized')
+      throw new Error(
+        'Something went wrong with triggering the sign message mechanism. Please try again or contact support if the problem persists.'
+      )
     }
 
     if (!this.key) {
@@ -126,10 +141,7 @@ class LatticeSigner implements KeystoreSigner {
       data: {
         protocol,
         payload,
-        signerPath: this.controller._getHDPathIndices(
-          LATTICE_STANDARD_HD_PATH,
-          this.key.meta!.index
-        )
+        signerPath: getHDPathIndices(this.key.meta.hdPathTemplate, this.key.meta.index)
       }
     }
 
@@ -152,10 +164,10 @@ class LatticeSigner implements KeystoreSigner {
 
     const foundIdx = await this.controller._keyIdxInCurrentWallet(this.key)
     if (foundIdx === null) {
-      throw new Error('latticeSigner: key not found in the current Lattice wallet')
+      throw new Error('latticeSigner: key not found in the current Lattice1 wallet')
     }
 
-    return `0x${res.sig.r}${res.sig.s}${v}`
+    return addHexPrefix(`${res.sig.r}${res.sig.s}${v}`)
   }
 
   async _onBeforeLatticeRequest() {
@@ -165,49 +177,6 @@ class LatticeSigner implements KeystoreSigner {
     if (wasUnlocked) {
       await this.controller?._connect()
     }
-  }
-
-  getLegacyTxReq(tx: any) {
-    let txData: any
-    try {
-      txData = {
-        nonce: `0x${tx.nonce.toString('hex')}` || 0,
-        gasLimit: `0x${tx.gasLimit.toString('hex')}`,
-        to: tx.to ? tx.to.toString('hex') : null, // null for contract deployments
-        value: `0x${tx.value.toString('hex')}`,
-        data: tx.data.length === 0 ? null : `0x${tx.data.toString('hex')}`
-      }
-      switch (tx._type) {
-        case 2: // eip1559
-          if (
-            tx.maxPriorityFeePerGas === null ||
-            tx.maxFeePerGas === null ||
-            tx.maxPriorityFeePerGas === undefined ||
-            tx.maxFeePerGas === undefined
-          )
-            throw new Error(
-              '`maxPriorityFeePerGas` and `maxFeePerGas` must be included for EIP1559 transactions.'
-            )
-          txData.maxPriorityFeePerGas = `0x${tx.maxPriorityFeePerGas.toString('hex')}`
-          txData.maxFeePerGas = `0x${tx.maxFeePerGas.toString('hex')}`
-          txData.accessList = tx.accessList || []
-          txData.type = 2
-          break
-        case 1: // eip2930
-          txData.accessList = tx.accessList || []
-          txData.gasPrice = `0x${tx.gasPrice.toString('hex')}`
-          txData.type = 1
-          break
-        default:
-          // legacy
-          txData.gasPrice = `0x${tx.gasPrice.toString('hex')}`
-          txData.type = null
-          break
-      }
-    } catch (err) {
-      throw new Error('Failed to build transaction.')
-    }
-    return txData
   }
 }
 

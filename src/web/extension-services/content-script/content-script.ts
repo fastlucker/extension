@@ -1,51 +1,74 @@
-// @ts-nocheck
+/* eslint-disable @typescript-eslint/no-floating-promises */
 
+//
 // Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
-import { nanoid } from 'nanoid'
+//
 
+import { isManifestV3 } from '@web/constants/browserapi'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
-// Middleware for handling messages between dapps and the extension's background process
-// import { browserapi, engine } from '@web/constants/browserapi'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-const channelName = nanoid()
+import { storage } from '../background/webapi/storage'
 
-// the script element with src won't execute immediately
-// use inline script element instead!
-const container = document.head || document.documentElement
-const ele = document.createElement('script')
-// in prevent of webpack optimized code do some magic(e.g. double/sigle quote wrap),
-// seperate content assignment to two line
-// use AssetReplacePlugin to replace pageprovider content
-let content = `var channelName = '${channelName}';`
-content += '#PAGEPROVIDER#'
-ele.textContent = content
-container.insertBefore(ele, container.children[0])
-container.removeChild(ele)
+const injectProviderScript = () => {
+  // the script element with src won't execute immediately use inline script element instead!
+  const container = document.head || document.documentElement
+  const ele = document.createElement('script')
+  let content = ';(function () {'
+  content += '#PAGEPROVIDER#'
+  content += '\n})();'
+  ele.textContent = content
+  container.insertBefore(ele, container.children[0])
+  container.removeChild(ele)
+}
 
-const pm = new PortMessage().connect()
+// we run this content script in all_frames (see the manifest file) for better injection
+// but we want the BroadcastChannelMessage to send messages to the service_worker/background only from one of the frames
+// to avoid duplicated requests (window.top is the top-level frame)
+if (window === window.top) {
+  const pm = new PortMessage().connect()
 
-const bcm = new BroadcastChannelMessage(channelName).listen((data) => pm.request(data))
+  const bcm = new BroadcastChannelMessage('ambire-inpage').listen((data: any) => pm.request(data))
 
-// background notification
-pm.on('message', (data) => bcm.send('message', data))
+  // messages coming from the background service and will be passed to the injected script (handled in inpage.ts)
+  pm.on('message', (data) => bcm.send('message', data))
 
-document.addEventListener('beforeunload', () => {
-  bcm.dispose()
-  pm.dispose()
-})
+  document.addEventListener('beforeunload', () => {
+    bcm.dispose()
+    pm.dispose()
+  })
 
-// TODO: keep alive for manifest v3
-// const WORKER_KEEP_ALIVE_INTERVAL = 1000
-// const WORKER_KEEP_ALIVE_MESSAGE = 'WORKER_KEEP_ALIVE_MESSAGE'
+  browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
+    // eslint-disable-next-line no-prototype-builtins
+    if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
+      const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
+      bcm.send('message', {
+        data: {
+          type: 'setDefaultWallet',
+          value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+          shouldReload: true
+        }
+      })
+    }
+  })
 
-// const initKeepWorkerAlive = () => {
-//   setInterval(() => {
-//     browserapi.runtime.sendMessage({ name: WORKER_KEEP_ALIVE_MESSAGE })
-//   }, WORKER_KEEP_ALIVE_INTERVAL)
-// }
+  const initIsDefaultWallet = async () => {
+    const isDefaultWallet = await storage.get('isDefaultWallet', true)
+    bcm.send('message', {
+      data: {
+        type: 'setDefaultWallet',
+        value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
+        shouldReload: false
+      }
+    })
+  }
 
-// // Keeps service_worker alive (prevents it to become inactive)
-// if (engine === 'webkit') {
-//   initKeepWorkerAlive()
-// }
+  setTimeout(() => {
+    initIsDefaultWallet()
+  }, 1)
+}
+
+// the injection for manifest v3 is located in background.js
+if (!isManifestV3) {
+  injectProviderScript()
+}

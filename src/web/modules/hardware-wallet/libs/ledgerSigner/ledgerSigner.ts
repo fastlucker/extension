@@ -1,185 +1,190 @@
-import { LEDGER_LIVE_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
-import * as sigUtil from 'eth-sig-util'
-import {
-  bufferToHex,
-  ecrecover,
-  fromRpcSig,
-  hashPersonalMessage,
-  publicToAddress,
-  stripHexPrefix,
-  toBuffer,
-  toChecksumAddress
-} from 'ethereumjs-util'
+import { Signature, Transaction, TransactionLike } from 'ethers'
 
-import { serialize } from '@ethersproject/transactions'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
-
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
-
-const EIP_155_CONSTANT = 35
+import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
+import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: LedgerController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
+  // TODO: the ExternalSignerController type is missing some properties from
+  // type 'LedgerController', sync the types mismatch
+  // @ts-ignore
+  init(externalDeviceController?: LedgerController) {
+    if (!externalDeviceController) {
+      throw new Error('ledgerSigner: externalDeviceController not initialized')
+    }
+
+    this.controller = externalDeviceController
   }
 
-  async signRawTransaction(params: any) {
+  #prepareForSigning = async () => {
     if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
-    }
-
-    await this.controller._reconnect()
-
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
-
-    try {
-      const unsignedTxObj = {
-        ...params,
-        gasLimit: params.gasLimit || params.gas
-      }
-
-      delete unsignedTxObj.from
-      delete unsignedTxObj.gas
-
-      const serializedUnsigned = serialize(unsignedTxObj)
-
-      // @ts-ignore
-      const rsvRes = await this.controller!.app!.signTransaction(
-        this._getDerivationPath(this.key.meta!.index),
-        serializedUnsigned.substr(2)
-      )
-
-      const intV = parseInt(rsvRes.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
-
-      if (signedChainId !== params.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${rsvRes.v}`)
-      }
-
-      delete unsignedTxObj.v
-      const signature = serialize(unsignedTxObj, {
-        r: `0x${rsvRes.r}`,
-        s: `0x${rsvRes.s}`,
-        v: intV
-      })
-
-      return signature
-    } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
-    }
-  }
-
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
-    if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
-    }
-
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
-
-    if (!types.EIP712Domain) {
-      throw new Error('ledgerSigner: only EIP712 messages are supported')
-    }
-
-    if (!primaryType) {
       throw new Error(
-        'ledgerSigner: primaryType is missing but required for signing typed data with a ledger device'
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
     }
 
-    try {
-      const domainSeparator = sigUtil.TypedDataUtils.hashStruct(
-        'EIP712Domain',
-        domain,
-        types,
-        true
-      ).toString('hex')
-      const hashStructMessage = sigUtil.TypedDataUtils.hashStruct(
-        Object.keys(types)[2],
-        message,
-        types,
-        true
-      ).toString('hex')
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    await this.controller.unlock(path, this.key.addr)
 
-      const rsvRes = await this.controller!.app!.signEIP712HashedMessage(
-        this._getDerivationPath(this.key.meta!.index),
-        domainSeparator,
-        hashStructMessage
+    // After unlocking, SDK instance should always be present, double-check here
+    if (!this.controller.walletSDK) {
+      throw new Error(
+        'Something went wrong when preparing Ledger to sign. Please try again or contact support if the problem persists.'
       )
-      let v: any = rsvRes.v - 27
-      v = v.toString(16)
-      if (v.length < 2) {
-        v = `0${v}`
-      }
+    }
 
-      const signature = `0x${rsvRes.r}${rsvRes.s}${v}`
-      const signedWithKey = sigUtil.recoverTypedSignature_v4({
-        data: { types, domain, message, primaryType },
-        sig: signature
+    if (!this.controller.isUnlocked(path, this.key.addr)) {
+      throw new Error(
+        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+      )
+    }
+  }
+
+  /**
+   * This method is designed to handle the scenario where Ledger device loses
+   * connectivity during an operation. Without this method, if the Ledger device
+   * disconnects, the Ledger SDK hangs indefinitely because the promise
+   * associated with the operation never resolves or rejects.
+   */
+  async #withDisconnectProtection<T>(operation: () => Promise<T>): Promise<T> {
+    let transportCbRef: (...args: Array<any>) => any = () => {}
+    const disconnectHandler = (reject: (reason?: any) => void) => () => {
+      reject(new Error('Ledger device got disconnected.'))
+    }
+
+    try {
+      // Race the operation against a new Promise that rejects if a 'disconnect'
+      // event is emitted from the Ledger device. If the device disconnects
+      // before the operation completes, the new Promise rejects and the method
+      // returns, preventing the SDK from hanging. If the operation completes
+      // before the device disconnects, the result of the operation is returned.
+      const result = await Promise.race<T>([
+        operation(),
+        new Promise((_, reject) => {
+          transportCbRef = disconnectHandler(reject)
+          this.controller!.transport?.on('disconnect', transportCbRef)
+        })
+      ])
+
+      return result
+    } finally {
+      // In either case, the 'disconnect' event listener should be removed
+      // after the operation to clean up resources.
+      if (transportCbRef) this.controller!.transport?.off('disconnect', transportCbRef)
+    }
+  }
+
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+    await this.#prepareForSigning()
+
+    // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+    // since there's no other better way to distinguish between the two in here.
+    const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+
+    try {
+      const unsignedTxn: TransactionLike = { ...txnRequest, type }
+
+      const unsignedSerializedTxn = Transaction.from(unsignedTxn).unsignedSerialized
+
+      // Look for resolutions for external plugins and ERC20
+      const resolution = await ledgerService.resolveTransaction(
+        stripHexPrefix(unsignedSerializedTxn),
+        this.controller!.walletSDK!.loadConfig,
+        {
+          externalPlugins: true,
+          erc20: true,
+          nft: true
+        }
+      )
+
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+
+      const res = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signTransaction(
+          path,
+          stripHexPrefix(unsignedSerializedTxn),
+          resolution
+        )
+      )
+
+      const signature = Signature.from({
+        r: addHexPrefix(res.r),
+        s: addHexPrefix(res.s),
+        v: Signature.getNormalizedV(res.v)
       })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature
+      }).serialized
 
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
-        throw new Error("ledgerSigner: the signature doesn't match the right key")
-      }
-
-      return signature
+      return signedSerializedTxn
     } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(e?.message || 'ledgerSigner: singing failed for unknown reason')
     }
   }
 
-  async signMessage(hash: string) {
-    if (!this.controller) {
-      throw new Error('ledgerSigner: ledgerController not initialized')
-    }
-
-    await this.controller.unlock(this._getDerivationPath(this.key.meta!.index))
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
+    await this.#prepareForSigning()
 
     try {
-      const rsvRes = await this.controller!.app!.signPersonalMessage(
-        this._getDerivationPath(this.key.meta!.index),
-        stripHexPrefix(hash)
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      const rsvRes = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signEIP712Message(path, {
+          domain,
+          types,
+          message,
+          primaryType
+        })
       )
 
-      const signature = `0x${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`
-      const sigParams = fromRpcSig(toBuffer(signature) as any)
-      const message = toBuffer(hash)
-      const msgHash = hashPersonalMessage(message)
-      const publicKey = ecrecover(msgHash as any, sigParams.v, sigParams.r, sigParams.s)
-      const sender = publicToAddress(publicKey)
-      const signedWithKey = bufferToHex(sender)
-
-      if (toChecksumAddress(signedWithKey) !== toChecksumAddress(this.key.id)) {
-        throw new Error("ledgerSigner: the signature doesn't match the right address")
-      }
-
+      const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
       return signature
     } catch (e: any) {
-      throw new Error(`ledgerSigner: signature denied ${e.message || e}`)
+      throw new Error(
+        e?.message ||
+          'Signing the typed data message failed. Please try again or contact Ambire support if issue persists.'
+      )
     }
   }
 
-  _getDerivationPath(keyIndex?: number) {
-    if (!this.controller) return LEDGER_LIVE_HD_PATH
-
-    if (keyIndex) {
-      return this.controller!._getPathForIndex(keyIndex)
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
+    if (!stripHexPrefix(hex)) {
+      throw new Error(
+        'Request for signing an empty message detected. Signing empty messages with Ambire is disallowed.'
+      )
     }
-    return this.controller!.hdPath
+
+    await this.#prepareForSigning()
+
+    try {
+      const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+      const rsvRes = await this.#withDisconnectProtection(() =>
+        this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
+      )
+
+      const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)
+      return signature
+    } catch (e: any) {
+      throw new Error(
+        e?.message ||
+          'Signing the message failed. Please try again or contact Ambire support if issue persists.'
+      )
+    }
   }
 }
 

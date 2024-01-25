@@ -8,12 +8,19 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const BridgeIcon: React.FC<Props> = ({ width = 30, height = 30, color = colors.martinique }) => (
-  <Svg width={width} height={height} viewBox="0 0 30 30">
-    <Path fill="none" d="M0 30V0h30v30z" />
-    <G fill="none" stroke={color} strokeLinecap="round" strokeWidth="2">
-      <Path d="M12.273 26.293v-14.3L6 18.271" />
-      <Path d="M17.226 3v14.3l6.273-6.279" />
+const BridgeIcon: React.FC<Props> = ({
+  width = 30,
+  height = 30,
+  color = colors.martinique,
+  strokeWidth = '1.5'
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 16 16">
+    <G fill="none">
+      <Path d="M0 16V0h16v16z" />
+      <G stroke={color} strokeLinecap="round" strokeWidth={strokeWidth}>
+        <Path d="M6.798 14.064V6.388L3.43 9.758" />
+        <Path d="M9.456 1.558v7.676l3.368-3.37" />
+      </G>
     </G>
   </Svg>
 )

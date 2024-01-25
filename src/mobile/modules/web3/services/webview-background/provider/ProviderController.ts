@@ -2,12 +2,12 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
-import { getProvider } from 'ambire-common/src/services/provider'
 import { ethErrors } from 'eth-rpc-errors'
-import { intToHex } from 'ethereumjs-util'
+import { toBeHex } from 'ethers'
 import { isString } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import networks from '@common/constants/networks'
 import sessionService, {
@@ -128,7 +128,7 @@ class ProviderController {
   ethChainId = async () => {
     const networkId = await storage.get('networkId')
     const network = networks.find((n) => n.id === networkId)
-    return intToHex(network?.chainId || networks[0].chainId)
+    return toBeHex(network?.chainId || networks[0].chainId)
   }
 
   @Reflect.metadata('APPROVAL', ['SendTransaction', false])
@@ -240,7 +240,7 @@ class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin
@@ -270,7 +270,7 @@ class ProviderController {
     sessionService.broadcastEvent(
       'chainChanged',
       {
-        chain: intToHex(network.chainId),
+        chain: toBeHex(network.chainId),
         networkVersion: `${network.chainId}`
       },
       origin

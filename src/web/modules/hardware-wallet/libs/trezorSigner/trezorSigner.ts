@@ -1,100 +1,154 @@
-import { TREZOR_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { KeystoreSigner } from 'ambire-common/src/interfaces/keystore'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
-import { stripHexPrefix, toChecksumAddress } from 'ethereumjs-util'
+import { Signature, toBeHex, Transaction } from 'ethers'
 
-import { delayPromise } from '@common/utils/promises'
-import { serialize } from '@ethersproject/transactions'
+import {
+  ExternalKey,
+  ExternalSignerController,
+  KeystoreSigner
+} from '@ambire-common/interfaces/keystore'
+import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
+import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
+import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
+import wait from '@ambire-common/utils/wait'
 import transformTypedData from '@trezor/connect-plugin-ethereum'
-import trezorConnect from '@trezor/connect-web'
-import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
-
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
+import TrezorController, {
+  EthereumTransaction,
+  EthereumTransactionEIP1559
+} from '@web/modules/hardware-wallet/controllers/TrezorController'
 
 const DELAY_BETWEEN_POPUPS = 1000
-const EIP_155_CONSTANT = 35
+
+/**
+ * This is necessary to avoid popup collision between the unlock & sign Trezor popups.
+ */
+const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
+  wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
+
+/**
+ * This is necessary to avoid popup collision between signing multiple times in
+ * a row or between signing a message and then a raw transaction.
+ */
+const delayBetweenStarting = () => wait(DELAY_BETWEEN_POPUPS)
 
 class TrezorSigner implements KeystoreSigner {
-  key: Key
+  key: ExternalKey
 
   controller: TrezorController | null = null
 
-  constructor(_key: Key) {
+  constructor(_key: ExternalKey) {
     this.key = _key
   }
 
-  init(_controller: any) {
-    this.controller = _controller
+  init(externalDeviceController?: ExternalSignerController) {
+    if (!externalDeviceController) {
+      throw new Error('trezorSigner: externalDeviceController not initialized')
+    }
+
+    this.controller = externalDeviceController
   }
 
-  async signRawTransaction(params: any) {
-    if (!this.controller) {
-      throw new Error('trezorSigner: trezorController not initialized')
+  #prepareForSigning = async () => {
+    if (!this.controller || !this.controller.walletSDK) {
+      throw new Error(
+        'Something went wrong when preparing Trezor to sign. Please try again or contact support if the problem persists.'
+      )
     }
 
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
+    await delayBetweenStarting()
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const status = await this.controller.unlock(path, this.key.addr)
+    await delayBetweenPopupsIfNeeded(status)
 
-    const unsignedTxObj = {
-      ...params,
-      gasLimit: params.gasLimit || params.gas
+    if (!this.controller.isUnlocked(path, this.key.addr)) {
+      throw new Error(
+        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+      )
+    }
+  }
+
+  signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
+    if (typeof txnRequest.value === 'undefined') {
+      throw new Error('trezorSigner: missing value in transaction request')
     }
 
-    delete unsignedTxObj.from
-    delete unsignedTxObj.gas
+    await this.#prepareForSigning()
 
-    const res: any = await trezorConnect.ethereumSignTransaction({
-      path: this._getDerivationPath(),
-      transaction: unsignedTxObj
+    // In case `maxFeePerGas` is provided, treat as an EIP-1559 transaction,
+    // since there's no other better way to distinguish between the two in here.
+    // Note: Trezor doesn't support EIP-2930 yet (type `1`).
+    const type = typeof txnRequest.maxFeePerGas === 'bigint' ? 2 : 0
+
+    type UnsignedTxnType = typeof type extends 2 ? EthereumTransactionEIP1559 : EthereumTransaction
+    // Note: Trezor auto-detects the transaction `type`, based on the txn params
+    const unsignedTxn: UnsignedTxnType = {
+      ...txnRequest,
+      // The incoming `txnRequest` param types mismatch the Trezor expected ones,
+      // so normalize the types before passing them to the Trezor API
+      value: toBeHex(txnRequest.value),
+      gasLimit: toBeHex(txnRequest.gasLimit),
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `2` (EIP-1559)
+      gasPrice: typeof txnRequest.gasPrice === 'bigint' ? toBeHex(txnRequest.gasPrice) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxFeePerGas:
+        typeof txnRequest.maxFeePerGas === 'bigint' ? toBeHex(txnRequest.maxFeePerGas) : undefined,
+      // @ts-ignore since Trezor auto-detects the transaction `type`, based on
+      // the txn params, it's fine to pass undefined when the type is `0` (legacy)
+      maxPriorityFeePerGas:
+        typeof txnRequest.maxPriorityFeePerGas === 'bigint'
+          ? toBeHex(txnRequest.maxPriorityFeePerGas)
+          : undefined,
+      nonce: toBeHex(txnRequest.nonce),
+      chainId: Number(txnRequest.chainId) // assuming the value is a BigInt within the safe integer range
+    }
+
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const res = await this.controller!.walletSDK.ethereumSignTransaction({
+      path,
+      transaction: unsignedTxn
     })
 
-    if (res.success) {
-      const intV = parseInt(res.payload.v, 16)
-      const signedChainId = Math.floor((intV - EIP_155_CONSTANT) / 2)
+    if (!res.success) {
+      throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
+    }
 
-      if (signedChainId !== params.chainId) {
-        throw new Error(`ledgerSigner: invalid returned V 0x${res.payload.v}`)
-      }
-      delete unsignedTxObj.v
-
-      const signature = serialize(unsignedTxObj, {
+    try {
+      const signature = Signature.from({
         r: res.payload.r,
         s: res.payload.s,
-        v: intV
+        v: Signature.getNormalizedV(res.payload.v)
       })
+      const signedSerializedTxn = Transaction.from({
+        ...unsignedTxn,
+        signature,
+        // The nonce type of the normalized `unsignedTransaction` compatible
+        // with Trezor  mismatches the EthersJS supported type, so fallback to
+        // the nonce incoming from the `txnRequest` param
+        nonce: txnRequest.nonce,
+        type
+      }).serialized
 
-      return signature
+      return signedSerializedTxn
+    } catch (error: any) {
+      throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
     }
-
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
   }
 
-  async signTypedData(
-    domain: TypedDataDomain,
-    types: Record<string, Array<TypedDataField>>,
-    message: Record<string, any>,
-    primaryType?: string
-  ) {
-    if (!this.controller) {
-      throw new Error('trezorSigner: trezorController not initialized')
-    }
+  signTypedData: KeystoreSigner['signTypedData'] = async ({
+    domain,
+    types,
+    message,
+    primaryType
+  }) => {
+    await this.#prepareForSigning()
 
-    if (!types.EIP712Domain) {
-      throw new Error('trezorSigner: only EIP712 messages are supported')
-    }
-
-    const dataWithHashes: any = transformTypedData({ domain, types, message, primaryType }, true)
-
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const dataWithHashes = transformTypedData({ domain, types, message, primaryType }, true)
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { domain_separator_hash, message_hash } = dataWithHashes
 
-    // This is necessary to avoid popup collision
-    // between the unlock & sign trezor popups
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
-
-    const res: any = await trezorConnect.ethereumSignTypedData({
-      path: this._getDerivationPath(),
+    const res = await this.controller!.walletSDK.ethereumSignTypedData({
+      path,
       data: {
         types,
         message,
@@ -107,44 +161,34 @@ class TrezorSigner implements KeystoreSigner {
       message_hash
     } as any)
 
-    if (res.success) {
-      if (res.payload.address !== toChecksumAddress(this.key.id)) {
-        throw new Error("trezorSigner: signature doesn't match the right address")
-      }
-
-      return res.payload.signature
+    if (!res.success) {
+      throw new Error(
+        res.payload.error ||
+          'Something went wrong when signing the typed data message. Please try again or contact support if the problem persists.'
+      )
     }
 
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
+    return res.payload.signature
   }
 
-  async signMessage(hash: string) {
-    if (!this.controller) {
-      throw new Error('trezorSigner: trezorController not initialized')
-    }
+  signMessage: KeystoreSigner['signMessage'] = async (hex) => {
+    await this.#prepareForSigning()
 
-    const status = await this.controller.unlock()
-    await delayPromise(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0)
-
-    const res: any = await trezorConnect.ethereumSignMessage({
-      path: this._getDerivationPath(),
-      message: stripHexPrefix(hash),
+    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    const res = await this.controller!.walletSDK.ethereumSignMessage({
+      path,
+      message: stripHexPrefix(hex),
       hex: true
     })
 
-    if (res.success) {
-      if (res.payload.address !== toChecksumAddress(this.key.id)) {
-        throw new Error("trezorSigner: the signature doesn't match the right address")
-      }
-      return `0x${res.payload.signature}`
+    if (!res.success) {
+      throw new Error(
+        res.payload.error ||
+          'Something went wrong when signing the message. Please try again or contact support if the problem persists.'
+      )
     }
 
-    throw new Error((res.payload && res.payload.error) || 'trezorSigner: unknown error')
-  }
-
-  _getDerivationPath() {
-    // @ts-ignore
-    return this.key?.meta!.derivationPath || `${TREZOR_HD_PATH}/${this.key.meta!.index}`
+    return addHexPrefix(res.payload.signature)
   }
 }
 

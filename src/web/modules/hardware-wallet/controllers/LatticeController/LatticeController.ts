@@ -1,23 +1,22 @@
-import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { Key } from 'ambire-common/src/libs/keystore/keystore'
 import crypto from 'crypto'
-import EventEmitter from 'events'
 import * as SDK from 'gridplus-sdk'
 
-import LatticeKeyIterator from '@web/modules/hardware-wallet/libs/latticeKeyIterator'
+import {
+  BIP44_STANDARD_DERIVATION_TEMPLATE,
+  HD_PATH_TEMPLATE_TYPE
+} from '@ambire-common/consts/derivation'
+import { ExternalKey, ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { browser } from '@web/constants/browserapi'
 
-const keyringType = 'GridPlus'
-const HARDENED_OFFSET = 0x80000000
+const LATTICE_APP_NAME = 'Ambire Wallet Extension'
+const LATTICE_MANAGER_URL = 'https://lattice.gridplus.io'
+const LATTICE_BASE_URL = 'https://signing.gridpl.us'
 
 const SDK_TIMEOUT = 120000
 const CONNECT_TIMEOUT = 20000
 
-class LatticeController extends EventEmitter {
-  appName: string
-
-  type: string
-
-  hdPath: string
+class LatticeController implements ExternalSignerController {
+  hdPathTemplate: HD_PATH_TEMPLATE_TYPE
 
   sdkSession?: SDK.Client | null
 
@@ -25,43 +24,37 @@ class LatticeController extends EventEmitter {
 
   unlockedAccount: any
 
-  accountIndices: any
+  deviceId = ''
 
-  isLocked: boolean = true
-
-  walletUID: any
-
-  network: any
+  // There is only one Grid+ device
+  deviceModel = 'lattice1'
 
   constructor() {
-    super()
-    this.appName = 'Ambire Wallet Extension'
-    this.type = keyringType
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
     this._resetDefaults()
   }
 
-  setHdPath() {
-    this.hdPath = LATTICE_STANDARD_HD_PATH
-  }
-
-  // Deterimine if we have a connection to the Lattice and an existing wallet UID
+  // Determine if we have a connection to the Lattice and an existing wallet UID
   // against which to make requests.
   isUnlocked() {
     return !!this._getCurrentWalletUID() && !!this.sdkSession
   }
 
-  // Initialize a session with the Lattice1 device using the GridPlus SDK
-  // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
-  // reconnecting to the target Lattice. This is only currently used for signing
-  // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
-  // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
-  // possible edge cases related to this new functionality (it's probably fine - just
-  // being cautious). In the future we may remove `bypassOnStateData` entirely.
-  async unlock(bypassOnStateData = false) {
+  async unlock() {
     if (this.isUnlocked()) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
+
+    // Initialize a session with the Lattice1 device using the GridPlus SDK
+    // NOTE: `bypassOnStateData=true` allows us to rehydrate a new SDK session without
+    // reconnecting to the target Lattice. This is only currently used for signing
+    // because it eliminates the need for 2 connection requests and shaves off ~4-6sec.
+    // We avoid passing `bypassOnStateData=true` for other calls on `unlock` to avoid
+    // possible edge cases related to this new functionality (it's probably fine - just
+    // being cautious). In the future we may remove `bypassOnStateData` entirely.
+    // TODO: Currently not implemented
+    const bypassOnStateData = false
+
     const creds: any = await this._getCreds()
     if (creds) {
       this.creds.deviceID = creds.deviceID
@@ -72,104 +65,27 @@ class LatticeController extends EventEmitter {
     // If state data was provided and if we are authorized to
     // bypass reconnecting, we can exit here.
     if (includedStateData && bypassOnStateData) {
-      return 'Unlocked'
+      return 'ALREADY_UNLOCKED'
     }
     await this._connect()
-    return 'Unlocked'
-  }
-
-  async exportAccount(address) {
-    throw new Error('exportAccount not supported by this device')
-  }
-
-  async getKeys(from: number = 0, to: number = 4) {
-    await this.unlock()
-
-    if (!this.isUnlocked()) {
-      throw new Error('No connection to Lattice. Cannot fetch addresses.')
-    }
-
-    return new Promise((resolve) => {
-      ;(async () => {
-        const iterator = new LatticeKeyIterator({
-          sdkSession: this.sdkSession,
-          getHDPathIndices: this._getHDPathIndices
-        })
-
-        const keys = await iterator.retrieve(from, to)
-
-        resolve(keys)
-      })()
-    })
-  }
-
-  forgetDevice() {
-    this._resetDefaults()
-  }
-
-  _getHDPathIndices(hdPath, insertIdx = 0) {
-    const path = hdPath.split('/').slice(1)
-    const indices = []
-    let usedX = false
-    path.forEach((_idx) => {
-      const isHardened = _idx[_idx.length - 1] === "'"
-      let idx = isHardened ? HARDENED_OFFSET : 0
-      // If there is an `x` in the path string, we will use it to insert our
-      // index. This is useful for e.g. Ledger Live path. Most paths have the
-      // changing index as the last one, so having an `x` in the path isn't
-      // usually necessary.
-      if (_idx.indexOf('x') > -1) {
-        idx += insertIdx
-        usedX = true
-      } else if (isHardened) {
-        idx += Number(_idx.slice(0, _idx.length - 1))
-      } else {
-        idx += Number(_idx)
-      }
-      indices.push(idx)
-    })
-    // If this path string does not include an `x`, we just append the index
-    // to the end of the extracted set
-    if (usedX === false) {
-      indices.push(insertIdx)
-    }
-    // Sanity check -- Lattice firmware will throw an error for large paths
-    if (indices.length > 5) throw new Error('Only HD paths with up to 5 indices are allowed.')
-    return indices
+    return 'JUST_UNLOCKED'
   }
 
   _resetDefaults() {
-    this.accountIndices = []
-    this.isLocked = true
     this.creds = {
       deviceID: null,
       password: null,
       endpoint: null
     }
-    this.walletUID = null
+    this.deviceId = ''
     this.sdkSession = null
-    this.unlockedAccount = 0
-    this.network = null
-    this.hdPath = LATTICE_STANDARD_HD_PATH
+    this.hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
   }
 
-  async _openConnectorTab(url) {
+  async _openConnectorTab(url: string) {
     try {
-      const browserTab = window.open(url)
-      // Preferred option for Chromium browsers. This extension runs in a window
-      // for Chromium so we can do window-based communication very easily.
-      if (browserTab) {
-        return { chromium: browserTab }
-      }
-      if (browser && browser.tabs && browser.tabs.create) {
-        // FireFox extensions do not run in windows, so it will return `null` from
-        // `window.open`. Instead, we need to use the `browser` API to open a tab.
-        // We will surveille this tab to see if its URL parameters change, which
-        // will indicate that the user has logged in.
-        const tab = await browser.tabs.create({ url })
-        return { firefox: tab }
-      }
-      throw new Error('Unknown browser context. Cannot open Lattice connector.')
+      const tab = await browser.tabs.create({ url })
+      return { tab }
     } catch (err) {
       throw new Error('Failed to open Lattice connector.')
     }
@@ -184,18 +100,13 @@ class LatticeController extends EventEmitter {
     return new Promise((resolve, reject) => {
       // We only need to setup if we don't have a deviceID
       if (this._hasCreds()) return resolve()
-      // If we are not aware of what Lattice we should be talking to,
-      // we need to open a window that lets the user go through the
-      // pairing or connection process.
-      const name = this.appName ? this.appName : 'Unknown'
-      const base = 'https://lattice.gridplus.io'
-      const url = `${base}?keyring=${name}&forceLogin=true`
+      const url = `${LATTICE_MANAGER_URL}?keyring=${LATTICE_APP_NAME}&forceLogin=true`
       let listenInterval: any
 
       // PostMessage handler
       function receiveMessage(event) {
         // Ensure origin
-        if (event.origin !== base) return
+        if (event.origin !== LATTICE_MANAGER_URL) return
         try {
           // Stop the listener
           clearInterval(listenInterval)
@@ -211,52 +122,40 @@ class LatticeController extends EventEmitter {
 
       // Open the tab
       this._openConnectorTab(url).then((conn) => {
-        if (conn.chromium) {
-          // On a Chromium browser we can just listen for a window message
-          window.addEventListener('message', receiveMessage, false)
-          // Watch for the open window closing before creds are sent back
-          listenInterval = setInterval(() => {
-            if (conn.chromium.closed) {
-              clearInterval(listenInterval)
+        // For Firefox we cannot use `window` in the extension and can't
+        // directly communicate with the tabs very easily so we use a
+        // workaround: listen for changes to the URL, which will contain
+        // the login info.
+        // NOTE: This will only work if have `https://lattice.gridplus.io/*`
+        // host permissions in your manifest file (and also `activeTab` permission)
+        const loginUrlParam = '&loginCache='
+        listenInterval = setInterval(() => {
+          this._findTabById(conn.tab.id).then((tab) => {
+            if (!tab || !tab.url) {
               return reject(new Error('Lattice connector closed.'))
             }
-          }, 500)
-        } else if (conn.firefox) {
-          // For Firefox we cannot use `window` in the extension and can't
-          // directly communicate with the tabs very easily so we use a
-          // workaround: listen for changes to the URL, which will contain
-          // the login info.
-          // NOTE: This will only work if have `https://lattice.gridplus.io/*`
-          // host permissions in your manifest file (and also `activeTab` permission)
-          const loginUrlParam = '&loginCache='
-          listenInterval = setInterval(() => {
-            this._findTabById(conn.firefox.id).then((tab) => {
-              if (!tab || !tab.url) {
-                return reject(new Error('Lattice connector closed.'))
-              }
-              // If the tab we opened contains a new URL param
-              const paramLoc = tab.url.indexOf(loginUrlParam)
-              if (paramLoc < 0) return
-              const dataLoc = paramLoc + loginUrlParam.length
-              // Stop this interval
-              clearInterval(listenInterval)
-              try {
-                // Parse the login data. It is a stringified JSON object
-                // encoded as a base64 string.
-                const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
-                // Close the tab and return the credentials
-                browser.tabs.remove(tab.id).then(() => {
-                  const creds = JSON.parse(_creds)
-                  if (!creds.deviceID || !creds.password)
-                    return reject(new Error('Invalid credentials returned from Lattice.'))
-                  return resolve(creds)
-                })
-              } catch (err) {
-                return reject('Failed to get login data from Lattice. Please try again.')
-              }
-            })
-          }, 500)
-        }
+            // If the tab we opened contains a new URL param
+            const paramLoc = tab.url.indexOf(loginUrlParam)
+            if (paramLoc < 0) return
+            const dataLoc = paramLoc + loginUrlParam.length
+            // Stop this interval
+            clearInterval(listenInterval)
+            try {
+              // Parse the login data. It is a stringified JSON object
+              // encoded as a base64 string.
+              const _creds = Buffer.from(tab.url.slice(dataLoc), 'base64').toString()
+              // Close the tab and return the credentials
+              browser.tabs.remove(tab.id).then(() => {
+                const creds = JSON.parse(_creds)
+                if (!creds.deviceID || !creds.password)
+                  return reject(new Error('Invalid credentials returned from Lattice.'))
+                return resolve(creds)
+              })
+            } catch (err) {
+              return reject('Failed to get login data from Lattice. Please try again.')
+            }
+          })
+        }, 500)
       })
     })
   }
@@ -271,6 +170,7 @@ class LatticeController extends EventEmitter {
       // 2 minutes for that to happen.
       this.sdkSession.timeout = CONNECT_TIMEOUT
       await this.sdkSession.connect(this.creds.deviceID)
+      this.deviceId = this._getCurrentWalletUID()
     } finally {
       // Reset to normal timeout no matter what
       this.sdkSession.timeout = SDK_TIMEOUT
@@ -281,14 +181,12 @@ class LatticeController extends EventEmitter {
     if (this.isUnlocked()) {
       return
     }
-    let url = 'https://signing.gridpl.us'
-    if (this.creds.endpoint) url = this.creds.endpoint
+
     const setupData = {
-      name: this.appName,
-      baseUrl: url,
+      name: LATTICE_APP_NAME,
+      baseUrl: this.creds.endpoint || LATTICE_BASE_URL,
       timeout: SDK_TIMEOUT,
       privKey: this._genSessionKey(),
-      network: this.network,
       skipRetryOnWrongWallet: true
     }
     /*
@@ -309,18 +207,15 @@ class LatticeController extends EventEmitter {
   }
 
   _hasCreds() {
-    return this.creds.deviceID !== null && this.creds.password !== null && this.appName
+    return this.creds.deviceID !== null && this.creds.password !== null
   }
 
   _genSessionKey() {
-    if (this.name && !this.appName)
-      // Migrate from legacy param if needed
-      this.appName = this.name
     if (!this._hasCreds()) throw new Error('No credentials -- cannot create session key!')
     const buf = Buffer.concat([
       Buffer.from(this.creds.password),
       Buffer.from(this.creds.deviceID),
-      Buffer.from(this.appName)
+      Buffer.from(LATTICE_APP_NAME)
     ])
 
     return crypto.createHash('sha256').update(buf).digest()
@@ -328,17 +223,16 @@ class LatticeController extends EventEmitter {
 
   _getCurrentWalletUID() {
     if (!this.sdkSession) {
-      return null
+      return ''
     }
     const activeWallet = this.sdkSession.getActiveWallet()
     if (!activeWallet || !activeWallet.uid) {
-      return null
+      return ''
     }
     return activeWallet.uid.toString('hex')
   }
 
-  async _keyIdxInCurrentWallet(key: Key) {
-    const walletUID = key.meta!.walletUID
+  async _keyIdxInCurrentWallet(key: ExternalKey) {
     // Get the last updated SDK wallet UID
     const activeWallet = this.sdkSession!.getActiveWallet()
     if (!activeWallet) {
@@ -347,7 +241,7 @@ class LatticeController extends EventEmitter {
     }
     const activeUID = activeWallet.uid.toString('hex')
     // If this is already the active wallet we don't need to make a request
-    if (walletUID.toString('hex') === activeUID) {
+    if (key.meta.deviceId === activeUID) {
       return key.meta!.index
     }
     return null

@@ -1,54 +1,93 @@
-import { SignMessageController } from 'ambire-common/src/controllers/signMessage/signMessage'
-import { toUtf8String } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { StyleSheet, TextInput, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Pressable, StyleSheet, View } from 'react-native'
 
+import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
-import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
-import networks from '@common/constants/networks'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
+import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
 import { getUiType } from '@web/utils/uiType'
 
+import FallbackVisualization from './FallbackVisualization'
+import Header from './Header/Header'
+import Info from './Info'
 import styles from './styles'
 
-function getMessageAsText(msg: any) {
-  try {
-    return toUtf8String(msg)
-  } catch (_) {
-    return msg
-  }
-}
-
 const SignMessageScreen = () => {
+  const { theme } = useTheme()
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
+  const [hasReachedBottom, setHasReachedBottom] = useState(false)
+  const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-  const activityState = useActivityControllerState()
+  const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useNotificationControllerState()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const { currentNotificationRequest } = useNotificationControllerState()
+
+  const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const networkData =
+    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
-  // TODO: Remove these when ready
-  console.log('signMessageState: ', signMessageState)
-  console.log('activityState', activityState)
-  console.log('mainState', mainState)
+  const selectedAccountFull = useMemo(
+    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
+    [mainState.accounts, mainState.selectedAccount]
+  )
+
+  const selectedAccountKeyStoreKeys = useMemo(
+    () =>
+      keystoreState.keys.filter((key) => selectedAccountFull?.associatedKeys.includes(key.addr)),
+    [keystoreState.keys, selectedAccountFull?.associatedKeys]
+  )
+
+  const network = useMemo(
+    () => networks.find((n) => n.id === signMessageState.messageToSign?.networkId),
+    [networks, signMessageState.messageToSign?.networkId]
+  )
+
+  const isViewOnly = useMemo(
+    () => selectedAccountKeyStoreKeys.length === 0,
+    [selectedAccountKeyStoreKeys.length]
+  )
+
+  const visualizeHumanized = useMemo(
+    () =>
+      signMessageState.humanReadable !== null &&
+      network &&
+      signMessageState.messageToSign?.content.kind,
+    [network, signMessageState.humanReadable, signMessageState.messageToSign?.content?.kind]
+  )
+
+  const isScrollToBottomForced = useMemo(
+    () =>
+      signMessageState.messageToSign?.content.kind === 'typedMessage' &&
+      !hasReachedBottom &&
+      !visualizeHumanized,
+    [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
+  )
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -95,6 +134,10 @@ const SignMessageScreen = () => {
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
+            dapp: {
+              name: currentNotificationRequest?.params?.session?.name,
+              icon: currentNotificationRequest?.params?.session?.icon
+            },
             messageToSign: msgToSign,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
@@ -105,12 +148,14 @@ const SignMessageScreen = () => {
   }, [
     dispatch,
     params,
+    networks,
     mainState.messagesToBeSigned,
     mainState.selectedAccount,
     mainState.accounts,
     mainState.accountStates,
     signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr
+    signMessageState.messageToSign?.accountAddr,
+    currentNotificationRequest?.params
   ])
 
   useEffect(() => {
@@ -133,34 +178,15 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const keySelectorValues = useMemo(() => {
-    return (
-      mainState.accounts
-        .find((acc) => acc.addr === params!.accountAddr)
-        ?.associatedKeys?.map((assocKey: string) => ({ value: assocKey, label: assocKey })) || []
-    )
-  }, [mainState.accounts, params])
-
-  const handleChangeSigningKey = (signKey: string) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-      params: { key: signKey }
-    })
-  }
-
-  useEffect(() => {
-    if (keySelectorValues.length) {
-      handleChangeSigningKey(keySelectorValues[0].value)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keySelectorValues.length])
-
-  const keyValue = useMemo(() => {
-    return {
-      value: signMessageState.signingKeyAddr,
-      label: signMessageState.signingKeyAddr
-    }
-  }, [signMessageState.signingKeyAddr])
+  const handleChangeSigningKey = useCallback(
+    (keyAddr: string, keyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
+        params: { key: keyAddr, type: keyType }
+      })
+    },
+    [dispatch]
+  )
 
   const handleReject = () => {
     dispatch({
@@ -169,11 +195,30 @@ const SignMessageScreen = () => {
     })
   }
 
-  const handleSign = () => {
+  const handleSign = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
     })
-  }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (
+      signMessageState.isInitialized &&
+      signMessageState.status === 'INITIAL' &&
+      signMessageState.signingKeyAddr &&
+      signMessageState.signingKeyType &&
+      signMessageState.messageToSign
+    ) {
+      handleSign()
+    }
+  }, [
+    handleSign,
+    signMessageState.isInitialized,
+    signMessageState.status,
+    signMessageState.signingKeyAddr,
+    signMessageState.signingKeyType,
+    signMessageState.messageToSign
+  ])
 
   if (!Object.keys(signMessageState).length) {
     return (
@@ -183,72 +228,112 @@ const SignMessageScreen = () => {
     )
   }
 
-  return (
-    <Wrapper hasBottomTabNav={false}>
-      <Trans values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}>
-        <Text style={spacings.mb}>
-          <Text weight="semiBold">{'{{name}} '}</Text>
-          <Text>is requesting your signature.</Text>
-        </Text>
-      </Trans>
+  const onSignButtonClick = () => {
+    // FIXME: Ugly workaround for triggering `handleSign` manually.
+    // This approach is a temporary fix to address the issue where the
+    // 'useEffect' hook fails to get re-triggered. The original 'useEffect' was
+    // supposed to trigger 'handleSign' when certain conditions in
+    // 'signMessageState' were met. However, we encountered a problem: when
+    // 'mainCtrl.signMessage.sign()' throws an error (e.g., hardware wallet issues),
+    // the 'Sign' button becomes non-responsive. This happens because the
+    // 'useEffect' doesn't reactivate after the first  execution of
+    // 'mainCtrl.signMessage.setSigningKey'. To ensure functionality, this
+    // workaround checks if the signing key is set (via 'hasSigningKey') and
+    // then directly calls 'handleSign', bypassing the problematic 'useEffect' logic.
+    // A more robust and maintainable fix should be explored
+    // to handle such edge cases effectively in the future!
+    // FIXME: this won't allow changing the signing key (if user has multiple)
+    // after the first time the user picks key and attempts to sign the message
+    // (which ultimately sets the signing key the first time it gets triggered).
+    const hasSigningKey = signMessageState.signingKeyAddr && signMessageState.signingKeyType
+    if (hasSigningKey) return handleSign()
 
-      {signMessageState.messageToSign?.content.kind === 'typedMessage' && (
-        <>
-          <Text style={spacings.mbMi}>
-            {t('A typed data signature (EIP-712) has been requested. Message:')}
-          </Text>
-          <TextInput
-            value={JSON.stringify(
-              {
-                domain: signMessageState.messageToSign?.content.domain,
-                types: signMessageState.messageToSign?.content.types,
-                message: signMessageState.messageToSign?.content.message
-              },
-              null,
-              4
-            )}
-            multiline
-            numberOfLines={16}
-            editable={false}
-            style={[styles.textarea, spacings.mb]}
-          />
-        </>
-      )}
-      {signMessageState.messageToSign?.content.kind === 'message' && (
-        <>
-          <Text>{t('A standard signature (ethSign) has been requested. Message:')}</Text>
-          <View style={spacings.pv}>
-            <Text weight="semiBold">
-              {getMessageAsText(signMessageState.messageToSign?.content.message) ||
-                t('(Empty message)')}
+    // If the account has only one signer, we don't need to show the keys select
+    if (selectedAccountKeyStoreKeys.length === 1) {
+      handleChangeSigningKey(
+        selectedAccountKeyStoreKeys[0].addr,
+        selectedAccountKeyStoreKeys[0].type
+      )
+      return
+    }
+
+    setIsChooseSignerShown(true)
+  }
+
+  return (
+    <TabLayoutContainer
+      width="full"
+      header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
+      footer={
+        <View style={styles.buttonsContainer}>
+          <Button
+            text="Reject"
+            type="danger"
+            style={styles.rejectButton}
+            textStyle={styles.rejectButtonText}
+            onPress={handleReject}
+          >
+            <CloseIcon color={theme.errorDecorative} />
+          </Button>
+
+          {isScrollToBottomForced && !isViewOnly ? (
+            <Text appearance="errorText" weight="medium">
+              {t('Please read the message before signing.')}
             </Text>
+          ) : null}
+          {isViewOnly ? (
+            <Text appearance="errorText" weight="medium">
+              {t("You can't sign messages with view-only accounts.")}
+            </Text>
+          ) : null}
+          <View style={styles.signButtonContainer}>
+            {isChooseSignerShown ? (
+              <SigningKeySelect
+                selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+                handleChangeSigningKey={handleChangeSigningKey}
+              />
+            ) : null}
+            <Button
+              text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+              disabled={
+                signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
+              }
+              type="primary"
+              style={styles.signButton}
+              onPress={onSignButtonClick}
+            />
           </View>
-        </>
-      )}
-      <Select
-        setValue={(newValue: any) => handleChangeSigningKey(newValue.value)}
-        label={t('Signing with account')}
-        options={keySelectorValues}
-        disabled={!keySelectorValues.length}
-        style={spacings.mb}
-        value={keyValue as {}}
-        defaultValue={keyValue as {}}
-      />
-      <View style={flexbox.directionRow}>
-        <Button
-          text="Reject"
-          type="danger"
-          style={{ width: 230, height: 66, marginRight: 20 }}
-          onPress={handleReject}
-        />
-        <Button
-          text="Sign"
-          type="primary"
-          style={{ width: 230, height: 66 }}
-          onPress={handleSign}
-        />
-      </View>
-    </Wrapper>
+        </View>
+      }
+    >
+      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
+        <View style={flexbox.flex1}>
+          <Text weight="medium" fontSize={20}>
+            {t('Sign message')}
+          </Text>
+          <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          {visualizeHumanized &&
+          // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
+          signMessageState.humanReadable &&
+          signMessageState.messageToSign?.content.kind ? (
+            <MessageSummary
+              message={signMessageState.humanReadable}
+              networkId={network?.id}
+              explorerUrl={network?.explorerUrl}
+              kind={signMessageState.messageToSign?.content.kind}
+            />
+          ) : (
+            <FallbackVisualization
+              setHasReachedBottom={setHasReachedBottom}
+              messageToSign={signMessageState.messageToSign}
+            />
+          )}
+          {isChooseSignerShown ? (
+            <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
+          ) : null}
+        </View>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

@@ -1,130 +1,68 @@
 import React from 'react'
-import { Image, Pressable, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
-import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
-import PinIcon from '@common/assets/svg/PinIcon'
-import SettingsIcon from '@common/assets/svg/SettingsIcon'
-import CopyText from '@common/components/CopyText'
+import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
-import { useTranslation } from '@common/config/localization'
+import useAccounts from '@common/hooks/useAccounts'
 import useNavigation from '@common/hooks/useNavigation'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import shortenAddress from '@web/utils/shortenAddress'
+import flexbox from '@common/styles/utils/flexbox'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import Account from '@web/modules/account-select/components/Account'
+import AddAccount from '@web/modules/account-select/components/AddAccount'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const AccountSelectScreen = () => {
+  const { styles } = useTheme(getStyles)
+  const { accounts, control } = useAccounts()
   const { goBack } = useNavigation()
-
-  const mainCtrl = useMainControllerState()
-  const { dispatch } = useBackgroundService()
-
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
-
-  const selectAccount = (addr: string) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-      params: { accountAddr: addr }
-    })
-    goBack()
-  }
-
   return (
-    <View style={[flexboxStyles.flex1, spacings.pv, spacings.ph]}>
-      <View style={styles.container}>
-        <Search placeholder="Search for accounts" style={styles.searchBar} />
-      </View>
+    <TabLayoutContainer
+      header={<Header withPopupBackButton withAmbireLogo />}
+      footer={<BackButton />}
+      hideFooterInPopup
+    >
+      <View style={[flexbox.flex1, spacings.pv]}>
+        <View style={styles.container}>
+          <Search control={control} placeholder="Search for account" style={styles.searchBar} />
+        </View>
 
-      <Wrapper contentContainerStyle={styles.container}>
-        {mainCtrl.accounts.length &&
-          mainCtrl.accounts.map((account) => (
-            <Pressable key={account.addr} onPress={() => selectAccount(account.addr)}>
-              {({ hovered }: any) => (
-                <View
-                  style={[
-                    styles.accountContainer,
-                    {
-                      borderColor:
-                        account.addr === mainCtrl.selectedAccount || hovered
-                          ? colors.scampi_20
-                          : 'transparent',
-                      backgroundColor:
-                        account.addr === mainCtrl.selectedAccount || hovered
-                          ? colors.melrose_15
-                          : 'transparent'
-                    }
-                  ]}
-                >
-                  <View style={[flexboxStyles.directionRow]}>
-                    <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-                      <Image
-                        style={{ width: 30, height: 30, borderRadius: 10 }}
-                        source={avatarSpace}
-                        resizeMode="contain"
-                      />
-                    </View>
-                    <View style={[spacings.mrTy]}>
-                      <Text
-                        fontSize={12}
-                        weight="regular"
-                        color={account.creation ? colors.greenHaze : colors.brownRum}
-                      >
-                        {shortenAddress(account.addr, 25)}
-                      </Text>
-                      <Text fontSize={12} weight="semiBold">
-                        {t('Account label')}
-                      </Text>
-                    </View>
-                    <View style={account.creation ? styles.greenLabel : styles.greyLabel}>
-                      <Text
-                        weight="regular"
-                        fontSize={10}
-                        numberOfLines={1}
-                        color={account.creation ? colors.greenHaze : colors.brownRum}
-                      >
-                        {account.creation ? 'Smart Account' : 'Legacy Account'}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                    {account.associatedKeys.length === 0 ? (
-                      <View style={styles.blueLabel}>
-                        <Text
-                          weight="regular"
-                          fontSize={10}
-                          numberOfLines={1}
-                          color={colors.dodgerBlue}
-                        >
-                          no key
-                        </Text>
-                      </View>
-                    ) : null}
-                    <CopyText
-                      text={account.addr}
-                      iconColor={colors.martinique}
-                      iconWidth={20}
-                      iconHeight={20}
-                      style={{
-                        ...spacings.mrTy,
-                        backgroundColor: 'transparent',
-                        borderColor: 'transparent'
-                      }}
-                    />
-                    <PinIcon style={[spacings.mr]} />
-                    <SettingsIcon />
-                  </View>
-                </View>
-              )}
-            </Pressable>
-          ))}
-      </Wrapper>
-    </View>
+        <Wrapper contentContainerStyle={styles.container}>
+          {accounts.length ? (
+            accounts.map((account) => (
+              <Account onSelect={goBack} key={account.addr} account={account} />
+            ))
+          ) : (
+            // @TODO: add a proper label
+            <Text>{t('No accounts found')}</Text>
+          )}
+        </Wrapper>
+        <View style={[spacings.ptSm, { width: '100%' }]}>
+          <Button
+            text={t('+ Add Account')}
+            type="secondary"
+            hasBottomSpacing={false}
+            onPress={openBottomSheet as any}
+            style={{ maxWidth: TAB_CONTENT_WIDTH, ...flexbox.alignSelfCenter, width: '100%' }}
+          />
+        </View>
+      </View>
+      <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <AddAccount />
+      </BottomSheet>
+    </TabLayoutContainer>
   )
 }
 

@@ -8,11 +8,19 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const EarnIcon: React.FC<Props> = ({ width = 13, height = 22, color = colors.martinique }) => (
-  <Svg width={width} height={height} viewBox="0 0 12.428 21.946">
-    <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="2">
-      <Path d="M1 14.495a3.561 3.561 0 0 0 3.476 3.643h3.913a3.1 3.1 0 0 0 3.018-3.185 2.75 2.75 0 0 0-2.061-3.018L3.081 9.749A2.735 2.735 0 0 1 1.02 6.731a3.113 3.113 0 0 1 3.018-3.185h3.913a3.561 3.561 0 0 1 3.476 3.643" />
-      <Path d="M6.203 1v19.946" />
+const EarnIcon: React.FC<Props> = ({
+  width = 30,
+  height = 30,
+  color = colors.martinique,
+  strokeWidth = '1.5'
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 16 16">
+    <G fill="none">
+      <G stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={strokeWidth}>
+        <Path d="M4.34 10.472a2.5 2.5 0 0 0 2.44 2.557h2.747a2.175 2.175 0 0 0 2.113-2.235 1.93 1.93 0 0 0-1.446-2.119l-4.4-1.534a1.92 1.92 0 0 1-1.446-2.119 2.185 2.185 0 0 1 2.118-2.235H9.22a2.5 2.5 0 0 1 2.44 2.557" />
+        <Path d="M7.993 1v14" />
+      </G>
+      <Path d="M0 16V0h16v16z" />
     </G>
   </Svg>
 )

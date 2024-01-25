@@ -1,19 +1,26 @@
-import { Action, Banner as BannerType } from 'ambire-common/src/interfaces/banner'
 import { FC, useCallback } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
+import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import Button from '../Button'
+import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
+const ERROR_ACTIONS = ['reject']
+
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
-  const { dispatch } = useBackgroundService()
+  const { styles, theme } = useTheme(getStyles)
+  const { dispatch, setIsDefaultWallet } = useBackgroundService()
+  const { addToast } = useToast()
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -32,8 +39,17 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
           })
         })
       }
+
+      if (action.actionName === 'open-external-url' && topic === 'TRANSACTION') {
+        window.open(action.meta.url, '_blank')
+      }
+
+      if (action.actionName === 'enable-default-wallet') {
+        setIsDefaultWallet(true)
+        addToast('Ambire is your default wallet.', { timeout: 2000 })
+      }
     },
-    [dispatch, topic]
+    [dispatch, setIsDefaultWallet, addToast, topic]
   )
 
   return (
@@ -41,29 +57,36 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
       <View style={styles.content}>
         <View style={styles.icon}>
           {/* icon */}
-          <EditIcon width={22} height={22} />
+          {topic !== 'WARNING' ? (
+            <EditIcon color={theme.primaryBackground} width={24} height={24} />
+          ) : (
+            <WarningIcon color={theme.primaryBackground} width={24} height={24} />
+          )}
         </View>
         <View style={styles.contentInner}>
-          <Text style={styles.title} fontSize={isTab ? 15 : 13} weight="medium">
+          <Text style={styles.title} fontSize={isTab ? 16 : 14} weight="medium">
             {title}
           </Text>
-          <Text fontSize={13} weight="regular">
+          <Text appearance="secondaryText" fontSize={isTab ? 14 : 12} weight="regular">
             {text}
           </Text>
         </View>
       </View>
       <View style={styles.actions}>
-        {actions.map((action) => (
-          <Pressable
-            key={action.actionName}
-            style={styles.action}
-            onPress={() => handleActionPress(action)}
-          >
-            <Text color={colors.violet} fontSize={14} weight="regular">
-              {action.label}
-            </Text>
-          </Pressable>
-        ))}
+        {actions.map((action) => {
+          const isReject = ERROR_ACTIONS.includes(action.actionName)
+
+          return (
+            <Button
+              key={action.actionName}
+              size="small"
+              text={action.label}
+              style={styles.action}
+              onPress={() => handleActionPress(action)}
+              type={isReject ? 'danger' : 'primary'}
+            />
+          )
+        })}
       </View>
     </View>
   )

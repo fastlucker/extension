@@ -1,71 +1,215 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
-import DashboardIcon from '@common/assets/svg/DashboardIcon'
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
+import BackButton from '@common/components/BackButton'
+import Button from '@common/components/Button'
+import DefaultWalletToggle from '@common/components/DefaultWalletToggle'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
-import styles from '@common/modules/nav-menu/styles'
+import useTheme from '@common/hooks/useTheme'
+import Header from '@common/modules/header/components/Header'
+import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import { iconColors } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
+
+import getStyles from './styles'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
 const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
 
+const SOCIAL = [
+  { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },
+  { Icon: TelegramIcon, url: TELEGRAM_URL, label: 'Telegram' },
+  { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
+]
+
+const { isTab, isPopup } = getUiType()
+
 const NavMenu = () => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
+  const { styles, theme } = useTheme(getStyles)
+  const { styles: headerStyles } = useTheme(getHeaderStyles)
+  const { setIsDefaultWallet, isDefaultWallet } = useBackgroundService()
+  const settingsPages = getSettingsPages(t)
+  const { dispatch } = useBackgroundService()
 
-  const handleNavigate = useCallback((route: ROUTES) => navigate(route), [navigate])
-
-  const menu = [{ Icon: DashboardIcon, name: t('Accounts'), route: ROUTES.accounts }]
-
-  const social = [
-    { Icon: DiscordIcon, url: DISCORD_URL },
-    { Icon: TwitterIcon, url: TWITTER_URL },
-    { Icon: TelegramIcon, url: TELEGRAM_URL }
-  ]
+  const handleLockAmbire = () => {
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_LOCK'
+    })
+  }
 
   return (
-    <Wrapper>
-      <View style={[spacings.mhMi, spacings.mvTy]}>
-        <View style={(flexboxStyles.directionRow, commonWebStyles.contentContainer)}>
-          {menu.map(({ Icon, name, route }) => {
-            return (
-              <TouchableOpacity
-                key={name}
-                onPress={() => handleNavigate(route)}
-                style={[styles.menuItem]}
+    <TabLayoutContainer
+      hideFooterInPopup
+      footer={<BackButton />}
+      header={
+        <Header withPopupBackButton mode="custom">
+          <View style={headerStyles.widthContainer}>
+            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+              {!!isPopup && (
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={() => goBack()}
+                >
+                  <LeftArrowIcon />
+                  <Text
+                    style={spacings.plTy}
+                    fontSize={16}
+                    weight="medium"
+                    appearance="secondaryText"
+                  >
+                    {t('Back')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            <View style={headerStyles.containerInner}>
+              <Text
+                weight="medium"
+                fontSize={isTab ? 24 : 20}
+                style={headerStyles.title}
+                numberOfLines={2}
               >
-                {!!Icon && <Icon color={colors.black} />}
-                <Text style={spacings.mlTy} color={colors.black}>
-                  {name}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
+                {t('Menu')}
+              </Text>
+            </View>
+            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+              <Button
+                text="Lock Ambire"
+                type="secondary"
+                size="small"
+                hasBottomSpacing={false}
+                childrenPosition="left"
+                style={{ minHeight: 32 }}
+                onPress={handleLockAmbire}
+              >
+                <LockFilledIcon style={spacings.mrTy} color={theme.primary} />
+              </Button>
+            </View>
+          </View>
+        </Header>
+      }
+      style={spacings.ph0}
+    >
+      <View style={commonWebStyles.contentContainer}>
+        <View
+          style={[
+            styles.defaultWalletContainer,
+            {
+              backgroundColor: isDefaultWallet ? theme.infoBackground : '#F6851B14'
+            }
+          ]}
+        >
+          <View style={[spacings.prXl, flexbox.flex1]}>
+            {!isDefaultWallet && (
+              <Text fontSize={14} weight="medium" color="#F6851B" numberOfLines={2}>
+                {t(
+                  'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.'
+                )}
+              </Text>
+            )}
+            {!!isDefaultWallet && (
+              <Text fontSize={14} weight="medium" appearance="infoText" numberOfLines={2}>
+                {t(
+                  'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
+                )}
+              </Text>
+            )}
+          </View>
+          <DefaultWalletToggle
+            isOn={!!isDefaultWallet}
+            onToggle={() => setIsDefaultWallet(!isDefaultWallet)}
+          />
         </View>
+        <TabLayoutWrapperMainContent>
+          <View style={[spacings.ph]}>
+            <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
+              {t('Settings')}
+            </Text>
+            {settingsPages.map(({ Icon, label, path, key }) => {
+              return (
+                <Pressable
+                  style={({ hovered }: any) => [
+                    styles.menuItem,
+                    hovered ? { backgroundColor: theme.tertiaryBackground } : {}
+                  ]}
+                  key={key}
+                  onPress={() => {
+                    if (Object.values(ROUTES).includes(path)) {
+                      navigate(path)
+                      return
+                    }
 
-        {/* <View style={[flexboxStyles.directionRow, spacings.mtSm, spacings.mbMd]}>
-          {social.map(({ Icon, url }) => (
-            <TouchableOpacity key={url} onPress={() => Linking.openURL(url)}>
-              <Icon style={spacings.mr} />
-            </TouchableOpacity>
-          ))}
-        </View> */}
-
-        {/* <AppVersion /> */}
+                    alert('Not implemented yet')
+                  }}
+                >
+                  {!!Icon && <Icon width={24} height={24} color={theme.primaryText} />}
+                  <Text fontSize={16} style={spacings.ml} weight="medium" appearance="primaryText">
+                    {label}
+                  </Text>
+                </Pressable>
+              )
+            })}
+          </View>
+          <View style={styles.separatorWrapper}>
+            <View style={styles.separator} />
+          </View>
+          <View style={[flexbox.directionRow, spacings.ph, spacings.pbLg]}>
+            {SOCIAL.map(({ Icon, url, label }) => (
+              <Pressable
+                style={() => [
+                  flexbox.directionRow,
+                  flexbox.alignCenter,
+                  flexbox.flex1,
+                  spacings.ph,
+                  spacings.pvTy,
+                  common.borderRadiusPrimary
+                ]}
+                key={url}
+                onPress={() => console.log(url)}
+              >
+                {({ hovered }: any) => (
+                  <>
+                    <Icon
+                      style={spacings.mrSm}
+                      color={hovered ? iconColors.secondary : iconColors.primary}
+                    />
+                    <Text
+                      fontSize={14}
+                      weight="medium"
+                      appearance={hovered ? 'primaryText' : 'secondaryText'}
+                    >
+                      {label}
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            ))}
+          </View>
+        </TabLayoutWrapperMainContent>
       </View>
-    </Wrapper>
+    </TabLayoutContainer>
   )
 }
 
-export default NavMenu
+export default React.memo(NavMenu)

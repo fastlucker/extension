@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import {
   Animated,
@@ -7,22 +6,19 @@ import {
   PressableProps,
   Text,
   TextStyle,
-  TouchableOpacityProps,
   ViewStyle
 } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import styles from './styles'
-
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
+import getStyles from './styles'
 
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small' | 'large'
-export interface Props extends TouchableOpacityProps {
+export interface Props extends PressableProps {
   text?: string
   type?: ButtonTypes
   size?: ButtonSizes
@@ -31,80 +27,9 @@ export interface Props extends TouchableOpacityProps {
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
-}
-
-const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
-  primary: styles.buttonContainerPrimary,
-  secondary: styles.buttonContainerSecondary,
-  danger: styles.buttonContainerDanger,
-  outline: styles.buttonContainerOutline,
-  ghost: styles.buttonContainerGhost
-}
-
-const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
-  large: styles.buttonContainerStylesSizeLarge,
-  regular: styles.buttonContainerStylesSizeRegular,
-  small: styles.buttonContainerStylesSizeSmall
-}
-
-const noGradient = ['transparent', 'transparent']
-
-const gradientColors: { [key in ButtonTypes]: string[] } = {
-  primary: [colors.violet, colors.heliotrope],
-  secondary: noGradient,
-  danger: noGradient,
-  outline: noGradient,
-  ghost: noGradient
-}
-
-const gradientColorsPressed: { [key in ButtonTypes]: string[] } = {
-  ...gradientColors,
-  primary: [colors.heliotrope, colors.violet],
-  outline: [colors.martinique, colors.martinique]
-}
-
-// Gradient colors applied when button is disabled
-const gradientDisabledColors: { [key in ButtonTypes]: string[] } = {
-  ...gradientColors,
-  primary: [colors.darkViolet, colors.violet]
-}
-
-const gradientColorsLocations: { [key in ButtonTypes]: number[] | undefined } = {
-  primary: [0, 1],
-  secondary: undefined,
-  danger: undefined,
-  outline: undefined,
-  ghost: undefined
-}
-
-const gradientColorsLocationsPressed: { [key in ButtonTypes]: number[] | undefined } = {
-  primary: [0, 1],
-  secondary: undefined,
-  danger: undefined,
-  outline: undefined,
-  ghost: undefined
-}
-
-const gradientColorsLocationsDisabledPressed: { [key in ButtonTypes]: number[] | undefined } = {
-  primary: [0, 1],
-  secondary: undefined,
-  danger: undefined,
-  outline: undefined,
-  ghost: undefined
-}
-
-const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
-  primary: styles.buttonTextPrimary,
-  secondary: styles.buttonTextSecondary,
-  danger: styles.buttonTextDanger,
-  outline: styles.buttonTextOutline,
-  ghost: styles.buttonTextGhost
-}
-
-const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
-  large: styles.buttonTextStylesSizeLarge,
-  regular: styles.buttonTextStylesSizeRegular,
-  small: styles.buttonTextStylesSizeSmall
+  forceHoveredStyle?: boolean
+  children?: React.ReactNode
+  childrenPosition?: 'left' | 'right'
 }
 
 const Button = ({
@@ -113,14 +38,16 @@ const Button = ({
   accentColor,
   text,
   style = {},
-  containerStyle = {},
   textStyle = {},
   disabled = false,
   hasBottomSpacing = true,
   children,
-  disabledStyle = {},
+  disabledStyle,
+  forceHoveredStyle = false,
+  childrenPosition = 'right',
   ...rest
 }: Props) => {
+  const { styles, theme } = useTheme(getStyles)
   const animated = new Animated.Value(1)
 
   const fadeIn = () =>
@@ -128,61 +55,83 @@ const Button = ({
   const fadeOut = () =>
     Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: !isWeb }).start()
 
+  const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
+    primary: styles.buttonContainerPrimary,
+    secondary: styles.buttonContainerSecondary,
+    danger: styles.buttonContainerDanger,
+    outline: styles.buttonContainerOutline,
+    ghost: styles.buttonContainerGhost
+  }
+
+  const hoveredContainerStyles: { [key in ButtonTypes]: ViewStyle } = {
+    primary: {
+      backgroundColor: theme.primaryLight
+    },
+    secondary: {
+      backgroundColor: theme.secondaryBackground
+    },
+    // @TODO: add hover styles for other button types
+    danger: styles.buttonContainerDanger,
+    outline: styles.buttonContainerOutline,
+    ghost: styles.buttonContainerGhost
+  }
+
+  const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
+    large: styles.buttonContainerStylesSizeLarge,
+    regular: styles.buttonContainerStylesSizeRegular,
+    small: styles.buttonContainerStylesSizeSmall
+  }
+
+  const buttonTextStyles: { [key in ButtonTypes]: TextStyle } = {
+    primary: styles.buttonTextPrimary,
+    secondary: styles.buttonTextSecondary,
+    danger: styles.buttonTextDanger,
+    outline: styles.buttonTextOutline,
+    ghost: styles.buttonTextGhost
+  }
+
+  const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
+    large: styles.buttonTextStylesSizeLarge,
+    regular: styles.buttonTextStylesSizeRegular,
+    small: styles.buttonTextStylesSizeSmall
+  }
   return (
     <Pressable
       disabled={disabled}
-      style={containerStyle}
+      style={({ hovered }: any) =>
+        [
+          containerStylesSizes[size],
+          styles.buttonContainer,
+          containerStyles[type],
+          hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
+          style,
+          !!accentColor && { borderColor: accentColor },
+          !hasBottomSpacing && spacings.mb0,
+          disabled && disabledStyle ? disabledStyle : {},
+          disabled && !disabledStyle ? styles.disabled : {}
+        ] as ViewStyle
+      }
       // Animates all other components to mimic the TouchableOpacity effect
       onPressIn={type === 'primary' ? null : fadeIn}
       onPressOut={type === 'primary' ? null : fadeOut}
       {...rest}
     >
-      {({ pressed }) => {
-        const colorsIfPressed = pressed ? gradientColorsPressed[type] : gradientColors[type]
-        const currentColors = disabled ? gradientDisabledColors[type] : colorsIfPressed
-
-        const locationsIfPressed = pressed
-          ? gradientColorsLocationsPressed[type]
-          : gradientColorsLocations[type]
-        const currentLocations = disabled
-          ? gradientColorsLocationsDisabledPressed[type]
-          : locationsIfPressed
-
-        return (
-          <AnimatedLinearGradient
-            colors={currentColors}
-            locations={currentLocations}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={[
-              containerStylesSizes[size],
-              styles.buttonContainer,
-              containerStyles[type],
-              style,
-              !!accentColor && { borderColor: accentColor },
-              !hasBottomSpacing && spacings.mb0,
-              { opacity: animated },
-              disabled && disabledStyle ? disabledStyle : {},
-              disabled && !disabledStyle ? styles.disabled : {}
-            ]}
-          >
-            {!!text && (
-              <Text
-                style={[
-                  styles.buttonText,
-                  buttonTextStyles[type],
-                  buttonTextStylesSizes[size],
-                  !!accentColor && { color: accentColor },
-                  textStyle
-                ]}
-              >
-                {text}
-              </Text>
-            )}
-            {children}
-          </AnimatedLinearGradient>
-        )
-      }}
+      {childrenPosition === 'left' && children}
+      {!!text && (
+        <Text
+          selectable={false}
+          style={[
+            styles.buttonText,
+            buttonTextStyles[type],
+            buttonTextStylesSizes[size],
+            !!accentColor && { color: accentColor },
+            textStyle
+          ]}
+        >
+          {text}
+        </Text>
+      )}
+      {childrenPosition === 'right' && children}
     </Pressable>
   )
 }

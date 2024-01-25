@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -9,20 +9,22 @@ interface Style {
   indicator: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  container: {
-    ...flexbox.directionRow,
-    ...spacings.mbTy,
-    alignItems: 'center'
-  },
-  indicator: {
-    width: 3,
-    height: '100%',
-    ...spacings.mlTy,
-    ...spacings.mrTy,
-    borderRadius: 6,
-    backgroundColor: colors.violet
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    container: {
+      ...flexbox.directionRow,
+      ...spacings.mbTy,
+      alignItems: 'center',
+      width: '100%'
+    },
+    indicator: {
+      width: 3,
+      height: '100%',
+      ...spacings.mlTy,
+      ...spacings.mrTy,
+      borderRadius: 6,
+      backgroundColor: theme.primary
+    }
+  })
 
-export default styles
+export default getStyles

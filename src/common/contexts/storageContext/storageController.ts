@@ -1,6 +1,6 @@
 import { MMKV } from 'react-native-mmkv'
 
-import { isExtension } from '@web/constants/browserapi'
+import { browser, isExtension } from '@web/constants/browserapi'
 
 export class StorageController {
   isInitialized = false

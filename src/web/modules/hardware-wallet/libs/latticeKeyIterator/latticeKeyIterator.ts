@@ -1,49 +1,52 @@
-import { LATTICE_STANDARD_HD_PATH } from 'ambire-common/src/consts/derivation'
-import { KeyIterator as KeyIteratorInterface } from 'ambire-common/src/interfaces/keyIterator'
+import { getAddress } from 'ethers'
 import { Client } from 'gridplus-sdk'
 
-// DOCS
-// - Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
-
-// USAGE
-// const iterator = new LatticeKeyIterator({ hardware wallet props })
-// const keys = await iterator.retrieve(0, 9, "derivation-path")
+import { HD_PATH_TEMPLATE_TYPE } from '@ambire-common/consts/derivation'
+import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/keyIterator'
+import { getHDPathIndices } from '@ambire-common/utils/hdPath'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 type WALLET_TYPE = {
   sdkSession?: Client | null
-  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
 }
 
+/**
+ * Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
+ */
 class LatticeKeyIterator implements KeyIteratorInterface {
   sdkSession?: Client | null
 
-  getHDPathIndices: (hdPath: any, insertIdx?: number) => number[]
-
   constructor(_wallet: WALLET_TYPE) {
-    if (
-      !Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession') ||
-      !Object.prototype.hasOwnProperty.call(_wallet, 'getHDPathIndices')
-    )
+    if (!Object.prototype.hasOwnProperty.call(_wallet, 'sdkSession'))
       throw new Error('latticeKeyIterator: invalid props passed to the constructor')
 
     this.sdkSession = _wallet.sdkSession
-    this.getHDPathIndices = _wallet.getHDPathIndices
   }
 
-  async retrieve(from: number, to: number, derivation: string = LATTICE_STANDARD_HD_PATH) {
-    if ((!from && from !== 0) || (!to && to !== 0) || !derivation)
-      throw new Error('latticeKeyIterator: invalid or missing arguments')
-
+  async retrieve(
+    fromToArr: { from: number; to: number }[],
+    hdPathTemplate?: HD_PATH_TEMPLATE_TYPE
+  ) {
     const keys: string[] = []
 
-    const keyData = {
-      startPath: this.getHDPathIndices(derivation, from),
-      n: to - from + 1
-    }
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { from, to } of fromToArr) {
+      if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
+        throw new Error('latticeKeyIterator: invalid or missing arguments')
 
-    const res: any = await this.sdkSession?.getAddresses(keyData as any)
-    keys.push(...res)
+      const keyData = {
+        startPath: getHDPathIndices(hdPathTemplate, from),
+        n: to - from + 1
+      }
+
+      // TODO: Figure out the corner cases when this returns Buffer[]
+      // eslint-disable-next-line no-await-in-loop
+      let res: string[] = await this.sdkSession?.getAddresses(keyData)
+      // For some reason, the addresses incoming from the device are not
+      // checksumed, that's why manually checksum them here.
+      res = res?.map((addr) => getAddress(addr)) || []
+      keys.push(...res)
+    }
 
     return keys
   }

@@ -1,56 +1,75 @@
-import { ToastType, UseToastsOptions, UseToastsReturnType } from 'ambire-common/v1/hooks/useToasts'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Linking, TouchableOpacity, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import CheckIcon from '@common/assets/svg/CheckIcon'
-import CloseIconRound from '@common/assets/svg/CloseIconRound'
-import ErrorIcon from '@common/assets/svg/ErrorIcon'
-import Text from '@common/components/Text'
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert'
 import { isWeb } from '@common/config/env'
+import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
-import colors from '@common/styles/colors'
-import spacings, { SPACING_MD, SPACING_TY } from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { Portal } from '@gorhom/portal'
+import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
+
+interface Props {
+  children: React.ReactNode | React.ReactNode[]
+}
+
+interface Options {
+  timeout?: number
+  type?: 'error' | 'success' | 'info' | 'warning'
+  sticky?: boolean
+  badge?: string
+}
+
+interface Toast extends Options {
+  id: number
+  text: string
+  url?: string
+  onClick?: () => void
+}
+
+const { isPopup } = getUiType()
 
 // Magic spacing for positioning the toast list
 // to match exactly the area of the header + its bottom spacing
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
-const ADDITIONAL_TOP_SPACING_WEB = SPACING_MD
 
-const ToastContext = React.createContext<UseToastsReturnType>({
+const ToastContext = React.createContext<{
+  addToast: (text: string, options?: Options) => number
+  removeToast: (id: number) => void
+}>({
   addToast: () => -1,
   removeToast: () => {}
 })
 
-const defaultOptions: Partial<UseToastsOptions> = {
+const defaultOptions = {
   timeout: 8000,
   error: false,
   sticky: false
 }
 
-let id = 0
+let nextToastId = 0
 
-const ToastProvider: React.FC = ({ children }) => {
-  const [toasts, setToasts] = useState<ToastType[]>([])
+const ToastProvider = ({ children }: Props) => {
+  const { theme } = useTheme()
+  const [toasts, setToasts] = useState<Toast[]>([])
   const insets = useSafeAreaInsets()
 
-  const removeToast = useCallback<UseToastsReturnType['removeToast']>((tId) => {
+  const removeToast = useCallback((tId: number) => {
     setToasts((_toasts) => _toasts.filter((_t) => _t.id !== tId))
   }, [])
 
-  const addToast = useCallback<UseToastsReturnType['addToast']>(
-    (text, options) => {
-      const toast: ToastType = {
-        id: id++,
+  const addToast = useCallback(
+    (text: string, options?: Options) => {
+      const toast = {
+        id: nextToastId++,
         text,
         ...defaultOptions,
-        ...options
+        ...(options || {})
       }
-
       setToasts((_toasts) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
@@ -61,17 +80,14 @@ const ToastProvider: React.FC = ({ children }) => {
   )
 
   const onToastPress = useCallback(
-    (_id: ToastType['id'], onClick?: ToastType['onClick'], url?: ToastType['url']) => {
+    (_id: number, onClick?: () => void, url?: string) => {
       if (url) Linking.openURL(url)
       onClick ? onClick() : removeToast(_id)
     },
     [removeToast]
   )
 
-  const topInset =
-    insets.top +
-    HEADER_HEIGHT +
-    (isWeb ? ADDITIONAL_TOP_SPACING_WEB : ADDITIONAL_TOP_SPACING_MOBILE)
+  const topInset = insets.top + HEADER_HEIGHT + (isWeb ? 0 : ADDITIONAL_TOP_SPACING_MOBILE)
 
   return (
     <ToastContext.Provider
@@ -85,36 +101,29 @@ const ToastProvider: React.FC = ({ children }) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {/* eslint-disable-next-line @typescript-eslint/no-shadow */}
-          {toasts.map(({ id, url, error, sticky, badge, text, onClick }) => (
-            <View style={styles.toastWrapper} key={id}>
-              <TouchableOpacity
-                style={[styles.toast, error && styles.error]}
-                onPress={() => onToastPress(id, onClick, url)}
-                activeOpacity={0.9}
-              >
-                {!!badge && (
-                  <View style={[styles.badge, spacings.mrTy, error && styles.errorBadge]}>
-                    <Text fontSize={10} weight="medium" color={colors.white}>
-                      {badge}
-                    </Text>
-                  </View>
-                )}
-                {!badge && (
-                  <View style={spacings.prTy}>{error ? <ErrorIcon /> : <CheckIcon />}</View>
-                )}
-                <View style={flexboxStyles.flex1}>
-                  <Text numberOfLines={7} color={colors.patriotBlue} weight="regular" fontSize={12}>
-                    {text}
-                  </Text>
-                </View>
+          {toasts.map(({ id, url, type = 'success', sticky, text, onClick }) => (
+            <Pressable
+              onPress={() => onToastPress(id, onClick, url)}
+              style={[
+                styles.toastWrapper,
+                {
+                  borderWidth: 1,
+                  borderColor: theme[`${type}Decorative`]
+                }
+              ]}
+              key={id}
+            >
+              <Alert size={isPopup ? 'sm' : 'md'} title={text} type={type}>
                 {!!sticky && (
-                  <TouchableOpacity style={spacings.plTy} onPress={() => removeToast(id)}>
-                    <CloseIconRound color={error ? colors.pink : colors.turquoise} />
-                  </TouchableOpacity>
+                  <Pressable
+                    style={{ marginLeft: 'auto', ...spacings.mtMi }}
+                    onPress={() => removeToast(id)}
+                  >
+                    <CloseIcon color={theme[`${type}Decorative`]} />
+                  </Pressable>
                 )}
-              </TouchableOpacity>
-            </View>
+              </Alert>
+            </Pressable>
           ))}
         </View>
       </Portal>

@@ -5,7 +5,7 @@
   "description": "Тhe easiest to use, most powerful and secure Web3 non-custodial solution you can get. It’s the smart solution all smart people use.",
   "version": "SYNCED_WITH_THE_APP_VERSION_VIA_THE_WEBPACK_CONFIG",
   "manifest_version": 3,
-  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab"],
+  "permissions": ["storage", "tabs", "unlimitedStorage", "activeTab", "notifications"],
   "background": {
     "service_worker": "background.js"
   },
@@ -27,26 +27,13 @@
     {
       "all_frames": true,
       "matches": ["file://*/*", "http://*/*", "https://*/*"],
-      "exclude_matches": ["*://doInWebPack.lan/*", "*://wallet.ambire.com/*"],
+      "exclude_matches": ["*://doInWebPack.lan/*"],
       "run_at": "document_start",
-      "js": ["browser-polyfill.js", "content-script.js"]
+      "js": ["browser-polyfill.min.js", "content-script.js"]
     },
     {
-      "matches": [
-        "*://connect.trezor.io/*/popup.html",
-        "https://connect.onekey.so/popup.html"
-      ],
-      "js": [
-        "vendor/trezor/trezor-content-script.js"
-      ]
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["*"],
-      "exclude_matches": ["*://wallet.ambire.com/*"],
-      "matches": ["<all_urls>"],
-      "extension_ids": []
+      "matches": ["*://connect.trezor.io/*/popup.html", "https://connect.onekey.so/popup.html"],
+      "js": ["browser-polyfill.min.js", "vendor/trezor/trezor-content-script.js"]
     }
   ]
 }

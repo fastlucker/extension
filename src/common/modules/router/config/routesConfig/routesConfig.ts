@@ -36,8 +36,8 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome'),
-      web: ''
+      default: i18n.t('Welcome to your Ambire Wallet'),
+      web: i18n.t('Welcome to your Ambire Wallet')
     })
   },
   [ROUTES.terms]: {
@@ -62,18 +62,14 @@ const routesConfig: {
   },
   [ROUTES.keyStoreSetup]: {
     route: ROUTES.keyStoreSetup,
-    title: i18n.t('Ambire Key Store'),
-    flow: 'email',
-    flowStep: 2
+    title: i18n.t('Ambire Key Store')
   },
   [ROUTES.keyStoreReset]: {
     route: ROUTES.keyStoreReset,
     title: i18n.t('Restore Key Store Passphrase')
   },
   [ROUTES.createEmailVault]: {
-    route: ROUTES.createEmailVault,
-    flow: 'email',
-    flowStep: 0
+    route: ROUTES.createEmailVault
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
@@ -87,29 +83,6 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Login'),
       web: ''
-    }),
-    flow: 'email',
-    flowStep: 1
-  },
-  [ROUTES.ambireAccountLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
-    })
-  },
-  [ROUTES.ambireAccountJsonLogin]: {
-    route: ROUTES.ambireAccountJsonLogin,
-    title: Platform.select({
-      web: i18n.t('Import From JSON File'),
-      default: i18n.t('Import From File')
-    })
-  },
-  [ROUTES.ambireAccountJsonLoginPasswordConfirm]: {
-    route: ROUTES.ambireAccountJsonLoginPasswordConfirm,
-    title: Platform.select({
-      web: i18n.t('Confirm Account Password'),
-      default: i18n.t('Login')
     })
   },
   [ROUTES.hardwareWallet]: {
@@ -120,9 +93,7 @@ const routesConfig: {
   },
   [ROUTES.hardwareWalletSelect]: {
     route: ROUTES.hardwareWalletSelect,
-    title: '',
-    flow: 'hw',
-    flowStep: 0
+    title: ''
   },
   [ROUTES.hardwareWalletLedger]: {
     route: ROUTES.hardwareWalletLedger,
@@ -139,12 +110,6 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Personalize Your Accounts')
     })
-  },
-  [ROUTES.externalSigner]: {
-    route: ROUTES.externalSigner,
-    title: '',
-    flow: 'legacy',
-    flowStep: 0
   },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,
@@ -234,8 +199,8 @@ const routesConfig: {
       default: i18n.t('Manage Signers')
     })
   },
-  [ROUTES.permissionRequest]: {
-    route: ROUTES.permissionRequest,
+  [ROUTES.dappConnectRequest]: {
+    route: ROUTES.dappConnectRequest,
     title: Platform.select({
       web: i18n.t('Webpage Wants to Connect'),
       default: i18n.t('dApp Wants to Connect')

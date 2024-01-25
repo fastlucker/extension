@@ -1,6 +1,17 @@
 module.exports = function (api) {
   api.cache(true)
 
+  const pathAliases = {
+    '@ambire-common': './src/ambire-common/src',
+    '@contracts': './src/ambire-common/contracts',
+    // v1 is legacy and should be removed when v1 imports are replaced with @ambire-common
+    '@ambire-common-v1': './src/ambire-common/v1',
+    '@common': './src/common',
+    '@mobile': './src/mobile',
+    '@web': './src/web',
+    '@benzin': './src/benzin'
+  }
+
   const config = {
     presets: ['babel-preset-expo'],
     plugins: [
@@ -38,12 +49,7 @@ module.exports = function (api) {
             '.js',
             '.json'
           ],
-          alias: {
-            // absolute imports
-            '@common': './src/common',
-            '@mobile': './src/mobile',
-            '@web': './src/web'
-          }
+          alias: pathAliases
         }
       ]
     ]
@@ -81,16 +87,15 @@ module.exports = function (api) {
             buffer: '@craftzdog/react-native-buffer',
 
             // absolute imports
-            '@common': './src/common',
-            '@mobile': './src/mobile',
-            '@web': './src/web'
+            ...pathAliases
           }
         }
       ]
     ]
   }
 
-  const isMobile = !process.env.WEB_ENGINE
+  const isMobile =
+    !process.env.WEB_ENGINE && !process.env.WEBPACK_BUILD_OUTPUT_PATH?.includes('benzin')
 
   return isMobile ? mobileConfig : webConfig
 }

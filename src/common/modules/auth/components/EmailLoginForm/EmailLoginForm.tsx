@@ -1,9 +1,9 @@
-import { isEmail } from 'ambire-common/src/services/validations'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Trans } from 'react-i18next'
 import { Keyboard } from 'react-native'
 
+import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
@@ -26,7 +26,6 @@ import { delayPromise } from '@common/utils/promises'
 const EmailLoginForm: React.FC<any> = ({
   isPasswordConfirmStep,
   setIsPasswordConfirmStep,
-  setNextStepperState,
   currentFlow
 }) => {
   const { t } = useTranslation()
@@ -38,9 +37,9 @@ const EmailLoginForm: React.FC<any> = ({
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       email: ''
     }
@@ -48,7 +47,7 @@ const EmailLoginForm: React.FC<any> = ({
 
   const { stepperState } = useStepper()
   // TODO: v2
-  const requiresEmailConfFor = !!stepperState.currentStep
+  const requiresEmailConfFor = !!stepperState?.currentStep
   const pendingLoginAccount = false
 
   const handleFormSubmit = useCallback(() => {
@@ -59,10 +58,9 @@ const EmailLoginForm: React.FC<any> = ({
       await delayPromise(100)
 
       // TODO: v2
-      currentFlow === 'email' && setNextStepperState()
       setIsPasswordConfirmStep(true)
     })()
-  }, [handleSubmit, currentFlow, setIsPasswordConfirmStep, setNextStepperState])
+  }, [handleSubmit, setIsPasswordConfirmStep])
 
   const handleCancelLoginAttempts = useCallback(() => {
     // TODO: v2
@@ -73,11 +71,10 @@ const EmailLoginForm: React.FC<any> = ({
     const delay = 4
     if (isPasswordConfirmStep) {
       setTimeout(() => {
-        currentFlow !== 'legacy' && setNextStepperState()
         navigate(ROUTES.keyStoreSetup)
       }, delay * 1000)
     }
-  }, [isPasswordConfirmStep, setNextStepperState, navigate, currentFlow])
+  }, [isPasswordConfirmStep, navigate, currentFlow])
 
   return (
     <>
@@ -102,7 +99,7 @@ const EmailLoginForm: React.FC<any> = ({
         <>
           <Controller
             control={control}
-            rules={{ validate: isEmail }}
+            rules={{ validate: isEmail, required: true }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label={t('Please insert your email')}
@@ -113,7 +110,7 @@ const EmailLoginForm: React.FC<any> = ({
                 // onSubmitEditing={handleSubmit(handleLogin)}
                 value={value}
                 autoFocus={isWeb}
-                isValid={isEmail(value)}
+                isValid={!errors.email && value.length > 0}
                 validLabel={pendingLoginAccount ? t('Email address confirmed') : ''}
                 error={errors.email && (t('Please fill in a valid email.') as string)}
                 // containerStyle={requiresPassword ? spacings.mbTy : null}
@@ -138,6 +135,7 @@ const EmailLoginForm: React.FC<any> = ({
             //   isSubmitting ||
             //   !watch('email', '')
             // }
+            disabled={!isValid}
             type="primary"
             text={
               // eslint-disable-next-line no-nested-ternary
@@ -151,7 +149,7 @@ const EmailLoginForm: React.FC<any> = ({
           <Text
             fontSize={14}
             style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
-            color={colors.violet}
+            appearance="primary"
           >
             {t('Waiting Email Confirmation')}
           </Text>

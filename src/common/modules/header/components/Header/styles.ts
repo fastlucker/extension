@@ -1,88 +1,81 @@
 import { ImageStyle, Platform, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import { isWeb } from '@common/config/env'
-import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { paddingHorizontalStyle } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import commonWebStyles from '@web/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
+
+const { isTab } = getUiType()
 
 export const HEADER_HEIGHT = Platform.select({
-  web: 90,
+  web: (isTab ? 50 : 40) + SPACING * 2,
   default: 60
 })
 
 interface Styles {
   container: ViewStyle
+  widthContainer: ViewStyle
   containerInner: ViewStyle
+  imageAndTitleContainer: ViewStyle
   navIconContainerRegular: ViewStyle
   title: TextStyle
+  image: ImageStyle
   sideContainer: ViewStyle
-  // Account
-  account: ViewStyle
-  accountButton: ViewStyle
-  accountButtonRightIcon: ViewStyle
-  accountButtonInfo: ViewStyle
-  accountButtonInfoIcon: ImageStyle
-  accountButtonInfoText: TextStyle
-  accountAddressAndLabel: ViewStyle
-  accountCopyIcon: ViewStyle
 }
 
-const styles = StyleSheet.create<Styles>({
-  container: {
-    zIndex: 9,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.zircon,
-    ...spacings.ph,
-    ...spacings.pv,
-    ...(isWeb ? { height: 90 } : {})
-  },
-  containerInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...commonWebStyles.contentContainer,
-    flex: 1
-  },
-  navIconContainerRegular: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  title: {
-    textAlign: 'center',
-    flex: 1,
-    ...spacings.phTy
-  },
-  sideContainer: {
-    width: isWeb ? 180 : 120,
-    minWidth: isWeb ? 180 : 120
-  },
-  // Account
-  account: {
-    ...flexbox.directionRow,
-    ...flexbox.alignCenter
-  },
-  accountButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 40,
-    ...spacings.phMi,
-    backgroundColor: '#B6B9FF26',
-    borderWidth: 1,
-    borderColor: '#6770B333',
-    borderRadius: 12,
-    minWidth: 180
-  },
-  accountButtonRightIcon: { borderColor: 'transparent', borderRadius: 8 },
-  accountButtonInfo: { ...flexbox.directionRow, ...flexbox.alignCenter },
-  accountButtonInfoIcon: { width: 25, height: 25, borderRadius: 10 },
-  accountButtonInfoText: { ...spacings.mlMi },
-  accountAddressAndLabel: { ...flexbox.directionRow, ...flexbox.alignEnd, ...spacings.mhTy },
-  accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Styles>({
+    container: {
+      zIndex: 9,
+      width: '100%',
+      ...paddingHorizontalStyle,
+      backgroundColor: theme.secondaryBackground,
+      ...spacings.pv,
+      height: HEADER_HEIGHT
+    },
+    widthContainer: {
+      width: '100%',
+      marginHorizontal: 'auto',
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...flexbox.flex1
+    },
+    containerInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      ...commonWebStyles.contentContainer,
+      flex: 1
+    },
+    imageAndTitleContainer: {
+      justifyContent: 'center',
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center'
+    },
+    navIconContainerRegular: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    title: {
+      textAlign: 'center',
+      flex: 1,
+      ...spacings.phTy
+    },
+    image: {
+      ...common.borderRadiusPrimary,
+      width: 40,
+      height: 40,
+      ...spacings.mrSm
+    },
+    sideContainer: {
+      width: 120,
+      minWidth: 120
+    }
+  })
 
-export default styles
+export default getStyles

@@ -1,88 +1,138 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
+import Panel from '@common/components/Panel'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
+import useStepper from '@common/modules/auth/hooks/useStepper'
+import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
 import {
+  TabLayoutContainer,
   TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent
+  TabLayoutWrapperSideContent,
+  TabLayoutWrapperSideContentItem
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import Card from '@web/modules/account-personalize/components/Card'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
+import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
+import Stepper from '@web/modules/router/components/Stepper'
 
 const AccountPersonalizeScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const [elementHeights, setElementHeights] = useState({})
-  const [totalHeight, setTotalHeight] = useState(300)
-
-  const handleLayout = (index: string, event: any) => {
-    const { height } = event.nativeEvent.layout
-    setElementHeights((prevState) => ({ ...prevState, [index]: height + 15 }))
-  }
+  const { stepperState, updateStepperState } = useStepper()
+  const { params } = useRoute()
+  const { theme } = useTheme()
+  const settingsCtrl = useSettingsControllerState()
+  const { dispatch } = useBackgroundService()
+  const newAccounts: Account[] = params?.accounts || []
+  const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
+    defaultValues: {
+      preferences: newAccounts.map((acc, i) => ({
+        account: acc,
+        label: settingsCtrl.accountPreferences[acc.addr].label,
+        pfp: settingsCtrl.accountPreferences[acc.addr].pfp
+      }))
+    }
+  })
+  const { fields } = useFieldArray({ control, name: 'preferences' })
+  const watchPreferences = watch('preferences')
 
   useEffect(() => {
-    // Calculate the sum of heights
-    const totalHeightCalculated = Object.values(elementHeights)
-      .slice(0, 2)
-      .reduce((acc, height) => acc + height, 0)
+    if (!newAccounts.length) {
+      navigate('/')
+    }
+  }, [navigate, newAccounts.length])
 
-    setTotalHeight(totalHeightCalculated)
-  }, [elementHeights])
+  useEffect(() => {
+    if (!stepperState?.currentFlow) return
 
-  // TODO: those accounts are dummy data that will be removed when this screen is wired
-  const accounts = [
-    { address: '0x3242354345346456445645674r564567459', smartAccount: true },
-    { address: '0x3242354345346456445645674r564567459', smartAccount: false },
-    { address: '0x3242354345346456445645674r564567452', smartAccount: false }
-  ]
+    updateStepperState(WEB_ROUTES.accountPersonalize, stepperState.currentFlow)
+  }, [stepperState?.currentFlow, updateStepperState])
+
+  const handleSave = useCallback(
+    (data: AccountPersonalizeFormValues) => {
+      const newAccPreferences: AccountPreferences = {}
+
+      data.preferences.forEach(({ account, label, pfp }) => {
+        newAccPreferences[account.addr] = { label, pfp }
+      })
+
+      dispatch({
+        type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
+        params: newAccPreferences
+      })
+
+      navigate('/')
+    },
+    [navigate, dispatch]
+  )
+
   return (
-    <>
+    <TabLayoutContainer
+      backgroundColor={theme.secondaryBackground}
+      header={
+        <Header mode="custom-inner-content" withAmbireLogo>
+          <Stepper />
+        </Header>
+      }
+      footer={
+        <>
+          <BackButton />
+          <Button
+            onPress={handleSubmit(handleSave)}
+            hasBottomSpacing={false}
+            text={t('Save and Continue')}
+          >
+            <View style={spacings.pl}>
+              <RightArrowIcon color={colors.titan} />
+            </View>
+          </Button>
+        </>
+      }
+    >
       <TabLayoutWrapperMainContent>
-        <View style={[flexboxStyles.alignCenter, spacings.mtXl]}>
-          <View>
-            <Wrapper
-              contentContainerStyle={{
-                height: totalHeight,
-                ...spacings.pt0
-              }}
-            >
-              {accounts.map((acc, i) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <Card handleLayout={handleLayout} account={acc} index={i} key={acc.address + i} />
-              ))}
-            </Wrapper>
-            <Button
-              onPress={() => navigate('/')}
-              text={t('Save and Continue')}
-              style={[spacings.mtLg, flexboxStyles.alignSelfEnd]}
-            />
-          </View>
-        </View>
+        <Panel title={t('Personalize Your Accounts')} style={{ maxHeight: '100%' }}>
+          <Wrapper style={spacings.mb0} contentContainerStyle={[spacings.pl0, spacings.pt0]}>
+            {fields.map((field, index) => (
+              <AccountPersonalizeCard
+                key={field.id} // important to include key with field's id
+                control={control}
+                index={index}
+                isSmartAccount={isSmartAccount(field.account)}
+                pfp={watchPreferences[index].pfp}
+                address={field.account.addr}
+                hasBottomSpacing={index !== fields.length - 1}
+              />
+            ))}
+          </Wrapper>
+        </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <Text weight="medium" style={spacings.mb} color={colors.titan} fontSize={16}>
-          {t('Account personalization')}
-        </Text>
-        <Text
-          shouldScale={false}
-          weight="regular"
-          style={spacings.mb}
-          color={colors.titan}
-          fontSize={14}
-        >
-          {t(
-            'The account label is any arbitrary label that you choose. Both the label and the avatar are only local and for own organizational purposes - none of this will be uploaded on the blockchain or anywhere else.'
-          )}
-        </Text>
+        <TabLayoutWrapperSideContentItem title={t('Account personalization')}>
+          <TabLayoutWrapperSideContentItem.Text noMb>
+            {t(
+              "Account personalization allows you to assign a label and avatar to any accounts you've chosen to import. Both options are stored locally on your device and serve only to help you organize your accounts. None of these options are uploaded to the blockchain or anywhere else."
+            )}
+          </TabLayoutWrapperSideContentItem.Text>
+        </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
-    </>
+    </TabLayoutContainer>
   )
 }
 
-export default AccountPersonalizeScreen
+export default React.memo(AccountPersonalizeScreen)

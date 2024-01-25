@@ -5,9 +5,6 @@ const COMMON_ROUTES = {
   createVault: 'create-vault',
   auth: 'auth',
   ambireAccountLogin: 'ambire-account-email-login',
-  ambireAccountLoginPasswordConfirm: 'ambire-account-login-password-confirm',
-  ambireAccountJsonLogin: 'ambire-account-json-login',
-  ambireAccountJsonLoginPasswordConfirm: 'ambire-account-json-login-password-confirm',
   externalSigner: 'external-signer',
   accountAdder: 'account-adder',
   dashboard: 'dashboard',
@@ -51,10 +48,12 @@ const WEB_ROUTES = {
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
+  devicePassword: 'device-password',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
-  permissionRequest: 'permission-request',
+  dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
+  addChain: 'add-chain',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
   authEmailAccount: 'auth-email-account',
@@ -63,7 +62,11 @@ const WEB_ROUTES = {
   accountPersonalize: 'account-personalize',
   collection: 'collection',
   accountSelect: 'account-select',
-  viewOnlyAccountAdder: 'view-only-account-adder'
+  viewOnlyAccountAdder: 'view-only-account-adder',
+  networks: 'networks',
+  importHotWallet: 'import-hot-wallet',
+  importPrivateKey: 'import-private-key',
+  importSeedPhrase: 'import-seed-phrase'
 }
 
 const ROUTES = {

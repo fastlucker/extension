@@ -17,54 +17,105 @@ export type ThemeProps = {
 }
 
 const ThemeColors = {
-  backgroundGradient: {
-    [THEME_TYPES.LIGHT]: [colors.white, colors.white],
-    [THEME_TYPES.DARK]: [colors.wooed, colors.clay]
+  primary: {
+    [THEME_TYPES.DARK]: '#6000FF',
+    [THEME_TYPES.LIGHT]: '#6000FF'
+  },
+  primaryLight: {
+    [THEME_TYPES.DARK]: '#8B3DFF',
+    [THEME_TYPES.LIGHT]: '#8B3DFF'
   },
   primaryText: {
-    [THEME_TYPES.LIGHT]: colors.martinique,
-    [THEME_TYPES.DARK]: colors.titan
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#141833'
   },
   secondaryText: {
-    [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.martinique
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#54597A'
   },
-  panelBackground: {
-    [THEME_TYPES.LIGHT]: colors.white,
-    [THEME_TYPES.DARK]: colors.black
+  primaryBorder: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#767DAD'
   },
-  inputBackground: {
-    [THEME_TYPES.DARK]: colors.howl,
-    [THEME_TYPES.LIGHT]: colors.melrose_15
+  secondaryBorder: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#CACDE6'
   },
-  inputBorder: {
-    [THEME_TYPES.DARK]: colors.howl,
-    [THEME_TYPES.LIGHT]: colors.scampi_20
+  primaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FFFFFF'
   },
-  inputBorderFocused: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.violet
+  secondaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#F2F3FA'
   },
-  inputBorderValid: {
-    [THEME_TYPES.DARK]: colors.turquoise,
-    [THEME_TYPES.LIGHT]: colors.greenHaze
+  tertiaryBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#E7E9FB'
   },
-  inputBorderInvalid: {
-    [THEME_TYPES.DARK]: colors.pink,
-    [THEME_TYPES.LIGHT]: colors.radicalRed
+  backdrop: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#54597ACC'
   },
-  inputIcon: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.martinique_35
+  // Success
+  successText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#006D3F'
   },
-  buttonText: {
-    [THEME_TYPES.DARK]: colors.titan,
-    [THEME_TYPES.LIGHT]: colors.martinique
+  successDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#018649'
   },
-  buttonPlaceholderText: {
-    [THEME_TYPES.DARK]: colors.waikawaGray,
-    [THEME_TYPES.LIGHT]: colors.martinique_65
+  successBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#EBF5F0'
+  },
+  // Info
+  infoText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#35058E'
+  },
+  infoDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#8B3DFF'
+  },
+  infoBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#F6F0FF'
+  },
+  // Warning
+  warningText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#944901'
+  },
+  warningDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#CA7E04'
+  },
+  warningBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FBF5EB'
+  },
+  // Error
+  errorText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#A10119'
+  },
+  errorDecorative: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#EA0129'
+  },
+  errorBackground: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#FEEBEE'
   }
+}
+
+export const iconColors = {
+  warning: '#CA7E04',
+  primary: '#54597A',
+  secondary: colors.martinique,
+  danger: '#EA0129'
 }
 
 export const lightOnlyRoutesOnMobile = []
@@ -77,10 +128,6 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.ambireAccountJsonLogin,
-  WEB_ROUTES.ambireAccountJsonLoginPasswordConfirm,
-  WEB_ROUTES.ambireAccountLoginPasswordConfirm,
-  WEB_ROUTES.externalSigner,
   WEB_ROUTES.onboarding,
   WEB_ROUTES.hardwareWalletSelect,
   WEB_ROUTES.hardwareWalletLedger,

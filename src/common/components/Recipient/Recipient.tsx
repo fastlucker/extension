@@ -15,8 +15,11 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  setAddressConfirmed: React.Dispatch<React.SetStateAction<boolean>>
-  addressConfirmed: boolean
+  isRecipientSmartContract: boolean
+  isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: boolean
+  onRecipientAddressUnknownCheckboxClick: () => void
+  isRecipientDomainResolving: boolean
 }
 
 const Recipient: React.FC<Props> = ({
@@ -25,8 +28,11 @@ const Recipient: React.FC<Props> = ({
   uDAddress,
   ensAddress,
   addressValidationMsg,
-  setAddressConfirmed,
-  addressConfirmed
+  isRecipientAddressUnknownAgreed,
+  onRecipientAddressUnknownCheckboxClick,
+  isRecipientSmartContract,
+  isRecipientAddressUnknown,
+  isRecipientDomainResolving
 }) => {
   const { t } = useTranslation()
 
@@ -41,6 +47,7 @@ const Recipient: React.FC<Props> = ({
         error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
+        isRecipientDomainResolving={isRecipientDomainResolving}
       />
       <View style={styles.inputBottom}>
         <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>
@@ -50,11 +57,12 @@ const Recipient: React.FC<Props> = ({
         </Text>
 
         <ConfirmAddress
-          address={address}
-          uDAddress={uDAddress}
-          ensAddress={ensAddress}
-          addressConfirmed={addressConfirmed}
-          setAddressConfirmed={setAddressConfirmed}
+          onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+          isRecipientSmartContract={isRecipientSmartContract}
+          isRecipientAddressUnknown={isRecipientAddressUnknown}
+          isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          addressValidationMsg={addressValidationMsg}
+          // @TODO: Address book
           onAddToAddressBook={() => {}}
         />
       </View>

@@ -1,10 +1,10 @@
-import { networks } from 'ambire-common/src/consts/networks'
-import { NetworkDescriptor } from 'ambire-common/src/interfaces/networkDescriptor'
-import { Collectible } from 'ambire-common/src/libs/portfolio/interfaces'
 import React, { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Pressable, View } from 'react-native'
 
+import { networks } from '@ambire-common/consts/networks'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Collectible } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
@@ -59,7 +59,7 @@ const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn
       }}
     >
       <View style={styles.imageAndName}>
-        {!imageFailed && data?.image && (
+        {!imageFailed && !!data?.image && (
           <Image
             onError={() => setImageFailed(true)}
             style={styles.image}

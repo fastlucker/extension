@@ -1,9 +1,9 @@
 // @ts-nocheck TODO: fix provider types
 
-import { areRpcProvidersInitialized, initRpcProviders } from 'ambire-common/src/services/provider'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
+import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -25,6 +25,7 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { NavigationContainer } from '@react-navigation/native'
 
 // Initialize rpc providers for all networks
+// @TODO: get rid of this and use the rpc providers from the settings controller
 const shouldInitProviders = !areRpcProvidersInitialized()
 if (shouldInitProviders) {
   initRpcProviders(rpcProviders)
@@ -36,9 +37,9 @@ const handleOnReady = () => {
 }
 
 const AppInit = () => {
-  const { fontsLoaded } = useFonts()
+  const { fontsLoaded, robotoFontsLoaded } = useFonts()
 
-  if (!fontsLoaded) return null
+  if (!fontsLoaded && !robotoFontsLoaded) return null
 
   return (
     <NavigationContainer

@@ -1,8 +1,13 @@
 import React from 'react'
-import Svg, { Defs, G, Path, Stop, LinearGradient } from 'react-native-svg'
+import Svg, { Defs, G, LinearGradient, Path, Stop } from 'react-native-svg'
 
-const AmbireLogo: React.FC<any> = (props) => (
-  <Svg width="218.072" height="101.235" viewBox="0 0 218.072 101.235" {...props}>
+type Props = {
+  width?: number
+  height?: number
+}
+
+const AmbireLogo: React.FC<any> = ({ width = 74, height = 112 }: Props) => (
+  <Svg width={width} height={height} viewBox="0 0 74.807 112.371">
     <Defs>
       <LinearGradient
         id="linear-gradient"
@@ -25,27 +30,15 @@ const AmbireLogo: React.FC<any> = (props) => (
         gradientUnits="objectBoundingBox"
       >
         <Stop offset="0" stopColor="#6a0aff" />
-        <Stop offset="0.047" stopColor="#892aff" />
+        <Stop offset="0.047" stopColor="#8c2dff" />
         <Stop offset="0.102" stopColor="#6a0aff" />
-        <Stop offset="0.902" stopColor="#a94aff" />
-        <Stop offset="1" stopColor="#a94aff" />
+        <Stop offset="0.902" stopColor="#af50ff" />
+        <Stop offset="1" stopColor="#af50ff" />
       </LinearGradient>
       <LinearGradient
         id="linear-gradient-3"
-        x1="0.036"
-        y1="0.003"
-        x2="0.986"
-        y2="0.972"
-        gradientUnits="objectBoundingBox"
-      >
-        <Stop offset="0" stopColor="#9335fe" />
-        <Stop offset="0.031" stopColor="#a954fe" />
-        <Stop offset="1" stopColor="#bf73ff" />
-      </LinearGradient>
-      <LinearGradient
-        id="linear-gradient-4"
         x1="1.071"
-        y1="0.062"
+        y1="0.061"
         x2="0.095"
         y2="1.049"
         gradientUnits="objectBoundingBox"
@@ -56,7 +49,7 @@ const AmbireLogo: React.FC<any> = (props) => (
         <Stop offset="1" stopColor="#af50ff" />
       </LinearGradient>
       <LinearGradient
-        id="linear-gradient-5"
+        id="linear-gradient-4"
         x1="0.448"
         y1="0.297"
         x2="0.538"
@@ -67,19 +60,19 @@ const AmbireLogo: React.FC<any> = (props) => (
         <Stop offset="1" stopColor="#3e00a5" />
       </LinearGradient>
       <LinearGradient
-        id="linear-gradient-6"
+        id="linear-gradient-5"
         x1="-0.529"
         y1="1.069"
         x2="1.092"
         y2="0.86"
         gradientUnits="objectBoundingBox"
       >
-        <Stop offset="0" stopColor="#9838ff" />
+        <Stop offset="0" stopColor="#ae60ff" />
         <Stop offset="0.322" stopColor="#af50ff" />
         <Stop offset="1" stopColor="#6000ff" />
       </LinearGradient>
       <LinearGradient
-        id="linear-gradient-7"
+        id="linear-gradient-6"
         x1="-0.111"
         y1="0.274"
         x2="0.872"
@@ -87,93 +80,87 @@ const AmbireLogo: React.FC<any> = (props) => (
         gradientUnits="objectBoundingBox"
       >
         <Stop offset="0" stopColor="#6f0fff" />
-        <Stop offset="0.702" stopColor="#a94aff" />
-        <Stop offset="1" stopColor="#a94aff" />
+        <Stop offset="0.702" stopColor="#af50ff" />
+        <Stop offset="1" stopColor="#af50ff" />
       </LinearGradient>
       <LinearGradient
-        id="linear-gradient-8"
+        id="linear-gradient-7"
         x1="0.015"
         y1="0.007"
         x2="0.986"
-        y2="0.949"
+        y2="0.95"
         gradientUnits="objectBoundingBox"
       >
         <Stop offset="0" stopColor="#ae60ff" />
-        <Stop offset="0.031" stopColor="#b669ff" />
-        <Stop offset="1" stopColor="#bf73ff" />
+        <Stop offset="0.031" stopColor="#b670fa" />
+        <Stop offset="1" stopColor="#be80f5" />
       </LinearGradient>
     </Defs>
-    <G transform="translate(-2691.98 -5270.16)">
-      <G transform="translate(2691.98 5270.16)">
-        <Path
-          d="M6258.577,7389.787h-4.217l-2.279-4.322h-10.3l-2.278,4.322h-5.091l10.4-19.317h4.338q5.219,9.658,10.431,19.317Zm-11.649-14.071-3.091,5.832H6250Zm19.164,14.071h-3.913v-19.317h4.686l8.259,11.552,8.185-11.552h4.66v19.317h-4.514v-12.414l-6.519,9.335h-3.7l-6.545-9.228v12.307Zm41.369,0h-13.775v-19.317h13.387a7.715,7.715,0,0,1,4.756,1.352,4.661,4.661,0,0,1,1.823,3.855,4.7,4.7,0,0,1-2.153,4.053,5.409,5.409,0,0,1,1.791,1.315,4.761,4.761,0,0,1,1.165,3.225,4.937,4.937,0,0,1-1.91,4.105A8.241,8.241,0,0,1,6307.461,7389.787Zm.923-15a3.18,3.18,0,0,0-1.957-.5h-8.071v3.82h8.1a2.952,2.952,0,0,0,1.895-.55,1.751,1.751,0,0,0,.61-1.411A1.631,1.631,0,0,0,6308.384,7374.786Zm.564,7.725a3.565,3.565,0,0,0-2.186-.565h-8.407v4.027h8.484a3.545,3.545,0,0,0,2.146-.525,1.7,1.7,0,0,0,.617-1.437A1.794,1.794,0,0,0,6308.948,7382.51Zm14.025,7.276h-4.146v-19.317h4.746v19.317Zm10.466,0h-4.146v-19.317h12.532a7.865,7.865,0,0,1,5.26,1.636,5.887,5.887,0,0,1,1.939,4.658,5.766,5.766,0,0,1-1.719,4.327,6.734,6.734,0,0,1-3.472,1.659l6.535,7.037h-6.062l-6.135-6.651h-4.133v6.651Zm10.134-14.751a3.653,3.653,0,0,0-2.344-.622h-7.19v4.777h7.19a3.673,3.673,0,0,0,2.336-.628,2.137,2.137,0,0,0,.713-1.748A2.174,2.174,0,0,0,6343.573,7375.036Zm27.947,14.751h-17.889v-19.317h18.308v3.944H6358.3v3.561h12.191v3.919H6358.3v3.95h13.822v3.943Z"
-          transform="translate(-6154.049 -7322.824)"
-          fill="#231f20"
-          fillRule="evenodd"
-        />
-        <G transform="translate(0 0)">
+    <G transform="translate(-36.039 0.01)">
+      <G transform="translate(36.039 -0.01)">
+        <G>
           <Path
-            d="M4105.819,6952.107l13.285,28.279a.8.8,0,0,1-.164.883l-34.946,33.764a.387.387,0,0,1-.654-.293v-31.021l22.021-21.259a.714.714,0,0,0,.229-.556l.065-9.8C4105.655,6952.044,4105.786,6952.044,4105.819,6952.107Z"
-            transform="translate(-4051.777 -6913.906)"
+            d="M745.731,420.545l14.746,31.389a.891.891,0,0,1-.181.979l-38.789,37.479a.43.43,0,0,1-.726-.326V455.632l24.444-23.6a.8.8,0,0,0,.255-.616l.073-10.874c0-.073.145-.073.181,0Z"
+            transform="translate(-685.744 -378.139)"
             fill="#6000ff"
           />
           <Path
-            d="M4083.33,7427.215v31.022a.387.387,0,0,0,.654.293h0l34.945-33.765a.8.8,0,0,0,.166-.882h0l-13.646-18.034Z"
-            transform="translate(-4051.767 -7357.401)"
+            d="M720.761,557.664V592.1a.43.43,0,0,0,.726.326h0l38.79-37.479a.89.89,0,0,0,.182-.979h0L745.315,533.95,720.76,557.664Z"
+            transform="translate(-685.726 -480.172)"
             fillRule="evenodd"
             fill="url(#linear-gradient)"
           />
           <Path
-            d="M5058.728,6950.529h0a.076.076,0,0,0-.078.079h0l-.056,9.793a.8.8,0,0,1-.129.457l13.7,18.485a.862.862,0,0,0-.064-.491h0l-13.285-28.278a.089.089,0,0,0-.079-.045Z"
-            transform="translate(-5004.777 -6912.41)"
+            d="M964.867,420.11h-.006a.083.083,0,0,0-.088.087h0l-.062,10.872a.9.9,0,0,1-.142.506l15.2,20.519a.952.952,0,0,0-.073-.544h0L964.956,420.16a.1.1,0,0,0-.089-.05Z"
+            transform="translate(-904.981 -377.797)"
             fillRule="evenodd"
             fill="url(#linear-gradient-2)"
           />
           <Path
-            d="M5097.038,7457.905a.854.854,0,0,0-.066-.49h0l-.686-1.469-12.367-15.747Z"
-            transform="translate(-5029.658 -7390.972)"
+            d="M985.5,562.194a.95.95,0,0,0-.073-.544h0l-.763-1.631L970.94,542.54Z"
+            transform="translate(-910.709 -487.897)"
+            fill="#be80f5"
+            fillRule="evenodd"
+          />
+          <Path
+            d="M418.818,158.158,411.881,177.8a.91.91,0,0,0,.036.689l6.465,12.722-17.8,10.077a.466.466,0,0,1-.617-.181l-3.85-8.011a.769.769,0,0,1,.073-.833l22.446-34.217a.11.11,0,0,1,.181.109Z"
+            transform="translate(-393.699 -142.104)"
+            fill="#6000ff"
+          />
+          <Path
+            d="M428.526,158.03h-.007a.1.1,0,0,0-.068.029h0l-21.487,32.755-.024.043L421.7,177.814l.046-.132h0l0-.009,6.887-19.5a.107.107,0,0,0-.106-.138Z"
+            transform="translate(-403.513 -142.113)"
             fillRule="evenodd"
             fill="url(#linear-gradient-3)"
           />
           <Path
-            d="M2805,5902.35l-6.25,17.7a.82.82,0,0,0,.034.621l5.825,11.462-16.033,9.078a.421.421,0,0,1-.557-.163l-3.469-7.218a.694.694,0,0,1,.066-.75l20.222-30.826A.1.1,0,0,1,2805,5902.35Z"
-            transform="translate(-2782.374 -5887.887)"
-            fill="#6000ff"
-          />
-          <Path
-            d="M2847.5,5902.229h-.007a.085.085,0,0,0-.062.026h0l-19.358,29.509-.021.039,13.293-11.751.041-.119h0l0-.009,6.2-17.571A.1.1,0,0,0,2847.5,5902.229Z"
-            transform="translate(-2824.963 -5887.891)"
+            d="M396.2,368.913a.773.773,0,0,0-.073.834h0l3.849,8.011a.466.466,0,0,0,.618.18h0l17.8-10.077-6.465-12.722a.91.91,0,0,1-.036-.689Z"
+            transform="translate(-393.712 -318.75)"
             fillRule="evenodd"
             fill="url(#linear-gradient-4)"
           />
           <Path
-            d="M2784.627,6700.938a.694.694,0,0,0-.065.751h0l3.468,7.217a.421.421,0,0,0,.557.163h0l16.033-9.078-5.824-11.462a.813.813,0,0,1-.033-.62Z"
-            transform="translate(-2782.383 -6655.748)"
+            d="M407.947.177V30.733a.866.866,0,0,1-.181.508h0L373.079,78.253a.839.839,0,0,0,.109,1.124h0l24.335,23.488a.416.416,0,0,0,.69-.145h0l26.441-61.873a1,1,0,0,0,0-.653h0L408.273.106A.156.156,0,0,0,408.125,0h0a.179.179,0,0,0-.179.177Z"
+            transform="translate(-372.912 0.001)"
             fillRule="evenodd"
             fill="url(#linear-gradient-5)"
           />
           <Path
-            d="M2723.542,5270.32v27.528a.781.781,0,0,1-.163.457h0l-31.249,42.354a.754.754,0,0,0,.1,1.011h0l21.923,21.161a.376.376,0,0,0,.622-.131h0l23.82-55.742a.9.9,0,0,0,0-.588h0l-14.757-36.114a.14.14,0,0,0-.133-.1h0A.161.161,0,0,0,2723.542,5270.32Z"
-            transform="translate(-2691.98 -5270.161)"
+            d="M720.536-.009h0a.178.178,0,0,0-.179.177l.011,30.556a.863.863,0,0,1-.045.254l16.536,8.706L720.68.1a.157.157,0,0,0-.145-.106Zm-.216,30.987,3.158,1.812Z"
+            transform="translate(-685.33 0.01)"
             fillRule="evenodd"
             fill="url(#linear-gradient-6)"
           />
           <Path
-            d="M4081.724,5270.16h0a.16.16,0,0,0-.161.159l.011,27.528a.781.781,0,0,1-.041.229l14.9,7.844-14.572-35.666A.14.14,0,0,0,4081.724,5270.16Zm-.194,27.916,2.844,1.633Z"
-            transform="translate(-4050.007 -5270.16)"
+            d="M737.129,317.216v-.005a1,1,0,0,0-.051-.317h0l-.21-.518L720.32,307.67l3.17,1.812,13.641,7.734Z"
+            transform="translate(-685.331 -276.682)"
             fillRule="evenodd"
             fill="url(#linear-gradient-7)"
           />
           <Path
-            d="M4096.674,6509.371v0a.881.881,0,0,0-.046-.286h0l-.189-.467-14.908-7.843,2.854,1.633Z"
-            transform="translate(-4050.008 -6472.854)"
-            fillRule="evenodd"
-            fill="url(#linear-gradient-8)"
-          />
-          <Path
-            d="M2792.193,6699.668l-.823,1.255,14.125-13.014Z"
-            transform="translate(-2789.115 -6655.748)"
-            fill="#b46cf3"
+            d="M398.684,367.512l-.913,1.393,15.678-14.445Z"
+            transform="translate(-395.266 -318.759)"
+            fill="#be80f5"
           />
         </G>
       </G>
@@ -181,4 +168,4 @@ const AmbireLogo: React.FC<any> = (props) => (
   </Svg>
 )
 
-export default AmbireLogo
+export default React.memo(AmbireLogo)

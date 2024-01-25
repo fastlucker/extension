@@ -3,27 +3,19 @@ import { Pressable, View } from 'react-native'
 
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props {
   openTab: 'tokens' | 'collectibles'
   setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles'>>
+  handleChangeQuery: (openTab: string) => void
 }
 
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (openTab: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
-}
-
-const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
+const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { t } = useTranslation()
+  const { styles } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
@@ -34,18 +26,11 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
         }}
       >
         {/* todo: add the border radius here */}
-        <View
-          style={{
-            borderBottomColor: openTab === 'tokens' ? colors.violet : 'transparent',
-            ...styles.toggleItem
-          }}
-        >
+        <View style={[styles.toggleItem, openTab === 'tokens' ? styles.toggleItemActive : {}]}>
           <Text
-            shouldScale={false}
             weight="regular"
-            color={openTab === 'tokens' ? colors.violet : colors.martinique_65}
+            appearance={openTab === 'tokens' ? 'primary' : 'secondaryText'}
             fontSize={16}
-            style={styles.tabItemText}
           >
             {t('Tokens')}
           </Text>
@@ -58,17 +43,12 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab }) => {
         }}
       >
         <View
-          style={{
-            borderBottomColor: openTab === 'collectibles' ? colors.violet : 'transparent',
-            ...styles.toggleItem
-          }}
+          style={[styles.toggleItem, openTab === 'collectibles' ? styles.toggleItemActive : {}]}
         >
           <Text
-            shouldScale={false}
             weight="regular"
-            color={openTab === 'collectibles' ? colors.violet : colors.martinique_65}
+            appearance={openTab === 'collectibles' ? 'primary' : 'secondaryText'}
             fontSize={16}
-            style={styles.tabItemText}
           >
             {t('Collectibles')}
           </Text>

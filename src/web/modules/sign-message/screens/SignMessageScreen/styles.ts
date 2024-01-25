@@ -1,19 +1,45 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  textarea: ViewStyle
+  container: ViewStyle
+  content: ViewStyle
+  buttonsContainer: ViewStyle
+  rejectButton: ViewStyle
+  rejectButtonText: TextStyle
+  signButtonContainer: ViewStyle
+  signButton: ViewStyle
+  overlay: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  textarea: {
-    padding: 10,
-    backgroundColor: colors.melrose_15,
-    borderColor: colors.scampi_20,
-    color: colors.martinique,
-    borderWidth: 1,
-    borderRadius: 12
+  buttonsContainer: {
+    ...flexbox.flex1,
+    ...flexbox.alignCenter,
+    ...flexbox.directionRow,
+    ...flexbox.justifySpaceBetween,
+    // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
+    // when we show the select signer overlay
+    // @ts-ignore
+    zIndex: 'unset'
+  },
+  rejectButton: { width: 130, height: 56, ...spacings.mb0 },
+  rejectButtonText: spacings.mrSm,
+  // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
+  // when we show the select signer overlay
+  // @ts-ignore
+  signButtonContainer: { position: 'relative', zIndex: 'unset' },
+  signButton: { width: 162, height: 56, ...spacings.mb0 },
+  overlay: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 2
   }
 })
 
