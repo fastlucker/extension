@@ -19,8 +19,8 @@ const Banners: FC = () => {
           {
             id: 'enable-default-wallet',
             topic: 'WARNING',
-            title: 'Ambire Wallet is blocked to override other wallets',
-            text: 'You have blocked Ambire to override other extension wallets for dApps connection.',
+            title: 'Ambire Wallet is not your default wallet',
+            text: 'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.',
             actions: [
               {
                 label: 'Enable',

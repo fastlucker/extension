@@ -63,7 +63,9 @@ if (window === window.top) {
     })
   }
 
-  initIsDefaultWallet()
+  setTimeout(() => {
+    initIsDefaultWallet()
+  }, 1)
 }
 
 // the injection for manifest v3 is located in background.js

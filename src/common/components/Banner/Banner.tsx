@@ -46,7 +46,7 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
 
       if (action.actionName === 'enable-default-wallet') {
         setIsDefaultWallet(true)
-        addToast('Ambire now overrides other wallets for dApps connection', { timeout: 2000 })
+        addToast('Ambire is your default wallet.', { timeout: 2000 })
       }
     },
     [dispatch, setIsDefaultWallet, addToast, topic]
