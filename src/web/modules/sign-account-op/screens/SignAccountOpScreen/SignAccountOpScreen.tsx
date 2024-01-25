@@ -355,7 +355,16 @@ const SignAccountOpScreen = () => {
                   <View>
                     <Alert
                       type="info"
-                      title="No token balance changes detected. Please carefully review the transaction preview below."
+                      isTypeLabelHidden
+                      title={
+                        <>
+                          No token balance changes detected. Please{' '}
+                          <Text appearance="infoText" weight="semiBold">
+                            carefully
+                          </Text>{' '}
+                          review the transaction preview below.
+                        </>
+                      }
                     />
                   </View>
                 )}
