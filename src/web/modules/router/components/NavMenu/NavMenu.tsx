@@ -3,14 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
+import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
 import BackButton from '@common/components/BackButton'
+import Button from '@common/components/Button'
 import DefaultWalletToggle from '@common/components/DefaultWalletToggle'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
+import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
@@ -23,6 +27,7 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -36,18 +41,74 @@ const SOCIAL = [
   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
 ]
 
+const { isTab, isPopup } = getUiType()
+
 const NavMenu = () => {
   const { t } = useTranslation()
-  const { navigate } = useNavigation()
+  const { navigate, goBack } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
+  const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { setIsDefaultWallet, isDefaultWallet } = useBackgroundService()
   const settingsPages = getSettingsPages(t)
+  const { dispatch } = useBackgroundService()
+
+  const handleLockAmbire = () => {
+    dispatch({
+      type: 'KEYSTORE_CONTROLLER_LOCK'
+    })
+  }
 
   return (
     <TabLayoutContainer
       hideFooterInPopup
       footer={<BackButton />}
-      header={<Header withPopupBackButton />}
+      header={
+        <Header withPopupBackButton mode="custom">
+          <View style={headerStyles.widthContainer}>
+            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+              {!!isPopup && (
+                <Pressable
+                  style={[flexbox.directionRow, flexbox.alignCenter]}
+                  onPress={() => goBack()}
+                >
+                  <LeftArrowIcon />
+                  <Text
+                    style={spacings.plTy}
+                    fontSize={16}
+                    weight="medium"
+                    appearance="secondaryText"
+                  >
+                    {t('Back')}
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+            <View style={headerStyles.containerInner}>
+              <Text
+                weight="medium"
+                fontSize={isTab ? 24 : 20}
+                style={headerStyles.title}
+                numberOfLines={2}
+              >
+                {t('Menu')}
+              </Text>
+            </View>
+            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+              <Button
+                text="Lock Ambire"
+                type="secondary"
+                size="small"
+                hasBottomSpacing={false}
+                childrenPosition="left"
+                style={{ minHeight: 32 }}
+                onPress={handleLockAmbire}
+              >
+                <LockFilledIcon style={spacings.mrTy} color={theme.primary} />
+              </Button>
+            </View>
+          </View>
+        </Header>
+      }
       style={spacings.ph0}
     >
       <View style={commonWebStyles.contentContainer}>
@@ -151,4 +212,4 @@ const NavMenu = () => {
   )
 }
 
-export default NavMenu
+export default React.memo(NavMenu)
