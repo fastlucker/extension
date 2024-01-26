@@ -4,7 +4,10 @@ import { Pressable } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
+import { blockyColors } from '@common/utils/blockies'
 import mixHexColors from '@common/utils/mixHexColors'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import getStyles from './styles'
 
@@ -14,12 +17,14 @@ interface Props {
   tabLabel: string
   setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
   handleChangeQuery: (openTab: 'tokens' | 'collectibles' | 'defi') => void
-  gradientColors: string[]
 }
 
-const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, gradientColors }: Props) => {
+const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery }: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const { selectedAccount } = useMainControllerState()
+  const { bgcolor } = blockyColors(selectedAccount || '')
+
   const isActive = openTab === tab
 
   return (
@@ -33,8 +38,8 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, gradientCo
         colors={
           isActive
             ? [
-                mixHexColors(gradientColors[0], gradientColors[2]),
-                mixHexColors(mixHexColors(gradientColors[0], gradientColors[2]), gradientColors[1])
+                DASHBOARD_OVERVIEW_BACKGROUND,
+                mixHexColors(DASHBOARD_OVERVIEW_BACKGROUND, bgcolor, 0.8)
               ]
             : ['transparent', 'transparent']
         }

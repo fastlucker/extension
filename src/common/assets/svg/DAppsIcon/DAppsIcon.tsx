@@ -11,7 +11,7 @@ const DAppsIcon: React.FC<SvgProps> = ({
 }) => (
   <Svg width={width} height={height} viewBox="0 0 26 26" {...rest}>
     <G fill="none">
-      <G stroke={color} stroke-width="1.5">
+      <G stroke={color} strokeWidth="1.5">
         <G transform="translate(3.667 3.667)">
           <Rect width="8.784" height="8.784" stroke="none" rx="3" />
           <Rect width="7.284" height="7.284" x=".75" y=".75" rx="2.25" />

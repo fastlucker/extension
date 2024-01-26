@@ -8,11 +8,10 @@
 
 import React from 'react'
 import { View } from 'react-native'
-import Svg, { Rect } from 'react-native-svg'
+import Svg from 'react-native-svg'
 
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-
-const randseed = new Array(4)
+import { renderIcon } from '@common/utils/blockies'
 
 interface Props {
   seed: string
@@ -28,10 +27,10 @@ interface Props {
 }
 
 const Blockie: React.FC<Props> = ({
-  seed: _seed,
-  color: _color,
-  bgcolor: _bgcolor,
-  spotcolor: _spotcolor,
+  seed,
+  color,
+  bgcolor,
+  spotcolor,
   size = 8,
   scale = 4,
   isRound = true,
@@ -39,99 +38,6 @@ const Blockie: React.FC<Props> = ({
   borderWidth = 0,
   borderColor
 }) => {
-  const seedrand = (seed: Props['seed']) => {
-    for (let i = 0; i < randseed.length; i++) {
-      randseed[i] = 0
-    }
-
-    for (let i = 0; i < seed.length; i++) {
-      randseed[i % 4] = (randseed[i % 4] << 5) - randseed[i % 4] + seed.charCodeAt(i)
-    }
-  }
-
-  const rand = () => {
-    const t = randseed[0] ^ (randseed[0] << 11)
-
-    randseed[0] = randseed[1]
-    randseed[1] = randseed[2]
-    randseed[2] = randseed[3]
-    randseed[3] = randseed[3] ^ (randseed[3] >> 19) ^ t ^ (t >> 8)
-
-    return (randseed[3] >>> 0) / ((1 << 31) >>> 0)
-  }
-
-  const createColor = () => {
-    const h = Math.floor(rand() * 360)
-    const s = `${rand() * 60 + 40}%`
-    const l = `${(rand() + rand() + rand() + rand()) * 25}%`
-
-    const color = `hsl(${h},${s},${l})`
-
-    return color
-  }
-
-  const createImageData = (size: Props['size']) => {
-    const width = size
-    const height = size
-
-    const dataWidth = Math.ceil(width / 2)
-    const mirrorWidth = width - dataWidth
-
-    const data = []
-
-    for (let y = 0; y < height; y++) {
-      let row = []
-
-      for (let x = 0; x < dataWidth; x++) {
-        row[x] = Math.floor(rand() * 2.3)
-      }
-
-      const r = row.slice(0, mirrorWidth)
-
-      r.reverse()
-
-      row = row.concat(r)
-
-      for (let i = 0; i < row.length; i++) {
-        data.push(row[i])
-      }
-    }
-
-    return data
-  }
-
-  const renderIcon = (size, scale) => {
-    const seed = _seed || Math.floor(Math.random() * 10 ** 16).toString(16)
-
-    seedrand(seed)
-
-    const color = _color || createColor()
-    const bgcolor = _bgcolor || createColor()
-    const spotcolor = _spotcolor || createColor()
-
-    const imageData = createImageData(size)
-    const width = Math.sqrt(imageData.length)
-
-    return imageData.map((item, i) => {
-      let fill = bgcolor
-
-      if (item) {
-        if (item === 1) {
-          fill = color
-        } else {
-          fill = spotcolor
-        }
-      }
-
-      const row = Math.floor(i / size)
-      const col = i % size
-
-      return (
-        <Rect key={i} x={row * scale} y={col * scale} width={scale} height={scale} fill={fill} />
-      )
-    })
-  }
-
   return (
     <View
       style={
@@ -154,7 +60,7 @@ const Blockie: React.FC<Props> = ({
           { transform: [{ rotate: '90deg' }], borderWidth, borderColor }
         ]}
       >
-        {renderIcon(size, scale)}
+        {renderIcon(seed, size, scale, color, bgcolor, spotcolor)}
       </Svg>
     </View>
   )

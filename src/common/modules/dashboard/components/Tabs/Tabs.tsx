@@ -10,10 +10,9 @@ interface Props {
   openTab: 'tokens' | 'collectibles' | 'defi'
   setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
   handleChangeQuery: (openTab: string) => void
-  gradientColors: string[]
 }
 
-const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery, gradientColors }) => {
+const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { styles, theme } = useTheme(getStyles)
 
   return (
@@ -24,7 +23,6 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery, gradien
         tabLabel="Tokens"
         setOpenTab={setOpenTab}
         handleChangeQuery={handleChangeQuery}
-        gradientColors={gradientColors}
       />
       <View
         style={{
@@ -39,7 +37,6 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery, gradien
         tabLabel="NFTs"
         setOpenTab={setOpenTab}
         handleChangeQuery={handleChangeQuery}
-        gradientColors={gradientColors}
       />
       <View
         style={{
@@ -54,7 +51,6 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery, gradien
         tabLabel="DeFi positions"
         setOpenTab={setOpenTab}
         handleChangeQuery={handleChangeQuery}
-        gradientColors={gradientColors}
       />
     </View>
   )
