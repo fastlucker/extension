@@ -22,7 +22,7 @@ const Account = ({
   account,
   type,
   unused,
-
+  withBottomSpacing = true,
   isSelected,
   onSelect,
   onDeselect,
@@ -32,6 +32,7 @@ const Account = ({
   type: 'legacy' | 'smart' | 'linked'
   unused: boolean
   isSelected: boolean
+  withBottomSpacing: boolean
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
@@ -50,7 +51,14 @@ const Account = ({
   }
 
   return (
-    <View key={account.addr} style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}>
+    <View
+      key={account.addr}
+      style={[
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        withBottomSpacing ? spacings.mbTy : spacings.mb0
+      ]}
+    >
       <View style={styles.container}>
         <Checkbox
           style={{ marginBottom: 0 }}

@@ -59,11 +59,7 @@ const Alert: FC<Props> = ({
       ]}
     >
       <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
-        <Icon
-          width={!isSmall ? 20 : 16}
-          height={!isSmall ? 20 : 16}
-          color={theme[`${type}Decorative`]}
-        />
+        <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
       </View>
 
       <View style={flexbox.flex1}>
