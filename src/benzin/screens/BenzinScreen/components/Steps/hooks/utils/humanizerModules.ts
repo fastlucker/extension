@@ -2,6 +2,7 @@ import { HumanizerCallModule } from '@ambire-common/libs/humanizer/interfaces'
 import { aaveHumanizer } from '@ambire-common/libs/humanizer/modules/Aave'
 import { fallbackHumanizer } from '@ambire-common/libs/humanizer/modules/fallBackHumanizer'
 import { gasTankModule } from '@ambire-common/libs/humanizer/modules/gasTankModule'
+import { privilegeHumanizer } from '@ambire-common/libs/humanizer/modules/privileges'
 import { sushiSwapModule } from '@ambire-common/libs/humanizer/modules/sushiSwapModule'
 import {
   genericErc20Humanizer,
@@ -20,6 +21,7 @@ const humanizerModules: HumanizerCallModule[] = [
   wrappingModule,
   aaveHumanizer,
   WALLETModule,
+  privilegeHumanizer,
   yearnVaultModule,
   sushiSwapModule,
   fallbackHumanizer

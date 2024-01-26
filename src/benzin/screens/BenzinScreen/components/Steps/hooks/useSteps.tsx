@@ -14,7 +14,7 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 
 import humanizerModules from './utils/humanizerModules'
 import parsingModules from './utils/parsingModules'
-import reproduceCalls from './utils/reproduceCalls'
+import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
@@ -202,7 +202,7 @@ const useSteps = ({
         }
 
         setTxnReceipt({
-          from: receipt.from,
+          from: txn ? getSender(txn, receipt) : receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
