@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
-import AmbireLogo from '@common/assets/svg/AmbireLogo'
+import AmbireLogo from '@common/assets/svg/AmbireLogoWithText'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'

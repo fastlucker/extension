@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useMemo } from 'react'
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
 import useToast from '@common/hooks/useToast'
@@ -7,6 +8,7 @@ import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getUiType } from '@web/utils/uiType'
@@ -73,6 +75,19 @@ const BackgroundServiceContext = createContext<BackgroundServiceContextReturnTyp
 
 const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   const { addToast } = useToast()
+  const [isDefaultWallet, setIsDefaultWallet] = useState(true)
+
+  useEffect(() => {
+    ;(async () => {
+      const isDefault = await storage.get('isDefaultWallet', true)
+      setIsDefaultWallet(!!isDefault)
+    })()
+  }, [])
+
+  const handleSetIsDefaultWallet = useCallback((val: boolean) => {
+    setIsDefaultWallet(val)
+    storage.set('isDefaultWallet', val)
+  }, [])
 
   useEffect(() => {
     const onError = (newState: { errors: ErrorRef[]; controller: string }) => {
@@ -90,10 +105,20 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     eventBus.addEventListener('error', onError)
 
     return () => eventBus.removeEventListener('error', onError)
-  }, [])
+  }, [addToast])
 
   return (
-    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
+    <BackgroundServiceContext.Provider
+      value={useMemo(
+        () => ({
+          dispatch,
+          dispatchAsync,
+          isDefaultWallet,
+          setIsDefaultWallet: handleSetIsDefaultWallet
+        }),
+        [isDefaultWallet, handleSetIsDefaultWallet]
+      )}
+    >
       {children}
     </BackgroundServiceContext.Provider>
   )
