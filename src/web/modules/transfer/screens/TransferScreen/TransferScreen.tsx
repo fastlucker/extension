@@ -7,6 +7,7 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
+import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -71,13 +72,24 @@ const TransferScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
-          <Panel>
+          <Panel style={styles.panel}>
             <View style={styles.container}>
               <View style={flexbox.flex1}>
+                {state.isTopUp && (
+                  <Text fontSize={20} appearance="primaryText" style={[spacings.mbSm]}>
+                    Gas Tank Top Up
+                  </Text>
+                )}
                 <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
               </View>
-              <View style={styles.separator} />
-              <View style={flexbox.flex1}>{!state.isTopUp && <AddressBookSection />}</View>
+              {!state.isTopUp && (
+                <>
+                  <View style={styles.separator} />
+                  <View style={flexbox.flex1}>
+                    <AddressBookSection />
+                  </View>
+                </>
+              )}
             </View>
           </Panel>
         ) : (
