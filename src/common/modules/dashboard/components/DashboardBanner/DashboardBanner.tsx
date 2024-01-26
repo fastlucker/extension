@@ -19,7 +19,7 @@ const ERROR_ACTIONS = ['reject']
 
 const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
-  const { dispatch, setIsDefaultWallet } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
 
   const handleActionPress = useCallback(
@@ -45,11 +45,14 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
       }
 
       if (action.actionName === 'enable-default-wallet') {
-        setIsDefaultWallet(true)
+        dispatch({
+          type: 'SET_IS_DEFAULT_WALLET',
+          params: { isDefaultWallet: true }
+        })
         addToast('Ambire is your default wallet.', { timeout: 2000 })
       }
     },
-    [dispatch, setIsDefaultWallet, addToast, topic]
+    [dispatch, addToast, topic]
   )
 
   return (
