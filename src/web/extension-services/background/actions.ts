@@ -309,6 +309,11 @@ type ChangeCurrentDappNetworkAction = {
   params: { chainId: number; origin: string }
 }
 
+type SetIsDefaultWalletAction = {
+  type: 'SET_IS_DEFAULT_WALLET'
+  params: { isDefaultWallet: boolean }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -366,6 +371,7 @@ export type Action =
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
+  | SetIsDefaultWalletAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

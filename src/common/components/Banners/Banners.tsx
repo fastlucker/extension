@@ -4,15 +4,16 @@ import { View } from 'react-native'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
 import Banner from '@common/components/Banner'
 import spacings from '@common/styles/spacings'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 
 const Banners: FC = () => {
   const state = useMainControllerState()
   const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
-  const { isDefaultWallet } = useBackgroundService()
+  const walletState = useWalletStateController()
+
   useEffect(() => {
-    if (!isDefaultWallet) {
+    if (!walletState.isDefaultWallet) {
       setInnerBanners((prev) => {
         return [
           ...prev,
@@ -34,7 +35,7 @@ const Banners: FC = () => {
     } else {
       setInnerBanners((prev) => prev.filter((b) => b.id !== 'enable-default-wallet'))
     }
-  }, [isDefaultWallet])
+  }, [walletState.isDefaultWallet])
 
   const allBanners = useMemo(() => {
     return [...innerBanners, ...state.banners]
