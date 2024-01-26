@@ -42,7 +42,7 @@ const getStyles = (theme: ThemeProps) =>
     overviewLoader: {
       width: 150,
       height: 34,
-      backgroundColor: theme.primaryBackground,
+      backgroundColor: NEUTRAL_BACKGROUND,
       ...spacings.mbTy,
       ...common.borderRadiusPrimary
     },
