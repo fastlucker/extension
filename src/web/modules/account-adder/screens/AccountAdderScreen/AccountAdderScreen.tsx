@@ -5,9 +5,9 @@ import { TouchableOpacity, View } from 'react-native'
 import { Key } from '@ambire-common/interfaces/keystore'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -64,6 +64,7 @@ const AccountAdderScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
+      width="lg"
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper />
@@ -71,18 +72,7 @@ const AccountAdderScreen = () => {
       }
       footer={
         <>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <TouchableOpacity
-              style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
-              onPress={goBack}
-            >
-              <LeftArrowIcon />
-              <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-                {t('Back')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
+          <BackButton />
           <Button
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
@@ -117,20 +107,13 @@ const AccountAdderScreen = () => {
         <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
           <AccountsOnPageList
             state={accountAdderState}
+            privKeyOrSeed={privKeyOrSeed}
             setPage={setPage}
             keyType={keyType}
             lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
           />
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="Importing accounts">
-          <TabLayoutWrapperSideContentItem.Text>
-            Select which accounts to import. For every unique key, you can find a Basic Account and
-            a Smart Account, and you can import them individually.
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }

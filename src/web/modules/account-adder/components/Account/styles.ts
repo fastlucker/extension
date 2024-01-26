@@ -2,12 +2,12 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   networkIcon: ViewStyle
-  bottomBorder: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -15,14 +15,13 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       ...flexbox.directionRow,
       ...spacings.pvTy,
-      width: '100%',
       ...flexbox.flex1,
-      maxHeight: 78,
-      height: 78
-    },
-    bottomBorder: {
-      borderBottomWidth: 1,
-      borderColor: theme.secondaryBorder
+      ...common.borderRadiusPrimary,
+      ...spacings.ph,
+      ...spacings.pv,
+      width: '100%',
+      height: 52,
+      backgroundColor: theme.secondaryBackground
     },
     networkIcon: {
       borderRadius: 50,
