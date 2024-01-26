@@ -46,6 +46,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         }}
       />
       <Tab
+        disabled
         openTab={openTab}
         tab="defi"
         tabLabel="DeFi positions"
