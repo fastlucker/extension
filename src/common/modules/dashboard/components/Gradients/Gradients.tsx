@@ -33,16 +33,12 @@ const ANIMATION_STEPS = [
     top: 0.25
   },
   {
-    left: 0.75,
-    top: -0.25
-  },
-  {
     left: 0.5,
-    top: 0.25
+    top: 0
   },
   {
     left: 0.25,
-    top: 0
+    top: -0.25
   },
   {
     left: 0,
@@ -101,8 +97,8 @@ const Gradients = ({
           top,
           left,
           zIndex: 1,
-          width: size.width / 2.5,
-          height: size.width / 2.5,
+          width: size.width / 2,
+          height: size.height * 2,
           transform: [{ scale: scaleInterpolate }]
         }}
       >
@@ -126,8 +122,8 @@ const Gradients = ({
             outputRange: [-100, size.width]
           }),
           zIndex: 1,
-          width: size.width / 4,
-          height: size.width / 4,
+          width: size.width / 3,
+          height: size.height * 1.5,
           transform: [{ scale: scaleInterpolate }]
         }}
       >
