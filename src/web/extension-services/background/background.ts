@@ -256,7 +256,10 @@ async function init() {
           })
         })
         // stringify and then parse to add the getters to the public state
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, {
+          ...parse(stringify(mainCtrl)),
+          ...mainCtrl
+        })
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -339,7 +342,10 @@ async function init() {
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
             // stringify and then parse to add the getters to the public state
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, {
+              ...parse(stringify(mainCtrl)),
+              ...mainCtrl
+            })
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
               backgroundState.portMessageUIRefs[key]?.request({
                 type: 'broadcast-error',
@@ -373,7 +379,10 @@ async function init() {
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
     // stringify and then parse to add the getters to the public state
-    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
+    logInfoWithPrefix('onError (main ctrl)', {
+      ...parse(stringify(mainCtrl)),
+      ...mainCtrl
+    })
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
