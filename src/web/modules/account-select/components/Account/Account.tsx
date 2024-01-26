@@ -1,5 +1,5 @@
 import React from 'react'
-import { Image, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
@@ -7,20 +7,18 @@ import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import Badge from '@common/components/Badge'
+import Blockies from '@common/components/Blockies'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -76,15 +74,7 @@ const Account = ({
         >
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-              <Image
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: BORDER_RADIUS_PRIMARY
-                }}
-                source={getAccountPfpSource(settingsCtrl.accountPreferences[addr]?.pfp)}
-                resizeMode="contain"
-              />
+              <Blockies scale={5} seed={addr} />
             </View>
             <View>
               <View style={flexboxStyles.directionRow}>
