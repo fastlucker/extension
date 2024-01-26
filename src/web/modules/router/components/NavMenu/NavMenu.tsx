@@ -25,6 +25,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
@@ -48,9 +49,9 @@ const NavMenu = () => {
   const { navigate, goBack } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const { setIsDefaultWallet, isDefaultWallet } = useBackgroundService()
   const settingsPages = getSettingsPages(t)
   const { dispatch } = useBackgroundService()
+  const walletState = useWalletStateController()
 
   const handleLockAmbire = () => {
     dispatch({
@@ -116,19 +117,19 @@ const NavMenu = () => {
           style={[
             styles.defaultWalletContainer,
             {
-              backgroundColor: isDefaultWallet ? theme.infoBackground : '#F6851B14'
+              backgroundColor: walletState.isDefaultWallet ? theme.infoBackground : '#F6851B14'
             }
           ]}
         >
           <View style={[spacings.prXl, flexbox.flex1]}>
-            {!isDefaultWallet && (
+            {!walletState.isDefaultWallet && (
               <Text fontSize={14} weight="medium" color="#F6851B" numberOfLines={2}>
                 {t(
                   'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.'
                 )}
               </Text>
             )}
-            {!!isDefaultWallet && (
+            {!!walletState.isDefaultWallet && (
               <Text fontSize={14} weight="medium" appearance="infoText" numberOfLines={2}>
                 {t(
                   'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
@@ -137,8 +138,13 @@ const NavMenu = () => {
             )}
           </View>
           <DefaultWalletToggle
-            isOn={!!isDefaultWallet}
-            onToggle={() => setIsDefaultWallet(!isDefaultWallet)}
+            isOn={!!walletState.isDefaultWallet}
+            onToggle={() => {
+              dispatch({
+                type: 'SET_IS_DEFAULT_WALLET',
+                params: { isDefaultWallet: !walletState.isDefaultWallet }
+              })
+            }}
           />
         </View>
         <TabLayoutWrapperMainContent>
