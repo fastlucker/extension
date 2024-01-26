@@ -17,13 +17,9 @@ export type BackgroundServiceContextReturnType = {
     type: T
     params?: any
   }) => Promise<AsyncActionTypes[T]>
-  isDefaultWallet: boolean
-  setIsDefaultWallet: (val: boolean) => void
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
   dispatch: Promise.resolve,
-  dispatchAsync: Promise.resolve,
-  isDefaultWallet: true,
-  setIsDefaultWallet: () => {}
+  dispatchAsync: Promise.resolve
 }
