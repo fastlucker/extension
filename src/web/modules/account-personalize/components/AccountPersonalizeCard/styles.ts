@@ -18,16 +18,16 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.secondaryBorder,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
-      ...spacings.ph,
-      ...spacings.pv,
-      ...spacings.mb,
+      ...spacings.phTy,
+      ...spacings.pvTy,
+      ...spacings.mbSm,
       width: '100%'
     },
     pfp: {
-      height: 64,
-      width: 64,
+      height: 40,
+      width: 40,
       ...common.borderRadiusPrimary,
-      ...spacings.mr
+      ...spacings.mrTy
     },
     pfpSelectorItem: {
       height: 48,

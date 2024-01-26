@@ -212,7 +212,7 @@ const SeedPhraseImportScreen = () => {
           <Button
             accessibilityRole="button"
             text={t('Import')}
-            style={{ minWidth: 180 }}
+            size="large"
             hasBottomSpacing={false}
             disabled={!isValid || !!errors.seedFields?.message}
             onPress={handleFormSubmit}

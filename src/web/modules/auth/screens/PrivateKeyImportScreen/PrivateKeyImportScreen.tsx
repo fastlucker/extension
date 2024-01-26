@@ -82,7 +82,7 @@ const PrivateKeyImportScreen = () => {
         <>
           <BackButton />
           <Button
-            style={{ minWidth: 180 }}
+            size="large"
             text={t('Import')}
             hasBottomSpacing={false}
             onPress={handleFormSubmit}

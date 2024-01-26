@@ -18,7 +18,8 @@ import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -47,6 +48,7 @@ const AccountsList = ({
   const [modalContentHeight, setModalContentHeight] = useState(0)
   const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { maxWidthSize } = useWindowSize()
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -171,7 +173,7 @@ const AccountsList = ({
     <View style={flexbox.flex1}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
         <Text
-          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
+          fontSize={maxWidthSize('xl') ? 20 : 18}
           weight="medium"
           appearance="primaryText"
           numberOfLines={1}

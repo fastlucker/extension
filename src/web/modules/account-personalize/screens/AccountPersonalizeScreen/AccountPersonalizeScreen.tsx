@@ -6,24 +6,26 @@ import { Account } from '@ambire-common/interfaces/account'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent,
-  TabLayoutWrapperSideContentItem
+  TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -40,9 +42,10 @@ const AccountPersonalizeScreen = () => {
   const settingsCtrl = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const newAccounts: Account[] = params?.accounts || []
+  const { maxWidthSize } = useWindowSize()
   const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
-      preferences: newAccounts.map((acc, i) => ({
+      preferences: newAccounts.map((acc) => ({
         account: acc,
         label: settingsCtrl.accountPreferences[acc.addr].label,
         pfp: settingsCtrl.accountPreferences[acc.addr].pfp
@@ -84,6 +87,7 @@ const AccountPersonalizeScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="md"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
@@ -106,7 +110,26 @@ const AccountPersonalizeScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Personalize Your Accounts')} style={{ maxHeight: '100%' }}>
+        <Panel style={{ maxHeight: '100%' }}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd, { height: 40 }]}>
+            <Text
+              fontSize={maxWidthSize('xl') ? 20 : 18}
+              weight="medium"
+              appearance="primaryText"
+              numberOfLines={1}
+              style={[spacings.mrTy, flexbox.flex1]}
+            >
+              {t('Personalize your accounts')}
+            </Text>
+
+            <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
+              <Text fontSize={16} appearance="successText">
+                {t('Successfully added ({{numOfAccounts}}) accounts', {
+                  numOfAccounts: newAccounts.length
+                })}
+              </Text>
+            </Alert>
+          </View>
           <Wrapper style={spacings.mb0} contentContainerStyle={[spacings.pl0, spacings.pt0]}>
             {fields.map((field, index) => (
               <AccountPersonalizeCard
@@ -122,15 +145,6 @@ const AccountPersonalizeScreen = () => {
           </Wrapper>
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title={t('Account personalization')}>
-          <TabLayoutWrapperSideContentItem.Text noMb>
-            {t(
-              "Account personalization allows you to assign a label and avatar to any accounts you've chosen to import. Both options are stored locally on your device and serve only to help you organize your accounts. None of these options are uploaded to the blockchain or anywhere else."
-            )}
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }

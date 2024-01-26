@@ -20,8 +20,7 @@ const BackButton: FC<Props> = ({ onPress, fallbackBackRoute }) => {
   return (
     <Button
       childrenPosition="left"
-      size="regular"
-      style={{ minWidth: 120 }}
+      size="large"
       hasBottomSpacing={false}
       type="secondary"
       onPress={() => {

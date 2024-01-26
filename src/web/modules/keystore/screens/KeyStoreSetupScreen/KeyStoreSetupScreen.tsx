@@ -116,6 +116,7 @@ const KeyStoreSetupScreen = () => {
           <BackButton />
           <Button
             textStyle={{ fontSize: 14 }}
+            size="large"
             hasBottomSpacing={false}
             disabled={isSubmitting || isKeystoreSetupLoading || !isValid}
             text={isSubmitting || isKeystoreSetupLoading ? t('Creating...') : t('Create')}

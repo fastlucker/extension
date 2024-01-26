@@ -9,10 +9,9 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 
-import { buildInAvatars, getAccountPfpSource } from './avatars'
-import AvatarsSelectorItem from './AvatarSelectorItem'
+import { getAccountPfpSource } from './avatars'
 import getStyles from './styles'
 
 export type AccountPersonalizeFormValues = {
@@ -46,59 +45,42 @@ const AccountPersonalizeCard = ({
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
-      <View
-        style={[
-          flexboxStyles.justifySpaceBetween,
-          flexboxStyles.alignCenter,
-          flexboxStyles.directionRow,
-          spacings.mbSm,
-          { width: 600 }
-        ]}
-      >
-        <View style={[flexboxStyles.directionRow]}>
+      <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
+        <View style={[flexbox.directionRow]}>
           <Image source={accountPfpSource} style={styles.pfp} resizeMode="contain" />
-          <View style={{ alignItems: 'flex-start' }}>
-            <Text fontSize={16} weight="medium" style={spacings.mb}>
-              {address}
-            </Text>
-            {isSmartAccount ? (
-              <Badge withIcon type="success" text={t('Smart Account')} />
-            ) : (
-              <Badge withIcon type="warning" text={t('Legacy Account')} />
-            )}
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text fontSize={14} style={spacings.mrLg}>
+                {address}
+              </Text>
+              {isSmartAccount ? (
+                <Badge withIcon type="success" text={t('Smart Account')} />
+              ) : (
+                <Badge withIcon type="warning" text={t('Legacy Account')} />
+              )}
+            </View>
+            <Controller
+              control={control}
+              name={`preferences.${index}.label`}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  numberOfLines={1}
+                  maxLength={40}
+                  containerStyle={spacings.mb0}
+                />
+              )}
+            />
           </View>
         </View>
       </View>
 
-      <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
-        <Text fontSize={14} appearance="secondaryText">
-          {t('Account label')}
-        </Text>
-        {'  '}
-        <Text weight="light" appearance="secondaryText" fontSize={12}>
-          {t('(Use up to 40 characters)')}
-        </Text>
-      </Text>
-
-      <Controller
-        control={control}
-        name={`preferences.${index}.label`}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            numberOfLines={1}
-            maxLength={40}
-            containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
-          />
-        )}
-      />
-
-      <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
+      {/* <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
         {t('Choose an avatar')}
-      </Text>
-      <View style={[flexboxStyles.directionRow]}>
+      </Text> */}
+      {/* <View style={[flexbox.directionRow]}>
         <Controller
           control={control}
           name={`preferences.${index}.pfp`}
@@ -116,7 +98,7 @@ const AccountPersonalizeCard = ({
             </>
           )}
         />
-      </View>
+      </View> */}
     </View>
   )
 }
