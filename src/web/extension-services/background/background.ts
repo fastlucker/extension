@@ -15,7 +15,6 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -43,6 +42,7 @@ import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterat
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { addGettersToControllerState } from '@web/utils/addGettersToControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
@@ -251,8 +251,10 @@ async function init() {
             params: ctrl
           })
         })
-        // stringify and then parse to add the getters to the public state
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
+        logInfoWithPrefix(
+          `onUpdate (${ctrlName} ctrl)`,
+          addGettersToControllerState(stateToLog || mainCtrl)
+        )
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -334,8 +336,7 @@ async function init() {
             const errors = (mainCtrl as any)[ctrlName].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
-            // stringify and then parse to add the getters to the public state
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
               backgroundState.portMessageUIRefs[key]?.request({
                 type: 'broadcast-error',
@@ -368,8 +369,7 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    // stringify and then parse to add the getters to the public state
-    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
+    logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
