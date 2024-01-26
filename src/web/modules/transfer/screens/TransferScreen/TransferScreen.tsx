@@ -77,9 +77,7 @@ const TransferScreen = () => {
                 <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
               </View>
               <View style={styles.separator} />
-              <View style={flexbox.flex1}>
-                <AddressBookSection />
-              </View>
+              <View style={flexbox.flex1}>{!state.isTopUp && <AddressBookSection />}</View>
             </View>
           </Panel>
         ) : (
