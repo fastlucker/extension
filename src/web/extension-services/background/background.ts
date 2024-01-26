@@ -47,6 +47,7 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
+import { WalletStateController } from './controllers/wallet-state'
 import { controllersNestedInMainMapping } from './types'
 
 function saveTimestamp() {
@@ -152,6 +153,7 @@ async function init() {
     },
     pinned: pinnedTokens
   })
+  const walletStateCtrl = new WalletStateController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
@@ -233,7 +235,8 @@ async function init() {
 
   function debounceFrontEndEventUpdatesOnSameTick(
     ctrlName: string,
-    ctrl: any
+    ctrl: any,
+    stateToLog?: any
   ): 'DEBOUNCED' | 'EMITTED' {
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
@@ -249,7 +252,7 @@ async function init() {
           })
         })
         // stringify and then parse to add the getters to the public state
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -376,6 +379,23 @@ async function init() {
     })
   })
 
+  // Broadcast onUpdate for the wallet state controller
+  walletStateCtrl.onUpdate(() => {
+    debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
+  })
+  walletStateCtrl.onError(() => {
+    const errors = walletStateCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+      backgroundState.portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'walletState',
+        params: { errors, controller: 'walletState' }
+      })
+    })
+  })
+
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate(() => {
     debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
@@ -419,6 +439,12 @@ async function init() {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
+                })
+              } else if (data.params.controller === ('walletState' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'walletState',
+                  params: walletStateCtrl
                 })
               } else {
                 pm.request({
@@ -680,6 +706,10 @@ async function init() {
                 data.params.secret,
                 data.params.newSecret
               )
+            case 'SET_IS_DEFAULT_WALLET': {
+              walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
+              break
+            }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':

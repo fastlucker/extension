@@ -127,19 +127,19 @@ const ViewOnlyScreen = () => {
   }, [accounts, dispatch])
 
   useEffect(() => {
-    // Navigate when the default preferences for the new accounts are added,
-    // indicating the final steps for the view-only account adding flow completes.
     const newAccountsAddresses = accounts.map((x) => x.address)
-    const areDefaultAccountPreferencesAdded = Object.keys(
+    const newAccountsAdded = mainControllerState.accounts.filter((account) =>
+      newAccountsAddresses.includes(account.addr)
+    )
+    const newAccountsDefaultPreferencesImported = Object.keys(
       settingsControllerState.accountPreferences
     ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
-    if (areDefaultAccountPreferencesAdded) {
+
+    // Navigate when the new accounts and their default preferences are imported,
+    // indicating the final step for the view-only account adding flow completes.
+    if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
       navigate(WEB_ROUTES.accountPersonalize, {
-        state: {
-          accounts: mainControllerState.accounts.filter((account) =>
-            newAccountsAddresses.includes(account.addr)
-          )
-        }
+        state: { accounts: newAccountsAdded }
       })
     }
   }, [
@@ -149,6 +149,8 @@ const ViewOnlyScreen = () => {
     navigate,
     settingsControllerState.accountPreferences
   ])
+
+  const disabled = !isValid || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -160,7 +162,7 @@ const ViewOnlyScreen = () => {
           <Button
             textStyle={{ fontSize: 14 }}
             style={{ minWidth: 180 }}
-            disabled={!isValid || duplicateAccountsIndexes.length > 0}
+            disabled={disabled}
             hasBottomSpacing={false}
             text={t('Import')}
             onPress={handleFormSubmit}
@@ -204,7 +206,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
-                    onSubmitEditing={handleFormSubmit}
+                    onSubmitEditing={disabled ? undefined : handleFormSubmit}
                   />
                   {index !== 0 && (
                     <Pressable style={[spacings.ml]} onPress={() => remove(index)}>

@@ -21,7 +21,8 @@ const getInfoFromSearch = (search: string | undefined) => {
 
   return {
     addr: params.get('address'),
-    networkId: params.get('networkId')
+    networkId: params.get('networkId'),
+    isTopUp: typeof params.get('isTopUp') === 'string'
   }
 }
 
@@ -62,10 +63,9 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           t.flags.onGasTank === false
       )
       if (tokenToSelect) {
-        console.log(tokenToSelect)
         dispatch({
           type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-          params: { selectedToken: tokenToSelect }
+          params: { selectedToken: tokenToSelect, isTopUp: selectedTokenFromUrl.isTopUp }
         })
       }
     }

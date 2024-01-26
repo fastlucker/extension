@@ -29,6 +29,7 @@ export interface Props extends PressableProps {
   disabledStyle?: ViewStyle
   forceHoveredStyle?: boolean
   children?: React.ReactNode
+  childrenPosition?: 'left' | 'right'
 }
 
 const Button = ({
@@ -43,6 +44,7 @@ const Button = ({
   children,
   disabledStyle,
   forceHoveredStyle = false,
+  childrenPosition = 'right',
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
@@ -115,6 +117,7 @@ const Button = ({
       onPressOut={type === 'primary' ? null : fadeOut}
       {...rest}
     >
+      {childrenPosition === 'left' && children}
       {!!text && (
         <Text
           selectable={false}
@@ -129,7 +132,7 @@ const Button = ({
           {text}
         </Text>
       )}
-      {children}
+      {childrenPosition === 'right' && children}
     </Pressable>
   )
 }
