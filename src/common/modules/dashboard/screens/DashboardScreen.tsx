@@ -16,8 +16,10 @@ import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -51,6 +53,7 @@ const { isPopup } = getUiType()
 const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
@@ -207,6 +210,7 @@ const DashboardScreen = () => {
                         flexbox.alignCenter,
                         { opacity: hovered ? 1 : 0.7 }
                       ]}
+                      onPress={() => navigate(WEB_ROUTES.networks)}
                     >
                       <Text fontSize={14} color={theme.primaryBackground} weight="medium">
                         All Networks
