@@ -4,7 +4,6 @@ import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { paddingHorizontalStyle } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -31,7 +30,6 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       zIndex: 9,
       width: '100%',
-      ...paddingHorizontalStyle,
       backgroundColor: theme.secondaryBackground,
       ...spacings.pv,
       height: HEADER_HEIGHT

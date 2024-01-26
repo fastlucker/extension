@@ -1,13 +1,11 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
+import Button from '@common/components/Button'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-
-import Text from '../Text'
 
 interface Props {
   onPress?: () => void
@@ -17,10 +15,15 @@ interface Props {
 const BackButton: FC<Props> = ({ onPress, fallbackBackRoute }) => {
   const { t } = useTranslation()
   const { goBack, canGoBack, navigate } = useNavigation()
+  const { theme } = useTheme()
 
   return (
-    <TouchableOpacity
-      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mr2Xl]}
+    <Button
+      childrenPosition="left"
+      size="regular"
+      style={{ minWidth: 120 }}
+      hasBottomSpacing={false}
+      type="secondary"
       onPress={() => {
         if (onPress) {
           onPress()
@@ -34,12 +37,10 @@ const BackButton: FC<Props> = ({ onPress, fallbackBackRoute }) => {
 
         goBack()
       }}
+      text={t('Back')}
     >
-      <LeftArrowIcon />
-      <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-        {t('Back')}
-      </Text>
-    </TouchableOpacity>
+      <LeftArrowIcon color={theme.primary} style={spacings.mrTy} />
+    </Button>
   )
 }
 

@@ -38,7 +38,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     footerContainer: {
       ...flexbox.flex1,
-      maxHeight: 96,
+      maxHeight: 80,
       ...spacings.ph3Xl,
       backgroundColor: theme.primaryBackground,
       shadowColor: '#B8BDE080',
