@@ -1,8 +1,11 @@
+import { getAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 
+import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
+import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
@@ -44,6 +47,13 @@ const TokenDetails = ({
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
   const isGasTank = token?.flags.onGasTank
+  const isGasTankFeeToken = token
+    ? gasTankFeeTokens.find(
+        (gsToken: { address: string; networkId: NetworkId }) =>
+          getAddress(gsToken.address) === getAddress(token.address) &&
+          gsToken.networkId === token.networkId
+      )
+    : false
   const actions = useMemo(
     () => [
       {
@@ -69,8 +79,9 @@ const TokenDetails = ({
       {
         text: t('Top Up'),
         icon: TopUpIcon,
-        onPress: () => {},
-        isDisabled: true
+        onPress: ({ networkId, address }: TokenResult) =>
+          navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`),
+        isDisabled: !isGasTankFeeToken
       },
       {
         text: t('Earn'),

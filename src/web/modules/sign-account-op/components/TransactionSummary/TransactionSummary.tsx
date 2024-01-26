@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, ReactNode, useCallback } from 'react'
+import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -35,6 +35,32 @@ const sizeMultiplier = {
   sm: 0.75,
   md: 0.85,
   lg: 1
+}
+
+const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
+  const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
+  const remainingTime = deadline - BigInt(Date.now())
+  const minute: bigint = 60000n
+
+  let updateAfter = Number(minute)
+  // more then 10mints
+  if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
+  // if 0< and <10 minutes
+  if (remainingTime > 0 && remainingTime < 10n * minute)
+    updateAfter = Number(remainingTime % minute)
+  // if just expired
+  if (remainingTime < 0 && remainingTime > -2n * minute)
+    updateAfter = Number(2n * minute + remainingTime)
+  if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setDeadlineText(getDeadlineText(deadline))
+    }, updateAfter)
+
+    return () => clearInterval(intervalId)
+  }, [])
+  return <p>{deadlineText}</p>
 }
 
 const TransactionSummary = ({
@@ -179,7 +205,7 @@ const TransactionSummary = ({
                   weight="medium"
                   color={colors.martinique}
                 >
-                  {` ${getDeadlineText(item.amount!)} `}
+                  <DeadlineVisualization deadline={item.amount!} />
                 </Text>
               )
             if (item.content) {

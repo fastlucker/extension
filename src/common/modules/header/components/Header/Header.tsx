@@ -98,7 +98,7 @@ const Header: React.FC<Props> = ({
           {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
-                weight="regular"
+                weight="medium"
                 fontSize={isTab ? 24 : 20}
                 style={styles.title}
                 numberOfLines={2}

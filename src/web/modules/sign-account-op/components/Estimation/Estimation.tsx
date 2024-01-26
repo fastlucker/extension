@@ -137,34 +137,36 @@ const Estimation = ({
         disabled={disabled}
         defaultValue={payValue}
       />
-      <View style={[spacings.mbMd]}>
-        <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-          {t('Transaction speed')}
-        </Text>
-        <View
-          style={[
-            minWidthSize('xxl') && flexbox.wrap,
-            flexbox.flex1,
-            flexbox.directionRow,
-            disabled && { opacity: 0.6 },
-            minWidthSize('xxl') && { margin: -SPACING_MI }
-          ]}
-        >
-          {signAccountOpState.feeSpeeds.map((fee, i) => (
-            <Fee
-              disabled={disabled}
-              isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
-              key={fee.amount + fee.type}
-              label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
-              type={fee.type}
-              amount={fee.amountFormatted}
-              onPress={onFeeSelect}
-              isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-            />
-          ))}
-          {/* TODO: <CustomFee onPress={() => {}} /> */}
+      {signAccountOpState.feeSpeeds.length > 0 && (
+        <View style={[spacings.mbMd]}>
+          <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
+            {t('Transaction speed')}
+          </Text>
+          <View
+            style={[
+              minWidthSize('xxl') && flexbox.wrap,
+              flexbox.flex1,
+              flexbox.directionRow,
+              disabled && { opacity: 0.6 },
+              minWidthSize('xxl') && { margin: -SPACING_MI }
+            ]}
+          >
+            {signAccountOpState.feeSpeeds.map((fee, i) => (
+              <Fee
+                disabled={disabled}
+                isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
+                key={fee.amount + fee.type}
+                label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
+                type={fee.type}
+                amount={fee.amountFormatted}
+                onPress={onFeeSelect}
+                isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
+              />
+            ))}
+            {/* TODO: <CustomFee onPress={() => {}} /> */}
+          </View>
         </View>
-      </View>
+      )}
       <View>
         {!!selectedFee && !!payValue && (
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>

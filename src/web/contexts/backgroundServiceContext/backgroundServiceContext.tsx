@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
@@ -90,10 +91,18 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     eventBus.addEventListener('error', onError)
 
     return () => eventBus.removeEventListener('error', onError)
-  }, [])
+  }, [addToast])
 
   return (
-    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch, dispatchAsync }), [])}>
+    <BackgroundServiceContext.Provider
+      value={useMemo(
+        () => ({
+          dispatch,
+          dispatchAsync
+        }),
+        []
+      )}
+    >
       {children}
     </BackgroundServiceContext.Provider>
   )

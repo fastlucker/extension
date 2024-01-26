@@ -247,6 +247,8 @@ const SignAccountOpScreen = () => {
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
 
+  const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
+
   return (
     <TabLayoutContainer
       width="full"
@@ -334,16 +336,38 @@ const SignAccountOpScreen = () => {
                   )}
                 </View>
               )}
-              {portfolioStatePending?.isLoading && !portfolioStatePending?.errors.length && (
+              {portfolioStatePending?.isLoading && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
               )}
-              {!portfolioStatePending?.isLoading && !!portfolioStatePending?.errors.length && (
-                <View style={spacings.mt}>
-                  <Alert type="error" title="We were unable to simulate the transaction." />
-                </View>
-              )}
+              {!portfolioStatePending?.isLoading &&
+                (!!portfolioStatePending?.errors.length ||
+                  !!portfolioStatePending?.criticalError) && (
+                  <View>
+                    <Alert type="error" title="We were unable to simulate the transaction." />
+                  </View>
+                )}
+              {!portfolioStatePending?.isLoading &&
+                !pendingTokens.length &&
+                !portfolioStatePending?.errors.length &&
+                !portfolioStatePending?.criticalError && (
+                  <View>
+                    <Alert
+                      type="info"
+                      isTypeLabelHidden
+                      title={
+                        <>
+                          No token balance changes detected. Please{' '}
+                          <Text appearance="infoText" weight="semiBold">
+                            carefully
+                          </Text>{' '}
+                          review the transaction preview below.
+                        </>
+                      }
+                    />
+                  </View>
+                )}
             </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
@@ -377,7 +401,7 @@ const SignAccountOpScreen = () => {
               {t('Estimation')}
             </Text>
             <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
-              {hasEstimation ? (
+              {hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
                   signAccountOpState={signAccountOpState}
@@ -385,7 +409,8 @@ const SignAccountOpScreen = () => {
                   networkId={network!.id}
                   disabled={isViewOnly || isSignLoading}
                 />
-              ) : (
+              )}
+              {!hasEstimation && !estimationFailed && (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                   <Spinner style={styles.spinner} />
                 </View>
