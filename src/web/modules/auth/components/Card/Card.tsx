@@ -89,7 +89,7 @@ const Card: React.FC<Props> = ({
       )}
       {!!buttonText && (
         <Button
-          testID={buttonText}
+          testID={'button-' + buttonText.replace(/\s+/g, '-')}
           disabled={isDisabled}
           style={{ width: '100%' }}
           text={t(buttonText)}
