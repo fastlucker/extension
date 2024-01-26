@@ -82,45 +82,53 @@ const DashboardHeader = () => {
             ]}
             onPress={() => navigate('account-select')}
           >
-            <View style={styles.accountButtonInfo}>
-              <View>
-                <Blockies seed={selectedAccount} />
-                {isViewOnly && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      right: -4,
-                      top: -4,
-                      backgroundColor: theme.primaryBackground,
-                      padding: 2,
-                      borderRadius: 50
-                    }}
-                  >
-                    <ViewOnlyIconFilled
-                      width={14}
-                      height={14}
-                      strokeWidth={4}
-                      color={theme.infoDecorative}
-                    />
+            {({ hovered }: any) => (
+              <>
+                <View style={styles.accountButtonInfo}>
+                  <View>
+                    <Blockies seed={selectedAccount} />
+                    {isViewOnly && (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          right: -4,
+                          top: -4,
+                          backgroundColor: theme.primaryBackground,
+                          padding: 2,
+                          borderRadius: 50
+                        }}
+                      >
+                        <ViewOnlyIconFilled
+                          width={14}
+                          height={14}
+                          strokeWidth={4}
+                          color={theme.infoDecorative}
+                        />
+                      </View>
+                    )}
                   </View>
-                )}
-              </View>
-              <Text
-                numberOfLines={1}
-                weight="semiBold"
-                style={[spacings.mlTy, spacings.mrLg]}
-                color={theme.primaryBackground}
-                fontSize={14}
-              >
-                {selectedAccLabel}
-              </Text>
-            </View>
-            <Pressable
-              onPress={() => navigate('account-select')}
-              style={styles.accountButtonRightIcon}
-            >
-              <RightArrowIcon width={12} color={theme.primaryBackground} />
-            </Pressable>
+                  <Text
+                    numberOfLines={1}
+                    weight="semiBold"
+                    style={[spacings.mlTy, spacings.mrLg]}
+                    color={theme.primaryBackground}
+                    fontSize={14}
+                  >
+                    {selectedAccLabel}
+                  </Text>
+                </View>
+                <RightArrowIcon
+                  style={[
+                    styles.accountButtonRightIcon,
+                    {
+                      transform: [{ translateX: hovered ? 4 : 0 }]
+                    }
+                  ]}
+                  width={12}
+                  color={theme.primaryBackground}
+                />
+              </>
+            )}
           </Pressable>
           <Pressable
             style={({ hovered }: any) => [
