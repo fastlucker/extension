@@ -255,7 +255,6 @@ async function init() {
             params: ctrl
           })
         })
-        // stringify and then parse to add the getters to the public state
         logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
@@ -371,7 +370,6 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    // stringify and then parse to add the getters to the public state
     logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.request({
