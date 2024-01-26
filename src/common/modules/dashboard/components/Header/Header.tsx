@@ -6,7 +6,7 @@ import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
+import ViewOnlyIconFilled from '@common/assets/svg/ViewOnlyIconFilled'
 import Blockies from '@common/components/Blockies'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
@@ -96,7 +96,7 @@ const DashboardHeader = () => {
                       borderRadius: 50
                     }}
                   >
-                    <ViewOnlyIcon
+                    <ViewOnlyIconFilled
                       width={14}
                       height={14}
                       strokeWidth={4}
