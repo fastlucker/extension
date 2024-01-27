@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Control, Controller } from 'react-hook-form'
-import { Image, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import CheckIcon from '@common/assets/svg/CheckIcon'
+import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -42,6 +44,8 @@ const AccountPersonalizeCard = ({
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const accountPfpSource = getAccountPfpSource(pfp)
+  const [editNameEnabled, setEditNameEnabled] = useState(false)
+  const { theme } = useTheme()
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -59,18 +63,58 @@ const AccountPersonalizeCard = ({
                 <Badge withIcon type="warning" text={t('Legacy Account')} />
               )}
             </View>
+
             <Controller
               control={control}
               name={`preferences.${index}.label`}
               render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  numberOfLines={1}
-                  maxLength={40}
-                  containerStyle={spacings.mb0}
-                />
+                <View style={[{ height: 24 }, flexbox.justifyCenter]}>
+                  {!!editNameEnabled && (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      numberOfLines={1}
+                      maxLength={40}
+                      autoFocus
+                      inputWrapperStyle={{ height: 20, maxWidth: 310 }}
+                      inputStyle={{
+                        height: 18,
+                        ...spacings.phTy
+                      }}
+                      buttonStyle={spacings.phMi}
+                      nativeInputStyle={{ fontSize: 12 }}
+                      containerStyle={{ ...spacings.mb0, height: 20 }}
+                      style={{ height: 20 }}
+                      editable={editNameEnabled}
+                      button={
+                        <CheckIcon color="transparent" checkColor={theme.successDecorative} />
+                      }
+                      buttonProps={{ onPress: () => setEditNameEnabled(false) }}
+                    />
+                  )}
+                  {!editNameEnabled && (
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      <Text
+                        fontSize={14}
+                        weight="semiBold"
+                        appearance="secondaryText"
+                        style={spacings.mrTy}
+                      >
+                        {value}
+                      </Text>
+                      <Pressable onPress={() => setEditNameEnabled(true)}>
+                        {({ hovered }: any) => (
+                          <EditPenIcon
+                            width={14}
+                            height={14}
+                            color={hovered ? theme.primary : theme.primaryLight}
+                          />
+                        )}
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
               )}
             />
           </View>

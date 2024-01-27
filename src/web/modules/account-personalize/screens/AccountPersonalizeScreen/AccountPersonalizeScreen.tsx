@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
@@ -11,7 +11,6 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -130,7 +129,7 @@ const AccountPersonalizeScreen = () => {
               </Text>
             </Alert>
           </View>
-          <Wrapper style={spacings.mb0} contentContainerStyle={[spacings.pl0, spacings.pt0]}>
+          <ScrollView>
             {fields.map((field, index) => (
               <AccountPersonalizeCard
                 key={field.id} // important to include key with field's id
@@ -142,7 +141,7 @@ const AccountPersonalizeScreen = () => {
                 hasBottomSpacing={index !== fields.length - 1}
               />
             ))}
-          </Wrapper>
+          </ScrollView>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
