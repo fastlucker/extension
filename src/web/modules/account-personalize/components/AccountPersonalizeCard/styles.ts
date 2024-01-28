@@ -7,7 +7,6 @@ import common from '@common/styles/utils/common'
 interface Style {
   container: ViewStyle
   checkIcon: ViewStyle
-  pfp: ImageStyle
   pfpSelectorItem: ImageStyle
 }
 
@@ -22,12 +21,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pvTy,
       ...spacings.mbSm,
       width: '100%'
-    },
-    pfp: {
-      height: 40,
-      width: 40,
-      ...common.borderRadiusPrimary,
-      ...spacings.mrTy
     },
     pfpSelectorItem: {
       height: 48,

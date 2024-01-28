@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans } from 'react-i18next'
-import { Image, ScrollView, StyleSheet, View } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { SignedMessage, SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Account } from '@ambire-common/interfaces/account'
@@ -21,7 +21,7 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import { Avatar } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatar'
 import SettingsPage from '@web/modules/settings/components/SettingsPage'
 import shortenAddress from '@web/utils/shortenAddress'
 
@@ -79,15 +79,9 @@ const TransactionHistorySettingsScreen = () => {
           )} (${shortenAddress(acc.addr, 10)})`}
         </Text>
       ),
-      icon: (
-        <Image
-          style={selectStyles.optionIcon}
-          source={getAccountPfpSource(accountPreferences[acc.addr]?.pfp)}
-          resizeMode="contain"
-        />
-      )
+      icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} />
     }))
-  }, [accountPreferences, mainState.accounts, selectStyles])
+  }, [accountPreferences, mainState.accounts])
 
   const networksOptions: NetworkOption[] = useMemo(
     () =>

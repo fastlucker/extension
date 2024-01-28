@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'

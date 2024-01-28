@@ -1,4 +1,9 @@
 // @ts-nocheck
+
+import React from 'react'
+import { Image, View } from 'react-native'
+
+import { isValidAddress } from '@ambire-common/services/address'
 import avatarAstronautMan from '@common/assets/images/avatars/avatar-astronaut-man.png'
 import avatarAstronautWoman from '@common/assets/images/avatars/avatar-astronaut-woman.png'
 import avatarFire from '@common/assets/images/avatars/avatar-fire.png'
@@ -7,6 +12,10 @@ import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
 import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import avatarSpreadFire from '@common/assets/images/avatars/avatar-spread-fire.png'
+import Blockie from '@common/components/Blockies/Blockies'
+import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 export {
   avatarAstronautMan,
@@ -33,5 +42,31 @@ export const buildInAvatars = [
 ]
 
 const DEFAULT_AVATAR = buildInAvatars[0]
-export const getAccountPfpSource = (pfpId: string) =>
-  buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source
+export const getAccountPfpSource = (pfpId: string) => {
+  // address for the Blockie
+  if (isValidAddress(pfpId)) return pfpId
+
+  return buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source
+}
+
+const blockieScale = 4
+
+export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: number }) => {
+  const selectedAccountPfp = getAccountPfpSource(pfp)
+
+  if (isValidAddress(selectedAccountPfp)) {
+    return (
+      <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Blockie seed={selectedAccountPfp} size={size / blockieScale} scale={blockieScale} />
+      </View>
+    )
+  }
+
+  return (
+    <Image
+      source={selectedAccountPfp}
+      style={[common.borderRadiusPrimary, spacings.mrTy, { width: size, height: size }]}
+      resizeMode="contain"
+    />
+  )
+})

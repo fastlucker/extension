@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 // @ts-ignore
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
@@ -12,7 +12,7 @@ import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
+import { Avatar } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatar'
 
 import getStyles from './styles'
 
@@ -29,12 +29,11 @@ const Header: FC<Props> = ({ networkName, networkId, isEOA }) => {
   const selectedAccount = mainCtrl.selectedAccount || ''
   const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
-  const selectedAccountPfp = getAccountPfpSource(selectedAccountPref?.pfp)
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Image style={styles.avatar} source={selectedAccountPfp} resizeMode="contain" />
+        <Avatar pfp={selectedAccountPref?.pfp} />
         <Text appearance="secondaryText" weight="medium" fontSize={16}>
           {selectedAccountLabel}{' '}
         </Text>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Control, Controller } from 'react-hook-form'
-import { Image, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -13,7 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import { getAccountPfpSource } from './avatars'
+import { Avatar } from './avatar'
 import getStyles from './styles'
 
 export type AccountPersonalizeFormValues = {
@@ -41,17 +41,16 @@ const AccountPersonalizeCard = ({
   control,
   hasBottomSpacing = true
 }: Props) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
-  const accountPfpSource = getAccountPfpSource(pfp)
+
   const [editNameEnabled, setEditNameEnabled] = useState(false)
-  const { theme } = useTheme()
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
-        <View style={[flexbox.directionRow]}>
-          <Image source={accountPfpSource} style={styles.pfp} resizeMode="contain" />
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Avatar pfp={pfp} />
           <View style={flexbox.flex1}>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <Text fontSize={14} style={spacings.mrLg}>
