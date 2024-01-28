@@ -1,13 +1,13 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import { SPACING_4XL, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_4XL, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import commonStyles from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   pinExtension: ViewStyle
-  videoBackground: ViewStyle
+  tokensImg: ImageStyle
+  confettiAnimationContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -19,13 +19,17 @@ const getStyles = (theme: ThemeProps) =>
       top: -SPACING_TY,
       zIndex: 10
     },
-    videoBackground: {
-      backgroundColor: theme.secondaryBackground,
-      width: 640,
-      height: 360,
-      ...flexbox.alignCenter,
-      ...flexbox.justifyCenter,
-      ...commonStyles.borderRadiusPrimary
+    tokensImg: {
+      height: 165,
+      width: 148,
+      ...flexbox.alignSelfCenter,
+      ...spacings.mb2Xl
+    },
+    confettiAnimationContainer: {
+      position: 'absolute',
+      zIndex: 1,
+      top: -200,
+      alignSelf: 'center'
     }
   })
 
