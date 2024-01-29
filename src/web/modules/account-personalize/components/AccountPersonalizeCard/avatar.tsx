@@ -49,15 +49,13 @@ export const getAccountPfpSource = (pfpId: string) => {
   return buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source
 }
 
-const blockieScale = 4
-
 export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: number }) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
 
   if (isValidAddress(selectedAccountPfp)) {
     return (
       <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Blockie seed={selectedAccountPfp} size={size / blockieScale} scale={blockieScale} />
+        <Blockie seed={selectedAccountPfp} width={size} height={size} />
       </View>
     )
   }

@@ -18,21 +18,24 @@ interface Props {
   color?: string
   bgcolor?: string
   spotcolor?: string
-  size?: number
-  scale?: number
+  width?: number
+  height?: number
   isRound?: boolean
   borderRadius?: number
   borderWidth?: number
   borderColor?: string
 }
 
+const SCALE = 4
+const SIZE = 8
+
 const Blockie: React.FC<Props> = ({
   seed,
   color,
   bgcolor,
   spotcolor,
-  size = 8,
-  scale = 4,
+  width = 40,
+  height = 40,
   isRound = true,
   borderRadius = BORDER_RADIUS_PRIMARY,
   borderWidth = 0,
@@ -50,8 +53,8 @@ const Blockie: React.FC<Props> = ({
       }
     >
       <Svg
-        height={size * scale}
-        width={size * scale}
+        width={width}
+        height={height}
         style={[
           // The generated visuals match the Ethereum Blockies
           // {@link https://github.com/ethereum/blockiesgenerated}
@@ -59,8 +62,9 @@ const Blockie: React.FC<Props> = ({
           // So this one aligns it correctly.
           { transform: [{ rotate: '90deg' }], borderWidth, borderColor }
         ]}
+        viewBox={`0 0 ${SIZE * SCALE} ${SIZE * SCALE}`}
       >
-        {renderIcon(seed, size, scale, color, bgcolor, spotcolor)}
+        {renderIcon(seed, SIZE, SCALE, color, bgcolor, spotcolor)}
       </Svg>
     </View>
   )
