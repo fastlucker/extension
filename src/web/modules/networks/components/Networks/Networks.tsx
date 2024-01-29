@@ -110,19 +110,14 @@ const Networks = ({
                 <Text style={spacings.mlMi} fontSize={16}>
                   {networkName}
                 </Text>
-              </View>
-              <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-                <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
-                  {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
-                </Text>
                 <Pressable
                   onPress={async () => {
                     await openBlockExplorer(networkId, networkData?.explorerUrl)
                   }}
                   style={[
-                    spacings.ml,
+                    spacings.mlSm,
                     {
-                      opacity: isNetworkHovered ? 1 : 0
+                      opacity: filterByNetworkId === networkId || isNetworkHovered ? 1 : 0
                     }
                   ]}
                   onHoverIn={() => setHoveredNetworkId(networkId)}
@@ -135,15 +130,15 @@ const Networks = ({
                     />
                   )}
                 </Pressable>
+              </View>
+              <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
+                  {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
+                </Text>
                 <Pressable
                   onHoverIn={() => setHoveredNetworkId(networkId)}
                   onPress={() => openSettingsBottomSheet(networkId)}
-                  style={[
-                    spacings.mlSm,
-                    {
-                      opacity: isNetworkHovered ? 1 : 0
-                    }
-                  ]}
+                  style={spacings.mlSm}
                 >
                   {({ hovered }: any) => (
                     <KebabMenuIcon

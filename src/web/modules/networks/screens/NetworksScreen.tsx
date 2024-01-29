@@ -18,7 +18,7 @@ import useToast from '@common/hooks/useToast'
 import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -119,7 +119,10 @@ const NetworksScreen = () => {
           }}
           style={({ hovered }: any) => [
             styles.network,
-            !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
+            !filterByNetworkId || hovered ? styles.highlightedNetwork : {},
+            {
+              paddingRight: SPACING_XL + SPACING_TY
+            }
           ]}
         >
           <View style={[flexbox.alignCenter, flexbox.directionRow]}>
