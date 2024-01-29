@@ -23,6 +23,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import Account from '@web/modules/account-adder/components/Account'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
@@ -31,16 +32,19 @@ const AccountsList = ({
   setPage,
   keyType,
   privKeyOrSeed,
-  lookingForLinkedAccounts
+  lookingForLinkedAccounts,
+  pageLoaded
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
   keyType: string
   privKeyOrSeed?: string
   lookingForLinkedAccounts: boolean
+  pageLoaded: boolean
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const mainState = useMainControllerState()
   const { theme } = useTheme()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
@@ -103,11 +107,17 @@ const AccountsList = ({
   )
 
   const getAccounts = useCallback(
-    (
-      accounts: any,
-      shouldCheckForLastAccountInTheList: boolean = false,
-      byType: ('legacy' | 'linked' | 'smart')[] = ['legacy', 'smart']
-    ) => {
+    ({
+      accounts,
+      shouldCheckForLastAccountInTheList,
+      slotIndex,
+      byType = ['legacy', 'smart']
+    }: {
+      accounts: any
+      shouldCheckForLastAccountInTheList?: boolean
+      slotIndex?: number
+      byType?: ('legacy' | 'linked' | 'smart')[]
+    }) => {
       const filteredAccounts = accounts.filter((a: any) => byType.includes(getType(a)))
       return filteredAccounts.map((acc: any, i: number) => {
         let hasBottomSpacing = true
@@ -126,11 +136,22 @@ const AccountsList = ({
           return null
         }
 
+        let shouldAddIntroStepsIds = false
+        if (
+          ['legacy', 'smart'].includes(getType(acc)) &&
+          slotIndex === 0 &&
+          !mainState.accounts.length &&
+          pageLoaded
+        ) {
+          shouldAddIntroStepsIds = true
+        }
+
         return (
           <Account
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
+            shouldAddIntroStepsIds={shouldAddIntroStepsIds}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
             isSelected={isSelected || isPreselected}
@@ -147,7 +168,9 @@ const AccountsList = ({
       hideEmptyAccounts,
       state.preselectedAccounts,
       state.selectedAccounts,
-      getType
+      getType,
+      mainState.accounts.length,
+      pageLoaded
     ]
   )
 
@@ -255,7 +278,11 @@ const AccountsList = ({
             ...spacings?.[hasModalScroll ? 'prSm' : 'pr0']
           }}
         >
-          {getAccounts(linkedAccounts, true, ['linked'])}
+          {getAccounts({
+            accounts: linkedAccounts,
+            shouldCheckForLastAccountInTheList: true,
+            byType: ['linked']
+          })}
         </ScrollView>
         <View
           style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd, spacings.ptXl]}
@@ -296,7 +323,13 @@ const AccountsList = ({
         ) : (
           Object.keys(slots).map((key, i) => {
             return (
-              <View key={key}>{getAccounts(slots[key], i === Object.keys(slots).length - 1)}</View>
+              <View key={key}>
+                {getAccounts({
+                  accounts: slots[key],
+                  shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                  slotIndex: i
+                })}
+              </View>
             )
           })
         )}

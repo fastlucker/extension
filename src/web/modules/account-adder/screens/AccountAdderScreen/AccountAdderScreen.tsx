@@ -23,6 +23,8 @@ import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOn
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 import Stepper from '@web/modules/router/components/Stepper'
 
+import { AccountAdderIntroStepsProvider } from '../../contexts/accountAdderIntroStepsContext'
+
 export interface Account {
   type: string
   address: string
@@ -57,65 +59,68 @@ const AccountAdderScreen = () => {
   }, [keyType, goBack])
 
   return (
-    <TabLayoutContainer
-      backgroundColor={theme.secondaryBackground}
-      width="lg"
-      header={
-        <Header mode="custom-inner-content" withAmbireLogo>
-          <Stepper />
-        </Header>
-      }
-      footer={
-        <>
-          <BackButton />
-          <Button
-            hasBottomSpacing={false}
-            textStyle={{ fontSize: 14 }}
-            onPress={onImportReady}
-            size={
-              accountAdderState.preselectedAccounts.length &&
-              !accountAdderState.selectedAccounts.length
-                ? 'large'
-                : 'regular'
-            }
-            disabled={
-              accountAdderState.accountsLoading ||
-              accountAdderState.addAccountsStatus === 'LOADING' ||
-              (!accountAdderState.selectedAccounts.length &&
-                !accountAdderState.preselectedAccounts.length) ||
-              (mainControllerState.status === 'LOADING' &&
-                mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
-            }
-            text={
-              accountAdderState.addAccountsStatus === 'LOADING' ||
-              (mainControllerState.status === 'LOADING' &&
-                mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
-                ? t('Importing...')
-                : accountAdderState.preselectedAccounts.length &&
-                  !accountAdderState.selectedAccounts.length
-                ? t('Continue')
-                : t('Import Accounts')
-            }
-          >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
-          </Button>
-        </>
-      }
-    >
-      <TabLayoutWrapperMainContent>
-        <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
-          <AccountsOnPageList
-            state={accountAdderState}
-            privKeyOrSeed={privKeyOrSeed}
-            setPage={setPage}
-            keyType={keyType}
-            lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
-          />
-        </Panel>
-      </TabLayoutWrapperMainContent>
-    </TabLayoutContainer>
+    <AccountAdderIntroStepsProvider>
+      <TabLayoutContainer
+        backgroundColor={theme.secondaryBackground}
+        width="lg"
+        header={
+          <Header mode="custom-inner-content" withAmbireLogo>
+            <Stepper />
+          </Header>
+        }
+        footer={
+          <>
+            <BackButton />
+            <Button
+              hasBottomSpacing={false}
+              textStyle={{ fontSize: 14 }}
+              onPress={onImportReady}
+              size={
+                accountAdderState.preselectedAccounts.length &&
+                !accountAdderState.selectedAccounts.length
+                  ? 'large'
+                  : 'regular'
+              }
+              disabled={
+                accountAdderState.accountsLoading ||
+                accountAdderState.addAccountsStatus === 'LOADING' ||
+                (!accountAdderState.selectedAccounts.length &&
+                  !accountAdderState.preselectedAccounts.length) ||
+                (mainControllerState.status === 'LOADING' &&
+                  mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
+              }
+              text={
+                accountAdderState.addAccountsStatus === 'LOADING' ||
+                (mainControllerState.status === 'LOADING' &&
+                  mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
+                  ? t('Importing...')
+                  : accountAdderState.preselectedAccounts.length &&
+                    !accountAdderState.selectedAccounts.length
+                  ? t('Continue')
+                  : t('Import Accounts')
+              }
+            >
+              <View style={spacings.pl}>
+                <RightArrowIcon color={colors.titan} />
+              </View>
+            </Button>
+          </>
+        }
+      >
+        <TabLayoutWrapperMainContent>
+          <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
+            <AccountsOnPageList
+              state={accountAdderState}
+              privKeyOrSeed={privKeyOrSeed}
+              setPage={setPage}
+              keyType={keyType}
+              lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
+              pageLoaded={accountAdderState.pageLoaded}
+            />
+          </Panel>
+        </TabLayoutWrapperMainContent>
+      </TabLayoutContainer>
+    </AccountAdderIntroStepsProvider>
   )
 }
 
