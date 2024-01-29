@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
@@ -31,17 +31,19 @@ const OnBoardingScreen = () => {
   const { navigate } = useNavigation()
   const { setOnboardingStatus } = useOnboarding()
   const mainState = useMainControllerState()
+  const [initialStatusCheckPassed, setInitialStatusCheckPassed] = useState(false)
   useEffect(() => {
-    if (mainState.accounts.length) {
+    if (mainState.accounts.length && initialStatusCheckPassed) {
       setOnboardingStatus(ONBOARDING_VALUES.ON_BOARDED)
     }
-  }, [setOnboardingStatus, mainState.accounts.length])
+  }, [setOnboardingStatus, mainState.accounts.length, initialStatusCheckPassed])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       const status = await storage.get('onboardingStatus', ONBOARDING_VALUES.NOT_ON_BOARDED)
 
+      setInitialStatusCheckPassed(true)
       if (status === ONBOARDING_VALUES.ON_BOARDED) {
         navigate(WEB_ROUTES.dashboard)
       }
