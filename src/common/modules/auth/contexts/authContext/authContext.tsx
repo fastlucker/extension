@@ -17,6 +17,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
   const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
   const mainCtrlState = useMainControllerState()
 
+  // TODO: Export flag if this takes too long
   useEffect(() => {
     if (!mainCtrlState.isReady) return
 
