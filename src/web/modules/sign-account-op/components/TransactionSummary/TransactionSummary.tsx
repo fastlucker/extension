@@ -52,7 +52,6 @@ const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
     if (remainingTime < 0 && remainingTime > -2n * minute)
       updateAfter = Number(2n * minute + remainingTime)
     if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
-    console.log(updateAfter / Number(minute))
     const intervalId = setInterval(() => {
       setDeadlineText(getDeadlineText(deadline))
     }, updateAfter)
