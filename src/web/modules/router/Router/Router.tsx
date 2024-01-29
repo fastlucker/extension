@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import Alert from '@common/components/Alert'
 import Spinner from '@common/components/Spinner'
+import { useTranslation } from '@common/config/localization'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import flexbox from '@common/styles/utils/flexbox'
@@ -13,6 +14,7 @@ import SortHat from '@web/modules/router/components/SortHat'
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
 
 const Router = () => {
+  const { t } = useTranslation()
   const { authStatus, isAuthStatusTakingTooLong } = useAuth()
   const { areControllerStatesLoaded, isStatesLoadingTakingTooLong } = useContext(
     ControllersStateLoadedContext
@@ -23,7 +25,9 @@ const Router = () => {
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Alert
           type="warning"
-          title="Setting the initial account(s) state is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension."
+          title={t(
+            'Setting the initial account(s) state is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension.'
+          )}
           style={{ maxWidth: 500 }}
         />
       </View>
@@ -35,7 +39,9 @@ const Router = () => {
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Alert
           type="warning"
-          title="Initial loading is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension."
+          title={t(
+            'Initial loading is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension.'
+          )}
           style={{ maxWidth: 500 }}
         />
       </View>
