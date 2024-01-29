@@ -23,7 +23,7 @@ const Networks = ({
   filterByNetworkId
 }: {
   openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
-  openBlockExplorer: (networkId: NetworkDescriptor['id'], url?: string) => void
+  openBlockExplorer: (url?: string) => void
   filterByNetworkId: NetworkDescriptor['id'] | null
 }) => {
   const { navigate } = useNavigation()
@@ -69,6 +69,7 @@ const Networks = ({
           const networkData = networks.find((network) => network.id === networkId)
           const networkBalance = portfolioByNetworks[networkId]?.result?.total
           const isNetworkHovered = hoveredNetworkId === networkId
+          const isInternalNetwork = networkId === 'rewards' || networkId === 'gasTank'
           let networkName = networkData?.name
 
           if (networkId === 'rewards') {
@@ -85,6 +86,7 @@ const Networks = ({
               onPress={() => navigateAndFilterDashboard(networkId)}
               style={[
                 styles.network,
+                isInternalNetwork ? styles.noKebabNetwork : {},
                 filterByNetworkId === networkId || isNetworkHovered ? styles.highlightedNetwork : {}
               ]}
             >
@@ -94,44 +96,48 @@ const Networks = ({
                 <Text style={spacings.mlMi} fontSize={16}>
                   {networkName}
                 </Text>
-                <Pressable
-                  onPress={async () => {
-                    await openBlockExplorer(networkId, networkData?.explorerUrl)
-                  }}
-                  style={[
-                    spacings.mlSm,
-                    {
-                      opacity: filterByNetworkId === networkId || isNetworkHovered ? 1 : 0
-                    }
-                  ]}
-                  onHoverIn={() => setHoveredNetworkId(networkId)}
-                >
-                  {({ hovered }: any) => (
-                    <OpenIcon
-                      width={16}
-                      height={16}
-                      color={hovered ? theme.primaryText : theme.secondaryText}
-                    />
-                  )}
-                </Pressable>
+                {!isInternalNetwork && (
+                  <Pressable
+                    onPress={async () => {
+                      await openBlockExplorer(networkData?.explorerUrl)
+                    }}
+                    style={[
+                      spacings.mlSm,
+                      {
+                        opacity: filterByNetworkId === networkId || isNetworkHovered ? 1 : 0
+                      }
+                    ]}
+                    onHoverIn={() => setHoveredNetworkId(networkId)}
+                  >
+                    {({ hovered }: any) => (
+                      <OpenIcon
+                        width={16}
+                        height={16}
+                        color={hovered ? theme.primaryText : theme.secondaryText}
+                      />
+                    )}
+                  </Pressable>
+                )}
               </View>
               <View style={[flexbox.alignCenter, flexbox.directionRow]}>
                 <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
                   {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
                 </Text>
-                <Pressable
-                  onHoverIn={() => setHoveredNetworkId(networkId)}
-                  onPress={() => openSettingsBottomSheet(networkId)}
-                  style={spacings.mlSm}
-                >
-                  {({ hovered }: any) => (
-                    <KebabMenuIcon
-                      width={16}
-                      height={16}
-                      color={hovered ? theme.primaryText : theme.secondaryText}
-                    />
-                  )}
-                </Pressable>
+                {!isInternalNetwork && (
+                  <Pressable
+                    onHoverIn={() => setHoveredNetworkId(networkId)}
+                    onPress={() => openSettingsBottomSheet(networkId)}
+                    style={spacings.mlSm}
+                  >
+                    {({ hovered }: any) => (
+                      <KebabMenuIcon
+                        width={16}
+                        height={16}
+                        color={hovered ? theme.primaryText : theme.secondaryText}
+                      />
+                    )}
+                  </Pressable>
+                )}
               </View>
             </Pressable>
           )

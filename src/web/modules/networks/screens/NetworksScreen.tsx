@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -9,7 +8,6 @@ import AddIcon from '@common/assets/svg/AddIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -18,7 +16,7 @@ import useToast from '@common/hooks/useToast'
 import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -54,23 +52,7 @@ const NetworksScreen = () => {
     setSelectedNetworkId(null)
   }
 
-  const openBlockExplorer = async (networkId: NetworkDescriptor['id'], url?: string) => {
-    const getNotANetworkMessage = (name: string) => {
-      return `${name} is not a network and doesn't have a block explorer.`
-    }
-    if (networkId === 'rewards') {
-      addToast(getNotANetworkMessage('Ambire Rewards'), {
-        type: 'info'
-      })
-      return
-    }
-    if (networkId === 'gasTank') {
-      addToast(getNotANetworkMessage('Gas Tank'), {
-        type: 'info'
-      })
-      return
-    }
-
+  const openBlockExplorer = async (url?: string) => {
     if (!url) {
       addToast(t('No block explorer available for this network'), {
         type: 'info'
@@ -111,10 +93,8 @@ const NetworksScreen = () => {
           }}
           style={({ hovered }: any) => [
             styles.network,
-            !filterByNetworkId || hovered ? styles.highlightedNetwork : {},
-            {
-              paddingRight: SPACING_XL + SPACING_TY
-            }
+            styles.noKebabNetwork,
+            !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
           ]}
         >
           <View style={[flexbox.alignCenter, flexbox.directionRow]}>

@@ -18,21 +18,11 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import Option from './Option/Option'
 import getStyles from './styles'
 
-const getNetworkName = (networkId: NetworkDescriptor['id'], networkName?: string) => {
-  if (networkId === 'rewards') {
-    return 'Ambire Rewards'
-  }
-  if (networkId === 'gasTank') {
-    return 'Gas Tank'
-  }
-  return networkName
-}
-
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
   closeBottomSheet: () => void
   selectedNetworkId: NetworkDescriptor['id'] | null
-  openBlockExplorer: (networkId: NetworkDescriptor['id'], url?: string) => void
+  openBlockExplorer: (url?: string) => void
 }
 const NetworkBottomSheet = ({
   sheetRef,
@@ -53,21 +43,13 @@ const NetworkBottomSheet = ({
         {/* @ts-ignore */}
         <NetworkIcon width={32} height={32} name={selectedNetworkId} />
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
-          {getNetworkName(selectedNetworkId, networkData?.name)}
+          {networkData?.name || 'Unknown Network'}
         </Text>
       </View>
       <Option
         renderIcon={<SettingsIcon width={27} height={27} color={theme.secondaryText} />}
         text="Go to Network Settings"
         onPress={async () => {
-          if (selectedNetworkId === 'rewards') {
-            addToast('Ambire Rewards network does not have network settings.', { type: 'info' })
-            return
-          }
-          if (selectedNetworkId === 'gasTank') {
-            addToast('Gas Tank network does not have network settings.', { type: 'info' })
-            return
-          }
           try {
             await openInternalPageInTab(
               `${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`
@@ -79,9 +61,9 @@ const NetworkBottomSheet = ({
       />
       <Option
         renderIcon={<OpenIcon width={20} height={20} color={theme.secondaryText} />}
-        text="Open current account in blockexplorer"
+        text="Open current account in block explorer"
         onPress={() => {
-          openBlockExplorer(selectedNetworkId, networkData?.explorerUrl)
+          openBlockExplorer(networkData?.explorerUrl)
         }}
       />
     </BottomSheet>
