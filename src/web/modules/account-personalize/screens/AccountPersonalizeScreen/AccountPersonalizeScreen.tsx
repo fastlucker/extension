@@ -7,7 +7,6 @@ import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
-import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -51,7 +50,10 @@ const AccountPersonalizeScreen = () => {
       }))
     }
   })
-  const { fields } = useFieldArray({ control, name: 'preferences' })
+  const { fields } = useFieldArray({
+    control,
+    name: 'preferences'
+  })
   const watchPreferences = watch('preferences')
 
   useEffect(() => {
@@ -71,7 +73,10 @@ const AccountPersonalizeScreen = () => {
       const newAccPreferences: AccountPreferences = {}
 
       data.preferences.forEach(({ account, label, pfp }) => {
-        newAccPreferences[account.addr] = { label, pfp }
+        newAccPreferences[account.addr] = {
+          label: label || settingsCtrl.accountPreferences[account.addr].label,
+          pfp
+        }
       })
 
       dispatch({
@@ -81,7 +86,7 @@ const AccountPersonalizeScreen = () => {
 
       navigate('/')
     },
-    [navigate, dispatch]
+    [navigate, dispatch, settingsCtrl.accountPreferences]
   )
 
   return (

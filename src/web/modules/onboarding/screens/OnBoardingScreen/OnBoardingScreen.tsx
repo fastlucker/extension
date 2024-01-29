@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 
-import tokensEarnedImg from '@common/assets/images/TokensEarned.png'
+import tokensEarnedImg from '@common/assets/images/tokensEarned.png'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -72,9 +72,15 @@ const OnBoardingScreen = () => {
           <Text weight="medium" fontSize={20} style={[text.center, spacings.mb]}>
             {t("You've just earned $WALLET rewards for creating a new fresh account.")}
           </Text>
-          <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
-            {t('Check how you can earn more')}
-          </Text>
+          <Pressable
+            onPress={() => {
+              // TODO:
+            }}
+          >
+            <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
+              {t('Check how you can earn more')}
+            </Text>
+          </Pressable>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
