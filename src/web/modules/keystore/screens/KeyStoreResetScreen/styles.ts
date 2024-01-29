@@ -18,16 +18,18 @@ const styles = StyleSheet.create<Styles>({
     ...spacings.mbXl
   },
   text: {
-    ...spacings.mbMd
+    ...spacings.mbMd,
+    textAlign: 'center'
   },
   currentEmailContainer: {
-    ...flexbox.directionRow,
     ...spacings.pvSm,
     ...spacings.phSm,
     backgroundColor: colors.zircon,
     borderRadius: 12
   },
-  currentEmailLabel: {},
+  currentEmailLabel: {
+    textAlign: 'center'
+  },
   currentEmailValue: {
     color: colors.violet
   },

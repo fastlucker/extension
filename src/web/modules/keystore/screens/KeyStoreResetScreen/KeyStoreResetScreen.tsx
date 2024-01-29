@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -6,10 +6,16 @@ import { View } from 'react-native'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { SPACING_LG } from '@common/styles/spacings'
-import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
 
+import BackButton from '@common/components/BackButton'
+import Header from '@common/modules/header/components/Header'
+import Modal from '@common/components/Modal'
 import KeystoreResetForm from '../../components/KeyStoreResetForm'
 import styles from './styles'
 
@@ -57,13 +63,27 @@ const KeyStoreResetScreen = () => {
   }, [handleSubmit])
 
   return (
-    <TabLayoutWrapperMainContent
-      pageTitle={
-        !isConfirming ? t('Restore Key Store Passphrase') : t('Email Confirmation Required')
+    <TabLayoutContainer
+      width="sm"
+      header={
+        <Header customTitle={t('Restore Device Password')} withAmbireLogo mode="image-and-title" />
       }
-      width="xs"
+      footer={
+        <>
+          <BackButton />
+          <View>
+            <Button
+              disabled={!isValid && !isInitial}
+              onPress={isInitial ? handleSendResetEmail : handleCompleteReset}
+              style={styles.button}
+              hasBottomSpacing={false}
+              text={isInitial ? t('Send Confirmation Email') : t('Setup Ambire Key Store')}
+            />
+          </View>
+        </>
+      }
     >
-      {!isConfirming ? (
+      <TabLayoutWrapperMainContent>
         <>
           <KeyStoreLogo width={120} height={120} style={styles.logo} />
           {isInitial ? (
@@ -77,7 +97,7 @@ const KeyStoreResetScreen = () => {
             </Text>
           ) : (
             <>
-              <Text weight="regular" fontSize={14}>
+              <Text style={styles.text} weight="regular" fontSize={14}>
                 {t('Your email is confirmed')}.
               </Text>
               <Text style={styles.text} weight="regular" fontSize={14}>
@@ -98,25 +118,20 @@ const KeyStoreResetScreen = () => {
           >
             <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
               {t('The recovery email for current KeyStore is')}{' '}
-            </Text>
-            <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
-              demo@ambire.com
+              <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
+                demo@ambire.com
+              </Text>
             </Text>
           </View>
           {!isInitial && (
             <KeystoreResetForm control={control} errors={errors} password={watch('password')} />
           )}
-          <Button
-            disabled={!isValid && !isInitial}
-            onPress={isInitial ? handleSendResetEmail : handleCompleteReset}
-            style={styles.button}
-            text={isInitial ? t('Send Confirmation Email') : t('Setup Ambire Key Store')}
-          />
         </>
-      ) : (
-        <EmailConfirmation handleCancelLoginAttempt={handleCancelLoginAttempt} />
-      )}
-    </TabLayoutWrapperMainContent>
+        <Modal isOpen={isConfirming} modalStyle={{ minWidth: 'unset' }}>
+          <EmailConfirmation handleCancelLoginAttempt={handleCancelLoginAttempt} />
+        </Modal>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

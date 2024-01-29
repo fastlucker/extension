@@ -3,10 +3,10 @@ import { FC } from 'react'
 import { Controller, FieldErrorsImpl } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import Checkbox from '@common/components/Checkbox'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import { isWeb } from '@common/config/env'
+import PasswordSetModal from '@web/components/PasswordSetModal'
 
 import styles from './styles'
 
@@ -17,7 +17,6 @@ interface Props {
     FieldErrorsImpl<{
       password: string
       confirmPassword: string
-      isRecoveryByEmailEnabled: boolean
     }>
   >
 }
@@ -67,18 +66,7 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
         )}
         name="confirmPassword"
       />
-      <Controller
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <Checkbox
-            style={styles.checkbox}
-            value={value}
-            onValueChange={onChange}
-            label="Key store recovery by email"
-          />
-        )}
-        name="isRecoveryByEmailEnabled"
-      />
+      <PasswordSetModal isOpen onPress={() => {}} />
     </>
   )
 }

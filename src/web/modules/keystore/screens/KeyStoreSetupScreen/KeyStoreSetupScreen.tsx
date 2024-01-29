@@ -9,9 +9,7 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
-import Modal from '@common/components/Modal'
 import Panel from '@common/components/Panel'
-import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import { DEVICE_SECURITY_LEVEL } from '@common/contexts/biometricsContext/constants'
@@ -23,9 +21,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { SPACING_3XL } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
+import spacings from '@common/styles/spacings'
 import {
   TabLayoutContainer,
   tabLayoutWidths,
@@ -37,8 +33,7 @@ import storage from '@web/extension-services/background/webapi/storage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Stepper from '@web/modules/router/components/Stepper'
-
-import KeyStoreLogo from '../../components/KeyStoreLogo'
+import PasswordSetModal from '@web/components/PasswordSetModal'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -199,52 +194,34 @@ const KeyStoreSetupScreen = () => {
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>
-      <Modal
+      <PasswordSetModal
         isOpen={keystoreReady}
-        modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
-      >
-        <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
-          {t('Device Password')}
-        </Text>
-        <KeyStoreLogo width={112} height={112} style={[flexbox.alignSelfCenter, spacings.mbXl]} />
-        <Text fontSize={16} style={[spacings.mb2Xl, text.center]}>
-          {t('Your Device Password is set!')}
-        </Text>
-        <Button
-          text={t('Continue')}
-          hasBottomSpacing={false}
-          style={{ minWidth: 232 }}
-          onPress={() => {
-            if (params?.flow === 'email') {
-              navigate(WEB_ROUTES.createEmailVault, {
-                state: { backTo: WEB_ROUTES.getStarted }
-              })
-              return
-            }
-            if (params?.flow === 'hw') {
-              navigate(WEB_ROUTES.hardwareWalletSelect, {
-                state: { backTo: WEB_ROUTES.getStarted }
-              })
-              return
-            }
-            if (params?.flow === 'seed') {
-              navigate(WEB_ROUTES.importSeedPhrase, {
-                state: { backTo: WEB_ROUTES.importHotWallet }
-              })
-              return
-            }
-            if (params?.flow === 'private-key') {
-              navigate(WEB_ROUTES.importPrivateKey, {
-                state: { backTo: WEB_ROUTES.importHotWallet }
-              })
-            }
-          }}
-        >
-          <View style={spacings.pl}>
-            <RightArrowIcon color={colors.titan} />
-          </View>
-        </Button>
-      </Modal>
+        onPress={() => {
+          if (params?.flow === 'email') {
+            navigate(WEB_ROUTES.createEmailVault, {
+              state: { backTo: WEB_ROUTES.getStarted }
+            })
+            return
+          }
+          if (params?.flow === 'hw') {
+            navigate(WEB_ROUTES.hardwareWalletSelect, {
+              state: { backTo: WEB_ROUTES.getStarted }
+            })
+            return
+          }
+          if (params?.flow === 'seed') {
+            navigate(WEB_ROUTES.importSeedPhrase, {
+              state: { backTo: WEB_ROUTES.importHotWallet }
+            })
+            return
+          }
+          if (params?.flow === 'private-key') {
+            navigate(WEB_ROUTES.importPrivateKey, {
+              state: { backTo: WEB_ROUTES.importHotWallet }
+            })
+          }
+        }}
+      />
     </TabLayoutContainer>
   )
 }
