@@ -119,4 +119,4 @@ const AccountAdderScreen = () => {
   )
 }
 
-export default AccountAdderScreen
+export default React.memo(AccountAdderScreen)
