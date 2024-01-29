@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useContext } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Route, Routes } from 'react-router-dom'
 
+import Alert from '@common/components/Alert'
 import Spinner from '@common/components/Spinner'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
@@ -17,11 +18,14 @@ const Router = () => {
     ControllersStateLoadedContext
   )
 
-  // Took too long, display warn
-  if (isStatesLoadingTakingTooLong) {
+  if (!areControllerStatesLoaded && isStatesLoadingTakingTooLong) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
-        <Spinner />
+        <Alert
+          type="warning"
+          title="Initial loading is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension."
+          style={{ maxWidth: 500 }}
+        />
       </View>
     )
   }
