@@ -2,7 +2,6 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -11,8 +10,6 @@ interface Style {
   informationCircle: ViewStyle
   footerContainer: ViewStyle
   footer: ViewStyle
-  primarySideItem: ViewStyle
-  errorSideItem: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -57,24 +54,6 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       width: '100%',
       marginHorizontal: 'auto'
-    },
-    primarySideItem: {
-      borderColor: theme.primaryLight,
-      borderWidth: 1,
-      backgroundColor: '#F6F0FF',
-      ...common.borderRadiusPrimary,
-      ...spacings.phXl,
-      ...spacings.pvXl,
-      ...spacings.mbLg
-    },
-    errorSideItem: {
-      borderColor: theme.errorDecorative,
-      borderWidth: 1,
-      backgroundColor: theme.errorBackground,
-      ...common.borderRadiusPrimary,
-      ...spacings.phXl,
-      ...spacings.pvXl,
-      ...spacings.mbLg
     }
   })
 

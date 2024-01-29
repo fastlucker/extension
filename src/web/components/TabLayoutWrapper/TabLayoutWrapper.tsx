@@ -9,8 +9,6 @@ import flexbox from '@common/styles/utils/flexbox'
 import { TAB_CONTENT_WIDTH, TAB_WIDE_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
-import TabLayoutWrapperSideContent from './SideContent'
-import TabLayoutWrapperSideContentItem from './SideContentItem/SideContentItem'
 import getStyles from './styles'
 
 type Width = 'sm' | 'md' | 'lg' | 'xl' | 'full'
@@ -121,5 +119,3 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
     </Wrapper>
   )
 }
-
-export { TabLayoutWrapperSideContent, TabLayoutWrapperSideContentItem }
