@@ -18,12 +18,10 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 const Networks = ({
-  search,
   openSettingsBottomSheet,
   openBlockExplorer,
   filterByNetworkId
 }: {
-  search: string
   openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
   openBlockExplorer: (networkId: NetworkDescriptor['id'], url?: string) => void
   filterByNetworkId: NetworkDescriptor['id'] | null
@@ -42,32 +40,18 @@ const Networks = ({
 
   const filteredAndSortedPortfolio = useMemo(
     () =>
-      Object.keys(portfolioByNetworks || [])
-        .filter((networkId) => {
-          if (!search) return true
-          const networkData = networks.find((network) => network.id === networkId)
-          let networkName = networkData?.name
-          if (networkId === 'rewards') {
-            networkName = 'Ambire Rewards'
-          }
-          if (networkId === 'gasTank') {
-            networkName = 'Gas Tank'
-          }
+      Object.keys(portfolioByNetworks || []).sort((a, b) => {
+        const aBalance = portfolioByNetworks[a]?.result?.total?.usd || 0
+        const bBalance = portfolioByNetworks[b]?.result?.total?.usd || 0
 
-          return networkName?.toLowerCase().includes(search.toLowerCase())
-        })
-        .sort((a, b) => {
-          const aBalance = portfolioByNetworks[a]?.result?.total?.usd || 0
-          const bBalance = portfolioByNetworks[b]?.result?.total?.usd || 0
+        if (aBalance === bBalance) {
+          if (b === 'rewards' || b === 'gasTank') return -1
+          return 1
+        }
 
-          if (aBalance === bBalance) {
-            if (b === 'rewards' || b === 'gasTank') return -1
-            return 1
-          }
-
-          return Number(bBalance) - Number(aBalance)
-        }),
-    [networks, portfolioByNetworks, search]
+        return Number(bBalance) - Number(aBalance)
+      }),
+    [portfolioByNetworks]
   )
 
   const navigateAndFilterDashboard = (networkId: NetworkDescriptor['id']) => {

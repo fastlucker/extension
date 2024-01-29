@@ -41,15 +41,8 @@ const NetworksScreen = () => {
   const portfolioControllerState = usePortfolioControllerState()
   const { selectedAccount } = useMainControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const { control, watch } = useForm({
-    mode: 'all',
-    defaultValues: {
-      search: ''
-    }
-  })
   const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkDescriptor['id'] | null>(null)
   const filterByNetworkId = state?.filterByNetworkId || null
-  const search = watch('search')
 
   const openSettingsBottomSheet = (networkId: NetworkDescriptor['id']) => {
     openBottomSheet()
@@ -96,7 +89,7 @@ const NetworksScreen = () => {
 
   return (
     <TabLayoutContainer
-      header={<Header withPopupBackButton withAmbireLogo />}
+      header={<Header customTitle="Networks" withPopupBackButton withAmbireLogo />}
       footer={<BackButton />}
       width="sm"
       hideFooterInPopup
@@ -108,7 +101,6 @@ const NetworksScreen = () => {
           selectedNetworkId={selectedNetworkId}
           openBlockExplorer={openBlockExplorer}
         />
-        <Search control={control} placeholder="Search" containerStyle={spacings.mb} />
         <Pressable
           onPress={() => {
             navigate(WEB_ROUTES.dashboard, {
@@ -149,7 +141,6 @@ const NetworksScreen = () => {
         <Networks
           openBlockExplorer={openBlockExplorer}
           openSettingsBottomSheet={openSettingsBottomSheet}
-          search={search}
           filterByNetworkId={filterByNetworkId}
         />
         <Button disabled type="secondary">
