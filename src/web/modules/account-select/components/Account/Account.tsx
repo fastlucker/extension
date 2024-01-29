@@ -74,7 +74,7 @@ const Account = ({
         >
           <View style={[flexboxStyles.directionRow]}>
             <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-              <Blockies scale={5} seed={addr} />
+              <Blockies width={40} height={40} seed={addr} />
             </View>
             <View>
               <View style={flexboxStyles.directionRow}>

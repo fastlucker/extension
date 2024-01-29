@@ -86,7 +86,7 @@ const DashboardHeader = () => {
               <>
                 <View style={styles.accountButtonInfo}>
                   <View>
-                    <Blockies seed={selectedAccount} />
+                    <Blockies width={32} height={32} seed={selectedAccount} />
                     {isViewOnly && (
                       <View
                         style={{
