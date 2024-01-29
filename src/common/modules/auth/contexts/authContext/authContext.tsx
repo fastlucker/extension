@@ -22,7 +22,7 @@ const AuthProvider: React.FC = ({ children }: any) => {
 
   useEffect(() => {
     // Safeguard against a potential race condition where the auth status might
-    // not get set properly. After the timeout is reached, the app will display
+    // not get set properly. If the timeout gets reached, the app displays
     // feedback to the user (using the `isAuthStatusTakingTooLong` flag).
     const timeout = setTimeout(() => setIsAuthStatusTakingTooLong(true), 10000)
 

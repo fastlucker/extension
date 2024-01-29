@@ -32,6 +32,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const settingsState = useSettingsControllerState()
 
   useEffect(() => {
+    // Safeguard against a potential race condition where one of the controller
+    // states might not update properly and the `areControllerStatesLoaded`
+    // might get stuck in `false` state forever. If the timeout gets reached,
+    // the app displays feedback to the user (via the
+    // `isStatesLoadingTakingTooLong` flag).
+    const timer = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
+
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
     // state data has been returned from the background service
@@ -48,16 +55,11 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(activityState).length &&
       Object.keys(settingsState).length
     ) {
+      clearTimeout(timer)
       setAreControllerStatesLoaded(true)
     }
 
-    // Set a timeout to check if state is loaded after 10 seconds
-    const timeoutId = setTimeout(() => {
-      if (!areControllerStatesLoaded) setIsStatesLoadingTakingTooLong(true)
-    }, 10000)
-
-    // Clear the timeout when the component is unmounted or when areControllerStatesLoaded changes
-    return () => clearTimeout(timeoutId)
+    return () => clearTimeout(timer)
   }, [
     mainState,
     walletState,
