@@ -41,25 +41,23 @@ const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
   const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
   const remainingTime = deadline - BigInt(Date.now())
   const minute: bigint = 60000n
-
-  let updateAfter = Number(minute)
-  // more then 10mints
-  if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
-  // if 0< and <10 minutes
-  if (remainingTime > 0 && remainingTime < 10n * minute)
-    updateAfter = Number(remainingTime % minute)
-  // if just expired
-  if (remainingTime < 0 && remainingTime > -2n * minute)
-    updateAfter = Number(2n * minute + remainingTime)
-  if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
-
   useEffect(() => {
+    let updateAfter = Number(minute)
+    // more then 10mints
+    if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
+    // if 0< and <10 minutes
+    if (remainingTime > 0 && remainingTime < 10n * minute)
+      updateAfter = Number(remainingTime % minute)
+    // if just expired
+    if (remainingTime < 0 && remainingTime > -2n * minute)
+      updateAfter = Number(2n * minute + remainingTime)
+    if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
+    console.log(updateAfter / Number(minute))
     const intervalId = setInterval(() => {
       setDeadlineText(getDeadlineText(deadline))
     }, updateAfter)
-
     return () => clearInterval(intervalId)
-  }, [])
+  }, [deadlineText])
   return <p>{deadlineText}</p>
 }
 
