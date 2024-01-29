@@ -28,7 +28,7 @@ import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import { NETWORKS } from '@common/constants/networks'
 
-export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank'
+export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank' | 'rewards'
 
 type Props = {
   name: NetworkIconNameType
