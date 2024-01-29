@@ -13,9 +13,20 @@ const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRou
 
 const Router = () => {
   const { authStatus } = useAuth()
-  const isControllersStateLoaded = useContext(ControllersStateLoadedContext)
+  const { areControllerStatesLoaded, isStatesLoadingTakingTooLong } = useContext(
+    ControllersStateLoadedContext
+  )
 
-  if (authStatus === AUTH_STATUS.LOADING || !isControllersStateLoaded) {
+  // Took too long, display warn
+  if (isStatesLoadingTakingTooLong) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
+  }
+
+  if (authStatus === AUTH_STATUS.LOADING || !areControllerStatesLoaded) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />

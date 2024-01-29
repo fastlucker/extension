@@ -10,10 +10,17 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const ControllersStateLoadedContext = createContext<boolean>(false)
+const ControllersStateLoadedContext = createContext<{
+  areControllerStatesLoaded: boolean
+  isStatesLoadingTakingTooLong: boolean
+}>({
+  areControllerStatesLoaded: false,
+  isStatesLoadingTakingTooLong: false
+})
 
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
-  const [isStateLoaded, setIsStateLoaded] = useState<boolean>(false)
+  const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
+  const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
@@ -28,7 +35,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
     // state data has been returned from the background service
-    // so we update the isStateLoaded to true
+    // so we update the areControllerStatesLoaded to true
     if (
       Object.keys(mainState).length &&
       Object.keys(walletState).length &&
@@ -41,8 +48,16 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(activityState).length &&
       Object.keys(settingsState).length
     ) {
-      setIsStateLoaded(true)
+      setAreControllerStatesLoaded(true)
     }
+
+    // Set a timeout to check if state is loaded after 10 seconds
+    const timeoutId = setTimeout(() => {
+      if (!areControllerStatesLoaded) setIsStatesLoadingTakingTooLong(true)
+    }, 10000)
+
+    // Clear the timeout when the component is unmounted or when areControllerStatesLoaded changes
+    return () => clearTimeout(timeoutId)
   }, [
     mainState,
     walletState,
@@ -52,11 +67,17 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     notificationState,
     portfolioState,
     activityState,
-    settingsState
+    settingsState,
+    areControllerStatesLoaded
   ])
 
   return (
-    <ControllersStateLoadedContext.Provider value={useMemo(() => isStateLoaded, [isStateLoaded])}>
+    <ControllersStateLoadedContext.Provider
+      value={useMemo(
+        () => ({ areControllerStatesLoaded, isStatesLoadingTakingTooLong }),
+        [areControllerStatesLoaded, isStatesLoadingTakingTooLong]
+      )}
+    >
       {children}
     </ControllersStateLoadedContext.Provider>
   )
