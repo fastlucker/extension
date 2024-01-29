@@ -94,8 +94,7 @@ const AccountPersonalizeScreen = () => {
         </Header>
       }
       footer={
-        <>
-          <BackButton />
+        <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
             onPress={handleSubmit(handleSave)}
             hasBottomSpacing={false}
@@ -105,7 +104,7 @@ const AccountPersonalizeScreen = () => {
               <RightArrowIcon color={colors.titan} />
             </View>
           </Button>
-        </>
+        </View>
       }
     >
       <TabLayoutWrapperMainContent>
