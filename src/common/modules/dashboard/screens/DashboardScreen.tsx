@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import Banners from '@common/components/Banners'
 import Search from '@common/components/Search'
@@ -25,7 +26,9 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
@@ -62,6 +65,7 @@ const DashboardScreen = () => {
     height: 0
   })
   const route = useRoute()
+  const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const { control, watch } = useForm({
     mode: 'all',
@@ -76,22 +80,52 @@ const DashboardScreen = () => {
 
     return (params.get('tab') as 'tokens' | 'collectibles' | 'defi') || 'tokens'
   })
-
-  const { accountPortfolio, startedLoading } = usePortfolioControllerState()
+  const { networks } = useSettingsControllerState()
+  const { selectedAccount } = useMainControllerState()
+  const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
+  const filterByNetworkName = useMemo(() => {
+    if (!filterByNetworkId) return ''
+
+    if (filterByNetworkId === 'rewards') return 'Ambire Rewards'
+    if (filterByNetworkId === 'gasTank') return 'Gas Tank'
+
+    const network = networks.find((n) => n.id === filterByNetworkId)
+
+    return network?.name
+  }, [filterByNetworkId, networks])
+
+  const totalPortfolioAmount = useMemo(() => {
+    if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
+
+    if (!selectedAccount) return 0
+
+    const selectedAccountPortfolio = state.latest[selectedAccount][filterByNetworkId]?.result?.total
+
+    return Number(selectedAccountPortfolio?.usd) || 0
+  }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
+
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter((token) => {
-        if (!searchValue) return true
+      accountPortfolio?.tokens
+        .filter((token) => {
+          if (!filterByNetworkId) return true
+          if (filterByNetworkId === 'rewards') return token.flags.rewardsType
+          if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
 
-        const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-        const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+          return token.networkId === filterByNetworkId
+        })
+        .filter((token) => {
+          if (!searchValue) return true
 
-        return doesAddressMatch || doesSymbolMatch
-      }),
-    [accountPortfolio?.tokens, searchValue]
+          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+
+          return doesAddressMatch || doesSymbolMatch
+        }),
+    [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
 
   useEffect(() => {
@@ -180,9 +214,9 @@ const DashboardScreen = () => {
                             color={theme.primaryBackground}
                           >
                             {t('$')}
-                            {Number(
-                              accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
-                            ).toLocaleString('en-US')}
+                            {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
+                              'en-US'
+                            )}
                           </Text>
                           <Text
                             fontSize={20}
@@ -191,7 +225,7 @@ const DashboardScreen = () => {
                             color={theme.primaryBackground}
                           >
                             {t('.')}
-                            {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
+                            {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
                           </Text>
                         </Text>
                       ) : (
@@ -210,10 +244,24 @@ const DashboardScreen = () => {
                         flexbox.alignCenter,
                         { opacity: hovered ? 1 : 0.7 }
                       ]}
-                      onPress={() => navigate(WEB_ROUTES.networks)}
+                      onPress={() => {
+                        navigate(WEB_ROUTES.networks, {
+                          state: {
+                            filterByNetworkId
+                          }
+                        })
+                      }}
                     >
+                      {filterByNetworkId ? (
+                        <FilterIcon
+                          color={theme.primaryBackground}
+                          width={16}
+                          height={16}
+                          style={spacings.mrMi}
+                        />
+                      ) : null}
                       <Text fontSize={14} color={theme.primaryBackground} weight="medium">
-                        All Networks
+                        {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
                       </Text>
                       <DownArrowIcon
                         style={spacings.mlSm}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -11,10 +11,13 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
 import Header from '@common/modules/header/components/Header'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -32,6 +35,8 @@ import getStyles from './styles'
 const NetworksScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const { navigate } = useNavigation()
+  const { state } = useRoute()
   const { styles, theme } = useTheme(getStyles)
   const portfolioControllerState = usePortfolioControllerState()
   const { selectedAccount } = useMainControllerState()
@@ -43,6 +48,7 @@ const NetworksScreen = () => {
     }
   })
   const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkDescriptor['id'] | null>(null)
+  const filterByNetworkId = state?.filterByNetworkId || null
   const search = watch('search')
 
   const openSettingsBottomSheet = (networkId: NetworkDescriptor['id']) => {
@@ -103,7 +109,19 @@ const NetworksScreen = () => {
           openBlockExplorer={openBlockExplorer}
         />
         <Search control={control} placeholder="Search" containerStyle={spacings.mb} />
-        <View style={[styles.network, styles.allNetworks]}>
+        <Pressable
+          onPress={() => {
+            navigate(WEB_ROUTES.dashboard, {
+              state: {
+                filterByNetworkId: null
+              }
+            })
+          }}
+          style={({ hovered }: any) => [
+            styles.network,
+            !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
+          ]}
+        >
           <View style={[flexbox.alignCenter, flexbox.directionRow]}>
             <View
               style={{
@@ -119,21 +137,22 @@ const NetworksScreen = () => {
               {t('All Networks')}
             </Text>
           </View>
-          <Text fontSize={20} weight="semiBold">
+          <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
             {`$${formatThousands(
               Number(portfolioControllerState.accountPortfolio?.totalAmount || 0).toFixed(2)
             )}` || '$-'}
           </Text>
-        </View>
+        </Pressable>
         <Networks
           openBlockExplorer={openBlockExplorer}
           openSettingsBottomSheet={openSettingsBottomSheet}
           search={search}
+          filterByNetworkId={filterByNetworkId}
         />
         <Button disabled type="secondary">
           <AddIcon color={theme.primary} />
           <Text style={spacings.mlTy} fontSize={14} appearance="primary">
-            Add New Network
+            {t('Add New Network')}
           </Text>
         </Button>
       </TabLayoutWrapperMainContent>

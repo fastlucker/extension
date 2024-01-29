@@ -6,8 +6,10 @@ import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -18,12 +20,15 @@ import getStyles from '@web/modules/networks/screens/styles'
 const Networks = ({
   search,
   openSettingsBottomSheet,
-  openBlockExplorer
+  openBlockExplorer,
+  filterByNetworkId
 }: {
   search: string
   openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
   openBlockExplorer: (networkId: NetworkDescriptor['id'], url?: string) => void
+  filterByNetworkId: NetworkDescriptor['id'] | null
 }) => {
+  const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
@@ -65,6 +70,14 @@ const Networks = ({
     [networks, portfolioByNetworks, search]
   )
 
+  const navigateAndFilterDashboard = (networkId: NetworkDescriptor['id']) => {
+    navigate(WEB_ROUTES.dashboard, {
+      state: {
+        filterByNetworkId: networkId
+      }
+    })
+  }
+
   return (
     <View style={spacings.mbLg}>
       {!!selectedAccount &&
@@ -85,23 +98,29 @@ const Networks = ({
               key={networkId}
               onHoverIn={() => setHoveredNetworkId(networkId)}
               onHoverOut={() => setHoveredNetworkId(null)}
+              onPress={() => navigateAndFilterDashboard(networkId)}
               style={[
                 styles.network,
-                {
-                  backgroundColor: isNetworkHovered
-                    ? theme.secondaryBackground
-                    : theme.primaryBackground
-                }
+                filterByNetworkId === networkId || isNetworkHovered ? styles.highlightedNetwork : {}
               ]}
             >
               <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                {/* @ts-ignore */}
+                <NetworkIcon width={32} height={32} name={networkId} />
+                <Text style={spacings.mlMi} fontSize={16}>
+                  {networkName}
+                </Text>
+              </View>
+              <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+                <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
+                  {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
+                </Text>
                 <Pressable
                   onPress={async () => {
                     await openBlockExplorer(networkId, networkData?.explorerUrl)
                   }}
                   style={[
-                    spacings.mrTy,
-                    spacings.mlMi,
+                    spacings.ml,
                     {
                       opacity: isNetworkHovered ? 1 : 0
                     }
@@ -116,22 +135,18 @@ const Networks = ({
                     />
                   )}
                 </Pressable>
-                <NetworkIcon width={32} height={32} name={networkId} />
-                <Text style={spacings.mlMi} fontSize={16}>
-                  {networkName}
-                </Text>
-              </View>
-              <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-                <Text fontSize={16} weight="semiBold">
-                  {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
-                </Text>
                 <Pressable
                   onHoverIn={() => setHoveredNetworkId(networkId)}
                   onPress={() => openSettingsBottomSheet(networkId)}
+                  style={[
+                    spacings.mlSm,
+                    {
+                      opacity: isNetworkHovered ? 1 : 0
+                    }
+                  ]}
                 >
                   {({ hovered }: any) => (
                     <KebabMenuIcon
-                      style={spacings.ml}
                       width={16}
                       height={16}
                       color={hovered ? theme.primaryText : theme.secondaryText}

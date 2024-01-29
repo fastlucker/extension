@@ -1,10 +1,9 @@
 import React from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import OpenIcon from '@common/assets/svg/OpenIcon'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -13,10 +12,10 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
+import Option from './Option/Option'
 import getStyles from './styles'
 
 const getNetworkName = (networkId: NetworkDescriptor['id'], networkName?: string) => {
@@ -27,56 +26,6 @@ const getNetworkName = (networkId: NetworkDescriptor['id'], networkName?: string
     return 'Gas Tank'
   }
   return networkName
-}
-
-const Option = ({
-  renderIcon,
-  text,
-  onPress
-}: {
-  renderIcon: React.ReactNode
-  text: string
-  onPress: () => void
-}) => {
-  const { styles, theme } = useTheme(getStyles)
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ hovered }: any) => [
-        styles.item,
-        flexbox.justifySpaceBetween,
-        {
-          borderWidth: 1,
-          borderColor: hovered ? theme.primary : 'transparent'
-        }
-      ]}
-    >
-      {({ hovered }: any) => (
-        <>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <View
-              style={{
-                width: 40,
-                height: 40,
-                ...flexbox.center,
-                ...spacings.mrTy
-              }}
-            >
-              {renderIcon}
-            </View>
-            <Text fontSize={16} weight="medium">
-              {text}
-            </Text>
-          </View>
-          <RightArrowIcon
-            style={{
-              transform: [{ translateX: hovered ? 5 : 0 }]
-            }}
-          />
-        </>
-      )}
-    </Pressable>
-  )
 }
 
 interface Props {
@@ -101,6 +50,7 @@ const NetworkBottomSheet = ({
   return (
     <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
+        {/* @ts-ignore */}
         <NetworkIcon width={32} height={32} name={selectedNetworkId} />
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
           {getNetworkName(selectedNetworkId, networkData?.name)}
@@ -110,8 +60,18 @@ const NetworkBottomSheet = ({
         renderIcon={<SettingsIcon width={27} height={27} color={theme.secondaryText} />}
         text="Go to Network Settings"
         onPress={async () => {
+          if (selectedNetworkId === 'rewards') {
+            addToast('Ambire Rewards network does not have network settings.', { type: 'info' })
+            return
+          }
+          if (selectedNetworkId === 'gasTank') {
+            addToast('Gas Tank network does not have network settings.', { type: 'info' })
+            return
+          }
           try {
-            await openInternalPageInTab(WEB_ROUTES.networksSettings)
+            await openInternalPageInTab(
+              `${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`
+            )
           } catch {
             addToast('Failed to open network settings in a new tab.', { type: 'error' })
           }

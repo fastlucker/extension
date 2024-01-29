@@ -7,7 +7,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   network: ViewStyle
-  allNetworks: ViewStyle
+  highlightedNetwork: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -19,10 +19,12 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phTy,
       ...spacings.pvTy,
       marginBottom: SPACING_MI / 2,
-      borderRadius: BORDER_RADIUS_PRIMARY
-    },
-    allNetworks: {
+      borderRadius: BORDER_RADIUS_PRIMARY,
       borderWidth: 1,
+      borderColor: 'transparent'
+    },
+    highlightedNetwork: {
+      backgroundColor: theme.secondaryBackground,
       borderColor: theme.secondaryBorder
     }
   })
