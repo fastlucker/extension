@@ -110,7 +110,7 @@ const PrivateKeyImportScreen = () => {
                   numberOfLines={3}
                   autoFocus
                   containerStyle={spacings.mb0}
-                  placeholder={t('Enter a seed phrase or private key')}
+                  placeholder={t('Enter a private key')}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   isValid={!handleValidation(value) && !!value.length}

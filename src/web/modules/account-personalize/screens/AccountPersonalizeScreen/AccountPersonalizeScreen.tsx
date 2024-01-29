@@ -127,9 +127,13 @@ const AccountPersonalizeScreen = () => {
 
             <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
               <Text fontSize={16} appearance="successText">
-                {t('Successfully added ({{numOfAccounts}}) accounts', {
-                  numOfAccounts: newAccounts.length
-                })}
+                {newAccounts.length === 1
+                  ? t('Successfully added ({{numOfAccounts}}) account', {
+                      numOfAccounts: newAccounts.length
+                    })
+                  : t('Successfully added ({{numOfAccounts}}) accounts', {
+                      numOfAccounts: newAccounts.length
+                    })}
               </Text>
             </Alert>
           </View>
