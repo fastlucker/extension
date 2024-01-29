@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import LockSvg from './LockSvg'
@@ -12,21 +11,8 @@ type Props = {
   style?: ViewStyle | ViewStyle[]
 }
 
-const KeyStoreLogo = ({
-  style,
-  width = 90,
-  height = 90
-}: Props) => (
-  <View
-    style={[
-      flexbox.alignCenter,
-      flexbox.justifyCenter,
-      spacings.pvLg,
-      spacings.mtTy,
-      spacings.mbLg,
-      style
-    ]}
-  >
+const KeyStoreLogo = ({ style, width = 90, height = 90 }: Props) => (
+  <View style={[flexbox.alignCenter, flexbox.justifyCenter, style]}>
     <LockSvg width={width} height={height} />
   </View>
 )
