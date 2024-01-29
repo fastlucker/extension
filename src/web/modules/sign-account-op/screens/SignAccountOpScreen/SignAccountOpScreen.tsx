@@ -247,6 +247,20 @@ const SignAccountOpScreen = () => {
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
 
+  const hasSimulationError =
+    !portfolioStatePending?.isLoading &&
+    (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
+      !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+
+  let simulationErrorMsg = 'We were unable to simulate the transaction'
+  if (portfolioStatePending?.criticalError)
+    simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+  else {
+    const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
+    if (simulationError)
+      simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+  }
+
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
 
   return (
@@ -281,7 +295,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Simulation results')}
               </Text>
-              {!!pendingTokens.length && (
+              {!portfolioStatePending?.isLoading && !!pendingTokens.length && !hasSimulationError && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -341,13 +355,11 @@ const SignAccountOpScreen = () => {
                   <Spinner style={styles.spinner} />
                 </View>
               )}
-              {!portfolioStatePending?.isLoading &&
-                (!!portfolioStatePending?.errors.length ||
-                  !!portfolioStatePending?.criticalError) && (
-                  <View>
-                    <Alert type="error" title="We were unable to simulate the transaction." />
-                  </View>
-                )}
+              {hasSimulationError && (
+                <View>
+                  <Alert type="error" title={simulationErrorMsg} />
+                </View>
+              )}
               {!portfolioStatePending?.isLoading &&
                 !pendingTokens.length &&
                 !portfolioStatePending?.errors.length &&
@@ -427,10 +439,7 @@ const SignAccountOpScreen = () => {
 
               {signAccountOpState?.errors.length ? (
                 <View style={styles.errorContainer}>
-                  <Alert
-                    type="error"
-                    title={`We are unable to sign your transaction. ${signAccountOpState?.errors[0]}`}
-                  />
+                  <Alert type="error" title={signAccountOpState?.errors[0]} />
                 </View>
               ) : null}
             </ScrollView>

@@ -283,18 +283,6 @@ async function init() {
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
-
-      // if we have a signAccountOp initialized, set an onUpdate listener that
-      // checks if the statet moves to a fatal EstimationError. If it does, stop
-      // the reestimation
-      if (mainCtrl.signAccountOp) {
-        mainCtrl.signAccountOp?.onUpdate(() => {
-          if (mainCtrl.signAccountOp?.status?.type === SigningStatus.EstimationError) {
-            !!backgroundState.reestimateInterval &&
-              clearInterval(backgroundState.reestimateInterval)
-          }
-        })
-      }
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
