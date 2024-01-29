@@ -48,7 +48,7 @@ const TokenItem = ({
         <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
           {isRewards || isVesting ? (
             <View style={styles.tokenButtonIconWrapper}>
-              <RewardsIcon width={24} height={24} />
+              <RewardsIcon width={40} height={40} />
             </View>
           ) : (
             <TokenIcon

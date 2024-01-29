@@ -1,14 +1,16 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings, { SPACING_MI } from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   network: ViewStyle
+  allNetworks: ViewStyle
 }
 
-const getStyles = () =>
+const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     network: {
       ...flexbox.alignCenter,
@@ -18,6 +20,10 @@ const getStyles = () =>
       ...spacings.pvTy,
       marginBottom: SPACING_MI / 2,
       borderRadius: BORDER_RADIUS_PRIMARY
+    },
+    allNetworks: {
+      borderWidth: 1,
+      borderColor: theme.secondaryBorder
     }
   })
 
