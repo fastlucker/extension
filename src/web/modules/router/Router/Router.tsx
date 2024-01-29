@@ -13,12 +13,24 @@ import SortHat from '@web/modules/router/components/SortHat'
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
 
 const Router = () => {
-  const { authStatus } = useAuth()
+  const { authStatus, isAuthStatusTakingTooLong } = useAuth()
   const { areControllerStatesLoaded, isStatesLoadingTakingTooLong } = useContext(
     ControllersStateLoadedContext
   )
 
-  if (!areControllerStatesLoaded && isStatesLoadingTakingTooLong) {
+  if (isAuthStatusTakingTooLong && authStatus === AUTH_STATUS.LOADING) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Alert
+          type="warning"
+          title="Setting the initial account(s) state is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension."
+          style={{ maxWidth: 500 }}
+        />
+      </View>
+    )
+  }
+
+  if (isStatesLoadingTakingTooLong && !areControllerStatesLoaded) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Alert
