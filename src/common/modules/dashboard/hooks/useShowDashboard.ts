@@ -1,6 +1,7 @@
 // useShowView.ts
 import { useEffect, useMemo, useState } from 'react'
 
+import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -11,6 +12,7 @@ interface ReturnProps {
 }
 
 export const useShowDashboard = (): ReturnProps => {
+  const { t } = useTranslation()
   const { addToast } = useToast()
   const { accountPortfolio, startedLoading } = usePortfolioControllerState()
 
@@ -31,14 +33,14 @@ export const useShowDashboard = (): ReturnProps => {
       if (!nextShowView) {
         setTimeoutShowViewReached(true)
         addToast(
-          'Updating portfolio is taking longer than expected, showing partial results now...',
+          t('Updating portfolio is taking longer than expected, showing partial results now...'),
           { type: 'warning' }
         )
       }
     }, WAIT_THRESHOLD)
 
     return () => clearTimeout(timeout)
-  }, [loadingExceededThreshold, accountPortfolio?.isAllReady, addToast])
+  }, [loadingExceededThreshold, accountPortfolio?.isAllReady, addToast, t])
 
   const showView =
     timeoutShowViewReached || loadingExceededThreshold || !!accountPortfolio?.isAllReady
