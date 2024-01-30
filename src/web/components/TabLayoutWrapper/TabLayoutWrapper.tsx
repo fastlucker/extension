@@ -16,11 +16,12 @@ import TabLayoutWrapperSideContent from './SideContent'
 import TabLayoutWrapperSideContentItem from './SideContentItem/SideContentItem'
 import getStyles from './styles'
 
-type Width = 'sm' | 'md' | 'lg' | 'xl' | 'full'
+type Width = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
 const { isTab, isNotification } = getUiType()
 
 export const tabLayoutWidths = {
+  xs: 500,
   sm: 770,
   md: 900,
   lg: TAB_CONTENT_WIDTH,
