@@ -79,6 +79,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
           )}
           {renderFallbackImage && (
             <ImageIcon
+              color={theme.secondaryText}
               width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
               height={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
             />
