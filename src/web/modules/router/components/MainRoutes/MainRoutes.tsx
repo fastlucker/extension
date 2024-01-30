@@ -13,8 +13,10 @@ import AccountSelectScreen from '@web/modules/account-select/screens/AccountSele
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
-import ExternalSignerLoginScreen from '@web/modules/auth/screens/ExternalSignerLoginScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
+import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
+import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
 import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
@@ -22,8 +24,10 @@ import EmailVaultScreen from '@web/modules/emailVault/screens/EmailVaultScreen'
 import KeystoreSecretBackup from '@web/modules/emailVault/screens/KeystoreSecretBackup'
 import KeystoreRecover from '@web/modules/emailVault/screens/KeystoreRecover'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
@@ -31,6 +35,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
@@ -62,7 +67,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.emailVaultKeystoreRecover} element={<KeystoreRecover />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
-
+          <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
           <Route
             path={WEB_ROUTES.hardwareWalletSelect}
             element={<HardwareWalletSelectorScreen />}
@@ -73,12 +78,14 @@ const MainRoutes = () => {
           />
           <Route path={WEB_ROUTES.viewOnlyAccountAdder} element={<ViewOnlyAccountAdderScreen />} />
 
-          <Route path={WEB_ROUTES.externalSigner} element={<ExternalSignerLoginScreen />} />
+          <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
+          <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
+          <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
           <Route element={<PrivateRoute />}>
             <Route
               path={WEB_ROUTES.transfer}
@@ -93,6 +100,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
             <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>
       </Route>
@@ -112,6 +120,8 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 
         <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
+        <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+
         <Route
           path={WEB_ROUTES.getEncryptionPublicKeyRequest}
           element={<GetEncryptionPublicKeyRequestScreen />}

@@ -6,7 +6,6 @@ import {
   PressableProps,
   Text,
   TextStyle,
-  TouchableOpacityProps,
   ViewStyle
 } from 'react-native'
 
@@ -19,7 +18,7 @@ import getStyles from './styles'
 type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
 
 type ButtonSizes = 'regular' | 'small' | 'large'
-export interface Props extends TouchableOpacityProps {
+export interface Props extends PressableProps {
   text?: string
   type?: ButtonTypes
   size?: ButtonSizes
@@ -28,6 +27,9 @@ export interface Props extends TouchableOpacityProps {
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
+  forceHoveredStyle?: boolean
+  children?: React.ReactNode
+  childrenPosition?: 'left' | 'right'
 }
 
 const Button = ({
@@ -41,6 +43,8 @@ const Button = ({
   hasBottomSpacing = true,
   children,
   disabledStyle,
+  forceHoveredStyle = false,
+  childrenPosition = 'right',
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
@@ -63,8 +67,10 @@ const Button = ({
     primary: {
       backgroundColor: theme.primaryLight
     },
+    secondary: {
+      backgroundColor: theme.secondaryBackground
+    },
     // @TODO: add hover styles for other button types
-    secondary: styles.buttonContainerSecondary,
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
     ghost: styles.buttonContainerGhost
@@ -92,24 +98,28 @@ const Button = ({
   return (
     <Pressable
       disabled={disabled}
-      style={({ hovered }: any) => [
-        containerStylesSizes[size],
-        styles.buttonContainer,
-        containerStyles[type],
-        hovered ? hoveredContainerStyles[type] : {},
-        style,
-        !!accentColor && { borderColor: accentColor },
-        !hasBottomSpacing && spacings.mb0,
-        disabled && disabledStyle ? disabledStyle : {},
-        disabled && !disabledStyle ? styles.disabled : {}
-      ]}
+      style={({ hovered }: any) =>
+        [
+          containerStylesSizes[size],
+          styles.buttonContainer,
+          containerStyles[type],
+          hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
+          style,
+          !!accentColor && { borderColor: accentColor },
+          !hasBottomSpacing && spacings.mb0,
+          disabled && disabledStyle ? disabledStyle : {},
+          disabled && !disabledStyle ? styles.disabled : {}
+        ] as ViewStyle
+      }
       // Animates all other components to mimic the TouchableOpacity effect
       onPressIn={type === 'primary' ? null : fadeIn}
       onPressOut={type === 'primary' ? null : fadeOut}
       {...rest}
     >
+      {childrenPosition === 'left' && children}
       {!!text && (
         <Text
+          selectable={false}
           style={[
             styles.buttonText,
             buttonTextStyles[type],
@@ -121,7 +131,7 @@ const Button = ({
           {text}
         </Text>
       )}
-      {children}
+      {childrenPosition === 'right' && children}
     </Pressable>
   )
 }

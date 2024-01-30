@@ -229,6 +229,25 @@ const SignMessageScreen = () => {
   }
 
   const onSignButtonClick = () => {
+    // FIXME: Ugly workaround for triggering `handleSign` manually.
+    // This approach is a temporary fix to address the issue where the
+    // 'useEffect' hook fails to get re-triggered. The original 'useEffect' was
+    // supposed to trigger 'handleSign' when certain conditions in
+    // 'signMessageState' were met. However, we encountered a problem: when
+    // 'mainCtrl.signMessage.sign()' throws an error (e.g., hardware wallet issues),
+    // the 'Sign' button becomes non-responsive. This happens because the
+    // 'useEffect' doesn't reactivate after the first  execution of
+    // 'mainCtrl.signMessage.setSigningKey'. To ensure functionality, this
+    // workaround checks if the signing key is set (via 'hasSigningKey') and
+    // then directly calls 'handleSign', bypassing the problematic 'useEffect' logic.
+    // A more robust and maintainable fix should be explored
+    // to handle such edge cases effectively in the future!
+    // FIXME: this won't allow changing the signing key (if user has multiple)
+    // after the first time the user picks key and attempts to sign the message
+    // (which ultimately sets the signing key the first time it gets triggered).
+    const hasSigningKey = signMessageState.signingKeyAddr && signMessageState.signingKeyType
+    if (hasSigningKey) return handleSign()
+
     // If the account has only one signer, we don't need to show the keys select
     if (selectedAccountKeyStoreKeys.length === 1) {
       handleChangeSigningKey(
@@ -243,6 +262,7 @@ const SignMessageScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="full"
       header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
       footer={
         <View style={styles.buttonsContainer}>

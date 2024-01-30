@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-shadow */
-import 'setImmediate'
+import 'setimmediate'
 
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
@@ -10,7 +10,9 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
+import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator, getPrivateKeyFromSeed } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -30,6 +32,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
+import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -39,9 +42,12 @@ import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterat
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { addGettersToControllerState } from '@web/utils/addGettersToControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { Action } from './actions'
+import { WalletStateController } from './controllers/wallet-state'
 import { controllersNestedInMainMapping } from './types'
 
 function saveTimestamp() {
@@ -69,18 +75,48 @@ async function init() {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   if (isManifestV3) {
+    saveTimestamp()
     // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
     // miliseconds. This keeps the service worker alive.
     const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
-
-    saveTimestamp()
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
   await init()
-  const portMessageUIRefs: { [key: string]: PortMessage } = {}
-  let onResoleDappNotificationRequest: (data: any, id?: number) => void
-  let onRejectDappNotificationRequest: (data: any, id?: number) => void
 
+  const backgroundState: {
+    ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
+    accountStateIntervals: {
+      pending: number
+      standBy: number
+    }
+    prevSelectedAccount: string | null
+    hasSignAccountOpCtrlInitialized: boolean
+    portMessageUIRefs: { [key: string]: PortMessage }
+    fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    activityIntervalId?: ReturnType<typeof setInterval>
+    reestimateInterval?: ReturnType<typeof setInterval>
+    accountStateInterval?: ReturnType<typeof setInterval>
+    selectedAccountStateInterval?: number
+    onResoleDappNotificationRequest?: (data: any, id?: number) => void
+    onRejectDappNotificationRequest?: (data: any, id?: number) => void
+  } = {
+    /**
+      ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
+      While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
+    */
+    ctrlOnUpdateIsDirtyFlags: {},
+    accountStateIntervals: {
+      pending: 3000,
+      standBy: 300000
+    },
+    prevSelectedAccount: null,
+    hasSignAccountOpCtrlInitialized: false,
+    portMessageUIRefs: {}
+  }
+
+  const ledgerCtrl = new LedgerController()
+  const trezorCtrl = new TrezorController()
+  const latticeCtrl = new LatticeController()
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -94,11 +130,18 @@ async function init() {
       trezor: TrezorSigner,
       lattice: LatticeSigner
     },
+    externalSignerControllers: {
+      ledger: ledgerCtrl,
+      trezor: trezorCtrl,
+      lattice: latticeCtrl
+    },
     onResolveDappRequest: (data, id) => {
-      !!onResoleDappNotificationRequest && onResoleDappNotificationRequest(data, id)
+      !!backgroundState.onResoleDappNotificationRequest &&
+        backgroundState.onResoleDappNotificationRequest(data, id)
     },
     onRejectDappRequest: (err, id) => {
-      !!onRejectDappNotificationRequest && onRejectDappNotificationRequest(err, id)
+      !!backgroundState.onRejectDappNotificationRequest &&
+        backgroundState.onRejectDappNotificationRequest(err, id)
     },
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
@@ -106,228 +149,212 @@ async function init() {
     },
     onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
-      setAccountStateInterval(accountStateIntervals.pending)
+      setAccountStateInterval(backgroundState.accountStateIntervals.pending)
     },
     pinned: pinnedTokens
   })
-  const ledgerCtrl = new LedgerController()
-  const trezorCtrl = new TrezorController()
-  const latticeCtrl = new LatticeController()
+  const walletStateCtrl = new WalletStateController()
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
-  let fetchPortfolioIntervalId: any
-  /** ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl
-  when it receives an update in the ctrl.onUpdate callback. While the flag is truthy and there are new updates coming for that ctrl
-  in the same tick, they will be debounced and only one event will be executed at the end */
-  const ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean } = {}
-  /** Will be assigned with a function that initialized the on update listeners
-  for the nested controllers in main. Serves for checking whether the listeners are already set
-  to avoid duplicated/multiple instanced of the onUpdate callbacks for a given ctrl to be initialized in the background */
-  let controllersNestedInMainSubscribe: any = null
-
-  onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
-  onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
+  backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
+  backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
   const fetchPortfolioData = async () => {
     if (!mainCtrl.selectedAccount) return
     return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
   }
 
-  fetchPortfolioData()
-
   function setPortfolioFetchInterval() {
-    clearInterval(fetchPortfolioIntervalId) // Clear existing interval
-    fetchPortfolioIntervalId = setInterval(
-      () => fetchPortfolioData(),
-      // In the case we have an active extension (opened tab, popup, notification),
-      // we want to run the interval frequently (1 minute).
+    !!backgroundState.fetchPortfolioIntervalId &&
+      clearInterval(backgroundState.fetchPortfolioIntervalId)
+    backgroundState.fetchPortfolioIntervalId = setInterval(
+      fetchPortfolioData,
+      // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      Object.keys(portMessageUIRefs).length ? 60000 : 600000
+      Object.keys(backgroundState.portMessageUIRefs).length ? 60000 : 600000
     )
   }
 
-  // Call it once to initialize the interval
-  setPortfolioFetchInterval()
+  setPortfolioFetchInterval() // Call it once to initialize the interval
 
-  let activityIntervalId: any
   function setActivityInterval(timeout: number) {
-    clearInterval(activityIntervalId) // Clear existing interval
-    activityIntervalId = setInterval(() => mainCtrl.updateAccountsOpsStatuses(), timeout)
-  }
-
-  // refresh the account state once every 5 minutes.
-  // if there are BroadcastedButNotConfirmed account ops, start refreshing
-  //  once every 7.5 seconds until they are cleared
-  let accountStateInterval: any
-  let selectedAccountStateInterval: any
-  const accountStateIntervals = {
-    pending: 3000,
-    standBy: 300000
+    !!backgroundState.activityIntervalId && clearInterval(backgroundState.activityIntervalId)
+    backgroundState.activityIntervalId = setInterval(
+      () => mainCtrl.updateAccountsOpsStatuses(),
+      timeout
+    )
   }
 
   function setAccountStateInterval(intervalLength: number) {
-    clearInterval(accountStateInterval)
-    selectedAccountStateInterval = intervalLength
+    !!backgroundState.accountStateInterval && clearInterval(backgroundState.accountStateInterval)
+    backgroundState.selectedAccountStateInterval = intervalLength
 
-    // if setAccountStateInterval is called with a pending request
-    // (this happens after broadcast), update the account state
-    // with the pending block without waiting
-    if (selectedAccountStateInterval === accountStateIntervals.pending) {
+    // if setAccountStateInterval is called with a pending request (this happens after broadcast),
+    // update the account state with the pending block without waiting
+    if (
+      backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
+    ) {
       mainCtrl.updateAccountStates('pending')
     }
 
-    accountStateInterval = setInterval(async () => {
-      // update the account state with the latest block in normal
-      // circumstances and with the pending block when there are
-      // pending account ops
+    backgroundState.accountStateInterval = setInterval(async () => {
+      // update the account state with the latest block in normal circumstances
+      // and with the pending block when there are pending account ops
       const blockTag =
-        selectedAccountStateInterval === accountStateIntervals.standBy ? 'latest' : 'pending'
+        backgroundState.selectedAccountStateInterval ===
+        backgroundState.accountStateIntervals.standBy
+          ? 'latest'
+          : 'pending'
       mainCtrl.updateAccountStates(blockTag)
 
-      // if we're in a pending update interval but there are no
-      // broadcastedButNotConfirmed account Ops, set the interval to standBy
+      // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
       if (
-        selectedAccountStateInterval === accountStateIntervals.pending &&
+        backgroundState.selectedAccountStateInterval ===
+          backgroundState.accountStateIntervals.pending &&
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
-        setAccountStateInterval(accountStateIntervals.standBy)
+        setAccountStateInterval(backgroundState.accountStateIntervals.standBy)
       }
     }, intervalLength)
   }
-  // Call it once to initialize the interval
-  setAccountStateInterval(accountStateIntervals.standBy)
 
-  // re-estimate interval
-  let reestimateInterval: any
+  setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
+
   function setReestimateInterval(accountOp: AccountOp) {
-    clearInterval(reestimateInterval)
+    !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
 
     const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
-    reestimateInterval = setInterval(async () => {
+    backgroundState.reestimateInterval = setInterval(async () => {
       mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
     }, time)
   }
 
-  // Nested main controllers for which we want to attach `onUpdate/onError` callbacks.
-  // Once we attach the callbacks, we remove the controllers from the queue to prevent attaching the same callbacks twice.
-  // Part of the controllers are initialized only once in the very beginning in the main controller (as singletons) and we should be careful to attach the callbacks only once.
-  // Some of the controllers are initialized and destroyed multiple times, and we will continuously add and remove them from the mainControllersQueue.
-  // These dynamic controllers are defined in the dynamicMainControllers.
-  const mainControllersQueue = Object.keys(controllersNestedInMainMapping)
-  // Some of the controllers are dynamic and are initialized only when needed. After they complete their tasks, we destroy them and initialize them again only when necessary.
-  // Every time we initialize such a controller, we should reattach the callbacks.
-  const dynamicMainControllers = ['signAccountOp']
-
-  /**
-   * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
-   * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
-   */
-
-  /**
-   * Initialize the onUpdate callback for the MainController.
-   * Once the mainCtrl load is ready, initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
-   */
-  mainCtrl.onUpdate(() => {
-    if (ctrlOnUpdateIsDirtyFlags.main) return
-    ctrlOnUpdateIsDirtyFlags.main = true
+  function debounceFrontEndEventUpdatesOnSameTick(
+    ctrlName: string,
+    ctrl: any,
+    stateToLog?: any
+  ): 'DEBOUNCED' | 'EMITTED' {
+    if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
+    backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
 
     // Debounce multiple emits in the same tick and only execute one if them
     setTimeout(() => {
-      if (ctrlOnUpdateIsDirtyFlags.main) {
-        Object.keys(portMessageUIRefs).forEach((key: string) => {
-          portMessageUIRefs[key]?.request({
+      if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
+        Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+          backgroundState.portMessageUIRefs[key]?.request({
             type: 'broadcast',
-            method: 'main',
-            params: mainCtrl
+            method: ctrlName,
+            params: ctrl
           })
         })
+        logInfoWithPrefix(
+          `onUpdate (${ctrlName} ctrl)`,
+          addGettersToControllerState(stateToLog || mainCtrl)
+        )
       }
-      ctrlOnUpdateIsDirtyFlags.main = false
+      backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
 
-    if (!mainCtrl.isReady && controllersNestedInMainSubscribe) {
-      controllersNestedInMainSubscribe = null
+    return 'EMITTED'
+  }
+
+  /**
+    Initialize the onUpdate callback for the MainController. Once the mainCtrl load is ready,
+    initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
+   */
+  mainCtrl.onUpdate(() => {
+    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl)
+    if (res === 'DEBOUNCED') return
+
+    // if the signAccountOp controller is active, reestimate at a set period of time
+    if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
+      if (
+        mainCtrl.signAccountOp &&
+        (mainCtrl.signAccountOp.status === null ||
+          mainCtrl.signAccountOp.status.type !== SigningStatus.EstimationError)
+      ) {
+        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+      } else {
+        !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
+      }
+
+      backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
+
+      // if we have a signAccountOp initialized, set an onUpdate listener that
+      // checks if the statet moves to a fatal EstimationError. If it does, stop
+      // the reestimation
+      if (mainCtrl.signAccountOp) {
+        mainCtrl.signAccountOp?.onUpdate(() => {
+          if (mainCtrl.signAccountOp?.status?.type === SigningStatus.EstimationError) {
+            !!backgroundState.reestimateInterval &&
+              clearInterval(backgroundState.reestimateInterval)
+          }
+        })
+      }
+    }
+
+    Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
+      const controller = (mainCtrl as any)[ctrlName]
+      if (Array.isArray(controller?.onUpdateIds)) {
+        /**
+         * We have the capability to incorporate multiple onUpdate callbacks for a specific controller, allowing multiple listeners for updates in different files.
+         * However, in the context of this background service, we only need a single instance of the onUpdate callback for each controller.
+         */
+        const hasOnUpdateInitialized = controller.onUpdateIds.includes('background')
+
+        if (!hasOnUpdateInitialized) {
+          controller?.onUpdate(() => {
+            const res = debounceFrontEndEventUpdatesOnSameTick(ctrlName, controller)
+            if (res === 'DEBOUNCED') return
+
+            if (ctrlName === 'activity') {
+              // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
+              if (controller?.broadcastedButNotConfirmed.length) {
+                // If the interval is already set, then do nothing.
+                if (!backgroundState.activityIntervalId) {
+                  setActivityInterval(5000)
+                }
+              } else {
+                !!backgroundState.activityIntervalId &&
+                  clearInterval(backgroundState.activityIntervalId)
+                delete backgroundState.activityIntervalId
+              }
+            }
+          }, 'background')
+        }
+      }
+
+      if (Array.isArray(controller?.onErrorIds)) {
+        const hasOnErrorInitialized = controller.onErrorIds.includes('background')
+
+        if (!hasOnErrorInitialized) {
+          ;(mainCtrl as any)[ctrlName]?.onError(() => {
+            const errors = (mainCtrl as any)[ctrlName].getErrors()
+            const lastError = errors[errors.length - 1]
+            if (lastError) console.error(lastError.error)
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
+            Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+              backgroundState.portMessageUIRefs[key]?.request({
+                type: 'broadcast-error',
+                method: ctrlName,
+                params: { errors, controller: ctrlName }
+              })
+            })
+          }, 'background')
+        }
+      }
+    })
+
+    if (mainCtrl.isReady && backgroundState.prevSelectedAccount !== mainCtrl.selectedAccount) {
+      fetchPortfolioData()
+      backgroundState.prevSelectedAccount = mainCtrl.selectedAccount
     }
 
     if (mainCtrl.isReady) {
-      dynamicMainControllers.forEach((dynamicCtrl) => {
-        // If a dynamic controller was destroyed, we need to reinitialize its callbacks again
-        // and that's the reason we push bash the controller to mainControllersQueue
-        if (
-          !(mainCtrl as any)[dynamicCtrl] &&
-          !mainControllersQueue.find((queueCtrl) => queueCtrl === dynamicCtrl)
-        ) {
-          mainControllersQueue.push(dynamicCtrl)
-        }
-      })
-
-      for (let i = mainControllersQueue.length - 1; i >= 0; i--) {
-        const ctrl = mainControllersQueue[i]
-
-        // Broadcast onUpdate for the nested controllers in main
-        ;(mainCtrl as any)[ctrl]?.onUpdate(() => {
-          if (ctrlOnUpdateIsDirtyFlags[ctrl]) return
-          ctrlOnUpdateIsDirtyFlags[ctrl] = true
-
-          if (ctrl === 'activity') {
-            // Start the interval for updating the accounts ops statuses,
-            // only if there are broadcasted but not confirmed accounts ops
-            if ((mainCtrl as any)[ctrl]?.broadcastedButNotConfirmed.length) {
-              // If the interval is already set, then do nothing.
-              if (!activityIntervalId) {
-                setActivityInterval(5000)
-              }
-            } else {
-              clearInterval(activityIntervalId)
-              activityIntervalId = null
-            }
-          }
-
-          setTimeout(() => {
-            if (ctrlOnUpdateIsDirtyFlags[ctrl]) {
-              Object.keys(portMessageUIRefs).forEach((key: string) => {
-                portMessageUIRefs[key]?.request({
-                  type: 'broadcast',
-                  method: ctrl,
-                  params: (mainCtrl as any)[ctrl]
-                })
-              })
-            }
-            ctrlOnUpdateIsDirtyFlags[ctrl] = false
-          }, 0)
-        })
-        ;(mainCtrl as any)[ctrl]?.onError(() => {
-          const errors = (mainCtrl as any)[ctrl].getErrors()
-          const lastError = errors[errors.length - 1]
-          if (lastError) console.error(lastError.error)
-          Object.keys(portMessageUIRefs).forEach((key: string) => {
-            portMessageUIRefs[key]?.request({
-              type: 'broadcast-error',
-              method: ctrl,
-              params: { errors, controller: ctrl }
-            })
-          })
-        })
-
-        // If the child controller exists, it means that we already attached the callbacks in the above lines.
-        // If so, we need to remove the child controller from the queue to prevent attaching the same callbacks twice.
-        if ((mainCtrl as any)[ctrl]) {
-          mainControllersQueue.splice(i, 1)
-        }
-      }
-
-      // if the signAccountOp controller is active, reestimate
-      // at a set period of time
-      if (mainCtrl.signAccountOp !== null) {
-        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
-      } else {
-        clearInterval(reestimateInterval)
-      }
-
       // if there are failed networks, refresh the account state every 8 seconds
       // for them until we get a clean state
       const failedNetworkIds = getNetworksWithFailedRPC({
@@ -337,17 +364,14 @@ async function init() {
         setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
       }
     }
-
-    if (mainCtrl.isReady && mainCtrl.selectedAccount) {
-      fetchPortfolioData()
-    }
-  })
+  }, 'background')
   mainCtrl.onError(() => {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    Object.keys(portMessageUIRefs).forEach((key: string) => {
-      portMessageUIRefs[key]?.request({
+    logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
+    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+      backgroundState.portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
         method: 'main',
         params: { errors, controller: 'main' }
@@ -355,30 +379,33 @@ async function init() {
     })
   })
 
+  // Broadcast onUpdate for the wallet state controller
+  walletStateCtrl.onUpdate(() => {
+    debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
+  })
+  walletStateCtrl.onError(() => {
+    const errors = walletStateCtrl.getErrors()
+    const lastError = errors[errors.length - 1]
+    if (lastError) console.error(lastError.error)
+    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+      backgroundState.portMessageUIRefs[key]?.request({
+        type: 'broadcast-error',
+        method: 'walletState',
+        params: { errors, controller: 'walletState' }
+      })
+    })
+  })
+
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate(() => {
-    if (ctrlOnUpdateIsDirtyFlags.notification) return
-    ctrlOnUpdateIsDirtyFlags.notification = true
-    // Debounce multiple emits in the same tick and only execute one if them
-    setTimeout(() => {
-      if (ctrlOnUpdateIsDirtyFlags.notification) {
-        Object.keys(portMessageUIRefs).forEach((key: string) => {
-          portMessageUIRefs[key]?.request({
-            type: 'broadcast',
-            method: 'notification',
-            params: notificationCtrl
-          })
-        })
-      }
-      ctrlOnUpdateIsDirtyFlags.notification = false
-    }, 0)
+    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    Object.keys(portMessageUIRefs).forEach((key: string) => {
-      portMessageUIRefs[key]?.request({
+    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
+      backgroundState.portMessageUIRefs[key]?.request({
         type: 'broadcast-error',
         method: 'notification',
         params: { errors, controller: 'notification' }
@@ -391,7 +418,7 @@ async function init() {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
       const id = new Date().getTime().toString()
       const pm = new PortMessage(port, id)
-      portMessageUIRefs[pm.id] = pm
+      backgroundState.portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
 
       pm.listen(async (data: Action) => {
@@ -412,6 +439,12 @@ async function init() {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
+                })
+              } else if (data.params.controller === ('walletState' as any)) {
+                pm.request({
+                  type: 'broadcast',
+                  method: 'walletState',
+                  params: walletStateCtrl
                 })
               } else {
                 pm.request({
@@ -465,9 +498,11 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
+              const pageSize = data.params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
+                pageSize,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 preselectedAccounts: getPreselectedAccounts(
                   mainCtrl.accounts,
@@ -478,9 +513,6 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
               return mainCtrl.settings.addAccountPreferences(data.params)
-            }
-            case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
-              return mainCtrl.settings.addKeyPreferences(data.params)
             }
             case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
               return mainCtrl.updateNetworkPreferences(
@@ -512,10 +544,72 @@ async function init() {
                 networks,
                 providers: rpcProviders
               })
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS':
-              return mainCtrl.accountAdder.addAccounts(data.params.selectedAccounts)
-            case 'MAIN_CONTROLLER_ADD_ACCOUNTS':
-              return mainCtrl.addAccounts(data.params.accounts)
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
+              const readyToAddKeys: ReadyToAddKeys = {
+                internal: data.params.readyToAddKeys.internal,
+                external: []
+              }
+
+              if (data.params.readyToAddKeys.externalTypeOnly) {
+                const keyType = data.params.readyToAddKeys.externalTypeOnly
+
+                const deviceIds: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceId,
+                  trezor: trezorCtrl.deviceId,
+                  lattice: latticeCtrl.deviceId
+                }
+
+                const deviceModels: { [key in ExternalKey['type']]: string } = {
+                  ledger: ledgerCtrl.deviceModel,
+                  trezor: trezorCtrl.deviceModel,
+                  lattice: latticeCtrl.deviceModel
+                }
+
+                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
+                  ({ accountKeyAddr, index, isLinked }) => ({
+                    addr: accountKeyAddr,
+                    type: keyType,
+                    dedicatedToOneSA: !isLinked,
+                    meta: {
+                      deviceId: deviceIds[keyType],
+                      deviceModel: deviceModels[keyType],
+                      // always defined in the case of external keys
+                      hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                      index
+                    }
+                  })
+                )
+
+                readyToAddKeys.external = readyToAddExternalKeys
+              }
+
+              return mainCtrl.accountAdder.addAccounts(
+                data.params.selectedAccounts,
+                data.params.readyToAddAccountPreferences,
+                readyToAddKeys,
+                data.params.readyToAddKeyPreferences
+              )
+            }
+            case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
+              const prevAccountsCount = mainCtrl.accounts.length
+              const defaultAccountPreferences = getDefaultAccountPreferences(
+                data.params.accounts,
+                prevAccountsCount
+              )
+
+              // Since these accounts are view-only, directly add them in the
+              // MainController, bypassing the AccountAdder flow.
+              await mainCtrl.addAccounts(data.params.accounts)
+
+              // And manually trigger some of the `onAccountAdderSuccess` steps
+              // that are needed for view-only accounts, since the AccountAdder
+              // flow was bypassed and the `onAccountAdderSuccess` subscription
+              // in the MainController won't click.
+              return Promise.all([
+                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.selectAccount(data.params.accounts[0].addr)
+              ])
+            }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT': {
               try {
                 await mainCtrl.keystore.generateEmailVaultSeed(data.params.email)
@@ -544,7 +638,7 @@ async function init() {
                 if (mainCtrl.accountAdder.readyToAddAccounts.length) {
                   mainCtrl.keystore.addKeys([
                     {
-                      privateKey,
+                      privateKey
                       // TODO - how we set the label?
                       // label: `Key for account with email: ${data.params.email}`
                     }
@@ -570,13 +664,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-              if (mainCtrl.signMessage.signingKeyType === 'ledger')
-                return mainCtrl.signMessage.sign(ledgerCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'trezor')
-                return mainCtrl.signMessage.sign(trezorCtrl)
-              if (mainCtrl.signMessage.signingKeyType === 'lattice')
-                return mainCtrl.signMessage.sign(latticeCtrl)
-
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
@@ -599,13 +686,6 @@ async function init() {
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
               return mainCtrl?.signAccountOp?.update(data.params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'ledger')
-                return mainCtrl?.signAccountOp.sign(ledgerCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'trezor')
-                return mainCtrl?.signAccountOp.sign(trezorCtrl)
-              if (mainCtrl?.signAccountOp?.accountOp?.signingKeyType === 'lattice')
-                return mainCtrl?.signAccountOp?.sign(latticeCtrl)
-
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
@@ -617,21 +697,6 @@ async function init() {
                 data.params.accountAddr,
                 data.params.networkId
               )
-            case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_RESET':
-              return mainCtrl?.signAccountOp?.reset()
-            case 'MAIN_CONTROLLER_BROADCAST_SIGNED_ACCOUNT_OP': {
-              const { accountOp } = data.params
-              const broadcastKeyType = accountOp.signingKeyType
-
-              if (broadcastKeyType === 'ledger')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, ledgerCtrl)
-              if (broadcastKeyType === 'trezor')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, trezorCtrl)
-              if (broadcastKeyType === 'lattice')
-                return mainCtrl.broadcastSignedAccountOp(accountOp, latticeCtrl)
-
-              return mainCtrl.broadcastSignedAccountOp(accountOp)
-            }
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
               return mainCtrl.transfer.update(data.params)
@@ -675,45 +740,17 @@ async function init() {
                 data.params.extraEntropy,
                 data.params.leaveUnlocked
               )
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS_EXTERNALLY_STORED': {
-              const { keyType } = data.params
-
-              const deviceIds: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceId,
-                trezor: trezorCtrl.deviceId,
-                lattice: latticeCtrl.deviceId
-              }
-
-              const deviceModels: { [key in ExternalKey['type']]: string } = {
-                ledger: ledgerCtrl.deviceModel,
-                trezor: trezorCtrl.deviceModel,
-                lattice: latticeCtrl.deviceModel
-              }
-
-              const keys = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, index }) => ({
-                  addr: accountKeyAddr,
-                  type: keyType,
-                  meta: {
-                    deviceId: deviceIds[keyType],
-                    deviceModel: deviceModels[keyType],
-                    // always defined in the case of external keys
-                    hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                    index
-                  }
-                })
-              )
-
-              return mainCtrl.keystore.addKeysExternallyStored(keys)
-            }
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
               return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
               return mainCtrl.keystore.lock()
-            case 'KEYSTORE_CONTROLLER_ADD_KEYS':
-              return mainCtrl.keystore.addKeys(data.params.keys)
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
+              return mainCtrl.keystore.changeKeystorePassword(
+                data.params.secret,
+                data.params.newSecret
+              )
 
             case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
               return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
@@ -723,7 +760,10 @@ async function init() {
               return mainCtrl.emailVault.recoverKeyStore(data.params.email)
             case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
               return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
-
+            case 'SET_IS_DEFAULT_WALLET': {
+              walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
+              break
+            }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
@@ -754,6 +794,18 @@ async function init() {
               permissionService.removeConnectedSite(data.params.origin)
               break
             }
+            case 'CHANGE_CURRENT_DAPP_NETWORK': {
+              permissionService.updateConnectSite(
+                data.params.origin,
+                { chainId: data.params.chainId },
+                true
+              )
+              sessionService.broadcastEvent('chainChanged', {
+                chain: `0x${data.params.chainId.toString(16)}`,
+                networkVersion: `${data.params.chainId}`
+              })
+              break
+            }
 
             default:
               return console.error(
@@ -772,7 +824,7 @@ async function init() {
       }
 
       port.onDisconnect.addListener(() => {
-        delete portMessageUIRefs[pm.id]
+        delete backgroundState.portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {
@@ -821,7 +873,7 @@ async function init() {
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.
-browser.runtime.onInstalled.addListener(({ reason }) => {
+browser.runtime.onInstalled.addListener(({ reason }: any) => {
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')

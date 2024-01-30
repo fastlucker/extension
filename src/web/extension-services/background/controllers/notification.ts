@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { ethErrors } from 'eth-rpc-errors'
+import { Linking } from 'react-native'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -115,7 +116,7 @@ export class NotificationController extends EventEmitter {
         this.notificationRequests = [...notificationRequestsToAdd, ...this.notificationRequests]
         this.openNotificationRequest(this.notificationRequests[0].id)
       }
-    })
+    }, 'notification')
   }
 
   reopenCurrentNotificationRequest = async () => {
@@ -191,6 +192,14 @@ export class NotificationController extends EventEmitter {
 
     if (notificationRequest) {
       notificationRequest?.resolve(data)
+
+      if (data?.hash && data?.networkId) {
+        Linking.openURL(
+          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
+            data?.isUserOp ? '&isUserOp' : ''
+          }`
+        )
+      }
 
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)

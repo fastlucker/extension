@@ -11,11 +11,12 @@ import Text from '../Text'
 
 interface Props {
   onPress?: () => void
+  fallbackBackRoute?: string
 }
 
-const BackButton: FC<Props> = ({ onPress }) => {
+const BackButton: FC<Props> = ({ onPress, fallbackBackRoute }) => {
   const { t } = useTranslation()
-  const { goBack } = useNavigation()
+  const { goBack, canGoBack, navigate } = useNavigation()
 
   return (
     <TouchableOpacity
@@ -23,6 +24,11 @@ const BackButton: FC<Props> = ({ onPress }) => {
       onPress={() => {
         if (onPress) {
           onPress()
+          return
+        }
+
+        if (!canGoBack && fallbackBackRoute) {
+          navigate(fallbackBackRoute)
           return
         }
 

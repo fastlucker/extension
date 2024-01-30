@@ -1,5 +1,4 @@
-import providerController from '@web/extension-services/background/provider/ProviderController'
-import permission from '@web/extension-services/background/services/permission'
+import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 
 const tabCheckin = ({
   data: {
@@ -13,12 +12,10 @@ const tabCheckin = ({
   // preferenceService.detectPhishing(origin)
 }
 
-const getProviderState = async (req) => {
+const getProviderState = async (req: any) => {
+  const providerController = new ProviderController(req.mainCtrl)
   const isUnlocked = req.mainCtrl.keystore.isUnlocked
-  const defaultChainId = permission.getWithoutUpdate(origin)?.chainId
-  const chainId = defaultChainId
-    ? intToHex(defaultChainId)
-    : await providerController.ethChainId(req)
+  const chainId = await providerController.ethChainId(req)
   let networkVersion = '1'
 
   try {
@@ -52,16 +49,9 @@ const hasOtherProvider = () => {
   return true
 }
 
-const isDefaultWallet = () => {
-  // TODO:
-  return true
-  // return preferenceService.getIsDefaultWallet()
-}
-
 export default {
   tabCheckin,
   getProviderState,
   providerOverwrite,
-  hasOtherProvider,
-  isDefaultWallet
+  hasOtherProvider
 }

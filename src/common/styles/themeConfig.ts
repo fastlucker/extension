@@ -114,7 +114,8 @@ const ThemeColors = {
 export const iconColors = {
   warning: '#CA7E04',
   primary: '#54597A',
-  secondary: colors.martinique
+  secondary: colors.martinique,
+  danger: '#EA0129'
 }
 
 export const lightOnlyRoutesOnMobile = []
@@ -127,7 +128,6 @@ export const lightOnlyRoutesOnWeb = [
   WEB_ROUTES.authEmailAccount,
   WEB_ROUTES.authEmailLogin,
   WEB_ROUTES.authEmailRegister,
-  WEB_ROUTES.externalSigner,
   WEB_ROUTES.onboarding,
   WEB_ROUTES.hardwareWalletSelect,
   WEB_ROUTES.hardwareWalletLedger,

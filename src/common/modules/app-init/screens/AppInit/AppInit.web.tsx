@@ -32,8 +32,8 @@ import { NotificationControllerStateProvider } from '@web/contexts/notificationC
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
+import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
-import { TransferControllerStateProvider } from '@web/contexts/transferControllerStateContext'
 
 // Initialize rpc providers for all networks
 // @TODO: get rid of this and use the rpc providers from the settings controller
@@ -57,15 +57,15 @@ const AppInit = () => {
             <ToastProvider>
               <BackgroundServiceProvider>
                 <MainControllerStateProvider>
-                  <SettingsControllerStateProvider>
-                    <AccountAdderControllerStateProvider>
-                      <KeystoreControllerStateProvider>
-                        <SignMessageControllerStateProvider>
-                          <ActivityControllerStateProvider>
-                            <NotificationControllerStateProvider>
-                              <PortfolioControllerStateProvider>
-                                <EmailVaultControllerStateProvider>
-                                  <TransferControllerStateProvider>
+                  <WalletStateControllerProvider>
+                    <SettingsControllerStateProvider>
+                      <AccountAdderControllerStateProvider>
+                        <KeystoreControllerStateProvider>
+                          <SignMessageControllerStateProvider>
+                            <ActivityControllerStateProvider>
+                              <NotificationControllerStateProvider>
+                                <PortfolioControllerStateProvider>
+                                  <EmailVaultControllerStateProvider>
                                     <ControllersStateLoadedProvider>
                                       <LoaderProvider>
                                         <StorageProvider>
@@ -90,15 +90,15 @@ const AppInit = () => {
                                         </StorageProvider>
                                       </LoaderProvider>
                                     </ControllersStateLoadedProvider>
-                                  </TransferControllerStateProvider>
-                                </EmailVaultControllerStateProvider>
-                              </PortfolioControllerStateProvider>
-                            </NotificationControllerStateProvider>
-                          </ActivityControllerStateProvider>
-                        </SignMessageControllerStateProvider>
-                      </KeystoreControllerStateProvider>
-                    </AccountAdderControllerStateProvider>
-                  </SettingsControllerStateProvider>
+                                  </EmailVaultControllerStateProvider>
+                                </PortfolioControllerStateProvider>
+                              </NotificationControllerStateProvider>
+                            </ActivityControllerStateProvider>
+                          </SignMessageControllerStateProvider>
+                        </KeystoreControllerStateProvider>
+                      </AccountAdderControllerStateProvider>
+                    </SettingsControllerStateProvider>
+                  </WalletStateControllerProvider>
                 </MainControllerStateProvider>
               </BackgroundServiceProvider>
             </ToastProvider>

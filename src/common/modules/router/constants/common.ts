@@ -50,10 +50,13 @@ const WEB_ROUTES = {
   emailVaultKeystoreRecover: 'email-vault-keystore-recover',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
+  keyStoreReset: 'keystore-reset',
+  devicePassword: 'device-password',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
   onboarding: 'onboarding',
   dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
+  addChain: 'add-chain',
   hardwareWalletSelect: 'hardware-wallet/select',
   hardwareWalletLedger: 'hardware-wallet/ledger',
   authEmailAccount: 'auth-email-account',
@@ -63,7 +66,10 @@ const WEB_ROUTES = {
   collection: 'collection',
   accountSelect: 'account-select',
   viewOnlyAccountAdder: 'view-only-account-adder',
-  networks: 'networks'
+  networks: 'networks',
+  importHotWallet: 'import-hot-wallet',
+  importPrivateKey: 'import-private-key',
+  importSeedPhrase: 'import-seed-phrase'
 }
 
 const ROUTES = {

@@ -6,6 +6,7 @@ import EditIcon from '@common/assets/svg/EditIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useNavigation from '@common/hooks/useNavigation'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
@@ -21,6 +22,7 @@ const ERROR_ACTIONS = ['reject']
 const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
   const { navigate } = useNavigation()
 
   const handleActionPress = useCallback(
@@ -45,6 +47,14 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
         window.open(action.meta.url, '_blank')
       }
 
+      if (action.actionName === 'enable-default-wallet') {
+        dispatch({
+          type: 'SET_IS_DEFAULT_WALLET',
+          params: { isDefaultWallet: true }
+        })
+        addToast('Ambire is your default wallet.', { timeout: 2000 })
+      }
+
       if (action.actionName === 'sync-keys' && topic === 'ANNOUNCEMENT') {
         dispatch({
           type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
@@ -56,7 +66,7 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
         navigate(ROUTES.keystore)
       }
     },
-    [dispatch, topic]
+    [dispatch, addToast, topic]
   )
 
   return (

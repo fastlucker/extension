@@ -1,6 +1,8 @@
 import React from 'react'
 import { Image, View } from 'react-native'
 
+import { Account } from '@ambire-common/interfaces/account'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
@@ -11,7 +13,15 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
-const PayOption = ({ account, token }: any) => {
+const PayOption = ({
+  account,
+  token,
+  isGasTank
+}: {
+  account: Account
+  token: TokenResult
+  isGasTank: boolean
+}) => {
   const settingsCtrl = useSettingsControllerState()
   const accountPref = settingsCtrl.accountPreferences[account.addr]
   const pfpSource = getAccountPfpSource(accountPref?.pfp)
@@ -24,15 +34,17 @@ const PayOption = ({ account, token }: any) => {
         source={pfpSource}
       />
       <Text weight="medium">
-        {label} ({shortenAddress(account.addr, 11)})
+        {label} ({!isGasTank ? shortenAddress(account.addr, 11) : 'Gas Tank'})
       </Text>
       <Text weight="medium"> - </Text>
       <TokenIcon
         containerHeight={32}
         containerWidth={32}
+        networkSize={12}
         withContainer
         address={token.address}
         networkId={token.networkId}
+        onGasTank={token.flags.onGasTank}
       />
       <Text weight="medium" style={spacings.mlTy}>
         {token.symbol}

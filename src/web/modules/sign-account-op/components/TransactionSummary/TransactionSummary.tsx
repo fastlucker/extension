@@ -1,10 +1,11 @@
 /* eslint-disable react/no-array-index-key */
 import { formatUnits } from 'ethers'
-import React, { Fragment, ReactNode, useCallback } from 'react'
+import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -14,7 +15,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
-import spacings from '@common/styles/spacings'
+import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
@@ -27,6 +28,39 @@ interface Props {
   explorerUrl: NetworkDescriptor['explorerUrl']
   rightIcon?: ReactNode
   onRightIconPress?: () => void
+  size?: 'sm' | 'md' | 'lg'
+}
+
+const sizeMultiplier = {
+  sm: 0.75,
+  md: 0.85,
+  lg: 1
+}
+
+const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
+  const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
+  const remainingTime = deadline - BigInt(Date.now())
+  const minute: bigint = 60000n
+
+  let updateAfter = Number(minute)
+  // more then 10mints
+  if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
+  // if 0< and <10 minutes
+  if (remainingTime > 0 && remainingTime < 10n * minute)
+    updateAfter = Number(remainingTime % minute)
+  // if just expired
+  if (remainingTime < 0 && remainingTime > -2n * minute)
+    updateAfter = Number(2n * minute + remainingTime)
+  if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setDeadlineText(getDeadlineText(deadline))
+    }, updateAfter)
+
+    return () => clearInterval(intervalId)
+  }, [])
+  return <p>{deadlineText}</p>
 }
 
 const TransactionSummary = ({
@@ -35,8 +69,10 @@ const TransactionSummary = ({
   networkId,
   explorerUrl,
   rightIcon,
-  onRightIconPress
+  onRightIconPress,
+  size = 'lg'
 }: Props) => {
+  const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
 
   const { dispatch } = useBackgroundService()
@@ -57,24 +93,26 @@ const TransactionSummary = ({
           flexbox.directionRow,
           flexbox.alignCenter,
           flexbox.wrap,
-          spacings.mhSm
+          {
+            paddingHorizontal: SPACING_SM * sizeMultiplier[size]
+          }
         ]}
       >
-        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
           {` ${call.to} `}
         </Text>
-        <Text fontSize={16} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={16} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
     )
-  }, [call, t])
+  }, [call, t, textSize, size])
 
   const humanizedVisualization = useCallback(
     (dataToVisualize: IrCall['fullVisualization'] = []) => {
@@ -85,7 +123,9 @@ const TransactionSummary = ({
             flexbox.directionRow,
             flexbox.alignCenter,
             flexbox.wrap,
-            spacings.mhSm
+            {
+              marginHorizontal: SPACING_SM * sizeMultiplier[size]
+            }
           ]}
         >
           {dataToVisualize.map((item, i) => {
@@ -95,7 +135,7 @@ const TransactionSummary = ({
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {` ${
                         item.readableAmount ||
                         formatUnits(item.amount || '0x0', item.decimals || 18)
@@ -105,18 +145,18 @@ const TransactionSummary = ({
 
                   {item.address ? (
                     <TokenIcon
-                      width={24}
-                      height={24}
+                      width={24 * sizeMultiplier[size]}
+                      height={24 * sizeMultiplier[size]}
                       networkId={networkId}
                       address={item.address}
                     />
                   ) : null}
                   {item.symbol ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {` ${item.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={16} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                       {t(' units of unknown token ')}
                     </Text>
                   ) : null}
@@ -127,7 +167,7 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={16} weight="medium" color={colors.martinique}>
+                  <Text fontSize={textSize} weight="medium" color={colors.martinique}>
                     {` ${item.name ? item.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
@@ -148,7 +188,7 @@ const TransactionSummary = ({
               return (
                 <Text
                   key={Number(item.id) || i}
-                  fontSize={16}
+                  fontSize={textSize}
                   weight="medium"
                   color={colors.martinique}
                 >
@@ -157,11 +197,22 @@ const TransactionSummary = ({
               )
             }
 
+            if (item.type === 'deadline')
+              return (
+                <Text
+                  key={Number(item.id) || i}
+                  fontSize={textSize}
+                  weight="medium"
+                  color={colors.martinique}
+                >
+                  <DeadlineVisualization deadline={item.amount!} />
+                </Text>
+              )
             if (item.content) {
               return (
                 <Text
                   key={Number(item.id) || i}
-                  fontSize={16}
+                  fontSize={textSize}
                   weight={
                     item.type === 'label'
                       ? 'regular'
@@ -185,13 +236,17 @@ const TransactionSummary = ({
         </View>
       )
     },
-    [networkId, explorerUrl, t]
+    [networkId, explorerUrl, t, textSize, size]
   )
 
   return (
     <ExpandableCard
       style={{
         ...(call.warnings?.length ? { ...styles.warningContainer, ...style } : { ...style })
+      }}
+      contentStyle={{
+        paddingHorizontal: SPACING_SM * sizeMultiplier[size],
+        paddingVertical: SPACING_TY * sizeMultiplier[size]
       }}
       content={
         <>
@@ -209,7 +264,12 @@ const TransactionSummary = ({
         </>
       }
       expandedContent={
-        <View style={styles.body}>
+        <View
+          style={{
+            paddingHorizontal: SPACING_SM * sizeMultiplier[size],
+            paddingVertical: SPACING_TY * sizeMultiplier[size]
+          }}
+        >
           <Text fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Interacting with (to): ')}
@@ -235,12 +295,17 @@ const TransactionSummary = ({
     >
       <View
         style={{
-          paddingHorizontal: 42 // magic number
+          paddingHorizontal: 42 * sizeMultiplier[size] // magic number
         }}
       >
         {call.warnings?.map((warning) => {
           return (
-            <Label key={warning.content + warning.level} text={warning.content} type="warning" />
+            <Label
+              size={size}
+              key={warning.content + warning.level}
+              text={warning.content}
+              type="warning"
+            />
           )
         })}
       </View>

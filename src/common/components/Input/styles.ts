@@ -20,7 +20,12 @@ export interface Style {
   label: TextStyle
   leftIcon: ViewStyle
   disabled: ViewStyle
+  tooltipWrapper: ViewStyle
+  tooltip: ViewStyle
 }
+
+const INPUT_HEIGHT = 48
+export const INPUT_WRAPPER_HEIGHT = INPUT_HEIGHT + 2 // 1px border top and bottom
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -36,14 +41,14 @@ const getStyles = (theme: ThemeProps) =>
     inputWrapper: {
       ...flexbox.directionRow,
       borderWidth: 1,
-      height: 50,
+      height: INPUT_WRAPPER_HEIGHT,
       ...common.borderRadiusPrimary
     },
     input: {
       // Centers the content (used because of the borderBottomWidth)
       fontSize: 14,
       ...flexbox.flex1,
-      height: 48,
+      height: INPUT_HEIGHT,
       borderWidth: 0,
       color: theme.secondaryText,
       ...spacings.ph
@@ -82,6 +87,21 @@ const getStyles = (theme: ThemeProps) =>
     disabled: {
       opacity: 0.5,
       backgroundColor: 'transparent'
+    },
+    tooltipWrapper: {
+      position: 'absolute',
+      left: '100%',
+      zIndex: 10,
+      width: 350
+    },
+    tooltip: {
+      ...spacings.mlTy,
+      backgroundColor: theme.primaryBackground,
+      ...spacings.phLg,
+      ...spacings.pv,
+      borderRadius: 6,
+      borderColor: theme.secondaryBorder,
+      borderWidth: 2
     }
   })
 

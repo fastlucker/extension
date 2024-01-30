@@ -8,10 +8,15 @@ interface Props extends SvgProps {
   height?: number
 }
 
-const DepositIcon: React.FC<Props> = ({ width = 24, height = 24, color = colors.martinique }) => (
+const DepositIcon: React.FC<Props> = ({
+  width = 24,
+  height = 24,
+  color = colors.martinique,
+  strokeWidth = '1.5'
+}) => (
   <Svg width={width} height={height} viewBox="0 0 16 16">
     <G fill="none" data-name="deposit icon">
-      <G stroke={color} strokeWidth="1.5">
+      <G stroke={color} strokeWidth={strokeWidth}>
         <Path
           strokeLinecap="round"
           strokeLinejoin="round"

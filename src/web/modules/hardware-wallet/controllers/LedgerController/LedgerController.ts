@@ -34,6 +34,14 @@ class LedgerController implements ExternalSignerController {
     this.walletSDK = null
     // TODO: Handle different derivation
     this.hdPathTemplate = BIP44_LEDGER_DERIVATION_TEMPLATE
+
+    // When the `cleanUp` method gets passed to the `this.transport.on` and
+    // "this.transport.off" methods, the `this` context gets lost, so we need
+    // to bind it here. The `this` context in the `cleanUp` method should be
+    // the `LedgerController` instance. Not sure why this happens, since the
+    // `cleanUp` method is an arrow function and should have the `this` context
+    // of the `LedgerController` instance by default.
+    this.cleanUp = this.cleanUp.bind(this)
   }
 
   isUnlocked(path?: string, expectedKeyOnThisPath?: string) {
@@ -48,20 +56,36 @@ class LedgerController implements ExternalSignerController {
     return this.unlockedPathKeyAddr === expectedKeyOnThisPath && this.unlockedPath === path
   }
 
-  async initAppIfNeeded() {
+  /**
+   * The Ledger device requires a new SDK instance (session) every time the
+   * device is connected (after being disconnected). This method checks if there
+   * is an existing SDK instance and creates a new one if needed.
+   */
+  async #initSDKSessionIfNeeded() {
     if (this.walletSDK) return
 
+    const isSupported = await TransportWebHID.isSupported()
+    if (!isSupported) {
+      throw new Error(
+        'Can not establish connection with your Ledger device. Your browser does not support WebHID. Please use a different browser.'
+      )
+    }
+
     try {
-      // @ts-ignore
+      // @ts-ignore types mismatch, not sure why
       this.transport = await TransportWebHID.create()
       if (!this.transport) throw new Error('Transport failed to get initialized')
 
+      this.transport.on('disconnect', this.cleanUp)
+
       this.walletSDK = new Eth(this.transport)
 
-      if (this.transport?.deviceModel?.id) {
+      if (this.transport.deviceModel?.id) {
         this.deviceModel = this.transport.deviceModel.id
       }
+      // @ts-ignore missing or bad type, but the `device` is in there
       if (this.transport?.device?.productId) {
+        // @ts-ignore missing or bad type, but the `device` is in there
         this.deviceId = this.transport.device.productId.toString()
       }
     } catch (e: any) {
@@ -73,7 +97,7 @@ class LedgerController implements ExternalSignerController {
 
   async unlock(path?: ReturnType<typeof getHdPathFromTemplate>, expectedKeyOnThisPath?: string) {
     const pathToUnlock = path || getHdPathFromTemplate(this.hdPathTemplate, 0)
-    await this.initAppIfNeeded()
+    await this.#initSDKSessionIfNeeded()
 
     if (this.isUnlocked(pathToUnlock, expectedKeyOnThisPath)) {
       return 'ALREADY_UNLOCKED'
@@ -109,10 +133,21 @@ class LedgerController implements ExternalSignerController {
     }
   }
 
-  async cleanUp() {
+  cleanUp = async () => {
     this.walletSDK = null
-    if (this.transport) this.transport.close()
-    this.transport = null
+    this.unlockedPath = ''
+    this.unlockedPathKeyAddr = ''
+
+    try {
+      if (this.transport) {
+        this.transport.off('disconnect', this.cleanUp)
+
+        await this.transport.close()
+        this.transport = null
+      }
+    } catch {
+      // Fail silently
+    }
   }
 }
 

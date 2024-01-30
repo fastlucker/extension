@@ -4,8 +4,8 @@ import { Pressable, View } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import InfoIcon from '@common/assets/svg/InfoIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -15,12 +15,13 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
+import { RELAYER_URL } from '@env'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent,
@@ -29,6 +30,7 @@ import {
 } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
   const accountAddresses = accounts.map((account) => account.address.toLowerCase())
@@ -49,6 +51,7 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const mainControllerState = useMainControllerState()
+  const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const {
@@ -78,7 +81,7 @@ const ViewOnlyScreen = () => {
 
     const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
-        `https://staging-relayer.ambire.com/v2/identity/${account.address}`
+        `${RELAYER_URL}/v2/identity/${account.address}`
       )
 
       const accountIdentity: any = accountIdentityResponse?.body
@@ -116,32 +119,38 @@ const ViewOnlyScreen = () => {
 
     const accountsToAdd = await Promise.all(accountsToAddP)
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     dispatch({
-      type: 'MAIN_CONTROLLER_ADD_ACCOUNTS',
+      type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
       params: { accounts: accountsToAdd }
     })
   }, [accounts, dispatch])
 
   useEffect(() => {
     const newAccountsAddresses = accounts.map((x) => x.address)
-    const areNewAccountsAdded = mainControllerState.accounts.some((account) =>
+    const newAccountsAdded = mainControllerState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr)
     )
-    if (areNewAccountsAdded) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-        params: { accountAddr: newAccountsAddresses[0] }
-      })
+    const newAccountsDefaultPreferencesImported = Object.keys(
+      settingsControllerState.accountPreferences
+    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
 
+    // Navigate when the new accounts and their default preferences are imported,
+    // indicating the final step for the view-only account adding flow completes.
+    if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
       navigate(WEB_ROUTES.accountPersonalize, {
-        state: {
-          accounts: mainControllerState.accounts.filter((account) =>
-            newAccountsAddresses.includes(account.addr)
-          )
-        }
+        state: { accounts: newAccountsAdded }
       })
     }
-  }, [accounts, dispatch, mainControllerState.accounts, navigate])
+  }, [
+    accounts,
+    dispatch,
+    mainControllerState.accounts,
+    navigate,
+    settingsControllerState.accountPreferences
+  ])
+
+  const disabled = !isValid || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -149,12 +158,13 @@ const ViewOnlyScreen = () => {
       header={<Header withAmbireLogo />}
       footer={
         <>
-          <BackButton />
+          <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
             textStyle={{ fontSize: 14 }}
-            disabled={!isValid || duplicateAccountsIndexes.length > 0}
+            style={{ minWidth: 180 }}
+            disabled={disabled}
             hasBottomSpacing={false}
-            text={t('Import View-Only Accounts')}
+            text={t('Import')}
             onPress={handleFormSubmit}
           >
             <View style={spacings.pl}>
@@ -165,7 +175,7 @@ const ViewOnlyScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('View-Only Accounts')}>
+        <Panel title={t('Import A Wallet In View-Only Mode')}>
           {fields.map((field, index) => (
             <Controller
               key={field.id}
@@ -195,6 +205,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
+                    onSubmitEditing={disabled ? undefined : handleFormSubmit}
                   />
                   {index !== 0 && (
                     <Pressable style={[spacings.ml]} onPress={() => remove(index)}>
@@ -216,16 +227,14 @@ const ViewOnlyScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem>
-          <TabLayoutWrapperSideContentItem.Row
-            Icon={InfoIcon}
-            title="Importing view-only accounts"
-          />
+        <TabLayoutWrapperSideContentItem icon={ViewOnlyIcon} title={t('View-only mode')}>
+          <TabLayoutWrapperSideContentItem.Text>
+            {t(
+              'Importing an account in the view-only mode lets you preview any public wallet address on any supported network. You can observe its balances or connect to dApps with it. Of course, in the view-only mode, you won&apos;t be able to sign any transaction, message, or authorize this account in any form.'
+            )}
+          </TabLayoutWrapperSideContentItem.Text>
           <TabLayoutWrapperSideContentItem.Text noMb>
-            Importing accounts in view-only mode allows you to import any address on any of our
-            supported networks, and just observe it&apos;s balances or connect to dApps with it. Of
-            course, you cannot sign any transactions or messages, or authorize with this account in
-            any form. This is possible due to the public nature of the Web3 itself.
+            {t('All this is possible due to the public nature of the Web3 itself.')}
           </TabLayoutWrapperSideContentItem.Text>
         </TabLayoutWrapperSideContentItem>
       </TabLayoutWrapperSideContent>

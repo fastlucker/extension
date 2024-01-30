@@ -36,8 +36,8 @@ const routesConfig: {
   [ROUTES.getStarted]: {
     route: ROUTES.getStarted,
     title: Platform.select({
-      default: i18n.t('Welcome to Ambire'),
-      web: i18n.t('Welcome to Ambire')
+      default: i18n.t('Welcome to your Ambire Wallet'),
+      web: i18n.t('Welcome to your Ambire Wallet')
     })
   },
   [ROUTES.terms]: {
@@ -64,8 +64,13 @@ const routesConfig: {
     route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store')
   },
+  [ROUTES.keyStoreReset]: {
+    route: ROUTES.keyStoreReset,
+    title: i18n.t('Restore Key Store Passphrase')
+  },
   [ROUTES.emailVault]: {
-    route: ROUTES.emailVault
+    route: ROUTES.emailVault,
+    title: ''
   },
   [ROUTES.auth]: {
     route: ROUTES.auth,
@@ -106,10 +111,6 @@ const routesConfig: {
     title: Platform.select({
       default: i18n.t('Personalize Your Accounts')
     })
-  },
-  [ROUTES.externalSigner]: {
-    route: ROUTES.externalSigner,
-    title: ''
   },
   [ROUTES.viewOnlyAccountAdder]: {
     route: ROUTES.viewOnlyAccountAdder,

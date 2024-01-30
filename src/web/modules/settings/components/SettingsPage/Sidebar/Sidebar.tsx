@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ColorValue, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
@@ -20,37 +20,37 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 export const getSettingsPages = (t: (string: string) => string) => [
   {
     key: 'accounts',
-    Icon: ({ color }: { color: ColorValue }) => <AccountsIcon color={color} />,
+    Icon: AccountsIcon,
     label: t('Accounts'),
     path: ROUTES.accounts
   },
   {
     key: 'networks',
-    Icon: ({ color }: { color: ColorValue }) => <NetworksIcon color={color} />,
+    Icon: NetworksIcon,
     label: t('Networks'),
     path: ROUTES.networks
   },
   {
     key: 'transaction-history',
-    Icon: ({ color }: { color: ColorValue }) => <TransactionHistoryIcon color={color} />,
+    Icon: TransactionHistoryIcon,
     label: t('Transaction History'),
     path: ROUTES.transactions
   },
   {
-    key: 'keystore',
-    Icon: ({ color }: { color: ColorValue }) => <KeyStoreSettingsIcon color={color} />,
+    key: 'device-password',
+    Icon: KeyStoreSettingsIcon,
     label: t('Device Password'),
-    path: ROUTES.keystore
+    path: ROUTES.devicePassword
   },
   {
     key: 'email-vault',
-    Icon: ({ color }: { color: ColorValue }) => <EmailVaultIcon color={color} />,
+    Icon: () => <EmailVaultIcon strokeWidth={3.5} width={24} height={24} />,
     label: t('Email Vault'),
     path: '/settings/email-vault'
   },
   {
     key: 'custom-tokens',
-    Icon: ({ color }: { color: ColorValue }) => <CustomTokensIcon color={color} />,
+    Icon: CustomTokensIcon,
     label: t('Custom Tokens'),
     path: '/settings/custom-tokens'
   }
@@ -93,7 +93,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           <Pressable
             key={item.key}
             onPress={() => {
-              if (item.path in ROUTES) {
+              if (Object.values(ROUTES).includes(item.path)) {
                 navigate(item.path)
                 return
               }

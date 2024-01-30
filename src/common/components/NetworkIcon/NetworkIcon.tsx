@@ -12,6 +12,7 @@ import EthereumLogo from '@common/assets/svg/EthereumLogo'
 import EthereumMonochromeIcon from '@common/assets/svg/EthereumMonochromeIcon'
 import FantomLogo from '@common/assets/svg/FantomLogo'
 import FantomMonochromeIcon from '@common/assets/svg/FantomMonochromeIcon'
+import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import GnosisLogo from '@common/assets/svg/GnosisLogo'
 import GnosisMonochromeIcon from '@common/assets/svg/GnosisMonochromeIcon'
 import KCCKuCoinLogo from '@common/assets/svg/KCCKuCoinLogo'
@@ -26,7 +27,7 @@ import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
 import { NETWORKS } from '@common/constants/networks'
 
-export type NetworkIconNameType = keyof typeof NETWORKS
+export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank'
 
 type Props = {
   name: NetworkIconNameType
@@ -47,7 +48,8 @@ const icons: { [key: string]: any } = {
   [NETWORKS.optimism]: OptimismLogo,
   [NETWORKS.gnosis]: GnosisLogo,
   [NETWORKS.kucoin]: KCCKuCoinLogo,
-  [NETWORKS.andromeda]: AndromedaLogo
+  [NETWORKS.andromeda]: AndromedaLogo,
+  gasTank: GasTankIcon
 }
 
 const iconsMonochrome: { [key: string]: any } = {

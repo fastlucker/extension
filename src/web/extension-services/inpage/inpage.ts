@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
@@ -12,8 +13,8 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import {
   ambireSvg,
   isWordInPage,
-  replaceMMImgInPage,
-  replaceWordAndIcon
+  replaceMMBrandInPage,
+  replaceMMImgInPage
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
@@ -26,6 +27,61 @@ const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 let doesWebpageReadOurProvider: boolean
 let isEIP6963: boolean
+
+//
+// MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
+//
+
+const runReplacementScript = async () => {
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+  const hasMetaMaskInPage = isWordInPage('metamask')
+  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+
+  // most of the dapps read the provider but some don't till connection
+  if (
+    !doesWebpageReadOurProvider &&
+    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
+  )
+    return
+
+  await delayPromise(30) // wait for DOM update
+
+  if (isEIP6963) return
+
+  if (hasWalletConnectInPage) replaceMMImgInPage()
+
+  const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
+  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
+
+  if (!hasMetaMaskInPage) return
+  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+    return
+
+  replaceMMBrandInPage(ambireSvg)
+}
+
+export type DefaultWallet = 'AMBIRE' | 'OTHER'
+
+declare let defaultWallet: DefaultWallet
+let _defaultWallet: DefaultWallet = 'AMBIRE'
+Object.defineProperty(window, 'defaultWallet', {
+  configurable: false,
+  get() {
+    return _defaultWallet
+  },
+  set(value: DefaultWallet) {
+    _defaultWallet = value
+    if (value === 'AMBIRE') {
+      document.addEventListener('click', runReplacementScript)
+      const observer = new MutationObserver(runReplacementScript)
+      observer.observe(document, { childList: true, subtree: true, attributes: true })
+    }
+  }
+})
+
+//
+// EthereumProvider Injection
+//
 
 export interface Interceptor {
   onRequest?: (data: any) => any
@@ -295,7 +351,15 @@ export class EthereumProvider extends EventEmitter {
     }
   }
 
-  private _handleBackgroundMessage = ({ event, data }) => {
+  private _handleBackgroundMessage = ({ event, data }: any) => {
+    if (data?.type === 'setDefaultWallet') {
+      defaultWallet = data?.value
+      if (data.shouldReload) {
+        window.location.reload()
+      }
+      return
+    }
+
     if (this._pushEventHandlers[event]) {
       return this._pushEventHandlers[event](data)
     }
@@ -494,10 +558,10 @@ const requestHasOtherProvider = () => {
   })
 }
 
-const setAmbireProvider = (isDefaultWallet: boolean) => {
+const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
-      configurable: !isDefaultWallet,
+      configurable: false,
       enumerable: true,
       set(val) {
         if (val?._isAmbire) {
@@ -508,10 +572,25 @@ const setAmbireProvider = (isDefaultWallet: boolean) => {
         return ambireProvider
       },
       get() {
-        // the webpage reads the proxy provider so treat the page as a dapp
-        // should replace mm brand only for dapps
-        doesWebpageReadOurProvider = true
-        return isDefaultWallet ? ambireProvider : cacheOtherProvider || ambireProvider
+        // script to determine whether the page is a dapp or not
+        // (only pages that are dapps should read the ethereum provider)
+        // the provider is called from multiple instances (current page and other extensions)
+        // we need only the calls from the current page
+        if (!doesWebpageReadOurProvider) {
+          try {
+            throw new Error()
+          } catch (error: any) {
+            const stack = error.stack // Parse the stack trace to get the caller info
+            if (stack) {
+              const callerPage = stack.split('\n')[2].trim()
+              if (callerPage.includes(window.location.hostname)) {
+                doesWebpageReadOurProvider = true
+              }
+            }
+          }
+        }
+
+        return defaultWallet === 'AMBIRE' ? ambireProvider : cacheOtherProvider || ambireProvider
       }
     })
   } catch (e) {
@@ -536,24 +615,7 @@ const initOperaProvider = () => {
   patchProvider(ambireProvider)
 }
 
-const setOtherProvider = (otherProvider: EthereumProvider) => {
-  if (window.ethereum === otherProvider) {
-    return
-  }
-  const existingProvider = Object.getOwnPropertyDescriptor(window, 'ethereum')
-  if (existingProvider?.configurable) {
-    Object.defineProperty(window, 'ethereum', {
-      value: otherProvider,
-      writable: false,
-      configurable: false,
-      enumerable: true
-    })
-  } else {
-    window.ethereum = otherProvider
-  }
-}
-
-const initProvider = (isDefaultWallet: boolean = true) => {
+const initProvider = () => {
   ambireProvider._isReady = true
   let finalProvider: EthereumProvider | null = null
 
@@ -562,14 +624,10 @@ const initProvider = (isDefaultWallet: boolean = true) => {
     cacheOtherProvider = window.ethereum
   }
 
-  if (isDefaultWallet || !cacheOtherProvider) {
-    finalProvider = ambireProvider
-    patchProvider(ambireProvider)
-    setAmbireProvider(isDefaultWallet)
-  } else {
-    finalProvider = cacheOtherProvider
-    setOtherProvider(cacheOtherProvider)
-  }
+  finalProvider = ambireProvider
+  patchProvider(ambireProvider)
+  setAmbireProvider()
+
   if (!window.web3) {
     window.web3 = {
       currentProvider: finalProvider
@@ -607,34 +665,3 @@ window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestPr
 announceEip6963Provider(ambireProvider)
 
 window.dispatchEvent(new Event('ethereum#initialized'))
-
-//
-// MetaMask text and icon replacement for dApps using legacy connect only
-//
-
-const runReplacementScript = async () => {
-  if (!doesWebpageReadOurProvider) return
-
-  await delayPromise(30) // wait for DOM update
-
-  if (isEIP6963) return
-
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-
-  if (hasWalletConnectInPage) replaceMMImgInPage()
-
-  const hasMetaMaskInPage = isWordInPage('metamask')
-  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
-  const hasTrustWalletInPage = isWordInPage('trustwallet')
-  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
-
-  if (!hasMetaMaskInPage) return
-  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
-    return
-
-  replaceWordAndIcon('metamask', 'Ambire', ambireSvg)
-}
-
-document.addEventListener('click', runReplacementScript)
-const observer = new MutationObserver(runReplacementScript)
-observer.observe(document, { childList: true, subtree: true, attributes: true })

@@ -10,6 +10,8 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 
+import { WalletStateController } from './controllers/wallet-state'
+
 export const controllersNestedInMainMapping = {
   accountAdder: AccountAdderController,
   keystore: KeystoreController,
@@ -28,6 +30,7 @@ export const controllersNestedInMainMapping = {
 export const controllersMapping = {
   main: MainController,
   notification: NotificationController,
+  walletState: WalletStateController,
   ...controllersNestedInMainMapping
 }
 
