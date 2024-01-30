@@ -52,7 +52,7 @@ const OnBoardingScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="sm"
+      width="md"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content">
@@ -62,14 +62,14 @@ const OnBoardingScreen = () => {
     >
       <TabLayoutWrapperMainContent
         style={[spacings.pt2Xl]}
-        contentContainerStyle={{ ...flexbox.justifyCenter, flexGrow: 1 }}
+        contentContainerStyle={{ ...flexbox.alignCenter, ...flexbox.justifyCenter, flexGrow: 1 }}
       >
-        <Panel>
+        <Panel style={{ width: 442, ...spacings.pt2Xl }}>
           <View style={styles.confettiAnimationContainer}>
             <ConfettiAnimation />
           </View>
           <Image style={styles.tokensImg} source={tokensEarnedImg} />
-          <Text weight="medium" fontSize={20} style={[text.center, spacings.mb]}>
+          <Text weight="medium" fontSize={20} style={[text.center, spacings.mb2Xl]}>
             {t("You've just earned $WALLET rewards for creating a new fresh account.")}
           </Text>
           <Pressable
