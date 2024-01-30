@@ -1,17 +1,18 @@
-import React from 'react'
-import { Path, Svg } from 'react-native-svg'
+import React, { FC } from 'react'
+import { Path, Svg, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-const RefreshIcon = ({ color = colors.martinique, width = 32, height = 32 }) => {
+const RefreshIcon: FC<SvgProps> = ({ color = colors.martinique, width = 32, height = 32 }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+    <Svg width={width} height={height} viewBox="0 0 16 16" fill="none">
       <Path
-        stroke={color}
+        d="M14.748 7.75a7 7 0 0 1-7 7c-3.864 0-6.223-3.892-6.223-3.892m0 0h3.164m-3.164 0v3.5M.748 7.75a6.985 6.985 0 0 1 7-7 8.611 8.611 0 0 1 7 3.892m0 0v-3.5m0 3.5h-3.106"
+        fill="none"
+        stroke="#fff"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="2"
-        d="M22 12c0 5.52-4.48 10-10 10s-8.89-5.56-8.89-5.56m0 0h4.52m-4.52 0v5M2 12C2 6.48 6.44 2 12 2c6.67 0 10 5.56 10 5.56m0 0v-5m0 5h-4.44"
+        strokeWidth="1.5"
       />
     </Svg>
   )
