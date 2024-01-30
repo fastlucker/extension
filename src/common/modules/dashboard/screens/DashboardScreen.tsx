@@ -19,6 +19,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import Banners from '@common/modules/dashboard/components/DashboardBanners'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -47,6 +48,7 @@ const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
+  const { addToast } = useToast()
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
