@@ -1,5 +1,5 @@
 // useShowView.ts
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import useToast from '@common/hooks/useToast'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -16,12 +16,17 @@ export const useShowDashboard = (): ReturnProps => {
 
   const [timeoutShowViewReached, setTimeoutShowViewReached] = useState(false)
 
-  // Safeguard to show partial results if loading takes too long
+  // Flag to check if loading already is taking too long based on the controller state
+  const loadingExceededThreshold = useMemo(() => {
+    return startedLoading ? Date.now() - startedLoading > WAIT_THRESHOLD : false
+  }, [startedLoading])
+
+  // Safeguard (fallback for the `loadingExceededThreshold` flag) to still show
+  // partial results if loading takes too long but the portfolio controller
+  // state is not updated (could happen if user looses connectivity).
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const nextShowView =
-        (startedLoading ? Date.now() - startedLoading > WAIT_THRESHOLD : false) ||
-        !!accountPortfolio?.isAllReady
+      const nextShowView = loadingExceededThreshold || !!accountPortfolio?.isAllReady
 
       if (!nextShowView) {
         setTimeoutShowViewReached(true)
@@ -33,12 +38,10 @@ export const useShowDashboard = (): ReturnProps => {
     }, WAIT_THRESHOLD)
 
     return () => clearTimeout(timeout)
-  }, [accountPortfolio?.isAllReady, addToast, startedLoading])
+  }, [loadingExceededThreshold, accountPortfolio?.isAllReady, addToast])
 
   const showView =
-    timeoutShowViewReached ||
-    (startedLoading ? Date.now() - startedLoading > WAIT_THRESHOLD : false) ||
-    !!accountPortfolio?.isAllReady
+    timeoutShowViewReached || loadingExceededThreshold || !!accountPortfolio?.isAllReady
 
   return { showView }
 }
