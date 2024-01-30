@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Linking, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,19 +9,20 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
-import NetworkIcon from '@common/components/NetworkIcon'
 import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import Banners from '@common/modules/dashboard/components/DashboardBanners'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -32,37 +33,30 @@ import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
 import DAppFooter from '../components/DAppFooter'
-import DashboardHeader from '../components/Header/Header'
+import DashboardHeader from '../components/DashboardHeader'
+import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
-import getStyles from './styles'
+import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (openTab: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
-}
 
 const { isPopup } = getUiType()
 
 const DashboardScreen = () => {
-  const { styles } = useTheme(getStyles)
-  const { networks } = useSettingsControllerState()
-  const { selectedAccount } = useMainControllerState()
-  const { addToast } = useToast()
+  const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
-  const [networkExplorersHovered, setNetworkExplorersHovered] = useState(false)
+  const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
+    width: 0,
+    height: 0
+  })
   const route = useRoute()
   const [timeoutShowViewReached, setTimeoutShowViewReached] = useState(false)
+  const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const { control, watch } = useForm({
     mode: 'all',
@@ -75,31 +69,65 @@ const DashboardScreen = () => {
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
 
-    return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
+    return (params.get('tab') as 'tokens' | 'collectibles' | 'defi') || 'tokens'
   })
-
-  const { accountPortfolio, startedLoading } = usePortfolioControllerState()
+  const { networks } = useSettingsControllerState()
+  const { selectedAccount } = useMainControllerState()
+  const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
+  // We want to change the query param without refreshing the page.
+  const handleChangeQuery = useCallback((tab: string) => {
+    if (window.location.href.includes('?tab=')) {
+      window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${tab}`)
+      return
+    }
+
+    window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
+  }, [])
+
+  const filterByNetworkName = useMemo(() => {
+    if (!filterByNetworkId) return ''
+
+    if (filterByNetworkId === 'rewards') return 'Ambire Rewards'
+    if (filterByNetworkId === 'gasTank') return 'Gas Tank'
+
+    const network = networks.find((n) => n.id === filterByNetworkId)
+
+    return network?.name
+  }, [filterByNetworkId, networks])
+
+  const totalPortfolioAmount = useMemo(() => {
+    if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
+
+    if (!selectedAccount) return 0
+
+    const selectedAccountPortfolio = state.latest[selectedAccount][filterByNetworkId]?.result?.total
+
+    return Number(selectedAccountPortfolio?.usd) || 0
+  }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
+
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter((token) => {
-        if (!searchValue) return true
+      accountPortfolio?.tokens
+        .filter((token) => {
+          if (!filterByNetworkId) return true
+          if (filterByNetworkId === 'rewards') return token.flags.rewardsType
+          if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
 
-        const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-        const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+          return token.networkId === filterByNetworkId
+        })
+        .filter((token) => {
+          if (!searchValue) return true
 
-        return doesAddressMatch || doesSymbolMatch
-      }),
-    [accountPortfolio?.tokens, searchValue]
+          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+
+          return doesAddressMatch || doesSymbolMatch
+        }),
+    [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
-
-  const networksWithAssets = useMemo(() => {
-    const nonZeroBalanceTokens = tokens?.filter((token) => token.amount !== 0n)
-
-    return [...new Set(nonZeroBalanceTokens?.map((token) => token.networkId) || [])]
-  }, [tokens])
 
   useEffect(() => {
     if (searchValue.length > 0 && openTab === 'collectibles') {
@@ -155,28 +183,6 @@ const DashboardScreen = () => {
     }
   })
 
-  const openExplorer = useCallback(
-    async (networkId: NetworkDescriptor['id']) => {
-      const explorerUrl = networks.find((network) => network.id === networkId)?.explorerUrl
-
-      if (!explorerUrl) {
-        addToast('This network does not have an explorer.', {
-          type: 'error'
-        })
-        return
-      }
-
-      try {
-        await Linking.openURL(`${explorerUrl}/address/${selectedAccount}`)
-      } catch {
-        addToast('An error occurred while opening the explorer.', {
-          type: 'error'
-        })
-      }
-    },
-    [networks, selectedAccount, addToast]
-  )
-
   // Fake loading
   useEffect(() => {
     setFakeIsLoading(false)
@@ -192,74 +198,105 @@ const DashboardScreen = () => {
 
   return (
     <>
-      <DashboardHeader />
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
-        <View style={spacings.ph}>
-          <View style={[styles.contentContainer]}>
-            <View style={styles.overview}>
-              <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!fakeIsLoading ? (
-                    <Text style={spacings.mbTy}>
-                      <Text
-                        fontSize={32}
-                        shouldScale={false}
-                        style={{ lineHeight: 34 }}
-                        weight="number_bold"
+        <View style={[spacings.phSm, spacings.ptSm]}>
+          <View style={[styles.contentContainer, spacings.mb]}>
+            <View
+              style={[
+                common.borderRadiusPrimary,
+                spacings.pvTy,
+                spacings.phSm,
+                spacings.pbMd,
+                {
+                  backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
+                  overflow: 'hidden'
+                }
+              ]}
+              onLayout={(e) => {
+                setDashboardOverviewSize({
+                  width: e.nativeEvent.layout.width,
+                  height: e.nativeEvent.layout.height
+                })
+              }}
+            >
+              <Gradients size={dashboardOverviewSize} />
+              <View style={{ zIndex: 2 }}>
+                <DashboardHeader />
+                <View style={styles.overview}>
+                  <View>
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      {!fakeIsLoading ? (
+                        <Text style={spacings.mbTy}>
+                          <Text
+                            fontSize={32}
+                            shouldScale={false}
+                            style={{ lineHeight: 34 }}
+                            weight="number_bold"
+                            color={theme.primaryBackground}
+                          >
+                            {t('$')}
+                            {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
+                              'en-US'
+                            )}
+                          </Text>
+                          <Text
+                            fontSize={20}
+                            shouldScale={false}
+                            weight="number_bold"
+                            color={theme.primaryBackground}
+                          >
+                            {t('.')}
+                            {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
+                          </Text>
+                        </Text>
+                      ) : (
+                        <View style={styles.overviewLoader} />
+                      )}
+                      <AnimatedPressable
+                        onPress={refreshPortfolio}
+                        style={[animatedStyle, spacings.mlTy]}
                       >
-                        {t('$')}
-                        {Number(
-                          accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
-                        ).toLocaleString('en-US')}
-                      </Text>
-                      <Text fontSize={20} shouldScale={false} weight="semiBold">
-                        {t('.')}
-                        {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
-                      </Text>
-                    </Text>
-                  ) : (
-                    <View style={styles.overviewLoader} />
-                  )}
-                  <AnimatedPressable
-                    onPress={refreshPortfolio}
-                    style={[animatedStyle, spacings.mlTy]}
-                  >
-                    <RefreshIcon width={16} height={16} />
-                  </AnimatedPressable>
-                </View>
-                <Pressable
-                  // @ts-ignore cursor:default is web style
-                  style={({ hovered }: any) => [
-                    styles.networks,
-                    hovered && isWeb ? { cursor: 'default' } : {}
-                  ]}
-                >
-                  {({ hovered: parentHovered }: any) =>
-                    networksWithAssets.map((networkId, index) => (
-                      <Pressable
-                        onPress={() => openExplorer(networkId)}
-                        key={networkId}
-                        style={({ hovered: networkHovered }: any) => [
-                          styles.networkIconContainer,
-                          { zIndex: networksWithAssets.length - index },
-                          networkHovered && styles.networkIconContainerHovered,
-                          {
-                            marginRight: parentHovered || networkExplorersHovered ? 8 : 0
+                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                      </AnimatedPressable>
+                    </View>
+                    <Pressable
+                      style={({ hovered }: any) => [
+                        flexbox.directionRow,
+                        flexbox.alignCenter,
+                        { opacity: hovered ? 1 : 0.7 }
+                      ]}
+                      onPress={() => {
+                        navigate(WEB_ROUTES.networks, {
+                          state: {
+                            filterByNetworkId
                           }
-                        ]}
-                        onHoverIn={() => setNetworkExplorersHovered(true)}
-                        onHoverOut={() => setNetworkExplorersHovered(false)}
-                      >
-                        <NetworkIcon style={styles.networkIcon} name={networkId} />
-                      </Pressable>
-                    ))
-                  }
-                </Pressable>
+                        })
+                      }}
+                    >
+                      {filterByNetworkId ? (
+                        <FilterIcon
+                          color={theme.primaryBackground}
+                          width={16}
+                          height={16}
+                          style={spacings.mrMi}
+                        />
+                      ) : null}
+                      <Text fontSize={14} color={theme.primaryBackground} weight="medium">
+                        {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
+                      </Text>
+                      <DownArrowIcon
+                        style={spacings.mlSm}
+                        color={theme.primaryBackground}
+                        width={12}
+                        height={6.5}
+                      />
+                    </Pressable>
+                  </View>
+                  <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
+                </View>
               </View>
-              <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
             </View>
-
             <Banners />
           </View>
           <View
@@ -281,9 +318,9 @@ const DashboardScreen = () => {
           </View>
         </View>
         <View style={[styles.contentContainer, flexbox.flex1]}>
-          {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
+          {!!tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
         </View>
-        {isPopup && <DAppFooter />}
+        {!!isPopup && <DAppFooter />}
       </View>
     </>
   )

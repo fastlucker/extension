@@ -6,6 +6,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
+  footerContainer: ViewStyle
   container: ViewStyle
   border: ViewStyle
   currentDApp: ViewStyle
@@ -16,11 +17,24 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
+    footerContainer: {
+      ...spacings.phSm,
+      ...spacings.pbSm,
+      width: '100%'
+    },
     container: {
-      width: '100%',
+      ...flexbox.flex1,
       backgroundColor: theme.secondaryBackground,
-      ...spacings.ph,
-      ...spacings.pvSm
+      ...spacings.phSm,
+      ...spacings.pvSm,
+      ...common.borderRadiusPrimary,
+      shadowOffset: {
+        width: 0,
+        height: -3
+      },
+      shadowColor: '#CACDE699',
+      shadowOpacity: 1,
+      shadowRadius: 6
     },
     currentDApp: {
       ...flexbox.directionRow,

@@ -9,6 +9,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
@@ -33,6 +34,7 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: NetworkDescriptor)
 
 const NetworksSettingsScreen = () => {
   const { t } = useTranslation()
+  const { search: searchParams } = useRoute()
   const { control, watch } = useForm({
     defaultValues: {
       search: ''
@@ -41,7 +43,15 @@ const NetworksSettingsScreen = () => {
 
   const search = watch('search')
   const { networks } = useSettingsControllerState()
-  const [selectedNetworkId, setSelectedNetworkId] = useState(networks[0].id)
+  const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
+    const parsedSearchParams = new URLSearchParams(searchParams)
+
+    if (parsedSearchParams.has('networkId')) {
+      return parsedSearchParams.get('networkId') as string
+    }
+
+    return networks[0].id
+  })
   const selectedNetwork = networks.find((network) => network.id === selectedNetworkId)
 
   const networkForm = useForm({
