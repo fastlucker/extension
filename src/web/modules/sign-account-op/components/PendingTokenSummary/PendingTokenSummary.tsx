@@ -34,7 +34,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
 
     if (Number.isInteger(value)) return value.toString()
 
-    return value.toPrecision(2)
+    return value.toFixed(2)
   }, [token])
 
   const amountToSendSign = useMemo(() => {
