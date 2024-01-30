@@ -66,7 +66,7 @@ const KeyStoreResetScreen = () => {
     <TabLayoutContainer
       width="sm"
       header={
-        <Header customTitle={t('Restore Device Password')} withAmbireLogo mode="image-and-title" />
+        <Header customTitle={t('Restore Device Password. Under development!')} withAmbireLogo mode="image-and-title" />
       }
       footer={
         <>
