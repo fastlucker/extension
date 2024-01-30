@@ -1,7 +1,5 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {

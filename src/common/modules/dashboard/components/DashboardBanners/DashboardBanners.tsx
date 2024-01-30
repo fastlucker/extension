@@ -2,12 +2,12 @@ import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
-import Banner from '@common/components/Banner'
+import Banner from '@common/modules/dashboard/components/DashboardBanner'
 import spacings from '@common/styles/spacings'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const Banners: FC = () => {
+const DashboardBanners: FC = () => {
   const state = useMainControllerState()
   const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
   const walletState = useWalletStateController()
@@ -60,4 +60,4 @@ const Banners: FC = () => {
   )
 }
 
-export default React.memo(Banners)
+export default React.memo(DashboardBanners)

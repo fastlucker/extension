@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useState } from 'react'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 // @ts-ignore
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import { Avatar } from '@common/components/Avatar'
 import Button from '@common/components/Button'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
@@ -28,7 +29,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
 import styles from './styles'
 
@@ -74,11 +74,7 @@ const DappConnectScreen = () => {
             ]}
           >
             <View style={styles.accountInfo}>
-              <Image
-                style={styles.accountInfoIcon}
-                source={getAccountPfpSource(selectedAccountPref?.pfp)}
-                resizeMode="contain"
-              />
+              <Avatar pfp={selectedAccountPref?.pfp} size={32} />
               <View style={styles.accountAddressAndLabel}>
                 <Text weight="number_bold" fontSize={16} appearance="secondaryText">
                   {selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL}

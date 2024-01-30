@@ -1,9 +1,11 @@
-import { Image, Pressable, View } from 'react-native'
+import React from 'react'
+import { Pressable, View } from 'react-native'
 
 // @ts-ignore
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import { Avatar } from '@common/components/Avatar'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
@@ -15,7 +17,6 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -30,7 +31,6 @@ const DashboardHeader = () => {
 
   const selectedAccount = mainCtrl.selectedAccount || ''
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
-  const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
   const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
 
   const { navigate } = useNavigation()
@@ -54,11 +54,7 @@ const DashboardHeader = () => {
         >
           <Pressable style={styles.accountButton} onPress={() => navigate('account-select')}>
             <View style={styles.accountButtonInfo}>
-              <Image
-                style={styles.accountButtonInfoIcon}
-                source={selectedAccPfpSource}
-                resizeMode="contain"
-              />
+              <Avatar pfp={selectedAccPref?.pfp} size={32} />
               <View style={styles.accountAddressAndLabel}>
                 <Text numberOfLines={1} weight="number_bold" fontSize={14}>
                   {selectedAccLabel}
@@ -101,4 +97,4 @@ const DashboardHeader = () => {
   )
 }
 
-export default DashboardHeader
+export default React.memo(DashboardHeader)
