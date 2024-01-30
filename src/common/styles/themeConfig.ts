@@ -108,6 +108,10 @@ const ThemeColors = {
   errorBackground: {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#FEEBEE'
+  },
+  secondaryDecorative: {
+    [THEME_TYPES.DARK]: '#3851FF',
+    [THEME_TYPES.LIGHT]: '#3851FF'
   }
 }
 

@@ -20,7 +20,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import Card from '@web/modules/auth/components/Card'
 
@@ -36,22 +35,16 @@ const GetStartedScreen = () => {
 
   const handleAuthButtonPress = useCallback(
     async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-hot-wallet' | 'view-only') => {
-      const hasTerms = await storage.get('termsState', false)
-
       if (flow === 'create-hot-wallet') {
         setIsCreateHotWalletModalOpen(true)
         return
       }
-      if (flow === 'import-hot-wallet') {
-        navigate(WEB_ROUTES.importHotWallet)
-        return
-      }
-      if (!hasTerms) {
-        navigate(WEB_ROUTES.terms, { state: { flow } })
-        return
-      }
       if (flow === 'view-only') {
         navigate(WEB_ROUTES.viewOnlyAccountAdder)
+        return
+      }
+      if (flow === 'import-hot-wallet') {
+        navigate(WEB_ROUTES.importHotWallet)
         return
       }
       if (!keystoreState.isReadyToStoreKeys && flow !== 'hw') {

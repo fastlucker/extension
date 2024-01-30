@@ -2,7 +2,7 @@ import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { useEffect, useState } from 'react'
 
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'

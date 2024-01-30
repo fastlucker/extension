@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
