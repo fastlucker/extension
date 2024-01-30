@@ -6,6 +6,8 @@ import useNft from '@common/hooks/useNft'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
@@ -31,6 +33,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
     address: collectionData.address,
     networkId: collectionData.networkId
   })
+  const renderFallbackImage = error || imageFailed || !data?.image
 
   // Works like a skeleton loader while the collectible is being fetched.
   if (isLoading) return <View style={[styles.container, { backgroundColor: theme.backdrop }]} />
@@ -39,7 +42,16 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
 
   return (
     <Pressable
-      style={styles.container}
+      style={[
+        styles.container,
+        renderFallbackImage
+          ? {
+              backgroundColor: theme.primaryBackground,
+              borderRadius: BORDER_RADIUS_PRIMARY,
+              ...flexbox.center
+            }
+          : {}
+      ]}
       onPress={() => {
         openCollectibleModal({
           address: collectionData.address,
@@ -65,8 +77,11 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
               ]}
             />
           )}
-          {(error || imageFailed || !data?.image) && (
-            <ImageIcon width={COLLECTIBLE_SIZE} height={COLLECTIBLE_SIZE} />
+          {renderFallbackImage && (
+            <ImageIcon
+              width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
+              height={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
+            />
           )}
         </>
       )}
