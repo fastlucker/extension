@@ -3,13 +3,13 @@ import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { Avatar } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatar'
 import shortenAddress from '@web/utils/shortenAddress'
 
 const PayOption = ({

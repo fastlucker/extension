@@ -5,6 +5,7 @@ import { View } from 'react-native'
 // @ts-ignore
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import { Avatar } from '@common/components/Avatar'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -20,7 +21,6 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { Avatar } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatar'
 
 import styles from './styles'
 

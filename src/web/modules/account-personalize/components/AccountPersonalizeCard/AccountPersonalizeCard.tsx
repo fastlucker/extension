@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -13,7 +14,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import { Avatar } from './avatar'
 import getStyles from './styles'
 
 export type AccountPersonalizeFormValues = {
