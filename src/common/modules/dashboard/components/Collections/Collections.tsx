@@ -42,7 +42,7 @@ const Collections = () => {
         ))
       ) : (
         <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-          You don&apos;t have any collectibles (NFTs) yet
+          You don&apos;t have any NFTs yet
         </Text>
       )}
     </View>
