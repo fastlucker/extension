@@ -19,7 +19,6 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import Banners from '@common/modules/dashboard/components/DashboardBanners'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -38,6 +37,7 @@ import DashboardHeader from '../components/DashboardHeader'
 import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
+import { useShowDashboard } from '../hooks/useShowDashboard'
 import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -48,7 +48,6 @@ const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
-  const { addToast } = useToast()
   const rotation = useSharedValue(0)
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
@@ -57,7 +56,6 @@ const DashboardScreen = () => {
     height: 0
   })
   const route = useRoute()
-  const [timeoutShowViewReached, setTimeoutShowViewReached] = useState(false)
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const { control, watch } = useForm({
@@ -75,7 +73,8 @@ const DashboardScreen = () => {
   })
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
+  const { showView } = useShowDashboard()
+  const { accountPortfolio, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
@@ -137,30 +136,6 @@ const DashboardScreen = () => {
       setOpenTab('tokens')
     }
   }, [searchValue, openTab])
-
-  // Safeguard to show partial results if loading takes too long
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const nextShowView =
-        (startedLoading ? Date.now() - startedLoading > 5000 : false) ||
-        accountPortfolio?.isAllReady
-
-      if (!nextShowView) {
-        setTimeoutShowViewReached(true)
-        addToast(
-          'Updating portfolio is taking longer than expected, showing partial results now...',
-          { type: 'warning' }
-        )
-      }
-    }, 5000)
-
-    return () => clearTimeout(timeout)
-  }, [accountPortfolio?.isAllReady, addToast, startedLoading])
-
-  const showView =
-    timeoutShowViewReached ||
-    (startedLoading ? Date.now() - startedLoading > 5000 : false) ||
-    accountPortfolio?.isAllReady
 
   const refreshPortfolio = useCallback(() => {
     rotation.value = withRepeat(
