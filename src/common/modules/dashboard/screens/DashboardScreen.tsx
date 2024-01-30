@@ -62,6 +62,7 @@ const DashboardScreen = () => {
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
   const [networkExplorersHovered, setNetworkExplorersHovered] = useState(false)
   const route = useRoute()
+  const [timeoutShowViewReached, setTimeoutShowViewReached] = useState(false)
 
   const { control, watch } = useForm({
     mode: 'all',
@@ -107,9 +108,29 @@ const DashboardScreen = () => {
     }
   }, [searchValue, openTab])
 
-  // FIXME: Stays forever false if the connection drops
+  // Safeguard to show partial results if loading takes too long
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const nextShowView =
+        (startedLoading ? Date.now() - startedLoading > 5000 : false) ||
+        accountPortfolio?.isAllReady
+
+      if (!nextShowView) {
+        setTimeoutShowViewReached(true)
+        addToast(
+          'Updating portfolio is taking longer than expected, showing partial results now...',
+          { type: 'warning' }
+        )
+      }
+    }, 5000)
+
+    return () => clearTimeout(timeout)
+  }, [accountPortfolio?.isAllReady, addToast, startedLoading])
+
   const showView =
-    (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
+    timeoutShowViewReached ||
+    (startedLoading ? Date.now() - startedLoading > 5000 : false) ||
+    accountPortfolio?.isAllReady
 
   const refreshPortfolio = useCallback(() => {
     rotation.value = withRepeat(
