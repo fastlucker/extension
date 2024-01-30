@@ -107,6 +107,7 @@ const DashboardScreen = () => {
     }
   }, [searchValue, openTab])
 
+  // FIXME: Stays forever false if the connection drops
   const showView =
     (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
 
