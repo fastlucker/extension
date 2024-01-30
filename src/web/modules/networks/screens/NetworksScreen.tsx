@@ -20,6 +20,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
+  tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
@@ -76,60 +77,68 @@ const NetworksScreen = () => {
       width="lg"
       hideFooterInPopup
     >
-      <TabLayoutWrapperMainContent>
-        <NetworkBottomSheet
-          sheetRef={sheetRef}
-          closeBottomSheet={closeSettingsBottomSheet}
-          selectedNetworkId={selectedNetworkId}
-          openBlockExplorer={openBlockExplorer}
-        />
-        <Pressable
-          onPress={() => {
-            navigate(WEB_ROUTES.dashboard, {
-              state: {
-                filterByNetworkId: null
-              }
-            })
-          }}
-          style={({ hovered }: any) => [
-            styles.network,
-            styles.noKebabNetwork,
-            !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
-          ]}
-        >
-          <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-            <View
-              style={{
-                width: 32,
-                height: 32,
-                ...flexbox.center
-              }}
-            >
-              {/* @ts-ignore */}
-              <NetworksIcon width={20} height={20} />
+      <View style={[flexbox.flex1, spacings.pv]}>
+        <TabLayoutWrapperMainContent>
+          <NetworkBottomSheet
+            sheetRef={sheetRef}
+            closeBottomSheet={closeSettingsBottomSheet}
+            selectedNetworkId={selectedNetworkId}
+            openBlockExplorer={openBlockExplorer}
+          />
+          <Pressable
+            onPress={() => {
+              navigate(WEB_ROUTES.dashboard, {
+                state: {
+                  filterByNetworkId: null
+                }
+              })
+            }}
+            style={({ hovered }: any) => [
+              styles.network,
+              styles.noKebabNetwork,
+              !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
+            ]}
+          >
+            <View style={[flexbox.alignCenter, flexbox.directionRow]}>
+              <View
+                style={{
+                  width: 32,
+                  height: 32,
+                  ...flexbox.center
+                }}
+              >
+                {/* @ts-ignore */}
+                <NetworksIcon width={20} height={20} />
+              </View>
+              <Text style={spacings.mlMi} fontSize={16}>
+                {t('All Networks')}
+              </Text>
             </View>
-            <Text style={spacings.mlMi} fontSize={16}>
-              {t('All Networks')}
+            <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
+              {`$${formatThousands(
+                Number(portfolioControllerState.accountPortfolio?.totalAmount || 0).toFixed(2)
+              )}` || '$-'}
             </Text>
-          </View>
-          <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
-            {`$${formatThousands(
-              Number(portfolioControllerState.accountPortfolio?.totalAmount || 0).toFixed(2)
-            )}` || '$-'}
-          </Text>
-        </Pressable>
-        <Networks
-          openBlockExplorer={openBlockExplorer}
-          openSettingsBottomSheet={openSettingsBottomSheet}
-          filterByNetworkId={filterByNetworkId}
-        />
-        <Button disabled type="secondary">
-          <AddIcon color={theme.primary} />
-          <Text style={spacings.mlTy} fontSize={14} appearance="primary">
-            {t('Add New Network')}
-          </Text>
-        </Button>
-      </TabLayoutWrapperMainContent>
+          </Pressable>
+          <Networks
+            openBlockExplorer={openBlockExplorer}
+            openSettingsBottomSheet={openSettingsBottomSheet}
+            filterByNetworkId={filterByNetworkId}
+          />
+        </TabLayoutWrapperMainContent>
+        <View style={[spacings.ptSm, { width: '100%' }]}>
+          <Button
+            text={t('Add New Network')}
+            type="secondary"
+            hasBottomSpacing={false}
+            style={{ maxWidth: tabLayoutWidths.lg, ...flexbox.alignSelfCenter, width: '100%' }}
+            childrenPosition="left"
+            disabled
+          >
+            <AddIcon color={theme.primary} style={spacings.mrTy} />
+          </Button>
+        </View>
+      </View>
     </TabLayoutContainer>
   )
 }
