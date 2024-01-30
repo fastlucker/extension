@@ -37,7 +37,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // might get stuck in `false` state forever. If the timeout gets reached,
     // the app displays feedback to the user (via the
     // `isStatesLoadingTakingTooLong` flag).
-    const timer = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
+    const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
 
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
@@ -55,11 +55,11 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(activityState).length &&
       Object.keys(settingsState).length
     ) {
-      clearTimeout(timer)
+      clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
     }
 
-    return () => clearTimeout(timer)
+    return () => clearTimeout(timeout)
   }, [
     mainState,
     walletState,
