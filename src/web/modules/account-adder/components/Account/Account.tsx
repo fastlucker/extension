@@ -1,5 +1,6 @@
+import * as Clipboard from 'expo-clipboard'
 import React from 'react'
-import { Dimensions, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -10,9 +11,12 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
+import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import CopyIcon from '@web/assets/svg/CopyIcon'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -21,7 +25,7 @@ const Account = ({
   account,
   type,
   unused,
-  isLastInSlot,
+  withBottomSpacing = true,
   isSelected,
   onSelect,
   onDeselect,
@@ -30,15 +34,16 @@ const Account = ({
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'legacy' | 'smart' | 'linked'
   unused: boolean
-  isLastInSlot: boolean
   isSelected: boolean
+  withBottomSpacing: boolean
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-
+  const { minWidthSize, maxWidthSize } = useWindowSize()
+  const { addToast } = useToast()
   if (!account.addr) return null
 
   const toggleSelectedState = () => {
@@ -49,10 +54,23 @@ const Account = ({
     }
   }
 
+  const handleCopyAddress = () => {
+    Clipboard.setStringAsync(account.addr)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+  }
+
   return (
-    <View
+    <Pressable
       key={account.addr}
-      style={[flexbox.directionRow, flexbox.alignCenter, !isLastInSlot && spacings.mbTy]}
+      style={({ hovered }: any) => [
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        withBottomSpacing ? spacings.mbTy : spacings.mb0,
+        common.borderRadiusPrimary,
+        { borderWidth: 1, borderColor: theme.secondaryBackground },
+        hovered && { borderColor: theme.secondaryBorder }
+      ]}
+      onPress={isDisabled ? undefined : toggleSelectedState}
     >
       <View style={styles.container}>
         <Checkbox
@@ -63,51 +81,33 @@ const Account = ({
           isDisabled={isDisabled}
         />
 
-        <View style={[flexbox.flex1]}>
-          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-            <Text
-              fontSize={16}
-              appearance="primaryText"
-              style={[flexbox.flex1]}
-              onPress={isDisabled ? undefined : toggleSelectedState}
-            >
-              {/* TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically */}
-              {Dimensions.get('window').width < 1300
-                ? shortenAddress(account.addr, 32)
-                : account.addr}
-            </Text>
-            {(!!unused || type === 'linked') && (
-              <View style={[flexbox.directionRow]}>
-                {type === 'linked' && (
-                  <View
-                    style={
-                      !!isAmbireV1LinkedAccount(account.creation?.factoryAddr) && spacings.mrMi
-                    }
-                  >
-                    <Badge text={t('linked')} type="info" />
-                  </View>
-                )}
-                {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-                  <Badge text={t('v1')} type="info" />
-                )}
-              </View>
+        <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
+              <Text fontSize={16} appearance="primaryText" style={spacings.mrMi}>
+                {minWidthSize('m') && shortenAddress(account.addr, 16)}
+                {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
+                {maxWidthSize('l') && account.addr}
+              </Text>
+              {minWidthSize('l') && (
+                <Pressable onPress={handleCopyAddress}>
+                  <CopyIcon width={14} height={14} />
+                </Pressable>
+              )}
+            </View>
+            {type === 'legacy' ? (
+              <Badge withRightSpacing withIcon text={t('Legacy Account')} type="warning" />
+            ) : (
+              <Badge withRightSpacing withIcon text={t('Smart Account')} type="success" />
+            )}
+            {type === 'linked' && (
+              <Badge withRightSpacing withIcon text={t('linked')} type="info" />
+            )}
+            {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+              <Badge withRightSpacing withIcon text={t('v.1')} type="info" />
             )}
           </View>
-          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
-            <Text
-              weight="regular"
-              fontSize={12}
-              color={type === 'smart' || type === 'linked' ? colors.greenHaze : colors.husk}
-              style={[spacings.mbMi, flexbox.flex1]}
-              onPress={isDisabled ? undefined : toggleSelectedState}
-            >
-              {type === 'legacy' ? (
-                <Badge withIcon text={t('Legacy Account')} type="warning" />
-              ) : (
-                <Badge withIcon text={t('Smart Account')} type="success" />
-              )}
-            </Text>
-            {!!unused && <Badge text={t('unused')} />}
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {!!account.usedOnNetworks.length && (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Text fontSize={12} weight="regular">
@@ -128,10 +128,11 @@ const Account = ({
                 })}
               </View>
             )}
+            {!!unused && <Badge withIcon text={t('unused')} />}
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 

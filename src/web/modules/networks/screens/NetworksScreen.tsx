@@ -73,7 +73,7 @@ const NetworksScreen = () => {
     <TabLayoutContainer
       header={<Header customTitle="Networks" withPopupBackButton withAmbireLogo />}
       footer={<BackButton />}
-      width="sm"
+      width="lg"
       hideFooterInPopup
     >
       <TabLayoutWrapperMainContent>

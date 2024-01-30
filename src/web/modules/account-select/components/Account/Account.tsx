@@ -6,8 +6,8 @@ import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/acc
 import PinIcon from '@common/assets/svg/PinIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import UnpinIcon from '@common/assets/svg/UnpinIcon'
+import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
-import Blockies from '@common/components/Blockies'
 import CopyText from '@common/components/CopyText'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -73,8 +73,8 @@ const Account = ({
           ]}
         >
           <View style={[flexboxStyles.directionRow]}>
-            <View style={[spacings.mrTy, flexboxStyles.justifyCenter]}>
-              <Blockies width={40} height={40} seed={addr} />
+            <View style={[flexboxStyles.justifyCenter]}>
+              <Avatar pfp={settingsCtrl.accountPreferences[addr]?.pfp} />
             </View>
             <View>
               <View style={flexboxStyles.directionRow}>
@@ -82,27 +82,16 @@ const Account = ({
                   {isTab ? addr : shortenAddress(addr, 18)}
                 </Text>
                 <Badge
-                  size={isTab ? 'md' : 'sm'}
                   withIcon
                   style={spacings.mlTy}
                   type={isSmartAccount(account) ? 'success' : 'warning'}
                   text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
                 />
                 {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                  <Badge
-                    size={isTab ? 'md' : 'sm'}
-                    style={spacings.mlTy}
-                    type="info"
-                    text={t('View-only')}
-                  />
+                  <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
                 )}
                 {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                  <Badge
-                    size={isTab ? 'md' : 'sm'}
-                    style={spacings.mlTy}
-                    type="info"
-                    text={t('v1')}
-                  />
+                  <Badge style={spacings.mlTy} type="info" text={t('v1')} />
                 )}
               </View>
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">

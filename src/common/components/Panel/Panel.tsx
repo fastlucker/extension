@@ -3,24 +3,46 @@ import { View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
 
 import getStyles from './styles'
 
 interface Props extends ViewProps {
   title?: string
+  forceContainerSmallSpacings?: boolean
 }
 
-const Panel: React.FC<Props> = ({ title, children, style, ...rest }) => {
+const Panel: React.FC<Props> = ({
+  title,
+  children,
+  forceContainerSmallSpacings,
+  style,
+  ...rest
+}) => {
   const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
+
   return (
-    <View style={[styles.container, style]} {...rest}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingHorizontal:
+            maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
+          paddingVertical:
+            maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
+        },
+        style
+      ]}
+      {...rest}
+    >
       {!!title && (
         <Text
-          fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
+          fontSize={maxWidthSize('xl') ? 20 : 18}
           weight="medium"
           appearance="primaryText"
-          style={IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mbXl : spacings.mbMd}
+          style={maxWidthSize('xl') ? spacings.mbXl : spacings.mbMd}
           numberOfLines={1}
         >
           {title}

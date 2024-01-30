@@ -21,7 +21,9 @@ interface Props {
   // Preferences
   adjustToContentHeight?: boolean
   style?: ViewStyle
+  containerInnerWrapperStyles?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
+  scrollViewProps?: ModalizeProps['scrollViewProps']
 }
 
 const ANIMATION_DURATION: number = 250
@@ -35,9 +37,11 @@ const BottomSheet: React.FC<Props> = ({
   closeBottomSheet = () => {},
   adjustToContentHeight = true,
   style = {},
+  containerInnerWrapperStyles = {},
   onClosed,
   onBackdropPress,
-  flatListProps
+  flatListProps,
+  scrollViewProps
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
@@ -101,7 +105,8 @@ const BottomSheet: React.FC<Props> = ({
           ? {
               scrollViewProps: {
                 bounces: false,
-                keyboardShouldPersistTaps: 'handled'
+                keyboardShouldPersistTaps: 'handled',
+                ...(scrollViewProps || {})
               }
             }
           : {})}
@@ -111,7 +116,7 @@ const BottomSheet: React.FC<Props> = ({
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
                 contentContainerStyle: styles.containerInnerWrapper,
-                ...flatListProps
+                ...(flatListProps || {})
               }
             }
           : {})}
@@ -128,7 +133,11 @@ const BottomSheet: React.FC<Props> = ({
         onClose={() => setIsOpen(false)}
         onClosed={() => !!onClosed && onClosed()}
       >
-        {!flatListProps && <View style={styles.containerInnerWrapper}>{children}</View>}
+        {!flatListProps && (
+          <View style={[styles.containerInnerWrapper, containerInnerWrapperStyles]}>
+            {children}
+          </View>
+        )}
       </Modalize>
     </Portal>
   )

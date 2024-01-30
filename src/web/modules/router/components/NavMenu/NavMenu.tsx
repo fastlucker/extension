@@ -22,6 +22,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
+  tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -62,10 +63,12 @@ const NavMenu = () => {
   return (
     <TabLayoutContainer
       hideFooterInPopup
+      width="full"
       footer={<BackButton />}
+      footerStyle={{ maxWidth: tabLayoutWidths.xl }}
       header={
         <Header withPopupBackButton mode="custom">
-          <View style={headerStyles.widthContainer}>
+          <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
             <View style={[headerStyles.sideContainer, { width: 130 }]}>
               {!!isPopup && (
                 <Pressable
@@ -111,43 +114,47 @@ const NavMenu = () => {
         </Header>
       }
       style={spacings.ph0}
+      withHorizontalPadding={false}
     >
-      <View style={commonWebStyles.contentContainer}>
+      <View style={[flexbox.flex1]}>
         <View
           style={[
-            styles.defaultWalletContainer,
+            flexbox.justifyCenter,
             {
               backgroundColor: walletState.isDefaultWallet ? theme.infoBackground : '#F6851B14'
             }
           ]}
         >
-          <View style={[spacings.prXl, flexbox.flex1]}>
-            {!walletState.isDefaultWallet && (
-              <Text fontSize={14} weight="medium" color="#F6851B" numberOfLines={2}>
-                {t(
-                  'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.'
-                )}
-              </Text>
-            )}
-            {!!walletState.isDefaultWallet && (
-              <Text fontSize={14} weight="medium" appearance="infoText" numberOfLines={2}>
-                {t(
-                  'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
-                )}
-              </Text>
-            )}
+          <View style={[styles.defaultWalletContainer, commonWebStyles.contentContainer]}>
+            <View style={[spacings.prXl, flexbox.flex1]}>
+              {!walletState.isDefaultWallet && (
+                <Text fontSize={14} weight="medium" color="#F6851B" numberOfLines={2}>
+                  {t(
+                    'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.'
+                  )}
+                </Text>
+              )}
+              {!!walletState.isDefaultWallet && (
+                <Text fontSize={14} weight="medium" appearance="infoText" numberOfLines={2}>
+                  {t(
+                    'Ambire Wallet is set as your default browser wallet for connecting with dApps.'
+                  )}
+                </Text>
+              )}
+            </View>
+            <DefaultWalletToggle
+              isOn={!!walletState.isDefaultWallet}
+              onToggle={() => {
+                dispatch({
+                  type: 'SET_IS_DEFAULT_WALLET',
+                  params: { isDefaultWallet: !walletState.isDefaultWallet }
+                })
+              }}
+            />
           </View>
-          <DefaultWalletToggle
-            isOn={!!walletState.isDefaultWallet}
-            onToggle={() => {
-              dispatch({
-                type: 'SET_IS_DEFAULT_WALLET',
-                params: { isDefaultWallet: !walletState.isDefaultWallet }
-              })
-            }}
-          />
         </View>
-        <TabLayoutWrapperMainContent>
+
+        <TabLayoutWrapperMainContent style={commonWebStyles.contentContainer}>
           <View style={[spacings.ph]}>
             <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
               {t('Settings')}

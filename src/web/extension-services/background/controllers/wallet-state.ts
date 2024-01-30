@@ -1,4 +1,4 @@
-import EventEmitter from '@ambire-common/controllers/eventEmitter'
+import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 
 import { storage } from '../webapi/storage'
 
