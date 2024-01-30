@@ -7,10 +7,11 @@ import {
 } from '@ambire-common/libs/account/account'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
-import {
-  BUILD_IN_AVATAR_ID_PREFIX,
-  buildInAvatars
-} from '../components/AccountPersonalizeCard/avatars'
+// TODO: temp disabled (will use only blockies with no option to customize the pfp)
+// import {
+//   BUILD_IN_AVATAR_ID_PREFIX,
+//   buildInAvatars
+// } from '../components/AccountPersonalizeCard/avatars'
 
 const KEY_SUBTYPE_TO_LABEL = {
   seed: 'Seed',
@@ -36,14 +37,15 @@ export const getDefaultAccountLabel = (
   return `Account ${prevAccountsCount + (i + 1)} ${suffix}`
 }
 
-export const getDefaultAccountPfp = (prevAccountsCount: number, i: number) => {
-  return (
-    BUILD_IN_AVATAR_ID_PREFIX +
-    // Iterate from 1 up to the `buildInAvatars.length` and then - start all
-    // over again from the beginning (from 1).
-    ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
-  )
-}
+// TODO: temp disabled (will use only blockies with no option to customize the pfp)
+// export const getDefaultAccountPfp = (prevAccountsCount: number, i: number) => {
+//   return (
+//     BUILD_IN_AVATAR_ID_PREFIX +
+//     // Iterate from 1 up to the `buildInAvatars.length` and then - start all
+//     // over again from the beginning (from 1).
+//     ((prevAccountsCount + i + 1) % buildInAvatars.length || buildInAvatars.length)
+//   )
+// }
 
 export const getDefaultKeyLabel = (
   keyType: Key['type'],
@@ -74,9 +76,8 @@ export const getDefaultAccountPreferences = (
       keyType,
       keyTypeInternalSubtype
     )
-    const pfp = getDefaultAccountPfp(prevAccountsCount, i)
 
-    defaultAccountPreferences[account.addr] = { label, pfp }
+    defaultAccountPreferences[account.addr] = { label, pfp: account.addr }
   })
 
   return defaultAccountPreferences

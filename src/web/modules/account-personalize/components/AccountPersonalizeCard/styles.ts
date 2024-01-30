@@ -7,7 +7,6 @@ import common from '@common/styles/utils/common'
 interface Style {
   container: ViewStyle
   checkIcon: ViewStyle
-  pfp: ImageStyle
   pfpSelectorItem: ImageStyle
 }
 
@@ -18,16 +17,10 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.secondaryBorder,
       borderWidth: 1,
       ...common.borderRadiusPrimary,
-      ...spacings.ph,
-      ...spacings.pv,
-      ...spacings.mb,
+      ...spacings.phTy,
+      ...spacings.pvTy,
+      ...spacings.mbSm,
       width: '100%'
-    },
-    pfp: {
-      height: 64,
-      width: 64,
-      ...common.borderRadiusPrimary,
-      ...spacings.mr
     },
     pfpSelectorItem: {
       height: 48,
