@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Pressable, View } from 'react-native'
+import { Image, Linking, Pressable, View } from 'react-native'
 
 import tokensEarnedImg from '@common/assets/images/tokensEarned.png'
 import Panel from '@common/components/Panel'
@@ -74,7 +74,7 @@ const OnBoardingScreen = () => {
           </Text>
           <Pressable
             onPress={() => {
-              // TODO:
+              Linking.openURL('https://blog.ambire.com/announcing-the-wallet-token/')
             }}
           >
             <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
