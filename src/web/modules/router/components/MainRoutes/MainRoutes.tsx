@@ -25,6 +25,7 @@ import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/H
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
@@ -93,7 +94,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
-            <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>
@@ -124,6 +125,7 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
         <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
         <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+        <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
       </Route>
     </Routes>
   )

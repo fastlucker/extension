@@ -25,9 +25,10 @@ import OptimismLogo from '@common/assets/svg/OptimismLogo'
 import OptimismMonochromeIcon from '@common/assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
+import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import { NETWORKS } from '@common/constants/networks'
 
-export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank'
+export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank' | 'rewards'
 
 type Props = {
   name: NetworkIconNameType
@@ -49,7 +50,8 @@ const icons: { [key: string]: any } = {
   [NETWORKS.gnosis]: GnosisLogo,
   [NETWORKS.kucoin]: KCCKuCoinLogo,
   [NETWORKS.andromeda]: AndromedaLogo,
-  gasTank: GasTankIcon
+  gasTank: GasTankIcon,
+  rewards: RewardsIcon
 }
 
 const iconsMonochrome: { [key: string]: any } = {

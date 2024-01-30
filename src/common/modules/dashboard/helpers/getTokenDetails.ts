@@ -3,7 +3,7 @@ import { formatUnits } from 'ethers'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import networks from '@common/constants/networks'
 
-function formatThousands(input: string) {
+export function formatThousands(input: string) {
   const parts = input.split('.')
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return parts.join('.')

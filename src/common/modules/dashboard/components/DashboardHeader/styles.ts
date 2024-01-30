@@ -10,8 +10,6 @@ interface Styles {
   accountButtonRightIcon: ViewStyle
   accountButtonInfo: ViewStyle
   accountButtonInfoIcon: ImageStyle
-  accountButtonInfoText: TextStyle
-  accountAddressAndLabel: ViewStyle
   accountCopyIcon: ViewStyle
   maximizeAndMenu: ViewStyle
 }
@@ -25,10 +23,8 @@ const getStyles = (theme: ThemeProps) =>
       height: 40,
       maxWidth: 412,
       ...spacings.phMi,
-      backgroundColor: theme.secondaryBackground,
-      borderWidth: 1,
-      borderColor: theme.secondaryBorder,
-      ...common.borderRadiusPrimary
+      ...common.borderRadiusPrimary,
+      ...spacings.mrSm
     },
     accountButtonRightIcon: {
       borderColor: 'transparent',
@@ -42,13 +38,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mrMi
     },
     accountButtonInfoIcon: { width: 32, height: 32, ...common.borderRadiusPrimary },
-    accountButtonInfoText: { ...spacings.mlMi },
-    accountAddressAndLabel: {
-      ...flexbox.directionRow,
-      ...flexbox.alignEnd,
-      ...spacings.mlTy,
-      ...flexbox.flex1
-    },
     accountCopyIcon: { backgroundColor: 'transparent', borderColor: 'transparent' },
     maximizeAndMenu: {
       ...flexbox.directionRow,
