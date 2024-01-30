@@ -185,6 +185,7 @@ type MainControllerTransferUpdateAction = {
     amount?: string
     isSWWarningAgreed?: boolean
     isRecipientAddressUnknownAgreed?: boolean
+    isTopUp?: boolean
   }
 }
 

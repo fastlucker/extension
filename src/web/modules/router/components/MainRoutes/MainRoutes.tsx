@@ -22,6 +22,7 @@ import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
 import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
@@ -79,6 +80,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
+          <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
           <Route element={<PrivateRoute />}>
             <Route
               path={WEB_ROUTES.transfer}
