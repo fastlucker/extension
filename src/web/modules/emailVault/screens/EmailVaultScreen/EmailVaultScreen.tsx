@@ -25,15 +25,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { delayPromise } from '@common/utils/promises'
 import styles from '@web/components/TabLayoutWrapper/styles'
-import {
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import { getDefaultSelectedAccount } from '@web/modules/account-adder/helpers/account'
+import { getDefaultSelectedAccount } from '@ambire-common/libs/account/account'
 
 const EmailVaultScreen = () => {
   const emailVaultState = useEmailVaultControllerState()
@@ -195,143 +192,121 @@ const EmailVaultScreen = () => {
   }, [updateStepperState, isWaitingEmailConfirmation])
 
   return (
-    <>
-      <TabLayoutWrapperMainContent
-        pageTitle={
-          !isWaitingEmailConfirmation
-            ? 'Create Or Enter Email Vault'
-            : 'Email Confirmation Required'
-        }
-        hideStepper={hideStepper}
-      >
-        <View style={[styles.mainContentWrapper, hideFormTitle && { ...spacings.mt }]}>
-          {!hideFormTitle && (
-            <Text
-              weight="medium"
-              fontSize={16}
-              color={colors.martinique}
-              style={[spacings.mbLg, text.center]}
-            >
-              {t(
-                !isWaitingEmailConfirmation
-                  ? 'Create Or Enter Email Vault'
-                  : 'Email Confirmation Required'
-              )}
-            </Text>
-          )}
-          <>
-            {isWaitingEmailConfirmation ? (
-              <>
-                <EmailAnimation />
-                <Text
-                  fontSize={14}
-                  weight="regular"
-                  style={[text.center, { marginBottom: SPACING_MD * 2 }]}
-                >
-                  {t(
-                    'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-                    { email: 'email@gmail.com' }
-                  )}
-                </Text>
-              </>
-            ) : (
-              ''
-            )}
-            {!isWaitingEmailConfirmation ? (
-              <>
-                <Controller
-                  control={control}
-                  rules={{
-                    validate: isEmail || !emailVaultState?.emailVaultStates?.email?.[email]
-                  }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      label={t('Please insert your email')}
-                      onBlur={onBlur}
-                      placeholder={t('Email Address')}
-                      onChangeText={onChange}
-                      onSubmitEditing={handleFormSubmit}
-                      value={value}
-                      autoFocus={isWeb}
-                      isValid={isEmail(value) && !emailVaultState?.emailVaultStates?.email?.[email]}
-                      error={
-                        (!!errors.email && (t('Please fill in a valid email.') as string)) ||
-                        (!!emailVaultState?.emailVaultStates?.email?.[email] &&
-                          (t('You are already logged into a vault with this email.') as string))
-                      }
-                    />
-                  )}
-                  name="email"
-                />
-                <Checkbox
-                  value={enableKeyRecovery}
-                  onValueChange={() => onEnableKeyRecoveryChange((prev) => !prev)}
-                  label={
-                    <Trans>
-                      <Text>
-                        <Text fontSize={12} weight="regular">
-                          Enable
-                        </Text>
-                        <Text fontSize={12} weight="semiBold">
-                          {' local '}
-                        </Text>
-                        <Text fontSize={12} weight="regular">
-                          key store recovery with email
-                        </Text>
-                      </Text>
-                    </Trans>
-                  }
-                />
-
-                <Button
-                  textStyle={{ fontSize: 14 }}
-                  disabled={
-                    emailVaultState.currentState === EmailVaultState.Loading ||
-                    isSubmitting ||
-                    !email ||
-                    !!emailVaultState?.emailVaultStates?.email?.[email]
-                  }
-                  type="primary"
-                  text={
-                    // eslint-disable-next-line no-nested-ternary
-                    isSubmitting || emailVaultState.currentState === EmailVaultState.Loading
-                      ? t('Loading...')
-                      : t('Continue')
-                  }
-                  onPress={handleFormSubmit}
-                />
-              </>
-            ) : (
-              <Text
-                fontSize={14}
-                style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
-                color={colors.violet}
-              >
-                {t('Waiting Email Confirmation')}
-              </Text>
-            )}
-          </>
-        </View>
-      </TabLayoutWrapperMainContent>
-      {!isWaitingEmailConfirmation && (
-        <TabLayoutWrapperSideContent backgroundType="beta">
-          <Text weight="medium" style={spacings.mb} color={colors.zircon} fontSize={16}>
-            {t('Email Vaults')}
-          </Text>
+    <TabLayoutWrapperMainContent
+      pageTitle={
+        !isWaitingEmailConfirmation ? 'Create Or Enter Email Vault' : 'Email Confirmation Required'
+      }
+      hideStepper={hideStepper}
+    >
+      <View style={[styles.mainContentWrapper, hideFormTitle && { ...spacings.mt }]}>
+        {!hideFormTitle && (
           <Text
-            shouldScale={false}
-            weight="regular"
-            style={spacings.mbTy}
-            color={colors.zircon}
-            fontSize={14}
+            weight="medium"
+            fontSize={16}
+            color={colors.martinique}
+            style={[spacings.mbLg, text.center]}
           >
             {t(
-              "Email vaults are stored in the cloud, on Ambire's infrastructure and they are used for recovery of smart accounts, recovery of your extension passphrase, as well as optionally backing up your keys."
+              !isWaitingEmailConfirmation
+                ? 'Create Or Enter Email Vault'
+                : 'Email Confirmation Required'
             )}
           </Text>
-        </TabLayoutWrapperSideContent>
-      )}
-    </>
+        )}
+        <>
+          {isWaitingEmailConfirmation ? (
+            <>
+              <EmailAnimation />
+              <Text
+                fontSize={14}
+                weight="regular"
+                style={[text.center, { marginBottom: SPACING_MD * 2 }]}
+              >
+                {t(
+                  'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
+                  { email: 'email@gmail.com' }
+                )}
+              </Text>
+            </>
+          ) : (
+            ''
+          )}
+          {!isWaitingEmailConfirmation ? (
+            <>
+              <Controller
+                control={control}
+                rules={{
+                  validate: isEmail || !emailVaultState?.emailVaultStates?.email?.[email]
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    label={t('Please insert your email')}
+                    onBlur={onBlur}
+                    placeholder={t('Email Address')}
+                    onChangeText={onChange}
+                    onSubmitEditing={handleFormSubmit}
+                    value={value}
+                    autoFocus={isWeb}
+                    isValid={isEmail(value) && !emailVaultState?.emailVaultStates?.email?.[email]}
+                    error={
+                      (!!errors.email && (t('Please fill in a valid email.') as string)) ||
+                      (!!emailVaultState?.emailVaultStates?.email?.[email] &&
+                        (t('You are already logged into a vault with this email.') as string))
+                    }
+                  />
+                )}
+                name="email"
+              />
+              <Checkbox
+                value={enableKeyRecovery}
+                onValueChange={() => onEnableKeyRecoveryChange((prev) => !prev)}
+                label={
+                  <Trans>
+                    <Text>
+                      <Text fontSize={12} weight="regular">
+                        Enable
+                      </Text>
+                      <Text fontSize={12} weight="semiBold">
+                        {' local '}
+                      </Text>
+                      <Text fontSize={12} weight="regular">
+                        key store recovery with email
+                      </Text>
+                    </Text>
+                  </Trans>
+                }
+              />
+
+              <Button
+                textStyle={{ fontSize: 14 }}
+                disabled={
+                  emailVaultState.currentState === EmailVaultState.Loading ||
+                  isSubmitting ||
+                  !email ||
+                  !!emailVaultState?.emailVaultStates?.email?.[email]
+                }
+                type="primary"
+                text={
+                  // eslint-disable-next-line no-nested-ternary
+                  isSubmitting || emailVaultState.currentState === EmailVaultState.Loading
+                    ? t('Loading...')
+                    : t('Continue')
+                }
+                onPress={handleFormSubmit}
+              />
+            </>
+          ) : (
+            <Text
+              fontSize={14}
+              style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
+              color={colors.violet}
+            >
+              {t('Waiting Email Confirmation')}
+            </Text>
+          )}
+        </>
+      </View>
+    </TabLayoutWrapperMainContent>
   )
 }
 
