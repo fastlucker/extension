@@ -139,4 +139,4 @@ const Gradients = ({
   )
 }
 
-export default Gradients
+export default React.memo(Gradients)

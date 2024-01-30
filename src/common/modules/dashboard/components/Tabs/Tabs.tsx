@@ -57,4 +57,4 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   )
 }
 
-export default Tabs
+export default React.memo(Tabs)

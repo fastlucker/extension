@@ -41,16 +41,6 @@ import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (openTab: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
-}
-
 const { isPopup } = getUiType()
 
 const DashboardScreen = () => {
@@ -85,6 +75,16 @@ const DashboardScreen = () => {
   const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
+
+  // We want to change the query param without refreshing the page.
+  const handleChangeQuery = useCallback((tab: string) => {
+    if (window.location.href.includes('?tab=')) {
+      window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${tab}`)
+      return
+    }
+
+    window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
+  }, [])
 
   const filterByNetworkName = useMemo(() => {
     if (!filterByNetworkId) return ''
@@ -296,9 +296,9 @@ const DashboardScreen = () => {
           </View>
         </View>
         <View style={[styles.contentContainer, flexbox.flex1]}>
-          {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
+          {!!tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
         </View>
-        {isPopup && <DAppFooter />}
+        {!!isPopup && <DAppFooter />}
       </View>
     </>
   )
