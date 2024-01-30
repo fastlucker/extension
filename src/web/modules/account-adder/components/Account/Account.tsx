@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -10,6 +11,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
@@ -40,7 +42,8 @@ const Account = ({
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
+  const { minWidthSize, maxWidthSize } = useWindowSize()
+  const { addToast } = useToast()
   if (!account.addr) return null
 
   const toggleSelectedState = () => {
@@ -49,6 +52,11 @@ const Account = ({
     } else {
       !!onSelect && onSelect(account)
     }
+  }
+
+  const handleCopyAddress = () => {
+    Clipboard.setStringAsync(account.addr)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
   return (
@@ -62,8 +70,7 @@ const Account = ({
         { borderWidth: 1, borderColor: theme.secondaryBackground },
         hovered && { borderColor: theme.secondaryBorder }
       ]}
-      onPress={toggleSelectedState}
-      disabled={isDisabled}
+      onPress={isDisabled ? undefined : toggleSelectedState}
     >
       <View style={styles.container}>
         <Checkbox
@@ -78,11 +85,15 @@ const Account = ({
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
               <Text fontSize={16} appearance="primaryText" style={spacings.mrMi}>
-                {!maxWidthSize('m') && shortenAddress(account.addr, 16)}
-                {!maxWidthSize('l') && maxWidthSize('m') && shortenAddress(account.addr, 26)}
-                {maxWidthSize('l') && maxWidthSize('m') && account.addr}
+                {minWidthSize('m') && shortenAddress(account.addr, 16)}
+                {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
+                {maxWidthSize('l') && account.addr}
               </Text>
-              {!maxWidthSize('l') && <CopyIcon width={14} height={14} />}
+              {minWidthSize('l') && (
+                <Pressable onPress={handleCopyAddress}>
+                  <CopyIcon width={14} height={14} />
+                </Pressable>
+              )}
             </View>
             {type === 'legacy' ? (
               <Badge withRightSpacing withIcon text={t('Legacy Account')} type="warning" />
