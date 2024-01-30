@@ -92,7 +92,8 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     dispatchAsync,
     mainControllerState.isReady,
     privKeyOrSeed,
-    keyType
+    keyType,
+    keyTypeInternalSubtype
   ])
 
   useEffect(() => {

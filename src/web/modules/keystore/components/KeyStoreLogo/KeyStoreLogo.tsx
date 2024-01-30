@@ -11,9 +11,9 @@ type Props = {
   style?: ViewStyle | ViewStyle[]
 }
 
-const KeyStoreLogo = ({ width, height, style }: Props) => (
+const KeyStoreLogo = ({ style, width = 90, height = 90 }: Props) => (
   <View style={[flexbox.alignCenter, flexbox.justifyCenter, style]}>
-    <LockSvg width={width || 90} height={height || 90} />
+    <LockSvg width={width} height={height} />
   </View>
 )
 

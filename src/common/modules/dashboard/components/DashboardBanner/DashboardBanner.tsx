@@ -4,20 +4,20 @@ import { View } from 'react-native'
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import EditIcon from '@common/assets/svg/EditIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
-import Button from '../Button'
 import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
 const ERROR_ACTIONS = ['reject']
 
-const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
+const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
@@ -95,4 +95,4 @@ const Banner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
   )
 }
 
-export default Banner
+export default DashboardBanner

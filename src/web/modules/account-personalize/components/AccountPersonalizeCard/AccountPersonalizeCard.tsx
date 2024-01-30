@@ -1,18 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Control, Controller } from 'react-hook-form'
-import { Image, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import CheckIcon from '@common/assets/svg/CheckIcon'
+import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 
-import { buildInAvatars, getAccountPfpSource } from './avatars'
-import AvatarsSelectorItem from './AvatarSelectorItem'
 import getStyles from './styles'
 
 export type AccountPersonalizeFormValues = {
@@ -40,65 +41,96 @@ const AccountPersonalizeCard = ({
   control,
   hasBottomSpacing = true
 }: Props) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
-  const accountPfpSource = getAccountPfpSource(pfp)
+
+  const [editNameEnabled, setEditNameEnabled] = useState(false)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
-      <View
-        style={[
-          flexboxStyles.justifySpaceBetween,
-          flexboxStyles.alignCenter,
-          flexboxStyles.directionRow,
-          spacings.mbSm,
-          { width: 600 }
-        ]}
-      >
-        <View style={[flexboxStyles.directionRow]}>
-          <Image source={accountPfpSource} style={styles.pfp} resizeMode="contain" />
-          <View style={{ alignItems: 'flex-start' }}>
-            <Text fontSize={16} weight="medium" style={spacings.mb}>
-              {address}
-            </Text>
-            {isSmartAccount ? (
-              <Badge withIcon type="success" text={t('Smart Account')} />
-            ) : (
-              <Badge withIcon type="warning" text={t('Legacy Account')} />
-            )}
+      <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
+        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <Avatar pfp={pfp} />
+          <View style={flexbox.flex1}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <Text fontSize={14} style={spacings.mrLg}>
+                {address}
+              </Text>
+              {isSmartAccount ? (
+                <Badge withIcon type="success" text={t('Smart Account')} />
+              ) : (
+                <Badge withIcon type="warning" text={t('Legacy Account')} />
+              )}
+            </View>
+
+            <Controller
+              control={control}
+              name={`preferences.${index}.label`}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={[{ height: 24 }, flexbox.justifyCenter]}>
+                  {!!editNameEnabled && (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      numberOfLines={1}
+                      maxLength={40}
+                      autoFocus
+                      error={!value.length && ' '}
+                      inputWrapperStyle={{ height: 20 }}
+                      inputStyle={{
+                        height: 18,
+                        ...spacings.phTy
+                      }}
+                      buttonStyle={spacings.phMi}
+                      nativeInputStyle={{ fontSize: 12 }}
+                      containerStyle={{ ...spacings.mb0, height: 20, maxWidth: 310 }}
+                      style={{ height: 20 }}
+                      editable={editNameEnabled}
+                      button={
+                        <CheckIcon color="transparent" checkColor={theme.successDecorative} />
+                      }
+                      buttonProps={{
+                        onPress: () => {
+                          if (value.length) {
+                            setEditNameEnabled(false)
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                  {!editNameEnabled && (
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      <Text
+                        fontSize={14}
+                        weight="semiBold"
+                        appearance="secondaryText"
+                        style={spacings.mrTy}
+                      >
+                        {value}
+                      </Text>
+                      <Pressable onPress={() => setEditNameEnabled(true)}>
+                        {({ hovered }: any) => (
+                          <EditPenIcon
+                            width={14}
+                            height={14}
+                            color={hovered ? theme.primary : theme.primaryLight}
+                          />
+                        )}
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+              )}
+            />
           </View>
         </View>
       </View>
 
-      <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
-        <Text fontSize={14} appearance="secondaryText">
-          {t('Account label')}
-        </Text>
-        {'  '}
-        <Text weight="light" appearance="secondaryText" fontSize={12}>
-          {t('(Use up to 40 characters)')}
-        </Text>
-      </Text>
-
-      <Controller
-        control={control}
-        name={`preferences.${index}.label`}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            numberOfLines={1}
-            maxLength={40}
-            containerStyle={[spacings.mbLg, { maxWidth: 320 }]}
-          />
-        )}
-      />
-
-      <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
+      {/* <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
         {t('Choose an avatar')}
-      </Text>
-      <View style={[flexboxStyles.directionRow]}>
+      </Text> */}
+      {/* <View style={[flexbox.directionRow]}>
         <Controller
           control={control}
           name={`preferences.${index}.pfp`}
@@ -116,7 +148,7 @@ const AccountPersonalizeCard = ({
             </>
           )}
         />
-      </View>
+      </View> */}
     </View>
   )
 }
