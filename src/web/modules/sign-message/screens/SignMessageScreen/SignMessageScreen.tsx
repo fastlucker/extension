@@ -97,7 +97,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShouldShowFallback(true)
-    }, 1000)
+    }, 3000)
     return () => clearTimeout(timer)
   })
 
