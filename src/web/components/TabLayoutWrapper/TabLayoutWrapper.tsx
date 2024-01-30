@@ -27,20 +27,24 @@ type TabLayoutContainerProps = {
   backgroundColor?: ColorValue
   header?: React.ReactNode
   footer?: React.ReactNode
+  footerStyle?: ViewStyle
   hideFooterInPopup?: boolean
   width?: Width
   children: ReactElement | ReactElement[]
   style?: ViewStyle
+  withHorizontalPadding?: boolean
 }
 
 export const TabLayoutContainer = ({
   backgroundColor,
   header,
   footer,
+  footerStyle,
   hideFooterInPopup = false,
   width = 'xl',
   children,
-  style
+  style,
+  withHorizontalPadding = true
 }: TabLayoutContainerProps) => {
   const { theme, styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
@@ -59,7 +63,7 @@ export const TabLayoutContainer = ({
   return (
     <View style={[flexbox.flex1, { backgroundColor: backgroundColor || theme.primaryBackground }]}>
       {!!header && header}
-      <View style={[flexbox.flex1, paddingHorizontalStyle]}>
+      <View style={[flexbox.flex1, withHorizontalPadding && paddingHorizontalStyle]}>
         <View
           style={[
             flexbox.directionRow,
@@ -84,7 +88,8 @@ export const TabLayoutContainer = ({
               {
                 // Must be TAB_WIDE_CONTENT_WIDTH for every width except 'full'
                 maxWidth: width === 'full' ? '100%' : TAB_WIDE_CONTENT_WIDTH
-              }
+              },
+              footerStyle
             ]}
           >
             {footer}

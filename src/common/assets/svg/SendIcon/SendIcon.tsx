@@ -1,27 +1,23 @@
 import React from 'react'
-import Svg, { Path, SvgProps } from 'react-native-svg'
+import Svg, { G, Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const SendIcon: React.FC<Props> = ({
-  width = 30,
-  height = 30,
+const SendIcon: React.FC<SvgProps> = ({
+  width = 26,
+  height = 26,
   color = colors.martinique,
   strokeWidth = '1.5',
   ...rest
 }) => (
-  <Svg width={width} height={height} fill="none" viewBox="0 0 16 16" {...rest}>
-    <Path
-      stroke={color}
-      strokeLinecap="round"
-      strokeWidth={strokeWidth}
-      d="m6.995 11.092 6.259-6.26-.002 5.496M2.746 11.005l6.26-6.259-5.495.002"
-    />
+  <Svg width={width} height={height} fill="none" viewBox="0 0 26 26" {...rest}>
+    <G fill="none">
+      <Path d="M0 26V0h26v26z" />
+      <G stroke={color} strokeLinecap="round" strokeWidth="1.5">
+        <Path d="M11.585 17.467 20.4 8.652l-.004 7.738" />
+        <Path d="m5.6 17.345 8.815-8.815-7.737.003" />
+      </G>
+    </G>
   </Svg>
 )
 

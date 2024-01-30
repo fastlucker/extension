@@ -1,10 +1,15 @@
 import React from 'react'
 import Svg, { Path, Rect, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
-const AddIcon: React.FC<SvgProps> = ({ width = 24, height = 24, color = colors.martinique }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24">
+const AddIcon: React.FC<SvgProps> = ({
+  width = 24,
+  height = 24,
+  color = iconColors.primary,
+  ...rest
+}) => (
+  <Svg width={width} height={height} viewBox="0 0 24 24" {...rest}>
     <Rect width="24" height="24" fill="none" />
     <Path
       d="M10,11a1,1,0,0,1-.707-.293l-10-10a1,1,0,0,1,0-1.414,1,1,0,0,1,1.414,0l10,10A1,1,0,0,1,10,11Z"
