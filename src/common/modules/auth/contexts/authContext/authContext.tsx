@@ -6,28 +6,42 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 type AuthContextData = {
   authStatus: AUTH_STATUS
   setAuthStatus: Dispatch<React.SetStateAction<AUTH_STATUS>>
+  isAuthStatusTakingTooLong: boolean
 }
 
 const AuthContext = createContext<AuthContextData>({
   authStatus: AUTH_STATUS.LOADING,
-  setAuthStatus: () => false
+  setAuthStatus: () => false,
+  isAuthStatusTakingTooLong: false
 })
 
 const AuthProvider: React.FC = ({ children }: any) => {
   const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
+  const [isAuthStatusTakingTooLong, setIsAuthStatusTakingTooLong] = useState(false)
   const mainCtrlState = useMainControllerState()
 
   useEffect(() => {
-    if (!mainCtrlState.isReady) return
+    // Safeguard against a potential race condition where the auth status might
+    // not get set properly. If the timeout gets reached, the app displays
+    // feedback to the user (using the `isAuthStatusTakingTooLong` flag).
+    const timeout = setTimeout(() => setIsAuthStatusTakingTooLong(true), 10000)
 
-    setAuthStatus(
-      mainCtrlState?.accounts?.length ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
-    )
+    if (mainCtrlState.isReady) {
+      clearTimeout(timeout)
+      setAuthStatus(
+        mainCtrlState?.accounts?.length ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
+      )
+    }
+
+    return () => clearTimeout(timeout)
   }, [mainCtrlState.isReady, mainCtrlState?.accounts?.length])
 
   return (
     <AuthContext.Provider
-      value={useMemo(() => ({ authStatus, setAuthStatus }), [authStatus, setAuthStatus])}
+      value={useMemo(
+        () => ({ authStatus, setAuthStatus, isAuthStatusTakingTooLong }),
+        [authStatus, setAuthStatus, isAuthStatusTakingTooLong]
+      )}
     >
       {children}
     </AuthContext.Provider>
