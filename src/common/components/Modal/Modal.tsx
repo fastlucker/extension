@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactNode } from 'react'
 import { Modal as RNModal, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -15,7 +15,8 @@ type Props = {
   title?: string
   hideLeftSideContainer?: boolean
   modalStyle?: ViewStyle | ViewStyle[]
-  children: ReactElement | ReactElement[]
+  children: ReactNode | ReactNode[]
+  customHeader?: ReactNode
   withBackButton?: boolean
 }
 
@@ -26,6 +27,7 @@ const Modal = ({
   modalStyle,
   children,
   withBackButton,
+  customHeader,
   hideLeftSideContainer = false
 }: Props) => {
   const { styles } = useTheme(getStyles)
@@ -38,29 +40,33 @@ const Modal = ({
         style={[styles.container, !onClose && isWeb ? { cursor: 'default' } : {}]}
       >
         <Pressable style={[styles.modal, modalStyle]}>
-          <View style={styles.modalHeader}>
-            {!hideLeftSideContainer && (
+          {!customHeader ? (
+            <View style={styles.modalHeader}>
+              {!hideLeftSideContainer && (
+                <View style={styles.sideContainer}>
+                  {!!onClose && withBackButton && (
+                    <View style={styles.backButton}>
+                      <BackButton onPress={onClose} />
+                    </View>
+                  )}
+                </View>
+              )}
+              {!!title && (
+                <Text fontSize={20} weight="medium">
+                  {title}
+                </Text>
+              )}
               <View style={styles.sideContainer}>
-                {!!onClose && withBackButton && (
-                  <View style={styles.backButton}>
-                    <BackButton onPress={onClose} />
-                  </View>
+                {!!onClose && !withBackButton && (
+                  <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
+                    <CloseIcon />
+                  </TouchableOpacity>
                 )}
               </View>
-            )}
-            {!!title && (
-              <Text fontSize={20} weight="medium">
-                {title}
-              </Text>
-            )}
-            <View style={styles.sideContainer}>
-              {!!onClose && !withBackButton && (
-                <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-                  <CloseIcon />
-                </TouchableOpacity>
-              )}
             </View>
-          </View>
+          ) : (
+            customHeader
+          )}
           {children}
         </Pressable>
       </Pressable>
