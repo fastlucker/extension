@@ -35,6 +35,7 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
     const provider = getProvider(networkId)
     const contract = new Contract(address, ERC721ABI.abi, provider)
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all([
       contract.ownerOf(id).catch(() => ''),
       contract

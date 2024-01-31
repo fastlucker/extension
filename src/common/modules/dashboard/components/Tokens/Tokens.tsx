@@ -1,5 +1,5 @@
 import { formatUnits } from 'ethers'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { View, ViewProps } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -71,18 +71,22 @@ const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
     [tokens]
   )
 
-  const handleSelectToken = ({ address, networkId, flags }: TokenResult) => {
-    const token =
-      tokens.find(
-        (tokenI) =>
-          tokenI.address === address &&
-          tokenI.networkId === networkId &&
-          tokenI.flags.onGasTank === flags.onGasTank
-      ) || null
+  const handleSelectToken = useCallback(
+    () =>
+      ({ address, networkId, flags }: TokenResult) => {
+        const token =
+          tokens.find(
+            (tokenI) =>
+              tokenI.address === address &&
+              tokenI.networkId === networkId &&
+              tokenI.flags.onGasTank === flags.onGasTank
+          ) || null
 
-    setSelectedToken(token)
-    openBottomSheet()
-  }
+        setSelectedToken(token)
+        openBottomSheet()
+      },
+    [openBottomSheet, tokens]
+  )
 
   const handleTokenDetailsClose = () => {
     setSelectedToken(null)

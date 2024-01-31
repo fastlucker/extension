@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps } from 'react-native'
 
@@ -18,9 +18,9 @@ const Collections = ({ ...rest }: ViewProps) => {
     setSelectedCollectible(null)
   }
 
-  const openCollectibleModal = (collectible: SelectedCollectible) => {
+  const openCollectibleModal = useCallback((collectible: SelectedCollectible) => {
     setSelectedCollectible(collectible)
-  }
+  }, [])
 
   return (
     <View {...rest}>

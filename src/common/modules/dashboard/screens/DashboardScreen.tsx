@@ -17,6 +17,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
@@ -33,18 +34,18 @@ import DashboardHeader from '../components/DashboardHeader'
 import DashboardSectionList from '../components/DashboardSectionList'
 import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
-import { useShowDashboard } from '../hooks/useShowDashboard'
 import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-const { isPopup } = getUiType()
+const { isPopup, isTab } = getUiType()
 
 const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
   const rotation = useSharedValue(0)
+  const { minWidthSize } = useWindowSize()
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [fakeIsLoading, setFakeIsLoading] = useState(false)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
@@ -57,7 +58,6 @@ const DashboardScreen = () => {
 
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { showView } = useShowDashboard()
   const { accountPortfolio, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
@@ -173,12 +173,15 @@ const DashboardScreen = () => {
                       ) : (
                         <View style={styles.overviewLoader} />
                       )}
-                      <AnimatedPressable
-                        onPress={refreshPortfolio}
-                        style={[animatedStyle, spacings.mlTy]}
-                      >
-                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                      </AnimatedPressable>
+                      <View style={spacings.mlTy}>
+                        {!accountPortfolio?.isAllReady ? (
+                          <Spinner style={{ width: 16, height: 16 }} />
+                        ) : (
+                          <AnimatedPressable onPress={refreshPortfolio} style={[animatedStyle]}>
+                            <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                          </AnimatedPressable>
+                        )}
+                      </View>
                     </View>
                     <Pressable
                       style={({ hovered }: any) => [
@@ -219,10 +222,12 @@ const DashboardScreen = () => {
             </View>
           </View>
         </View>
-        <DashboardSectionList
-          accountPortfolio={accountPortfolio}
-          filterByNetworkId={filterByNetworkId}
-        />
+        <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
+          <DashboardSectionList
+            accountPortfolio={accountPortfolio}
+            filterByNetworkId={filterByNetworkId}
+          />
+        </View>
         {!!isPopup && <DAppFooter />}
       </View>
     </>

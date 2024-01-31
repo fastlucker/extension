@@ -17,4 +17,4 @@ const ImageIcon: React.FC<SvgProps> = ({
   </Svg>
 )
 
-export default ImageIcon
+export default React.memo(ImageIcon)
