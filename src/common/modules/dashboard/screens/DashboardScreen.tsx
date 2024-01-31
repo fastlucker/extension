@@ -190,7 +190,7 @@ const DashboardScreen = () => {
                 common.borderRadiusPrimary,
                 spacings.pvTy,
                 spacings.phSm,
-                spacings.pbMd,
+                spacings.pb,
                 {
                   backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
                   overflow: 'hidden'
@@ -286,7 +286,7 @@ const DashboardScreen = () => {
           style={[flexbox.flex1, commonWebStyles.contentContainer]}
           contentContainerStyle={[
             isPopup && spacings.phSm,
-            spacings.pt,
+            spacings.ptSm,
             hasScroll && spacings.prMi
           ]}
           onLayout={(e) => {
