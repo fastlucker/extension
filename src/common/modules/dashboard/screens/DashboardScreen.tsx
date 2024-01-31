@@ -1,12 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming
-} from 'react-native-reanimated'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
@@ -36,18 +29,14 @@ import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
 import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
 const { isPopup, isTab } = getUiType()
 
 const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
-  const rotation = useSharedValue(0)
   const { minWidthSize } = useWindowSize()
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
-  const [fakeIsLoading, setFakeIsLoading] = useState(false)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
     width: 0,
     height: 0
@@ -58,7 +47,7 @@ const DashboardScreen = () => {
 
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, state } = usePortfolioControllerState()
+  const { accountPortfolio, state, setAccountPortfolio } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
@@ -84,33 +73,14 @@ const DashboardScreen = () => {
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
   const refreshPortfolio = useCallback(() => {
-    rotation.value = withRepeat(
-      withTiming(rotation.value + 360, {
-        duration: 1000,
-        easing: Easing.linear
-      }),
-      -1
-    )
-    setFakeIsLoading(true)
     dispatch({
       type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
       params: {
         forceUpdate: true
       }
     })
-  }, [dispatch])
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: `${rotation.value}deg` }]
-    }
-  })
-
-  // Fake loading
-  useEffect(() => {
-    setFakeIsLoading(false)
-    rotation.value = 0
-  }, [accountPortfolio])
+    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
+  }, [dispatch, accountPortfolio, setAccountPortfolio])
 
   return (
     <>
@@ -146,40 +116,37 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      {!fakeIsLoading ? (
-                        <Text style={spacings.mbTy}>
-                          <Text
-                            fontSize={32}
-                            shouldScale={false}
-                            style={{ lineHeight: 34 }}
-                            weight="number_bold"
-                            color={theme.primaryBackground}
-                          >
-                            {t('$')}
-                            {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
-                              'en-US'
-                            )}
-                          </Text>
-                          <Text
-                            fontSize={20}
-                            shouldScale={false}
-                            weight="number_bold"
-                            color={theme.primaryBackground}
-                          >
-                            {t('.')}
-                            {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
-                          </Text>
+                      <Text style={spacings.mbTy}>
+                        <Text
+                          fontSize={32}
+                          shouldScale={false}
+                          style={{ lineHeight: 34 }}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('$')}
+                          {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
+                            'en-US'
+                          )}
                         </Text>
-                      ) : (
-                        <View style={styles.overviewLoader} />
-                      )}
+                        <Text
+                          fontSize={20}
+                          shouldScale={false}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('.')}
+                          {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
+                        </Text>
+                      </Text>
+
                       <View style={spacings.mlTy}>
                         {!accountPortfolio?.isAllReady ? (
                           <Spinner style={{ width: 16, height: 16 }} />
                         ) : (
-                          <AnimatedPressable onPress={refreshPortfolio} style={[animatedStyle]}>
+                          <Pressable onPress={refreshPortfolio}>
                             <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </AnimatedPressable>
+                          </Pressable>
                         )}
                       </View>
                     </View>
