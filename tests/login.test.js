@@ -35,11 +35,11 @@ describe('login', () => {
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
 
-        await page.evaluate(() => {
-            location.reload(true)
-        })
+        // await page.evaluate(() => {
+        //     location.reload(true)
+        // })
 
-        await setAmbKeyStoreForLegacy(page);
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
     })
 
     afterEach(async () => {
@@ -47,16 +47,28 @@ describe('login', () => {
     })
 
     const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]';
-    const accountCheckbox =  '[data-testid="account-checkbox"]';
+    const accountCheckbox = '[data-testid="account-checkbox"]';
 
 
     //------------------------------------------------------------------------------------------------------
     it('login into legacy account with phrase', (async () => {
 
-        await typeText(page, enterSeedPhraseField, process.env.PHRASE_LEGACY_ACCOUNT, { delay: 10 })
-        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
-        
+        await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
+
+        let passphraseWords = process.env.PHRASE_LEGACY_ACCOUNT;
+        let wordArray = passphraseWords.split(' ');
+
+        for (let i = 0; i < wordArray.length; i++) {
+            const wordToType = wordArray[i];
+
+            // Type the word into the input field using page.type
+            const inputSelector = `[placeholder="Word ${i + 1}"]`;
+            await page.type(inputSelector, wordToType);
+        }
+
+        await clickOnElement(page, '[data-testid="button"]');
         await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
+
         await page.waitForSelector(accountCheckbox);
 
         await new Promise((r) => setTimeout(r, 1000))
@@ -136,71 +148,75 @@ describe('login', () => {
     //--------------------------------------------------------------------------------------------------------------
     it('(-) Login into legacy account with invalid phrase', async () => {
 
-        const typeTextAndCheckValidity = async (phrase, testName, errorMessage) => {
-            let textContent;
-            try {
-                await typeText(page, enterSeedPhraseField, phrase, { delay: 10 });
+        await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
 
-                /* Check whether text "Invalid private key." exists on the page */
-                textContent = await page.$$eval('div[dir="auto"]', (element, errorMessage) => {
-                    return element.find((item) => item.textContent === errorMessage).textContent;
-                }, errorMessage);
+        /* This function types words in the passphrase fields and checks if the button is disabled. */
+        async function typeWordsAndCheckButton(passphraseWords) {
+            try {
+                let wordArray = passphraseWords.split(' ');
+
+                for (let i = 0; i < wordArray.length; i++) {
+                    const wordToType = wordArray[i];
+
+                    /* Type the word into the input field using page.type */
+                    const inputSelector = `[placeholder="Word ${i + 1}"]`;
+                    await page.type(inputSelector, wordToType);
+                }
                 /* Check whether button is disabled */
-                const isButtonDisabled = await page.$eval('[data-testid="button-ext-signer-login-screen"]', (button) => {
+                const isButtonDisabled = await page.$eval('[data-testid="button"]', (button) => {
                     return button.getAttribute('aria-disabled');
                 });
 
                 if (isButtonDisabled === 'true') {
-                    console.log('Button is disabled');
+                    console.log(`Button is disabled when try to login with phrase ${passphraseWords}`);
                 } else {
                     throw new Error('Button is NOT disabled');
                 }
 
             } catch (error) {
-                console.error(`Error when trying to login with private key: ${phrase}. Test failed: ${testName}`);
+                console.error(`Error when trying to login with phrase: ${passphraseWords}. Test failed`);
                 throw error;
             }
-        };
-
-        let phrase1 = ''
-
-        await page.waitForSelector(enterSeedPhraseField);
-        const repeatPhrase = await page.$(enterSeedPhraseField);
-        await repeatPhrase.type(phrase1, { delay: 10 });
-
-
-        /* Check if the button is disabled. */
-        attr = await page.$$eval('[data-testid="button-ext-sighner-login-screen"]', el => el.map(x => x.getAttribute("aria-disabled")));
-        if (attr == "true") {
-            console.log('THE BUTTON IS DISABLED WITH EMPTY PHRASE');
+        }
+        /* This function waits until an error message appears on the page.  */
+        async function waitUntilError(validateMessage) {
+            await page.waitForFunction((text) => {
+                const element = document.querySelector('body');
+                return element && element.textContent.includes(text);
+            }, { timeout: 8000 }, validateMessage);
+            console.log(`ERROR MESSAGE: ${validateMessage} EXIST ON THE PAGE.`)
         }
 
-        phrase = '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
-        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
+        /* Try to login with empty phrase fields */
+        let passphraseWords = '';
+        await typeWordsAndCheckButton(passphraseWords)
 
         /* Test cases with different phrases keys */
-        await typeTextAndCheckValidity(phrase, 'Test 1', errorMessage);
-        await page.$eval(enterSeedPhraseField, (el) => (el.value = ''));
-        console.log('Test 1 passed for privateKey:' + phrase);
+        passphraseWords = '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
+        await typeWordsAndCheckButton(passphraseWords)
 
-        phrase = 'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
-        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
+        const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.';
+        /* Wait until the error message appears on the page */
+        await waitUntilError(errorMessage);
 
-        await typeTextAndCheckValidity(phrase, 'Test 2', errorMessage);
-        await page.$eval(enterSeedPhraseField, (el) => (el.value = ''));
-        console.log('Test 3 passed for privateKey:' + phrase);
+        /* Clear the passphrase fields before write the new phrase */
+        let wordArray = passphraseWords.split(' ');
+        for (let i = 0; i < wordArray.length; i++) {
+            const wordToType = wordArray[i];
+            const inputSelector = `[placeholder="Word ${i + 1}"]`;
+            await page.click(inputSelector, { clickCount: 3 }); // Select all content
+            await page.keyboard.press('Backspace'); // Delete the selected content          
+        }
 
-        phrase = 'allow survey allow survey allow survey allow survey allow survey allow survey'
-        errorMessage = 'Your seed phrase length is valid, but a word is misspelled.'
-
-        await typeTextAndCheckValidity(phrase, 'Test 3', errorMessage);
-        await page.$eval(enterSeedPhraseField, (el) => (el.value = ''));
-        console.log('Test 4 passed for privateKey:' + phrase);
+        passphraseWords = 'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
+        await typeWordsAndCheckButton(passphraseWords)
+        /* Wait until the error message appears on the page */
+        await waitUntilError(errorMessage);
     });
 
     //--------------------------------------------------------------------------------------------------------------
     it('change selected account name', (async () => {
-      
+
         const privateKey = await generateEthereumPrivateKey();
 
         await page.waitForSelector(enterSeedPhraseField);

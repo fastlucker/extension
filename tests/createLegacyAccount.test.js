@@ -34,23 +34,23 @@ describe('login', () => {
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
 
-        await page.evaluate(() => {
-            location.reload(true)
-        })
-
-        await setAmbKeyStoreForLegacy(page);
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
     })
 
-      afterEach(async () => {
-        browser.close();
-    })
+    //   afterEach(async () => {
+    //     browser.close();
+    // })
+
+
 
     it('Create legacy account', (async () => {
-        const privateKey = await generateEthereumPrivateKey();
 
-        await typeText(page, '[data-testid="enter-seed-phrase-field"]', privateKey )
+        await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
+
+        await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
+
         /* Click on Import Legacy account button. */
-        await clickOnElement(page, '[data-testid="button-ext-signer-login-screen"]')
+        await clickOnElement(page, '[data-testid="button"]')
 
         await new Promise((r) => setTimeout(r, 1000))
 

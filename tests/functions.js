@@ -7,8 +7,8 @@ let puppeteerArgs = [
     '--disable-features=DialMediaRouteProvider',
     
     // '--disable-features=ClipboardContentSetting',
-    // '--clipboard-write: granted', 
-    // '--clipboard-read: prompt',  
+    '--clipboard-write: granted', 
+    '--clipboard-read: prompt',  
 
     // '--detectOpenHandles',
     // '--start-maximized'
@@ -35,6 +35,7 @@ export async function bootStrap(options = {}) {
     extensionId = extractedExtensionId;
     extensionRootUrl = `chrome-extension://${extensionId}`;
 
+
     return {
         browser,
         page,
@@ -44,16 +45,15 @@ export async function bootStrap(options = {}) {
     };
 }
 //----------------------------------------------------------------------------------------------
-export async function setAmbKeyStoreForLegacy(page) {
-    try {
+export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
         await new Promise((r) => setTimeout(r, 1000));
-        const importLegacyAccoutButton = '[data-testid="Import Legacy Account"]'
+        const importButton = '[data-testid="button-Import"]'
 
         let attempts = 0;
         let element = null;
 
         while (attempts < 5) {
-            element = await page.$(importLegacyAccoutButton)
+            element = await page.$(importButton)
             if (element) {
                 break;
             } else {
@@ -68,8 +68,11 @@ export async function setAmbKeyStoreForLegacy(page) {
             console.log('Welcome to Ambire screen not displayed after 5 attempts.');
         }
 
-        /* Select Tab 'Import Legacy Account' */
-        await clickOnElement(page, importLegacyAccoutButton)
+        /*Click on "Import" button */
+        await page.$eval(importButton, button => button.click());
+        await page.waitForXPath('//div[contains(text(), "Private Key")]');
+        /*Click on "Import" button */
+        await page.$eval(privKeyOrPhraseSelector, button => button.click());
 
         await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
 
@@ -94,10 +97,6 @@ export async function setAmbKeyStoreForLegacy(page) {
         await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
         await page.click(buttonSelector);
 
-        await page.waitForXPath('//div[contains(text(), "Import Legacy Account")]');
-    } catch (error) {
-        throw new Error(' Failed when try to set Ambire key store for legacy account ')
-    }
 }
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {

@@ -105,6 +105,7 @@ const PrivateKeyImportScreen = () => {
             render={({ field: { onChange, onBlur, value } }) => {
               return (
                 <Input
+                  testID='enter-seed-phrase-field'
                   value={value}
                   editable
                   autoFocus
