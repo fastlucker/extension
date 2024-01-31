@@ -1,19 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import CollectibleModal from './CollectibleModal'
+import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
 import styles from './styles'
 
 const Collections = ({ ...rest }: ViewProps) => {
   const { accountPortfolio } = usePortfolioControllerState()
+  const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
   const { t } = useTranslation()
+  const closeCollectibleModal = () => {
+    setSelectedCollectible(null)
+  }
+
+  const openCollectibleModal = (collectible: SelectedCollectible) => {
+    setSelectedCollectible(collectible)
+  }
 
   return (
     <View {...rest}>
+      <CollectibleModal
+        isOpen={!!selectedCollectible}
+        handleClose={closeCollectibleModal}
+        selectedCollectible={selectedCollectible}
+      />
       {accountPortfolio?.collections && accountPortfolio.collections.length > 0 ? (
         accountPortfolio.collections.map(({ address, name, networkId, collectibles, priceIn }) => (
           <Collection
@@ -23,6 +38,7 @@ const Collections = ({ ...rest }: ViewProps) => {
             name={name}
             collectibles={collectibles}
             priceIn={priceIn}
+            openCollectibleModal={openCollectibleModal}
           />
         ))
       ) : (
