@@ -1,7 +1,6 @@
 // So that the localization gets initialized at the beginning.
 import '@common/config/localization'
 
-// import 'intro.js/introjs.css'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
