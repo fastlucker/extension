@@ -11,7 +11,7 @@ import Collections from '../Collections'
 import Tokens from '../Tokens'
 
 interface Props {
-  openTab: 'tokens' | 'collectibles'
+  openTab: 'tokens' | 'collectibles' | 'defi'
   tokens: TokenResult[]
   searchValue: string
 }

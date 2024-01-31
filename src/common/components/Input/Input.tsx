@@ -17,7 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 
-import getStyles, { INPUT_WRAPPER_HEIGHT } from './styles'
+import getStyles from './styles'
 
 export interface InputProps extends TextInputProps {
   info?: string | boolean
@@ -28,20 +28,22 @@ export interface InputProps extends TextInputProps {
   validLabel?: string
   button?: string | JSX.Element | null
   buttonProps?: TouchableOpacityProps
+  buttonStyle?: ViewStyle
   onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
+  nativeInputStyle?: ViewStyle & TextStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
-  tooltipText?: string
 }
 
 const Input = ({
   label,
   button,
   buttonProps,
+  buttonStyle,
   info,
   error,
   isValid,
@@ -52,14 +54,13 @@ const Input = ({
   disabled,
   containerStyle,
   inputStyle,
+  nativeInputStyle,
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
-  tooltipText,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
-  const [tooltipHeight, setTooltipHeight] = useState(0)
   const { theme, styles } = useTheme(getStyles)
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -117,7 +118,7 @@ const Input = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={styles.nativeInput}
+              style={[styles.nativeInput, nativeInputStyle]}
             />
           </View>
           {!!hasButton && (
@@ -130,7 +131,7 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={styles.button}
+              style={[styles.button, buttonStyle]}
               {...buttonProps}
             >
               {typeof button === 'string' || button instanceof String ? (
@@ -142,24 +143,6 @@ const Input = ({
           )}
         </View>
       </View>
-      {!!tooltipText && isFocused && (
-        <View
-          style={{
-            ...styles.tooltipWrapper,
-            // Centers the tooltip vertically
-            top: (INPUT_WRAPPER_HEIGHT - tooltipHeight) / 2
-          }}
-          onLayout={(e) => {
-            setTooltipHeight(e.nativeEvent.layout.height)
-          }}
-        >
-          <View style={styles.tooltip}>
-            <Text fontSize={12} appearance="secondaryText">
-              {tooltipText}
-            </Text>
-          </View>
-        </View>
-      )}
       {!!error && (
         <Text
           style={styles.errorText}

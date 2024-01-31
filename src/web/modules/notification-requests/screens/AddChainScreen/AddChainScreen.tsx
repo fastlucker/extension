@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback } from 'react'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 // @ts-ignore
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import { Avatar } from '@common/components/Avatar'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -20,7 +21,6 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 
 import styles from './styles'
 
@@ -55,11 +55,7 @@ const AddChainScreen = () => {
             ]}
           >
             <View style={styles.accountInfo}>
-              <Image
-                style={styles.accountInfoIcon}
-                source={getAccountPfpSource(selectedAccountPref?.pfp)}
-                resizeMode="contain"
-              />
+              <Avatar pfp={selectedAccountPref.pfp} size={32} />
               <View style={styles.accountAddressAndLabel}>
                 <Text weight="number_bold" fontSize={16} appearance="secondaryText">
                   {selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL}

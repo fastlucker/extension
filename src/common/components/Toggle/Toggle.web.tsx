@@ -2,11 +2,15 @@ import './styles.css'
 
 import React from 'react'
 
-import Text from '@common/components/Text'
+import Text, { Props as TextProps } from '@common/components/Text'
 
 import { ToggleProps } from './types'
 
-const Toggle: React.FC<ToggleProps> = ({ id, isOn, onToggle, label }) => {
+interface Props extends ToggleProps {
+  labelProps?: TextProps
+}
+
+const Toggle: React.FC<Props> = ({ id, isOn, onToggle, label, labelProps }) => {
   const handleOnToggle: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     onToggle(e.target.checked)
   }
@@ -21,7 +25,7 @@ const Toggle: React.FC<ToggleProps> = ({ id, isOn, onToggle, label }) => {
         onChange={handleOnToggle}
       />
       <div className="toggle__fill" />
-      <Text fontSize={12} weight="medium">
+      <Text fontSize={12} weight="medium" {...labelProps}>
         {label}
       </Text>
     </label>

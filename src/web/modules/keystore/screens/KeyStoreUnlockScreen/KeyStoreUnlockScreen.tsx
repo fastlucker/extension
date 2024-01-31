@@ -12,8 +12,10 @@ import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
 import useNavigation from '@common/hooks/useNavigation'
 import Header from '@common/modules/header/components/Header'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
@@ -133,7 +135,10 @@ const KeyStoreUnlockScreen = () => {
                 />
               </View>
               <View style={[flexboxStyles.justifyCenter, flexboxStyles.directionRow]}>
-                <TouchableOpacity onPress={() => null} hitSlop={FOOTER_BUTTON_HIT_SLOP}>
+                <TouchableOpacity
+                  onPress={() => openInTab(`tab.html#/${ROUTES.keyStoreReset}`)}
+                  hitSlop={FOOTER_BUTTON_HIT_SLOP}
+                >
                   <Text weight="medium" fontSize={12} underline>
                     {t('Forgot Device Password?')}
                   </Text>

@@ -5,7 +5,7 @@ import colors from '@common/styles/colors'
 
 // TODO: Split all elements and text into separate components for better resposiveness
 const PinExtension = (props: SvgProps) => (
-  <Svg width="533" height="164" viewBox="0 0 533 164" {...props}>
+  <Svg width="497" height="128" viewBox="0 0 533 164" {...props}>
     <Defs>
       <filter id="Rectangle_1055" x="0" y="0" width="533" height="164" filterUnits="userSpaceOnUse">
         <feOffset dy="6" input="SourceAlpha" />

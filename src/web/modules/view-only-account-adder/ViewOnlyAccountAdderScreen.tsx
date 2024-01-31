@@ -3,9 +3,8 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
-import CloseIcon from '@common/assets/svg/CloseIcon'
+import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -22,12 +21,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { delayPromise } from '@common/utils/promises'
 import { RELAYER_URL } from '@env'
-import {
-  TabLayoutContainer,
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent,
-  TabLayoutWrapperSideContentItem
-} from '@web/components/TabLayoutWrapper'
+import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -155,13 +149,14 @@ const ViewOnlyScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
+      width="md"
       header={<Header withAmbireLogo />}
       footer={
         <>
           <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
             textStyle={{ fontSize: 14 }}
-            style={{ minWidth: 180 }}
+            size="large"
             disabled={disabled}
             hasBottomSpacing={false}
             text={t('Import')}
@@ -207,12 +202,11 @@ const ViewOnlyScreen = () => {
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
                     onSubmitEditing={disabled ? undefined : handleFormSubmit}
+                    button={index !== 0 ? <DeleteIcon /> : null}
+                    buttonProps={{
+                      onPress: () => remove(index)
+                    }}
                   />
-                  {index !== 0 && (
-                    <Pressable style={[spacings.ml]} onPress={() => remove(index)}>
-                      <CloseIcon color={colors.martinique} />
-                    </Pressable>
-                  )}
                 </View>
               )}
               name={`accounts.${index}.address`}
@@ -227,20 +221,8 @@ const ViewOnlyScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem icon={ViewOnlyIcon} title={t('View-only mode')}>
-          <TabLayoutWrapperSideContentItem.Text>
-            {t(
-              'Importing an account in the view-only mode lets you preview any public wallet address on any supported network. You can observe its balances or connect to dApps with it. Of course, in the view-only mode, you won&apos;t be able to sign any transaction, message, or authorize this account in any form.'
-            )}
-          </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Text noMb>
-            {t('All this is possible due to the public nature of the Web3 itself.')}
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }
 
-export default ViewOnlyScreen
+export default React.memo(ViewOnlyScreen)

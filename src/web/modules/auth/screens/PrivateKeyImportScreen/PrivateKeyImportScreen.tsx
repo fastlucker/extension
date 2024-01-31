@@ -6,8 +6,8 @@ import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
+import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -18,9 +18,7 @@ import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import {
   TabLayoutContainer,
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent,
-  TabLayoutWrapperSideContentItem
+  TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -74,6 +72,7 @@ const PrivateKeyImportScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
+      width="md"
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
           <Stepper />
@@ -83,7 +82,7 @@ const PrivateKeyImportScreen = () => {
         <>
           <BackButton />
           <Button
-            style={{ minWidth: 180 }}
+            size="large"
             text={t('Import')}
             hasBottomSpacing={false}
             onPress={handleFormSubmit}
@@ -104,13 +103,14 @@ const PrivateKeyImportScreen = () => {
             name="privateKey"
             render={({ field: { onChange, onBlur, value } }) => {
               return (
-                <Input
-                  testID='enter-seed-phrase-field'
+                <TextArea
                   value={value}
                   editable
+                  multiline
+                  numberOfLines={3}
                   autoFocus
                   containerStyle={spacings.mb0}
-                  placeholder={t('Enter a seed phrase or private key')}
+                  placeholder={t('Enter a private key')}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   isValid={!handleValidation(value) && !!value.length}
@@ -123,25 +123,6 @@ const PrivateKeyImportScreen = () => {
           />
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title={t('Importing basic accounts')}>
-          <TabLayoutWrapperSideContentItem.Text>
-            {t(
-              'By inserting a private key or a seed phrase, you can import traditional legacy accounts (also known as EOAs - externally owned accounts).'
-            )}
-          </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Text>
-            {t(
-              'If you enter a seed phrase, you will be given a list of multiple legacy accounts to choose from.'
-            )}
-          </TabLayoutWrapperSideContentItem.Text>
-          <TabLayoutWrapperSideContentItem.Text noMb>
-            {t(
-              'For each legacy account you import, you also have the option to import a smart account, powered by the same private key. This smart account will have a different address. Smart accounts have many benefits, including account recovery, transaction batching and much more.'
-            )}
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }

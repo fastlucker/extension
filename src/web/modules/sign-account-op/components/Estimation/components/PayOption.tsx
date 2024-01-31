@@ -1,16 +1,15 @@
 import React from 'react'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import shortenAddress from '@web/utils/shortenAddress'
 
 const PayOption = ({
@@ -24,15 +23,12 @@ const PayOption = ({
 }) => {
   const settingsCtrl = useSettingsControllerState()
   const accountPref = settingsCtrl.accountPreferences[account.addr]
-  const pfpSource = getAccountPfpSource(accountPref?.pfp)
+
   const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      <Image
-        style={[{ width: 32, height: 32, ...spacings.mrTy, ...common.borderRadiusPrimary } as any]}
-        source={pfpSource}
-      />
+      <Avatar pfp={accountPref?.pfp} size={32} />
       <Text weight="medium">
         {label} ({!isGasTank ? shortenAddress(account.addr, 11) : 'Gas Tank'})
       </Text>

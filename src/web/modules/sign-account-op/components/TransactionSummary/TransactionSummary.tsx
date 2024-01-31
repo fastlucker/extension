@@ -42,24 +42,28 @@ const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
   const remainingTime = deadline - BigInt(Date.now())
   const minute: bigint = 60000n
 
-  let updateAfter = Number(minute)
-  // more then 10mints
-  if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
-  // if 0< and <10 minutes
-  if (remainingTime > 0 && remainingTime < 10n * minute)
-    updateAfter = Number(remainingTime % minute)
-  // if just expired
-  if (remainingTime < 0 && remainingTime > -2n * minute)
-    updateAfter = Number(2n * minute + remainingTime)
-  if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
-
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    let updateAfter = Number(minute)
+
+    // more then 10mints
+    if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
+    // if 0< and <10 minutes
+    if (remainingTime > 0 && remainingTime < 10n * minute)
+      updateAfter = Number(remainingTime % minute)
+    // if just expired
+    if (remainingTime < 0 && remainingTime > -2n * minute)
+      updateAfter = Number(2n * minute + remainingTime)
+    // if long expired
+    if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
+
+    // this triggeres use effect after 'updateAfter' milliseconds by updating the text
+    const timeoutId = setTimeout(() => {
       setDeadlineText(getDeadlineText(deadline))
     }, updateAfter)
 
-    return () => clearInterval(intervalId)
-  }, [])
+    return () => clearTimeout(timeoutId)
+  }, [deadlineText])
+
   return <p>{deadlineText}</p>
 }
 
