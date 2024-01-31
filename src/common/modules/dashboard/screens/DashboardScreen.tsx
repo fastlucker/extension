@@ -123,7 +123,7 @@ const DashboardScreen = () => {
     <>
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
-        <View style={[spacings.phSm, spacings.ptSm]}>
+        <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
           <View style={[styles.contentContainer]}>
             <View
               style={[

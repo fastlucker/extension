@@ -4,10 +4,12 @@ import { View, ViewStyle } from 'react-native'
 
 import { Banner } from '@ambire-common/interfaces/banner'
 import Search from '@common/components/Search'
+import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
@@ -34,6 +36,7 @@ const { isPopup } = getUiType()
 const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) => {
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
+  const { theme } = useTheme()
   const route = useRoute()
   const { t } = useTranslation()
 
@@ -117,23 +120,60 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
         data: allBanners || []
       },
       {
-        header: () => (
-          <View
-            style={[
-              commonWebStyles.contentContainer,
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              flexbox.alignCenter,
-              spacings.mbMd
-            ]}
-          >
-            <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-            <Search
-              containerStyle={{ flex: 1, maxWidth: 206 }}
-              control={control}
-              height={32}
-              placeholder={t('Search for tokens')}
-            />
+        header: (
+          <View style={{ backgroundColor: theme.primaryBackground }}>
+            <View
+              style={[
+                commonWebStyles.contentContainer,
+                flexbox.directionRow,
+                flexbox.justifySpaceBetween,
+                flexbox.alignCenter,
+                spacings.mb,
+                spacings.ptTy
+              ]}
+            >
+              <Tabs
+                handleChangeQuery={handleChangeQuery}
+                setOpenTab={setOpenTab}
+                openTab={openTab}
+              />
+              <View style={{ margin: -2 }}>
+                <Search
+                  containerStyle={{ flex: 1, maxWidth: 206 }}
+                  control={control}
+                  height={32}
+                  placeholder={t('Search for tokens')}
+                />
+              </View>
+            </View>
+            {openTab === 'tokens' && tokens?.length && (
+              <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 1.5 }}
+                >
+                  {t('ASSET/AMOUNT')}
+                </Text>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 0.7 }}
+                >
+                  {t('PRICE')}
+                </Text>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 0.8, textAlign: 'right' }}
+                >
+                  {t('USD VALUE')}
+                </Text>
+              </View>
+            )}
           </View>
         ),
         renderItem: () => (
@@ -167,7 +207,8 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
       initTab?.collectibles,
       initTab?.tokens,
       searchValue,
-      tokens
+      tokens,
+      theme
     ]
   )
 
@@ -178,13 +219,13 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
       contentContainerStyle={[
         spacings.ph0,
         isPopup && spacings.phSm,
-        spacings.ptSm,
+        spacings.ptTy,
         hasScroll && spacings.prMi
       ]}
       sections={SECTIONS_DATA}
       keyExtractor={(item, index) => item?.id || item + index}
       renderItem={({ section: { renderItem } }: any) => renderItem}
-      renderSectionHeader={({ section: { header } }) => (header ? header() : null)}
+      renderSectionHeader={({ section: { header } }) => header || null}
       stickySectionHeadersEnabled
       onLayout={(e) => {
         setContainerHeight(e.nativeEvent.layout.height)

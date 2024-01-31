@@ -29,7 +29,7 @@ const Collections = ({ ...rest }: ViewProps) => {
         handleClose={closeCollectibleModal}
         selectedCollectible={selectedCollectible}
       />
-      {accountPortfolio?.collections && accountPortfolio.collections.length > 0 ? (
+      {accountPortfolio?.collections?.length ? (
         accountPortfolio.collections.map(({ address, name, networkId, collectibles, priceIn }) => (
           <Collection
             address={address}

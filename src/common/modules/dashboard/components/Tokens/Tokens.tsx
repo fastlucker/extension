@@ -101,37 +101,18 @@ const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
       <View style={spacings.mb}>
         {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
         {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
-        {!!sortedTokens.length && (
-          <View>
-            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
-                {t('ASSET/AMOUNT')}
-              </Text>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 0.7 }}>
-                {t('PRICE')}
-              </Text>
-              <Text
-                appearance="secondaryText"
-                fontSize={14}
-                weight="medium"
-                style={{ flex: 0.8, textAlign: 'right' }}
-              >
-                {t('USD VALUE')}
-              </Text>
-            </View>
-            {sortedTokens.map((token: TokenResult) => (
-              <TokenItem
-                key={`${token?.address}-${token?.networkId}-${
-                  token?.flags?.onGasTank ? 'gas-tank' : ''
-                }${token?.flags?.rewardsType ? 'rewards' : ''}${
-                  !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
-                }`}
-                token={token}
-                handleTokenSelect={handleSelectToken}
-              />
-            ))}
-          </View>
-        )}
+        {!!sortedTokens.length &&
+          sortedTokens.map((token: TokenResult) => (
+            <TokenItem
+              key={`${token?.address}-${token?.networkId}-${
+                token?.flags?.onGasTank ? 'gas-tank' : ''
+              }${token?.flags?.rewardsType ? 'rewards' : ''}${
+                !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
+              }`}
+              token={token}
+              handleTokenSelect={handleSelectToken}
+            />
+          ))}
       </View>
 
       {/* TODO: implementation of add custom token will be in sprint 4 */}
