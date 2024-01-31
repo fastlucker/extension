@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -29,6 +29,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
 import Assets from '../components/Assets'
@@ -54,6 +55,8 @@ const DashboardScreen = () => {
     width: 0,
     height: 0
   })
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
   const route = useRoute()
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -167,6 +170,8 @@ const DashboardScreen = () => {
     rotation.value = 0
   }, [accountPortfolio])
 
+  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
+
   if (!showView)
     return (
       <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
@@ -179,7 +184,7 @@ const DashboardScreen = () => {
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
         <View style={[spacings.phSm, spacings.ptSm]}>
-          <View style={[styles.contentContainer, spacings.mb]}>
+          <View style={[styles.contentContainer]}>
             <View
               style={[
                 common.borderRadiusPrimary,
@@ -275,8 +280,23 @@ const DashboardScreen = () => {
                 </View>
               </View>
             </View>
-            <Banners />
           </View>
+        </View>
+        <ScrollView
+          style={[flexbox.flex1, commonWebStyles.contentContainer]}
+          contentContainerStyle={[
+            isPopup && spacings.phSm,
+            spacings.pt,
+            hasScroll && spacings.prMi
+          ]}
+          onLayout={(e) => {
+            setContainerHeight(e.nativeEvent.layout.height)
+          }}
+          onContentSizeChange={(_, height) => {
+            setContentHeight(height)
+          }}
+        >
+          <Banners />
           <View
             style={[
               styles.contentContainer,
@@ -291,13 +311,12 @@ const DashboardScreen = () => {
               containerStyle={{ flex: 1, maxWidth: 206 }}
               control={control}
               height={32}
-              placeholder="Search for tokens"
+              placeholder={t('Search for tokens')}
             />
           </View>
-        </View>
-        <View style={[styles.contentContainer, flexbox.flex1]}>
           {!!tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
-        </View>
+        </ScrollView>
+
         {!!isPopup && <DAppFooter />}
       </View>
     </>

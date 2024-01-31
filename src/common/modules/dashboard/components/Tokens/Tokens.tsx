@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
 import React, { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { View, ViewProps } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -13,7 +13,7 @@ import spacings from '@common/styles/spacings'
 import TokenDetails from './TokenDetails'
 import TokenItem from './TokenItem'
 
-interface Props {
+interface Props extends ViewProps {
   tokens: TokenResult[]
   searchValue: string
 }
@@ -26,7 +26,7 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const Tokens = ({ tokens, searchValue }: Props) => {
+const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -88,7 +88,7 @@ const Tokens = ({ tokens, searchValue }: Props) => {
   }
 
   return (
-    <View>
+    <View {...rest}>
       <BottomSheet
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
