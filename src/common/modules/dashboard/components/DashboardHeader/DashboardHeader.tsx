@@ -166,7 +166,7 @@ const DashboardHeader = () => {
           )}
           <Pressable
             style={{ ...spacings.mlLg, ...spacings.mrTy }}
-            onPress={() => navigate('menu')}
+            onPress={() => (isPopup ? navigate('menu') : navigate('accounts'))}
           >
             {({ hovered }: any) => (
               <BurgerIcon
