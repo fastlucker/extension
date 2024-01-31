@@ -37,6 +37,7 @@ import DashboardHeader from '../components/DashboardHeader'
 import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
 import Tabs from '../components/Tabs'
+import { useShowDashboard } from '../hooks/useShowDashboard'
 import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -72,7 +73,8 @@ const DashboardScreen = () => {
   })
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
+  const { showView } = useShowDashboard()
+  const { accountPortfolio, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
@@ -134,9 +136,6 @@ const DashboardScreen = () => {
       setOpenTab('tokens')
     }
   }, [searchValue, openTab])
-
-  const showView =
-    (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
 
   const refreshPortfolio = useCallback(() => {
     rotation.value = withRepeat(
