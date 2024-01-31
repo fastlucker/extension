@@ -203,7 +203,11 @@ const DashboardScreen = () => {
                 })
               }}
             >
-              <Gradients size={dashboardOverviewSize} />
+              <Gradients
+                width={dashboardOverviewSize.width}
+                height={dashboardOverviewSize.height}
+                selectedAccount={selectedAccount}
+              />
               <View style={{ zIndex: 2 }}>
                 <DashboardHeader />
                 <View style={styles.overview}>
