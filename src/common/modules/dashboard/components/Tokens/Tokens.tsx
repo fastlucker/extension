@@ -9,6 +9,7 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 import TokenDetails from './TokenDetails'
 import TokenItem from './TokenItem'
@@ -102,7 +103,7 @@ const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
         {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
         {!!sortedTokens.length && (
           <View>
-            <View style={{ flexDirection: 'row', ...spacings.mbTy, ...spacings.phTy }}>
+            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
               </Text>

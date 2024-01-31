@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Pressable, ScrollView, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -12,14 +11,12 @@ import Animated, {
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
-import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import Banners from '@common/modules/dashboard/components/DashboardBanners'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
@@ -29,15 +26,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
-import Assets from '../components/Assets'
 import DAppFooter from '../components/DAppFooter'
 import DashboardHeader from '../components/DashboardHeader'
+import DashboardSectionList from '../components/DashboardSectionList'
 import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
-import Tabs from '../components/Tabs'
 import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -55,39 +50,15 @@ const DashboardScreen = () => {
     width: 0,
     height: 0
   })
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
+
   const route = useRoute()
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
-  const { control, watch } = useForm({
-    mode: 'all',
-    defaultValues: {
-      search: ''
-    }
-  })
-  const searchValue = watch('search')
-
-  const [openTab, setOpenTab] = useState(() => {
-    const params = new URLSearchParams(route?.search)
-
-    return (params.get('tab') as 'tokens' | 'collectibles' | 'defi') || 'tokens'
-  })
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
   const { accountPortfolio, startedLoading, state } = usePortfolioControllerState()
 
   const { t } = useTranslation()
-
-  // We want to change the query param without refreshing the page.
-  const handleChangeQuery = useCallback((tab: string) => {
-    if (window.location.href.includes('?tab=')) {
-      window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${tab}`)
-      return
-    }
-
-    window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
-  }, [])
 
   const filterByNetworkName = useMemo(() => {
     if (!filterByNetworkId) return ''
@@ -109,34 +80,6 @@ const DashboardScreen = () => {
 
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
-
-  const tokens = useMemo(
-    () =>
-      accountPortfolio?.tokens
-        .filter((token) => {
-          if (!filterByNetworkId) return true
-          if (filterByNetworkId === 'rewards') return token.flags.rewardsType
-          if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
-
-          return token.networkId === filterByNetworkId
-        })
-        .filter((token) => {
-          if (!searchValue) return true
-
-          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
-
-          return doesAddressMatch || doesSymbolMatch
-        }),
-    [accountPortfolio?.tokens, filterByNetworkId, searchValue]
-  )
-
-  useEffect(() => {
-    if (searchValue.length > 0 && openTab === 'collectibles') {
-      handleChangeQuery('tokens')
-      setOpenTab('tokens')
-    }
-  }, [searchValue, openTab])
 
   const showView =
     (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
@@ -169,8 +112,6 @@ const DashboardScreen = () => {
     setFakeIsLoading(false)
     rotation.value = 0
   }, [accountPortfolio])
-
-  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
 
   if (!showView)
     return (
@@ -286,41 +227,10 @@ const DashboardScreen = () => {
             </View>
           </View>
         </View>
-        <ScrollView
-          style={[flexbox.flex1, commonWebStyles.contentContainer]}
-          contentContainerStyle={[
-            isPopup && spacings.phSm,
-            spacings.ptSm,
-            hasScroll && spacings.prMi
-          ]}
-          onLayout={(e) => {
-            setContainerHeight(e.nativeEvent.layout.height)
-          }}
-          onContentSizeChange={(_, height) => {
-            setContentHeight(height)
-          }}
-        >
-          <Banners />
-          <View
-            style={[
-              styles.contentContainer,
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              flexbox.alignCenter,
-              spacings.mbMd
-            ]}
-          >
-            <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-            <Search
-              containerStyle={{ flex: 1, maxWidth: 206 }}
-              control={control}
-              height={32}
-              placeholder={t('Search for tokens')}
-            />
-          </View>
-          {!!tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
-        </ScrollView>
-
+        <DashboardSectionList
+          accountPortfolio={accountPortfolio}
+          filterByNetworkId={filterByNetworkId}
+        />
         {!!isPopup && <DAppFooter />}
       </View>
     </>
