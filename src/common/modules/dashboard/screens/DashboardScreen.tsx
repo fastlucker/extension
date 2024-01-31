@@ -112,13 +112,6 @@ const DashboardScreen = () => {
     rotation.value = 0
   }, [accountPortfolio])
 
-  if (!showView)
-    return (
-      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
-        <Spinner />
-      </View>
-    )
-
   return (
     <>
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />

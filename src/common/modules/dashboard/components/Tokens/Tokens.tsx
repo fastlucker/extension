@@ -98,9 +98,21 @@ const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
         <TokenDetails token={selectedToken} handleClose={closeBottomSheet} />
       </BottomSheet>
 
-      <View style={spacings.mb}>
-        {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
-        {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
+      <View style={[spacings.mb]}>
+        {!sortedTokens.length && (
+          <View style={[flexbox.alignCenter, spacings.pv]}>
+            {!searchValue && (
+              <Text fontSize={16} weight="medium">
+                {t('No tokens yet')}
+              </Text>
+            )}
+            {!!searchValue && (
+              <Text fontSize={16} weight="medium">
+                {t('No tokens found')}
+              </Text>
+            )}
+          </View>
+        )}
         {!!sortedTokens.length &&
           sortedTokens.map((token: TokenResult) => (
             <TokenItem

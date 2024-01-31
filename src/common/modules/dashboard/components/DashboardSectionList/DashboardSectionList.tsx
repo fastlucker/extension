@@ -146,7 +146,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
                 />
               </View>
             </View>
-            {openTab === 'tokens' && tokens?.length && (
+            {openTab === 'tokens' && !!tokens?.length && (
               <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
                 <Text
                   appearance="secondaryText"
@@ -215,12 +215,13 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
   return (
     <Wrapper
       type={WRAPPER_TYPES.SECTION_LIST}
-      style={[spacings.ph0, flexbox.flex1, commonWebStyles.contentContainer]}
+      style={[spacings.ph0, commonWebStyles.contentContainer]}
       contentContainerStyle={[
         spacings.ph0,
         isPopup && spacings.phSm,
         spacings.ptTy,
-        hasScroll && spacings.prMi
+        hasScroll && spacings.prMi,
+        { flexGrow: 1 }
       ]}
       sections={SECTIONS_DATA}
       keyExtractor={(item, index) => item?.id || item + index}
