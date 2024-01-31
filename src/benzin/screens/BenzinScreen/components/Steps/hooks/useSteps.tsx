@@ -37,6 +37,7 @@ export interface StepsData {
   cost: null | string
   calls: IrCall[]
   pendingTime: number
+  userOp: { status: null | string; txnId: null | string }
 }
 
 const useSteps = ({
@@ -325,7 +326,16 @@ const useSteps = ({
       }
       const humanize = humanizeCalls(accountOp, humanizerModules, standardOptions)
       const [parsedCalls] = parseCalls(accountOp, humanize[0], parsingModules, standardOptions)
-      setCalls(parsedCalls)
+
+      // remove deadlines from humanizer
+      const finalParsedCalls = parsedCalls.map((call) => {
+        const localCall = { ...call }
+        localCall.fullVisualization = call.fullVisualization?.filter(
+          (visual) => visual.type !== 'deadline'
+        )
+        return localCall
+      })
+      setCalls(finalParsedCalls)
     }
   }, [network, txnReceipt, txn, isUserOp, standardOptions])
 
@@ -335,7 +345,8 @@ const useSteps = ({
     finalizedStatus,
     cost,
     calls,
-    pendingTime
+    pendingTime,
+    userOp
   }
 }
 
