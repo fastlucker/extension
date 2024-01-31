@@ -20,6 +20,7 @@ const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
   startedLoading: null | number
+  setAccountPortfolio: (accountPortfolio: AccountPortfolio | null) => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -28,7 +29,8 @@ const PortfolioControllerStateContext = createContext<{
     isAllReady: false
   },
   state: {} as any,
-  startedLoading: null
+  startedLoading: null,
+  setAccountPortfolio: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -121,6 +123,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         () => ({
           state,
           accountPortfolio,
+          setAccountPortfolio,
           startedLoading
         }),
         [state, accountPortfolio, startedLoading]

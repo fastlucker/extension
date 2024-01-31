@@ -77,7 +77,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
               ]}
             />
           )}
-          {renderFallbackImage && (
+          {!!renderFallbackImage && (
             <ImageIcon
               color={theme.secondaryText}
               width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
@@ -90,4 +90,4 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
   )
 }
 
-export default Collectible
+export default React.memo(Collectible)

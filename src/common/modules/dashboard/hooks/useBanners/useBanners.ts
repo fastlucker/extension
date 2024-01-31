@@ -1,13 +1,10 @@
-import React, { FC, useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
-import Banner from '@common/modules/dashboard/components/DashboardBanner'
-import spacings from '@common/styles/spacings'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const DashboardBanners: FC = () => {
+export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
   const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
   const walletState = useWalletStateController()
@@ -41,22 +38,5 @@ const DashboardBanners: FC = () => {
     return [...innerBanners, ...state.banners]
   }, [innerBanners, state.banners])
 
-  if (allBanners.length === 0) return null
-
-  return (
-    <View style={spacings.mbSm}>
-      {allBanners.map((banner) => (
-        <Banner
-          topic={banner.topic}
-          key={banner.id}
-          id={banner.id}
-          title={banner.title}
-          text={banner.text}
-          actions={banner.actions}
-        />
-      ))}
-    </View>
-  )
+  return allBanners
 }
-
-export default React.memo(DashboardBanners)

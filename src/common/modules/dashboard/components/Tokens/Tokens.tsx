@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
-import React, { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { View, ViewProps } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -9,11 +9,12 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 
 import TokenDetails from './TokenDetails'
 import TokenItem from './TokenItem'
 
-interface Props {
+interface Props extends ViewProps {
   tokens: TokenResult[]
   searchValue: string
 }
@@ -26,7 +27,7 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const Tokens = ({ tokens, searchValue }: Props) => {
+const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -70,25 +71,29 @@ const Tokens = ({ tokens, searchValue }: Props) => {
     [tokens]
   )
 
-  const handleSelectToken = ({ address, networkId, flags }: TokenResult) => {
-    const token =
-      tokens.find(
-        (tokenI) =>
-          tokenI.address === address &&
-          tokenI.networkId === networkId &&
-          tokenI.flags.onGasTank === flags.onGasTank
-      ) || null
+  const handleSelectToken = useCallback(
+    () =>
+      ({ address, networkId, flags }: TokenResult) => {
+        const token =
+          tokens.find(
+            (tokenI) =>
+              tokenI.address === address &&
+              tokenI.networkId === networkId &&
+              tokenI.flags.onGasTank === flags.onGasTank
+          ) || null
 
-    setSelectedToken(token)
-    openBottomSheet()
-  }
+        setSelectedToken(token)
+        openBottomSheet()
+      },
+    [openBottomSheet, tokens]
+  )
 
   const handleTokenDetailsClose = () => {
     setSelectedToken(null)
   }
 
   return (
-    <View>
+    <View {...rest}>
       <BottomSheet
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
@@ -97,40 +102,33 @@ const Tokens = ({ tokens, searchValue }: Props) => {
         <TokenDetails token={selectedToken} handleClose={closeBottomSheet} />
       </BottomSheet>
 
-      <View style={spacings.mb}>
-        {!sortedTokens.length && !searchValue && <Text>{t('No tokens yet')}</Text>}
-        {!sortedTokens.length && searchValue && <Text>{t('No tokens found')}</Text>}
-        {!!sortedTokens.length && (
-          <View>
-            <View style={{ flexDirection: 'row', ...spacings.mbTy, ...spacings.phTy }}>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
-                {t('ASSET/AMOUNT')}
+      <View style={[spacings.mb]}>
+        {!sortedTokens.length && (
+          <View style={[flexbox.alignCenter, spacings.pv]}>
+            {!searchValue && (
+              <Text fontSize={16} weight="medium">
+                {t('No tokens yet')}
               </Text>
-              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 0.7 }}>
-                {t('PRICE')}
+            )}
+            {!!searchValue && (
+              <Text fontSize={16} weight="medium">
+                {t('No tokens found')}
               </Text>
-              <Text
-                appearance="secondaryText"
-                fontSize={14}
-                weight="medium"
-                style={{ flex: 0.8, textAlign: 'right' }}
-              >
-                {t('USD VALUE')}
-              </Text>
-            </View>
-            {sortedTokens.map((token: TokenResult) => (
-              <TokenItem
-                key={`${token?.address}-${token?.networkId}-${
-                  token?.flags?.onGasTank ? 'gas-tank' : ''
-                }${token?.flags?.rewardsType ? 'rewards' : ''}${
-                  !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
-                }`}
-                token={token}
-                handleTokenSelect={handleSelectToken}
-              />
-            ))}
+            )}
           </View>
         )}
+        {!!sortedTokens.length &&
+          sortedTokens.map((token: TokenResult) => (
+            <TokenItem
+              key={`${token?.address}-${token?.networkId}-${
+                token?.flags?.onGasTank ? 'gas-tank' : ''
+              }${token?.flags?.rewardsType ? 'rewards' : ''}${
+                !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
+              }`}
+              token={token}
+              handleTokenSelect={handleSelectToken}
+            />
+          ))}
       </View>
 
       {/* TODO: implementation of add custom token will be in sprint 4 */}
