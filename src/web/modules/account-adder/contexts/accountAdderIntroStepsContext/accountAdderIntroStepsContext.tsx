@@ -3,7 +3,15 @@ import 'intro.js/introjs.css'
 import './style.css'
 
 import { Steps } from 'intro.js-react'
-import React, { createContext, ReactNode, useCallback, useMemo, useRef, useState } from 'react'
+import React, {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { BrowserRouter } from 'react-router-dom'
@@ -91,7 +99,6 @@ const AccountAdderIntroStepsProvider: React.FC<any> = ({ children }) => {
   const [introCompleted, setIntroCompleted] = useState(false)
   const [showIntroSteps, setShowIntroSteps] = useState(false)
   const introJsRef = useRef<any>(null)
-
   const { t } = useTranslation()
 
   const onExit = () => {
@@ -109,6 +116,25 @@ const AccountAdderIntroStepsProvider: React.FC<any> = ({ children }) => {
     [introCompleted]
   )
 
+  useEffect(() => {
+    setShowIntroSteps(false)
+    return () => {
+      setShowIntroSteps(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      window.dispatchEvent(new Event('resize'))
+    })
+
+    const el = document.getElementById('account-adder-page-list')
+    if (el) observer.observe(el, { childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
   return (
     <AccountAdderIntroStepsContext.Provider
       value={useMemo(
@@ -119,21 +145,23 @@ const AccountAdderIntroStepsProvider: React.FC<any> = ({ children }) => {
         [showIntroSteps, onShowIntroSteps]
       )}
     >
-      <Steps
-        enabled={showIntroSteps}
-        steps={STEPS}
-        initialStep={0}
-        onExit={onExit}
-        ref={introJsRef}
-        onComplete={onComplete}
-        options={{
-          doneLabel: t('Got it'),
-          hidePrev: true,
-          exitOnEsc: false,
-          exitOnOverlayClick: false,
-          highlightClass: 'intro-backdrop'
-        }}
-      />
+      {!introCompleted && (
+        <Steps
+          enabled={showIntroSteps}
+          steps={STEPS}
+          initialStep={0}
+          onExit={onExit}
+          ref={introJsRef}
+          onComplete={onComplete}
+          options={{
+            doneLabel: t('Got it'),
+            hidePrev: true,
+            exitOnEsc: false,
+            exitOnOverlayClick: false,
+            highlightClass: 'intro-backdrop'
+          }}
+        />
+      )}
       {children}
     </AccountAdderIntroStepsContext.Provider>
   )

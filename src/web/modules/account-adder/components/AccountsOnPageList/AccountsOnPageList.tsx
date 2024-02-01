@@ -25,6 +25,7 @@ import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import Account from '@web/modules/account-adder/components/Account'
+import { AccountAdderIntroStepsProvider } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 const AccountsList = ({
@@ -32,15 +33,13 @@ const AccountsList = ({
   setPage,
   keyType,
   privKeyOrSeed,
-  lookingForLinkedAccounts,
-  pageLoaded
+  lookingForLinkedAccounts
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
   keyType: string
   privKeyOrSeed?: string
   lookingForLinkedAccounts: boolean
-  pageLoaded: boolean
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -140,8 +139,7 @@ const AccountsList = ({
         if (
           ['legacy', 'smart'].includes(getType(acc)) &&
           slotIndex === 0 &&
-          !mainState.accounts.length &&
-          pageLoaded
+          !mainState.accounts.length
         ) {
           shouldAddIntroStepsIds = true
         }
@@ -169,8 +167,7 @@ const AccountsList = ({
       state.preselectedAccounts,
       state.selectedAccounts,
       getType,
-      mainState.accounts.length,
-      pageLoaded
+      mainState.accounts.length
     ]
   )
 
@@ -193,175 +190,182 @@ const AccountsList = ({
   }, [keyType, privKeyOrSeed, t])
 
   return (
-    <View style={flexbox.flex1}>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
-        <Text
-          fontSize={maxWidthSize('xl') ? 20 : 18}
-          weight="medium"
-          appearance="primaryText"
-          numberOfLines={1}
-          style={[spacings.mrTy, flexbox.flex1]}
-        >
-          {setTitle()}
-        </Text>
-        {!!numberOfSelectedLinkedAccounts && (
-          <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
-            <Text fontSize={16} appearance="successText">
-              {numberOfSelectedLinkedAccounts === 1
-                ? t('Selected ({{numOfAccounts}}) linked account on this page', {
-                    numOfAccounts: numberOfSelectedLinkedAccounts
-                  })
-                : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                    numOfAccounts: numberOfSelectedLinkedAccounts
-                  })}
-            </Text>
+    <AccountAdderIntroStepsProvider>
+      <View style={flexbox.flex1} nativeID="account-adder-page-list">
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
+          <Text
+            fontSize={maxWidthSize('xl') ? 20 : 18}
+            weight="medium"
+            appearance="primaryText"
+            numberOfLines={1}
+            style={[spacings.mrTy, flexbox.flex1]}
+          >
+            {setTitle()}
+          </Text>
+          {!!numberOfSelectedLinkedAccounts && (
+            <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
+              <Text fontSize={16} appearance="successText">
+                {numberOfSelectedLinkedAccounts === 1
+                  ? t('Selected ({{numOfAccounts}}) linked account on this page', {
+                      numOfAccounts: numberOfSelectedLinkedAccounts
+                    })
+                  : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
+                      numOfAccounts: numberOfSelectedLinkedAccounts
+                    })}
+              </Text>
+            </Alert>
+          )}
+        </View>
+
+        {!lookingForLinkedAccounts && !!linkedAccounts.length && (
+          <Alert type="info" style={spacings.mbXl}>
+            <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+              <Text fontSize={16} weight="semiBold" appearance="infoText" style={spacings.mr}>
+                {t(`Linked Smart Account (found on page ${state.page})`)}
+              </Text>
+              <View style={flexbox.alignStart}>
+                <Badge type="info" withIcon text="linked" />
+              </View>
+            </View>
+            <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+              <Text fontSize={12} style={[flexbox.flex1, spacings.mrXl]} appearance="infoText">
+                {t(
+                  'Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network.'
+                )}
+              </Text>
+              <Button
+                text={t('Show Linked Accounts')}
+                hasBottomSpacing={false}
+                size="small"
+                type="secondary"
+                onPress={openBottomSheet as any}
+              />
+            </View>
           </Alert>
         )}
-      </View>
 
-      {!lookingForLinkedAccounts && !!linkedAccounts.length && (
-        <Alert type="info" style={spacings.mbXl}>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-            <Text fontSize={16} weight="semiBold" appearance="infoText" style={spacings.mr}>
-              {t(`Linked Smart Account (found on page ${state.page})`)}
-            </Text>
-            <View style={flexbox.alignStart}>
-              <Badge type="info" withIcon text="linked" />
-            </View>
-          </View>
-          <View style={[flexbox.directionRow, flexbox.alignEnd]}>
-            <Text fontSize={12} style={[flexbox.flex1, spacings.mrXl]} appearance="infoText">
+        <BottomSheet
+          sheetRef={sheetRef}
+          closeBottomSheet={closeBottomSheet}
+          scrollViewProps={{
+            scrollEnabled: false
+          }}
+          containerInnerWrapperStyles={{ maxHeight: Dimensions.get('window').height * 0.65 }}
+          style={{ maxWidth: tabLayoutWidths.lg, backgroundColor: theme.primaryBackground }}
+        >
+          <Text style={spacings.mbMd} weight="medium" fontSize={20}>
+            {t('Add Linked Accounts')}
+          </Text>
+          <Alert type="info" style={spacings.mbTy}>
+            <Text fontSize={16} style={flexbox.flex1} appearance="infoText">
               {t(
-                'Linked smart accounts are accounts that were not created with a given key originally, but this key was authorized for that given account on any supported network.'
+                'Linked smart accounts are accounts that were not originally created with this key or Ambire V.1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
               )}
             </Text>
-            <Button
-              text={t('Show Linked Accounts')}
-              hasBottomSpacing={false}
-              size="small"
-              type="secondary"
-              onPress={openBottomSheet as any}
-            />
+          </Alert>
+          <Alert
+            type="warning"
+            style={{ ...spacings.mbLg, alignSelf: 'stretch' }}
+            title={t('Do not add linked accounts you are not aware of!')}
+          />
+
+          <ScrollView
+            onLayout={(e) => {
+              setModalContainerHeight(e.nativeEvent.layout.height)
+            }}
+            onContentSizeChange={(_, height) => {
+              setModalContentHeight(height)
+            }}
+            contentContainerStyle={{
+              ...spacings?.[hasModalScroll ? 'prSm' : 'pr0']
+            }}
+          >
+            {getAccounts({
+              accounts: linkedAccounts,
+              shouldCheckForLastAccountInTheList: true,
+              byType: ['linked']
+            })}
+          </ScrollView>
+          <View
+            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd, spacings.ptXl]}
+          >
+            <Button size="large" text={t('Done')} onPress={closeBottomSheet as any} />
           </View>
-        </Alert>
-      )}
+        </BottomSheet>
 
-      <BottomSheet
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        scrollViewProps={{
-          scrollEnabled: false
-        }}
-        containerInnerWrapperStyles={{ maxHeight: Dimensions.get('window').height * 0.65 }}
-        style={{ maxWidth: tabLayoutWidths.lg, backgroundColor: theme.primaryBackground }}
-      >
-        <Text style={spacings.mbMd} weight="medium" fontSize={20}>
-          {t('Add Linked Accounts')}
-        </Text>
-        <Alert type="info" style={spacings.mbTy}>
-          <Text fontSize={16} style={flexbox.flex1} appearance="infoText">
-            {t(
-              'Linked smart accounts are accounts that were not originally created with this key or Ambire V.1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
-            )}
-          </Text>
-        </Alert>
-        <Alert
-          type="warning"
-          style={{ ...spacings.mbLg, alignSelf: 'stretch' }}
-          title={t('Do not add linked accounts you are not aware of!')}
-        />
-
-        <ScrollView
+        <View style={[spacings.mbLg, flexbox.alignStart]}>
+          <Toggle
+            isOn={hideEmptyAccounts}
+            onToggle={() => setHideEmptyAccounts((p) => !p)}
+            label={t('Hide empty legacy accounts')}
+            labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+          />
+        </View>
+        <Wrapper
+          style={shouldEnablePagination && spacings.mbLg}
+          contentContainerStyle={{
+            flexGrow: 1,
+            ...spacings.pt0,
+            ...spacings.pl0,
+            ...spacings?.[hasScroll ? 'prSm' : 'pr0']
+          }}
           onLayout={(e) => {
-            setModalContainerHeight(e.nativeEvent.layout.height)
+            setContainerHeight(e.nativeEvent.layout.height)
           }}
           onContentSizeChange={(_, height) => {
-            setModalContentHeight(height)
-          }}
-          contentContainerStyle={{
-            ...spacings?.[hasModalScroll ? 'prSm' : 'pr0']
+            setContentHeight(height)
           }}
         >
-          {getAccounts({
-            accounts: linkedAccounts,
-            shouldCheckForLastAccountInTheList: true,
-            byType: ['linked']
-          })}
-        </ScrollView>
-        <View
-          style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd, spacings.ptXl]}
-        >
-          <Button size="large" text={t('Done')} onPress={closeBottomSheet as any} />
-        </View>
-      </BottomSheet>
-
-      <View style={[spacings.mbLg, flexbox.alignStart]}>
-        <Toggle
-          isOn={hideEmptyAccounts}
-          onToggle={() => setHideEmptyAccounts((p) => !p)}
-          label={t('Hide empty legacy accounts')}
-          labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-        />
-      </View>
-      <Wrapper
-        style={shouldEnablePagination && spacings.mbLg}
-        contentContainerStyle={{
-          flexGrow: 1,
-          ...spacings.pt0,
-          ...spacings.pl0,
-          ...spacings?.[hasScroll ? 'prSm' : 'pr0']
-        }}
-        onLayout={(e) => {
-          setContainerHeight(e.nativeEvent.layout.height)
-        }}
-        onContentSizeChange={(_, height) => {
-          setContentHeight(height)
-        }}
-      >
-        {state.accountsLoading ? (
+          {state.accountsLoading ? (
+            <View
+              style={[
+                flexbox.alignCenter,
+                flexbox.flex1,
+                flexbox.alignCenter,
+                flexbox.justifyCenter
+              ]}
+            >
+              <Spinner style={{ width: 28, height: 28 }} />
+            </View>
+          ) : (
+            Object.keys(slots).map((key, i) => {
+              return (
+                <View key={key}>
+                  {getAccounts({
+                    accounts: slots[key],
+                    shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                    slotIndex: i
+                  })}
+                </View>
+              )
+            })
+          )}
+        </Wrapper>
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
-            style={[flexbox.alignCenter, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
+            style={[
+              flexbox.alignCenter,
+              spacings.ptSm,
+              { opacity: lookingForLinkedAccounts ? 1 : 0 }
+            ]}
           >
-            <Spinner style={{ width: 28, height: 28 }} />
+            <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
+              <Spinner style={{ width: 16, height: 16 }} />
+              <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
+                {t('Looking for linked smart accounts')}
+              </Text>
+            </View>
           </View>
-        ) : (
-          Object.keys(slots).map((key, i) => {
-            return (
-              <View key={key}>
-                {getAccounts({
-                  accounts: slots[key],
-                  shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
-                  slotIndex: i
-                })}
-              </View>
-            )
-          })
-        )}
-      </Wrapper>
-      <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-        <View
-          style={[
-            flexbox.alignCenter,
-            spacings.ptSm,
-            { opacity: lookingForLinkedAccounts ? 1 : 0 }
-          ]}
-        >
-          <View style={[spacings.mbTy, flexbox.alignCenter, flexbox.directionRow]}>
-            <Spinner style={{ width: 16, height: 16 }} />
-            <Text appearance="primary" style={[spacings.mlSm]} fontSize={12}>
-              {t('Looking for linked smart accounts')}
-            </Text>
-          </View>
+          {!!shouldEnablePagination && (
+            <Pagination
+              page={state.page}
+              setPage={setPage}
+              isDisabled={state.accountsLoading || disablePagination}
+            />
+          )}
         </View>
-        {!!shouldEnablePagination && (
-          <Pagination
-            page={state.page}
-            setPage={setPage}
-            isDisabled={state.accountsLoading || disablePagination}
-          />
-        )}
       </View>
-    </View>
+    </AccountAdderIntroStepsProvider>
   )
 }
 
