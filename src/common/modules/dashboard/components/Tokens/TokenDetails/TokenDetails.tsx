@@ -73,7 +73,7 @@ const TokenDetails = ({
         text: t('Swap'),
         icon: SwapIcon,
         onPress: ({ networkId, address }: TokenResult) =>
-          createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+          createTab(`https://app.uniswap.org/swap?inputCurrency=${address}&chain=${networkId}`),
         isDisabled: isGasTank
       },
       {
