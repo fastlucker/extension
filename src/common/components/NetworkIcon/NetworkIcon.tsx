@@ -76,4 +76,4 @@ const NetworkIcon = ({ name, type = 'regular', ...rest }: Props) => {
   return Icon ? <Icon {...rest} /> : null
 }
 
-export default NetworkIcon
+export default React.memo(NetworkIcon)
