@@ -16,6 +16,7 @@ type Props = {
   withIcon?: boolean
   style?: ViewStyle
   withRightSpacing?: boolean
+  nativeID?: string
 }
 
 const getBadgeTypes = (theme: ThemeProps) => ({
@@ -37,7 +38,7 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
-const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style }: Props) => {
+const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nativeID }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
@@ -58,6 +59,7 @@ const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style }: Pr
         withIcon && spacings.prMi,
         style
       ]}
+      nativeID={nativeID}
     >
       <Text weight="regular" fontSize={10} color={color} style={spacings.mrMi}>
         {text}
@@ -67,4 +69,4 @@ const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style }: Pr
   )
 }
 
-export default Badge
+export default React.memo(Badge)

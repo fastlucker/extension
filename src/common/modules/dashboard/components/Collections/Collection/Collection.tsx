@@ -85,7 +85,7 @@ const Collection: FC<Props> = ({
       <View style={[flexbox.directionRow]}>
         {collectibles.map((collectible) => (
           <Collectible
-            key={collectible.url}
+            key={collectible.url + collectible.id}
             url={collectible.url}
             id={collectible.id}
             collectionData={{
@@ -102,4 +102,4 @@ const Collection: FC<Props> = ({
   )
 }
 
-export default Collection
+export default React.memo(Collection)

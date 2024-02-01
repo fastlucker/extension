@@ -37,11 +37,6 @@ const BenzinScreen = () => {
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
-  const handleOpenExplorer = useCallback(async () => {
-    if (!network) return
-    await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
-  }, [network, txnId])
-
   if (!network || !txnId) {
     // @TODO
     return <Text>Error loading transaction</Text>
@@ -54,6 +49,12 @@ const BenzinScreen = () => {
     standardOptions,
     setActiveStep
   })
+
+  const handleOpenExplorer = useCallback(async () => {
+    if (!network) return
+    const realTxnId = stepsState.userOp.txnId ?? txnId
+    await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
+  }, [network, txnId, stepsState])
 
   return (
     <ImageBackground

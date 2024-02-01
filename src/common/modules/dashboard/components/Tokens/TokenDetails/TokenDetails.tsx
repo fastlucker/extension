@@ -1,9 +1,10 @@
 import { getAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 
+import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
@@ -15,6 +16,7 @@ import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
@@ -43,6 +45,8 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const [hasTokenInfo, setHasTokenInfo] = useState(false)
+  const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -57,6 +61,7 @@ const TokenDetails = ({
   const actions = useMemo(
     () => [
       {
+        id: 'send',
         text: t('Send'),
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
@@ -64,19 +69,22 @@ const TokenDetails = ({
         isDisabled: isGasTank
       },
       {
+        id: 'swap',
         text: t('Swap'),
         icon: SwapIcon,
         onPress: ({ networkId, address }: TokenResult) =>
-          createTab(`https://app.uniswap.org/tokens/${networkId}/${address}`),
+          createTab(`https://app.uniswap.org/swap?inputCurrency=${address}&chain=${networkId}`),
         isDisabled: isGasTank
       },
       {
+        id: 'deposit',
         text: t('Deposit'),
         icon: DepositIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
+        id: 'top-up',
         text: t('Top Up'),
         icon: TopUpIcon,
         onPress: ({ networkId, address }: TokenResult) =>
@@ -84,32 +92,74 @@ const TokenDetails = ({
         isDisabled: !isGasTankFeeToken
       },
       {
+        id: 'earn',
         text: t('Earn'),
         icon: EarnIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
+        id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
         onPress: () => createTab(BRIDGE_URL),
         isDisabled: isGasTank
       },
       {
+        id: 'withdraw',
         text: t('Withdraw'),
         icon: WithdrawIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
+        id: 'info',
         text: t('Token Info'),
         icon: InfoIcon,
-        onPress: () => {},
-        isDisabled: true
+        onPress: async () => {
+          if (!hasTokenInfo || !token) return
+
+          const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+
+          try {
+            await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
+            handleClose()
+          } catch {
+            addToast(t('Could not open token info'), { type: 'error' })
+          }
+        },
+        isDisabled: !hasTokenInfo
       }
     ],
-    [navigate, t, isGasTank]
+    [t, isGasTank, isGasTankFeeToken, hasTokenInfo, navigate, token, handleClose, addToast]
   )
+  useEffect(() => {
+    if (!token?.address || !token?.networkId) return
+
+    setIsTokenInfoLoading(true)
+
+    const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+
+    const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
+
+    fetch(tokenInfoUrl, {
+      method: 'HEAD'
+    })
+      .then((result) => {
+        if (result.ok) {
+          setHasTokenInfo(true)
+          return
+        }
+
+        setHasTokenInfo(false)
+      })
+      .catch(() => {
+        addToast(t('Token info not found'), { type: 'error' })
+      })
+      .finally(() => {
+        setIsTokenInfoLoading(false)
+      })
+  }, [addToast, t, token?.address, token?.networkId])
 
   if (!token) return null
 
@@ -201,9 +251,11 @@ const TokenDetails = ({
       <View style={styles.actionsContainer}>
         {actions.map((action) => {
           const Icon = action.icon
+          const isTokenInfo = action.id === 'info'
+
           return (
             <Pressable
-              key={action.text}
+              key={action.id}
               style={({ hovered }: any) => [
                 styles.action,
                 action.isDisabled && { opacity: 0.4 },
@@ -212,11 +264,16 @@ const TokenDetails = ({
               disabled={action.isDisabled}
               onPress={() => {
                 action.onPress(token)
+
                 handleClose()
               }}
             >
               <View style={spacings.mbMi}>
-                <Icon color={theme.primary} width={32} height={32} strokeWidth="1" />
+                {isTokenInfo && isTokenInfoLoading ? (
+                  <Spinner style={{ width: 32, height: 32 }} />
+                ) : (
+                  <Icon color={theme.primary} width={32} height={32} strokeWidth="1" />
+                )}
               </View>
               <Text fontSize={14} weight="medium" style={text.center}>
                 {action.text}

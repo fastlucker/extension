@@ -101,4 +101,4 @@ const CollectibleModal = ({
   )
 }
 
-export default CollectibleModal
+export default React.memo(CollectibleModal)

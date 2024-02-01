@@ -163,6 +163,7 @@ async function init() {
     !!backgroundState.fetchPortfolioIntervalId &&
       clearInterval(backgroundState.fetchPortfolioIntervalId)
 
+    // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
     backgroundState.fetchPortfolioIntervalId = setInterval(
       () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
       // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -59,6 +59,12 @@ const NavMenu = () => {
       type: 'KEYSTORE_CONTROLLER_LOCK'
     })
   }
+
+  useEffect(() => {
+    if (isTab) {
+      navigate('accounts')
+    }
+  }, [navigate])
 
   return (
     <TabLayoutContainer

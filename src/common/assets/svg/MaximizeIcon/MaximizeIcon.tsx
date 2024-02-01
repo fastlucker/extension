@@ -19,4 +19,4 @@ const MaximizeIcon: React.FC<SvgProps> = ({
   </Svg>
 )
 
-export default MaximizeIcon
+export default React.memo(MaximizeIcon)
