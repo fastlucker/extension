@@ -34,8 +34,6 @@ import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
 
-const TOKEN_INFO_BUTTON_TEXT = 'Token Info'
-
 const TokenDetails = ({
   token,
   handleClose
@@ -63,6 +61,7 @@ const TokenDetails = ({
   const actions = useMemo(
     () => [
       {
+        id: 'send',
         text: t('Send'),
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
@@ -70,6 +69,7 @@ const TokenDetails = ({
         isDisabled: isGasTank
       },
       {
+        id: 'swap',
         text: t('Swap'),
         icon: SwapIcon,
         onPress: ({ networkId, address }: TokenResult) =>
@@ -77,12 +77,14 @@ const TokenDetails = ({
         isDisabled: isGasTank
       },
       {
+        id: 'deposit',
         text: t('Deposit'),
         icon: DepositIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
+        id: 'top-up',
         text: t('Top Up'),
         icon: TopUpIcon,
         onPress: ({ networkId, address }: TokenResult) =>
@@ -90,25 +92,29 @@ const TokenDetails = ({
         isDisabled: !isGasTankFeeToken
       },
       {
+        id: 'earn',
         text: t('Earn'),
         icon: EarnIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
+        id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
         onPress: () => createTab(BRIDGE_URL),
         isDisabled: isGasTank
       },
       {
+        id: 'withdraw',
         text: t('Withdraw'),
         icon: WithdrawIcon,
         onPress: () => {},
         isDisabled: true
       },
       {
-        text: t(TOKEN_INFO_BUTTON_TEXT),
+        id: 'info',
+        text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
           if (!hasTokenInfo || !token) return
@@ -245,11 +251,11 @@ const TokenDetails = ({
       <View style={styles.actionsContainer}>
         {actions.map((action) => {
           const Icon = action.icon
-          const isTokenInfo = action.text === t(TOKEN_INFO_BUTTON_TEXT)
+          const isTokenInfo = action.id === 'info'
 
           return (
             <Pressable
-              key={action.text}
+              key={action.id}
               style={({ hovered }: any) => [
                 styles.action,
                 action.isDisabled && { opacity: 0.4 },
