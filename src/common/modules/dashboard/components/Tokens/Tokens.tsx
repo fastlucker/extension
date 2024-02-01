@@ -74,19 +74,17 @@ const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
   )
 
   const handleSelectToken = useCallback(
-    () =>
-      ({ address, networkId, flags }: TokenResult) => {
-        const token =
-          tokens.find(
-            (tokenI) =>
-              tokenI.address === address &&
-              tokenI.networkId === networkId &&
-              tokenI.flags.onGasTank === flags.onGasTank
-          ) || null
-
-        setSelectedToken(token)
-        openBottomSheet()
-      },
+    ({ address, networkId, flags }: TokenResult) => {
+      const token =
+        tokens.find(
+          (tokenI) =>
+            tokenI.address === address &&
+            tokenI.networkId === networkId &&
+            tokenI.flags.onGasTank === flags.onGasTank
+        ) || null
+      setSelectedToken(token)
+      openBottomSheet()
+    },
     [openBottomSheet, tokens]
   )
 
