@@ -43,16 +43,9 @@ const KeyStoreSetupScreen = () => {
   const { navigate, goBack } = useNavigation()
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
-  const [keystoreReady, setKeystoreReady] = useState(false)
   const state = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
-
-  useEffect(() => {
-    if (!params?.flow) return
-    updateStepperState(WEB_ROUTES.keyStoreSetup, params.flow)
-  }, [updateStepperState, params?.flow])
-
   const { hasBiometricsHardware, deviceSecurityLevel } = useBiometrics()
   const {
     control,
@@ -68,6 +61,12 @@ const KeyStoreSetupScreen = () => {
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC
     }
   })
+  const [keystoreReady, setKeystoreReady] = useState(false)
+
+  useEffect(() => {
+    if (!params?.flow) return
+    updateStepperState(WEB_ROUTES.keyStoreSetup, params.flow)
+  }, [updateStepperState, params?.flow])
 
   useEffect(() => {
     if (!params?.flow) {
