@@ -11,12 +11,13 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import ImageIcon from '@web/assets/svg/ImageIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Row from './Row'
-import getStyles from './styles'
+import getStyles, { COLLECTIBLE_IMAGE_SIZE } from './styles'
 
 const { isTab } = getUiType()
 
@@ -40,6 +41,8 @@ const CollectibleModal = ({
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const renderFallbackImage = !selectedCollectible?.image
+
   const { networks } = useSettingsControllerState()
 
   if (!selectedCollectible) return null
@@ -50,12 +53,40 @@ const CollectibleModal = ({
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <Modal customHeader={<></>} isOpen={isOpen} onClose={handleClose} modalStyle={styles.modal}>
-      <Image resizeMode="cover" source={{ uri: image }} style={styles.image} />
+      <View
+        style={[
+          styles.image,
+          renderFallbackImage
+            ? {
+                backgroundColor: theme.secondaryBackground,
+                borderRadius: BORDER_RADIUS_PRIMARY,
+                ...flexbox.center
+              }
+            : {}
+        ]}
+      >
+        {!renderFallbackImage ? (
+          <Image
+            resizeMode="cover"
+            source={{ uri: image }}
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
+          />
+        ) : (
+          <ImageIcon
+            color={theme.secondaryText}
+            width={COLLECTIBLE_IMAGE_SIZE / 2}
+            height={COLLECTIBLE_IMAGE_SIZE / 2}
+          />
+        )}
+      </View>
       <View
         style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm, flexbox.alignSelfStart]}
       >
         <Text fontSize={isTab ? 18 : 14} weight="medium" style={spacings.mrMi}>
-          {name}
+          {name || 'Unknown Name'}
         </Text>
         <Pressable
           style={spacings.mlTy}
