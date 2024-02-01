@@ -34,7 +34,15 @@ function extractIpfsInfo(url: string): ReturnInterface {
     return { ipfsCid, ipfsPath }
   }
 
-  // Condition 4: Special dweb.link format https://<cid>.ipfs.dweb.link/<path>
+  // Condition 4: Custom URL protocols (ipfs://, ipns://, dweb:/)
+  const customProtocolOnlyCidRegex = /(ipfs|ipns|dweb):\/\/([^/]+)/
+  const customProtocolOnlyCidMatch = url.match(customProtocolOnlyCidRegex)
+  if (customProtocolOnlyCidMatch) {
+    ipfsCid = customProtocolOnlyCidMatch[2]
+    return { ipfsCid, ipfsPath: '' }
+  }
+
+  // Condition 5: Special dweb.link format https://<cid>.ipfs.dweb.link/<path>
   const dwebLinkRegex = /https?:\/\/([^.]+)\.ipfs\.dweb\.link\/(.+)/
   const dwebLinkMatch = url.match(dwebLinkRegex)
   if (dwebLinkMatch) {
