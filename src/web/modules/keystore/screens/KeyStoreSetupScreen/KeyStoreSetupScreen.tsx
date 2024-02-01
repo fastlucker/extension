@@ -19,6 +19,7 @@ import useBiometrics from '@common/hooks/useBiometrics'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -41,6 +42,7 @@ import KeyStoreLogo from '../../components/KeyStoreLogo'
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
   const { navigate, goBack } = useNavigation()
+  const { addToast } = useToast()
   const { params } = useRoute()
   const { updateStepperState } = useStepper()
   const state = useKeystoreControllerState()
@@ -51,6 +53,8 @@ const KeyStoreSetupScreen = () => {
     control,
     handleSubmit,
     watch,
+    trigger,
+    getValues,
     formState: { errors, isSubmitting, isValid }
   } = useForm({
     mode: 'all',
@@ -62,6 +66,15 @@ const KeyStoreSetupScreen = () => {
     }
   })
   const [keystoreReady, setKeystoreReady] = useState(false)
+  const password = watch('password', '')
+
+  useEffect(() => {
+    if (!getValues('confirmPassword')) return
+
+    trigger('confirmPassword').catch(() => {
+      addToast(t('Something went wrong, please try again later.'), { type: 'error' })
+    })
+  }, [password, trigger, addToast, t, getValues])
 
   useEffect(() => {
     if (!params?.flow) return
@@ -90,10 +103,15 @@ const KeyStoreSetupScreen = () => {
   }, [goBack])
 
   const handleKeystoreSetup = () => {
-    handleSubmit(({ password }) => {
+    handleSubmit(({ password: passwordFieldValue }) => {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_ADD_SECRET',
-        params: { secretId: 'password', secret: password, extraEntropy: '', leaveUnlocked: true }
+        params: {
+          secretId: 'password',
+          secret: passwordFieldValue,
+          extraEntropy: '',
+          leaveUnlocked: true
+        }
       })
     })()
   }
@@ -154,7 +172,7 @@ const KeyStoreSetupScreen = () => {
           <Controller
             control={control}
             rules={{
-              validate: (value) => watch('password', '') === value
+              validate: (value) => password === value
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
@@ -162,7 +180,7 @@ const KeyStoreSetupScreen = () => {
                 placeholder={t('Repeat Password')}
                 onChangeText={onChange}
                 value={value}
-                isValid={!!value && watch('password', '') === value}
+                isValid={!!value && password === value}
                 validLabel={t('✅ Passwords match, you are ready to continue')}
                 secureTextEntry
                 error={errors.confirmPassword && (t("Passwords don't match.") as string)}
