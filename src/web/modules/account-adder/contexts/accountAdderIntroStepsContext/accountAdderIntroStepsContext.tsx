@@ -95,7 +95,10 @@ const STEPS = [
   }
 ]
 
-const AccountAdderIntroStepsProvider: React.FC<any> = ({ children }) => {
+const AccountAdderIntroStepsProvider: React.FC<{
+  children: ReactNode | ReactNode[]
+  forceCompleted?: boolean
+}> = ({ children, forceCompleted }) => {
   const [introCompleted, setIntroCompleted] = useState(false)
   const [showIntroSteps, setShowIntroSteps] = useState(false)
   const introJsRef = useRef<any>(null)
@@ -117,8 +120,28 @@ const AccountAdderIntroStepsProvider: React.FC<any> = ({ children }) => {
   )
 
   useEffect(() => {
+    if (forceCompleted && !introCompleted) {
+      setIntroCompleted(true)
+    }
+  }, [forceCompleted, introCompleted])
+
+  useEffect(() => {
+    const originalConsoleError = console.error
+    // Modify the error logs while this context is initialized because
+    // there is an issue with intro.js logging a warning when used with react hooks
+    console.error = function (...args) {
+      if (
+        typeof args?.[0] === 'string' &&
+        args?.[0]?.startsWith('Warning: useLayoutEffect does nothing on the server')
+      ) {
+        return
+      }
+
+      originalConsoleError.apply(console, args)
+    }
     setShowIntroSteps(false)
     return () => {
+      console.error = originalConsoleError
       setShowIntroSteps(false)
     }
   }, [])

@@ -135,21 +135,12 @@ const AccountsList = ({
           return null
         }
 
-        let shouldAddIntroStepsIds = false
-        if (
-          ['legacy', 'smart'].includes(getType(acc)) &&
-          slotIndex === 0 &&
-          !mainState.accounts.length
-        ) {
-          shouldAddIntroStepsIds = true
-        }
-
         return (
           <Account
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
-            shouldAddIntroStepsIds={shouldAddIntroStepsIds}
+            shouldAddIntroStepsIds={['legacy', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
             isSelected={isSelected || isPreselected}
@@ -190,7 +181,7 @@ const AccountsList = ({
   }, [keyType, privKeyOrSeed, t])
 
   return (
-    <AccountAdderIntroStepsProvider>
+    <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
       <View style={flexbox.flex1} nativeID="account-adder-page-list">
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
           <Text

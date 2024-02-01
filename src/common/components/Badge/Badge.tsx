@@ -69,4 +69,4 @@ const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nati
   )
 }
 
-export default Badge
+export default React.memo(Badge)
