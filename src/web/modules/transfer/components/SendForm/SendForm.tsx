@@ -78,7 +78,7 @@ const SendForm = ({
     recipientEnsAddress,
     recipientAddress,
     isRecipientAddressUnknown,
-    isRecipientSmartContract,
+    isRecipientHumanizerKnownTokenOrSmartContract,
     isRecipientDomainResolving,
     isSWWarningVisible,
     tokens,
@@ -185,7 +185,9 @@ const SendForm = ({
             uDAddress={recipientUDAddress}
             ensAddress={recipientEnsAddress}
             addressValidationMsg={validationFormMsgs?.recipientAddress.message}
-            isRecipientSmartContract={isRecipientSmartContract}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
             isRecipientAddressUnknown={isRecipientAddressUnknown}
             isRecipientDomainResolving={isRecipientDomainResolving}
             isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}

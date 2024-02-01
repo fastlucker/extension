@@ -1,6 +1,7 @@
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
+import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import AddIcon from '@common/assets/svg/AddIcon'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
@@ -10,9 +11,9 @@ import styles from './styles'
 
 type Props = {
   onAddToAddressBook: () => any
-  isRecipientSmartContract: boolean
-  isRecipientAddressUnknown: boolean
-  isRecipientAddressUnknownAgreed: boolean
+  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
+  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
+  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   addressValidationMsg: string
 }
@@ -20,7 +21,7 @@ type Props = {
 const ConfirmAddress = ({
   onAddToAddressBook,
   onRecipientAddressUnknownCheckboxClick,
-  isRecipientSmartContract,
+  isRecipientHumanizerKnownTokenOrSmartContract,
   isRecipientAddressUnknown,
   isRecipientAddressUnknownAgreed,
   addressValidationMsg
@@ -28,8 +29,7 @@ const ConfirmAddress = ({
   const { t } = useTranslation()
   // const { isKnownAddress } = useAddressBook()
 
-  // @TODO: Removed check:  && address !== accountPresets.feeCollector
-  return !isRecipientSmartContract &&
+  return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
     addressValidationMsg !== 'Invalid address.' ? (
     <View>
