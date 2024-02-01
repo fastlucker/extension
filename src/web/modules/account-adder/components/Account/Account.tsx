@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -17,6 +17,11 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import CopyIcon from '@web/assets/svg/CopyIcon'
+import {
+  AccountAdderIntroStepsContext,
+  BasicAccountIntroId,
+  SmartAccountIntroId
+} from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -26,6 +31,7 @@ const Account = ({
   type,
   unused,
   withBottomSpacing = true,
+  shouldAddIntroStepsIds,
   isSelected,
   onSelect,
   onDeselect,
@@ -36,12 +42,14 @@ const Account = ({
   unused: boolean
   isSelected: boolean
   withBottomSpacing: boolean
+  shouldAddIntroStepsIds?: boolean
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
+  const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
   const { minWidthSize, maxWidthSize } = useWindowSize()
   const { addToast } = useToast()
   if (!account.addr) return null
@@ -53,6 +61,10 @@ const Account = ({
       !!onSelect && onSelect(account)
     }
   }
+
+  useEffect(() => {
+    if (shouldAddIntroStepsIds) setShowIntroSteps(true)
+  }, [shouldAddIntroStepsIds, setShowIntroSteps])
 
   const handleCopyAddress = () => {
     Clipboard.setStringAsync(account.addr)
@@ -96,9 +108,29 @@ const Account = ({
               )}
             </View>
             {type === 'legacy' ? (
-              <Badge withRightSpacing withIcon text={t('Legacy Account')} type="warning" />
+              <Badge
+                withRightSpacing
+                withIcon
+                text={t('Legacy Account')}
+                type="warning"
+                {...(shouldAddIntroStepsIds
+                  ? {
+                      nativeID: BasicAccountIntroId
+                    }
+                  : {})}
+              />
             ) : (
-              <Badge withRightSpacing withIcon text={t('Smart Account')} type="success" />
+              <Badge
+                withRightSpacing
+                withIcon
+                text={t('Smart Account')}
+                type="success"
+                {...(shouldAddIntroStepsIds
+                  ? {
+                      nativeID: SmartAccountIntroId
+                    }
+                  : {})}
+              />
             )}
             {type === 'linked' && (
               <Badge withRightSpacing withIcon text={t('linked')} type="info" />
