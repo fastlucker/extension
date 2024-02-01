@@ -140,12 +140,12 @@ const TokenDetails = ({
       method: 'HEAD'
     })
       .then((result) => {
-        if (result.status === 404) {
-          setHasTokenInfo(false)
+        if (result.ok) {
+          setHasTokenInfo(true)
           return
         }
 
-        setHasTokenInfo(true)
+        setHasTokenInfo(false)
       })
       .catch(() => {
         addToast(t('Token info not found'), { type: 'error' })
