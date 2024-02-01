@@ -6,6 +6,7 @@ import { useModalize } from 'react-native-modalize'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
@@ -17,6 +18,7 @@ import TokenItem from './TokenItem'
 interface Props extends ViewProps {
   tokens: TokenResult[]
   searchValue: string
+  isLoading: boolean
 }
 
 const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
@@ -27,7 +29,7 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
+const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
@@ -106,9 +108,12 @@ const Tokens = ({ tokens, searchValue, ...rest }: Props) => {
         {!sortedTokens.length && (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             {!searchValue && (
-              <Text fontSize={16} weight="medium">
-                {t('No tokens yet')}
-              </Text>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
+                  {isLoading ? t('Looking for tokens') : t('No tokens yet')}
+                </Text>
+                {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
+              </View>
             )}
             {!!searchValue && (
               <Text fontSize={16} weight="medium">

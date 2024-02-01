@@ -201,4 +201,4 @@ const DashboardScreen = () => {
   )
 }
 
-export default DashboardScreen
+export default React.memo(DashboardScreen)

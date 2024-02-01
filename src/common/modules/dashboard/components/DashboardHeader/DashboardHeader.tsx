@@ -152,7 +152,7 @@ const DashboardHeader = () => {
         </View>
 
         <View style={styles.maximizeAndMenu}>
-          {isPopup && (
+          {!!isPopup && (
             <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
               {({ hovered }: any) => (
                 <MaximizeIcon

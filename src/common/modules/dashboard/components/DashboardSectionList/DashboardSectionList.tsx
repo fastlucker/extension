@@ -27,9 +27,8 @@ interface Props {
   filterByNetworkId: any
 }
 
-// We do this instead of unmounting the component to prevent
-// component rerendering when switching tabs.
-const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0 }
+// We do this instead of unmounting the component to prevent component rerendering when switching tabs.
+const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0, display: 'none' }
 
 const { isPopup } = getUiType()
 
@@ -129,7 +128,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
                 flexbox.justifySpaceBetween,
                 flexbox.alignCenter,
                 spacings.mb,
-                spacings.ptTy
+                !!allBanners.length && spacings.ptTy
               ]}
             >
               <Tabs
@@ -184,6 +183,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
                 tokens={tokens || []}
                 pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
                 style={openTab !== 'tokens' ? HIDDEN_STYLE : {}}
+                isLoading={!accountPortfolio?.isAllReady}
               />
             )}
 
@@ -208,18 +208,19 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
       initTab?.tokens,
       searchValue,
       tokens,
-      theme
+      theme,
+      accountPortfolio?.isAllReady
     ]
   )
 
   return (
     <Wrapper
       type={WRAPPER_TYPES.SECTION_LIST}
-      style={[spacings.ph0, commonWebStyles.contentContainer]}
+      style={[spacings.ph0, commonWebStyles.contentContainer, !allBanners.length && spacings.mtTy]}
       contentContainerStyle={[
         spacings.ph0,
         isPopup && spacings.phSm,
-        spacings.ptTy,
+        allBanners.length ? spacings.ptTy : spacings.pt0,
         hasScroll && spacings.prMi,
         { flexGrow: 1 }
       ]}
