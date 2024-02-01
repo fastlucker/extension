@@ -610,46 +610,6 @@ async function init() {
                 mainCtrl.selectAccount(data.params.accounts[0].addr)
               ])
             }
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT': {
-              try {
-                await mainCtrl.keystore.generateEmailVaultSeed(data.params.email)
-                const seed = await mainCtrl.keystore.getEmailVaultSeed(data.params.email)
-                const privateKey = getPrivateKeyFromSeed(
-                  seed,
-                  1,
-                  // TODO - check which hd path to use
-                  BIP44_STANDARD_DERIVATION_TEMPLATE
-                )
-                const keyIterator = new KeyIterator(privateKey)
-
-                mainCtrl.accountAdder.init({
-                  keyIterator,
-                  preselectedAccounts: [],
-                  // TODO - check which hd path to use
-                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-                })
-
-                await mainCtrl.accountAdder.createAndAddEmailAccount(
-                  data.params.email
-                  // TODO - should we pass the recovery key?
-                  // data.params.recoveryKey
-                )
-
-                if (mainCtrl.accountAdder.readyToAddAccounts.length) {
-                  mainCtrl.keystore.addKeys([
-                    {
-                      privateKey
-                      // TODO - how we set the label?
-                      // label: `Key for account with email: ${data.params.email}`
-                    }
-                  ])
-                }
-              } catch (error) {
-                console.error(error)
-              }
-
-              break
-            }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EXISTING_EMAIL_ACCOUNTS': {
               mainCtrl.accountAdder.addExistingEmailAccounts(data.params.accounts)
 
