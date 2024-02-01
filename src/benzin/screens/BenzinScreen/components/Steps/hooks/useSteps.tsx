@@ -2,7 +2,7 @@ import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { useEffect, useState } from 'react'
 
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
@@ -14,7 +14,7 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 
 import humanizerModules from './utils/humanizerModules'
 import parsingModules from './utils/parsingModules'
-import reproduceCalls from './utils/reproduceCalls'
+import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
@@ -37,6 +37,7 @@ export interface StepsData {
   cost: null | string
   calls: IrCall[]
   pendingTime: number
+  userOp: { status: null | string; txnId: null | string }
 }
 
 const useSteps = ({
@@ -202,7 +203,7 @@ const useSteps = ({
         }
 
         setTxnReceipt({
-          from: receipt.from,
+          from: txn ? getSender(txn, receipt) : receipt.from,
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
@@ -325,7 +326,16 @@ const useSteps = ({
       }
       const humanize = humanizeCalls(accountOp, humanizerModules, standardOptions)
       const [parsedCalls] = parseCalls(accountOp, humanize[0], parsingModules, standardOptions)
-      setCalls(parsedCalls)
+
+      // remove deadlines from humanizer
+      const finalParsedCalls = parsedCalls.map((call) => {
+        const localCall = { ...call }
+        localCall.fullVisualization = call.fullVisualization?.filter(
+          (visual) => visual.type !== 'deadline'
+        )
+        return localCall
+      })
+      setCalls(finalParsedCalls)
     }
   }, [network, txnReceipt, txn, isUserOp, standardOptions])
 
@@ -335,7 +345,8 @@ const useSteps = ({
     finalizedStatus,
     cost,
     calls,
-    pendingTime
+    pendingTime,
+    userOp
   }
 }
 

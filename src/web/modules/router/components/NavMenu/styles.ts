@@ -30,7 +30,7 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary
     },
     separatorWrapper: {
-      ...spacings.phXl,
+      ...spacings.ph,
       ...spacings.pvLg
     },
     separator: {

@@ -15,7 +15,6 @@ import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -43,6 +42,7 @@ import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterat
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
+import { addGettersToControllerState } from '@web/utils/addGettersToControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
@@ -89,7 +89,6 @@ async function init() {
       pending: number
       standBy: number
     }
-    prevSelectedAccount: string | null
     hasSignAccountOpCtrlInitialized: boolean
     portMessageUIRefs: { [key: string]: PortMessage }
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
@@ -109,7 +108,6 @@ async function init() {
       pending: 3000,
       standBy: 300000
     },
-    prevSelectedAccount: null,
     hasSignAccountOpCtrlInitialized: false,
     portMessageUIRefs: {}
   }
@@ -161,16 +159,13 @@ async function init() {
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
-  const fetchPortfolioData = async () => {
-    if (!mainCtrl.selectedAccount) return
-    return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
-  }
-
   function setPortfolioFetchInterval() {
     !!backgroundState.fetchPortfolioIntervalId &&
       clearInterval(backgroundState.fetchPortfolioIntervalId)
+
+    // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
     backgroundState.fetchPortfolioIntervalId = setInterval(
-      fetchPortfolioData,
+      () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
       // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       Object.keys(backgroundState.portMessageUIRefs).length ? 60000 : 600000
@@ -251,8 +246,10 @@ async function init() {
             params: ctrl
           })
         })
-        // stringify and then parse to add the getters to the public state
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
+        logInfoWithPrefix(
+          `onUpdate (${ctrlName} ctrl)`,
+          addGettersToControllerState(stateToLog || mainCtrl)
+        )
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -281,18 +278,6 @@ async function init() {
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
-
-      // if we have a signAccountOp initialized, set an onUpdate listener that
-      // checks if the statet moves to a fatal EstimationError. If it does, stop
-      // the reestimation
-      if (mainCtrl.signAccountOp) {
-        mainCtrl.signAccountOp?.onUpdate(() => {
-          if (mainCtrl.signAccountOp?.status?.type === SigningStatus.EstimationError) {
-            !!backgroundState.reestimateInterval &&
-              clearInterval(backgroundState.reestimateInterval)
-          }
-        })
-      }
     }
 
     Object.keys(controllersNestedInMainMapping).forEach((ctrlName) => {
@@ -334,8 +319,7 @@ async function init() {
             const errors = (mainCtrl as any)[ctrlName].getErrors()
             const lastError = errors[errors.length - 1]
             if (lastError) console.error(lastError.error)
-            // stringify and then parse to add the getters to the public state
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
               backgroundState.portMessageUIRefs[key]?.request({
                 type: 'broadcast-error',
@@ -347,11 +331,6 @@ async function init() {
         }
       }
     })
-
-    if (mainCtrl.isReady && backgroundState.prevSelectedAccount !== mainCtrl.selectedAccount) {
-      fetchPortfolioData()
-      backgroundState.prevSelectedAccount = mainCtrl.selectedAccount
-    }
 
     if (mainCtrl.isReady) {
       // if there are failed networks, refresh the account state every 8 seconds
@@ -368,8 +347,7 @@ async function init() {
     const errors = mainCtrl.getErrors()
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
-    // stringify and then parse to add the getters to the public state
-    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
+    logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.request({
         type: 'broadcast-error',

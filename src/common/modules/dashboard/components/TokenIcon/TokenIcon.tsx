@@ -43,6 +43,7 @@ const TokenIcon: React.FC<Props> = ({
   const [validUri, setValidUri] = useState('')
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       const hasLoadedUri = await checkIfImageExists(uri)
       if (hasLoadedUri) {
@@ -80,8 +81,8 @@ const TokenIcon: React.FC<Props> = ({
 
   return (
     <View style={containerStyle}>
-      {isLoading && <Spinner style={{ width: 24, height: 24 }} />}
-      {validUri && !isLoading && (
+      {!!isLoading && <Spinner style={{ width: 24, height: 24 }} />}
+      {!!validUri && !isLoading && (
         <Image
           source={{ uri: validUri }}
           style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
@@ -116,4 +117,4 @@ const TokenIcon: React.FC<Props> = ({
   )
 }
 
-export default TokenIcon
+export default React.memo(TokenIcon)

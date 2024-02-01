@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, View } from 'react-native'
@@ -27,6 +28,8 @@ import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
 import { getUiType } from '@web/utils/uiType'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import FallbackVisualization from './FallbackVisualization'
 import Header from './Header/Header'
 import Info from './Info'
@@ -46,7 +49,9 @@ const SignMessageScreen = () => {
   const { currentNotificationRequest } = useNotificationControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
-  const networkData =
+  const [shouldShowFallback, setShouldShowFallback] = useState(false)
+
+  const networkData: NetworkDescriptor | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =
@@ -88,6 +93,13 @@ const SignMessageScreen = () => {
       !visualizeHumanized,
     [hasReachedBottom, signMessageState.messageToSign?.content?.kind, visualizeHumanized]
   )
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldShowFallback(true)
+    }, 3000)
+    return () => clearTimeout(timer)
+  })
 
   useEffect(() => {
     if (!params?.accountAddr) {
@@ -263,7 +275,12 @@ const SignMessageScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={<Header networkId={networkData?.id} networkName={networkData?.name} />}
+      header={
+        <Header
+          networkId={networkData?.id as NetworkIconNameType}
+          networkName={networkData?.name}
+        />
+      }
       footer={
         <View style={styles.buttonsContainer}>
           <Button
@@ -322,11 +339,13 @@ const SignMessageScreen = () => {
               explorerUrl={network?.explorerUrl}
               kind={signMessageState.messageToSign?.content.kind}
             />
-          ) : (
+          ) : shouldShowFallback ? (
             <FallbackVisualization
               setHasReachedBottom={setHasReachedBottom}
               messageToSign={signMessageState.messageToSign}
             />
+          ) : (
+            <Text>Loading</Text>
           )}
           {isChooseSignerShown ? (
             <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />

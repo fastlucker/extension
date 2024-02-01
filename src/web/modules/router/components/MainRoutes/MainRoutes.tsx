@@ -18,12 +18,12 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
-import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
-import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
+import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
@@ -79,6 +79,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
           <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
 
+          <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
           <Route element={<PrivateRoute />}>
             <Route
               path={WEB_ROUTES.transfer}
@@ -88,10 +89,9 @@ const MainRoutes = () => {
                 </TransferControllerStateProvider>
               }
             />
-            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
-            <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>
@@ -108,7 +108,6 @@ const MainRoutes = () => {
             </SignAccountOpControllerStateProvider>
           }
         />
-        <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 
         <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
@@ -122,6 +121,7 @@ const MainRoutes = () => {
         <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
         <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
         <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+        <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
       </Route>
     </Routes>
   )

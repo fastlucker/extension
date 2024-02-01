@@ -207,9 +207,13 @@ const AccountsList = ({
         {!!numberOfSelectedLinkedAccounts && (
           <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
             <Text fontSize={16} appearance="successText">
-              {t('Selected ({{numOfAccounts}}) linked accounts on this page', {
-                numOfAccounts: numberOfSelectedLinkedAccounts
-              })}
+              {numberOfSelectedLinkedAccounts === 1
+                ? t('Selected ({{numOfAccounts}}) linked account on this page', {
+                    numOfAccounts: numberOfSelectedLinkedAccounts
+                  })
+                : t('Selected ({{numOfAccounts}}) linked accounts on this page', {
+                    numOfAccounts: numberOfSelectedLinkedAccounts
+                  })}
             </Text>
           </Alert>
         )}

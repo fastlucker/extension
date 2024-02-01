@@ -106,7 +106,7 @@ const BottomSheet: React.FC<Props> = ({
               scrollViewProps: {
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
-                ...scrollViewProps
+                ...(scrollViewProps || {})
               }
             }
           : {})}
@@ -116,7 +116,7 @@ const BottomSheet: React.FC<Props> = ({
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
                 contentContainerStyle: styles.containerInnerWrapper,
-                ...flatListProps
+                ...(flatListProps || {})
               }
             }
           : {})}

@@ -46,9 +46,9 @@ const TokenItem = ({
     >
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
         <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
-          {isRewards || isVesting ? (
+          {!!isRewards || !!isVesting ? (
             <View style={styles.tokenButtonIconWrapper}>
-              <RewardsIcon width={24} height={24} />
+              <RewardsIcon width={40} height={40} />
             </View>
           ) : (
             <TokenIcon
@@ -69,12 +69,12 @@ const TokenItem = ({
           </Text>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             <Text weight="regular" shouldScale={false} fontSize={12}>
-              {isRewards && t('rewards for claim')}
-              {isVesting && t('claimable early supporters vestings')}
+              {!!isRewards && t('rewards for claim')}
+              {!!isVesting && t('claimable early supporters vestings')}
               {!isRewards && !isVesting && t('on')}{' '}
             </Text>
             <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
-              {onGasTank && t('Gas Tank')}
+              {!!onGasTank && t('Gas Tank')}
               {!onGasTank && !isRewards && !isVesting && networkData?.name}
             </Text>
           </View>
@@ -90,4 +90,4 @@ const TokenItem = ({
   )
 }
 
-export default TokenItem
+export default React.memo(TokenItem)

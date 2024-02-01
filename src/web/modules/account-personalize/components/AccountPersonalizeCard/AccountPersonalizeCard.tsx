@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -13,7 +14,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import { Avatar } from './avatar'
 import getStyles from './styles'
 
 export type AccountPersonalizeFormValues = {
@@ -76,20 +76,27 @@ const AccountPersonalizeCard = ({
                       numberOfLines={1}
                       maxLength={40}
                       autoFocus
-                      inputWrapperStyle={{ height: 20, maxWidth: 310 }}
+                      error={!value.length && ' '}
+                      inputWrapperStyle={{ height: 20 }}
                       inputStyle={{
                         height: 18,
                         ...spacings.phTy
                       }}
                       buttonStyle={spacings.phMi}
                       nativeInputStyle={{ fontSize: 12 }}
-                      containerStyle={{ ...spacings.mb0, height: 20 }}
+                      containerStyle={{ ...spacings.mb0, height: 20, maxWidth: 310 }}
                       style={{ height: 20 }}
                       editable={editNameEnabled}
                       button={
                         <CheckIcon color="transparent" checkColor={theme.successDecorative} />
                       }
-                      buttonProps={{ onPress: () => setEditNameEnabled(false) }}
+                      buttonProps={{
+                        onPress: () => {
+                          if (value.length) {
+                            setEditNameEnabled(false)
+                          }
+                        }
+                      }}
                     />
                   )}
                   {!editNameEnabled && (

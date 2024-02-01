@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 // @ts-ignore
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
@@ -12,7 +13,6 @@ import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { Avatar } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatar'
 
 import getStyles from './styles'
 

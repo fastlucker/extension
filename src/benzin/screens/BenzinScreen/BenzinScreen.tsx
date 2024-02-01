@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -37,11 +37,6 @@ const BenzinScreen = () => {
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
-  const handleOpenExplorer = useCallback(async () => {
-    if (!network) return
-    await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
-  }, [network, txnId])
-
   if (!network || !txnId) {
     // @TODO
     return <Text>Error loading transaction</Text>
@@ -54,6 +49,12 @@ const BenzinScreen = () => {
     standardOptions,
     setActiveStep
   })
+
+  const handleOpenExplorer = useCallback(async () => {
+    if (!network) return
+    const realTxnId = stepsState.userOp.txnId ?? txnId
+    await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
+  }, [network, txnId, stepsState])
 
   return (
     <ImageBackground

@@ -1,27 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Linking, Pressable, View } from 'react-native'
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming
-} from 'react-native-reanimated'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Pressable, View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
-import NetworkIcon from '@common/components/NetworkIcon'
-import Search from '@common/components/Search'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
-import Banners from '@common/modules/dashboard/components/DashboardBanners'
+import useWindowSize from '@common/hooks/useWindowSize'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -30,241 +22,183 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import Assets from '../components/Assets'
 import DAppFooter from '../components/DAppFooter'
-import DashboardHeader from '../components/Header/Header'
+import DashboardHeader from '../components/DashboardHeader'
+import DashboardSectionList from '../components/DashboardSectionList'
+import Gradients from '../components/Gradients/Gradients'
 import Routes from '../components/Routes'
-import Tabs from '../components/Tabs'
-import getStyles from './styles'
+import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
-// We want to change the query param without refreshing the page.
-const handleChangeQuery = (openTab: string) => {
-  if (window.location.href.includes('?tab=')) {
-    window.history.pushState(null, '', `${window.location.href.split('?')[0]}?tab=${openTab}`)
-    return
-  }
-
-  window.history.pushState(null, '', `${window.location.href}?tab=${openTab}`)
-}
-
-const { isPopup } = getUiType()
+const { isPopup, isTab } = getUiType()
 
 const DashboardScreen = () => {
-  const { styles } = useTheme(getStyles)
+  const { theme, styles } = useTheme(getStyles)
+  const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
+  const { minWidthSize } = useWindowSize()
+  const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
+  const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
+    width: 0,
+    height: 0
+  })
+
+  const route = useRoute()
+  const filterByNetworkId = route?.state?.filterByNetworkId || null
+
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { addToast } = useToast()
-  const { dispatch } = useBackgroundService()
-  const rotation = useSharedValue(0)
-  const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
-  const [fakeIsLoading, setFakeIsLoading] = useState(false)
-  const [networkExplorersHovered, setNetworkExplorersHovered] = useState(false)
-  const route = useRoute()
-
-  const { control, watch } = useForm({
-    mode: 'all',
-    defaultValues: {
-      search: ''
-    }
-  })
-  const searchValue = watch('search')
-
-  const [openTab, setOpenTab] = useState(() => {
-    const params = new URLSearchParams(route?.search)
-
-    return (params.get('tab') as 'tokens' | 'collectibles') || 'tokens'
-  })
-
-  const { accountPortfolio, startedLoading } = usePortfolioControllerState()
+  const { accountPortfolio, state, setAccountPortfolio } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
-  const tokens = useMemo(
-    () =>
-      accountPortfolio?.tokens.filter((token) => {
-        if (!searchValue) return true
+  const filterByNetworkName = useMemo(() => {
+    if (!filterByNetworkId) return ''
 
-        const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
-        const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+    if (filterByNetworkId === 'rewards') return 'Ambire Rewards'
+    if (filterByNetworkId === 'gasTank') return 'Gas Tank'
 
-        return doesAddressMatch || doesSymbolMatch
-      }),
-    [accountPortfolio?.tokens, searchValue]
-  )
+    const network = networks.find((n) => n.id === filterByNetworkId)
 
-  const networksWithAssets = useMemo(() => {
-    const nonZeroBalanceTokens = tokens?.filter((token) => token.amount !== 0n)
+    return network?.name
+  }, [filterByNetworkId, networks])
 
-    return [...new Set(nonZeroBalanceTokens?.map((token) => token.networkId) || [])]
-  }, [tokens])
+  const totalPortfolioAmount = useMemo(() => {
+    if (!filterByNetworkId) return accountPortfolio?.totalAmount || 0
 
-  useEffect(() => {
-    if (searchValue.length > 0 && openTab === 'collectibles') {
-      handleChangeQuery('tokens')
-      setOpenTab('tokens')
-    }
-  }, [searchValue, openTab])
+    if (!selectedAccount) return 0
 
-  const showView =
-    (startedLoading ? Date.now() - startedLoading > 5000 : false) || accountPortfolio?.isAllReady
+    const selectedAccountPortfolio = state.latest[selectedAccount][filterByNetworkId]?.result?.total
+
+    return Number(selectedAccountPortfolio?.usd) || 0
+  }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
   const refreshPortfolio = useCallback(() => {
-    rotation.value = withRepeat(
-      withTiming(rotation.value + 360, {
-        duration: 1000,
-        easing: Easing.linear
-      }),
-      -1
-    )
-    setFakeIsLoading(true)
     dispatch({
       type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
       params: {
         forceUpdate: true
       }
     })
-  }, [dispatch])
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ rotate: `${rotation.value}deg` }]
-    }
-  })
-
-  const openExplorer = useCallback(
-    async (networkId: NetworkDescriptor['id']) => {
-      const explorerUrl = networks.find((network) => network.id === networkId)?.explorerUrl
-
-      if (!explorerUrl) {
-        addToast('This network does not have an explorer.', {
-          type: 'error'
-        })
-        return
-      }
-
-      try {
-        await Linking.openURL(`${explorerUrl}/address/${selectedAccount}`)
-      } catch {
-        addToast('An error occurred while opening the explorer.', {
-          type: 'error'
-        })
-      }
-    },
-    [networks, selectedAccount, addToast]
-  )
-
-  // Fake loading
-  useEffect(() => {
-    setFakeIsLoading(false)
-    rotation.value = 0
-  }, [accountPortfolio])
-
-  if (!showView)
-    return (
-      <View style={[flexbox.flex1, flexbox.justifyCenter, flexbox.alignCenter]}>
-        <Spinner />
-      </View>
-    )
+    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
+  }, [dispatch, accountPortfolio, setAccountPortfolio])
 
   return (
     <>
-      <DashboardHeader />
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
-        <View style={spacings.ph}>
+        <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
           <View style={[styles.contentContainer]}>
-            <View style={styles.overview}>
-              <View>
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!fakeIsLoading ? (
-                    <Text style={spacings.mbTy}>
-                      <Text
-                        fontSize={32}
-                        shouldScale={false}
-                        style={{ lineHeight: 34 }}
-                        weight="number_bold"
-                      >
-                        {t('$')}
-                        {Number(
-                          accountPortfolio?.totalAmount.toFixed(2).split('.')[0]
-                        ).toLocaleString('en-US')}
+            <View
+              style={[
+                common.borderRadiusPrimary,
+                spacings.pvTy,
+                spacings.phSm,
+                spacings.pb,
+                {
+                  backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
+                  overflow: 'hidden'
+                }
+              ]}
+              onLayout={(e) => {
+                setDashboardOverviewSize({
+                  width: e.nativeEvent.layout.width,
+                  height: e.nativeEvent.layout.height
+                })
+              }}
+            >
+              <Gradients
+                width={dashboardOverviewSize.width}
+                height={dashboardOverviewSize.height}
+                selectedAccount={selectedAccount}
+              />
+              <View style={{ zIndex: 2 }}>
+                <DashboardHeader />
+                <View style={styles.overview}>
+                  <View>
+                    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                      <Text style={spacings.mbTy}>
+                        <Text
+                          fontSize={32}
+                          shouldScale={false}
+                          style={{ lineHeight: 34 }}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('$')}
+                          {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
+                            'en-US'
+                          )}
+                        </Text>
+                        <Text
+                          fontSize={20}
+                          shouldScale={false}
+                          weight="number_bold"
+                          color={theme.primaryBackground}
+                        >
+                          {t('.')}
+                          {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
+                        </Text>
                       </Text>
-                      <Text fontSize={20} shouldScale={false} weight="semiBold">
-                        {t('.')}
-                        {Number(accountPortfolio?.totalAmount.toFixed(2).split('.')[1])}
-                      </Text>
-                    </Text>
-                  ) : (
-                    <View style={styles.overviewLoader} />
-                  )}
-                  <AnimatedPressable
-                    onPress={refreshPortfolio}
-                    style={[animatedStyle, spacings.mlTy]}
-                  >
-                    <RefreshIcon width={16} height={16} />
-                  </AnimatedPressable>
-                </View>
-                <Pressable
-                  // @ts-ignore cursor:default is web style
-                  style={({ hovered }: any) => [
-                    styles.networks,
-                    hovered && isWeb ? { cursor: 'default' } : {}
-                  ]}
-                >
-                  {({ hovered: parentHovered }: any) =>
-                    networksWithAssets.map((networkId, index) => (
-                      <Pressable
-                        onPress={() => openExplorer(networkId)}
-                        key={networkId}
-                        style={({ hovered: networkHovered }: any) => [
-                          styles.networkIconContainer,
-                          { zIndex: networksWithAssets.length - index },
-                          networkHovered && styles.networkIconContainerHovered,
-                          {
-                            marginRight: parentHovered || networkExplorersHovered ? 8 : 0
-                          }
-                        ]}
-                        onHoverIn={() => setNetworkExplorersHovered(true)}
-                        onHoverOut={() => setNetworkExplorersHovered(false)}
-                      >
-                        <NetworkIcon style={styles.networkIcon} name={networkId} />
-                      </Pressable>
-                    ))
-                  }
-                </Pressable>
-              </View>
-              <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
-            </View>
 
-            <Banners />
-          </View>
-          <View
-            style={[
-              styles.contentContainer,
-              flexbox.directionRow,
-              flexbox.justifySpaceBetween,
-              flexbox.alignCenter,
-              spacings.mbMd
-            ]}
-          >
-            <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
-            <Search
-              containerStyle={{ flex: 1, maxWidth: 206 }}
-              control={control}
-              height={32}
-              placeholder="Search for tokens"
-            />
+                      <View style={spacings.mlTy}>
+                        {!accountPortfolio?.isAllReady ? (
+                          <Spinner style={{ width: 16, height: 16 }} />
+                        ) : (
+                          <Pressable onPress={refreshPortfolio}>
+                            <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                          </Pressable>
+                        )}
+                      </View>
+                    </View>
+                    <Pressable
+                      style={({ hovered }: any) => [
+                        flexbox.directionRow,
+                        flexbox.alignCenter,
+                        { opacity: hovered ? 1 : 0.7 }
+                      ]}
+                      onPress={() => {
+                        navigate(WEB_ROUTES.networks, {
+                          state: {
+                            filterByNetworkId
+                          }
+                        })
+                      }}
+                    >
+                      {filterByNetworkId ? (
+                        <FilterIcon
+                          color={theme.primaryBackground}
+                          width={16}
+                          height={16}
+                          style={spacings.mrMi}
+                        />
+                      ) : null}
+                      <Text fontSize={14} color={theme.primaryBackground} weight="medium">
+                        {filterByNetworkId ? `${filterByNetworkName} Portfolio` : t('All Networks')}
+                      </Text>
+                      <DownArrowIcon
+                        style={spacings.mlSm}
+                        color={theme.primaryBackground}
+                        width={12}
+                        height={6.5}
+                      />
+                    </Pressable>
+                  </View>
+                  <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
+                </View>
+              </View>
+            </View>
           </View>
         </View>
-        <View style={[styles.contentContainer, flexbox.flex1]}>
-          {tokens && <Assets searchValue={searchValue} openTab={openTab} tokens={tokens} />}
+        <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
+          <DashboardSectionList
+            accountPortfolio={accountPortfolio}
+            filterByNetworkId={filterByNetworkId}
+          />
         </View>
-        {isPopup && <DAppFooter />}
+        {!!isPopup && <DAppFooter />}
       </View>
     </>
   )
 }
 
-export default DashboardScreen
+export default React.memo(DashboardScreen)

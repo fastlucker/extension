@@ -1,5 +1,6 @@
+import * as Clipboard from 'expo-clipboard'
 import React, { useContext, useEffect } from 'react'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -10,8 +11,10 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import {
@@ -46,8 +49,9 @@ const Account = ({
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { maxWidthSize } = useWindowSize()
   const { setShowIntroSteps } = useContext(AccountAdderIntroStepsContext)
+  const { minWidthSize, maxWidthSize } = useWindowSize()
+  const { addToast } = useToast()
   if (!account.addr) return null
 
   const toggleSelectedState = () => {
@@ -62,14 +66,23 @@ const Account = ({
     if (shouldAddIntroStepsIds) setShowIntroSteps(true)
   }, [shouldAddIntroStepsIds, setShowIntroSteps])
 
+  const handleCopyAddress = () => {
+    Clipboard.setStringAsync(account.addr)
+    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+  }
+
   return (
-    <View
+    <Pressable
       key={account.addr}
-      style={[
+      style={({ hovered }: any) => [
         flexbox.directionRow,
         flexbox.alignCenter,
-        withBottomSpacing ? spacings.mbTy : spacings.mb0
+        withBottomSpacing ? spacings.mbTy : spacings.mb0,
+        common.borderRadiusPrimary,
+        { borderWidth: 1, borderColor: theme.secondaryBackground },
+        hovered && { borderColor: theme.secondaryBorder }
       ]}
+      onPress={isDisabled ? undefined : toggleSelectedState}
     >
       <View style={styles.container}>
         <Checkbox
@@ -83,17 +96,16 @@ const Account = ({
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
-              <Text
-                fontSize={16}
-                appearance="primaryText"
-                style={spacings.mrMi}
-                onPress={isDisabled ? undefined : toggleSelectedState}
-              >
-                {!maxWidthSize('m') && shortenAddress(account.addr, 16)}
-                {!maxWidthSize('l') && maxWidthSize('m') && shortenAddress(account.addr, 26)}
-                {maxWidthSize('l') && maxWidthSize('m') && account.addr}
+              <Text fontSize={16} appearance="primaryText" style={spacings.mrMi}>
+                {minWidthSize('m') && shortenAddress(account.addr, 16)}
+                {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
+                {maxWidthSize('l') && account.addr}
               </Text>
-              {!maxWidthSize('l') && <CopyIcon width={14} height={14} />}
+              {minWidthSize('l') && (
+                <Pressable onPress={handleCopyAddress}>
+                  <CopyIcon width={14} height={14} />
+                </Pressable>
+              )}
             </View>
             {type === 'legacy' ? (
               <Badge
@@ -152,7 +164,7 @@ const Account = ({
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 

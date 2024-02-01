@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, View } from 'react-native'
+import { Image, Linking, Pressable, View } from 'react-native'
 
-import tokensEarnedImg from '@common/assets/images/TokensEarned.png'
+import tokensEarnedImg from '@common/assets/images/tokensEarned.png'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -52,7 +52,7 @@ const OnBoardingScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="sm"
+      width="md"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content">
@@ -62,19 +62,25 @@ const OnBoardingScreen = () => {
     >
       <TabLayoutWrapperMainContent
         style={[spacings.pt2Xl]}
-        contentContainerStyle={{ ...flexbox.justifyCenter, flexGrow: 1 }}
+        contentContainerStyle={{ ...flexbox.alignCenter, ...flexbox.justifyCenter, flexGrow: 1 }}
       >
-        <Panel>
+        <Panel style={{ width: 442, ...spacings.pt2Xl }}>
           <View style={styles.confettiAnimationContainer}>
             <ConfettiAnimation />
           </View>
           <Image style={styles.tokensImg} source={tokensEarnedImg} />
-          <Text weight="medium" fontSize={20} style={[text.center, spacings.mb]}>
+          <Text weight="medium" fontSize={20} style={[text.center, spacings.mb2Xl]}>
             {t("You've just earned $WALLET rewards for creating a new fresh account.")}
           </Text>
-          <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
-            {t('Check how you can earn more')}
-          </Text>
+          <Pressable
+            onPress={() => {
+              Linking.openURL('https://blog.ambire.com/announcing-the-wallet-token/')
+            }}
+          >
+            <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
+              {t('Check how you can earn more')}
+            </Text>
+          </Pressable>
         </Panel>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

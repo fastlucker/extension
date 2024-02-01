@@ -2,7 +2,7 @@
 import { ethErrors } from 'eth-rpc-errors'
 import { Linking } from 'react-native'
 
-import EventEmitter from '@ambire-common/controllers/eventEmitter'
+import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
