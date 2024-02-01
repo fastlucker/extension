@@ -40,6 +40,12 @@ export interface StepsData {
   userOp: { status: null | string; txnId: null | string }
 }
 
+// if the transaction hash is found, we make the top url the real txn id
+// because user operation hashes are not reliable long term
+const setUrlToTxnId = (transactionHash: string, network: string) => {
+  window.history.replaceState(null, '', `/?txnId=${transactionHash}&networkId=${network}`)
+}
+
 const useSteps = ({
   txnId,
   network,
@@ -95,6 +101,8 @@ const useSteps = ({
               txnId: userOpStatusAndId.transactionHash
             })
             setActiveStep('in-progress')
+            if (userOpStatusAndId.transactionHash)
+              setUrlToTxnId(userOpStatusAndId.transactionHash, network.id)
             break
 
           default:
