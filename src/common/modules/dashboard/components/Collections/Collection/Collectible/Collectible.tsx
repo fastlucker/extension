@@ -58,7 +58,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
           name: data?.name || '',
           networkId: collectionData.networkId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
-          image: data?.image || '',
+          image: !data?.image || imageFailed ? '' : data?.image,
           collectionName: collectionData.name
         })
       }}
