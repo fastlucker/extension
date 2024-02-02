@@ -98,15 +98,14 @@ const ViewOnlyScreen = () => {
         }
       }
 
-      if (accountIdentity && accountIdentity?.associatedKeys) {
+      if (accountIdentity?.associatedKeys) {
         associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
       }
 
       return {
         addr: account.address,
-        label: '',
-        pfp: '',
         associatedKeys,
+        initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation
       }
     })
