@@ -13,9 +13,10 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import { fetchCaught } from '@common/services/fetch'
+import { fetchGet } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -46,6 +47,7 @@ const ViewOnlyScreen = () => {
   const mainControllerState = useMainControllerState()
   const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { theme } = useTheme()
   const {
     control,
@@ -70,7 +72,7 @@ const ViewOnlyScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     const accountsToAddPromises = accounts.map(async (account) => {
-      const accountIdentityResponse = await fetchCaught(
+      const accountIdentityResponse = await fetchGet(
         `${RELAYER_URL}/v2/identity/${account.address}`
       )
 
@@ -106,13 +108,26 @@ const ViewOnlyScreen = () => {
       }
     })
 
-    const accountsToAdd = await Promise.all(accountsToAddPromises)
+    try {
+      const accountsToAdd = await Promise.all(accountsToAddPromises)
 
-    return dispatch({
-      type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
-      params: { accounts: accountsToAdd }
-    })
-  }, [accounts, dispatch])
+      return await dispatch({
+        type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
+        params: { accounts: accountsToAdd }
+      })
+    } catch (e: any) {
+      addToast(
+        t(
+          `Import unsuccessful. We were unable to fetch the necessary data.${
+            e?.message ? ` Error: ${e?.message}` : ''
+          }`
+        ),
+        { type: 'error' }
+      )
+
+      throw e
+    }
+  }, [accounts, addToast, dispatch, t])
 
   useEffect(() => {
     // Prevents navigating when user is in the middle of adding accounts,
