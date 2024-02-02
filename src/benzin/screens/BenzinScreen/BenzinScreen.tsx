@@ -29,9 +29,10 @@ const BenzinScreen = () => {
 
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId')
+  const userOpHash = params.get('userOpHash') ?? null
   const [networkId, isUserOp] = [
     params.get('networkId'),
-    typeof params.get('isUserOp') === 'string'
+    userOpHash?.length === 66 || typeof params.get('isUserOp') === 'string'
   ]
   const network = networks.find((n) => n.id === networkId)
 
@@ -44,6 +45,7 @@ const BenzinScreen = () => {
 
   const stepsState = useSteps({
     txnId,
+    userOpHash,
     network,
     isUserOp,
     standardOptions,
@@ -52,7 +54,7 @@ const BenzinScreen = () => {
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
-    const realTxnId = stepsState.userOp.txnId ?? txnId
+    const realTxnId = stepsState.userOpStatusData.txnId ?? txnId
     await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
   }, [network, txnId, stepsState])
 
