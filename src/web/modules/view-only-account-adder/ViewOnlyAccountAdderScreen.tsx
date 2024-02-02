@@ -19,7 +19,6 @@ import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { delayPromise } from '@common/utils/promises'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -69,10 +68,6 @@ const ViewOnlyScreen = () => {
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
   const handleFormSubmit = useCallback(async () => {
-    // wait state update before Wallet calcs because
-    // when Wallet method is called on devices with slow CPU the UI freezes
-    await delayPromise(100)
-
     const accountsToAddP = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
         `${RELAYER_URL}/v2/identity/${account.address}`
