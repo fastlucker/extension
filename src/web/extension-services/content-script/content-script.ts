@@ -20,7 +20,9 @@ const injectProviderScript = () => {
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
   let content = ';(function () {'
-  content += `let ambireChannelName = '${channelName}';`
+  if (!isManifestV3) {
+    content += `let ambireChannelName = '${channelName}';`
+  }
   content += '#PAGEPROVIDER#'
   content += '\n})();'
   ele.textContent = content
@@ -34,7 +36,7 @@ const injectProviderScript = () => {
 if (window === window.top) {
   const pm = new PortMessage().connect()
   const bcm = new BroadcastChannelMessage(
-    window.name.startsWith('ambire-') ? window.name : 'ambire-inpage'
+    window.name.startsWith('ambire-') ? window.name : !isManifestV3 ? channelName : 'ambire-inpage'
   ).listen((data: any) => {
     return pm.request(data)
   })
