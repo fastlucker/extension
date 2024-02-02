@@ -50,7 +50,8 @@ const ViewOnlyScreen = () => {
   const {
     control,
     watch,
-    formState: { isValid, errors }
+    handleSubmit,
+    formState: { isValid, errors, isSubmitting }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -68,7 +69,7 @@ const ViewOnlyScreen = () => {
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
   const handleFormSubmit = useCallback(async () => {
-    const accountsToAddP = accounts.map(async (account) => {
+    const accountsToAddPromises = accounts.map(async (account) => {
       const accountIdentityResponse = await fetchCaught(
         `${RELAYER_URL}/v2/identity/${account.address}`
       )
@@ -105,10 +106,9 @@ const ViewOnlyScreen = () => {
       }
     })
 
-    const accountsToAdd = await Promise.all(accountsToAddP)
+    const accountsToAdd = await Promise.all(accountsToAddPromises)
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dispatch({
+    return dispatch({
       type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
       params: { accounts: accountsToAdd }
     })
@@ -138,7 +138,7 @@ const ViewOnlyScreen = () => {
     settingsControllerState.accountPreferences
   ])
 
-  const disabled = !isValid || duplicateAccountsIndexes.length > 0
+  const disabled = !isValid || isSubmitting || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -153,8 +153,8 @@ const ViewOnlyScreen = () => {
             size="large"
             disabled={disabled}
             hasBottomSpacing={false}
-            text={t('Import')}
-            onPress={handleFormSubmit}
+            text={isSubmitting ? t('Importing...') : t('Import')}
+            onPress={handleSubmit(handleFormSubmit)}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
@@ -194,7 +194,7 @@ const ViewOnlyScreen = () => {
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
-                    onSubmitEditing={disabled ? undefined : handleFormSubmit}
+                    onSubmitEditing={disabled ? undefined : handleSubmit(handleFormSubmit)}
                     button={index !== 0 ? <DeleteIcon /> : null}
                     buttonProps={{
                       onPress: () => remove(index)
