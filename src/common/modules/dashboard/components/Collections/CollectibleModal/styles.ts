@@ -11,6 +11,8 @@ interface Style {
 
 const { isTab } = getUiType()
 
+export const COLLECTIBLE_IMAGE_SIZE = isTab ? 400 : 300
+
 const getStyles = () =>
   StyleSheet.create<Style>({
     modal: {
@@ -23,7 +25,7 @@ const getStyles = () =>
     image: {
       ...spacings.mbSm,
       width: '100%',
-      height: isTab ? 400 : 300,
+      height: COLLECTIBLE_IMAGE_SIZE,
       borderRadius: BORDER_RADIUS_PRIMARY
     }
   })
