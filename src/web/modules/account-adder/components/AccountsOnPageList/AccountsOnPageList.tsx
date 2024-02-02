@@ -157,8 +157,7 @@ const AccountsList = ({
       hideEmptyAccounts,
       state.preselectedAccounts,
       state.selectedAccounts,
-      getType,
-      mainState.accounts.length
+      getType
     ]
   )
 

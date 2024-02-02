@@ -45,6 +45,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     // so we update the areControllerStatesLoaded to true
     if (
       Object.keys(mainState).length &&
+      mainState?.isReady &&
       Object.keys(walletState).length &&
       walletState?.isReady &&
       Object.keys(accountAdderState).length &&
