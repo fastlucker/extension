@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -16,36 +16,32 @@ import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
 import styles from './styles'
 
+export interface AddressValidation {
+  isError: boolean
+  message: string
+}
+
 interface Props extends InputProps {
   isValidUDomain?: boolean
   isValidEns?: boolean
   isRecipientDomainResolving?: boolean
   label?: string
+  validation: AddressValidation
 }
 
-const RecipientInput: React.FC<Props> = ({
+const AddressInput: React.FC<Props> = ({
   onChangeText,
   isValidUDomain,
   isValidEns,
   isRecipientDomainResolving,
   label,
+  validation,
   ...rest
 }) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
-  const setValidationLabel = useMemo(() => {
-    if (isRecipientDomainResolving) {
-      return t('Resolving domain...')
-    }
-    if (isValidUDomain) {
-      return t('Valid Unstoppable domainsⓇ domain')
-    }
-    if (isValidEns) {
-      return t('Valid Ethereum Name ServicesⓇ domain')
-    }
-    return ''
-  }, [isValidUDomain, isValidEns, isRecipientDomainResolving, t])
+  const { message, isError } = validation
 
   const handleOnScan = useCallback(
     (code: string) => {
@@ -88,7 +84,9 @@ const RecipientInput: React.FC<Props> = ({
         }}
         onButtonPress={() => null}
         onChangeText={onChangeText}
-        validLabel={setValidationLabel}
+        validLabel={!isError ? message : ''}
+        error={isError ? message : ''}
+        isValid={!isError}
         {...rest}
       />
       {!isWeb && (
@@ -101,4 +99,4 @@ const RecipientInput: React.FC<Props> = ({
   )
 }
 
-export default React.memo(RecipientInput)
+export default React.memo(AddressInput)
