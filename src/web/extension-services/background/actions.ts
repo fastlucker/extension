@@ -1,5 +1,3 @@
-import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
-
 import AccountAdderController, {
   ReadyToAddKeys
 } from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -13,6 +11,7 @@ import {
   KeyPreferences,
   NetworkPreference
 } from '@ambire-common/interfaces/settings'
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -176,17 +175,7 @@ type MainControllerTransferBuildUserRequestAction = {
 
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
-  params: {
-    selectedAccount?: string
-    selectedToken?: TokenResult
-    humanizerInfo?: HumanizerInfoType
-    tokens?: TokenResult[]
-    recipientAddress?: string
-    amount?: string
-    isSWWarningAgreed?: boolean
-    isRecipientAddressUnknownAgreed?: boolean
-    isTopUp?: boolean
-  }
+  params: TransferUpdate
 }
 
 type MainControllerTransferOnRecipientAddressChangeAction = {

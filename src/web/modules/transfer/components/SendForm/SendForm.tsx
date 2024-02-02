@@ -9,7 +9,7 @@ import Recipient from '@common/components/Recipient'
 import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useDebounce from '@common/hooks/useDebounce'
+import useAddressInput from '@common/hooks/useAddressInput/useAddressInput'
 import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { mapTokenOptions } from '@web/utils/maps'
@@ -63,23 +63,23 @@ const getSelectProps = ({
   }
 }
 const SendForm = ({
+  addressInputState,
   state,
   isAllReady = false
 }: {
+  addressInputState: ReturnType<typeof useAddressInput>
   state: TransferControllerState
   isAllReady?: boolean
 }) => {
   const { dispatch } = useBackgroundService()
+  const { validation, setFieldValue, debouncedAddress } = addressInputState
   const {
     amount,
     maxAmount,
     selectedToken,
-    recipientUDAddress,
-    recipientEnsAddress,
-    recipientAddress,
+    addressState,
     isRecipientAddressUnknown,
     isRecipientHumanizerKnownTokenOrSmartContract,
-    isRecipientDomainResolving,
     isSWWarningVisible,
     tokens,
     validationFormMsgs,
@@ -96,7 +96,6 @@ const SendForm = ({
     tokenSelectDisabled,
     amountSelectDisabled
   } = getSelectProps({ tokens, token, isTopUp })
-  const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
 
   const handleChangeToken = useCallback(
     (value: string) => {
@@ -137,13 +136,6 @@ const SendForm = ({
     updateTransferCtrlProperty('amount', maxAmount)
   }, [updateTransferCtrlProperty, maxAmount])
 
-  const setRecipientAddress = useCallback(
-    (text: string) => {
-      updateTransferCtrlProperty('recipientAddress', text)
-    },
-    [updateTransferCtrlProperty]
-  )
-
   const onSWWarningCheckboxClick = useCallback(() => {
     updateTransferCtrlProperty('isSWWarningAgreed', true)
   }, [updateTransferCtrlProperty])
@@ -153,11 +145,11 @@ const SendForm = ({
   }, [updateTransferCtrlProperty])
 
   useEffect(() => {
-    if (!debouncedRecipientAddress) return
+    if (!debouncedAddress) return
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
     })
-  }, [debouncedRecipientAddress, dispatch])
+  }, [debouncedAddress, dispatch])
 
   return (
     <View style={styles.container}>
@@ -180,16 +172,17 @@ const SendForm = ({
       <View>
         {!isTopUp && (
           <Recipient
-            setAddress={setRecipientAddress}
-            address={recipientAddress}
-            uDAddress={recipientUDAddress}
-            ensAddress={recipientEnsAddress}
+            setAddress={setFieldValue}
+            validation={validation}
+            address={addressState.fieldValue}
+            uDAddress={addressState.udAddress}
+            ensAddress={addressState.ensAddress}
             addressValidationMsg={validationFormMsgs?.recipientAddress.message}
             isRecipientHumanizerKnownTokenOrSmartContract={
               isRecipientHumanizerKnownTokenOrSmartContract
             }
             isRecipientAddressUnknown={isRecipientAddressUnknown}
-            isRecipientDomainResolving={isRecipientDomainResolving}
+            isRecipientDomainResolving={addressState.isDomainResolving}
             isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
             onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
           />
