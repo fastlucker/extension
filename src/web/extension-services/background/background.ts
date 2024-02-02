@@ -637,8 +637,6 @@ async function init() {
               return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
-            case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
-              return mainCtrl.transfer.onRecipientAddressChange()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break

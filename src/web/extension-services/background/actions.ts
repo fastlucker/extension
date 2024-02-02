@@ -178,10 +178,6 @@ type MainControllerTransferUpdateAction = {
   params: TransferUpdate
 }
 
-type MainControllerTransferOnRecipientAddressChangeAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-}
-
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
   params: { data: any; id?: number }
@@ -340,7 +336,6 @@ export type Action =
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
-  | MainControllerTransferOnRecipientAddressChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
