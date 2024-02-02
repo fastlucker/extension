@@ -16,7 +16,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
-import { fetchGet } from '@common/services/fetch'
+import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -72,9 +72,16 @@ const ViewOnlyScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     const accountsToAddPromises = accounts.map(async (account) => {
-      const accountIdentityResponse = await fetchGet(
+      // Use `fetchCaught` because the endpoint could return 404 if the account
+      // is not found, which should not throw an error
+      const accountIdentityResponse = await fetchCaught(
         `${RELAYER_URL}/v2/identity/${account.address}`
       )
+
+      // Trick to determine if there is an error throw. When the request 404s,
+      // there is no error message incoming, which is enough to treat it as a
+      // no-error, 404 response is expected for EOAs.
+      if (accountIdentityResponse?.errMsg) throw new Error(accountIdentityResponse.errMsg)
 
       const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
