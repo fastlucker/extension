@@ -94,12 +94,13 @@ const decodeUserOpWithoutUserOpHash = (txnData: string) => {
 
   return decodeUserOp({
     sender: '',
-    callData: userOps[0][3]
+    callData: userOps[0][3],
+    hashStatus: 'not_found'
   })
 }
 
 const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOperation | null) => {
-  if (userOp) return decodeUserOp(userOp)
+  if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
 
   const sigHash = txn.data.slice(0, 10)
 

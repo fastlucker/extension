@@ -1,7 +1,6 @@
-import { Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
+import { AbiCoder, Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import { useEffect, useState } from 'react'
 
-import EntryPointAbi from '@ambire-common/../contracts/compiled/EntryPoint.json'
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
@@ -21,7 +20,6 @@ import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
-const REFETCH_USER_OP_HASHES_TIME = 3000 // 3 seconds
 
 interface Props {
   txnId: string
@@ -94,7 +92,6 @@ const useSteps = ({
   })
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
-  const [refetchUserOpHashes, setRefetchUserOpHashes] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
   const [calls, setCalls] = useState<IrCall[]>([])
   const [pendingTime, setPendingTime] = useState<number>(30)
@@ -334,51 +331,76 @@ const useSteps = ({
 
     const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
     const userOperations = handleOpsData[0]
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
-    const entryPoint = new ethers.Contract(ERC_4337_ENTRYPOINT, EntryPointAbi, provider)
-    const entryPointPromises = Promise.all(
-      userOperations.map((opArray: any) => {
-        const op = {
-          sender: opArray[0],
-          nonce: opArray[1],
-          initCode: opArray[2],
+    let hashFound = false
+    userOperations.forEach((opArray: any) => {
+      // THE PACKING
+      const sender = opArray[0]
+      const nonce = opArray[1]
+      const hashInitCode = ethers.keccak256(opArray[2])
+      const hashCallData = ethers.keccak256(opArray[3])
+      const callGasLimit = opArray[4]
+      const verificationGasLimit = opArray[5]
+      const preVerificationGas = opArray[6]
+      const maxFeePerGas = opArray[7]
+      const maxPriorityFeePerGas = opArray[8]
+      const hashPaymasterAndData = ethers.keccak256(opArray[9])
+      const abiCoder = new AbiCoder()
+      const packed = abiCoder.encode(
+        [
+          'address',
+          'uint256',
+          'bytes32',
+          'bytes32',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256',
+          'bytes32'
+        ],
+        [
+          sender,
+          nonce,
+          hashInitCode,
+          hashCallData,
+          callGasLimit,
+          verificationGasLimit,
+          preVerificationGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          hashPaymasterAndData
+        ]
+      )
+      // END THE PACKING
+
+      const hash = ethers.keccak256(packed)
+      const finalHash = ethers.keccak256(
+        abiCoder.encode(
+          ['bytes32', 'address', 'uint256'],
+          [hash, ERC_4337_ENTRYPOINT, network.chainId]
+        )
+      )
+
+      if (finalHash === finalUserOpHash) {
+        hashFound = true
+        setUserOp({
+          sender,
           callData: opArray[3],
-          callGasLimit: opArray[4],
-          verificationGasLimit: opArray[5],
-          preVerificationGas: opArray[6],
-          maxFeePerGas: opArray[7],
-          maxPriorityFeePerGas: opArray[8],
-          paymasterAndData: opArray[9],
-          signature: '0x'
-        }
-        return entryPoint.getUserOpHash(op).catch(() => null)
-      })
-    )
-    entryPointPromises
-      .then((hashes) => {
-        let hashFound = false
-        hashes.forEach((hash, index) => {
-          if (hash === finalUserOpHash) {
-            setUserOp({
-              sender: userOperations[index][0],
-              callData: userOperations[index][3]
-            })
-            hashFound = true
-          }
+          hashStatus: 'found'
         })
-        // if the hash is not found, retry before declaring failure
-        if (!hashFound && refetchUserOpHashes < 3) {
-          setTimeout(() => {
-            setRefetchUserOpHashes(refetchUserOpHashes + 1)
-          }, REFETCH_USER_OP_HASHES_TIME)
-        }
+      }
+    })
+    if (!hashFound) {
+      setUserOp({
+        sender: '',
+        callData: '',
+        hashStatus: 'not_found'
       })
-      // should never happen as each individual promise has a catch
-      .catch(() => null)
-  }, [network, txn, finalUserOpHash, userOp, refetchUserOpHashes])
+    }
+  }, [network, txn, finalUserOpHash, userOp])
 
   useEffect(() => {
-    if (isUserOp && !userOp && refetchUserOpHashes < 3) return
+    if (isUserOp && !userOp) return
 
     if (network && txnReceipt.from && txn) {
       setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
