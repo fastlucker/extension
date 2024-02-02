@@ -45,6 +45,8 @@ const SignAccountOpScreen = () => {
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [doNotHideNoBalanceChangesDuringLoad, setDoNotHideNoBalanceChangesDuringLoad] =
+    useState<boolean>(false)
 
   const hasEstimation = useMemo(
     () => !!signAccountOpState?.availableFeeOptions.length && !!signAccountOpState?.gasPrices,
@@ -263,6 +265,17 @@ const SignAccountOpScreen = () => {
 
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
 
+  let shouldShowNoBalanceChanges = false
+  if (
+    (!portfolioStatePending?.isLoading || doNotHideNoBalanceChangesDuringLoad) &&
+    !pendingTokens.length &&
+    !portfolioStatePending?.errors.length &&
+    !portfolioStatePending?.criticalError
+  ) {
+    shouldShowNoBalanceChanges = true
+    if (!doNotHideNoBalanceChangesDuringLoad) setDoNotHideNoBalanceChangesDuringLoad(true)
+  }
+
   return (
     <TabLayoutContainer
       width="full"
@@ -350,36 +363,33 @@ const SignAccountOpScreen = () => {
                   )}
                 </View>
               )}
-              {portfolioStatePending?.isLoading && (
-                <View style={spacings.mt}>
-                  <Spinner style={styles.spinner} />
-                </View>
-              )}
               {hasSimulationError && (
                 <View>
                   <Alert type="error" title={simulationErrorMsg} />
                 </View>
               )}
-              {!portfolioStatePending?.isLoading &&
-                !pendingTokens.length &&
-                !portfolioStatePending?.errors.length &&
-                !portfolioStatePending?.criticalError && (
-                  <View>
-                    <Alert
-                      type="info"
-                      isTypeLabelHidden
-                      title={
-                        <>
-                          No token balance changes detected. Please{' '}
-                          <Text appearance="infoText" weight="semiBold">
-                            carefully
-                          </Text>{' '}
-                          review the transaction preview below.
-                        </>
-                      }
-                    />
-                  </View>
-                )}
+              {shouldShowNoBalanceChanges && (
+                <View>
+                  <Alert
+                    type="info"
+                    isTypeLabelHidden
+                    title={
+                      <>
+                        No token balance changes detected. Please{' '}
+                        <Text appearance="infoText" weight="semiBold">
+                          carefully
+                        </Text>{' '}
+                        review the transaction preview below.
+                      </>
+                    }
+                  />
+                </View>
+              )}
+              {portfolioStatePending?.isLoading && (
+                <View style={spacings.mt}>
+                  <Spinner style={styles.spinner} />
+                </View>
+              )}
             </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
