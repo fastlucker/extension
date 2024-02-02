@@ -115,6 +115,11 @@ const ViewOnlyScreen = () => {
   }, [accounts, dispatch])
 
   useEffect(() => {
+    // Prevents navigating when user is in the middle of adding accounts,
+    // user adds account that is not valid and clicks "+ add one more address".
+    // This use effect gets triggered, because the `accounts` change.
+    if (!isValid) return
+
     const newAccountsAddresses = accounts.map((x) => x.address)
     const newAccountsAdded = mainControllerState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr)
@@ -133,6 +138,7 @@ const ViewOnlyScreen = () => {
   }, [
     accounts,
     dispatch,
+    isValid,
     mainControllerState.accounts,
     navigate,
     settingsControllerState.accountPreferences
