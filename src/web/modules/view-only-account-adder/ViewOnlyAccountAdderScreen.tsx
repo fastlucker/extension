@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
@@ -108,7 +109,7 @@ const ViewOnlyScreen = () => {
       }
 
       return {
-        addr: account.address,
+        addr: ethers.getAddress(account.address),
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation
@@ -141,14 +142,15 @@ const ViewOnlyScreen = () => {
     // user adds account that is not valid and clicks "+ add one more address".
     // This use effect gets triggered, because the `accounts` change.
     if (!isValid) return
+    if (duplicateAccountsIndexes.length > 0) return
 
-    const newAccountsAddresses = accounts.map((x) => x.address)
+    const newAccountsAddresses = accounts.map((x) => x.address.toLowerCase())
     const newAccountsAdded = mainControllerState.accounts.filter((account) =>
-      newAccountsAddresses.includes(account.addr)
+      newAccountsAddresses.includes(account.addr.toLowerCase())
     )
     const newAccountsDefaultPreferencesImported = Object.keys(
       settingsControllerState.accountPreferences
-    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
+    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr.toLowerCase()))
 
     // Navigate when the new accounts and their default preferences are imported,
     // indicating the final step for the view-only account adding flow completes.
@@ -160,6 +162,7 @@ const ViewOnlyScreen = () => {
   }, [
     accounts,
     dispatch,
+    duplicateAccountsIndexes.length,
     isValid,
     mainControllerState.accounts,
     navigate,
@@ -201,7 +204,11 @@ const ViewOnlyScreen = () => {
                 validate: (value) => {
                   if (!value) return 'Please fill in an address.'
                   if (!isValidAddress(value)) return 'Please fill in a valid address.'
-                  if (mainControllerState.accounts.find((account) => account.addr === value))
+                  if (
+                    mainControllerState.accounts.find(
+                      (account) => account.addr.toLowerCase() === value.toLocaleLowerCase()
+                    )
+                  )
                     return 'This address is already in your wallet.'
                   return true
                 },
