@@ -1,47 +1,55 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { createContext, Dispatch, useEffect, useMemo, useState } from 'react'
 
+import { getDefaultSelectedAccount } from '@ambire-common/libs/account/account'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
 type AuthContextData = {
   authStatus: AUTH_STATUS
   setAuthStatus: Dispatch<React.SetStateAction<AUTH_STATUS>>
-  isAuthStatusTakingTooLong: boolean
 }
 
 const AuthContext = createContext<AuthContextData>({
   authStatus: AUTH_STATUS.LOADING,
-  setAuthStatus: () => false,
-  isAuthStatusTakingTooLong: false
+  setAuthStatus: () => false
 })
 
 const AuthProvider: React.FC = ({ children }: any) => {
   const [authStatus, setAuthStatus] = useState<AUTH_STATUS>(AUTH_STATUS.LOADING)
-  const [isAuthStatusTakingTooLong, setIsAuthStatusTakingTooLong] = useState(false)
   const mainCtrlState = useMainControllerState()
+  const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    // Safeguard against a potential race condition where the auth status might
-    // not get set properly. If the timeout gets reached, the app displays
-    // feedback to the user (using the `isAuthStatusTakingTooLong` flag).
-    const timeout = setTimeout(() => setIsAuthStatusTakingTooLong(true), 10000)
-
-    if (mainCtrlState.isReady) {
-      clearTimeout(timeout)
-      setAuthStatus(
-        mainCtrlState?.accounts?.length ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.NOT_AUTHENTICATED
-      )
+    if (!mainCtrlState.accounts.length) {
+      setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
+      return
     }
 
-    return () => clearTimeout(timeout)
-  }, [mainCtrlState.isReady, mainCtrlState?.accounts?.length])
+    if (mainCtrlState.selectedAccount) {
+      setAuthStatus(AUTH_STATUS.AUTHENTICATED)
+    } else {
+      // fallback: should never happen
+      console.warn(
+        'Warning: no selected account was found. Proceeding with the fallback logic for selecting an account'
+      )
+      const selectedAccount = getDefaultSelectedAccount(mainCtrlState?.accounts)
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: selectedAccount?.addr || mainCtrlState.accounts[0].addr }
+      })
+    }
+  }, [
+    dispatch,
+    mainCtrlState?.accounts?.length,
+    mainCtrlState.accounts,
+    mainCtrlState.selectedAccount
+  ])
 
   return (
     <AuthContext.Provider
-      value={useMemo(
-        () => ({ authStatus, setAuthStatus, isAuthStatusTakingTooLong }),
-        [authStatus, setAuthStatus, isAuthStatusTakingTooLong]
-      )}
+      value={useMemo(() => ({ authStatus, setAuthStatus }), [authStatus, setAuthStatus])}
     >
       {children}
     </AuthContext.Provider>
