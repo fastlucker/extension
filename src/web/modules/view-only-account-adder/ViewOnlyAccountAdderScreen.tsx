@@ -188,6 +188,7 @@ const ViewOnlyScreen = () => {
                     onChangeText={onChange}
                     value={value}
                     autoFocus
+                    disabled={isSubmitting}
                     isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
                     validLabel={t('Address is valid.')}
                     error={
@@ -206,7 +207,11 @@ const ViewOnlyScreen = () => {
             />
           ))}
           <View>
-            <Pressable onPress={() => append({ address: '' })} style={spacings.ptTy}>
+            <Pressable
+              disabled={isSubmitting}
+              onPress={() => append({ address: '' })}
+              style={spacings.ptTy}
+            >
               <Text fontSize={14} underline>
                 {t('+ Add one more address')}
               </Text>
