@@ -4088,6 +4088,14 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
+"@raugfer/jazzicon@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@raugfer/jazzicon/-/jazzicon-1.0.6.tgz#b5454290803eb7219f60dfbc890400f40609acbc"
+  integrity sha512-bd3gQXyJRjTJ4jHPGQ5/1bUrRuTfpORe83dyRzd/TX/FUck1ixRWlp1OKltJFVCLRhTHUmm7UsgZmSAhXi9UZA==
+  dependencies:
+    color "^4.2.3"
+    mersenne-twister "^1.1.0"
+
 "@react-native-async-storage/async-storage@~1.17.3":
   version "1.17.11"
   resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-1.17.11.tgz#7ec329c1b9f610e344602e806b04d7c928a2341d"
@@ -13662,6 +13670,16 @@ interpret@^3.1.1:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-3.1.1.tgz#5be0ceed67ca79c6c4bc5cf0d7ee843dcea110c4"
   integrity sha512-6xwYfHbajpoF0xLW+iwLkhwgvLoZDfjYfoFNu8ftMoXINzwuymNLd9u/KmwtdT2GbR+/Cz66otEGEVVUHX9QLQ==
 
+intro.js-react@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/intro.js-react/-/intro.js-react-1.0.0.tgz#28f17519f387c4e76ad0f75c2bd733440bda0a83"
+  integrity sha512-zR8pbTyX20RnCZpJMc0nuHBpsjcr1wFkj3ZookV6Ly4eE/LGpFTQwPsaA61Cryzwiy/tTFsusf4hPU9NpI9UOg==
+
+intro.js@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/intro.js/-/intro.js-7.2.0.tgz#e58e8fee4f6b43d6e0fcb264c9ca8a0f0565026d"
+  integrity sha512-qbMfaB70rOXVBceIWNYnYTpVTiZsvQh/MIkfdQbpA9di9VBfj1GigUPfcCv3aOfsbrtPcri8vTLTA4FcEDcHSQ==
+
 invariant@2, invariant@2.2.4, invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
@@ -16159,6 +16177,11 @@ merkle-patricia-tree@^2.1.2, merkle-patricia-tree@^2.3.2:
     readable-stream "^2.0.0"
     rlp "^2.0.0"
     semaphore ">=1.0.1"
+
+mersenne-twister@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/mersenne-twister/-/mersenne-twister-1.1.0.tgz#f916618ee43d7179efcf641bec4531eb9670978a"
+  integrity sha512-mUYWsMKNrm4lfygPkL3OfGzOPTR2DBlTkBNHM//F6hGp8cLThY897crAlk3/Jo17LEOOjQUrNAx6DvgO77QJkA==
 
 methods@~1.1.2:
   version "1.1.2"

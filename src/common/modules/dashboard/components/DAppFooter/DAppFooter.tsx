@@ -81,23 +81,24 @@ const DAppFooter = () => {
               </View>
             )}
             <View style={flexbox.directionRow}>
-              <Button
-                type="danger"
-                size="small"
-                hasBottomSpacing={false}
-                text={t('Disconnect')}
-                style={spacings.mrSm}
-                disabled={!site?.isConnected}
-                onPress={() => {
-                  if (!site?.origin || !site?.isConnected) return
+              {site?.isConnected && (
+                <Button
+                  type="danger"
+                  size="small"
+                  hasBottomSpacing={false}
+                  text={t('Disconnect')}
+                  style={spacings.mrSm}
+                  onPress={() => {
+                    if (!site?.origin || !site?.isConnected) return
 
-                  disconnectDapp(site?.origin)
-                }}
-              >
-                <View style={spacings.plTy}>
-                  <PowerIcon />
-                </View>
-              </Button>
+                    disconnectDapp(site?.origin)
+                  }}
+                >
+                  <View style={spacings.plTy}>
+                    <PowerIcon />
+                  </View>
+                </Button>
+              )}
               <Button
                 type="secondary"
                 size="small"

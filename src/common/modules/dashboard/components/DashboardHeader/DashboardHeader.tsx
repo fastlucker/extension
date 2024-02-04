@@ -152,7 +152,7 @@ const DashboardHeader = () => {
         </View>
 
         <View style={styles.maximizeAndMenu}>
-          {isPopup && (
+          {!!isPopup && (
             <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
               {({ hovered }: any) => (
                 <MaximizeIcon
@@ -166,7 +166,7 @@ const DashboardHeader = () => {
           )}
           <Pressable
             style={{ ...spacings.mlLg, ...spacings.mrTy }}
-            onPress={() => navigate('menu')}
+            onPress={() => (isPopup ? navigate('menu') : navigate('accounts'))}
           >
             {({ hovered }: any) => (
               <BurgerIcon

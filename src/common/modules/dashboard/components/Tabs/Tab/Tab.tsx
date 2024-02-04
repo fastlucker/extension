@@ -5,7 +5,7 @@ import { Pressable } from 'react-native'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
-import { blockyColors } from '@common/utils/blockies'
+import { getAvatarColors } from '@common/utils/avatars'
 import mixHexColors from '@common/utils/mixHexColors'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
@@ -24,7 +24,7 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { selectedAccount } = useMainControllerState()
-  const { bgcolor } = blockyColors(selectedAccount || '')
+  const avatarColors = getAvatarColors(selectedAccount || '')
 
   const isActive = openTab === tab
 
@@ -41,7 +41,7 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }
           isActive
             ? [
                 DASHBOARD_OVERVIEW_BACKGROUND,
-                mixHexColors(DASHBOARD_OVERVIEW_BACKGROUND, bgcolor, 0.8)
+                mixHexColors(DASHBOARD_OVERVIEW_BACKGROUND, avatarColors[1], 0.8)
               ]
             : ['transparent', 'transparent']
         }

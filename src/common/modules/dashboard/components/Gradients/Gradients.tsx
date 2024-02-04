@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { Animated } from 'react-native'
 
-import { blockyColors } from '@common/utils/blockies'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import { getAvatarColors } from '@common/utils/avatars'
 import { getUiType } from '@web/utils/uiType'
 
 import Gradient from './Gradient/Gradient.web'
@@ -47,15 +46,15 @@ const ANIMATION_STEPS = [
 ]
 
 const Gradients = ({
-  size
+  width,
+  height,
+  selectedAccount
 }: {
-  size: {
-    width: number
-    height: number
-  }
+  width: number
+  height: number
+  selectedAccount: string | null
 }) => {
-  const { selectedAccount } = useMainControllerState()
-  const { bgcolor, color } = blockyColors(selectedAccount || '')
+  const avatarColors = getAvatarColors(selectedAccount || '')
   const left = useRef(new Animated.Value(0)).current
   const top = useRef(new Animated.Value(0)).current
 
@@ -65,7 +64,7 @@ const Gradients = ({
         Animated.sequence(
           ANIMATION_STEPS.map(({ left: _left }) => {
             return Animated.timing(left, {
-              toValue: size.width * _left,
+              toValue: width * _left,
               duration: isTab ? 10000 : 7500,
               useNativeDriver: true
             })
@@ -74,7 +73,7 @@ const Gradients = ({
         Animated.sequence(
           ANIMATION_STEPS.map(({ top: _top }) =>
             Animated.timing(top, {
-              toValue: size.height * _top,
+              toValue: height * _top,
               duration: isTab ? 10000 : 7500,
               useNativeDriver: true
             })
@@ -82,10 +81,10 @@ const Gradients = ({
         )
       ])
     ).start()
-  }, [left, size, top])
+  }, [left, width, height, top])
 
   const scaleInterpolate = left.interpolate({
-    inputRange: [0, size.width],
+    inputRange: [0, width],
     outputRange: [1, 0.6]
   })
 
@@ -97,8 +96,8 @@ const Gradients = ({
           top,
           left,
           zIndex: 1,
-          width: size.width / 2,
-          height: size.height * 2,
+          width: width / 2,
+          height: height * 2,
           transform: [{ scale: scaleInterpolate }]
         }}
       >
@@ -106,7 +105,7 @@ const Gradients = ({
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: shadeColor(color, -90)
+            backgroundColor: shadeColor(avatarColors[0], -90)
           }}
         />
       </Animated.View>
@@ -114,16 +113,16 @@ const Gradients = ({
         style={{
           position: 'absolute',
           top: top.interpolate({
-            inputRange: [0, size.height],
-            outputRange: [100, size.height]
+            inputRange: [0, height],
+            outputRange: [100, height]
           }),
           left: left.interpolate({
-            inputRange: [0, size.width],
-            outputRange: [-100, size.width]
+            inputRange: [0, width],
+            outputRange: [-100, width]
           }),
           zIndex: 1,
-          width: size.width / 3,
-          height: size.height * 1.5,
+          width: width / 3,
+          height: height * 1.5,
           transform: [{ scale: scaleInterpolate }]
         }}
       >
@@ -131,7 +130,7 @@ const Gradients = ({
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: shadeColor(bgcolor, 40)
+            backgroundColor: shadeColor(avatarColors[1], 40)
           }}
         />
       </Animated.View>

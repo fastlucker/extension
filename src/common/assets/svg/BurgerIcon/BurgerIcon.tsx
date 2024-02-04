@@ -20,4 +20,4 @@ const BurgerIcon: React.FC<SvgProps> = ({
   </Svg>
 )
 
-export default BurgerIcon
+export default React.memo(BurgerIcon)

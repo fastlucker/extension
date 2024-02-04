@@ -18,8 +18,6 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
-import CollectibleScreen from '@web/modules/collectibles/screens/Collectible'
-import CollectionScreen from '@web/modules/collectibles/screens/Collection'
 import EmailVaultScreen from '@web/modules/emailVault/screens/EmailVaultScreen'
 import KeystoreSecretBackup from '@web/modules/emailVault/screens/KeystoreSecretBackup'
 import KeystoreRecover from '@web/modules/emailVault/screens/KeystoreRecover'
@@ -96,7 +94,6 @@ const MainRoutes = () => {
                 </TransferControllerStateProvider>
               }
             />
-            <Route path={WEB_ROUTES.collectible} element={<CollectibleScreen />} />
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
@@ -118,7 +115,6 @@ const MainRoutes = () => {
             </SignAccountOpControllerStateProvider>
           }
         />
-        <Route path={WEB_ROUTES.collection} element={<CollectionScreen />} />
         <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
 
         <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
