@@ -15,9 +15,11 @@ import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import useToast from '@common/hooks/useToast'
 
 const ChangePassword = () => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const state = useKeystoreControllerState()
   const [changePasswordReady, setChangePasswordReady] = useState(false)
@@ -27,6 +29,8 @@ const ChangePassword = () => {
     handleSubmit,
     watch,
     setError,
+    getValues,
+    trigger,
     resetField,
     formState: { errors, isSubmitting, isValid }
   } = useForm({
@@ -37,6 +41,16 @@ const ChangePassword = () => {
       confirmNewPassword: ''
     }
   })
+
+  const newPassword = watch('newPassword', '')
+
+  useEffect(() => {
+    if (!getValues('confirmNewPassword')) return
+
+    trigger('confirmNewPassword').catch(() => {
+      addToast(t('Something went wrong, please try again later.'), { type: 'error' })
+    })
+  }, [newPassword, trigger, addToast, t, getValues])
 
   useEffect(() => {
     if (state.errorMessage) {
@@ -53,10 +67,10 @@ const ChangePassword = () => {
   }, [state.latestMethodCall, state.status])
 
   const handleChangeKeystorePassword = () => {
-    handleSubmit(({ password, newPassword }) => {
+    handleSubmit(({ password, newPassword: newPasswordFieldValue }) => {
       dispatch({
         type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD',
-        params: { secret: password, newSecret: newPassword }
+        params: { secret: password, newSecret: newPasswordFieldValue }
       })
     })()
   }
@@ -114,7 +128,7 @@ const ChangePassword = () => {
         <Controller
           control={control}
           rules={{
-            validate: (value) => watch('newPassword', '') === value
+            validate: (value) => newPassword === value
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
@@ -122,7 +136,7 @@ const ChangePassword = () => {
               placeholder={t('Repeat new Password')}
               onChangeText={onChange}
               value={value}
-              isValid={!!value && watch('newPassword', '') === value}
+              isValid={!!value && newPassword === value}
               validLabel={t('✅ The new passwords match, you are ready to continue')}
               secureTextEntry
               error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
