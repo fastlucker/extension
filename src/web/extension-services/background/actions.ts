@@ -286,6 +286,10 @@ type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
 }
+type KeystoreControllerChangePasswordFromRecoveryAction = {
+  type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
+  params: { newSecret: string }
+}
 
 type EmailVaultControllerGetInfoAction = {
   type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
@@ -394,6 +398,7 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
+  | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerRecoverKeystoreAction

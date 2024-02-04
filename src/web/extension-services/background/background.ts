@@ -708,9 +708,13 @@ async function init() {
               return mainCtrl.keystore.resetErrorState()
             case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
               return mainCtrl.keystore.changeKeystorePassword(
-                data.params.secret,
-                data.params.newSecret
+                data.params.newSecret,
+                data.params.secret
               )
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
+              // In the case we change the user's device password through the recovery process,
+              // we don't know the old password, which is why we send only the new password.
+              return mainCtrl.keystore.changeKeystorePassword(data.params.newSecret)
 
             case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
               return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)

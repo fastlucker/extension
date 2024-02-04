@@ -8,6 +8,8 @@ import InputPassword from '@common/components/InputPassword'
 import { isWeb } from '@common/config/env'
 import PasswordSetModal from '@web/components/PasswordSetModal'
 
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 import styles from './styles'
 
 interface Props {
@@ -19,10 +21,12 @@ interface Props {
       confirmPassword: string
     }>
   >
+  isPasswordChanged: boolean
 }
 
-const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
+const KeystoreResetForm: FC<Props> = ({ password, control, errors, isPasswordChanged }) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
 
   return (
     <>
@@ -66,7 +70,7 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
         )}
         name="confirmPassword"
       />
-      <PasswordSetModal isOpen onPress={() => {}} />
+      <PasswordSetModal isOpen={isPasswordChanged} onPress={() => navigate(ROUTES.dashboard)} />
     </>
   )
 }

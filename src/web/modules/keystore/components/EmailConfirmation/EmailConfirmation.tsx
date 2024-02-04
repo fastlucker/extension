@@ -12,7 +12,7 @@ interface Props {
   handleCancelLoginAttempt: () => void
 }
 
-const EmailConfirmation: FC<Props> = ({ email ,handleCancelLoginAttempt }) => {
+const EmailConfirmation: FC<Props> = ({ email, handleCancelLoginAttempt }) => {
   const { t } = useTranslation()
 
   return (
@@ -30,14 +30,15 @@ const EmailConfirmation: FC<Props> = ({ email ,handleCancelLoginAttempt }) => {
         {t('Waiting Email Confirmation')}
       </Text>
 
-      <Text
-        underline
-        fontSize={14}
-        style={styles.cancelLoginAttemptText}
-        onPress={handleCancelLoginAttempt}
-      >
-        {t('Cancel Login Attempt')}
-      </Text>
+      {/* Once attempt canceling is implemented in @ambire-common, we are going to include it here.  */}
+      {/* <Text */}
+      {/*  underline */}
+      {/*  fontSize={14} */}
+      {/*  style={styles.cancelLoginAttemptText} */}
+      {/*  onPress={handleCancelLoginAttempt} */}
+      {/* > */}
+      {/*  {t('Cancel Login Attempt')} */}
+      {/* </Text> */}
     </>
   )
 }
