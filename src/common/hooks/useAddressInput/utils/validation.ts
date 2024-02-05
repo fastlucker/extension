@@ -1,3 +1,5 @@
+import { getAddress } from 'ethers'
+
 import { isValidAddress } from '@ambire-common/services/address'
 
 type AddressInputValidation = {
@@ -60,9 +62,17 @@ const getAddressInputValidation = ({
     }
   }
   if (address && isValidAddress(address)) {
-    return {
-      message: 'Valid address',
-      isError: false
+    try {
+      getAddress(address)
+      return {
+        message: 'Valid address',
+        isError: false
+      }
+    } catch {
+      return {
+        message: 'Invalid checksum. Verify the address and try again.',
+        isError: true
+      }
     }
   }
   if (address && !isValidAddress(address)) {
