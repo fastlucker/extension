@@ -62,7 +62,7 @@ class TrezorSigner implements KeystoreSigner {
     // correct seed and passphrase in advance (before signing). This was useful,
     // but the drawback is that for every signing, two separate Trezor popups
     // had to appear for the user (one for unlock and one for sign).
-    // So to reduce this Trezor popup hell, to prioritize having less steps for
+    // So to reduce this Trezor popup hell and to prioritize having less steps for
     // the user, since v4.9.0, skip the unlocking part and do the check if the
     // Trezor was unlocked with the correct seed and passphrase after signing
     // via the `#validateSigningKey` method.
