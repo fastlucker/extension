@@ -43,6 +43,15 @@ const Estimation = ({
   const { minWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
+    if (!signAccountOpState.availableFeeOptions.length)
+      return [
+        {
+          value: 'no-option',
+          label: 'Nothing available at the moment to cover the fee',
+          paidBy: 'no-option',
+          token: null
+        }
+      ]
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
       const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
 

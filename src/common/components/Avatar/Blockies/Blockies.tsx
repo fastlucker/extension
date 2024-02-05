@@ -11,7 +11,8 @@ import { View } from 'react-native'
 import Svg from 'react-native-svg'
 
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import { renderIcon } from '@common/utils/blockies'
+
+import { renderIcon } from './utils'
 
 interface Props {
   seed: string

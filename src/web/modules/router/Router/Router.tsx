@@ -15,24 +15,10 @@ const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRou
 
 const Router = () => {
   const { t } = useTranslation()
-  const { authStatus, isAuthStatusTakingTooLong } = useAuth()
+  const { authStatus } = useAuth()
   const { areControllerStatesLoaded, isStatesLoadingTakingTooLong } = useContext(
     ControllersStateLoadedContext
   )
-
-  if (isAuthStatusTakingTooLong && authStatus === AUTH_STATUS.LOADING) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
-        <Alert
-          type="warning"
-          title={t(
-            'Setting the initial account(s) state is taking an unexpectedly long time. Could be caused by connectivity issues on your end. Or a glitch on our. If nothing else helps, please try reloading or reopening the extension.'
-          )}
-          style={{ maxWidth: 500 }}
-        />
-      </View>
-    )
-  }
 
   if (isStatesLoadingTakingTooLong && !areControllerStatesLoaded) {
     return (

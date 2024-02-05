@@ -52,10 +52,13 @@ if (isExtension) {
     })
   })
 
+  const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
+
   dispatch = (action) => {
     // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
-    if (document.hidden) return Promise.resolve(undefined)
+    if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type))
+      return Promise.resolve(undefined)
     return portMessageChannel.request({
       type: action.type,
       // TypeScript being unable to guarantee that every member of the Action
