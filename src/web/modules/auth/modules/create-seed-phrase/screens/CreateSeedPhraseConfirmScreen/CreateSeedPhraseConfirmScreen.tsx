@@ -18,9 +18,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent,
-  TabLayoutWrapperSideContentItem
+  TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -105,16 +103,6 @@ const CreateSeedPhraseConfirmScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="TODO">
-          <TabLayoutWrapperSideContentItem.Text>
-            For each legacy account you import, you also have the option to import a smart account,
-            powered by the same private key. This smart account will have a different address. Smart
-            accounts have many benefits, including account recovery, transaction batching and much
-            more.
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }
