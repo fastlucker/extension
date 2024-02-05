@@ -20,8 +20,8 @@ const DELAY_BETWEEN_POPUPS = 1000
 /**
  * This is necessary to avoid popup collision between the unlock & sign Trezor popups.
  */
-const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
-  wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
+// const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
+//   wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
 
 /**
  * This is necessary to avoid popup collision between signing multiple times in
@@ -54,13 +54,34 @@ class TrezorSigner implements KeystoreSigner {
     }
 
     await delayBetweenStarting()
-    const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
-    const status = await this.controller.unlock(path, this.key.addr)
-    await delayBetweenPopupsIfNeeded(status)
 
-    if (!this.controller.isUnlocked(path, this.key.addr)) {
+    // The process of "unlocking" Trezor is not necessary, since the Trezor SDK
+    // itself handles the unlocking process internally (when a method is called).
+    // The unlock was used only to determine if the Trezor is unlocked with the
+    // correct seed and passphrase in advance (before signing). This was useful,
+    // but the drawback is that for every signing, two separate Trezor popups
+    // had to appear for the user (one for unlock and one for sign).
+    // So to reduce this Trezor popup hell, to prioritize having less steps for
+    // the user, since v4.9.0, skip the unlocking part and do the check if the
+    // Trezor was unlocked with the correct seed and passphrase after signing
+    // via the `#validateSigningKey` method.
+    // const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
+    // const status = await this.controller.unlock(path, this.key.addr)
+    // await delayBetweenPopupsIfNeeded(status)
+    // if (!this.controller.isUnlocked(path, this.key.addr)) {
+    //   throw new Error(
+    //     `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+    //   )
+    // }
+  }
+
+  #validateSigningKey = (signedWithAddr: string | null) => {
+    // Missing address means the validation can't be done, skip it (should never happen)
+    if (!signedWithAddr) return
+
+    if (signedWithAddr !== this.key.addr) {
       throw new Error(
-        `The Trezor is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+        `The key you signed with (${signedWithAddr}) is different than the key we expected (${this.key.addr}). Probably you unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
       )
     }
   }
@@ -118,7 +139,7 @@ class TrezorSigner implements KeystoreSigner {
         s: res.payload.s,
         v: Signature.getNormalizedV(res.payload.v)
       })
-      const signedSerializedTxn = Transaction.from({
+      const signedTxn = Transaction.from({
         ...unsignedTxn,
         signature,
         // The nonce type of the normalized `unsignedTransaction` compatible
@@ -126,9 +147,13 @@ class TrezorSigner implements KeystoreSigner {
         // the nonce incoming from the `txnRequest` param
         nonce: txnRequest.nonce,
         type
-      }).serialized
+      })
 
-      return signedSerializedTxn
+      // Use the `from` address from the `txnRequest` param, since the Trezor
+      // SDK response does not include the signing `address` in its `res`.
+      this.#validateSigningKey(signedTxn.from)
+
+      return signedTxn.serialized
     } catch (error: any) {
       throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
     }
@@ -168,6 +193,8 @@ class TrezorSigner implements KeystoreSigner {
       )
     }
 
+    this.#validateSigningKey(res.payload.address)
+
     return res.payload.signature
   }
 
@@ -187,6 +214,8 @@ class TrezorSigner implements KeystoreSigner {
           'Something went wrong when signing the message. Please try again or contact support if the problem persists.'
       )
     }
+
+    this.#validateSigningKey(res.payload.address)
 
     return addHexPrefix(res.payload.signature)
   }
