@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 
 import useDebounce from '../useDebounce'
 import useToast from '../useToast'
@@ -23,6 +25,8 @@ const useAddressInput = ({
   overwriteValidLabel
 }: Props) => {
   const { networks } = useSettingsControllerState()
+  const { dispatch } = useBackgroundService()
+  const { cachedResolvedDomains = [] } = useWalletStateController()
   const { addToast } = useToast()
   const debouncedAddress = useDebounce({
     value: addressState?.fieldValue || '',
@@ -66,11 +70,43 @@ const useAddressInput = ({
       isDomainResolving: true
     })
 
+    // Attempt to get the address from the list of cached domains
+    const cachedResolvedDomain = cachedResolvedDomains.find(({ name }) => name === trimmedAddress)
+
+    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ens') {
+      setAddressState({
+        ensAddress: cachedResolvedDomain.address,
+        udAddress: '',
+        isDomainResolving: false
+      })
+      return
+    }
+
+    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ud') {
+      setAddressState({
+        ensAddress: '',
+        udAddress: cachedResolvedDomain.address,
+        isDomainResolving: false
+      })
+      return
+    }
+
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
+          if (!newUDAddress) return
           setAddressState({
             udAddress: newUDAddress
+          })
+          dispatch({
+            type: 'CACHE_RESOLVED_DOMAIN',
+            params: {
+              domain: {
+                name: debouncedAddress,
+                address: newUDAddress,
+                type: 'ud'
+              }
+            }
           })
         })
         .catch(() => {
@@ -85,6 +121,16 @@ const useAddressInput = ({
         .then((newEnsAddress: string) => {
           setAddressState({
             ensAddress: newEnsAddress
+          })
+          dispatch({
+            type: 'CACHE_RESOLVED_DOMAIN',
+            params: {
+              domain: {
+                name: debouncedAddress,
+                address: newEnsAddress,
+                type: 'ens'
+              }
+            }
           })
         })
         .catch(() => {
@@ -108,7 +154,7 @@ const useAddressInput = ({
           isDomainResolving: false
         })
       })
-  }, [addToast, debouncedAddress, networks, setAddressState])
+  }, [addToast, cachedResolvedDomains, debouncedAddress, dispatch, networks, setAddressState])
 
   const reset = useCallback(() => {
     setAddressState({

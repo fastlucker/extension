@@ -686,6 +686,9 @@ async function init() {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
               break
             }
+            case 'CACHE_RESOLVED_DOMAIN': {
+              return walletStateCtrl.cacheResolvedDomain(data.params.domain)
+            }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
