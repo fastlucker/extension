@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -20,9 +20,12 @@ import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerStat
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import KeystoreResetForm from '../../components/KeyStoreResetForm'
+import flexbox from '@common/styles/utils/flexbox'
+import { isEmail } from '@ambire-common/services/validations'
+import Input from '@common/components/Input'
+import { isWeb } from '@common/config/env'
 import styles from './styles'
-import flexbox from "@common/styles/utils/flexbox";
+import KeystoreResetForm from '../../components/KeyStoreResetForm'
 
 const KeyStoreResetScreen = () => {
   const { t } = useTranslation()
@@ -35,11 +38,14 @@ const KeyStoreResetScreen = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
+      email: '',
       password: '',
       confirmPassword: '',
       isRecoveryByEmailEnabled: false
     }
   })
+
+  const formEmail = watch('email')
 
   const { dispatch } = useBackgroundService()
   const [isPasswordChanged, setIsPasswordChanged] = useState(false)
@@ -52,8 +58,8 @@ const KeyStoreResetScreen = () => {
   )
 
   const handleSendResetEmail = useCallback(() => {
-    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE', params: { email } })
-  }, [email])
+    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE', params: { email: formEmail } })
+  }, [formEmail])
 
   const handleCancelLoginAttempt = useCallback(() => {
     alert('Under development!')
@@ -86,7 +92,7 @@ const KeyStoreResetScreen = () => {
       footer={
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
-            disabled={!isValid && isWaitingConfirmation && !isValid}
+            disabled={!isValid || isWaitingConfirmation}
             onPress={!keystoreState.isUnlocked ? handleSendResetEmail : handleCompleteReset}
             style={styles.button}
             hasBottomSpacing={false}
@@ -127,9 +133,39 @@ const KeyStoreResetScreen = () => {
           {!keystoreState.isUnlocked && (
             <View
               style={[
+                {
+                  marginVertical: SPACING_LG * 2
+                }
+              ]}
+            >
+              <Controller
+                control={control}
+                rules={{
+                  validate: isEmail
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    label={t('Please insert your email')}
+                    onBlur={onBlur}
+                    placeholder={t('Email Address')}
+                    onChangeText={onChange}
+                    onSubmitEditing={handleSendResetEmail}
+                    value={value}
+                    autoFocus={isWeb}
+                    isValid={isEmail(value)}
+                    error={!!errors.email && (t('Please fill in a valid email.') as string)}
+                  />
+                )}
+                name="email"
+              />
+            </View>
+          )}
+          {keystoreState.isUnlocked && (
+            <View
+              style={[
                 styles.currentEmailContainer,
                 {
-                  marginBottom: !keystoreState.isUnlocked ? SPACING_LG * 2 : SPACING_LG
+                  marginBottom: SPACING_LG
                 }
               ]}
             >
