@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
@@ -72,7 +72,7 @@ const SendForm = ({
   isAllReady?: boolean
 }) => {
   const { dispatch } = useBackgroundService()
-  const { validation, setFieldValue, debouncedAddress } = addressInputState
+  const { validation, setFieldValue } = addressInputState
   const {
     amount,
     maxAmount,
@@ -143,13 +143,6 @@ const SendForm = ({
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
     updateTransferCtrlProperty('isRecipientAddressUnknownAgreed', true)
   }, [updateTransferCtrlProperty])
-
-  useEffect(() => {
-    if (!debouncedAddress) return
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
-    })
-  }, [debouncedAddress, dispatch])
 
   return (
     <View style={styles.container}>
