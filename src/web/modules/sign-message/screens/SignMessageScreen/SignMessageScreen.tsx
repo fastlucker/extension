@@ -351,7 +351,7 @@ const SignMessageScreen = () => {
           {isChooseSignerShown ? (
             <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
           ) : null}
-          {signMessageState.signingKeyType !== 'internal' && (
+          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
               isOpen={signMessageState.status === 'LOADING'}
               keyType={signMessageState.signingKeyType}
