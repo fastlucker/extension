@@ -76,6 +76,11 @@ class TrezorSigner implements KeystoreSigner {
     // }
   }
 
+  /**
+   * Checks if the key (address) the Trezor signed with is the same as the key
+   * (address) address we expect. They could differ if the Trezor was unlocked
+   * with a different passphrase or seed.
+   */
   #validateSigningKey = (signedWithAddr: string | null) => {
     // Missing address means the validation can't be done, skip it (should never happen)
     if (!signedWithAddr) return
