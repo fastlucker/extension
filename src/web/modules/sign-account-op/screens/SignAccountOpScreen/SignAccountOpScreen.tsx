@@ -459,7 +459,6 @@ const SignAccountOpScreen = () => {
             <HardwareWalletSigningModal
               isOpen={isSignLoading}
               keyType={signAccountOpState.accountOp.signingKeyType}
-              onClose={() => {}}
               onRetry={() => {}}
             />
           )}

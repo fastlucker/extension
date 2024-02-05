@@ -9,7 +9,6 @@ import Button from '@common/components/Button'
 import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -18,11 +17,10 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 type Props = {
   isOpen: boolean
   keyType: ExternalKey['type']
-  onClose: () => void
   onRetry: () => void
 }
 
-const HardwareWalletSigningModal = ({ isOpen, keyType, onClose, onRetry }: Props) => {
+const HardwareWalletSigningModal = ({ isOpen, keyType, onRetry }: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -30,7 +28,6 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onClose, onRetry }: Props
       modalStyle={{ minWidth: 'auto', height: 'auto' }}
       title={t(`Sign with your ${HARDWARE_WALLET_DEVICE_NAMES[keyType]} device`)}
       isOpen={isOpen}
-      onClose={onClose}
     >
       <View
         style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
