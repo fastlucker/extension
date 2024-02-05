@@ -68,10 +68,7 @@ const useSteps = ({
   // it is the txnId in the above
   // txnId=0x1aac37bc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&userOpHash=0x98g65jbc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&networkId=avalanche&
   // it is the userOpHash in the above
-  let finalUserOpHash: string | null = null
-  if (isUserOp) {
-    finalUserOpHash = userOpHash ?? txnId
-  }
+  const finalUserOpHash = isUserOp ? userOpHash ?? txnId : null
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [userOpStatusData, setUserOpStatusData] = useState<{
