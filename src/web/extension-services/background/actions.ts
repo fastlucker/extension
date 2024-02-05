@@ -22,6 +22,7 @@ import { WalletController } from '@mobile/modules/web3/services/webview-backgrou
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
+import { ONBOARDING_VALUES } from './controllers/wallet-state'
 import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
@@ -314,6 +315,11 @@ type SetIsDefaultWalletAction = {
   params: { isDefaultWallet: boolean }
 }
 
+type SetOnboardingStatusAction = {
+  type: 'SET_ONBOARDING_STATUS'
+  params: { onboardingStatus: ONBOARDING_VALUES }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -372,6 +378,7 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
+  | SetOnboardingStatusAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

@@ -688,6 +688,10 @@ async function init() {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
               break
             }
+            case 'SET_ONBOARDING_STATUS': {
+              walletStateCtrl.onboardingStatus = data.params.onboardingStatus
+              break
+            }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
               return permissionService.getConnectedSite(data.params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
