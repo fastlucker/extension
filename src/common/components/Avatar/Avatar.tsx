@@ -12,10 +12,13 @@ import avatarSpaceDog from '@common/assets/images/avatars/avatar-space-dog.png'
 import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-raccoon.png'
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import avatarSpreadFire from '@common/assets/images/avatars/avatar-spread-fire.png'
-import Blockie from '@common/components/Blockies/Blockies'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { getAvatarType } from '@common/utils/avatars'
+
+import Blockie from './Blockies/Blockies'
+import JazzIcon from './Jazz'
 
 export {
   avatarAstronautMan,
@@ -51,11 +54,15 @@ export const getAccountPfpSource = (pfpId: string) => {
 
 export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: number }) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
+  const avatarType = getAvatarType(selectedAccountPfp)
 
-  if (isValidAddress(selectedAccountPfp)) {
+  if (['jazz', 'blockies'].includes(avatarType)) {
     return (
       <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Blockie seed={selectedAccountPfp} width={size} height={size} />
+        {avatarType === 'jazz' && <JazzIcon address={selectedAccountPfp} size={size} />}
+        {avatarType === 'blockies' && (
+          <Blockie seed={selectedAccountPfp} width={size} height={size} />
+        )}
       </View>
     )
   }

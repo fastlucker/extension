@@ -44,8 +44,7 @@ const DashboardBanners: FC = () => {
   if (allBanners.length === 0) return null
 
   return (
-    // @TODO: better display of more than one banner in popup
-    <View style={spacings.mb}>
+    <View style={spacings.mbSm}>
       {allBanners.map((banner) => (
         <Banner
           topic={banner.topic}

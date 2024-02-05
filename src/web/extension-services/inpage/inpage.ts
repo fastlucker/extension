@@ -22,7 +22,7 @@ import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-const ambireChannelName = 'ambire-inpage'
+declare let ambireChannelName: string
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 let doesWebpageReadOurProvider: boolean
@@ -247,7 +247,9 @@ export class EthereumProvider extends EventEmitter {
 
   private _dedupePromise = new DedupePromise([])
 
-  private _bcm = new BroadcastChannelMessage(ambireChannelName)
+  private _bcm = new BroadcastChannelMessage(
+    window.name.startsWith('ambire-') ? window.name : ambireChannelName || 'ambire-inpage'
+  )
 
   constructor({ maxListeners = 100 } = {}) {
     super()

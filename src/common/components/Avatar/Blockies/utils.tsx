@@ -1,5 +1,7 @@
-/* eslint-disable no-bitwise */
 import { Rect } from 'react-native-svg'
+
+/* eslint-disable no-bitwise */
+import { AvatarColors } from '@common/utils/avatars'
 
 function hslToHex(_h: number, _s: number, _l: number) {
   const h = _h / 360
@@ -142,13 +144,13 @@ const renderIcon = (
   })
 }
 
-const blockyColors = (seed: string) => {
+const blockyColors = (seed: string): AvatarColors => {
   seedrand(seed)
   const color = createColor()
   const bgcolor = createColor()
   const spotcolor = createColor()
 
-  return { color, bgcolor, spotcolor }
+  return [color, bgcolor, spotcolor]
 }
 
 export { renderIcon, blockyColors }

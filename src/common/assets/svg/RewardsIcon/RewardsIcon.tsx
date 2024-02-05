@@ -23,4 +23,4 @@ const RewardsIcon: React.FC<SvgProps> = ({ width = 32, height = 32 }) => (
   </Svg>
 )
 
-export default RewardsIcon
+export default React.memo(RewardsIcon)

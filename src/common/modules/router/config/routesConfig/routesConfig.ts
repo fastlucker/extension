@@ -121,12 +121,6 @@ const routesConfig: {
       default: i18n.t('Dashboard')
     })
   },
-  [ROUTES.collection]: {
-    route: ROUTES.collection,
-    title: Platform.select({
-      default: i18n.t('Collection')
-    })
-  },
   [ROUTES.collectible]: {
     route: ROUTES.collectible,
     title: Platform.select({

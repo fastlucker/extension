@@ -16,7 +16,7 @@ const MissingTokenIcon: React.FC<Props> = ({
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 34 34" {...rest}>
-    {withRect && (
+    {!!withRect && (
       <Rect
         width="34"
         height="34"
@@ -94,4 +94,4 @@ const MissingTokenIcon: React.FC<Props> = ({
   </Svg>
 )
 
-export default MissingTokenIcon
+export default React.memo(MissingTokenIcon)

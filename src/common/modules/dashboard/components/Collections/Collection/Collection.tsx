@@ -1,85 +1,105 @@
-import React, { FC, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Image, Pressable, View } from 'react-native'
+import React, { FC } from 'react'
+import { View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { Collectible } from '@ambire-common/libs/portfolio/interfaces'
+import { Collectible as CollectibleInterface } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
-import useNft from '@common/hooks/useNft'
-import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
-import ImageIcon from '@web/assets/svg/ImageIcon'
+import useTheme from '@common/hooks/useTheme'
+import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
-import styles from './styles'
+import Collectible from './Collectible'
+import getStyles from './styles'
 
 interface Props {
   address: string
   name: string
   networkId: NetworkIconNameType
-  collectibles: Collectible[]
+  collectibles: CollectibleInterface[]
   priceIn: {
     baseCurrency: string
     price: number
   }[]
+  openCollectibleModal: (collectible: SelectedCollectible) => void
 }
 
-const Collection: FC<Props> = ({ address, name, networkId, collectibles, priceIn }) => {
-  const networkData: NetworkDescriptor | {} = networks.find(({ id }) => networkId === id) || {}
-  const { t } = useTranslation()
+export const formatCollectiblePrice = ({
+  baseCurrency,
+  price
+}: {
+  baseCurrency: string
+  price: number
+}) => {
+  if (baseCurrency === 'usd') {
+    return `$${price}`
+  }
 
-  const [imageFailed, setImageFailed] = useState(false)
-  const { data } = useNft({
-    address,
-    networkId,
-    id: collectibles[0].id
-  })
-  const { navigate } = useNavigation()
+  // @TODO: handle other currencies
+  return `${price} ${baseCurrency.toUpperCase()}`
+}
+
+const { isTab } = getUiType()
+
+const Collection: FC<Props> = ({
+  address,
+  name,
+  networkId,
+  collectibles,
+  priceIn,
+  openCollectibleModal
+}) => {
+  const networkData = networks.find(({ id }) => networkId === id)
+  const { theme, styles } = useTheme(getStyles)
 
   return (
-    <Pressable
-      style={({ hovered }: any) => [
-        styles.container,
-        hovered ? { backgroundColor: colors.melrose_15, borderColor: colors.scampi_20 } : {}
-      ]}
-      onPress={() => {
-        navigate(ROUTES.collection, {
-          state: {
-            address,
-            name,
-            collectibles,
-            image: data?.image || '',
-            networkId,
-            priceIn
-          }
-        })
-      }}
-    >
-      <View style={styles.imageAndName}>
-        {!imageFailed && !!data?.image && (
-          <Image
-            onError={() => setImageFailed(true)}
-            style={styles.image}
-            source={{ uri: data.image }}
+    <View style={styles.container}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pbTy]}>
+        <Text fontSize={isTab ? 16 : 14} weight="medium">
+          {name}
+        </Text>
+        <Text style={spacings.mlTy} fontSize={isTab ? 16 : 14} appearance="secondaryText">
+          ({collectibles.length})
+        </Text>
+      </View>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm]}>
+        <View
+          style={{
+            backgroundColor: theme.primaryBackground,
+            borderRadius: 8,
+            width: isTab ? 20 : 16,
+            height: isTab ? 20 : 16,
+            ...(isTab ? spacings.mrTy : spacings.mrMi)
+          }}
+        >
+          <NetworkIcon width={isTab ? 20 : 16} height={isTab ? 20 : 16} name={networkId} />
+        </View>
+        <Text fontSize={isTab ? 14 : 10} appearance="secondaryText">
+          {networkData?.name || 'Unknown Network'}
+          {priceIn && priceIn.length ? ` / Floor Price: ${formatCollectiblePrice(priceIn[0])}` : ''}
+        </Text>
+      </View>
+      <View style={[flexbox.directionRow]}>
+        {collectibles.map((collectible) => (
+          <Collectible
+            key={collectible.url + collectible.id}
+            url={collectible.url}
+            id={collectible.id}
+            collectionData={{
+              name,
+              address,
+              networkId,
+              priceIn: priceIn.length ? priceIn[0] : null
+            }}
+            openCollectibleModal={openCollectibleModal}
           />
-        )}
-        {(imageFailed || !data?.image) && <ImageIcon width={30} height={30} style={styles.image} />}
-        <Text testID='collection-item'  weight="regular" style={styles.name} fontSize={14}>
-          {name} ({collectibles.length})
-        </Text>
+        ))}
       </View>
-      <View style={styles.network}>
-        <Text fontSize={12}>{t('on')}</Text>
-        <NetworkIcon name={networkId} style={styles.networkIcon} />
-        <Text style={styles.networkName} fontSize={12}>
-          {'name' in networkData ? networkData.name : t('Unknown network')}
-        </Text>
-      </View>
-    </Pressable>
+    </View>
   )
 }
 
-export default Collection
+export default React.memo(Collection)

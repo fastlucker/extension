@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { InputProps } from '@common/components/Input'
 import ConfirmAddress from '@web/modules/transfer/components/ConfirmAddress'
 
@@ -15,9 +16,9 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  isRecipientSmartContract: boolean
-  isRecipientAddressUnknown: boolean
-  isRecipientAddressUnknownAgreed: boolean
+  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
+  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
+  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   isRecipientDomainResolving: boolean
 }
@@ -30,7 +31,7 @@ const Recipient: React.FC<Props> = ({
   addressValidationMsg,
   isRecipientAddressUnknownAgreed,
   onRecipientAddressUnknownCheckboxClick,
-  isRecipientSmartContract,
+  isRecipientHumanizerKnownTokenOrSmartContract,
   isRecipientAddressUnknown,
   isRecipientDomainResolving
 }) => {
@@ -59,7 +60,9 @@ const Recipient: React.FC<Props> = ({
 
         <ConfirmAddress
           onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
-          isRecipientSmartContract={isRecipientSmartContract}
+          isRecipientHumanizerKnownTokenOrSmartContract={
+            isRecipientHumanizerKnownTokenOrSmartContract
+          }
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
           addressValidationMsg={addressValidationMsg}

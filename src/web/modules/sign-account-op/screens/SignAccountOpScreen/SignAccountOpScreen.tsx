@@ -45,10 +45,12 @@ const SignAccountOpScreen = () => {
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [doNotHideNoBalanceChangesDuringLoad, setDoNotHideNoBalanceChangesDuringLoad] =
+    useState<boolean>(false)
 
   const hasEstimation = useMemo(
-    () => !!signAccountOpState?.availableFeeOptions.length && !!signAccountOpState?.gasPrices,
-    [signAccountOpState?.availableFeeOptions, signAccountOpState?.gasPrices]
+    () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
+    [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
 
   useEffect(() => {
@@ -247,7 +249,32 @@ const SignAccountOpScreen = () => {
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
 
+  const hasSimulationError =
+    !portfolioStatePending?.isLoading &&
+    (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
+      !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+
+  let simulationErrorMsg = 'We were unable to simulate the transaction'
+  if (portfolioStatePending?.criticalError)
+    simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+  else {
+    const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
+    if (simulationError)
+      simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+  }
+
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
+
+  let shouldShowNoBalanceChanges = false
+  if (
+    (!portfolioStatePending?.isLoading || doNotHideNoBalanceChangesDuringLoad) &&
+    !pendingTokens.length &&
+    !portfolioStatePending?.errors.length &&
+    !portfolioStatePending?.criticalError
+  ) {
+    shouldShowNoBalanceChanges = true
+    if (!doNotHideNoBalanceChangesDuringLoad) setDoNotHideNoBalanceChangesDuringLoad(true)
+  }
 
   return (
     <TabLayoutContainer
@@ -281,7 +308,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Simulation results')}
               </Text>
-              {!!pendingTokens.length && (
+              {!portfolioStatePending?.isLoading && !!pendingTokens.length && !hasSimulationError && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -336,38 +363,33 @@ const SignAccountOpScreen = () => {
                   )}
                 </View>
               )}
+              {hasSimulationError && (
+                <View>
+                  <Alert type="error" title={simulationErrorMsg} />
+                </View>
+              )}
+              {shouldShowNoBalanceChanges && (
+                <View>
+                  <Alert
+                    type="info"
+                    isTypeLabelHidden
+                    title={
+                      <>
+                        No token balance changes detected. Please{' '}
+                        <Text appearance="infoText" weight="semiBold">
+                          carefully
+                        </Text>{' '}
+                        review the transaction preview below.
+                      </>
+                    }
+                  />
+                </View>
+              )}
               {portfolioStatePending?.isLoading && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
               )}
-              {!portfolioStatePending?.isLoading &&
-                (!!portfolioStatePending?.errors.length ||
-                  !!portfolioStatePending?.criticalError) && (
-                  <View>
-                    <Alert type="error" title="We were unable to simulate the transaction." />
-                  </View>
-                )}
-              {!portfolioStatePending?.isLoading &&
-                !pendingTokens.length &&
-                !portfolioStatePending?.errors.length &&
-                !portfolioStatePending?.criticalError && (
-                  <View>
-                    <Alert
-                      type="info"
-                      isTypeLabelHidden
-                      title={
-                        <>
-                          No token balance changes detected. Please{' '}
-                          <Text appearance="infoText" weight="semiBold">
-                            carefully
-                          </Text>{' '}
-                          review the transaction preview below.
-                        </>
-                      }
-                    />
-                  </View>
-                )}
             </View>
             <View style={styles.transactionsContainer}>
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
@@ -427,10 +449,7 @@ const SignAccountOpScreen = () => {
 
               {signAccountOpState?.errors.length ? (
                 <View style={styles.errorContainer}>
-                  <Alert
-                    type="error"
-                    title={`We are unable to sign your transaction. ${signAccountOpState?.errors[0]}`}
-                  />
+                  <Alert type="error" title={signAccountOpState?.errors[0]} />
                 </View>
               ) : null}
             </ScrollView>
