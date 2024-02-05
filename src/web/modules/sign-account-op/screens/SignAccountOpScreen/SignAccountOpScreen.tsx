@@ -23,6 +23,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
@@ -454,6 +455,14 @@ const SignAccountOpScreen = () => {
               ) : null}
             </ScrollView>
           </View>
+          {signAccountOpState.accountOp.signingKeyType !== 'internal' && (
+            <HardwareWalletSigningModal
+              isOpen={isSignLoading}
+              keyType={signAccountOpState.accountOp.signingKeyType}
+              onClose={() => {}}
+              onRetry={() => {}}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
