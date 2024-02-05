@@ -14,20 +14,26 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
+import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
+import useAuth from '@common/modules/auth/hooks/useAuth'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { ONBOARDING_VALUES } from '@web/extension-services/background/controllers/wallet-state'
+import { storage } from '@web/extension-services/background/webapi/storage'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 import Card from '@web/modules/auth/components/Card'
+import Stories from '@web/modules/auth/components/Stories'
+import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
+import { TERMS_VERSION } from '@web/modules/auth/screens/Terms'
 
-import Stories from '../../components/Stories/Stories'
-import { STORY_CARD_WIDTH } from '../../components/Stories/styles'
 import getStyles from './styles'
 
 const GetStartedScreen = () => {
@@ -35,16 +41,30 @@ const GetStartedScreen = () => {
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const keystoreState = useKeystoreControllerState()
-  const mainState = useMainControllerState()
   const { navigate } = useNavigation()
   const wrapperRef: any = useRef(null)
-  const [storiesCompleted, setStoriesCompleted] = useState<boolean | undefined>(undefined)
   const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(false)
   const animation = useRef(new Animated.Value(0)).current
   const { width } = useWindowSize()
+  const { authStatus } = useAuth()
+  const { dispatch } = useBackgroundService()
+
+  const state = useWalletStateController()
   useEffect(() => {
-    setStoriesCompleted(!!mainState.accounts.length)
-  }, [mainState.accounts.length])
+    if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+      navigate(ROUTES.dashboard)
+    }
+  }, [authStatus, navigate])
+
+  useEffect(() => {
+    if (state.onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 480,
+        useNativeDriver: false
+      }).start()
+    }
+  }, [animation, state.onboardingStatus])
 
   const handleAuthButtonPress = useCallback(
     async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-hot-wallet' | 'view-only') => {
@@ -76,15 +96,22 @@ const GetStartedScreen = () => {
   )
 
   const handleSetStoriesCompleted = () => {
-    setStoriesCompleted(true)
-    Animated.timing(animation, {
-      toValue: 1,
-      duration: 480,
-      useNativeDriver: false
-    }).start()
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    storage
+      .set('termsState', {
+        version: TERMS_VERSION,
+        acceptedAt: Date.now()
+      })
+      .then(() => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        dispatch({
+          type: 'SET_ONBOARDING_STATUS',
+          params: { onboardingStatus: ONBOARDING_VALUES.ON_BOARDED }
+        })
+      })
   }
 
-  if (storiesCompleted === undefined) return null
+  if (state.onboardingStatus === undefined) return null
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
@@ -94,7 +121,7 @@ const GetStartedScreen = () => {
 
   const opacityInterpolate = animation.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [0, 0.4, 1],
+    outputRange: [0, 0.3, 1],
     extrapolate: 'clamp'
   })
 
@@ -147,8 +174,10 @@ const GetStartedScreen = () => {
         </View>
       </Modal>
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
-        {!storiesCompleted && <Stories onComplete={handleSetStoriesCompleted} />}
-        {!!storiesCompleted && (
+        {state.onboardingStatus === ONBOARDING_VALUES.NOT_ON_BOARDED && (
+          <Stories onComplete={handleSetStoriesCompleted} />
+        )}
+        {state.onboardingStatus === ONBOARDING_VALUES.ON_BOARDED && (
           <View>
             <Animated.View
               style={[
