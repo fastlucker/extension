@@ -14,22 +14,20 @@ interface Props {
   setAddressState: (newState: AddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
-  handleRevalidate?: () => void
 }
 
 const useAddressInput = ({
   addressState,
   setAddressState,
   overwriteError,
-  overwriteValidLabel,
-  handleRevalidate
+  overwriteValidLabel
 }: Props) => {
   const { networks } = useSettingsControllerState()
   const { addToast } = useToast()
   const debouncedAddress = useDebounce({
     value: addressState?.fieldValue || '',
     delay: 300
-  }) as string
+  })
 
   const validation = useMemo(
     () =>
@@ -53,7 +51,8 @@ const useAddressInput = ({
 
   useEffect(() => {
     const trimmedAddress = debouncedAddress.trim()
-    const canBeEnsOrUd = trimmedAddress.indexOf('.') !== -1
+    const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})$/
+    const canBeEnsOrUd = domainRegex.test(trimmedAddress)
 
     if (!trimmedAddress || !canBeEnsOrUd) {
       setAddressState({
@@ -108,14 +107,8 @@ const useAddressInput = ({
         setAddressState({
           isDomainResolving: false
         })
-        handleRevalidate && handleRevalidate()
       })
-  }, [addToast, debouncedAddress, handleRevalidate, networks, setAddressState])
-
-  useEffect(() => {
-    // Revalidate the form (update react-hook-form's state)
-    handleRevalidate && handleRevalidate()
-  }, [handleRevalidate, overwriteError, overwriteValidLabel])
+  }, [addToast, debouncedAddress, networks, setAddressState])
 
   const reset = useCallback(() => {
     setAddressState({
