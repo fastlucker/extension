@@ -70,17 +70,11 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 
         /*Click on "Import" button */
         await page.$eval(importButton, button => button.click());
+
         await page.waitForXPath('//div[contains(text(), "Private Key")]');
+
         /*Click on "Import" button */
         await page.$eval(privKeyOrPhraseSelector, button => button.click());
-
-        await page.waitForXPath('//div[contains(text(), "Terms Of Service")]');
-
-        /* Check the checkbox "I agree...". */
-        await clickOnElement(page, '[data-testid="checkbox"]')
-
-        /* Click on "Continue" button */
-        await clickOnElement(page, '[data-testid="button"]')
 
         /* type phrase */
         const phrase = 'Password'
@@ -88,10 +82,10 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
         await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
 
         /* Click on "Set up Ambire Key Store" button */
-        await clickOnElement(page, '[data-testid="button"]')
+        await clickOnElement(page, '[data-testid="padding-button-Create"]')
 
         const modalSelector = '[aria-modal="true"]'; // Selector for the modal
-        const buttonSelector = `${modalSelector} [data-testid="button"]`;
+        const buttonSelector = `${modalSelector} [data-testid="padding-button-Continue"]`;
 
         await page.waitForSelector(modalSelector); // Wait for the modal to appear
         await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
@@ -228,5 +222,5 @@ export async function typeSeedPhrase(page, seedPhrase) {
     /*Type keystore password */
     await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
     /* Click on "Unlock button" */
-    await clickOnElement(page, '[data-testid="button"]')
+    await clickOnElement(page, '[data-testid="padding-button-Unlock"]')
 }

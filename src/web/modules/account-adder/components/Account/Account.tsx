@@ -84,7 +84,7 @@ const Account = ({
         <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
           <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mrMd]}>
-              <Text fontSize={16} appearance="primaryText" style={spacings.mrMi}>
+              <Text  testID='add-account' fontSize={16} appearance="primaryText" style={spacings.mrMi}>
                 {minWidthSize('m') && shortenAddress(account.addr, 16)}
                 {maxWidthSize('m') && minWidthSize('l') && shortenAddress(account.addr, 26)}
                 {maxWidthSize('l') && account.addr}

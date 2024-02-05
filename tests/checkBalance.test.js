@@ -102,7 +102,7 @@ describe('balance', () => {
     afterEach(async () => {
         await browser.close();
     });
-    // the login is only in the first test, the next tests don't include it, if the first one  fails the other will fail too
+
     it('check the balance in account ', (async () => {
 
         await page.waitForSelector('[data-testid="full-balance"]')
@@ -114,7 +114,7 @@ describe('balance', () => {
 
         let availableAmmountNum = availableAmmount.replace(/\n/g, "");
         availableAmmountNum = availableAmmountNum.split('$')[1]
-
+        console.log(availableAmmountNum)
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
     }));

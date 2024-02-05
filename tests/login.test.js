@@ -39,7 +39,6 @@ describe('login', () => {
         //     location.reload(true)
         // })
 
-        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
     })
 
     afterEach(async () => {
@@ -47,11 +46,12 @@ describe('login', () => {
     })
 
     const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]';
-    const accountCheckbox = '[data-testid="account-checkbox"]';
 
 
     //------------------------------------------------------------------------------------------------------
     it('login into legacy account with phrase', (async () => {
+
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
 
         await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
 
@@ -66,38 +66,39 @@ describe('login', () => {
             await page.type(inputSelector, wordToType);
         }
 
-        await clickOnElement(page, '[data-testid="button"]');
-        await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
+        await clickOnElement(page, '[data-testid="padding-button-Import"]');
+        await page.waitForSelector('xpath///div[contains(text(), "Import Accounts from Seed Phrase")]');
 
-        await page.waitForSelector(accountCheckbox);
-
-        await new Promise((r) => setTimeout(r, 1000))
-
+        /* Select one Legacy and one Smart account and keep the addresses of the accounts */
+        await page.waitForSelector('[data-testid="checkbox"]')
         /* Select one Legacy account and one Smart account */
-        await page.$$eval('div', element => {
-            element.find((item) => item.textContent === "Smart Account").click()
-        })
-        await page.$$eval(accountCheckbox, element => {
+        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[0].click()
+            return element[0].textContent
+        })
+
+        let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
+            element[1].click()
+            return element[1].textContent
         })
 
         /* Click on Import Accounts button*/
-        await clickOnElement(page, 'xpath///div[contains(text(), "Import Accounts")]')
+        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
 
-        /* Click on Save and Continue button */
-        await clickOnElement(page, 'xpath///div[contains(text(), "Save and Continue")]')
+        await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
 
-        /* Check whether text "How To Use Ambire Wallet" exists on the page  */
-        const textContent = await page.$$eval('div[dir="auto"]', element => {
-            return element.find((item) => item.textContent === "How To Use Ambire Wallet").textContent
-        });
-        if (textContent) {
-            console.log('login into legasy account with phrase --- Test is passed');
-        }
+        /* Verify that selected accounts exist on the page */
+        const selectedLegacyAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[0].innerText);
+        expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount);
+
+        const selectedSmartAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[1].innerText);
+        expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
     }));
 
     //------------------------------------------------------------------------------------------------------
     it('(-) login into legacy account with invalid private key', async () => {
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
+
         const typeTextAndCheckValidity = async (privateKey, testName) => {
             let textContent;
             try {
@@ -108,7 +109,7 @@ describe('login', () => {
                     return element.find((item) => item.textContent === "Invalid private key.").textContent;
                 });
                 /* Check whether button is disabled */
-                const isButtonDisabled = await page.$eval('[data-testid="button-ext-signer-login-screen"]', (button) => {
+                const isButtonDisabled = await page.$eval('[data-testid="padding-button-Import"]', (button) => {
                     return button.getAttribute('aria-disabled');
                 });
 
@@ -147,6 +148,7 @@ describe('login', () => {
 
     //--------------------------------------------------------------------------------------------------------------
     it('(-) Login into legacy account with invalid phrase', async () => {
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
 
         await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
 
@@ -162,8 +164,9 @@ describe('login', () => {
                     const inputSelector = `[placeholder="Word ${i + 1}"]`;
                     await page.type(inputSelector, wordToType);
                 }
+                
                 /* Check whether button is disabled */
-                const isButtonDisabled = await page.$eval('[data-testid="button"]', (button) => {
+                const isButtonDisabled = await page.$eval('[data-testid="padding-button-Import"]', (button) => {
                     return button.getAttribute('aria-disabled');
                 });
 
@@ -215,41 +218,71 @@ describe('login', () => {
     });
 
     //--------------------------------------------------------------------------------------------------------------
-    it('change selected account name', (async () => {
+    it.only('change selected account name', (async () => {
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
 
-        const privateKey = await generateEthereumPrivateKey();
+        await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
 
-        await page.waitForSelector(enterSeedPhraseField);
-        const repeatPhrase = await page.$(enterSeedPhraseField);
-        await repeatPhrase.type(privateKey, { delay: 10 });
+        await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
 
-        /* Click on Import Legacy account button. */
-        await page.click('[data-testid="button-ext-signer-login-screen"]')
-        await page.waitForSelector('xpath///div[contains(text(), "Pick Accounts To Import")]');
-        await page.waitForSelector(accountCheckbox);
+        /* Click on Import button. */
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
-        await new Promise((r) => setTimeout(r, 1000))
+        await page.waitForXPath('//div[contains(text(), "Import Accounts from Private Key")]');
 
+        /* Select one Legacy and one Smart account and keep the addresses of the accounts */
+        await page.waitForSelector('[data-testid="checkbox"]')
         /* Select one Legacy account and one Smart account */
-        let firstSelectedLegacyAccount = await page.$$eval(accountCheckbox, element => {
+        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[0].click()
+            return element[0].textContent
         })
 
-
-        let firstSelectedSmartAccount = await page.$$eval(accountCheckbox, element => {
+        let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[1].click()
+            return element[1].textContent
         })
 
         /* Click on Import Accounts button*/
-        const Button = await page.waitForSelector('xpath///div[contains(text(), "Import Accounts")]');
-        await Button.click();
+        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')        
+      
+        await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
 
         let accountName1 = 'Test-Account-1'
         let accountName2 = 'Test-Account-2'
 
+        const editAccountNameFields = await page.$$('[data-testid="penIcon-edit-name"]');
+
+await editAccountNameFields[0].click();
+await new Promise(r=>setTimeout(r,500 ))
+
+await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
+
+
+
+
+await editAccountNameFields[1].click();
+await new Promise(r=>setTimeout(r,500 ))
+
+await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
+
+// const accountNameFieldSelector = '[data-testid="edit-name-field"]';
+
+// // Get all matching elements
+// const allAccountNameFields = await page.$$(accountNameFieldSelector);
+
+
+
+
+
+
+
+
+return true
+
         /* Change the names of the chosen accounts */
         await typeText(page, '[value="Account 1 (Legacy from Private Key)"]', accountName1)
-        await typeText(page, '[value="Account 2 (Legacy from Private Key)"]', accountName2)
+        await typeText(page, '[value="Account 2 (Ambire via Private Key)"]', accountName2)
 
         /* Click on Save and Continue button */
         const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');

@@ -49,7 +49,7 @@ const AccountPersonalizeCard = ({
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View  testID='personalize-account' style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Avatar pfp={pfp} />
           <View style={flexbox.flex1}>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
@@ -70,6 +70,8 @@ const AccountPersonalizeCard = ({
                 <View style={[{ height: 24 }, flexbox.justifyCenter]}>
                   {!!editNameEnabled && (
                     <Input
+                    testID={`edit-name-field-${index}`}
+
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
@@ -109,7 +111,7 @@ const AccountPersonalizeCard = ({
                       >
                         {value}
                       </Text>
-                      <Pressable onPress={() => setEditNameEnabled(true)}>
+                      <Pressable  testID='penIcon-edit-name' onPress={() => setEditNameEnabled(true)}>
                         {({ hovered }: any) => (
                           <EditPenIcon
                             width={14}

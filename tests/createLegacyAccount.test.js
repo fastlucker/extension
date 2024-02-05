@@ -33,65 +33,50 @@ describe('login', () => {
         const pages = await browser.pages()
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
-
-        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
     })
 
-    //   afterEach(async () => {
-    //     browser.close();
-    // })
-
+      afterEach(async () => {
+        browser.close();
+    })
 
 
     it('Create legacy account', (async () => {
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
 
         await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
 
         await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
 
-        /* Click on Import Legacy account button. */
-        await clickOnElement(page, '[data-testid="button"]')
+        /* Click on Import button. */
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
-        await new Promise((r) => setTimeout(r, 1000))
+        await page.waitForXPath('//div[contains(text(), "Import Accounts from Private Key")]');
 
-        await page.waitForSelector('[data-testid="account-checkbox"]')
+        /* Select one Legacy and one Smart account and keep the addresses of the accounts */
+        await page.waitForSelector('[data-testid="checkbox"]')
         /* Select one Legacy account and one Smart account */
-        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
+        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[0].click()
             return element[0].textContent
         })
 
-        /* Keep the first and the last part of the address and use it later for verification later */
-        firstSelectedLegacyAccount1 = firstSelectedLegacyAccount.slice(0, 15)
-        firstSelectedLegacyAccount2 = firstSelectedLegacyAccount.slice(18, firstSelectedLegacyAccount.length)
-
-        let firstSelectedSmartAccount = await page.$$eval('[data-testid="account-checkbox"]', element => {
+        let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[1].click()
             return element[1].textContent
         })
 
-        firstSelectedSmartAccount1 = firstSelectedSmartAccount.slice(0, 15);
-        firstSelectedSmartAccount2 = firstSelectedSmartAccount.slice(18, firstSelectedSmartAccount.length);
-
         /* Click on Import Accounts button*/
-        await clickOnElement(page, '[data-testid="button"]')        
-        
-        await page.waitForSelector('xpath///div[contains(text(), "Personalize Your Accounts")]');
-
-        /* Click on Save and Continue button */
-        await clickOnElement(page, '[data-testid="button"]') 
-        
-        /* Move to account select page */
-        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load', })
+        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')        
+      
+        await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
 
         /* Verify that selected accounts exist on the page */
-        const selectedLegacyAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
-        expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount1);
-        expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount2);
+        const selectedLegacyAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[0].innerText);
+        expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount);
 
-        const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
-        expect(selectedSmartAccount).toContain(firstSelectedSmartAccount1);
-        expect(selectedSmartAccount).toContain(firstSelectedSmartAccount2);
+        const selectedSmartAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[1].innerText);
+        expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
+        
     }));
 });
 

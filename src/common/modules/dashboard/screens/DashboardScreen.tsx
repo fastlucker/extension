@@ -207,6 +207,7 @@ const DashboardScreen = () => {
                       {!fakeIsLoading ? (
                         <Text style={spacings.mbTy}>
                           <Text
+                            testID="full-balance"
                             fontSize={32}
                             shouldScale={false}
                             style={{ lineHeight: 34 }}

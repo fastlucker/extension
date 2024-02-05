@@ -97,7 +97,7 @@ const Button = ({
   }
   return (
     <Pressable
-      testID='button'
+      testID={`padding-button-${text?.replace(/\s+/g, "-")}`}
       disabled={disabled}
       style={({ hovered }: any) =>
         [
