@@ -3,12 +3,14 @@ import { View } from 'react-native'
 
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 import Button from '@common/components/Button'
 import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -17,11 +19,12 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 type Props = {
   isOpen: boolean
   keyType: ExternalKey['type']
-  onRetry: () => void
+  onReject: () => void
 }
 
-const HardwareWalletSigningModal = ({ isOpen, keyType, onRetry }: Props) => {
+const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
 
   return (
     <Modal
@@ -41,7 +44,17 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onRetry }: Props) => {
           {t('Sending signing request...')}
         </Text>
       </View>
-      <Button text={t('Retry')} type="ghost" style={flexbox.alignSelfCenter} onPress={onRetry} />
+      <Button
+        type="danger"
+        text={t('Reject')}
+        onPress={onReject}
+        hasBottomSpacing={false}
+        style={spacings.phLg}
+      >
+        <View style={spacings.plSm}>
+          <CloseIcon color={theme.errorDecorative} />
+        </View>
+      </Button>
     </Modal>
   )
 }
