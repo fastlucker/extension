@@ -20,8 +20,9 @@ const DELAY_BETWEEN_POPUPS = 1000
 /**
  * This is necessary to avoid popup collision between the unlock & sign Trezor popups.
  */
-// const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
-//   wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const delayBetweenPopupsIfNeeded = (status: 'JUST_UNLOCKED' | 'ALREADY_UNLOCKED') =>
+  wait(status === 'JUST_UNLOCKED' ? DELAY_BETWEEN_POPUPS : 0)
 
 /**
  * This is necessary to avoid popup collision between signing multiple times in
