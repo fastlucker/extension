@@ -1,0 +1,66 @@
+/*
+ * CSS-Only Toggle Switch
+ * {@link https://dev.to/dcodeyt/creating-a-css-only-toggle-switch-5cg3}
+ */
+.default-wallet-toggle {
+  align-items: center;
+  --width: 54px;
+  --height: calc(var(--width) / 2);
+  --border-radius: calc(var(--height));
+  position: relative;
+
+  display: flex;
+  cursor: pointer;
+}
+.default-wallet-toggle-left-icon {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.default-wallet-toggle-right-icon {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.default-wallet-toggle__input {
+  display: none;
+  z-index: 1;
+}
+.default-wallet-toggle__fill {
+  padding: 2px;
+  display: inline-block;
+  position: relative;
+  width: var(--width);
+  height: var(--height);
+  border-radius: var(--border-radius);
+  background: #e7e9fb;
+  transition: border 0.2s;
+}
+.default-wallet-toggle__fill::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  height: var(--height);
+  width: var(--height);
+  background: #ffffff;
+  border-radius: var(--border-radius);
+  transition: transform 0.2s;
+}
+.default-wallet-toggle__input:checked ~ .default-wallet-toggle__fill::after {
+  transform: translateX(var(--height));
+}

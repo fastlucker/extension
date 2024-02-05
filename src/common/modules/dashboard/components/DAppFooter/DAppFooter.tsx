@@ -81,23 +81,24 @@ const DAppFooter = () => {
               </View>
             )}
             <View style={flexbox.directionRow}>
-              <Button
-                type="danger"
-                size="small"
-                hasBottomSpacing={false}
-                text={t('Disconnect')}
-                style={spacings.mrSm}
-                disabled={!site?.isConnected}
-                onPress={() => {
-                  if (!site?.origin || !site?.isConnected) return
+              {site?.isConnected && (
+                <Button
+                  type="danger"
+                  size="small"
+                  hasBottomSpacing={false}
+                  text={t('Disconnect')}
+                  style={spacings.mrSm}
+                  onPress={() => {
+                    if (!site?.origin || !site?.isConnected) return
 
-                  disconnectDapp(site?.origin)
-                }}
-              >
-                <View style={spacings.plTy}>
-                  <PowerIcon />
-                </View>
-              </Button>
+                    disconnectDapp(site?.origin)
+                  }}
+                >
+                  <View style={spacings.plTy}>
+                    <PowerIcon />
+                  </View>
+                </Button>
+              )}
               <Button
                 type="secondary"
                 size="small"
@@ -150,31 +151,33 @@ const DAppFooter = () => {
   )
 
   return (
-    <View style={styles.container}>
-      {currentDappController('open')}
-      <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close')}</View>
-        <View style={styles.networkSelectorContainer}>
-          <Text fontSize={14} style={flexbox.flex1}>
-            {t('Select Current dApp Network')}
-          </Text>
-          <Select
-            setValue={handleSetNetworkValue}
-            style={{ width: 230 }}
-            controlStyle={{ height: 40 }}
-            options={networksOptions}
-            value={networksOptions.filter((opt) => opt.value === network.id)[0]}
-          />
-        </View>
-        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-          <Text style={spacings.mrLg} fontSize={12}>
-            {t(
-              'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
-            )}
-          </Text>
-          <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
-        </View>
-      </BottomSheet>
+    <View style={styles.footerContainer}>
+      <View style={styles.container}>
+        {currentDappController('open')}
+        <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+          <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close')}</View>
+          <View style={styles.networkSelectorContainer}>
+            <Text fontSize={14} style={flexbox.flex1}>
+              {t('Select Current dApp Network')}
+            </Text>
+            <Select
+              setValue={handleSetNetworkValue}
+              style={{ width: 230 }}
+              controlStyle={{ height: 40 }}
+              options={networksOptions}
+              value={networksOptions.filter((opt) => opt.value === network.id)[0]}
+            />
+          </View>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+            <Text style={spacings.mrLg} fontSize={12}>
+              {t(
+                'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
+              )}
+            </Text>
+            <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
+          </View>
+        </BottomSheet>
+      </View>
     </View>
   )
 }

@@ -36,7 +36,7 @@ export class BadgesController {
 
       this.#bannersCount = nonWarningBanners.length
       this.badgesCount = this._badgesCount
-    })
+    }, 'badges')
 
     this.#notificationCtrl.onUpdate(() => {
       this.setBadgesCount(this.#notificationCtrl.notificationRequests)

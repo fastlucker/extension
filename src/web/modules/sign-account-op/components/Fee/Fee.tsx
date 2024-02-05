@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pressable, View } from 'react-native'
 
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -11,26 +12,31 @@ import getStyles from './styles'
 
 interface Props {
   label: string
-  type: string
+  type: FeeSpeed
   amount: string
-  onPress: (fee: string) => void
+  onPress: (fee: FeeSpeed) => void
   isSelected: boolean
   isLastItem: boolean
-  isViewOnly: boolean
+  disabled: boolean
 }
 
-const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly }: Props) => {
+const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
   return (
     <Pressable
-      style={
-        maxWidthSize('xxl')
-          ? [flexbox.flex1, !isLastItem && spacings.mrTy]
-          : [flexbox.flex1, !isLastItem && spacings.mbTy]
-      }
-      disabled={isViewOnly}
+      style={[
+        flexbox.flex1,
+        maxWidthSize('xxl') && !isLastItem && spacings.mrTy,
+        minWidthSize('xxl') && {
+          minWidth: '50%',
+          maxWidth: '50%',
+          ...spacings.phMi,
+          ...spacings.pvMi
+        }
+      ]}
+      disabled={disabled}
       onPress={() => onPress(type)}
     >
       {({ hovered }: any) => (
@@ -65,4 +71,4 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, isViewOnly 
   )
 }
 
-export default Fee
+export default React.memo(Fee)

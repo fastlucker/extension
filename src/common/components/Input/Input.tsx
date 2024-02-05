@@ -28,10 +28,12 @@ export interface InputProps extends TextInputProps {
   validLabel?: string
   button?: string | JSX.Element | null
   buttonProps?: TouchableOpacityProps
+  buttonStyle?: ViewStyle
   onButtonPress?: () => void
   disabled?: boolean
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
+  nativeInputStyle?: ViewStyle & TextStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
@@ -41,6 +43,7 @@ const Input = ({
   label,
   button,
   buttonProps,
+  buttonStyle,
   info,
   error,
   isValid,
@@ -51,6 +54,7 @@ const Input = ({
   disabled,
   containerStyle,
   inputStyle,
+  nativeInputStyle,
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
@@ -114,7 +118,7 @@ const Input = ({
               onBlur={handleOnBlur}
               onFocus={handleOnFocus}
               {...rest}
-              style={styles.nativeInput}
+              style={[styles.nativeInput, nativeInputStyle]}
             />
           </View>
           {!!hasButton && (
@@ -127,7 +131,7 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={styles.button}
+              style={[styles.button, buttonStyle]}
               {...buttonProps}
             >
               {typeof button === 'string' || button instanceof String ? (

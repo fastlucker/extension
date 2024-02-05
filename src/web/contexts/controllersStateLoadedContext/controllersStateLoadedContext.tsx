@@ -8,14 +8,23 @@ import useNotificationControllerState from '@web/hooks/useNotificationController
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const ControllersStateLoadedContext = createContext<boolean>(false)
+const ControllersStateLoadedContext = createContext<{
+  areControllerStatesLoaded: boolean
+  isStatesLoadingTakingTooLong: boolean
+}>({
+  areControllerStatesLoaded: false,
+  isStatesLoadingTakingTooLong: false
+})
 
 const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
-  const [isStateLoaded, setIsStateLoaded] = useState<boolean>(false)
+  const [areControllerStatesLoaded, setAreControllerStatesLoaded] = useState(false)
+  const [isStatesLoadingTakingTooLong, setIsStatesLoadingTakingTooLong] = useState(false)
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const notificationState = useNotificationControllerState()
   const activityState = useActivityControllerState()
@@ -23,12 +32,22 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const settingsState = useSettingsControllerState()
 
   useEffect(() => {
+    // Safeguard against a potential race condition where one of the controller
+    // states might not update properly and the `areControllerStatesLoaded`
+    // might get stuck in `false` state forever. If the timeout gets reached,
+    // the app displays feedback to the user (via the
+    // `isStatesLoadingTakingTooLong` flag).
+    const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
+
     // Initially we set all controller states to empty object
     // if the states of all controllers are not an empty object
     // state data has been returned from the background service
-    // so we update the isStateLoaded to true
+    // so we update the areControllerStatesLoaded to true
     if (
       Object.keys(mainState).length &&
+      mainState?.isReady &&
+      Object.keys(walletState).length &&
+      walletState?.isReady &&
       Object.keys(accountAdderState).length &&
       Object.keys(keystoreState).length &&
       Object.keys(signMessageState).length &&
@@ -37,21 +56,31 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(activityState).length &&
       Object.keys(settingsState).length
     ) {
-      setIsStateLoaded(true)
+      clearTimeout(timeout)
+      setAreControllerStatesLoaded(true)
     }
+
+    return () => clearTimeout(timeout)
   }, [
     mainState,
+    walletState,
     accountAdderState,
     keystoreState,
     signMessageState,
     notificationState,
     portfolioState,
     activityState,
-    settingsState
+    settingsState,
+    areControllerStatesLoaded
   ])
 
   return (
-    <ControllersStateLoadedContext.Provider value={useMemo(() => isStateLoaded, [isStateLoaded])}>
+    <ControllersStateLoadedContext.Provider
+      value={useMemo(
+        () => ({ areControllerStatesLoaded, isStatesLoadingTakingTooLong }),
+        [areControllerStatesLoaded, isStatesLoadingTakingTooLong]
+      )}
+    >
       {children}
     </ControllersStateLoadedContext.Provider>
   )

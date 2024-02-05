@@ -12,7 +12,7 @@ import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperat
 import bundler from '@ambire-common/services/bundlers'
 import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
-import networks, { NETWORKS } from '@common/constants/networks'
+import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -66,7 +66,7 @@ export class ProviderController {
   }
 
   getDappNetwork = (origin: string) => {
-    const defaultNetwork = networks.find((n) => n.id === NETWORKS.ethereum)
+    const defaultNetwork = this.mainCtrl.settings.networks.find((n) => n.id === NETWORKS.ethereum)
     if (!defaultNetwork)
       throw new Error(
         'Missing default network data, which should never happen. Please contact support.'
@@ -211,7 +211,7 @@ export class ProviderController {
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
-    ({ data, session }: any) => {
+    ({ data, session, mainCtrl }: any) => {
       if (!data.params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
@@ -219,13 +219,14 @@ export class ProviderController {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
       const connected = permissionService.getConnectedSite(session.origin)
-      if (connected) {
-        const { chainId } = data.params[0]
-        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
-        if (network) {
-          return true
-        }
-      }
+
+      const { chainId } = data.params[0]
+      const network = mainCtrl.settings.networks.find(
+        (n: any) => Number(n.chainId) === Number(chainId)
+      )
+      if (!network || !connected) return false
+
+      return true
     }
   ])
   walletAddEthereumChain = ({
@@ -250,7 +251,7 @@ export class ProviderController {
       chainId = Number(chainId)
     }
 
-    const network = networks.find((n) => n.chainId === chainId)
+    const network = this.mainCtrl.settings.networks.find((n) => n.chainId === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
@@ -270,7 +271,7 @@ export class ProviderController {
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
-    ({ data, session }: any) => {
+    ({ data, session, mainCtrl }: any) => {
       if (!data.params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
@@ -278,13 +279,13 @@ export class ProviderController {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
       const connected = permissionService.getConnectedSite(session.origin)
-      if (connected) {
-        const { chainId } = data.params[0]
-        const network = networks.find((n) => Number(n.chainId) === Number(chainId))
-        if (network) {
-          return true
-        }
-      }
+      const { chainId } = data.params[0]
+      const network = mainCtrl.settings.networks.find(
+        (n: any) => Number(n.chainId) === Number(chainId)
+      )
+      if (!network || !connected) return false
+
+      return true
     }
   ])
   walletSwitchEthereumChain = ({
@@ -297,7 +298,7 @@ export class ProviderController {
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
-    const network = networks.find((n) => Number(n.chainId) === chainId)
+    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
@@ -354,5 +355,3 @@ export class ProviderController {
     return true
   }
 }
-
-export default new ProviderController()

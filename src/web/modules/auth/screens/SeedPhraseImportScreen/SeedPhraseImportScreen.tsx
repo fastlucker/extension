@@ -1,5 +1,4 @@
 import { Mnemonic } from 'ethers'
-import * as Clipboard from 'expo-clipboard'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -12,6 +11,7 @@ import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -24,9 +24,7 @@ import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  TabLayoutWrapperMainContent,
-  TabLayoutWrapperSideContent,
-  TabLayoutWrapperSideContentItem
+  TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -68,6 +66,7 @@ const SeedPhraseImportScreen = () => {
     control,
     handleSubmit,
     clearErrors,
+    getValues,
     setError,
     setValue,
     formState: { isValid, errors }
@@ -142,64 +141,65 @@ const SeedPhraseImportScreen = () => {
   )
 
   const handlePaste = useCallback(
-    async (e: any, index: number) => {
-      if (e.code === 'KeyV' && e.ctrlKey) {
-        try {
-          const clipboardContent = await Clipboard.getStringAsync()
-          const separators = /[\s,;\n]+/
-          const words = clipboardContent.trim().split(separators)
+    (text: string) => {
+      const separators = /[\s,;\n]+/
+      const words = text.trim().split(separators)
 
-          if (words.length === fields.length) {
-            words.forEach((word, wordIndex) => {
-              setValue(`seedFields.${wordIndex}.value`, word)
+      if (words.length === fields.length) {
+        // Wait for the input to register (react-hook-form)
+        setTimeout(() => {
+          words.forEach((word, wordIndex) => {
+            setValue(`seedFields.${wordIndex}.value`, word, {
+              shouldDirty: true,
+              shouldValidate: true,
+              shouldTouch: true
             })
-            addToast(t('Seed Phrase successfully pasted from clipboard'))
-            return
-          }
-
-          const correspondingLengthOption = SEED_LENGTH_SELECT_OPTIONS.find(
-            (option) => option.value === words.length
-          )
-
-          if (correspondingLengthOption) {
-            setValue('seedLength', correspondingLengthOption)
-            updateFieldsLength(correspondingLengthOption.value)
-
-            words.forEach((word, wordIndex) => {
-              setValue(`seedFields.${wordIndex}.value`, word)
-            })
-
-            addToast(
-              t('Updated Seed Length to {{seedLength}} in order to match clipboard content', {
-                seedLength: words.length
-              })
-            )
-            return
-          }
-
-          // The user may want to paste the words one by one
-          if (words.length === 1) return
-
-          addToast(t('Invalid Seed Phrase'), {
-            type: 'error'
           })
-        } catch (err: any) {
-          // console.log(err?.message)
-          if (err?.message === 'User denied permission to access clipboard') {
-            addToast(t('Clipboard access denied. Cannot fill Seed Phrase from contents.'), {
-              type: 'error'
-            })
-            // Clear the field
-            setValue(`seedFields.${index}.value`, '')
-          }
-        }
+        }, 1)
+        addToast(t('Seed Phrase successfully pasted from clipboard'))
+        return
       }
+
+      const correspondingLengthOption = SEED_LENGTH_SELECT_OPTIONS.find(
+        (option) => option.value === words.length
+      )
+
+      if (correspondingLengthOption) {
+        setValue('seedLength', correspondingLengthOption)
+        updateFieldsLength(correspondingLengthOption.value)
+
+        // Wait for the input to register (react-hook-form)
+        setTimeout(() => {
+          words.forEach((word, wordIndex) => {
+            setValue(`seedFields.${wordIndex}.value`, word, {
+              shouldDirty: true,
+              shouldValidate: true,
+              shouldTouch: true
+            })
+          })
+        }, 1)
+
+        addToast(
+          t('Updated Seed Length to {{seedLength}} in order to match clipboard content', {
+            seedLength: words.length
+          })
+        )
+        return
+      }
+
+      // The user may want to paste the words one by one
+      if (words.length === 1) return
+
+      addToast(t('Invalid Seed Phrase'), {
+        type: 'error'
+      })
     },
     [fields, setValue, addToast, updateFieldsLength, t]
   )
 
   return (
     <TabLayoutContainer
+      width="md"
       backgroundColor={theme.secondaryBackground}
       header={
         <Header mode="custom-inner-content" withAmbireLogo>
@@ -212,7 +212,7 @@ const SeedPhraseImportScreen = () => {
           <Button
             accessibilityRole="button"
             text={t('Import')}
-            style={{ minWidth: 180 }}
+            size="large"
             hasBottomSpacing={false}
             disabled={!isValid || !!errors.seedFields?.message}
             onPress={handleFormSubmit}
@@ -227,15 +227,17 @@ const SeedPhraseImportScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel>
           <View style={[spacings.mbMd, flexbox.directionRow, flexbox.justifySpaceBetween]}>
-            <Text
-              fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
-              weight="medium"
-              appearance="primaryText"
-              numberOfLines={1}
-              style={spacings.mrTy}
-            >
-              {t('Enter your Seed Phrase')}
-            </Text>
+            <View style={spacings.ptTy}>
+              <Text
+                fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
+                weight="medium"
+                appearance="primaryText"
+                numberOfLines={1}
+                style={spacings.mrTy}
+              >
+                {t('Enter your Seed Phrase')}
+              </Text>
+            </View>
             <Controller
               name="seedLength"
               control={control}
@@ -246,6 +248,7 @@ const SeedPhraseImportScreen = () => {
                     onChange(e)
                   }}
                   options={SEED_LENGTH_SELECT_OPTIONS}
+                  controlStyle={{ height: 40 }}
                   value={value}
                 />
               )}
@@ -279,14 +282,23 @@ const SeedPhraseImportScreen = () => {
                       value={value}
                       editable
                       numberOfLines={1}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 38 }}
                       placeholder={t('Word {{index}}', { index: index + 1 })}
                       containerStyle={[spacings.mb0, flexbox.flex1]}
                       placeholderTextColor={theme.secondaryText}
-                      onChangeText={(e) => {
+                      // any type, because nativeEvent?.inputType is web only
+                      onChange={(e: any) => {
+                        if (!isWeb) return onChange(e)
+                        const prevValue = getValues(`seedFields.${index}.value`)
+                        const newValueWithoutPrevValue = e.nativeEvent.text.replace(prevValue, '')
+
+                        if (e.nativeEvent?.inputType === 'insertFromPaste') {
+                          handlePaste(newValueWithoutPrevValue)
+                        }
                         onChange(e)
                       }}
                       onSubmitEditing={handleFormSubmit}
-                      onKeyPress={(e) => handlePaste(e, index)}
                       onBlur={onBlur}
                     />
                   )}
@@ -300,16 +312,6 @@ const SeedPhraseImportScreen = () => {
           ) : null}
         </Panel>
       </TabLayoutWrapperMainContent>
-      <TabLayoutWrapperSideContent>
-        <TabLayoutWrapperSideContentItem title="TODO">
-          <TabLayoutWrapperSideContentItem.Text>
-            For each legacy account you import, you also have the option to import a smart account,
-            powered by the same private key. This smart account will have a different address. Smart
-            accounts have many benefits, including account recovery, transaction batching and much
-            more.
-          </TabLayoutWrapperSideContentItem.Text>
-        </TabLayoutWrapperSideContentItem>
-      </TabLayoutWrapperSideContent>
     </TabLayoutContainer>
   )
 }

@@ -4,6 +4,7 @@ import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 
 interface Styles {
   container: ViewStyle
@@ -27,9 +28,7 @@ const getStyles = (theme: ThemeProps) =>
     secondaryContainer: {
       backgroundColor: theme.primaryBackground
     },
-    text: {
-      textAlign: 'center'
-    },
+    text: text.center,
     iconWrapper: {
       height: 96,
       ...flexbox.alignCenter,

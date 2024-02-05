@@ -31,10 +31,19 @@ const getTokenAddressAndNetworkFromId = (id: string) => {
   return [address, networkId]
 }
 
-const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: string }) => {
+const getSelectProps = ({
+  tokens,
+  token,
+  isTopUp
+}: {
+  tokens: TokenResult[]
+  token: string
+  isTopUp: boolean
+}) => {
   let options: any = []
   let value = null
-  let selectDisabled = true
+  let tokenSelectDisabled = true
+  let amountSelectDisabled = true
 
   if (tokens?.length === 0) {
     value = NO_TOKENS_ITEMS[0]
@@ -42,13 +51,15 @@ const getSelectProps = ({ tokens, token }: { tokens: TokenResult[]; token: strin
   } else {
     options = mapTokenOptions(tokens)
     value = options.find((item: any) => item.value === token) || options[0]
-    selectDisabled = false
+    tokenSelectDisabled = isTopUp
+    amountSelectDisabled = false
   }
 
   return {
     options,
     value,
-    selectDisabled
+    tokenSelectDisabled,
+    amountSelectDisabled
   }
 }
 const SendForm = ({
@@ -67,18 +78,24 @@ const SendForm = ({
     recipientEnsAddress,
     recipientAddress,
     isRecipientAddressUnknown,
-    isRecipientSmartContract,
+    isRecipientHumanizerKnownTokenOrSmartContract,
     isRecipientDomainResolving,
     isSWWarningVisible,
     tokens,
     validationFormMsgs,
     isSWWarningAgreed,
-    isRecipientAddressUnknownAgreed
+    isRecipientAddressUnknownAgreed,
+    isTopUp
   } = state
 
   const { t } = useTranslation()
   const token = `${selectedToken?.address}-${selectedToken?.networkId}`
-  const { value: tokenSelectValue, options, selectDisabled } = getSelectProps({ tokens, token })
+  const {
+    value: tokenSelectValue,
+    options,
+    tokenSelectDisabled,
+    amountSelectDisabled
+  } = getSelectProps({ tokens, token, isTopUp })
   const debouncedRecipientAddress = useDebounce({ value: recipientAddress, delay: 500 })
 
   const handleChangeToken = useCallback(
@@ -149,7 +166,7 @@ const SendForm = ({
         label={t('Select Token')}
         options={options}
         value={tokenSelectValue}
-        disabled={selectDisabled}
+        disabled={tokenSelectDisabled}
         style={styles.tokenSelect}
       />
       <InputSendToken
@@ -158,21 +175,25 @@ const SendForm = ({
         errorMessage={validationFormMsgs?.amount.message}
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
-        maxAmount={!selectDisabled ? Number(maxAmount) : null}
+        maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
       />
       <View>
-        <Recipient
-          setAddress={setRecipientAddress}
-          address={recipientAddress}
-          uDAddress={recipientUDAddress}
-          ensAddress={recipientEnsAddress}
-          addressValidationMsg={validationFormMsgs?.recipientAddress.message}
-          isRecipientSmartContract={isRecipientSmartContract}
-          isRecipientAddressUnknown={isRecipientAddressUnknown}
-          isRecipientDomainResolving={isRecipientDomainResolving}
-          isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-          onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
-        />
+        {!isTopUp && (
+          <Recipient
+            setAddress={setRecipientAddress}
+            address={recipientAddress}
+            uDAddress={recipientUDAddress}
+            ensAddress={recipientEnsAddress}
+            addressValidationMsg={validationFormMsgs?.recipientAddress.message}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
+            isRecipientAddressUnknown={isRecipientAddressUnknown}
+            isRecipientDomainResolving={isRecipientDomainResolving}
+            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+          />
+        )}
 
         {isSWWarningVisible ? (
           <Checkbox

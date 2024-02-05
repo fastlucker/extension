@@ -4,6 +4,7 @@ import AccountAdderController, {
   ReadyToAddKeys
 } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
@@ -43,6 +44,7 @@ type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
   params: {
     privKeyOrSeed: string
+    keyTypeInternalSubtype?: 'seed' | 'private-key'
   }
 }
 type MainControllerSelectAccountAction = {
@@ -183,6 +185,7 @@ type MainControllerTransferUpdateAction = {
     amount?: string
     isSWWarningAgreed?: boolean
     isRecipientAddressUnknownAgreed?: boolean
+    isTopUp?: boolean
   }
 }
 
@@ -241,9 +244,9 @@ type MainControllerSignAccountOpUpdateAction = {
     accountOp?: AccountOp
     gasPrices?: GasRecommendation[]
     estimation?: EstimateResult
-    feeTokenAddr?: string
+    feeToken?: TokenResult
     paidBy?: string
-    speed?: string
+    speed?: FeeSpeed
     signingKeyAddr?: string
     signingKeyType?: string
   }
@@ -306,6 +309,11 @@ type ChangeCurrentDappNetworkAction = {
   params: { chainId: number; origin: string }
 }
 
+type SetIsDefaultWalletAction = {
+  type: 'SET_IS_DEFAULT_WALLET'
+  params: { isDefaultWallet: boolean }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -363,6 +371,7 @@ export type Action =
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
+  | SetIsDefaultWalletAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

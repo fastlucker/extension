@@ -10,7 +10,9 @@ interface Styles {
   alignSelfCenter: ViewStyle
   alignSelfEnd: ViewStyle
   alignCenter: ViewStyle
+  alignStart: ViewStyle
   alignEnd: ViewStyle
+  justifyStart: ViewStyle
   justifyCenter: ViewStyle
   wrap: ViewStyle
   justifySpaceBetween: ViewStyle
@@ -27,8 +29,14 @@ const styles: Styles = {
   alignCenter: {
     alignItems: 'center'
   },
+  alignStart: {
+    alignItems: 'flex-start'
+  },
   alignEnd: {
     alignItems: 'flex-end'
+  },
+  justifyStart: {
+    justifyContent: 'flex-start'
   },
   justifyCenter: {
     justifyContent: 'center'

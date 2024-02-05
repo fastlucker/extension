@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ColorValue, Image, TouchableOpacity, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -8,8 +8,9 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import routesConfig from '@common/modules/router/config/routesConfig'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
@@ -29,7 +30,7 @@ interface Props {
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
-const { isTab, isPopup } = getUiType()
+const { isTab, isPopup, isNotification } = getUiType()
 
 const Header: React.FC<Props> = ({
   mode = 'title',
@@ -48,6 +49,7 @@ const Header: React.FC<Props> = ({
   const { path, params } = useRoute()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
+  const { maxWidthSize } = useWindowSize()
 
   const [title, setTitle] = useState('')
   const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
@@ -87,8 +89,20 @@ const Header: React.FC<Props> = ({
     )
   }
 
+  const paddingHorizontalStyle = useMemo(() => {
+    if (isTab || isNotification) {
+      return {
+        paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
+      }
+    }
+
+    return spacings.ph
+  }, [maxWidthSize])
+
   return (
-    <View style={[styles.container, !!backgroundColor && { backgroundColor }]}>
+    <View
+      style={[styles.container, paddingHorizontalStyle, !!backgroundColor && { backgroundColor }]}
+    >
       {mode !== 'custom' ? (
         <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>
           <View style={styles.sideContainer}>
@@ -98,7 +112,7 @@ const Header: React.FC<Props> = ({
           {mode === 'title' && (
             <View style={styles.containerInner}>
               <Text
-                weight="regular"
+                weight="medium"
                 fontSize={isTab ? 24 : 20}
                 style={styles.title}
                 numberOfLines={2}

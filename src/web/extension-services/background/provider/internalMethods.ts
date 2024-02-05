@@ -49,16 +49,9 @@ const hasOtherProvider = () => {
   return true
 }
 
-const isDefaultWallet = () => {
-  // TODO:
-  return true
-  // return preferenceService.getIsDefaultWallet()
-}
-
 export default {
   tabCheckin,
   getProviderState,
   providerOverwrite,
-  hasOtherProvider,
-  isDefaultWallet
+  hasOtherProvider
 }

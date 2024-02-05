@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
-import { ErrorRef } from '@ambire-common/controllers/eventEmitter'
+import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -29,18 +29,14 @@ const BenzinScreen = () => {
 
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId')
+  const userOpHash = params.get('userOpHash') ?? null
   const [networkId, isUserOp] = [
     params.get('networkId'),
-    typeof params.get('isUserOp') === 'string'
+    userOpHash?.length === 66 || typeof params.get('isUserOp') === 'string'
   ]
   const network = networks.find((n) => n.id === networkId)
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
-
-  const handleOpenExplorer = useCallback(async () => {
-    if (!network) return
-    await Linking.openURL(`${network.explorerUrl}/tx/${txnId}`)
-  }, [network, txnId])
 
   if (!network || !txnId) {
     // @TODO
@@ -49,11 +45,18 @@ const BenzinScreen = () => {
 
   const stepsState = useSteps({
     txnId,
+    userOpHash,
     network,
     isUserOp,
     standardOptions,
     setActiveStep
   })
+
+  const handleOpenExplorer = useCallback(async () => {
+    if (!network) return
+    const realTxnId = stepsState.userOpStatusData.txnId ?? txnId
+    await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
+  }, [network, txnId, stepsState])
 
   return (
     <ImageBackground

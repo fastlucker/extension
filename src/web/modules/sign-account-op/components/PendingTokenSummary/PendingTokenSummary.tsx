@@ -15,9 +15,10 @@ import getStyles from './styles'
 interface Props {
   token: PendingToken
   networkId: NetworkDescriptor['id']
+  hasBottomSpacing?: boolean
 }
 
-const PendingTokenSummary = ({ token, networkId }: Props) => {
+const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Props) => {
   const { styles } = useTheme(getStyles)
 
   const priceInUsd = useMemo(() => {
@@ -33,7 +34,7 @@ const PendingTokenSummary = ({ token, networkId }: Props) => {
 
     if (Number.isInteger(value)) return value.toString()
 
-    return value.toPrecision(2)
+    return value.toFixed(2)
   }, [token])
 
   const amountToSendSign = useMemo(() => {
@@ -51,19 +52,19 @@ const PendingTokenSummary = ({ token, networkId }: Props) => {
   }, [token.type])
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={spacings.mrTy}>
-        <TokenIcon width={24} height={24} networkId={networkId} address={token.address} />
+        <TokenIcon width={20} height={20} networkId={networkId} address={token.address} />
       </View>
       <Text fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatUnits(token.amountToSend, token.decimals || 18)}`}
         <Text fontSize={16} weight="medium">{` ${token.symbol}`}</Text>
+        {!!priceInUsd && (
+          <Text fontSize={16} weight="medium">{` ($${
+            Number(priceInUsd) > 0.00099 ? priceInUsd : '0.00'
+          }) `}</Text>
+        )}
       </Text>
-      {!!priceInUsd && (
-        <Text fontSize={16} weight="medium">{` ($${
-          Number(priceInUsd) > 0.00099 ? priceInUsd : '0.00'
-        }) `}</Text>
-      )}
     </View>
   )
 }

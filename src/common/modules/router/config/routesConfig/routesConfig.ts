@@ -64,6 +64,10 @@ const routesConfig: {
     route: ROUTES.keyStoreSetup,
     title: i18n.t('Ambire Key Store')
   },
+  [ROUTES.keyStoreReset]: {
+    route: ROUTES.keyStoreReset,
+    title: i18n.t('Restore Key Store Passphrase')
+  },
   [ROUTES.createEmailVault]: {
     route: ROUTES.createEmailVault
   },
@@ -115,12 +119,6 @@ const routesConfig: {
     route: ROUTES.dashboard,
     title: Platform.select({
       default: i18n.t('Dashboard')
-    })
-  },
-  [ROUTES.collection]: {
-    route: ROUTES.collection,
-    title: Platform.select({
-      default: i18n.t('Collection')
     })
   },
   [ROUTES.collectible]: {

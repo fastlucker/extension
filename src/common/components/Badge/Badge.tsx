@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import InfoIcon from '@common/assets/svg/InfoIcon'
+import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -15,7 +15,8 @@ type Props = {
   type?: 'info' | 'warning' | 'default' | 'success'
   withIcon?: boolean
   style?: ViewStyle
-  size?: 'sm' | 'md'
+  withRightSpacing?: boolean
+  nativeID?: string
 }
 
 const getBadgeTypes = (theme: ThemeProps) => ({
@@ -37,11 +38,10 @@ const getBadgeTypes = (theme: ThemeProps) => ({
   }
 })
 
-const Badge = ({ text, withIcon, type = 'default', style, size = 'md' }: Props) => {
+const Badge = ({ text, withIcon, withRightSpacing, type = 'default', style, nativeID }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const badgeTypes = getBadgeTypes(theme)
   const { color, iconColor } = badgeTypes[type]
-  const isSmall = size === 'sm'
 
   return (
     <View
@@ -53,19 +53,20 @@ const Badge = ({ text, withIcon, type = 'default', style, size = 'md' }: Props) 
         type === 'warning' && styles.warningBadge,
         type === 'info' && styles.infoBadge,
         {
-          height: !isSmall ? 24 : 20
+          height: 20
         },
+        withRightSpacing && spacings.mrSm,
+        withIcon && spacings.prMi,
         style
       ]}
+      nativeID={nativeID}
     >
-      <Text weight="regular" fontSize={!isSmall ? 12 : 10} color={color} style={spacings.mrMi}>
+      <Text weight="regular" fontSize={10} color={color} style={spacings.mrMi}>
         {text}
       </Text>
-      {withIcon && (
-        <InfoIcon color={iconColor} width={!isSmall ? 16 : 14} height={!isSmall ? 16 : 14} />
-      )}
+      {withIcon && <InformationIcon color={iconColor} width={14} height={14} />}
     </View>
   )
 }
 
-export default Badge
+export default React.memo(Badge)
