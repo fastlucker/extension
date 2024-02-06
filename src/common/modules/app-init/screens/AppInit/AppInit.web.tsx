@@ -32,7 +32,6 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
-import { OnboardingProvider } from '@web/modules/onboarding/contexts/onboardingContext'
 
 // Initialize rpc providers for all networks
 // @TODO: get rid of this and use the rpc providers from the settings controller
@@ -67,24 +66,22 @@ const AppInit = () => {
                                   <ControllersStateLoadedProvider>
                                     <LoaderProvider>
                                       <StorageProvider>
-                                        <OnboardingProvider>
-                                          <KeyboardProvider>
-                                            <NetInfoProvider>
-                                              <ConstantsProvider>
-                                                <AuthProvider>
-                                                  <ExtensionProvider>
-                                                    <BiometricsProvider>
-                                                      <PrivateModeProvider>
-                                                        <AppRouter />
-                                                      </PrivateModeProvider>
-                                                      <PortalHost name="global" />
-                                                    </BiometricsProvider>
-                                                  </ExtensionProvider>
-                                                </AuthProvider>
-                                              </ConstantsProvider>
-                                            </NetInfoProvider>
-                                          </KeyboardProvider>
-                                        </OnboardingProvider>
+                                        <KeyboardProvider>
+                                          <NetInfoProvider>
+                                            <ConstantsProvider>
+                                              <AuthProvider>
+                                                <ExtensionProvider>
+                                                  <BiometricsProvider>
+                                                    <PrivateModeProvider>
+                                                      <AppRouter />
+                                                    </PrivateModeProvider>
+                                                    <PortalHost name="global" />
+                                                  </BiometricsProvider>
+                                                </ExtensionProvider>
+                                              </AuthProvider>
+                                            </ConstantsProvider>
+                                          </NetInfoProvider>
+                                        </KeyboardProvider>
                                       </StorageProvider>
                                     </LoaderProvider>
                                   </ControllersStateLoadedProvider>

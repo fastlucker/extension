@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import {
@@ -20,7 +20,7 @@ const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
   startedLoading: null | number
-  setAccountPortfolio: (accountPortfolio: AccountPortfolio | null) => void
+  refreshPortfolio: () => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -30,7 +30,7 @@ const PortfolioControllerStateContext = createContext<{
   },
   state: {} as any,
   startedLoading: null,
-  setAccountPortfolio: () => {}
+  refreshPortfolio: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -52,13 +52,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   })
 
   useEffect(() => {
-    if (mainCtrl.isReady && !Object.keys(state).length) {
+    if (!Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
         params: { controller: 'portfolio' }
       })
     }
-  }, [dispatch, mainCtrl.isReady, state])
+  }, [dispatch, state])
 
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
@@ -117,16 +117,26 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('portfolio', onUpdate)
   }, [])
 
+  const refreshPortfolio = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
+      params: {
+        forceUpdate: true
+      }
+    })
+    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
+  }, [dispatch, accountPortfolio, setAccountPortfolio])
+
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
           accountPortfolio,
-          setAccountPortfolio,
+          refreshPortfolio,
           startedLoading
         }),
-        [state, accountPortfolio, startedLoading]
+        [state, accountPortfolio, startedLoading, refreshPortfolio]
       )}
     >
       {children}

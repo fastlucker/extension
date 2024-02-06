@@ -2,12 +2,14 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import SendIcon from '@common/assets/svg/SendIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -35,6 +37,31 @@ const TransferScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
+  const setAddressState = useCallback(
+    (newAddressState: AddressStateOptional) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+        params: {
+          addressState: newAddressState
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const addressInputState = useAddressInput({
+    addressState: state.addressState,
+    setAddressState,
+    overwriteError:
+      state?.isInitialized && !state?.validationFormMsgs.recipientAddress.success
+        ? state?.validationFormMsgs.recipientAddress.message
+        : '',
+    overwriteValidLabel: state?.validationFormMsgs?.recipientAddress.success
+      ? state.validationFormMsgs.recipientAddress.message
+      : ''
+  })
+
   const onBack = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
@@ -61,7 +88,9 @@ const TransferScreen = () => {
             text={state.userRequest ? t('Sending...') : t('Send')}
             onPress={sendTransaction}
             hasBottomSpacing={false}
-            disabled={!!state.userRequest || !state.isFormValid}
+            disabled={
+              !!state.userRequest || !state.isFormValid || addressInputState.validation.isError
+            }
           >
             <View style={spacings.plTy}>
               <SendIcon width={20} color={colors.titan} />
@@ -80,7 +109,11 @@ const TransferScreen = () => {
                     Gas Tank Top Up
                   </Text>
                 )}
-                <SendForm state={state} isAllReady={accountPortfolio?.isAllReady} />
+                <SendForm
+                  addressInputState={addressInputState}
+                  state={state}
+                  isAllReady={accountPortfolio?.isAllReady}
+                />
               </View>
               {!state.isTopUp && (
                 <>
