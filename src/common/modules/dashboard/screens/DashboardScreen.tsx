@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
