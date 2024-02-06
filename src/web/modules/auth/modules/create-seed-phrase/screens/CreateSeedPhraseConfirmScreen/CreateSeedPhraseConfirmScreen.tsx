@@ -42,6 +42,7 @@ const CreateSeedPhraseConfirmScreen = () => {
   const [isLoading, setIsLoading] = useState(false)
   const {
     control,
+    handleSubmit,
     formState: { isValid }
   } = useForm({
     mode: 'all',
@@ -86,6 +87,16 @@ const CreateSeedPhraseConfirmScreen = () => {
     }
   }, [completeStep, mainControllerState.status, mainControllerState.latestMethodCall, dispatch])
 
+  const onSubmit = handleSubmit(() => {
+    setIsLoading(true)
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT',
+      params: {
+        seed: seed.join(' ')
+      }
+    })
+  })
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
@@ -113,15 +124,7 @@ const CreateSeedPhraseConfirmScreen = () => {
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
             disabled={!isValid || accountAdderState.accountsLoading || isLoading}
-            onPress={() => {
-              setIsLoading(true)
-              dispatch({
-                type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT',
-                params: {
-                  seed: seed.join(' ')
-                }
-              })
-            }}
+            onPress={onSubmit}
           >
             {!isLoading && (
               <View style={spacings.pl}>
@@ -153,8 +156,10 @@ const CreateSeedPhraseConfirmScreen = () => {
                       onBlur={onBlur}
                       value={value}
                       style={{ width: 200 }}
+                      isValid={value === word}
                       placeholder={t('Word {{numberInSeed}}', { numberInSeed })}
                       containerStyle={[spacings.mb0, flexbox.flex1]}
+                      onSubmitEditing={onSubmit}
                     />
                   )}
                 />
