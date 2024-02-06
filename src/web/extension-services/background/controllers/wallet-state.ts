@@ -17,6 +17,21 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
+  #_onboardingState?: {
+    version: string
+    viewedAt: number
+  } = undefined
+
+  get onboardingState() {
+    return this.#_onboardingState
+  }
+
+  set onboardingState(newValue: { version: string; viewedAt: number } | undefined) {
+    this.#_onboardingState = newValue
+    storage.set('onboardingState', newValue)
+    this.emitUpdate()
+  }
+
   constructor() {
     super()
     this.#init()
@@ -29,8 +44,10 @@ export class WalletStateController extends EventEmitter {
     if (isDefault === undefined) {
       await storage.set('isDefaultWallet', true)
     } else {
-      this.isDefaultWallet = isDefault
+      this.#_isDefaultWallet = isDefault
     }
+
+    this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
     this.emitUpdate()
@@ -39,7 +56,8 @@ export class WalletStateController extends EventEmitter {
   toJSON() {
     return {
       ...this,
-      isDefaultWallet: this.isDefaultWallet // includes the getter in the stringified instance
+      isDefaultWallet: this.isDefaultWallet,
+      onboardingState: this.onboardingState
     }
   }
 }

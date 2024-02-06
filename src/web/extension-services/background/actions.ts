@@ -314,6 +314,11 @@ type SetIsDefaultWalletAction = {
   params: { isDefaultWallet: boolean }
 }
 
+type SetOnboardingStateAction = {
+  type: 'SET_ONBOARDING_STATE'
+  params: { version: string; viewedAt: number }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -372,6 +377,7 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
+  | SetOnboardingStateAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
