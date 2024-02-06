@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
+import CheckIcon from '@common/assets/svg/CheckIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
 import Text from '@common/components/Text'
@@ -9,6 +10,7 @@ import spacings, { SPACING_MD } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
+// @TODO: Add proper icons
 const SIDEBAR_STEPS = [
   {
     id: 'prepare',
@@ -33,6 +35,7 @@ interface Props {
 
 const CreateSeedPhraseSidebar: FC<Props> = ({ currentStepId }) => {
   const { theme } = useTheme()
+  const currentStepIndex = SIDEBAR_STEPS.findIndex(({ id }) => id === currentStepId)
 
   return (
     <View style={[spacings.pt, spacings.plXl]}>
@@ -58,6 +61,17 @@ const CreateSeedPhraseSidebar: FC<Props> = ({ currentStepId }) => {
                 }
               ]}
             >
+              {currentStepIndex > index && (
+                <CheckIcon
+                  style={{
+                    position: 'absolute',
+                    left: 4,
+                    top: 4
+                  }}
+                  width={18}
+                  height={18}
+                />
+              )}
               <Text
                 style={{
                   marginRight: SPACING_MD * 2,
