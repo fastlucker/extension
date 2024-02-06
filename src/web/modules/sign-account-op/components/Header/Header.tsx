@@ -42,7 +42,7 @@ const Header: FC<Props> = ({ networkName, networkId, isEOA }) => {
         </Text>
         <Badge
           type={isEOA ? 'warning' : 'success'}
-          text={isEOA ? t('Legacy Account') : t('Smart Account')}
+          text={isEOA ? t('Basic Account') : t('Smart Account')}
         />
         <View style={styles.network}>
           <Text appearance="secondaryText" weight="regular" fontSize={16}>

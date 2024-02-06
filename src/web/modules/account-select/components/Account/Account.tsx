@@ -85,7 +85,7 @@ const Account = ({
                   withIcon
                   style={spacings.mlTy}
                   type={isSmartAccount(account) ? 'success' : 'warning'}
-                  text={isSmartAccount(account) ? t('Smart Account') : t('Legacy Account')}
+                  text={isSmartAccount(account) ? t('Smart Account') : t('Basic Account')}
                 />
                 {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
                   <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
