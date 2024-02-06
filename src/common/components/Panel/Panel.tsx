@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, ViewProps } from 'react-native'
+import { Animated, View, ViewProps } from 'react-native'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -11,6 +11,7 @@ import getStyles from './styles'
 interface Props extends ViewProps {
   title?: string
   forceContainerSmallSpacings?: boolean
+  isAnimated?: boolean
 }
 
 const Panel: React.FC<Props> = ({
@@ -18,13 +19,15 @@ const Panel: React.FC<Props> = ({
   children,
   forceContainerSmallSpacings,
   style,
+  isAnimated,
   ...rest
 }) => {
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
+  const Container = isAnimated ? Animated.View : View
   return (
-    <View
+    <Container
       style={[
         styles.container,
         {
@@ -49,7 +52,7 @@ const Panel: React.FC<Props> = ({
         </Text>
       )}
       {children}
-    </View>
+    </Container>
   )
 }
 

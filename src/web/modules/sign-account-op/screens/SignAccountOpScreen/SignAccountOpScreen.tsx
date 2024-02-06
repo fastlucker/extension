@@ -45,8 +45,7 @@ const SignAccountOpScreen = () => {
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
-  const [doNotHideNoBalanceChangesDuringLoad, setDoNotHideNoBalanceChangesDuringLoad] =
-    useState<boolean>(false)
+  const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
 
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -242,7 +241,6 @@ const SignAccountOpScreen = () => {
 
   const isSignLoading =
     signAccountOpState.status?.type === SigningStatus.InProgress ||
-    signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
     signAccountOpState.status?.type === SigningStatus.Done ||
     mainState.broadcastStatus === 'LOADING'
 
@@ -267,13 +265,23 @@ const SignAccountOpScreen = () => {
 
   let shouldShowNoBalanceChanges = false
   if (
-    (!portfolioStatePending?.isLoading || doNotHideNoBalanceChangesDuringLoad) &&
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !pendingTokens.length &&
     !portfolioStatePending?.errors.length &&
     !portfolioStatePending?.criticalError
   ) {
     shouldShowNoBalanceChanges = true
-    if (!doNotHideNoBalanceChangesDuringLoad) setDoNotHideNoBalanceChangesDuringLoad(true)
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
+
+  let shouldShowSimulation = false
+  if (
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
+    !!pendingTokens.length &&
+    !hasSimulationError
+  ) {
+    shouldShowSimulation = true
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
   }
 
   return (
@@ -308,7 +316,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Simulation results')}
               </Text>
-              {!portfolioStatePending?.isLoading && !!pendingTokens.length && !hasSimulationError && (
+              {shouldShowSimulation && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View

@@ -16,7 +16,6 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -33,7 +32,6 @@ const { isPopup, isTab } = getUiType()
 
 const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
-  const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
@@ -47,7 +45,7 @@ const DashboardScreen = () => {
 
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, state, setAccountPortfolio } = usePortfolioControllerState()
+  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
@@ -71,16 +69,6 @@ const DashboardScreen = () => {
 
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
-
-  const refreshPortfolio = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
-      params: {
-        forceUpdate: true
-      }
-    })
-    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
-  }, [dispatch, accountPortfolio, setAccountPortfolio])
 
   return (
     <>

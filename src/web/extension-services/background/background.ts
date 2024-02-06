@@ -706,8 +706,6 @@ async function init() {
               return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
-            case 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE':
-              return mainCtrl.transfer.onRecipientAddressChange()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
               notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
               break
@@ -755,6 +753,13 @@ async function init() {
               )
             case 'SET_IS_DEFAULT_WALLET': {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
+              break
+            }
+            case 'CACHE_RESOLVED_DOMAIN': {
+              return walletStateCtrl.cacheResolvedDomain(data.params.domain)
+            }
+            case 'SET_ONBOARDING_STATE': {
+              walletStateCtrl.onboardingState = data.params
               break
             }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
