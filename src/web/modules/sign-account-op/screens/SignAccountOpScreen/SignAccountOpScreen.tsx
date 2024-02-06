@@ -248,10 +248,15 @@ const SignAccountOpScreen = () => {
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
 
-  const hasSimulationError =
-    !portfolioStatePending?.isLoading &&
+  let hasSimulationError = false
+  if (
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
       !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+  ) {
+    hasSimulationError = true
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
 
   let simulationErrorMsg = 'We were unable to simulate the transaction'
   if (portfolioStatePending?.criticalError)
@@ -394,7 +399,7 @@ const SignAccountOpScreen = () => {
                   />
                 </View>
               )}
-              {portfolioStatePending?.isLoading && (
+              {portfolioStatePending?.isLoading && !initialSimulationLoaded && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
