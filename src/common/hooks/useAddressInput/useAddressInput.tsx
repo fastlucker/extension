@@ -94,7 +94,12 @@ const useAddressInput = ({
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
-          if (!newUDAddress) return
+          if (!newUDAddress) {
+            setAddressState({
+              udAddress: ''
+            })
+            return
+          }
           setAddressState({
             udAddress: newUDAddress
           })
@@ -119,6 +124,12 @@ const useAddressInput = ({
         }),
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
+          if (!newEnsAddress) {
+            setAddressState({
+              ensAddress: ''
+            })
+            return
+          }
           setAddressState({
             ensAddress: newEnsAddress
           })
