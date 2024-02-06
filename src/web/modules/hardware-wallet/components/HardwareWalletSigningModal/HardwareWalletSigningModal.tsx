@@ -11,6 +11,7 @@ import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -36,7 +37,13 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
         style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
       >
         <DriveIcon style={spacings.mrLg} />
-        <LeftPointerArrowIcon style={spacings.mrLg} />
+        <View style={spacings.mrLg}>
+          <LeftPointerArrowIcon color={colors.greenHaze} />
+          <LeftPointerArrowIcon
+            color={colors.greenHaze}
+            style={[spacings.mtMi, { transform: [{ rotate: '180deg' }] }]}
+          />
+        </View>
         <AmbireDevice />
       </View>
       <View style={[flexbox.alignSelfCenter, spacings.mb3Xl]}>
