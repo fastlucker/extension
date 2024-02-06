@@ -1,6 +1,5 @@
 import { Image } from 'react-native'
 
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import Jazzicon from '@raugfer/jazzicon'
 
 // builds an image data url for embedding
@@ -9,7 +8,15 @@ function buildDataUrl(address: string): string {
 }
 
 // sample code for react component
-export default function JazzIcon({ address, size }: { address: string; size: number }) {
+export default function JazzIcon({
+  address,
+  size,
+  borderRadius
+}: {
+  address: string
+  size: number
+  borderRadius: number
+}) {
   const imageUrl = buildDataUrl(address)
   return (
     <Image
@@ -17,7 +24,7 @@ export default function JazzIcon({ address, size }: { address: string; size: num
       style={{
         width: size,
         height: size,
-        borderRadius: BORDER_RADIUS_PRIMARY
+        borderRadius
       }}
     />
   )
