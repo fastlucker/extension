@@ -11,6 +11,7 @@ import Modal from '@common/components/Modal'
 import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -28,10 +29,15 @@ import getStyles from './styles'
 const GetStartedScreen = () => {
   const { theme } = useTheme(getStyles)
   const { t } = useTranslation()
-  const keystoreState = useKeystoreControllerState()
   const { navigate } = useNavigation()
+  const { search } = useRoute()
+  const keystoreState = useKeystoreControllerState()
   const wrapperRef: any = useRef(null)
-  const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(false)
+  const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(() => {
+    const searchParams = new URLSearchParams(search)
+
+    return searchParams.has('createHotWallet')
+  })
 
   const handleAuthButtonPress = useCallback(
     async (

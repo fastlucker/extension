@@ -44,7 +44,7 @@ const AddAccount = () => {
       {
         text: t('Create a new hot wallet'),
         icon: CreateWalletIcon,
-        onPress: () => {},
+        onPress: () => navigate(`${ROUTES.getStarted}?createHotWallet=true`),
         hasLargerBottomSpace: true
       },
       {
@@ -61,6 +61,7 @@ const AddAccount = () => {
       const Icon = option.icon
       return (
         <Pressable
+          key={option.text}
           style={({ hovered }: any) => [
             styles.addAccountOptionContainer,
             hovered && styles.addAccountOptionContainerHovered,
