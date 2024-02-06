@@ -8,12 +8,13 @@ import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
 import Panel from '@common/components/Panel'
-import { panelPaddingStyle } from '@common/components/Panel/styles'
+import { getPanelPaddings } from '@common/components/Panel/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -53,9 +54,11 @@ const CreateSeedPhrasePrepareScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { maxWidthSize } = useWindowSize()
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const seed = Wallet.createRandom().mnemonic?.phrase || null
+  const panelPaddingStyle = getPanelPaddings(maxWidthSize('xl'))
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')

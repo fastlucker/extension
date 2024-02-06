@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Animated, View } from 'react-native'
 
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
-import EmailRecoveryIcon from '@common/assets/svg/EmailRecoveryIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
-import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import Modal from '@common/components/Modal'
 import Panel from '@common/components/Panel'
@@ -34,6 +32,7 @@ import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/auth/screens/Terms'
 
+import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
 import getStyles from './styles'
 
@@ -157,31 +156,10 @@ const GetStartedScreen = () => {
         hideLeftSideContainer
         title={t('Select the recovery option of your new wallet')}
       >
-        <View style={[flexbox.directionRow]}>
-          <Card
-            title={t('Set up with an email')}
-            text={t(
-              'This option lets you quickly and easily open a secure Smart Account wallet with just an email. It also allows you to recover your account with your email. Learn more'
-            )}
-            style={flexbox.flex1}
-            icon={EmailRecoveryIcon}
-            buttonText={t('Proceed')}
-            isDisabled
-          />
-          <Card
-            title={t('Set up with a Seed Phrase')}
-            style={{
-              ...flexbox.flex1,
-              ...spacings.ml
-            }}
-            text={t(
-              'This option lets you open a secure Smart Account wallet with a traditional 12-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity. Learn more'
-            )}
-            icon={SeedPhraseRecoveryIcon}
-            buttonText={t('Proceed')}
-            onPress={() => handleAuthButtonPress('create-seed')}
-          />
-        </View>
+        <HotWalletCreateCards
+          handleEmailPress={() => handleAuthButtonPress('email')}
+          handleSeedPress={() => handleAuthButtonPress('create-seed')}
+        />
       </Modal>
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
         {!state.onboardingState && <Stories onComplete={handleSetStoriesCompleted} />}

@@ -44,7 +44,7 @@ const AddAccount = () => {
       {
         text: t('Create a new hot wallet'),
         icon: CreateWalletIcon,
-        onPress: () => navigate(`${ROUTES.getStarted}?createHotWallet=true`),
+        onPress: () => navigate(ROUTES.createHotWallet),
         hasLargerBottomSpace: true
       },
       {
