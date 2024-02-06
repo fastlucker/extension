@@ -38,7 +38,7 @@ const Account = ({
   isDisabled
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
-  type: 'legacy' | 'smart' | 'linked'
+  type: 'basic' | 'smart' | 'linked'
   unused: boolean
   isSelected: boolean
   withBottomSpacing: boolean
@@ -107,11 +107,11 @@ const Account = ({
                 </Pressable>
               )}
             </View>
-            {type === 'legacy' ? (
+            {type === 'basic' ? (
               <Badge
                 withRightSpacing
                 withIcon
-                text={t('Legacy Account')}
+                text={t('Basic Account')}
                 type="warning"
                 {...(shouldAddIntroStepsIds
                   ? {

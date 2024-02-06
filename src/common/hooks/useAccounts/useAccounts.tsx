@@ -28,10 +28,10 @@ const useAccounts = () => {
         const isSmartAccount = !!account?.creation
         const doesSmartAccountMatch =
           isSmartAccount && 'smart account'.includes(search.toLowerCase())
-        const doesLegacyAccountMatch =
-          !isSmartAccount && 'legacy account'.includes(search.toLowerCase())
+        const doesBasicAccountMatch =
+          !isSmartAccount && 'basic account'.includes(search.toLowerCase())
 
-        return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesLegacyAccountMatch
+        return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesBasicAccountMatch
       }),
     [mainCtrl.accounts, search, accountPreferences]
   )

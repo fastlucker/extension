@@ -59,7 +59,7 @@ const AccountPersonalizeCard = ({
               {isSmartAccount ? (
                 <Badge withIcon type="success" text={t('Smart Account')} />
               ) : (
-                <Badge withIcon type="warning" text={t('Legacy Account')} />
+                <Badge withIcon type="warning" text={t('Basic Account')} />
               )}
             </View>
 
