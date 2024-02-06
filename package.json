@@ -134,6 +134,7 @@
     "intro.js-react": "^1.0.0",
     "jest": "^26.6.3",
     "jest-expo": "^48.0.1",
+    "jest-environment-jsdom": "^29.7.0",
     "koa-compose": "^4.1.0",
     "lodash": "4.17.21",
     "loglevel": "^1.4.1",
