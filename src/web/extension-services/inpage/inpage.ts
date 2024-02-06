@@ -36,10 +36,11 @@ const runReplacementScript = () => {
   const hasMetaMaskInPage = isWordInPage('metamask')
   if (!doesWebpageReadOurProvider && !hasMetaMaskInPage) return
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-  const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
+  const hasCoinbaseWalletInPage =
+    isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet') || isWordInPage('coinbase')
 
   // most dapps read the provider but some don't till connection
-  if (!doesWebpageReadOurProvider && !hasWalletConnectInPage && !hasCoinbaseWalletInPage) {
+  if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
     return
   }
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
