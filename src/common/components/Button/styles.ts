@@ -108,7 +108,7 @@ const getStyles = (theme: ThemeProps) =>
       color: theme.successDecorative
     },
     buttonTextGhost: {
-      color: colors.titan
+      color: theme.secondaryText
     },
 
     // Button text sizes (regular/small)

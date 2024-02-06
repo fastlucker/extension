@@ -1,4 +1,6 @@
-import AccountAdderController, { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  ReadyToAddKeys
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
@@ -305,6 +307,11 @@ type CacheResolvedDomainAction = {
   }
 }
 
+type SetOnboardingStateAction = {
+  type: 'SET_ONBOARDING_STATE'
+  params: { version: string; viewedAt: number }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -363,6 +370,7 @@ export type Action =
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | CacheResolvedDomainAction
+  | SetOnboardingStateAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant

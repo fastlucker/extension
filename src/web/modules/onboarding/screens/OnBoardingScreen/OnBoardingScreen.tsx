@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, Linking, Pressable, View } from 'react-native'
 
@@ -17,10 +17,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
-import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
-import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 
 import ConfettiAnimation from '../../components/ConfettiAnimation'
 import getStyles from './styles'
@@ -29,22 +26,13 @@ const OnBoardingScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { setOnboardingStatus } = useOnboarding()
-  const mainState = useMainControllerState()
-  const [initialStatusCheckPassed, setInitialStatusCheckPassed] = useState(false)
-  useEffect(() => {
-    if (mainState.accounts.length && initialStatusCheckPassed) {
-      setOnboardingStatus(ONBOARDING_VALUES.ON_BOARDED)
-    }
-  }, [setOnboardingStatus, mainState.accounts.length, initialStatusCheckPassed])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const status = await storage.get('onboardingStatus', ONBOARDING_VALUES.NOT_ON_BOARDED)
+      const onboardingState = await storage.get('onboardingState', undefined)
 
-      setInitialStatusCheckPassed(true)
-      if (status === ONBOARDING_VALUES.ON_BOARDED) {
+      if (onboardingState) {
         navigate(WEB_ROUTES.dashboard)
       }
     })()

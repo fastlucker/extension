@@ -10,6 +10,11 @@ export class WalletStateController extends EventEmitter {
 
   #_cachedResolvedDomains: CachedResolvedDomain[] = []
 
+  #_onboardingState?: {
+    version: string
+    viewedAt: number
+  } = undefined
+
   get isDefaultWallet() {
     return this.#_isDefaultWallet
   }
@@ -32,6 +37,15 @@ export class WalletStateController extends EventEmitter {
 
     this.#_cachedResolvedDomains = [...this.#_cachedResolvedDomains, newDomain]
     storage.set('cachedResolvedDomains', this.cachedResolvedDomains)
+  }
+
+  get onboardingState() {
+    return this.#_onboardingState
+  }
+
+  set onboardingState(newValue: { version: string; viewedAt: number } | undefined) {
+    this.#_onboardingState = newValue
+    storage.set('onboardingState', newValue)
     this.emitUpdate()
   }
 
@@ -47,12 +61,13 @@ export class WalletStateController extends EventEmitter {
     if (isDefault === undefined) {
       await storage.set('isDefaultWallet', true)
     } else {
-      this.isDefaultWallet = isDefault
+      this.#_isDefaultWallet = isDefault
     }
 
     const cachedResolvedDomains = await storage.get('cachedResolvedDomains', [])
 
     this.#_cachedResolvedDomains = cachedResolvedDomains
+    this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
     this.emitUpdate()
@@ -61,8 +76,9 @@ export class WalletStateController extends EventEmitter {
   toJSON() {
     return {
       ...this,
-      isDefaultWallet: this.isDefaultWallet, // includes the getter in the stringified instance
-      cachedResolvedDomains: this.cachedResolvedDomains
+      cachedResolvedDomains: this.cachedResolvedDomains,
+      isDefaultWallet: this.isDefaultWallet,
+      onboardingState: this.onboardingState
     }
   }
 }
