@@ -25,45 +25,57 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 declare let ambireChannelName: string
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-let doesWebpageReadOurProvider: boolean
-let isEIP6963: boolean
+let doesWebpageReadOurProvider: boolean = false
+let isEIP6963: boolean = false
 
 //
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
 //
 
-const runReplacementScript = async () => {
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
+const runReplacementScript = () => {
   const hasMetaMaskInPage = isWordInPage('metamask')
+  if (!doesWebpageReadOurProvider && !hasMetaMaskInPage) return
+  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
   const hasCoinbaseWalletInPage = isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet')
 
-  // most of the dapps read the provider but some don't till connection
-  if (
-    !doesWebpageReadOurProvider &&
-    !(hasWalletConnectInPage && hasMetaMaskInPage && hasCoinbaseWalletInPage)
-  )
+  // most dapps read the provider but some don't till connection
+  if (!doesWebpageReadOurProvider && !hasWalletConnectInPage && !hasCoinbaseWalletInPage) {
     return
+  }
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  ;(async () => {
+    await delayPromise(30)
+    if (isEIP6963) return
+    if (hasWalletConnectInPage) replaceMMImgInPage()
+    const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
+    const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
-  await delayPromise(30) // wait for DOM update
-
-  if (isEIP6963) return
-
-  if (hasWalletConnectInPage) replaceMMImgInPage()
-
-  const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
-  const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
-
-  if (!hasMetaMaskInPage) return
-  if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
-    return
-
-  replaceMMBrandInPage(ambireSvg)
+    if (!hasMetaMaskInPage) return
+    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+      return
+    replaceMMBrandInPage(ambireSvg)
+  })()
 }
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
 declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
+let observer: MutationObserver | null = null
+let clickListener: any
+function cleanupObserver() {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+}
+
+function setupObserver(options?: MutationObserverInit) {
+  cleanupObserver()
+  observer = new MutationObserver(runReplacementScript)
+  observer.observe(document, options)
+}
+
 Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
   get() {
@@ -72,12 +84,25 @@ Object.defineProperty(window, 'defaultWallet', {
   set(value: DefaultWallet) {
     _defaultWallet = value
     if (value === 'AMBIRE') {
-      document.addEventListener('click', runReplacementScript)
-      const observer = new MutationObserver(runReplacementScript)
-      observer.observe(document, { childList: true, subtree: true, attributes: true })
+      if (!clickListener) {
+        clickListener = document.addEventListener('click', runReplacementScript)
+      }
+      if (!observer) {
+        setupObserver({ childList: true })
+      }
     }
   }
 })
+
+function cleanup() {
+  cleanupObserver()
+  if (clickListener) {
+    document.removeEventListener('click', runReplacementScript)
+  }
+}
+
+window.addEventListener('beforeunload', cleanup)
+window.addEventListener('unload', cleanup)
 
 //
 // EthereumProvider Injection
@@ -587,6 +612,8 @@ const setAmbireProvider = () => {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
                 doesWebpageReadOurProvider = true
+                clickListener = document.addEventListener('click', runReplacementScript)
+                setupObserver({ childList: true, subtree: true, attributes: true })
               }
             }
           }
@@ -659,7 +686,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
   )
 }
 
-window.addEventListener<any>('eip6963:requestProvider', (event: EIP6963RequestProviderEvent) => {
+window.addEventListener<any>('eip6963:requestProvider', () => {
   isEIP6963 = true
   announceEip6963Provider(ambireProvider)
 })
