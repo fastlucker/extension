@@ -99,8 +99,6 @@ const StepperProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    console.log(newStepIndex)
-
     setStepperState({ currentStep: newStepIndex, currentFlow: newFlow })
   }, [])
 
