@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
@@ -13,13 +14,13 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { delayPromise } from '@common/utils/promises'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -47,11 +48,13 @@ const ViewOnlyScreen = () => {
   const mainControllerState = useMainControllerState()
   const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { theme } = useTheme()
   const {
     control,
     watch,
-    formState: { isValid, errors }
+    handleSubmit,
+    formState: { isValid, errors, isSubmitting }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -69,14 +72,17 @@ const ViewOnlyScreen = () => {
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
   const handleFormSubmit = useCallback(async () => {
-    // wait state update before Wallet calcs because
-    // when Wallet method is called on devices with slow CPU the UI freezes
-    await delayPromise(100)
-
-    const accountsToAddP = accounts.map(async (account) => {
+    const accountsToAddPromises = accounts.map(async (account) => {
+      // Use `fetchCaught` because the endpoint could return 404 if the account
+      // is not found, which should not throw an error
       const accountIdentityResponse = await fetchCaught(
         `${RELAYER_URL}/v2/identity/${account.address}`
       )
+
+      // Trick to determine if there is an error throw. When the request 404s,
+      // there is no error message incoming, which is enough to treat it as a
+      // no-error, 404 response is expected for EOAs.
+      if (accountIdentityResponse?.errMsg) throw new Error(accountIdentityResponse.errMsg)
 
       const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
@@ -98,36 +104,53 @@ const ViewOnlyScreen = () => {
         }
       }
 
-      if (accountIdentity && accountIdentity?.associatedKeys) {
+      if (accountIdentity?.associatedKeys) {
         associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
       }
 
       return {
-        addr: account.address,
-        label: '',
-        pfp: '',
+        addr: ethers.getAddress(account.address),
         associatedKeys,
+        initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation
       }
     })
 
-    const accountsToAdd = await Promise.all(accountsToAddP)
+    try {
+      const accountsToAdd = await Promise.all(accountsToAddPromises)
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dispatch({
-      type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
-      params: { accounts: accountsToAdd }
-    })
-  }, [accounts, dispatch])
+      return await dispatch({
+        type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
+        params: { accounts: accountsToAdd }
+      })
+    } catch (e: any) {
+      addToast(
+        t(
+          `Import unsuccessful. We were unable to fetch the necessary data.${
+            e?.message ? ` Error: ${e?.message}` : ''
+          }`
+        ),
+        { type: 'error' }
+      )
+
+      throw e
+    }
+  }, [accounts, addToast, dispatch, t])
 
   useEffect(() => {
-    const newAccountsAddresses = accounts.map((x) => x.address)
+    // Prevents navigating when user is in the middle of adding accounts,
+    // user adds account that is not valid and clicks "+ add one more address".
+    // This use effect gets triggered, because the `accounts` change.
+    if (!isValid) return
+    if (duplicateAccountsIndexes.length > 0) return
+
+    const newAccountsAddresses = accounts.map((x) => x.address.toLowerCase())
     const newAccountsAdded = mainControllerState.accounts.filter((account) =>
-      newAccountsAddresses.includes(account.addr)
+      newAccountsAddresses.includes(account.addr.toLowerCase())
     )
     const newAccountsDefaultPreferencesImported = Object.keys(
       settingsControllerState.accountPreferences
-    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr))
+    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr.toLowerCase()))
 
     // Navigate when the new accounts and their default preferences are imported,
     // indicating the final step for the view-only account adding flow completes.
@@ -139,12 +162,14 @@ const ViewOnlyScreen = () => {
   }, [
     accounts,
     dispatch,
+    duplicateAccountsIndexes.length,
+    isValid,
     mainControllerState.accounts,
     navigate,
     settingsControllerState.accountPreferences
   ])
 
-  const disabled = !isValid || duplicateAccountsIndexes.length > 0
+  const disabled = !isValid || isSubmitting || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -159,8 +184,8 @@ const ViewOnlyScreen = () => {
             size="large"
             disabled={disabled}
             hasBottomSpacing={false}
-            text={t('Import')}
-            onPress={handleFormSubmit}
+            text={isSubmitting ? t('Importing...') : t('Import')}
+            onPress={handleSubmit(handleFormSubmit)}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
@@ -179,7 +204,11 @@ const ViewOnlyScreen = () => {
                 validate: (value) => {
                   if (!value) return 'Please fill in an address.'
                   if (!isValidAddress(value)) return 'Please fill in a valid address.'
-                  if (mainControllerState.accounts.find((account) => account.addr === value))
+                  if (
+                    mainControllerState.accounts.find(
+                      (account) => account.addr.toLowerCase() === value.toLocaleLowerCase()
+                    )
+                  )
                     return 'This address is already in your wallet.'
                   return true
                 },
@@ -194,13 +223,14 @@ const ViewOnlyScreen = () => {
                     onChangeText={onChange}
                     value={value}
                     autoFocus
+                    disabled={isSubmitting}
                     isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
                     validLabel={t('Address is valid.')}
                     error={
                       errors?.accounts?.[index]?.address?.message ||
                       (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
                     }
-                    onSubmitEditing={disabled ? undefined : handleFormSubmit}
+                    onSubmitEditing={disabled ? undefined : handleSubmit(handleFormSubmit)}
                     button={index !== 0 ? <DeleteIcon /> : null}
                     buttonProps={{
                       onPress: () => remove(index)
@@ -212,7 +242,11 @@ const ViewOnlyScreen = () => {
             />
           ))}
           <View>
-            <Pressable onPress={() => append({ address: '' })} style={spacings.ptTy}>
+            <Pressable
+              disabled={isSubmitting}
+              onPress={() => append({ address: '' })}
+              style={spacings.ptTy}
+            >
               <Text fontSize={14} underline>
                 {t('+ Add one more address')}
               </Text>

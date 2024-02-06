@@ -12,8 +12,9 @@ import {
   quickAccManagerSendInterface,
   transferInterface
 } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
+import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
-const userOpSigHashes = {
+export const userOpSigHashes = {
   executeBySender: executeBySenderInterface.getFunction('executeBySender')!.selector,
   execute: executeInterface.getFunction('execute')!.selector,
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector
@@ -68,15 +69,8 @@ const getExecuteMultipleCalls = (callData: string) => {
     .map((call: any) => transformToAccOpCall(call))
 }
 
-const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp: boolean) => {
-  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
-  const sigHashValues = Object.values(userOpSigHashes)
-  const userOps = isUserOp
-    ? handleOpsData[0].filter((op: any) => op[0] === sender)
-    : handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  if (!userOps.length) return null
-
-  const callData = userOps[0][3]
+const decodeUserOp = (userOp: UserOperation) => {
+  const callData = userOp.callData
   const callDataSigHash = callData.slice(0, 10)
 
   if (callDataSigHash === userOpSigHashes.executeBySender) {
@@ -92,7 +86,22 @@ const decodeUserOp = (txnData: string, sigHash: string, sender: string, isUserOp
   }
 }
 
-const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: boolean) => {
+const decodeUserOpWithoutUserOpHash = (txnData: string) => {
+  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
+  const sigHashValues = Object.values(userOpSigHashes)
+  const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
+  if (!userOps.length) return null
+
+  return decodeUserOp({
+    sender: '',
+    callData: userOps[0][3],
+    hashStatus: 'not_found'
+  })
+}
+
+const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOperation | null) => {
+  if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
+
   const sigHash = txn.data.slice(0, 10)
 
   if (sigHash === executeInterface.getFunction('execute')!.selector) {
@@ -127,12 +136,6 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: bool
       .map((call: any) => transformToAccOpCall(call))
   }
 
-  // user op
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOp(txn.data, sigHash, sender, isUserOp)
-    if (decodedUserOp) return decodedUserOp
-  }
-
   // v1
   if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
     const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
@@ -155,6 +158,12 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, isUserOp: bool
     return data[3]
       .filter((call: any, index: number) => filterFeeCollectorCalls(data[3].length, call, index))
       .map((call: any) => transformToAccOpCall(call))
+  }
+
+  // entry point sighash but no userOpHash
+  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
+    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
+    if (decodedUserOp) return decodedUserOp
   }
 
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
