@@ -68,6 +68,14 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           params: { selectedToken: tokenToSelect, isTopUp: selectedTokenFromUrl.isTopUp }
         })
       }
+    } else if (tokens?.length && !selectedTokenFromUrl && state.isTopUp) {
+      // if there's no token in the url, it means it cannot be a topUp
+      // but sometimes we have a cached state with isTopUp true that prevents
+      // displaying the transfer screen
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+        params: { isTopUp: false }
+      })
     }
   }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 

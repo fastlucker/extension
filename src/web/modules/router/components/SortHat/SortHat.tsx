@@ -12,15 +12,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
-import { ONBOARDING_VALUES } from '@web/modules/onboarding/contexts/onboardingContext/types'
-import useOnboarding from '@web/modules/onboarding/hooks/useOnboarding'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const { isNotification } = getUiType()
-  const { onboardingStatus } = useOnboarding()
   const keystoreState = useKeystoreControllerState()
   const notificationState = useNotificationControllerState()
   const mainState = useMainControllerState()
@@ -100,16 +97,13 @@ const SortHat = () => {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
     } else {
-      navigate(
-        onboardingStatus === ONBOARDING_VALUES.ON_BOARDED ? ROUTES.dashboard : ROUTES.onboarding
-      )
+      navigate(ROUTES.dashboard)
     }
   }, [
     isNotification,
     notificationState.currentNotificationRequest,
     authStatus,
     navigate,
-    onboardingStatus,
     keystoreState,
     mainState.selectedAccount,
     mainState.userRequests
