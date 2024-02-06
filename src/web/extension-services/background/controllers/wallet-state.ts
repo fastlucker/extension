@@ -37,6 +37,8 @@ export class WalletStateController extends EventEmitter {
 
     this.#_cachedResolvedDomains = [...this.#_cachedResolvedDomains, newDomain]
     storage.set('cachedResolvedDomains', this.cachedResolvedDomains)
+
+    this.emitUpdate()
   }
 
   get onboardingState() {
@@ -64,9 +66,7 @@ export class WalletStateController extends EventEmitter {
       this.#_isDefaultWallet = isDefault
     }
 
-    const cachedResolvedDomains = await storage.get('cachedResolvedDomains', [])
-
-    this.#_cachedResolvedDomains = cachedResolvedDomains
+    this.#_cachedResolvedDomains = await storage.get('cachedResolvedDomains', [])
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
