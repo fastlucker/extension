@@ -12,4 +12,4 @@ const LedgerMiniIcon: React.FC<SvgProps> = ({ width = 57, height = 57, ...styles
   </Svg>
 )
 
-export default LedgerMiniIcon
+export default React.memo(LedgerMiniIcon)

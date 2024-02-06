@@ -12,4 +12,4 @@ const TrezorMiniIcon: React.FC<SvgProps> = ({ width = 32, height = 32, ...styles
   </Svg>
 )
 
-export default TrezorMiniIcon
+export default React.memo(TrezorMiniIcon)

@@ -25,4 +25,4 @@ const LatticeMiniIcon: React.FC<SvgProps> = ({ width = 32, height = 32, ...style
   </Svg>
 )
 
-export default LatticeMiniIcon
+export default React.memo(LatticeMiniIcon)
