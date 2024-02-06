@@ -14,6 +14,13 @@ interface Props extends ViewProps {
   isAnimated?: boolean
 }
 
+export const getPanelPaddings = (isXl: boolean, forceContainerSmallSpacings?: boolean) => {
+  return {
+    paddingHorizontal: isXl && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
+    paddingVertical: isXl && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
+  }
+}
+
 const Panel: React.FC<Props> = ({
   title,
   children,
@@ -26,16 +33,12 @@ const Panel: React.FC<Props> = ({
   const { maxWidthSize } = useWindowSize()
 
   const Container = isAnimated ? Animated.View : View
+
   return (
     <Container
       style={[
         styles.container,
-        {
-          paddingHorizontal:
-            maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
-          paddingVertical:
-            maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
-        },
+        getPanelPaddings(maxWidthSize('xl'), forceContainerSmallSpacings),
         style
       ]}
       {...rest}
