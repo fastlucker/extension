@@ -20,6 +20,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const MNEMONIC = [
@@ -103,6 +104,7 @@ const CreateSeedPhraseConfirmScreen = () => {
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>
+      <CreateSeedPhraseSidebar currentStepId="confirm" />
     </TabLayoutContainer>
   )
 }
