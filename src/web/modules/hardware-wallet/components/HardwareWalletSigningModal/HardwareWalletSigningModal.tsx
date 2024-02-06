@@ -46,7 +46,9 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
   return (
     <Modal
       modalStyle={{ minWidth: 'auto', height: 'auto' }}
-      title={t(`Sign with your ${HARDWARE_WALLET_DEVICE_NAMES[keyType]} device`)}
+      title={t('Sign with your {{deviceName}} device', {
+        deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+      })}
       titleSuffix={titleSuffix}
       isOpen={isOpen}
     >
