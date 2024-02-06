@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -9,6 +10,7 @@ import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
@@ -20,41 +22,69 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
-const MNEMONIC = [
-  {
-    index: 1,
-    word: 'word2'
-  },
-  {
-    index: 4,
-    word: 'word5'
-  },
-  {
-    index: 7,
-    word: 'word8'
-  },
-  {
-    index: 9,
-    word: 'word10'
-  },
-  {
-    index: 11,
-    word: 'word12'
-  }
-]
-
 const CreateSeedPhraseConfirmScreen = () => {
+  const {
+    state: { confirmationWords, seed, ...rest }
+  } = useRoute()
   const { updateStepperState } = useStepper()
+  const { dispatch } = useBackgroundService()
+  const accountAdderState = useAccountAdderControllerState()
+  const mainControllerState = useMainControllerState()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const [isLoading, setIsLoading] = useState(false)
+  const {
+    control,
+    formState: { isValid }
+  } = useForm({
+    mode: 'all',
+    defaultValues: {
+      confirmationWords: confirmationWords.map((value: any) => ({
+        ...value,
+        fieldValue: ''
+      }))
+    }
+  })
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
+    }
+  }, [dispatch])
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
+
+  const completeStep = useCallback(
+    (hasAccountsToImport: boolean = true) => {
+      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
+      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
+        state: {
+          accounts: accountAdderState.readyToAddAccounts,
+          keyType: 'internal',
+          keyTypeInternalSubtype: 'seed'
+        }
+      })
+    },
+    [dispatch, navigate, accountAdderState.readyToAddAccounts]
+  )
+
+  useEffect(() => {
+    if (
+      mainControllerState.status === 'SUCCESS' &&
+      mainControllerState.latestMethodCall === 'onAccountAdderSuccess'
+    ) {
+      completeStep()
+    }
+  }, [completeStep, mainControllerState.status, mainControllerState.latestMethodCall, dispatch])
 
   return (
     <TabLayoutContainer
@@ -66,19 +96,38 @@ const CreateSeedPhraseConfirmScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton
+            onPress={() => {
+              navigate(WEB_ROUTES.createSeedPhraseWrite, {
+                state: {
+                  confirmationWords,
+                  seed,
+                  ...rest
+                }
+              })
+            }}
+          />
           <Button
             accessibilityRole="button"
-            text={t('Continue')}
+            text={!isLoading ? t('Continue') : t('Importing...')}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
+            disabled={!isValid || accountAdderState.accountsLoading || isLoading}
             onPress={() => {
-              navigate(WEB_ROUTES.createSeedPhraseConfirm)
+              setIsLoading(true)
+              dispatch({
+                type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT',
+                params: {
+                  seed: seed.join(' ')
+                }
+              })
             }}
           >
-            <View style={spacings.pl}>
-              <RightArrowIcon color={colors.titan} />
-            </View>
+            {!isLoading && (
+              <View style={spacings.pl}>
+                <RightArrowIcon color={colors.titan} />
+              </View>
+            )}
           </Button>
         </>
       }
@@ -86,18 +135,28 @@ const CreateSeedPhraseConfirmScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel title={t('Confirm your Seed Phrase')}>
           <View>
-            {MNEMONIC.map(({ word, index }) => (
+            {confirmationWords.map(({ word, numberInSeed }: any, index: number) => (
               <View
                 key={word}
                 style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { width: 200 }]}
               >
                 <Text fontSize={14} weight="medium" style={[{ width: 32 }]}>
-                  #{index + 1}
+                  #{numberInSeed}
                 </Text>
-                <Input
-                  value={word}
-                  numberOfLines={1}
-                  containerStyle={[spacings.mb0, flexbox.flex1]}
+                <Controller
+                  control={control}
+                  name={`confirmationWords.${index}.fieldValue`}
+                  rules={{ required: true, validate: (value) => value === word }}
+                  render={({ field: { onChange, value, onBlur } }) => (
+                    <Input
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      value={value}
+                      style={{ width: 200 }}
+                      placeholder={t('Word {{numberInSeed}}', { numberInSeed })}
+                      containerStyle={[spacings.mb0, flexbox.flex1]}
+                    />
+                  )}
                 />
               </View>
             ))}

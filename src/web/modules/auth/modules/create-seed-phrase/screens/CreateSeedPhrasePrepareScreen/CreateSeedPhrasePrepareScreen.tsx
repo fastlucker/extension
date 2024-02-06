@@ -1,3 +1,4 @@
+import { Wallet } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -12,6 +13,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -23,6 +25,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -45,11 +48,14 @@ const CHECKBOXES = [
 
 const CreateSeedPhrasePrepareScreen = () => {
   const { updateStepperState } = useStepper()
+  const { accounts } = useMainControllerState()
+  const { addToast } = useToast()
   const { t } = useTranslation()
-  const [checkboxesState, setCheckboxesState] = useState([false, false, false])
-  const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const [checkboxesState, setCheckboxesState] = useState([false, false, false])
+  const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
+  const seed = Wallet.createRandom().mnemonic?.phrase || null
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
@@ -73,7 +79,15 @@ const CreateSeedPhrasePrepareScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton
+            onPress={() => {
+              if (accounts.length) {
+                navigate(WEB_ROUTES.dashboard)
+                return
+              }
+              navigate(WEB_ROUTES.getStarted)
+            }}
+          />
           <Button
             disabled={!allCheckboxesChecked}
             accessibilityRole="button"
@@ -81,7 +95,15 @@ const CreateSeedPhrasePrepareScreen = () => {
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
             onPress={() => {
-              navigate(WEB_ROUTES.createSeedPhraseWrite)
+              if (!seed) {
+                addToast('Failed to generate seed phrase', { type: 'error' })
+                return
+              }
+              navigate(WEB_ROUTES.createSeedPhraseWrite, {
+                state: {
+                  seed: seed.split(' ')
+                }
+              })
             }}
           >
             <View style={spacings.pl}>
