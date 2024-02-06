@@ -1,4 +1,5 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { CachedResolvedDomain } from '@ambire-common/interfaces/domains'
 
 import { storage } from '../webapi/storage'
 
@@ -6,6 +7,13 @@ export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
   #_isDefaultWallet: boolean = true
+
+  #_cachedResolvedDomains: CachedResolvedDomain[] = []
+
+  #_onboardingState?: {
+    version: string
+    viewedAt: number
+  } = undefined
 
   get isDefaultWallet() {
     return this.#_isDefaultWallet
@@ -17,10 +25,21 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  #_onboardingState?: {
-    version: string
-    viewedAt: number
-  } = undefined
+  get cachedResolvedDomains() {
+    return this.#_cachedResolvedDomains
+  }
+
+  cacheResolvedDomain(newDomain: CachedResolvedDomain) {
+    const isDomainAlreadyCached = this.#_cachedResolvedDomains.find(
+      ({ name, address }) => newDomain.name === name && newDomain.address === address
+    )
+    if (isDomainAlreadyCached) return
+
+    this.#_cachedResolvedDomains = [...this.#_cachedResolvedDomains, newDomain]
+    storage.set('cachedResolvedDomains', this.cachedResolvedDomains)
+
+    this.emitUpdate()
+  }
 
   get onboardingState() {
     return this.#_onboardingState
@@ -47,6 +66,7 @@ export class WalletStateController extends EventEmitter {
       this.#_isDefaultWallet = isDefault
     }
 
+    this.#_cachedResolvedDomains = await storage.get('cachedResolvedDomains', [])
     this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
@@ -56,6 +76,7 @@ export class WalletStateController extends EventEmitter {
   toJSON() {
     return {
       ...this,
+      cachedResolvedDomains: this.cachedResolvedDomains,
       isDefaultWallet: this.isDefaultWallet,
       onboardingState: this.onboardingState
     }
