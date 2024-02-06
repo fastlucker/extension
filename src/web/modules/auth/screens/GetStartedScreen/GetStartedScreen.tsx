@@ -24,7 +24,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { ONBOARDING_VALUES } from '@web/extension-services/background/controllers/wallet-state'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -34,6 +33,7 @@ import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
 import { TERMS_VERSION } from '@web/modules/auth/screens/Terms'
 
+import { ONBOARDING_VERSION } from '../../components/Stories/Stories'
 import getStyles from './styles'
 
 const GetStartedScreen = () => {
@@ -57,14 +57,14 @@ const GetStartedScreen = () => {
   }, [authStatus, navigate])
 
   useEffect(() => {
-    if (state.onboardingStatus === ONBOARDING_VALUES.ON_BOARDED) {
+    if (state.onboardingState) {
       Animated.timing(animation, {
         toValue: 1,
         duration: 480,
         useNativeDriver: false
       }).start()
     }
-  }, [animation, state.onboardingStatus])
+  }, [animation, state.onboardingState])
 
   const handleAuthButtonPress = useCallback(
     async (flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-hot-wallet' | 'view-only') => {
@@ -105,13 +105,11 @@ const GetStartedScreen = () => {
       .then(() => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         dispatch({
-          type: 'SET_ONBOARDING_STATUS',
-          params: { onboardingStatus: ONBOARDING_VALUES.ON_BOARDED }
+          type: 'SET_ONBOARDING_STATE',
+          params: { version: ONBOARDING_VERSION, viewedAt: Date.now() }
         })
       })
   }
-
-  if (state.onboardingStatus === undefined) return null
 
   const panelWidthInterpolate = animation.interpolate({
     inputRange: [0, 1],
@@ -174,10 +172,8 @@ const GetStartedScreen = () => {
         </View>
       </Modal>
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
-        {state.onboardingStatus === ONBOARDING_VALUES.NOT_ON_BOARDED && (
-          <Stories onComplete={handleSetStoriesCompleted} />
-        )}
-        {state.onboardingStatus === ONBOARDING_VALUES.ON_BOARDED && (
+        {!state.onboardingState && <Stories onComplete={handleSetStoriesCompleted} />}
+        {!!state.onboardingState && (
           <View>
             <Animated.View
               style={[

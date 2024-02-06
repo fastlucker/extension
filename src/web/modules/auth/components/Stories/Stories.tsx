@@ -28,6 +28,8 @@ import Story5 from './images/story-5.png'
 import Story6 from './images/story-6.png'
 import getStyles from './styles'
 
+export const ONBOARDING_VERSION = '1.0.0'
+
 const Stories = ({ onComplete }: { onComplete: () => void }) => {
   const { theme, styles } = useTheme(getStyles)
   const [currentStory, setCurrentStory] = useState(0)

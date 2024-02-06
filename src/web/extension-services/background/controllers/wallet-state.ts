@@ -2,12 +2,6 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 
 import { storage } from '../webapi/storage'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export enum ONBOARDING_VALUES {
-  ON_BOARDED = 'on-boarded',
-  NOT_ON_BOARDED = 'not-on-boarded'
-}
-
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false
 
@@ -23,15 +17,18 @@ export class WalletStateController extends EventEmitter {
     this.emitUpdate()
   }
 
-  #_onboardingStatus: ONBOARDING_VALUES = ONBOARDING_VALUES.NOT_ON_BOARDED
+  #_onboardingState?: {
+    version: string
+    viewedAt: number
+  } = undefined
 
-  get onboardingStatus() {
-    return this.#_onboardingStatus
+  get onboardingState() {
+    return this.#_onboardingState
   }
 
-  set onboardingStatus(newValue: ONBOARDING_VALUES) {
-    this.#_onboardingStatus = newValue
-    storage.set('onboardingStatus', newValue)
+  set onboardingState(newValue: { version: string; viewedAt: number } | undefined) {
+    this.#_onboardingState = newValue
+    storage.set('onboardingState', newValue)
     this.emitUpdate()
   }
 
@@ -50,10 +47,7 @@ export class WalletStateController extends EventEmitter {
       this.#_isDefaultWallet = isDefault
     }
 
-    this.#_onboardingStatus = await storage.get(
-      'onboardingStatus',
-      ONBOARDING_VALUES.NOT_ON_BOARDED
-    )
+    this.#_onboardingState = await storage.get('onboardingState', undefined)
 
     this.isReady = true
     this.emitUpdate()
@@ -63,7 +57,7 @@ export class WalletStateController extends EventEmitter {
     return {
       ...this,
       isDefaultWallet: this.isDefaultWallet,
-      onboardingStatus: this.onboardingStatus
+      onboardingState: this.onboardingState
     }
   }
 }

@@ -16,7 +16,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { ONBOARDING_VALUES } from '@web/extension-services/background/controllers/wallet-state'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
 
@@ -31,9 +30,9 @@ const OnBoardingScreen = () => {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const status = await storage.get('onboardingStatus', ONBOARDING_VALUES.NOT_ON_BOARDED)
+      const onboardingState = await storage.get('onboardingState', undefined)
 
-      if (status === ONBOARDING_VALUES.ON_BOARDED) {
+      if (onboardingState) {
         navigate(WEB_ROUTES.dashboard)
       }
     })()
