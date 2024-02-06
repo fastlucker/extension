@@ -85,4 +85,4 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
   )
 }
 
-export default HardwareWalletSigningModal
+export default React.memo(HardwareWalletSigningModal)
