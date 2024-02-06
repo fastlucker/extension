@@ -1,8 +1,8 @@
 import React from 'react'
 import Svg, { Circle, Path, SvgProps } from 'react-native-svg'
 
-const TrezorMiniIcon: React.FC<SvgProps> = ({ width = 32, height = 32 }) => (
-  <Svg width={width} height={height} viewBox="0 0 32 32">
+const TrezorMiniIcon: React.FC<SvgProps> = ({ width = 32, height = 32, ...styles }) => (
+  <Svg width={width} height={height} viewBox="0 0 32 32" {...styles}>
     <Circle cx="16" cy="16" r="16" fill="#141833" />
     <Path data-name="Rectangle 1295" fill="none" d="M0 0h32v32H0z" />
     <Path
