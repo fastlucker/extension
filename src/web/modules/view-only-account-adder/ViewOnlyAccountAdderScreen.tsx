@@ -64,6 +64,7 @@ const ViewOnlyScreen = () => {
     watch,
     setValue,
     handleSubmit,
+    trigger,
     formState: { isValid, isSubmitting }
   } = useForm({
     mode: 'all',
@@ -220,6 +221,7 @@ const ViewOnlyScreen = () => {
               field={field}
               watch={watch}
               setValue={setValue}
+              trigger={trigger}
             />
           ))}
           <View>

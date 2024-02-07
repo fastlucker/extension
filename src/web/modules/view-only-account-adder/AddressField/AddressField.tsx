@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { Controller, UseFormSetValue, UseFormWatch } from 'react-hook-form'
+import { Controller, UseFormSetValue, UseFormTrigger, UseFormWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -23,6 +23,7 @@ interface Props {
   remove: (index: number) => void
   disabled: boolean
   setValue: UseFormSetValue<any>
+  trigger: UseFormTrigger<any>
 }
 const AddressField: FC<Props> = ({
   duplicateAccountsIndexes,
@@ -34,7 +35,8 @@ const AddressField: FC<Props> = ({
   handleSubmit,
   remove,
   disabled,
-  setValue
+  setValue,
+  trigger
 }) => {
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
@@ -64,10 +66,15 @@ const AddressField: FC<Props> = ({
     return ''
   }, [duplicateAccountsIndexes, index, mainControllerState.accounts, value])
 
+  const handleRevalidate = useCallback(() => {
+    trigger(`accounts.${index}.fieldValue`)
+  }, [index, trigger])
+
   const { validation, RHFValidate } = useAddressInput({
     addressState: value,
     setAddressState,
-    overwriteError
+    overwriteError,
+    handleRevalidate
   })
 
   return (
