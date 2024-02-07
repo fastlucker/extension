@@ -59,7 +59,7 @@ const CreateSeedPhraseSidebar: FC<Props> = ({ currentStepId }) => {
                   borderColor: isCurrent ? theme.primary : theme.secondaryBorder,
                   paddingLeft: SPACING_MD * 2,
                   width: '100%',
-                  opacity: isCurrent ? 1 : 0.6
+                  opacity: isCurrent ? 1 : 0.5
                 }
               ]}
             >
@@ -77,7 +77,8 @@ const CreateSeedPhraseSidebar: FC<Props> = ({ currentStepId }) => {
               <Text
                 style={{
                   marginRight: SPACING_MD * 2,
-                  width: 30
+                  width: 30,
+                  opacity: isCurrent ? 1 : 0.6
                 }}
                 fontSize={48}
                 weight="semiBold"
