@@ -85,7 +85,7 @@ const CreateSeedPhrasePrepareScreen = () => {
           <BackButton
             onPress={() => {
               if (accounts.length) {
-                navigate(WEB_ROUTES.dashboard)
+                navigate(WEB_ROUTES.createHotWallet)
                 return
               }
               navigate(WEB_ROUTES.getStarted)
