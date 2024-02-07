@@ -86,7 +86,11 @@ type MainControllerAccountAdderAddAccounts = {
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
-  params: { accounts: Account[] }
+  params: {
+    accounts: (Account & {
+      domainName: string | null
+    })[]
+  }
 }
 type MainControllerAddSeedPhraseAccounts = {
   type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
