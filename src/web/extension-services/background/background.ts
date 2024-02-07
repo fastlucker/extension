@@ -14,6 +14,7 @@ import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountA
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -579,6 +580,21 @@ async function init() {
                 prevAccountsCount
               )
 
+              const ensOrUdAccountPreferences: AccountPreferences = data.params.accounts.reduce(
+                (acc: AccountPreferences, account) => {
+                  if (account.domainName) {
+                    acc[account.addr] = {
+                      pfp: defaultAccountPreferences[account.addr].pfp,
+                      label: account.domainName
+                    }
+                    return acc
+                  }
+
+                  return acc
+                },
+                {}
+              )
+
               // Since these accounts are view-only, directly add them in the
               // MainController, bypassing the AccountAdder flow.
               await mainCtrl.addAccounts(data.params.accounts)
@@ -588,7 +604,10 @@ async function init() {
               // flow was bypassed and the `onAccountAdderSuccess` subscription
               // in the MainController won't click.
               return Promise.all([
-                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.settings.addAccountPreferences({
+                  ...defaultAccountPreferences,
+                  ...ensOrUdAccountPreferences
+                }),
                 mainCtrl.selectAccount(data.params.accounts[0].addr)
               ])
             }

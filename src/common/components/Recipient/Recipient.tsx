@@ -45,8 +45,8 @@ const Recipient: React.FC<Props> = ({
       <AddressInput
         validation={validation}
         containerStyle={styles.inputContainer}
-        isValidUDomain={!!uDAddress}
-        isValidEns={!!ensAddress}
+        udAddress={uDAddress}
+        ensAddress={ensAddress}
         isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
         value={address}
