@@ -88,6 +88,12 @@ type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
   params: { accounts: Account[] }
 }
+type MainControllerAddSeedPhraseAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
+  params: {
+    seed: string
+  }
+}
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
 }
@@ -328,6 +334,7 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
+  | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
