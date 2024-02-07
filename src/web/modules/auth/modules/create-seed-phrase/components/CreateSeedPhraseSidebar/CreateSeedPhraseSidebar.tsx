@@ -1,9 +1,11 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
+import CheckedListIcon from '@common/assets/svg/CheckedListIcon'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import SeedPhraseRecoveryIcon from '@common/assets/svg/SeedPhraseRecoveryIcon'
+import HiddenListIcon from '@common/assets/svg/HiddenListIcon'
+import PenIcon from '@common/assets/svg/PenIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings, { SPACING_MD } from '@common/styles/spacings'
@@ -15,17 +17,17 @@ const SIDEBAR_STEPS = [
   {
     id: 'prepare',
     text: 'Prepare a pen and\na piece of paper',
-    icon: SeedPhraseRecoveryIcon
+    icon: PenIcon
   },
   {
     id: 'write',
     text: 'Write down and secure\nthe Seed Phrase',
-    icon: SeedPhraseRecoveryIcon
+    icon: HiddenListIcon
   },
   {
     id: 'confirm',
     text: 'Confirm your\nSeed Phrase',
-    icon: SeedPhraseRecoveryIcon
+    icon: CheckedListIcon
   }
 ]
 
