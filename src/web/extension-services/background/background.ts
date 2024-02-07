@@ -592,7 +592,7 @@ async function init() {
 
                   return acc
                 },
-                {} as AccountPreferences
+                {}
               )
 
               // Since these accounts are view-only, directly add them in the
