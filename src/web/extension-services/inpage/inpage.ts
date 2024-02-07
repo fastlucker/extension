@@ -45,15 +45,20 @@ const runReplacementScript = () => {
   }
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   ;(async () => {
-    await delayPromise(30)
+    if (!isEIP6963) {
+      await delayPromise(30)
+    }
     if (isEIP6963) return
     if (hasWalletConnectInPage) replaceMMImgInPage()
     const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
     const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
 
     if (!hasMetaMaskInPage) return
-    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal))
+
+    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal)) {
       return
+    }
+
     replaceMMBrandInPage(ambireSvg)
   })()
 }
