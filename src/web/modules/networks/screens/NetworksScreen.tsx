@@ -13,11 +13,11 @@ import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import {
   TabLayoutContainer,
   tabLayoutWidths,
@@ -115,8 +115,8 @@ const NetworksScreen = () => {
               </Text>
             </View>
             <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
-              {`$${formatThousands(
-                Number(portfolioControllerState.accountPortfolio?.totalAmount || 0).toFixed(2)
+              {`$${formatDecimals(
+                Number(portfolioControllerState.accountPortfolio?.totalAmount || 0)
               )}` || '$-'}
             </Text>
           </Pressable>

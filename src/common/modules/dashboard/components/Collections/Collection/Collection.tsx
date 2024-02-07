@@ -10,6 +10,7 @@ import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { getUiType } from '@web/utils/uiType'
 
 import Collectible from './Collectible'
@@ -35,11 +36,11 @@ export const formatCollectiblePrice = ({
   price: number
 }) => {
   if (baseCurrency === 'usd') {
-    return `$${price}`
+    return `$${formatDecimals(price)}`
   }
 
   // @TODO: handle other currencies
-  return `${price} ${baseCurrency.toUpperCase()}`
+  return `${formatDecimals(price)} ${baseCurrency.toUpperCase()}`
 }
 
 const { isTab } = getUiType()

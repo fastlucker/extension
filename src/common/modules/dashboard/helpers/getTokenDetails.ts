@@ -2,12 +2,7 @@ import { formatUnits } from 'ethers'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import networks from '@common/constants/networks'
-
-export function formatThousands(input: string) {
-  const parts = input.split('.')
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  return parts.join('.')
-}
+import formatDecimals from '@common/utils/formatDecimals'
 
 const getTokenDetails = ({
   flags: { rewardsType },
@@ -27,11 +22,11 @@ const getTokenDetails = ({
 
   return {
     balance,
-    balanceFormatted: formatThousands(balance.toFixed(balance < 1 ? 8 : 4)),
+    balanceFormatted: formatDecimals(balance, 'amount'),
     priceUSD,
-    priceUSDFormatted: formatThousands(priceUSD.toFixed(priceUSD < 1 ? 4 : 2)),
+    priceUSDFormatted: formatDecimals(priceUSD),
     balanceUSD,
-    balanceUSDFormatted: formatThousands(balanceUSD.toFixed(balanceUSD < 1 ? 4 : 2)),
+    balanceUSDFormatted: formatDecimals(balanceUSD, 'value'),
     networkData,
     isRewards,
     isVesting
