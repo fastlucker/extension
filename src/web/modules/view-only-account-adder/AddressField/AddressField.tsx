@@ -96,8 +96,8 @@ const AddressField: FC<Props> = ({
             value={value.fieldValue}
             autoFocus
             disabled={isSubmitting}
-            isValidEns={!!value.ensAddress}
-            isValidUDomain={!!value.udAddress}
+            ensAddress={value.ensAddress}
+            udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}
             onSubmitEditing={disabled ? undefined : handleSubmit}
             button={accounts.length > 1 ? <DeleteIcon style={spacings.mlTy} /> : null}
