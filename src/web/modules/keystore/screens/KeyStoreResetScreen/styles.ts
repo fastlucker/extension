@@ -34,8 +34,7 @@ const styles = StyleSheet.create<Styles>({
     color: colors.violet
   },
   button: {
-    width: 296,
-    marginHorizontal: 'auto'
+    width: 296
   }
 })
 

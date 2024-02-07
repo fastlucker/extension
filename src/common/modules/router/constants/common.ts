@@ -13,6 +13,7 @@ const COMMON_ROUTES = {
   transfer: 'transfer',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
+  keystore: 'keystore',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',
   receive: 'receive',
@@ -44,7 +45,6 @@ const MOBILE_ROUTES = {
 
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
-  createEmailVault: 'create-email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',

@@ -22,7 +22,6 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
-import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -39,6 +38,7 @@ import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettin
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
+import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
@@ -61,8 +61,6 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
 
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
-
-          <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
           <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
@@ -111,6 +109,8 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+            <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>

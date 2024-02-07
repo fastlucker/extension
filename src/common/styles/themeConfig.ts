@@ -125,7 +125,7 @@ export const iconColors = {
 export const lightOnlyRoutesOnMobile = []
 
 export const lightOnlyRoutesOnWeb = [
-  WEB_ROUTES.createEmailVault,
+  WEB_ROUTES.emailVault,
   WEB_ROUTES.keyStoreSetup,
   WEB_ROUTES.getStarted,
   WEB_ROUTES.terms,

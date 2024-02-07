@@ -92,7 +92,7 @@ const GetStartedScreen = () => {
         return
       }
       if (flow === 'email') {
-        navigate(WEB_ROUTES.createEmailVault)
+        navigate(WEB_ROUTES.emailVault)
         return
       }
       if (flow === 'hw') {

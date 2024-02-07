@@ -8,10 +8,11 @@ import EmailAnimation from '@common/modules/auth/components/EmailAnimation'
 import styles from './styles'
 
 interface Props {
+  email: string
   handleCancelLoginAttempt: () => void
 }
 
-const EmailConfirmation: FC<Props> = ({ handleCancelLoginAttempt }) => {
+const EmailConfirmation: FC<Props> = ({ email, handleCancelLoginAttempt }) => {
   const { t } = useTranslation()
 
   return (
@@ -22,21 +23,22 @@ const EmailConfirmation: FC<Props> = ({ handleCancelLoginAttempt }) => {
       <Text fontSize={14} weight="regular" style={styles.sentEmailText}>
         {t(
           'We sent an email to {{email}}, please check your inbox and click Authorize New Device.',
-          { email: 'email@gmail.com' }
+          { email }
         )}
       </Text>
       <Text fontSize={14} style={styles.waitingEmailConfirmationText}>
         {t('Waiting Email Confirmation')}
       </Text>
 
-      <Text
-        underline
-        fontSize={14}
-        style={styles.cancelLoginAttemptText}
-        onPress={handleCancelLoginAttempt}
-      >
-        {t('Cancel Login Attempt')}
-      </Text>
+      {/* Once attempt canceling is implemented in @ambire-common, we are going to include it here.  */}
+      {/* <Text */}
+      {/*  underline */}
+      {/*  fontSize={14} */}
+      {/*  style={styles.cancelLoginAttemptText} */}
+      {/*  onPress={handleCancelLoginAttempt} */}
+      {/* > */}
+      {/*  {t('Cancel Login Attempt')} */}
+      {/* </Text> */}
     </>
   )
 }

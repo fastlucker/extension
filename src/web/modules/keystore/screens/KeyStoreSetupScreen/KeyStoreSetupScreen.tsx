@@ -217,12 +217,6 @@ const KeyStoreSetupScreen = () => {
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}
           onPress={() => {
-            if (params?.flow === 'email') {
-              navigate(WEB_ROUTES.createEmailVault, {
-                state: { backTo: WEB_ROUTES.getStarted }
-              })
-              return
-            }
             if (params?.flow === 'hw') {
               navigate(WEB_ROUTES.hardwareWalletSelect, {
                 state: { backTo: WEB_ROUTES.getStarted }
