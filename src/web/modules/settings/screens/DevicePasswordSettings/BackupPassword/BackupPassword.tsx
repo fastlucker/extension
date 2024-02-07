@@ -118,7 +118,10 @@ const BackupPassword = () => {
         />
       </View>
       <Modal
-        isOpen={ev.currentState === EmailVaultState.WaitingEmailConfirmation}
+        isOpen={
+          ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
+          ev.currentState === EmailVaultState.UploadingSecret
+        }
         modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
         title={t('Email Confirmation Required')}
       >
