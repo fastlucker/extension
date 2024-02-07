@@ -180,6 +180,7 @@ const KeyStoreResetScreen = () => {
               errors={errors}
               password={watch('password')}
               isPasswordChanged={isPasswordChanged}
+              handleChangeKeystorePassword={handleCompleteReset}
             />
           )}
         </>

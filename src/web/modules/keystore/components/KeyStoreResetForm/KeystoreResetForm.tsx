@@ -22,9 +22,16 @@ interface Props {
     }>
   >
   isPasswordChanged: boolean
+  handleChangeKeystorePassword: () => void
 }
 
-const KeystoreResetForm: FC<Props> = ({ password, control, errors, isPasswordChanged }) => {
+const KeystoreResetForm: FC<Props> = ({
+  password,
+  control,
+  errors,
+  isPasswordChanged,
+  handleChangeKeystorePassword
+}) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
@@ -46,6 +53,7 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors, isPasswordCha
               (t('Please fill in at least 8 characters for passphrase.') as string)
             }
             containerStyle={styles.passwordInput}
+            onSubmitEditing={handleChangeKeystorePassword}
           />
         )}
         name="password"
@@ -66,6 +74,7 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors, isPasswordCha
             error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
             autoCorrect={false}
             containerStyle={styles.confirmPasswordInput}
+            onSubmitEditing={handleChangeKeystorePassword}
           />
         )}
         name="confirmPassword"
