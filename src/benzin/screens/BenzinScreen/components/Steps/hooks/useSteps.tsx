@@ -28,6 +28,7 @@ interface Props {
     storage: Storage
     fetch: any
     emitError: (e: ErrorRef) => number
+    parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
 }
@@ -418,18 +419,7 @@ const useSteps = ({
         {},
         standardOptions.storage,
         standardOptions.fetch,
-        (humanizedCalls) => {
-          // remove deadlines from humanizer
-          const finalParsedCalls = humanizedCalls.map((call) => {
-            const localCall = { ...call }
-            localCall.fullVisualization = call.fullVisualization?.filter(
-              (visual) => visual.type !== 'deadline'
-            )
-            localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
-            return localCall
-          })
-          setCalls(finalParsedCalls)
-        },
+        (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
         standardOptions.emitError
       ).catch((e) => e)
     }
