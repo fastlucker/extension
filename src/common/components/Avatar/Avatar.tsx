@@ -13,7 +13,6 @@ import avatarSpaceRaccoon from '@common/assets/images/avatars/avatar-space-racco
 import avatarSpace from '@common/assets/images/avatars/avatar-space.png'
 import avatarSpreadFire from '@common/assets/images/avatars/avatar-spread-fire.png'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAvatarType } from '@common/utils/avatars'
 
@@ -55,13 +54,21 @@ export const getAccountPfpSource = (pfpId: string) => {
 export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: number }) => {
   const selectedAccountPfp = getAccountPfpSource(pfp)
   const avatarType = getAvatarType(selectedAccountPfp)
+  const borderRadius = size / 2
 
   if (['jazz', 'blockies'].includes(avatarType)) {
     return (
       <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-        {avatarType === 'jazz' && <JazzIcon address={selectedAccountPfp} size={size} />}
+        {avatarType === 'jazz' && (
+          <JazzIcon borderRadius={borderRadius} address={selectedAccountPfp} size={size} />
+        )}
         {avatarType === 'blockies' && (
-          <Blockie seed={selectedAccountPfp} width={size} height={size} />
+          <Blockie
+            seed={selectedAccountPfp}
+            width={size}
+            height={size}
+            borderRadius={borderRadius}
+          />
         )}
       </View>
     )
@@ -70,7 +77,7 @@ export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: numb
   return (
     <Image
       source={selectedAccountPfp}
-      style={[common.borderRadiusPrimary, spacings.mrTy, { width: size, height: size }]}
+      style={[spacings.mrTy, { width: size, height: size, borderRadius }]}
       resizeMode="contain"
     />
   )
