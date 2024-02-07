@@ -14,6 +14,7 @@ import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountA
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -591,6 +592,8 @@ async function init() {
                 mainCtrl.selectAccount(data.params.accounts[0].addr)
               ])
             }
+            // This flow interacts manually with the AccountAdder controller so that it can
+            // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
             case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
               const seed = data.params.seed
               const keyIterator = new KeyIterator(seed)
@@ -598,7 +601,8 @@ async function init() {
               await mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: []
+                preselectedAccounts: [],
+                pageSize: 1
               })
 
               await mainCtrl.accountAdder.setPage({
@@ -608,10 +612,15 @@ async function init() {
               })
 
               const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
-                ({ account: { creation }, slot }) => slot === 1 && creation
+                ({ slot, isLinked, account }) => slot === 1 && !isLinked && isSmartAccount(account)
               )?.account
 
-              if (!firstSmartAccount) throw new Error('Failed to import seed phrase account.')
+              // This should never happen (added it because of typescript)
+              if (!firstSmartAccount) {
+                console.error('No smart account found in the first page of the seed phrase')
+
+                return
+              }
 
               await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
 
@@ -631,7 +640,7 @@ async function init() {
                   mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
                 )
 
-                return { privateKey }
+                return { privateKey, dedicatedToOneSA: true }
               })
 
               const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.map(
@@ -646,12 +655,7 @@ async function init() {
                 mainCtrl.accountAdder.selectedAccounts,
                 readyToAddAccountPreferences,
                 {
-                  internal: [
-                    {
-                      privateKey: readyToAddKeys[0].privateKey,
-                      dedicatedToOneSA: true
-                    }
-                  ],
+                  internal: readyToAddKeys,
                   external: []
                 },
                 readyToAddKeyPreferences
