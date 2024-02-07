@@ -3,6 +3,8 @@ import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Storage } from '@ambire-common/interfaces/storage'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -19,9 +21,24 @@ import Steps from './components/Steps'
 import useSteps from './components/Steps/hooks/useSteps'
 import getStyles from './styles'
 
+function produceMemoryStore(): Storage {
+  const storage = new Map()
+
+  return {
+    get: (key, defaultValue): any => {
+      const serialized = storage.get(key)
+      return Promise.resolve(serialized ? parse(serialized) : defaultValue)
+    },
+    set: (key, value) => {
+      storage.set(key, stringify(value))
+      return Promise.resolve(null)
+    }
+  }
+}
+const storage = produceMemoryStore()
 const emittedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
-const standardOptions = { fetch, emitError: mockEmitError }
+const standardOptions = { fetch: window.fetch.bind(window), emitError: mockEmitError, storage }
 
 const BenzinScreen = () => {
   const { styles } = useTheme(getStyles)
