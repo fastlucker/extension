@@ -30,15 +30,16 @@ import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import WatchTokenRequestScreen from '@web/modules/notification-requests/screens/WatchTokenRequestScreen'
 import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
+import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
-import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
@@ -131,6 +132,7 @@ const MainRoutes = () => {
 
         <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
         <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+        <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
 
         <Route
           path={WEB_ROUTES.getEncryptionPublicKeyRequest}
