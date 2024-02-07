@@ -50,7 +50,7 @@ const WEB_ROUTES = {
   keyStoreReset: 'keystore-reset',
   devicePassword: 'device-password',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
-  onboarding: 'onboarding',
+  onboardingCompleted: 'onboarding-completed',
   dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
   addChain: 'add-chain',

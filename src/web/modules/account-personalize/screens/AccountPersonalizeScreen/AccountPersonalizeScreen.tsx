@@ -84,7 +84,7 @@ const AccountPersonalizeScreen = () => {
         params: newAccPreferences
       })
 
-      navigate('/')
+      navigate('/', { state: { openOnboardingCompleted: true } })
     },
     [navigate, dispatch, settingsCtrl.accountPreferences]
   )
