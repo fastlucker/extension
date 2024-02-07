@@ -18,9 +18,6 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
-import EmailVaultScreen from '@web/modules/emailVault/screens/EmailVaultScreen'
-import KeystoreSecretBackup from '@web/modules/emailVault/screens/KeystoreSecretBackup'
-import KeystoreRecover from '@web/modules/emailVault/screens/KeystoreRecover'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -60,10 +57,6 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
 
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
-
-          <Route path={WEB_ROUTES.emailVault} element={<EmailVaultScreen />} />
-          <Route path={WEB_ROUTES.emailVaultKeystoreSecretBackup} element={<KeystoreSecretBackup />} />
-          <Route path={WEB_ROUTES.emailVaultKeystoreRecover} element={<KeystoreRecover />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
           <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />

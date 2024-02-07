@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
@@ -12,8 +11,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-
-import BackButton from '@common/components/BackButton'
 import Header from '@common/modules/header/components/Header'
 import Modal from '@common/components/Modal'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'

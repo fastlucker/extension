@@ -1,4 +1,4 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
+import { isValidPassword } from '@ambire-common/services/validations'
 import { FC } from 'react'
 import { Controller, FieldErrorsImpl } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'

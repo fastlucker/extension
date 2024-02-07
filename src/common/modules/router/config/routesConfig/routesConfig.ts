@@ -68,10 +68,6 @@ const routesConfig: {
     route: ROUTES.keyStoreReset,
     title: i18n.t('Restore Key Store Passphrase')
   },
-  [ROUTES.emailVault]: {
-    route: ROUTES.emailVault,
-    title: ''
-  },
   [ROUTES.auth]: {
     route: ROUTES.auth,
     title: Platform.select({
