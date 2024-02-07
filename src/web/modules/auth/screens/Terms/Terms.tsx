@@ -5,6 +5,8 @@ import AmbireLogo from '@common/assets/svg/AmbireLogoWithText'
 import BackButton from '@common/components/BackButton'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import spacings, { SPACING, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -18,6 +20,8 @@ export const TERMS_VERSION = '1.0.0'
 
 const Terms = () => {
   const { t } = useTranslation()
+  const { params } = useRoute()
+  const { navigate, goBack } = useNavigation()
 
   return (
     <TabLayoutContainer
@@ -30,7 +34,17 @@ const Terms = () => {
           </Text>
         </View>
       }
-      footer={<BackButton />}
+      footer={
+        <BackButton
+          onPress={() => {
+            if (params?.storyIndex) {
+              navigate('get-started', { state: { storyIndex: params?.storyIndex } })
+            } else {
+              goBack()
+            }
+          }}
+        />
+      }
     >
       <TabLayoutWrapperMainContent
         showsVerticalScrollIndicator
@@ -85,4 +99,4 @@ const Terms = () => {
   )
 }
 
-export default Terms
+export default React.memo(Terms)

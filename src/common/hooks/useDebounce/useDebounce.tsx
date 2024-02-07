@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 
-interface Props {
-  value: string | number
+interface Props<T> {
+  value: T
   delay: number
 }
 
-const useDebounce = ({ value, delay }: Props) => {
+function useDebounce<T>({ value, delay }: Props<T>): T {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {

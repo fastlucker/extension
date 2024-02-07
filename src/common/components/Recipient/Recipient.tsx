@@ -6,7 +6,8 @@ import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { InputProps } from '@common/components/Input'
 import ConfirmAddress from '@web/modules/transfer/components/ConfirmAddress'
 
-import RecipientInput from '../RecipientInput'
+import AddressInput from '../AddressInput'
+import { AddressValidation } from '../AddressInput/AddressInput'
 import Text from '../Text'
 import styles from './styles'
 
@@ -20,6 +21,7 @@ interface Props extends InputProps {
   isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
   isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
+  validation: AddressValidation
   isRecipientDomainResolving: boolean
 }
 
@@ -33,22 +35,22 @@ const Recipient: React.FC<Props> = ({
   onRecipientAddressUnknownCheckboxClick,
   isRecipientHumanizerKnownTokenOrSmartContract,
   isRecipientAddressUnknown,
+  validation,
   isRecipientDomainResolving
 }) => {
   const { t } = useTranslation()
 
   return (
     <>
-      <RecipientInput
+      <AddressInput
+        validation={validation}
         containerStyle={styles.inputContainer}
         isValidUDomain={!!uDAddress}
         isValidEns={!!ensAddress}
+        isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
-        isValid={address.length > 1 && !addressValidationMsg && (!!uDAddress || !!ensAddress)}
-        error={address.length > 1 && addressValidationMsg}
         value={address}
         onChangeText={setAddress}
-        isRecipientDomainResolving={isRecipientDomainResolving}
       />
       <View style={styles.inputBottom}>
         <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>

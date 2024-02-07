@@ -92,8 +92,8 @@ const DashboardHeader = () => {
                       <View
                         style={{
                           position: 'absolute',
-                          right: -4,
-                          top: -4,
+                          right: 2,
+                          top: -2,
                           backgroundColor: theme.primaryBackground,
                           padding: 2,
                           borderRadius: 50

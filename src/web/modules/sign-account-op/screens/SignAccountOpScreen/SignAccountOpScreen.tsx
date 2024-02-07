@@ -23,6 +23,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
+import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
@@ -45,8 +46,7 @@ const SignAccountOpScreen = () => {
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
-  const [doNotHideNoBalanceChangesDuringLoad, setDoNotHideNoBalanceChangesDuringLoad] =
-    useState<boolean>(false)
+  const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
 
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -242,17 +242,21 @@ const SignAccountOpScreen = () => {
 
   const isSignLoading =
     signAccountOpState.status?.type === SigningStatus.InProgress ||
-    signAccountOpState.status?.type === SigningStatus.InProgressAwaitingUserInput ||
     signAccountOpState.status?.type === SigningStatus.Done ||
     mainState.broadcastStatus === 'LOADING'
 
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
 
-  const hasSimulationError =
-    !portfolioStatePending?.isLoading &&
+  let hasSimulationError = false
+  if (
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
       !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+  ) {
+    hasSimulationError = true
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
 
   let simulationErrorMsg = 'We were unable to simulate the transaction'
   if (portfolioStatePending?.criticalError)
@@ -267,13 +271,23 @@ const SignAccountOpScreen = () => {
 
   let shouldShowNoBalanceChanges = false
   if (
-    (!portfolioStatePending?.isLoading || doNotHideNoBalanceChangesDuringLoad) &&
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !pendingTokens.length &&
     !portfolioStatePending?.errors.length &&
     !portfolioStatePending?.criticalError
   ) {
     shouldShowNoBalanceChanges = true
-    if (!doNotHideNoBalanceChangesDuringLoad) setDoNotHideNoBalanceChangesDuringLoad(true)
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
+
+  let shouldShowSimulation = false
+  if (
+    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
+    !!pendingTokens.length &&
+    !hasSimulationError
+  ) {
+    shouldShowSimulation = true
+    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
   }
 
   return (
@@ -308,7 +322,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Simulation results')}
               </Text>
-              {!portfolioStatePending?.isLoading && !!pendingTokens.length && !hasSimulationError && (
+              {shouldShowSimulation && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -385,7 +399,7 @@ const SignAccountOpScreen = () => {
                   />
                 </View>
               )}
-              {portfolioStatePending?.isLoading && (
+              {portfolioStatePending?.isLoading && !initialSimulationLoaded && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
@@ -454,6 +468,13 @@ const SignAccountOpScreen = () => {
               ) : null}
             </ScrollView>
           </View>
+          {signAccountOpState.accountOp.signingKeyType !== 'internal' && (
+            <HardwareWalletSigningModal
+              isOpen={isSignLoading}
+              keyType={signAccountOpState.accountOp.signingKeyType}
+              onReject={handleRejectAccountOp}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

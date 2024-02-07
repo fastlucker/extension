@@ -1,14 +1,12 @@
 import { ethers } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
-import { isValidAddress } from '@ambire-common/services/address'
-import DeleteIcon from '@common/assets/svg/DeleteIcon'
+import { AddressState } from '@ambire-common/interfaces/domains'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import Input from '@common/components/Input'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -20,15 +18,19 @@ import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import { fetchCaught } from '@common/services/fetch'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
-  const accountAddresses = accounts.map((account) => account.address.toLowerCase())
+import AddressField from './AddressField'
+
+const getDuplicateAccountIndexes = (accounts: AddressState[]) => {
+  const accountAddresses = accounts.map((addressState) => {
+    return getAddressFromAddressState(addressState).toLowerCase()
+  })
 
   const duplicates: number[] = []
 
@@ -42,6 +44,13 @@ const getDuplicateAccountIndexes = (accounts: { address: string }[]) => {
   return duplicates
 }
 
+const DEFAULT_ADDRESS_FIELD_VALUE = {
+  fieldValue: '',
+  ensAddress: '',
+  udAddress: '',
+  isDomainResolving: false
+}
+
 const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
@@ -53,12 +62,13 @@ const ViewOnlyScreen = () => {
   const {
     control,
     watch,
+    setValue,
     handleSubmit,
-    formState: { isValid, errors, isSubmitting }
+    formState: { isValid, isSubmitting }
   } = useForm({
     mode: 'all',
     defaultValues: {
-      accounts: [{ address: '' }]
+      accounts: [{ ...DEFAULT_ADDRESS_FIELD_VALUE }]
     }
   })
 
@@ -73,11 +83,10 @@ const ViewOnlyScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     const accountsToAddPromises = accounts.map(async (account) => {
+      const address = getAddressFromAddressState(account)
       // Use `fetchCaught` because the endpoint could return 404 if the account
       // is not found, which should not throw an error
-      const accountIdentityResponse = await fetchCaught(
-        `${RELAYER_URL}/v2/identity/${account.address}`
-      )
+      const accountIdentityResponse = await fetchCaught(`${RELAYER_URL}/v2/identity/${address}`)
 
       // Trick to determine if there is an error throw. When the request 404s,
       // there is no error message incoming, which is enough to treat it as a
@@ -86,7 +95,7 @@ const ViewOnlyScreen = () => {
 
       const accountIdentity: any = accountIdentityResponse?.body
       let creation = null
-      let associatedKeys = [account.address]
+      let associatedKeys = [address]
       if (
         typeof accountIdentity === 'object' &&
         accountIdentity !== null &&
@@ -109,7 +118,7 @@ const ViewOnlyScreen = () => {
       }
 
       return {
-        addr: ethers.getAddress(account.address),
+        addr: ethers.getAddress(address),
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation
@@ -144,7 +153,9 @@ const ViewOnlyScreen = () => {
     if (!isValid) return
     if (duplicateAccountsIndexes.length > 0) return
 
-    const newAccountsAddresses = accounts.map((x) => x.address.toLowerCase())
+    const newAccountsAddresses = accounts.map((account) =>
+      getAddressFromAddressState(account).toLowerCase()
+    )
     const newAccountsAdded = mainControllerState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr.toLowerCase())
     )
@@ -197,54 +208,24 @@ const ViewOnlyScreen = () => {
       <TabLayoutWrapperMainContent>
         <Panel title={t('Import A Wallet In View-Only Mode')}>
           {fields.map((field, index) => (
-            <Controller
+            <AddressField
+              duplicateAccountsIndexes={duplicateAccountsIndexes}
               key={field.id}
               control={control}
-              rules={{
-                validate: (value) => {
-                  if (!value) return 'Please fill in an address.'
-                  if (!isValidAddress(value)) return 'Please fill in a valid address.'
-                  if (
-                    mainControllerState.accounts.find(
-                      (account) => account.addr.toLowerCase() === value.toLocaleLowerCase()
-                    )
-                  )
-                    return 'This address is already in your wallet.'
-                  return true
-                },
-                required: true
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
-                  <Input
-                    containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
-                    onBlur={onBlur}
-                    placeholder={t('Enter an address')}
-                    onChangeText={onChange}
-                    value={value}
-                    autoFocus
-                    disabled={isSubmitting}
-                    isValid={!errors?.accounts?.[index]?.address?.message && value !== ''}
-                    validLabel={t('Address is valid.')}
-                    error={
-                      errors?.accounts?.[index]?.address?.message ||
-                      (duplicateAccountsIndexes.includes(index) ? 'Duplicate address' : '')
-                    }
-                    onSubmitEditing={disabled ? undefined : handleSubmit(handleFormSubmit)}
-                    button={index !== 0 ? <DeleteIcon /> : null}
-                    buttonProps={{
-                      onPress: () => remove(index)
-                    }}
-                  />
-                </View>
-              )}
-              name={`accounts.${index}.address`}
+              index={index}
+              remove={remove}
+              isSubmitting={isSubmitting}
+              handleSubmit={handleSubmit(handleFormSubmit)}
+              disabled={disabled}
+              field={field}
+              watch={watch}
+              setValue={setValue}
             />
           ))}
           <View>
             <Pressable
               disabled={isSubmitting}
-              onPress={() => append({ address: '' })}
+              onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
               style={spacings.ptTy}
             >
               <Text fontSize={14} underline>

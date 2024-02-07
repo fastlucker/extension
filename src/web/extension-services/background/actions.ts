@@ -1,11 +1,10 @@
-import { HumanizerInfoType } from 'src/ambire-common/v1/hooks/useConstants'
-
 import AccountAdderController, {
   ReadyToAddKeys
 } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
+import { CachedResolvedDomain } from '@ambire-common/interfaces/domains'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
@@ -13,6 +12,7 @@ import {
   KeyPreferences,
   NetworkPreference
 } from '@ambire-common/interfaces/settings'
+import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
@@ -88,17 +88,10 @@ type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
   params: { accounts: Account[] }
 }
-type MainControllerAccountAdderCreateAndAddEmailAccount = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_CREATE_AND_ADD_EMAIL_ACCOUNT'
+type MainControllerAddSeedPhraseAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
   params: {
-    email: string
-    recoveryKey: string
-  }
-}
-type MainControllerAccountAdderAddExistingEmailAccounts = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_EXISTING_EMAIL_ACCOUNTS'
-  params: {
-    accounts: Account[]
+    seed: string
   }
 }
 type MainControllerAccountAdderReset = {
@@ -189,21 +182,7 @@ type MainControllerTransferBuildUserRequestAction = {
 
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
-  params: {
-    selectedAccount?: string
-    selectedToken?: TokenResult
-    humanizerInfo?: HumanizerInfoType
-    tokens?: TokenResult[]
-    recipientAddress?: string
-    amount?: string
-    isSWWarningAgreed?: boolean
-    isRecipientAddressUnknownAgreed?: boolean
-    isTopUp?: boolean
-  }
-}
-
-type MainControllerTransferOnRecipientAddressChangeAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_ON_RECIPIENT_ADDRESS_CHANGE'
+  params: TransferUpdate
 }
 
 type NotificationControllerResolveRequestAction = {
@@ -348,6 +327,18 @@ type SetIsDefaultWalletAction = {
   params: { isDefaultWallet: boolean }
 }
 
+type CacheResolvedDomainAction = {
+  type: 'CACHE_RESOLVED_DOMAIN'
+  params: {
+    domain: CachedResolvedDomain
+  }
+}
+
+type SetOnboardingStateAction = {
+  type: 'SET_ONBOARDING_STATE'
+  params: { version: string; viewedAt: number }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -364,8 +355,7 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
-  | MainControllerAccountAdderCreateAndAddEmailAccount
-  | MainControllerAccountAdderAddExistingEmailAccounts
+  | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
@@ -387,7 +377,6 @@ export type Action =
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
   | MainControllerTransferUpdateAction
-  | MainControllerTransferOnRecipientAddressChangeAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | LedgerControllerUnlockAction
@@ -413,6 +402,8 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
+  | CacheResolvedDomainAction
+  | SetOnboardingStateAction
 
 /**
  * These actions types are the one called by `dispatchAsync`. They are meant
