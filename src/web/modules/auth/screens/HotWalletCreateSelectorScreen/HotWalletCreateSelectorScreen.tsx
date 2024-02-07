@@ -6,16 +6,18 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import HotWalletCreateCards from '@web/modules/auth/components/HotWalletCreateCards'
 
 const HotWalletCreateSelectorScreen = () => {
   const { t } = useTranslation()
+  const { accounts } = useMainControllerState()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys } = useKeystoreControllerState()
@@ -39,7 +41,11 @@ const HotWalletCreateSelectorScreen = () => {
       width="full"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
-      footer={<BackButton fallbackBackRoute={ROUTES.getStarted} />}
+      footer={
+        <BackButton
+          fallbackBackRoute={accounts.length ? WEB_ROUTES.dashboard : WEB_ROUTES.getStarted}
+        />
+      }
     >
       <TabLayoutWrapperMainContent>
         <Panel
