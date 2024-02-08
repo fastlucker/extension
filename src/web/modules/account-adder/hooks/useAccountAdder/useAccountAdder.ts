@@ -110,13 +110,15 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
-      navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-        state: {
-          accounts: accountAdderState.readyToAddAccounts,
-          keyType,
-          keyTypeInternalSubtype
-        }
-      })
+      hasAccountsToImport
+        ? navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
+            state: {
+              accounts: accountAdderState.readyToAddAccounts,
+              keyType,
+              keyTypeInternalSubtype
+            }
+          })
+        : navigate('/', { state: { openOnboardingCompleted: true } })
     },
     [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
   )

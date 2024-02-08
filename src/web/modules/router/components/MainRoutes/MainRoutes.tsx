@@ -30,7 +30,7 @@ import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
-import OnBoardingScreen from '@web/modules/onboarding/screens/OnBoardingScreen'
+import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
@@ -94,7 +94,7 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
-          <Route path={WEB_ROUTES.onboarding} element={<OnBoardingScreen />} />
+          <Route path={WEB_ROUTES.onboardingCompleted} element={<OnBoardingCompletedScreen />} />
 
           <Route path={WEB_ROUTES.keyStoreReset} element={<KeyStoreResetScreen />} />
           <Route element={<PrivateRoute />}>
