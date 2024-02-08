@@ -13,6 +13,7 @@ const COMMON_ROUTES = {
   transfer: 'transfer',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
+  signedMessages: 'signed-messages',
   keystore: 'keystore',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',

@@ -8,6 +8,7 @@ import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
 import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
+import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
@@ -31,10 +32,16 @@ export const getSettingsPages = (t: (string: string) => string) => [
     path: ROUTES.networksSettings
   },
   {
-    key: 'transaction-history',
+    key: 'transactions',
     Icon: TransactionHistoryIcon,
     label: t('Transaction History'),
     path: ROUTES.transactions
+  },
+  {
+    key: 'messages',
+    Icon: SignedMessageIcon,
+    label: t('Signed Messages'),
+    path: ROUTES.signedMessages
   },
   {
     key: 'device-password',
