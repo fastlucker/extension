@@ -240,7 +240,7 @@ const NetworkForm = ({
         ))}
       </View>
       <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
-        {shouldShowDeployBtn && (
+        {!!shouldShowDeployBtn && (
           <Button
             onPress={handleDeploy}
             text={t('Deploy Contracts')}
@@ -269,14 +269,14 @@ const NetworkForm = ({
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
       </View>
-      {deploySuccess && (
+      {!!deploySuccess && (
         <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
           <Text fontSize={12} appearance="successText">
             {deploySuccess}
           </Text>
         </View>
       )}
-      {deployError && (
+      {!!deployError && (
         <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
           <Text fontSize={12} appearance="errorText">
             {deployError}
