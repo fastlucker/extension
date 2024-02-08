@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
@@ -51,7 +52,9 @@ export const getSettingsPages = (t: (string: string) => string) => [
   },
   {
     key: 'email-vault',
-    Icon: () => <EmailVaultIcon strokeWidth={3.5} width={24} height={24} />,
+    Icon: ({ color }: SvgProps) => (
+      <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
+    ),
     label: t('Email Vault'),
     path: '/settings/email-vault'
   },
@@ -62,6 +65,17 @@ export const getSettingsPages = (t: (string: string) => string) => [
     path: '/settings/custom-tokens'
   }
 ]
+
+const getColor = (isActive: boolean, isHovered: boolean) => {
+  if (isActive) {
+    return 'primary'
+  }
+  if (isHovered) {
+    return 'primaryText'
+  }
+
+  return 'secondaryText'
+}
 
 const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme } = useTheme()
@@ -119,15 +133,18 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
               }
             ]}
           >
-            <item.Icon color={isActive ? theme.primary : theme.primaryText} />
-            <Text
-              style={spacings.ml}
-              color={isActive ? theme.primary : theme.primaryText}
-              fontSize={16}
-              weight="medium"
-            >
-              {item.label}
-            </Text>
+            {({ hovered }: any) => {
+              const color = theme[getColor(isActive, hovered)]
+
+              return (
+                <View style={flexboxStyles.directionRow}>
+                  <item.Icon color={color} />
+                  <Text style={spacings.ml} color={color} fontSize={16} weight="medium">
+                    {item.label}
+                  </Text>
+                </View>
+              )
+            }}
           </Pressable>
         )
       })}
