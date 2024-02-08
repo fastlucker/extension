@@ -16,7 +16,6 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 interface Props {
   label: string
   path: string
-  key: string
   isActive: boolean
   Icon?: FC<SvgProps>
   isExternal?: boolean
@@ -34,7 +33,7 @@ const getColor = (isActive: boolean, isHovered: boolean) => {
   return 'secondaryText'
 }
 
-const SettingsLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal, style }) => {
+const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, style }) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -43,7 +42,6 @@ const SettingsLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal,
 
   return (
     <Pressable
-      key={key}
       onPress={async () => {
         if (isExternal) {
           try {
