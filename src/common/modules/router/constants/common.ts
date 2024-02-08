@@ -47,6 +47,7 @@ const MOBILE_ROUTES = {
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
   terms: 'terms',
+  settingsTerms: 'settings/terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
   devicePassword: 'device-password',

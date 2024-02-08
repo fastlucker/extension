@@ -21,7 +21,6 @@ import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCr
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
-import Terms from '@web/modules/auth/screens/Terms'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -39,9 +38,11 @@ import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePa
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen/SignedMessageHistorySettingsScreen'
+import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
+import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
@@ -117,6 +118,7 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
             <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
+            <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
           </Route>
         </Route>
       </Route>

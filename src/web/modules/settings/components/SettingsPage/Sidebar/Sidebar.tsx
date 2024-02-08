@@ -88,7 +88,7 @@ const OTHER_LINKS = [
   {
     key: 'terms-of-service',
     label: 'Terms of Service',
-    path: 'todo'
+    path: ROUTES.settingsTerms
   }
 ]
 
