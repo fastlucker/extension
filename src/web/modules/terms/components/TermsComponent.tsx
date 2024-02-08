@@ -41,7 +41,7 @@ const TermsComponent = () => {
       </Text>
       <Text style={styles.text}>
         {t(
-          'By using Ambire Wallet, you agree not to hold it&apos;s contributors and authors financially accountable for any loss of funds resulting from user error, software error, unauthorized access (hacks), or otherwise.'
+          "By using Ambire Wallet, you agree not to hold it's contributors and authors financially accountable for any loss of funds resulting from user error, software error, unauthorized access (hacks), or otherwise."
         )}
       </Text>
       <Text style={styles.text}>
