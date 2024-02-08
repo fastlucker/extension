@@ -260,15 +260,21 @@ const SignAccountOpScreen = () => {
   }
 
   let simulationErrorMsg = 'We were unable to simulate the transaction'
-  if (
-    portfolioStatePending?.criticalError &&
-    !isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)
-  )
-    simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-  else {
+  if (portfolioStatePending?.criticalError) {
+    if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
+      simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+    } else {
+      simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+    }
+  } else {
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
-    if (simulationError && !isHexString(simulationError))
-      simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+    if (simulationError) {
+      if (isHexString(simulationError)) {
+        simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
+      } else {
+        simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+      }
+    }
   }
 
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
