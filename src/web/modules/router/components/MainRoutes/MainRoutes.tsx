@@ -10,15 +10,18 @@ import { TransferControllerStateProvider } from '@web/contexts/transferControlle
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
+import CreateSeedPhraseConfirmScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseConfirmScreen'
+import CreateSeedPhrasePrepareScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhrasePrepareScreen'
+import CreateSeedPhraseWriteScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseWriteScreen'
 import EmailAccountScreen from '@web/modules/auth/screens/EmailAccountScreen'
 import EmailLoginScreen from '@web/modules/auth/screens/EmailLoginScreen'
 import EmailRegisterScreen from '@web/modules/auth/screens/EmailRegisterScreen'
 import GetStartedScreen from '@web/modules/auth/screens/GetStartedScreen'
+import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCreateSelectorScreen'
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import Terms from '@web/modules/auth/screens/Terms'
-import CreateNewEmailVaultScreen from '@web/modules/emailVault/screens/CreateNewEmailVaultScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -35,6 +38,7 @@ import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettin
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
+import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
@@ -57,8 +61,6 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.keyStoreSetup} element={<KeyStoreSetupScreen />} />
 
           <Route path={WEB_ROUTES.authEmailAccount} element={<EmailAccountScreen />} />
-
-          <Route path={WEB_ROUTES.createEmailVault} element={<CreateNewEmailVaultScreen />} />
           <Route path={WEB_ROUTES.authEmailLogin} element={<EmailLoginScreen />} />
           <Route path={WEB_ROUTES.authEmailRegister} element={<EmailRegisterScreen />} />
           <Route path={WEB_ROUTES.importHotWallet} element={<HotWalletImportSelectorScreen />} />
@@ -74,6 +76,21 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.importPrivateKey} element={<PrivateKeyImportScreen />} />
           <Route path={WEB_ROUTES.importSeedPhrase} element={<SeedPhraseImportScreen />} />
+
+          <Route path={WEB_ROUTES.createHotWallet} element={<HotWalletCreateSelectorScreen />} />
+
+          <Route
+            path={WEB_ROUTES.createSeedPhrasePrepare}
+            element={<CreateSeedPhrasePrepareScreen />}
+          />
+          <Route
+            path={WEB_ROUTES.createSeedPhraseWrite}
+            element={<CreateSeedPhraseWriteScreen />}
+          />
+          <Route
+            path={WEB_ROUTES.createSeedPhraseConfirm}
+            element={<CreateSeedPhraseConfirmScreen />}
+          />
 
           <Route path={WEB_ROUTES.accountAdder} element={<AccountAdderScreen />} />
           <Route path={WEB_ROUTES.accountPersonalize} element={<AccountPersonalizeScreen />} />
@@ -92,6 +109,8 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
+            <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+            <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>

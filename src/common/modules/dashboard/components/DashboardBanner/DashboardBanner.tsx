@@ -8,9 +8,11 @@ import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useNavigation from '@common/hooks/useNavigation'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
+import { ROUTES } from '@common/modules/router/constants/common'
 import getStyles from './styles'
 
 const isTab = getUiType().isTab
@@ -21,6 +23,7 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const { navigate } = useNavigation()
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -50,6 +53,17 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
           params: { isDefaultWallet: true }
         })
         addToast('Ambire is your default wallet.', { timeout: 2000 })
+      }
+
+      if (action.actionName === 'sync-keys' && topic === 'ANNOUNCEMENT') {
+        dispatch({
+          type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
+          params: { email: action.meta.email, keys: action.meta.keys }
+        })
+      }
+
+      if (action.actionName === 'backup-keystore-secret' && topic === 'WARNING') {
+        navigate(ROUTES.devicePassword)
       }
     },
     [dispatch, addToast, topic]

@@ -202,8 +202,8 @@ const TokenDetails = ({
                 </Text>
                 <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
                 <Text fontSize={16}>{isVesting && t('claimable early supporters vesting')}</Text>
-                <Text fontSize={16}>{!isRewards && !isVesting && t('on')}</Text>
-                <Text fontSize={16}>{onGasTank && t(' Gas Tank')}</Text>
+                <Text fontSize={16}>{!isRewards && !isVesting && t('on ')}</Text>
+                <Text fontSize={16}>{onGasTank && t('Gas Tank')}</Text>
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}

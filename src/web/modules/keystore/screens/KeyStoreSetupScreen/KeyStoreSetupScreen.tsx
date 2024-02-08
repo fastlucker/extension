@@ -217,12 +217,6 @@ const KeyStoreSetupScreen = () => {
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}
           onPress={() => {
-            if (params?.flow === 'email') {
-              navigate(WEB_ROUTES.createEmailVault, {
-                state: { backTo: WEB_ROUTES.getStarted }
-              })
-              return
-            }
             if (params?.flow === 'hw') {
               navigate(WEB_ROUTES.hardwareWalletSelect, {
                 state: { backTo: WEB_ROUTES.getStarted }
@@ -238,6 +232,12 @@ const KeyStoreSetupScreen = () => {
             if (params?.flow === 'private-key') {
               navigate(WEB_ROUTES.importPrivateKey, {
                 state: { backTo: WEB_ROUTES.importHotWallet }
+              })
+              return
+            }
+            if (params?.flow === 'create-seed') {
+              navigate(WEB_ROUTES.createSeedPhrasePrepare, {
+                state: { backTo: WEB_ROUTES.getStarted }
               })
             }
           }}

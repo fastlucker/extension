@@ -16,13 +16,18 @@ interface Props {
   setAddressState: (newState: AddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
+  // handleRevalidate is required when the address input is used
+  // together with react-hook-form. It is used to trigger the revalidation of the input.
+  // !!! Must be memoized with useCallback
+  handleRevalidate?: () => void
 }
 
 const useAddressInput = ({
   addressState,
   setAddressState,
   overwriteError,
-  overwriteValidLabel
+  overwriteValidLabel,
+  handleRevalidate
 }: Props) => {
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
@@ -79,6 +84,7 @@ const useAddressInput = ({
         udAddress: '',
         isDomainResolving: false
       })
+      handleRevalidate && handleRevalidate()
       return
     }
 
@@ -88,6 +94,7 @@ const useAddressInput = ({
         udAddress: cachedResolvedDomain.address,
         isDomainResolving: false
       })
+      handleRevalidate && handleRevalidate()
       return
     }
 
@@ -164,8 +171,17 @@ const useAddressInput = ({
         setAddressState({
           isDomainResolving: false
         })
+        handleRevalidate && handleRevalidate()
       })
-  }, [addToast, cachedResolvedDomains, debouncedAddress, dispatch, networks, setAddressState])
+  }, [
+    addToast,
+    cachedResolvedDomains,
+    debouncedAddress,
+    dispatch,
+    handleRevalidate,
+    networks,
+    setAddressState
+  ])
 
   const reset = useCallback(() => {
     setAddressState({
@@ -183,8 +199,16 @@ const useAddressInput = ({
     // Disable the form if there is an error
     if (validation?.isError) return validation.message
 
+    if (addressState?.isDomainResolving) return false
+
     return true
-  }, [addressState?.fieldValue, debouncedAddress, validation?.isError, validation.message])
+  }, [
+    addressState?.fieldValue,
+    addressState?.isDomainResolving,
+    debouncedAddress,
+    validation?.isError,
+    validation.message
+  ])
 
   const setFieldValue = useCallback(
     (newValue: string) => {

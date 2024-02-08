@@ -13,6 +13,7 @@ const COMMON_ROUTES = {
   transfer: 'transfer',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
+  keystore: 'keystore',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',
   receive: 'receive',
@@ -44,7 +45,6 @@ const MOBILE_ROUTES = {
 
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
-  createEmailVault: 'create-email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
@@ -66,7 +66,11 @@ const WEB_ROUTES = {
   networksSettings: 'networks/settings',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
-  importSeedPhrase: 'import-seed-phrase'
+  importSeedPhrase: 'import-seed-phrase',
+  createHotWallet: 'create-hot-wallet',
+  createSeedPhrasePrepare: 'create-seed-phrase/prepare',
+  createSeedPhraseWrite: 'create-seed-phrase/write',
+  createSeedPhraseConfirm: 'create-seed-phrase/confirm'
 }
 
 const ROUTES = {

@@ -37,6 +37,7 @@ export interface InputProps extends TextInputProps {
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
+  childrenBeforeButtons?: React.ReactNode
 }
 
 const Input = ({
@@ -58,6 +59,7 @@ const Input = ({
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
+  childrenBeforeButtons,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -121,6 +123,7 @@ const Input = ({
               style={[styles.nativeInput, nativeInputStyle]}
             />
           </View>
+          {childrenBeforeButtons || null}
           {!!hasButton && (
             <TouchableOpacity
               // The `focusable` prop determines whether a component is user-focusable

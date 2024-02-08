@@ -8,10 +8,10 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import { formatThousands } from '@common/modules/dashboard/helpers/getTokenDetails'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -121,7 +121,7 @@ const Networks = ({
               </View>
               <View style={[flexbox.alignCenter, flexbox.directionRow]}>
                 <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
-                  {`$${formatThousands(Number(networkBalance?.usd || 0).toFixed(2))}` || '$-'}
+                  {`$${formatDecimals(Number(networkBalance?.usd || 0))}` || '$-'}
                 </Text>
                 {!isInternalNetwork && (
                   <Pressable

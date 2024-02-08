@@ -24,6 +24,7 @@ import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderC
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
+import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
 import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
@@ -63,28 +64,30 @@ const AppInit = () => {
                             <ActivityControllerStateProvider>
                               <NotificationControllerStateProvider>
                                 <PortfolioControllerStateProvider>
-                                  <ControllersStateLoadedProvider>
-                                    <LoaderProvider>
-                                      <StorageProvider>
-                                        <KeyboardProvider>
-                                          <NetInfoProvider>
-                                            <ConstantsProvider>
-                                              <AuthProvider>
-                                                <ExtensionProvider>
-                                                  <BiometricsProvider>
-                                                    <PrivateModeProvider>
-                                                      <AppRouter />
-                                                    </PrivateModeProvider>
-                                                    <PortalHost name="global" />
-                                                  </BiometricsProvider>
-                                                </ExtensionProvider>
-                                              </AuthProvider>
-                                            </ConstantsProvider>
-                                          </NetInfoProvider>
-                                        </KeyboardProvider>
-                                      </StorageProvider>
-                                    </LoaderProvider>
-                                  </ControllersStateLoadedProvider>
+                                  <EmailVaultControllerStateProvider>
+                                    <ControllersStateLoadedProvider>
+                                      <LoaderProvider>
+                                        <StorageProvider>
+                                          <KeyboardProvider>
+                                            <NetInfoProvider>
+                                              <ConstantsProvider>
+                                                <AuthProvider>
+                                                  <ExtensionProvider>
+                                                    <BiometricsProvider>
+                                                      <PrivateModeProvider>
+                                                        <AppRouter />
+                                                      </PrivateModeProvider>
+                                                      <PortalHost name="global" />
+                                                    </BiometricsProvider>
+                                                  </ExtensionProvider>
+                                                </AuthProvider>
+                                              </ConstantsProvider>
+                                            </NetInfoProvider>
+                                          </KeyboardProvider>
+                                        </StorageProvider>
+                                      </LoaderProvider>
+                                    </ControllersStateLoadedProvider>
+                                  </EmailVaultControllerStateProvider>
                                 </PortfolioControllerStateProvider>
                               </NotificationControllerStateProvider>
                             </ActivityControllerStateProvider>

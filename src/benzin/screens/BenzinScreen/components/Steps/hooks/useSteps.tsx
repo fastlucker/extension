@@ -5,17 +5,15 @@ import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { humanizeCalls } from '@ambire-common/libs/humanizer/humanizerFuncs'
+import { Storage } from '@ambire-common/interfaces/storage'
+import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { parseCalls } from '@ambire-common/libs/humanizer/parsers'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
-import humanizerModules from './utils/humanizerModules'
-import parsingModules from './utils/parsingModules'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
@@ -27,8 +25,10 @@ interface Props {
   network: NetworkDescriptor
   isUserOp: boolean
   standardOptions: {
+    storage: Storage
     fetch: any
     emitError: (e: ErrorRef) => number
+    parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
 }
@@ -414,18 +414,14 @@ const useSteps = ({
         accountOpToExecuteBefore: null,
         humanizerMeta: humanizerJSON
       }
-      const humanize = humanizeCalls(accountOp, humanizerModules, standardOptions)
-      const [parsedCalls] = parseCalls(accountOp, humanize[0], parsingModules, standardOptions)
-
-      // remove deadlines from humanizer
-      const finalParsedCalls = parsedCalls.map((call) => {
-        const localCall = { ...call }
-        localCall.fullVisualization = call.fullVisualization?.filter(
-          (visual) => visual.type !== 'deadline'
-        )
-        return localCall
-      })
-      setCalls(finalParsedCalls)
+      callsHumanizer(
+        accountOp,
+        {},
+        standardOptions.storage,
+        standardOptions.fetch,
+        (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
+        standardOptions.emitError
+      ).catch((e) => e)
     }
   }, [network, txnReceipt, txn, isUserOp, standardOptions, userOp])
 

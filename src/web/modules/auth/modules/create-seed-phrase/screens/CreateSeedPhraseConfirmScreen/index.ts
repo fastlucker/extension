@@ -1,0 +1,3 @@
+import CreateSeedPhraseConfirmScreen from './CreateSeedPhraseConfirmScreen'
+
+export default CreateSeedPhraseConfirmScreen

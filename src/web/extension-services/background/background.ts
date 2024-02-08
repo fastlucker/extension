@@ -14,8 +14,10 @@ import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountA
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
@@ -32,7 +34,10 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
-import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
+import {
+  getDefaultAccountPreferences,
+  getDefaultKeyLabel
+} from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -575,6 +580,21 @@ async function init() {
                 prevAccountsCount
               )
 
+              const ensOrUdAccountPreferences: AccountPreferences = data.params.accounts.reduce(
+                (acc: AccountPreferences, account) => {
+                  if (account.domainName) {
+                    acc[account.addr] = {
+                      pfp: defaultAccountPreferences[account.addr].pfp,
+                      label: account.domainName
+                    }
+                    return acc
+                  }
+
+                  return acc
+                },
+                {}
+              )
+
               // Since these accounts are view-only, directly add them in the
               // MainController, bypassing the AccountAdder flow.
               await mainCtrl.addAccounts(data.params.accounts)
@@ -584,9 +604,81 @@ async function init() {
               // flow was bypassed and the `onAccountAdderSuccess` subscription
               // in the MainController won't click.
               return Promise.all([
-                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.settings.addAccountPreferences({
+                  ...defaultAccountPreferences,
+                  ...ensOrUdAccountPreferences
+                }),
                 mainCtrl.selectAccount(data.params.accounts[0].addr)
               ])
+            }
+            // This flow interacts manually with the AccountAdder controller so that it can
+            // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
+            case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
+              const seed = data.params.seed
+              const keyIterator = new KeyIterator(seed)
+
+              await mainCtrl.accountAdder.init({
+                keyIterator,
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
+                preselectedAccounts: [],
+                pageSize: 1
+              })
+
+              await mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
+              })
+
+              const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
+                ({ slot, isLinked, account }) => slot === 1 && !isLinked && isSmartAccount(account)
+              )?.account
+
+              // This should never happen (added it because of typescript)
+              if (!firstSmartAccount) {
+                console.error('No smart account found in the first page of the seed phrase')
+
+                return
+              }
+
+              await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
+
+              const prevAccountsCount = mainCtrl.accounts.length
+              const readyToAddAccountPreferences = getDefaultAccountPreferences(
+                mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
+                prevAccountsCount,
+                'internal',
+                'seed'
+              )
+
+              const readyToAddKeys = mainCtrl.accountAdder.selectedAccounts.map((acc) => {
+                const privateKey = getPrivateKeyFromSeed(
+                  seed,
+                  acc.index,
+                  // should always be provided, otherwise it would have thrown an error above
+                  mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
+                )
+
+                return { privateKey, dedicatedToOneSA: true }
+              })
+
+              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.map(
+                ({ accountKeyAddr, slot, index }) => ({
+                  addr: accountKeyAddr,
+                  type: 'seed',
+                  label: getDefaultKeyLabel('internal', index, slot)
+                })
+              )
+
+              return mainCtrl.accountAdder.addAccounts(
+                mainCtrl.accountAdder.selectedAccounts,
+                readyToAddAccountPreferences,
+                {
+                  internal: readyToAddKeys,
+                  external: []
+                },
+                readyToAddKeyPreferences
+              )
             }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
               return mainCtrl.addUserRequest(data.params)
@@ -679,9 +771,22 @@ async function init() {
               return mainCtrl.keystore.resetErrorState()
             case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
               return mainCtrl.keystore.changeKeystorePassword(
-                data.params.secret,
-                data.params.newSecret
+                data.params.newSecret,
+                data.params.secret
               )
+            case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
+              // In the case we change the user's device password through the recovery process,
+              // we don't know the old password, which is why we send only the new password.
+              return mainCtrl.keystore.changeKeystorePassword(data.params.newSecret)
+
+            case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
+              return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
+              return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
+              return mainCtrl.emailVault.recoverKeyStore(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
+              return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
             case 'SET_IS_DEFAULT_WALLET': {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
               break

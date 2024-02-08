@@ -86,7 +86,17 @@ type MainControllerAccountAdderAddAccounts = {
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
-  params: { accounts: Account[] }
+  params: {
+    accounts: (Account & {
+      domainName: string | null
+    })[]
+  }
+}
+type MainControllerAddSeedPhraseAccounts = {
+  type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
+  params: {
+    seed: string
+  }
 }
 type MainControllerAccountAdderReset = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
@@ -259,6 +269,27 @@ type KeystoreControllerChangePasswordAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD'
   params: { secret: string; newSecret: string }
 }
+type KeystoreControllerChangePasswordFromRecoveryAction = {
+  type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
+  params: { newSecret: string }
+}
+
+type EmailVaultControllerGetInfoAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_GET_INFO'
+  params: { email: string }
+}
+type EmailVaultControllerUploadKeystoreSecretAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
+  params: { email: string }
+}
+type EmailVaultControllerRecoverKeystoreAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
+  params: { email: string }
+}
+type EmailVaultControllerRequestKeysSyncAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
+  params: { email: string; keys: string[] }
+}
 
 type WalletControllerGetConnectedSiteAction = {
   type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
@@ -328,6 +359,7 @@ export type Action =
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
+  | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
   | MainControllerSignMessageInitAction
@@ -359,6 +391,11 @@ export type Action =
   | KeystoreControllerLockAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
+  | KeystoreControllerChangePasswordFromRecoveryAction
+  | EmailVaultControllerGetInfoAction
+  | EmailVaultControllerUploadKeystoreSecretAction
+  | EmailVaultControllerRecoverKeystoreAction
+  | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction

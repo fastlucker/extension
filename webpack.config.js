@@ -117,6 +117,7 @@ module.exports = async function (env, argv) {
 
   // config.resolve.alias['react-native-webview'] = 'react-native-web-webview'
   config.resolve.alias['@ledgerhq/devices/hid-framing'] = '@ledgerhq/devices/lib/hid-framing'
+  config.resolve.alias.dns = 'dns-js'
 
   config.entry = {
     main: config.entry[0], // the app entry
