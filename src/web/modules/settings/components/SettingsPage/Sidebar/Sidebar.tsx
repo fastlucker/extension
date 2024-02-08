@@ -15,9 +15,11 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
+
+import SidebarLink from './SidebarLink'
 
 export const getSettingsPages = (t: (string: string) => string) => [
   {
@@ -66,17 +68,6 @@ export const getSettingsPages = (t: (string: string) => string) => [
   }
 ]
 
-const getColor = (isActive: boolean, isHovered: boolean) => {
-  if (isActive) {
-    return 'primary'
-  }
-  if (isHovered) {
-    return 'primaryText'
-  }
-
-  return 'secondaryText'
-}
-
 const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -110,43 +101,8 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
       </Text>
       {sidebarItems.map((item) => {
         const isActive = activeLink === item.key
-        return (
-          <Pressable
-            key={item.key}
-            onPress={() => {
-              if (Object.values(ROUTES).includes(item.path)) {
-                navigate(item.path)
-                return
-              }
 
-              alert('Not implemented yet')
-            }}
-            style={({ hovered }: any) => [
-              flexboxStyles.directionRow,
-              spacings.pl,
-              spacings.pv,
-              {
-                borderRadius: BORDER_RADIUS_PRIMARY,
-                marginVertical: SPACING_MI / 2,
-                width: 250,
-                backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent'
-              }
-            ]}
-          >
-            {({ hovered }: any) => {
-              const color = theme[getColor(isActive, hovered)]
-
-              return (
-                <View style={flexboxStyles.directionRow}>
-                  <item.Icon color={color} />
-                  <Text style={spacings.ml} color={color} fontSize={16} weight="medium">
-                    {item.label}
-                  </Text>
-                </View>
-              )
-            }}
-          </Pressable>
-        )
+        return <SidebarLink {...item} isActive={isActive} />
       })}
       <View />
     </View>
