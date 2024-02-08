@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
@@ -150,11 +151,21 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
-  const callsToVisualize: IrCall[] = useMemo(() => {
-    if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
-    if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
+  const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
+    if (!signAccountOpState?.accountOp) return []
+
+    if (signAccountOpState.accountOp?.calls?.length) {
+      return signAccountOpState.accountOp.calls.map((opCall) => {
+        return (
+          (signAccountOpState.humanReadable || []).find(
+            (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
+          ) || opCall
+        )
+      })
+    }
+
     return []
-  }, [signAccountOpState])
+  }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -417,25 +428,17 @@ const SignAccountOpScreen = () => {
                 {t('Waiting Transactions')}
               </Text>
               <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-                {!!signAccountOpState.accountOp?.calls &&
-                  signAccountOpState.accountOp.calls.map((call, i) => {
-                    const callToVisualize =
-                      callsToVisualize.find(
-                        (c) => c.fromUserRequestId === call.fromUserRequestId
-                      ) || call
-
-                    return (
-                      <TransactionSummary
-                        key={callToVisualize.data + callToVisualize.fromUserRequestId}
-                        style={
-                          i !== signAccountOpState.accountOp.calls.length - 1 ? spacings.mbSm : {}
-                        }
-                        call={callToVisualize}
-                        networkId={network!.id}
-                        explorerUrl={network!.explorerUrl}
-                      />
-                    )
-                  })}
+                {callsToVisualize.map((call, i) => {
+                  return (
+                    <TransactionSummary
+                      key={call.data + call.fromUserRequestId}
+                      style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                      call={call}
+                      networkId={network!.id}
+                      explorerUrl={network!.explorerUrl}
+                    />
+                  )
+                })}
               </ScrollView>
             </View>
           </View>
