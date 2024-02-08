@@ -3,6 +3,7 @@ import { ScrollView, View } from 'react-native'
 
 import Panel from '@common/components/Panel'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 
 import Sidebar from './Sidebar'
 import getStyles from './styles'
@@ -15,15 +16,25 @@ interface Props {
 
 const SettingsPage: FC<Props> = ({ children, currentPage, withPanelScrollView = true }) => {
   const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
+  const isScreenXxl = maxWidthSize('xxl')
+  const isScreenXl = maxWidthSize('xl')
 
   const Wrapper = withPanelScrollView ? ScrollView : Fragment
 
   return (
-    <View style={styles.container}>
-      <Sidebar activeLink={currentPage} />
-      <Panel style={styles.panel}>
-        <Wrapper>{children}</Wrapper>
-      </Panel>
+    <View style={styles.background}>
+      <View style={[styles.container, !isScreenXl ? styles.fullWidth : {}]}>
+        <Sidebar activeLink={currentPage} />
+        <Panel style={[styles.panel, !isScreenXl ? styles.fullWidth : {}]}>
+          <Wrapper>{children}</Wrapper>
+        </Panel>
+        {isScreenXxl ? (
+          <View style={styles.sideContainer}>
+            <Sidebar activeLink={currentPage} />
+          </View>
+        ) : null}
+      </View>
     </View>
   )
 }

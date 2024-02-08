@@ -189,8 +189,8 @@ const NetworkForm = ({
     <View
       style={[
         flexboxStyles.flex1,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.pl3Xl : spacings.plXl,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.ml3Xl : spacings.mlXl,
+        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.plXl : spacings.plLg,
+        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mlXl : spacings.mlLg,
         { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
       ]}
     >

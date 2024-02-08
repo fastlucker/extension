@@ -110,7 +110,7 @@ const NetworksSettingsScreen = () => {
         <Text weight="medium" fontSize={20}>
           {t('Networks')}
         </Text>
-        <Search placeholder="Search for a previously added network" control={control} />
+        <Search placeholder="Search for network" control={control} />
       </View>
       <View style={[flexboxStyles.directionRow]}>
         <View style={flexboxStyles.flex1}>
