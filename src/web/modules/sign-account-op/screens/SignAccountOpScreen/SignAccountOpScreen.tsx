@@ -1,3 +1,4 @@
+import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
@@ -259,11 +260,14 @@ const SignAccountOpScreen = () => {
   }
 
   let simulationErrorMsg = 'We were unable to simulate the transaction'
-  if (portfolioStatePending?.criticalError)
+  if (
+    portfolioStatePending?.criticalError &&
+    !isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)
+  )
     simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
   else {
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
-    if (simulationError)
+    if (simulationError && !isHexString(simulationError))
       simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
   }
 
