@@ -1,0 +1,3 @@
+import SignedMessageHistorySettingsScreen from './SignedMessageHistorySettingsScreen'
+
+export default SignedMessageHistorySettingsScreen
