@@ -78,7 +78,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           )} (${shortenAddress(acc.addr, 10)})`}
         </Text>
       ),
-      icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} />
+      icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} style={spacings.pr0} />
     }))
   }, [accountPreferences, mainState.accounts])
 
