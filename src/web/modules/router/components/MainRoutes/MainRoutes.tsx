@@ -36,9 +36,9 @@ import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
+import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import TransactionHistorySettingsScreen from '@web/modules/settings/screens/TransactionHistorySettingsScreen'
-import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
@@ -110,7 +110,6 @@ const MainRoutes = () => {
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
-            <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
             <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
           </Route>
         </Route>
