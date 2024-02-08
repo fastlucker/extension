@@ -153,7 +153,7 @@ const SignAccountOpScreen = () => {
   const callsToVisualize: IrCall[] = useMemo(() => {
     if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
     if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
-    return signAccountOpState.accountOp?.calls || []
+    return []
   }, [signAccountOpState])
 
   const pendingTokens = useMemo(() => {
@@ -417,17 +417,25 @@ const SignAccountOpScreen = () => {
                 {t('Waiting Transactions')}
               </Text>
               <ScrollView style={styles.transactionsScrollView} scrollEnabled>
-                {callsToVisualize.map((call, i) => {
-                  return (
-                    <TransactionSummary
-                      key={call.data + call.fromUserRequestId}
-                      style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-                      call={call}
-                      networkId={network!.id}
-                      explorerUrl={network!.explorerUrl}
-                    />
-                  )
-                })}
+                {!!signAccountOpState.accountOp?.calls &&
+                  signAccountOpState.accountOp.calls.map((call, i) => {
+                    const callToVisualize =
+                      callsToVisualize.find(
+                        (c) => c.fromUserRequestId === call.fromUserRequestId
+                      ) || call
+
+                    return (
+                      <TransactionSummary
+                        key={callToVisualize.data + callToVisualize.fromUserRequestId}
+                        style={
+                          i !== signAccountOpState.accountOp.calls.length - 1 ? spacings.mbSm : {}
+                        }
+                        call={callToVisualize}
+                        networkId={network!.id}
+                        explorerUrl={network!.explorerUrl}
+                      />
+                    )
+                  })}
               </ScrollView>
             </View>
           </View>
