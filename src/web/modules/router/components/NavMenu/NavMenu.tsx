@@ -27,7 +27,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
+import { SETTINGS_LINKS } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -50,7 +50,6 @@ const NavMenu = () => {
   const { navigate, goBack } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const settingsPages = getSettingsPages(t)
   const { dispatch } = useBackgroundService()
   const walletState = useWalletStateController()
 
@@ -165,7 +164,7 @@ const NavMenu = () => {
             <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
               {t('Settings')}
             </Text>
-            {settingsPages.map(({ Icon, label, path, key }) => {
+            {SETTINGS_LINKS.map(({ Icon, label, path, key }) => {
               return (
                 <Pressable
                   style={({ hovered }: any) => [
@@ -184,7 +183,7 @@ const NavMenu = () => {
                 >
                   {!!Icon && <Icon width={24} height={24} color={theme.primaryText} />}
                   <Text fontSize={16} style={spacings.ml} weight="medium" appearance="primaryText">
-                    {label}
+                    {t(label)}
                   </Text>
                 </Pressable>
               )

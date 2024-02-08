@@ -4,8 +4,10 @@ import { Pressable, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
+import BugIcon from '@common/assets/svg/BugIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
+import HelpIcon from '@common/assets/svg/HelpIcon'
 import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
@@ -14,6 +16,7 @@ import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -21,35 +24,35 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 
 import SidebarLink from './SidebarLink'
 
-export const getSettingsPages = (t: (string: string) => string) => [
+export const SETTINGS_LINKS = [
   {
     key: 'accounts',
     Icon: AccountsIcon,
-    label: t('Accounts'),
+    label: 'Accounts',
     path: ROUTES.accounts
   },
   {
     key: 'networks',
     Icon: NetworksIcon,
-    label: t('Networks'),
+    label: 'Networks',
     path: ROUTES.networksSettings
   },
   {
     key: 'transactions',
     Icon: TransactionHistoryIcon,
-    label: t('Transaction History'),
+    label: 'Transaction History',
     path: ROUTES.transactions
   },
   {
     key: 'messages',
     Icon: SignedMessageIcon,
-    label: t('Signed Messages'),
+    label: 'Signed Messages',
     path: ROUTES.signedMessages
   },
   {
     key: 'device-password',
     Icon: KeyStoreSettingsIcon,
-    label: t('Device Password'),
+    label: 'Device Password',
     path: ROUTES.devicePassword
   },
   {
@@ -57,14 +60,36 @@ export const getSettingsPages = (t: (string: string) => string) => [
     Icon: ({ color }: SvgProps) => (
       <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
     ),
-    label: t('Email Vault'),
+    label: 'Email Vault',
     path: '/settings/email-vault'
   },
   {
     key: 'custom-tokens',
     Icon: CustomTokensIcon,
-    label: t('Custom Tokens'),
+    label: 'Custom Tokens',
     path: '/settings/custom-tokens'
+  }
+]
+
+const OTHER_LINKS = [
+  {
+    key: 'help-center',
+    Icon: HelpIcon,
+    label: 'Help Center',
+    path: 'https://help.ambire.com/hc/en-us',
+    isExternal: true
+  },
+  {
+    key: 'report-issue',
+    Icon: BugIcon,
+    label: 'Report an Issue',
+    path: 'https://help.ambire.com/hc/en-us/requests/new',
+    isExternal: true
+  },
+  {
+    key: 'terms-of-service',
+    label: 'Terms of Service',
+    path: 'todo'
   }
 ]
 
@@ -72,13 +97,14 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const sidebarItems = getSettingsPages(t)
+  const { maxWidthSize } = useWindowSize()
+  const isWidthXl = maxWidthSize('xl')
 
   return (
     <View style={{ ...spacings.pbMd, position: 'relative' }}>
       <Pressable
         style={({ hovered }: any) => [
-          spacings.mbLg,
+          isWidthXl ? spacings.mbLg : spacings.mb,
           spacings.pv,
           spacings.ph,
           flexboxStyles.directionRow,
@@ -99,12 +125,22 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
       <Text style={[spacings.ml, spacings.mbLg]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      {sidebarItems.map((item) => {
-        const isActive = activeLink === item.key
+      {SETTINGS_LINKS.map((link) => {
+        const isActive = activeLink === link.key
 
-        return <SidebarLink {...item} isActive={isActive} />
+        return <SidebarLink {...link} isActive={isActive} />
       })}
-      <View />
+      <View
+        style={{
+          width: '100%',
+          borderBottomWidth: 2,
+          borderColor: theme.secondaryBorder,
+          ...(isWidthXl ? spacings.mvXl : spacings.mv)
+        }}
+      />
+      {OTHER_LINKS.map((link) => {
+        return <SidebarLink {...link} isActive={false} />
+      })}
     </View>
   )
 }
