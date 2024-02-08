@@ -47,6 +47,12 @@ const OnBoardingCompletedScreen = () => {
   }, [params?.validSession, navigate])
 
   useEffect(() => {
+    if (mainState.accounts.some((acc) => acc.newlyCreated)) {
+      setShowRewards(true)
+    }
+  }, [mainState.accounts])
+
+  useEffect(() => {
     if (mainState.accounts.length && isOnBoarded !== undefined) {
       storage.set('isOnBoarded', true)
     }
