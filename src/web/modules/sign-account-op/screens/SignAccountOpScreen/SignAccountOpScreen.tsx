@@ -47,6 +47,8 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
+  const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
+  const [estimationContentHeight, setEstimationContentHeight] = useState(0)
 
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -219,6 +221,11 @@ const SignAccountOpScreen = () => {
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.type === 'receive'),
     [pendingTokens]
+  )
+
+  const hasScrollEstimationContainer = useMemo(
+    () => estimationContentHeight > estimationContainerHeight,
+    [estimationContainerHeight, estimationContentHeight]
   )
 
   if (mainState.signAccOpInitError) {
@@ -436,7 +443,19 @@ const SignAccountOpScreen = () => {
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView
+              style={[
+                styles.estimationScrollView,
+                hasScrollEstimationContainer ? spacings.pr : spacings.pr0
+              ]}
+              contentContainerStyle={{ flexGrow: 1 }}
+              onLayout={(e) => {
+                setEstimationContainerHeight(e.nativeEvent.layout.height)
+              }}
+              onContentSizeChange={(_, height) => {
+                setEstimationContentHeight(height)
+              }}
+            >
               {hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
@@ -481,4 +500,4 @@ const SignAccountOpScreen = () => {
   )
 }
 
-export default SignAccountOpScreen
+export default React.memo(SignAccountOpScreen)
