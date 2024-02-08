@@ -21,8 +21,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
-
-import SidebarLink from './SidebarLink'
+import SettingsLink from '@web/modules/settings/components/SettingsLink'
 
 export const SETTINGS_LINKS = [
   {
@@ -128,7 +127,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
       {SETTINGS_LINKS.map((link) => {
         const isActive = activeLink === link.key
 
-        return <SidebarLink {...link} isActive={isActive} />
+        return <SettingsLink {...link} isActive={isActive} />
       })}
       <View
         style={{
@@ -139,7 +138,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
         }}
       />
       {OTHER_LINKS.map((link) => {
-        return <SidebarLink {...link} isActive={false} />
+        return <SettingsLink {...link} isActive={false} />
       })}
     </View>
   )

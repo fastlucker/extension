@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import Text from '@common/components/Text'
@@ -20,6 +20,7 @@ interface Props {
   isActive: boolean
   Icon?: FC<SvgProps>
   isExternal?: boolean
+  style?: ViewStyle
 }
 
 const getColor = (isActive: boolean, isHovered: boolean) => {
@@ -33,7 +34,7 @@ const getColor = (isActive: boolean, isHovered: boolean) => {
   return 'secondaryText'
 }
 
-const SidebarLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal }) => {
+const SettingsLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal, style }) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -66,7 +67,8 @@ const SidebarLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal }
           width: 250,
           backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent',
           opacity: isDisabled ? 0.6 : 1
-        }
+        },
+        style
       ]}
     >
       {({ hovered }: any) => {
@@ -74,7 +76,7 @@ const SidebarLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal }
 
         return (
           <View style={flexbox.directionRow}>
-            {Icon ? <Icon color={color} /> : null}
+            {Icon ? <Icon width={24} height={24} color={color} /> : null}
             <Text style={Icon ? spacings.ml : {}} color={color} fontSize={16} weight="medium">
               {t(label)}
             </Text>
@@ -85,4 +87,4 @@ const SidebarLink: FC<Props> = ({ label, path, key, Icon, isActive, isExternal }
   )
 }
 
-export default SidebarLink
+export default SettingsLink
