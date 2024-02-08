@@ -3,9 +3,6 @@ import { Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
-import PinIcon from '@common/assets/svg/PinIcon'
-import SettingsIcon from '@common/assets/svg/SettingsIcon'
-import UnpinIcon from '@common/assets/svg/UnpinIcon'
 import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import CopyText from '@common/components/CopyText'
@@ -43,7 +40,6 @@ const Account = ({
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
-  const MOCK_IS_PINNED = mainCtrl.accounts[0].addr === addr // @TODO: pinned account logic
 
   const selectAccount = (selectedAddr: string) => {
     dispatch({
@@ -113,12 +109,13 @@ const Account = ({
                 }}
               />
             )}
-            {MOCK_IS_PINNED ? (
+            {/* @TODO: Implement pinned accounts and account settings */}
+            {/* {MOCK_IS_PINNED ? (
               <UnpinIcon color={theme.secondaryText} style={[spacings.mr]} />
             ) : (
               <PinIcon color={theme.secondaryText} style={spacings.mr} />
             )}
-            <SettingsIcon color={theme.secondaryText} />
+            <SettingsIcon color={theme.secondaryText} /> */}
           </View>
         </View>
       )}
