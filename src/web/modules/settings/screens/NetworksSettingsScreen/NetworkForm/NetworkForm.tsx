@@ -2,12 +2,13 @@ import { Contract, getCreate2Address, JsonRpcProvider, keccak256, Wallet } from 
 import React, { useEffect, useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
+import AddIcon from '@common/assets/svg/AddIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -195,7 +196,7 @@ const NetworkForm = ({
       ]}
     >
       <View style={spacings.mb}>
-        {INPUT_FIELDS.map((inputField) => (
+        {INPUT_FIELDS.map((inputField, index) => (
           <Controller
             key={inputField.name}
             name={inputField.name as any}
@@ -227,7 +228,7 @@ const NetworkForm = ({
                       ? false
                       : handleErrors(errors[inputField.name as keyof typeof errors])
                   }
-                  containerStyle={spacings.mbLg}
+                  containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mbLg : {}}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
                   onButtonPress={() =>
@@ -238,15 +239,25 @@ const NetworkForm = ({
             }}
           />
         ))}
+
+        <Pressable
+          onPress={handleDeploy}
+          style={{
+            marginLeft: 'auto',
+            ...spacings.mb,
+            ...flexboxStyles.directionRow,
+            ...flexboxStyles.alignCenter,
+            opacity: shouldShowDeployBtn ? 1 : 0
+          }}
+          disabled={!shouldShowDeployBtn}
+        >
+          <Text weight="medium" appearance="secondaryText" fontSize={14} style={spacings.mrTy}>
+            Deploy Contracts
+          </Text>
+          <AddIcon width={16} height={16} color={theme.secondaryText} />
+        </Pressable>
       </View>
       <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
-        {!!shouldShowDeployBtn && (
-          <Button
-            onPress={handleDeploy}
-            text={t('Deploy Contracts')}
-            style={[spacings.mb0, { width: 170 }]}
-          />
-        )}
         <Button
           onPress={() => {
             reset({
