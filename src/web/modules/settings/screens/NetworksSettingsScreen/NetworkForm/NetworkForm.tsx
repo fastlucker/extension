@@ -2,18 +2,20 @@ import { Contract, getCreate2Address, JsonRpcProvider, keccak256, Wallet } from 
 import React, { useEffect, useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
+import AddIcon from '@common/assets/svg/AddIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -51,12 +53,14 @@ const NetworkForm = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
+  const { theme } = useTheme()
+  const { maxWidthSize } = useWindowSize()
   const [isLoadingRPC, setIsLoadingRPC] = useState(false)
   const [deploySuccess, setDeploySuccess] = useState('')
   const [deployError, setDeployError] = useState('')
   const [shouldShowDeployBtn, setShouldShowDeployBtn] = useState(false)
-  const { theme } = useTheme()
   const networkFormValues = watch()
+  const isWidthXl = maxWidthSize('xl')
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
 
@@ -189,13 +193,13 @@ const NetworkForm = ({
     <View
       style={[
         flexboxStyles.flex1,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.pl3Xl : spacings.plXl,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.ml3Xl : spacings.mlXl,
+        isWidthXl ? spacings.plXl : spacings.plLg,
+        isWidthXl ? spacings.mlXl : spacings.mlLg,
         { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
       ]}
     >
       <View style={spacings.mb}>
-        {INPUT_FIELDS.map((inputField) => (
+        {INPUT_FIELDS.map((inputField, index) => (
           <Controller
             key={inputField.name}
             name={inputField.name as any}
@@ -227,7 +231,7 @@ const NetworkForm = ({
                       ? false
                       : handleErrors(errors[inputField.name as keyof typeof errors])
                   }
-                  containerStyle={spacings.mbLg}
+                  containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mbLg : {}}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
                   onButtonPress={() =>
@@ -238,15 +242,25 @@ const NetworkForm = ({
             }}
           />
         ))}
+
+        <Pressable
+          onPress={handleDeploy}
+          style={{
+            marginLeft: 'auto',
+            ...spacings.mb,
+            ...flexboxStyles.directionRow,
+            ...flexboxStyles.alignCenter,
+            opacity: shouldShowDeployBtn ? 1 : 0
+          }}
+          disabled={!shouldShowDeployBtn}
+        >
+          <Text weight="medium" appearance="secondaryText" fontSize={14} style={spacings.mrTy}>
+            Deploy Contracts
+          </Text>
+          <AddIcon width={16} height={16} color={theme.secondaryText} />
+        </Pressable>
       </View>
       <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
-        {shouldShowDeployBtn && (
-          <Button
-            onPress={handleDeploy}
-            text={t('Deploy Contracts')}
-            style={[spacings.mb0, { width: 170 }]}
-          />
-        )}
         <Button
           onPress={() => {
             reset({
@@ -269,14 +283,14 @@ const NetworkForm = ({
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
       </View>
-      {deploySuccess && (
+      {!!deploySuccess && (
         <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
           <Text fontSize={12} appearance="successText">
             {deploySuccess}
           </Text>
         </View>
       )}
-      {deployError && (
+      {!!deployError && (
         <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
           <Text fontSize={12} appearance="errorText">
             {deployError}

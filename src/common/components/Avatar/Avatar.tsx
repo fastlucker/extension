@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import React from 'react'
-import { Image, View } from 'react-native'
+import { Image, View, ViewStyle } from 'react-native'
 
 import { isValidAddress } from '@ambire-common/services/address'
 import avatarAstronautMan from '@common/assets/images/avatars/avatar-astronaut-man.png'
@@ -51,34 +51,36 @@ export const getAccountPfpSource = (pfpId: string) => {
   return buildInAvatars.find(({ id }) => id === pfpId)?.source || DEFAULT_AVATAR.source
 }
 
-export const Avatar = React.memo(({ pfp, size = 40 }: { pfp: string; size?: number }) => {
-  const selectedAccountPfp = getAccountPfpSource(pfp)
-  const avatarType = getAvatarType(selectedAccountPfp)
-  const borderRadius = size / 2
+export const Avatar = React.memo(
+  ({ pfp, size = 40, style }: { pfp: string; size?: number; style?: ViewStyle }) => {
+    const selectedAccountPfp = getAccountPfpSource(pfp)
+    const avatarType = getAvatarType(selectedAccountPfp)
+    const borderRadius = size / 2
 
-  if (['jazz', 'blockies'].includes(avatarType)) {
+    if (['jazz', 'blockies'].includes(avatarType)) {
+      return (
+        <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter, style]}>
+          {avatarType === 'jazz' && (
+            <JazzIcon borderRadius={borderRadius} address={selectedAccountPfp} size={size} />
+          )}
+          {avatarType === 'blockies' && (
+            <Blockie
+              seed={selectedAccountPfp}
+              width={size}
+              height={size}
+              borderRadius={borderRadius}
+            />
+          )}
+        </View>
+      )
+    }
+
     return (
-      <View style={[spacings.prTy, flexbox.alignCenter, flexbox.justifyCenter]}>
-        {avatarType === 'jazz' && (
-          <JazzIcon borderRadius={borderRadius} address={selectedAccountPfp} size={size} />
-        )}
-        {avatarType === 'blockies' && (
-          <Blockie
-            seed={selectedAccountPfp}
-            width={size}
-            height={size}
-            borderRadius={borderRadius}
-          />
-        )}
-      </View>
+      <Image
+        source={selectedAccountPfp}
+        style={[spacings.mrTy, { width: size, height: size, borderRadius }]}
+        resizeMode="contain"
+      />
     )
   }
-
-  return (
-    <Image
-      source={selectedAccountPfp}
-      style={[spacings.mrTy, { width: size, height: size, borderRadius }]}
-      resizeMode="contain"
-    />
-  )
-})
+)

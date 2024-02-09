@@ -1,7 +1,9 @@
+import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
@@ -47,6 +49,8 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
+  const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
+  const [estimationContentHeight, setEstimationContentHeight] = useState(0)
 
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -148,11 +152,21 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
-  const callsToVisualize: IrCall[] = useMemo(() => {
-    if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
-    if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
-    return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState])
+  const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
+    if (!signAccountOpState?.accountOp) return []
+
+    if (signAccountOpState.accountOp?.calls?.length) {
+      return signAccountOpState.accountOp.calls.map((opCall) => {
+        return (
+          (signAccountOpState.humanReadable || []).find(
+            (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
+          ) || opCall
+        )
+      })
+    }
+
+    return []
+  }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -221,6 +235,11 @@ const SignAccountOpScreen = () => {
     [pendingTokens]
   )
 
+  const hasScrollEstimationContainer = useMemo(
+    () => estimationContentHeight > estimationContainerHeight,
+    [estimationContainerHeight, estimationContentHeight]
+  )
+
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -259,12 +278,21 @@ const SignAccountOpScreen = () => {
   }
 
   let simulationErrorMsg = 'We were unable to simulate the transaction'
-  if (portfolioStatePending?.criticalError)
-    simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-  else {
+  if (portfolioStatePending?.criticalError) {
+    if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
+      simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+    } else {
+      simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
+    }
+  } else {
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
-    if (simulationError)
-      simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+    if (simulationError) {
+      if (isHexString(simulationError)) {
+        simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
+      } else {
+        simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
+      }
+    }
   }
 
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
@@ -436,7 +464,19 @@ const SignAccountOpScreen = () => {
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView
+              style={[
+                styles.estimationScrollView,
+                hasScrollEstimationContainer ? spacings.pr : spacings.pr0
+              ]}
+              contentContainerStyle={{ flexGrow: 1 }}
+              onLayout={(e) => {
+                setEstimationContainerHeight(e.nativeEvent.layout.height)
+              }}
+              onContentSizeChange={(_, height) => {
+                setEstimationContentHeight(height)
+              }}
+            >
               {hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
@@ -481,4 +521,4 @@ const SignAccountOpScreen = () => {
   )
 }
 
-export default SignAccountOpScreen
+export default React.memo(SignAccountOpScreen)

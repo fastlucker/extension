@@ -47,7 +47,11 @@ const AddressField: FC<Props> = ({
     (newState: AddressStateOptional) => {
       Object.keys(newState).forEach((key) => {
         // @ts-ignore
-        setValue(`accounts.${index}.${key}`, newState[key])
+        setValue(`accounts.${index}.${key}`, newState[key], {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true
+        })
       })
     },
     [index, setValue]

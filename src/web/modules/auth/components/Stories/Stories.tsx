@@ -15,18 +15,18 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 // @ts-ignore
-import Story1 from './images/story-1.png'
-// @ts-ignore
-import Story2 from './images/story-2.png'
-// @ts-ignore
-import Story3 from './images/story-3.png'
-// @ts-ignore
-import Story4 from './images/story-4.png'
-// @ts-ignore
-import Story5 from './images/story-5.png'
-// @ts-ignore
 import Story6 from './images/story-6.png'
-import getStyles from './styles'
+import getStyles, { STORY_CARD_WIDTH } from './styles'
+// @ts-ignore
+import Video1 from './videos/1-Welcome.mp4'
+// @ts-ignore
+import Video2 from './videos/2-MMReplacement.mp4'
+// @ts-ignore
+import Video3 from './videos/3-GasTank.mp4'
+// @ts-ignore
+import Video4 from './videos/4-HWs.mp4'
+// @ts-ignore
+import Video5 from './videos/5-WALLET.mp4'
 
 export const ONBOARDING_VERSION = '1.0.0'
 
@@ -48,8 +48,12 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
     return [
       {
         id: 'story-1',
-        // the gif is temporarily an image
-        GIF: <Image source={Story1} style={styles.gif} />,
+        GIF: (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
+            <source src={Video1} type="video/mp4" />
+          </video>
+        ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
             {t('Welcome to Ambire Wallet!')}
@@ -69,8 +73,12 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
       },
       {
         id: 'story-2',
-        // the gif is temporarily an image
-        GIF: <Image source={Story2} style={styles.gif} />,
+        GIF: (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
+            <source src={Video2} type="video/mp4" />
+          </video>
+        ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
             {t('Ambire can replace Metamask everywhere!')}
@@ -89,8 +97,12 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
       },
       {
         id: 'story-3',
-        // the gif is temporarily an image
-        GIF: <Image source={Story3} style={styles.gif} />,
+        GIF: (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
+            <source src={Video3} type="video/mp4" />
+          </video>
+        ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
             {t('Pre-pay gas in any token on any chain!')}
@@ -106,8 +118,12 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
       },
       {
         id: 'story-4',
-        // the gif is temporarily an image
-        GIF: <Image source={Story4} style={styles.gif} />,
+        GIF: (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
+            <source src={Video4} type="video/mp4" />
+          </video>
+        ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
             {t('The wallet protection you deserve!')}
@@ -131,8 +147,12 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
       },
       {
         id: 'story-5',
-        // the gif is temporarily an image
-        GIF: <Image source={Story5} style={styles.gif} />,
+        GIF: (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video autoPlay loop width={STORY_CARD_WIDTH} height={318} style={{ objectFit: 'fill' }}>
+            <source src={Video5} type="video/mp4" />
+          </video>
+        ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
             {t('Create a smart contract wallet and get rewarded for using Ambire!')}

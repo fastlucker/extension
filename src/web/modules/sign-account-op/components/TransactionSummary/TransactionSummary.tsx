@@ -37,7 +37,7 @@ const sizeMultiplier = {
   lg: 1
 }
 
-const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
+const DeadlineVisualization = ({ deadline, textSize }: { deadline: bigint; textSize: number }) => {
   const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
   const remainingTime = deadline - BigInt(Date.now())
   const minute: bigint = 60000n
@@ -62,9 +62,13 @@ const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
     }, updateAfter)
 
     return () => clearTimeout(timeoutId)
-  }, [deadlineText])
+  }, [deadlineText, deadline, minute, remainingTime])
 
-  return <p>{deadlineText}</p>
+  return (
+    <Text fontSize={textSize} weight="medium" appearance="warningText">
+      {`(${deadlineText})`}
+    </Text>
+  )
 }
 
 const TransactionSummary = ({
@@ -102,16 +106,16 @@ const TransactionSummary = ({
           }
         ]}
       >
-        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} appearance="successText" weight="semiBold">
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${call.to} `}
         </Text>
-        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} appearance="successText" weight="semiBold">
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
@@ -139,7 +143,7 @@ const TransactionSummary = ({
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {` ${
                         item.readableAmount ||
                         formatUnits(item.amount || '0x0', item.decimals || 18)
@@ -156,11 +160,11 @@ const TransactionSummary = ({
                     />
                   ) : null}
                   {item.symbol ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {` ${item.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {t(' units of unknown token ')}
                     </Text>
                   ) : null}
@@ -171,7 +175,7 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                  <Text fontSize={textSize} weight="medium" appearance="primaryText">
                     {` ${item.name ? item.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
@@ -194,7 +198,7 @@ const TransactionSummary = ({
                   key={Number(item.id) || i}
                   fontSize={textSize}
                   weight="medium"
-                  color={colors.martinique}
+                  appearance="primaryText"
                 >
                   {` ${item.name || item.address} `}
                 </Text>
@@ -203,14 +207,11 @@ const TransactionSummary = ({
 
             if (item.type === 'deadline')
               return (
-                <Text
+                <DeadlineVisualization
                   key={Number(item.id) || i}
-                  fontSize={textSize}
-                  weight="medium"
-                  color={colors.martinique}
-                >
-                  <DeadlineVisualization deadline={item.amount!} />
-                </Text>
+                  deadline={item.amount!}
+                  textSize={textSize}
+                />
               )
             if (item.content) {
               return (
@@ -224,12 +225,12 @@ const TransactionSummary = ({
                       ? 'semiBold'
                       : 'medium'
                   }
-                  color={
+                  appearance={
                     item.type === 'label'
-                      ? colors.martinique_65
+                      ? 'secondaryText'
                       : item.type === 'action'
-                      ? colors.greenHaze
-                      : colors.martinique
+                      ? 'successText'
+                      : 'primaryText'
                   }
                 >{` ${item.content} `}</Text>
               )

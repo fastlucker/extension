@@ -12,6 +12,7 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { engine } from '@web/constants/browserapi'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
@@ -221,7 +222,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
         spacings.ph0,
         isPopup && spacings.phSm,
         allBanners.length ? spacings.ptTy : spacings.pt0,
-        hasScroll && spacings.prMi,
+        hasScroll && engine !== 'gecko' && spacings.prMi,
         { flexGrow: 1 }
       ]}
       sections={SECTIONS_DATA}

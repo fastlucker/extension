@@ -204,4 +204,4 @@ const Estimation = ({
   )
 }
 
-export default Estimation
+export default React.memo(Estimation)
