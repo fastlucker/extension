@@ -26,45 +26,45 @@ import SettingsLink from '@web/modules/settings/components/SettingsLink'
 export const SETTINGS_LINKS = [
   {
     key: 'accounts',
-    Icon: AccountsIcon,
+    Icon: React.memo(AccountsIcon),
     label: 'Accounts',
     path: ROUTES.accounts
   },
   {
     key: 'networks',
-    Icon: NetworksIcon,
+    Icon: React.memo(NetworksIcon),
     label: 'Networks',
     path: ROUTES.networksSettings
   },
   {
     key: 'transactions',
-    Icon: TransactionHistoryIcon,
+    Icon: React.memo(TransactionHistoryIcon),
     label: 'Transaction History',
     path: ROUTES.transactions
   },
   {
     key: 'messages',
-    Icon: SignedMessageIcon,
+    Icon: React.memo(SignedMessageIcon),
     label: 'Signed Messages',
     path: ROUTES.signedMessages
   },
   {
     key: 'device-password',
-    Icon: KeyStoreSettingsIcon,
+    Icon: React.memo(KeyStoreSettingsIcon),
     label: 'Device Password',
     path: ROUTES.devicePassword
   },
   {
     key: 'email-vault',
-    Icon: ({ color }: SvgProps) => (
+    Icon: React.memo(({ color }: SvgProps) => (
       <EmailVaultIcon strokeWidth={3.5} width={24} height={24} color={color} />
-    ),
+    )),
     label: 'Email Vault',
     path: '/settings/email-vault'
   },
   {
     key: 'custom-tokens',
-    Icon: CustomTokensIcon,
+    Icon: React.memo(CustomTokensIcon),
     label: 'Custom Tokens',
     path: '/settings/custom-tokens'
   }
@@ -73,14 +73,14 @@ export const SETTINGS_LINKS = [
 const OTHER_LINKS = [
   {
     key: 'help-center',
-    Icon: HelpIcon,
+    Icon: React.memo(HelpIcon),
     label: 'Help Center',
     path: 'https://help.ambire.com/hc/en-us',
     isExternal: true
   },
   {
     key: 'report-issue',
-    Icon: BugIcon,
+    Icon: React.memo(BugIcon),
     label: 'Report an Issue',
     path: 'https://help.ambire.com/hc/en-us/requests/new',
     isExternal: true
