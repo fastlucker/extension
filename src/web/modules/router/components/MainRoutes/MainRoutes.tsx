@@ -124,7 +124,6 @@ const MainRoutes = () => {
               />
               <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
               <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
-              <Route path={WEB_ROUTES.networks} element={<NetworksSettingsScreen />} />
               <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
               <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
             </Route>
