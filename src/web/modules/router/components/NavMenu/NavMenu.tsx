@@ -15,7 +15,6 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
-import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -25,9 +24,11 @@ import {
   tabLayoutWidths,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import { getSettingsPages } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
+import NavLink from '@web/modules/settings/components/SettingsLink'
+import { SETTINGS_LINKS } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -50,7 +51,6 @@ const NavMenu = () => {
   const { navigate, goBack } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const settingsPages = getSettingsPages(t)
   const { dispatch } = useBackgroundService()
   const walletState = useWalletStateController()
 
@@ -165,30 +165,15 @@ const NavMenu = () => {
             <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
               {t('Settings')}
             </Text>
-            {settingsPages.map(({ Icon, label, path, key }) => {
-              return (
-                <Pressable
-                  style={({ hovered }: any) => [
-                    styles.menuItem,
-                    hovered ? { backgroundColor: theme.tertiaryBackground } : {}
-                  ]}
-                  key={key}
-                  onPress={() => {
-                    if (Object.values(ROUTES).includes(path)) {
-                      navigate(path)
-                      return
-                    }
-
-                    alert('Not implemented yet')
-                  }}
-                >
-                  {!!Icon && <Icon width={24} height={24} color={theme.primaryText} />}
-                  <Text fontSize={16} style={spacings.ml} weight="medium" appearance="primaryText">
-                    {label}
-                  </Text>
-                </Pressable>
-              )
-            })}
+            {SETTINGS_LINKS.map((link) => (
+              <NavLink
+                {...link}
+                isActive={false}
+                style={{
+                  width: '100%'
+                }}
+              />
+            ))}
           </View>
           <View style={styles.separatorWrapper}>
             <View style={styles.separator} />
@@ -205,7 +190,7 @@ const NavMenu = () => {
                   common.borderRadiusPrimary
                 ]}
                 key={url}
-                onPress={() => console.log(url)}
+                onPress={() => createTab(url)}
               >
                 {({ hovered }: any) => (
                   <>
