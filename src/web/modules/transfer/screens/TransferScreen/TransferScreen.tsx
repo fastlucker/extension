@@ -4,17 +4,16 @@ import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import SendIcon from '@common/assets/svg/SendIcon'
+import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
@@ -32,6 +31,7 @@ import styles from './styles'
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
   const { state } = useTransferControllerState()
+  const { isTopUp, userRequest, isFormValid } = state
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
@@ -78,22 +78,35 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="lg"
+      width={isTopUp ? 'sm' : 'lg'}
       header={<Header withAmbireLogo mode="custom-inner-content" />}
       footer={
         <>
           <BackButton onPress={onBack} />
           <Button
             type="primary"
-            text={state.userRequest ? t('Sending...') : t('Send')}
+            text={userRequest ? t(isTopUp ? 'Sending...' : 'Topping up...') : t('Top Up')}
             onPress={sendTransaction}
             hasBottomSpacing={false}
+            style={{ minWidth: 124 }}
             disabled={
-              !!state.userRequest || !state.isFormValid || addressInputState.validation.isError
+              !!userRequest ||
+              !isFormValid ||
+              // No need for recipient address validation for top up
+              (!isTopUp && addressInputState.validation.isError)
             }
           >
             <View style={spacings.plTy}>
-              <SendIcon width={20} color={colors.titan} />
+              {isTopUp ? (
+                <TopUpIcon
+                  strokeWidth={1.25}
+                  width={20}
+                  height={20}
+                  color={theme.primaryBackground}
+                />
+              ) : (
+                <SendIcon width={20} height={20} color={theme.primaryBackground} />
+              )}
             </View>
           </Button>
         </>
@@ -101,21 +114,16 @@ const TransferScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
-          <Panel style={styles.panel}>
+          <Panel style={styles.panel} title={state.isTopUp ? 'Top Up Gas Tank' : ''}>
             <View style={styles.container}>
               <View style={flexbox.flex1}>
-                {state.isTopUp && (
-                  <Text fontSize={20} appearance="primaryText" style={[spacings.mbSm]}>
-                    Gas Tank Top Up
-                  </Text>
-                )}
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
                 />
               </View>
-              {!state.isTopUp && (
+              {!isTopUp && (
                 <>
                   <View style={styles.separator} />
                   <View style={flexbox.flex1}>
