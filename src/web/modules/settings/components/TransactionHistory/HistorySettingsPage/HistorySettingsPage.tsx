@@ -1,5 +1,5 @@
 import React, { ComponentType, FC, useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -107,37 +107,27 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   }, [dispatch, account, network, activityState.isInitialized])
 
   useEffect(() => {
-    if (!activityState.isInitialized && account)
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-        params: {
-          filters: {
-            account: account.addr,
-            network: network.id
-          }
-        }
-      })
-  }, [dispatch, account, network, activityState.isInitialized])
-
-  useEffect(() => {
-    if (historyType !== 'transactions' || !activityState.isInitialized) return
+    if (activityState.isInitialized || !account) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION',
+      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
       params: {
-        pagination: {
-          itemsPerPage: ITEMS_PER_PAGE,
-          fromPage: page - 1
+        filters: {
+          account: account.addr,
+          network: network.id
         }
       }
     })
-  }, [page, historyType, activityState.isInitialized, dispatch])
+  }, [dispatch, account, network, activityState.isInitialized])
 
   useEffect(() => {
-    if (historyType !== 'messages' || !activityState.isInitialized) return
+    if (!activityState.isInitialized) return
 
     dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION',
+      type:
+        historyType === 'transactions'
+          ? 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION'
+          : 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION',
       params: {
         pagination: {
           itemsPerPage: ITEMS_PER_PAGE,
@@ -170,14 +160,6 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
 
     return true
   }, [activityState, historyType])
-
-  if (!activityState.isInitialized) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
-        <Spinner />
-      </View>
-    )
-  }
 
   return (
     <SettingsPage currentPage={historyType} withPanelScrollView={false}>
@@ -232,7 +214,13 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           ? { stickyHeaderIndices: [0] }
           : {})}
       >
-        <HistoryComponent page={page} account={account} network={network} />
+        {activityState.isInitialized ? (
+          <HistoryComponent page={page} account={account} network={network} />
+        ) : (
+          <View style={[flexbox.flex1, flexbox.center]}>
+            <Spinner />
+          </View>
+        )}
       </ScrollView>
       <Pagination
         isNextDisabled={goToNextPageDisabled}
