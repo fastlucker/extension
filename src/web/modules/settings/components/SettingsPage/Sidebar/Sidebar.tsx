@@ -28,7 +28,7 @@ export const SETTINGS_LINKS = [
     key: 'accounts',
     Icon: React.memo(AccountsIcon),
     label: 'Accounts',
-    path: ROUTES.accounts
+    path: ROUTES.accountsSettings
   },
   {
     key: 'networks',

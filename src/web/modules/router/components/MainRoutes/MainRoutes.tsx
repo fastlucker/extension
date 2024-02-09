@@ -75,10 +75,7 @@ const MainRoutes = () => {
               path={WEB_ROUTES.hardwareWalletSelect}
               element={<HardwareWalletSelectorScreen />}
             />
-            <Route
-              path={WEB_ROUTES.hardwareWalletSelect}
-              element={<HardwareWalletSelectorScreen />}
-            />
+
             <Route
               path={WEB_ROUTES.viewOnlyAccountAdder}
               element={<ViewOnlyAccountAdderScreen />}
