@@ -85,7 +85,11 @@ const TransferScreen = () => {
           <BackButton onPress={onBack} />
           <Button
             type="primary"
-            text={userRequest ? t(isTopUp ? 'Sending...' : 'Topping up...') : t('Top Up')}
+            text={
+              userRequest
+                ? t(!isTopUp ? 'Sending...' : 'Topping up...')
+                : t(!isTopUp ? 'Send' : 'Top Up')
+            }
             onPress={sendTransaction}
             hasBottomSpacing={false}
             style={{ minWidth: 124 }}
@@ -98,14 +102,9 @@ const TransferScreen = () => {
           >
             <View style={spacings.plTy}>
               {isTopUp ? (
-                <TopUpIcon
-                  strokeWidth={1.25}
-                  width={20}
-                  height={20}
-                  color={theme.primaryBackground}
-                />
+                <TopUpIcon strokeWidth={1} width={24} height={24} color={theme.primaryBackground} />
               ) : (
-                <SendIcon width={20} height={20} color={theme.primaryBackground} />
+                <SendIcon width={24} height={24} color={theme.primaryBackground} />
               )}
             </View>
           </Button>
