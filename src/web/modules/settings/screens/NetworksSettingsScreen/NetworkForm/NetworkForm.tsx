@@ -14,7 +14,8 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -52,12 +53,14 @@ const NetworkForm = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
+  const { theme } = useTheme()
+  const { maxWidthSize } = useWindowSize()
   const [isLoadingRPC, setIsLoadingRPC] = useState(false)
   const [deploySuccess, setDeploySuccess] = useState('')
   const [deployError, setDeployError] = useState('')
   const [shouldShowDeployBtn, setShouldShowDeployBtn] = useState(false)
-  const { theme } = useTheme()
   const networkFormValues = watch()
+  const isWidthXl = maxWidthSize('xl')
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
 
@@ -190,8 +193,8 @@ const NetworkForm = ({
     <View
       style={[
         flexboxStyles.flex1,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.plXl : spacings.plLg,
-        IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mlXl : spacings.mlLg,
+        isWidthXl ? spacings.plXl : spacings.plLg,
+        isWidthXl ? spacings.mlXl : spacings.mlLg,
         { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
       ]}
     >
