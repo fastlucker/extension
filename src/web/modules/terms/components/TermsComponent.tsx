@@ -58,4 +58,4 @@ const TermsComponent = () => {
   )
 }
 
-export default TermsComponent
+export default React.memo(TermsComponent)
