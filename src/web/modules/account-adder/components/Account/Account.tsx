@@ -136,7 +136,7 @@ const Account = ({
               <Badge withRightSpacing withIcon text={t('linked')} type="info" />
             )}
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-              <Badge withRightSpacing withIcon text={t('v.1')} type="info" />
+              <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
             )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>

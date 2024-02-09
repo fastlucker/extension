@@ -138,7 +138,9 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
         }}
       />
       {OTHER_LINKS.map((link) => {
-        return <SettingsLink {...link} isActive={false} />
+        const isActive = activeLink === link.key
+
+        return <SettingsLink {...link} isActive={isActive} />
       })}
     </View>
   )
