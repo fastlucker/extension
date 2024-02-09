@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Trans } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Account } from '@ambire-common/interfaces/account'
@@ -25,7 +25,9 @@ const AccountOpHistory: FC<{ network?: NetworkDescriptor; account: Account }> = 
 
   if (!activityState?.accountsOps?.items?.length) {
     return (
-      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+      <View
+        style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
+      >
         <Trans>
           <Text style={text.center}>
             <Text fontSize={16}>{'No transactions history for\n'}</Text>
