@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
+import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import SendIcon from '@common/assets/svg/SendIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
+import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -21,6 +23,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
@@ -36,6 +39,9 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { selectedAccount, accounts } = useMainControllerState()
+  const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
+  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
 
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
@@ -97,7 +103,8 @@ const TransferScreen = () => {
               !!userRequest ||
               !isFormValid ||
               // No need for recipient address validation for top up
-              (!isTopUp && addressInputState.validation.isError)
+              (!isTopUp && addressInputState.validation.isError) ||
+              (isTopUp && !isSmartAccount)
             }
           >
             <View style={spacings.plTy}>
@@ -113,7 +120,10 @@ const TransferScreen = () => {
     >
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
-          <Panel style={styles.panel} title={state.isTopUp ? 'Top Up Gas Tank' : ''}>
+          <Panel
+            style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
+            title={state.isTopUp ? 'Top Up Gas Tank' : ''}
+          >
             <View style={styles.container}>
               <View style={flexbox.flex1}>
                 <SendForm
@@ -131,6 +141,16 @@ const TransferScreen = () => {
                 </>
               )}
             </View>
+            {isTopUp && !isSmartAccount && (
+              <Alert
+                type="warning"
+                // @TODO: replace temporary text
+                title={t(
+                  'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
+                )}
+                isTypeLabelHidden
+              />
+            )}
           </Panel>
         ) : (
           <View style={styles.spinnerContainer}>

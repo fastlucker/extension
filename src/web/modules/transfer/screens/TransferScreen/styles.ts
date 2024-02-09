@@ -6,6 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   panel: ViewStyle
+  topUpPanel: ViewStyle
   container: ViewStyle
   separator: ViewStyle
   spinnerContainer: ViewStyle
@@ -13,7 +14,8 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   panel: { alignItems: 'center' },
-  container: { ...flexbox.directionRow, ...spacings.pv },
+  topUpPanel: { alignItems: 'flex-start' },
+  container: { ...flexbox.directionRow, ...spacings.pv, ...flexbox.flex1, width: '100%' },
   separator: { width: 1, height: '100%', backgroundColor: colors.scampi_20, marginHorizontal: 30 },
   spinnerContainer: {
     ...flexbox.center,
