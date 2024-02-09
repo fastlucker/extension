@@ -108,7 +108,7 @@ const MainRoutes = () => {
                 </TransferControllerStateProvider>
               }
             />
-            <Route path={WEB_ROUTES.accounts} element={<AccountsSettingsScreen />} />
+            <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
             <Route path={WEB_ROUTES.transactions} element={<TransactionHistorySettingsScreen />} />
             <Route
               path={WEB_ROUTES.signedMessages}
