@@ -17,7 +17,6 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import ReceiveModal from '@web/components/ReceiveModal'
-import { POPUP_WIDTH } from '@web/constants/spacings'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -73,7 +72,7 @@ const DashboardScreen = () => {
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
   return (
-    <View style={[flexbox.flex1, isPopup && { maxWidth: POPUP_WIDTH }]}>
+    <>
       <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
       <View style={styles.container}>
         <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
@@ -185,7 +184,7 @@ const DashboardScreen = () => {
         </View>
         {!!isPopup && <DAppFooter />}
       </View>
-    </View>
+    </>
   )
 }
 
