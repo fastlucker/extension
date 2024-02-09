@@ -87,7 +87,7 @@ const Account = ({
                   <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
                 )}
                 {isSmartAccount(account) && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                  <Badge style={spacings.mlTy} type="info" text={t('Ambire v.1')} />
+                  <Badge style={spacings.mlTy} type="info" text={t('Ambire v1')} />
                 )}
               </View>
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">
