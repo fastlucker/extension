@@ -38,7 +38,7 @@ export interface StepsData {
   blockData: null | Block
   finalizedStatus: FinalizedStatusType
   cost: null | string
-  calls: IrCall[]
+  calls: IrCall[] | null
   pendingTime: number
   userOpStatusData: { status: null | string; txnId: null | string }
 }
@@ -90,7 +90,7 @@ const useSteps = ({
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
-  const [calls, setCalls] = useState<IrCall[]>([])
+  const [calls, setCalls] = useState<null | IrCall[]>(null)
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
 
@@ -398,6 +398,7 @@ const useSteps = ({
 
   useEffect(() => {
     if (isUserOp && !userOp) return
+    if (calls) return
 
     if (network && txnReceipt.from && txn) {
       setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
@@ -421,9 +422,12 @@ const useSteps = ({
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
         standardOptions.emitError
-      ).catch((e) => e)
+      ).catch((e) => {
+        if (!calls) setCalls([])
+        return e
+      })
     }
-  }, [network, txnReceipt, txn, isUserOp, standardOptions, userOp])
+  }, [network, txnReceipt, txn, isUserOp, standardOptions, userOp, calls])
 
   return {
     nativePrice,
