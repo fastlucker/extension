@@ -4,6 +4,7 @@ import {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
   executeBySenderInterface,
+  executeCallInterface,
   executeInterface,
   executeMultipleInterface,
   handleOpsInterface,
@@ -17,7 +18,8 @@ import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOpera
 export const userOpSigHashes = {
   executeBySender: executeBySenderInterface.getFunction('executeBySender')!.selector,
   execute: executeInterface.getFunction('execute')!.selector,
-  executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector
+  executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
+  executeCall: executeCallInterface.getFunction('execute')!.selector
 }
 
 const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
@@ -69,6 +71,11 @@ const getExecuteMultipleCalls = (callData: string) => {
     .map((call: any) => transformToAccOpCall(call))
 }
 
+const getExecuteCallCalls = (callData: string) => {
+  const data = executeCallInterface.decodeFunctionData('execute', callData)
+  return [transformToAccOpCall(data)]
+}
+
 const decodeUserOp = (userOp: UserOperation) => {
   const callData = userOp.callData
   const callDataSigHash = callData.slice(0, 10)
@@ -83,6 +90,10 @@ const decodeUserOp = (userOp: UserOperation) => {
 
   if (callDataSigHash === userOpSigHashes.executeMultiple) {
     return getExecuteMultipleCalls(callData)
+  }
+
+  if (callDataSigHash === userOpSigHashes.executeCall) {
+    return getExecuteCallCalls(callData)
   }
 }
 

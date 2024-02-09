@@ -6,6 +6,7 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
@@ -56,25 +57,31 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, step
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
         >
-          {calls.map((call, i) => {
-            return (
-              <TransactionSummary
-                key={call.data + ethers.randomBytes(6)}
-                style={i !== calls.length! - 1 ? spacings.mbSm : {}}
-                call={call}
-                networkId={network!.id}
-                explorerUrl={network!.explorerUrl}
-                rightIcon={
-                  <OpenIcon
-                    width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                    height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                  />
-                }
-                onRightIconPress={handleOpenExplorer}
-                size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-              />
-            )
-          })}
+          {calls &&
+            calls.map((call, i) => {
+              return (
+                <TransactionSummary
+                  key={call.data + ethers.randomBytes(6)}
+                  style={i !== calls.length! - 1 ? spacings.mbSm : {}}
+                  call={call}
+                  networkId={network!.id}
+                  explorerUrl={network!.explorerUrl}
+                  rightIcon={
+                    <OpenIcon
+                      width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                      height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
+                    />
+                  }
+                  onRightIconPress={handleOpenExplorer}
+                  size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
+                />
+              )
+            })}
+          {calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
+            <Text appearance="errorText" fontSize={14}>
+              Could not decode calldata
+            </Text>
+          )}
         </Step>
       )}
       <Step
