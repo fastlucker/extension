@@ -10,7 +10,6 @@ const SignAccountOpControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const onUpdate = (newState: SignAccountOpController | null) => {
-      console.log('newState', newState)
       setState(newState)
     }
 
