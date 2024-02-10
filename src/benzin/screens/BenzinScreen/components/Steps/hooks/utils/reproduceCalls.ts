@@ -3,10 +3,12 @@ import { ethers, TransactionReceipt, TransactionResponse } from 'ethers'
 import {
   deployAndExecuteInterface,
   deployAndExecuteMultipleInterface,
+  executeBatchInterface,
   executeBySenderInterface,
   executeCallInterface,
   executeInterface,
   executeMultipleInterface,
+  executeUnknownWalletInterface,
   handleOpsInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
@@ -19,7 +21,8 @@ export const userOpSigHashes = {
   executeBySender: executeBySenderInterface.getFunction('executeBySender')!.selector,
   execute: executeInterface.getFunction('execute')!.selector,
   executeMultiple: executeMultipleInterface.getFunction('executeMultiple')!.selector,
-  executeCall: executeCallInterface.getFunction('execute')!.selector
+  executeCall: executeCallInterface.getFunction('execute')!.selector,
+  executeBatch: executeBatchInterface.getFunction('executeBatch')!.selector
 }
 
 const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
@@ -76,6 +79,22 @@ const getExecuteCallCalls = (callData: string) => {
   return [transformToAccOpCall(data)]
 }
 
+const getExecuteUnknownWalletCalls = (callData: string) => {
+  const data = executeUnknownWalletInterface.decodeFunctionData('execute', callData)
+  return [transformToAccOpCall(data)]
+}
+
+const getExecuteBatchCalls = (callData: string) => {
+  const batch = executeBatchInterface.decodeFunctionData('executeBatch', callData)
+  const calls = []
+  for (let i = 0; i < batch[0].length; i++) {
+    const to = batch[0][i]
+    const data = batch[1][i]
+    calls.push(transformToAccOpCall([to, 0n, data]))
+  }
+  return calls
+}
+
 const decodeUserOp = (userOp: UserOperation) => {
   const callData = userOp.callData
   const callDataSigHash = callData.slice(0, 10)
@@ -94,6 +113,14 @@ const decodeUserOp = (userOp: UserOperation) => {
 
   if (callDataSigHash === userOpSigHashes.executeCall) {
     return getExecuteCallCalls(callData)
+  }
+
+  if (callDataSigHash === executeUnknownWalletInterface.getFunction('execute')!.selector) {
+    return getExecuteUnknownWalletCalls(callData)
+  }
+
+  if (callDataSigHash === userOpSigHashes.executeBatch) {
+    return getExecuteBatchCalls(callData)
   }
 }
 
@@ -175,6 +202,11 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOp
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
     const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
     if (decodedUserOp) return decodedUserOp
+  }
+
+  // @non-ambire executeBatch
+  if (sigHash === executeBatchInterface.getFunction('executeBatch')!.selector) {
+    return getExecuteBatchCalls(txn.data)
   }
 
   return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
