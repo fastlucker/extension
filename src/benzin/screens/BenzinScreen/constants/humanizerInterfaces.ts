@@ -42,6 +42,16 @@ const executeCallInterface = new ethers.Interface([
   'function execute(address to, uint256 value, bytes calldata data, uint8 operation)'
 ])
 
+// unknown wallet for now
+const executeBatchInterface = new ethers.Interface([
+  'function executeBatch(address[] apps, bytes[] data)'
+])
+
+// unknown wallet for now
+const executeUnknownWalletInterface = new ethers.Interface([
+  'function execute(address, uint256, bytes)'
+])
+
 export {
   executeInterface,
   executeMultipleInterface,
@@ -53,5 +63,7 @@ export {
   quickAccManagerSendInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
-  executeCallInterface
+  executeCallInterface,
+  executeBatchInterface,
+  executeUnknownWalletInterface
 }
