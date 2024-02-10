@@ -53,7 +53,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
     [key: string]: boolean
   }>({})
 
-  const { control, watch } = useForm({
+  const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
       search: ''
@@ -81,11 +81,8 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
   }, [])
 
   useEffect(() => {
-    if (searchValue.length > 0 && openTab === 'collectibles') {
-      handleChangeQuery('tokens')
-      setOpenTab('tokens')
-    }
-  }, [searchValue, openTab, handleChangeQuery])
+    setValue('search', '')
+  }, [openTab, setValue])
 
   const tokens = useMemo(
     () =>
@@ -137,14 +134,18 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
                 setOpenTab={setOpenTab}
                 openTab={openTab}
               />
-              <View style={{ margin: -2 }}>
-                <Search
-                  containerStyle={{ flex: 1, maxWidth: 206 }}
-                  control={control}
-                  height={32}
-                  placeholder={t('Search for tokens')}
-                />
-              </View>
+              {['tokens', 'collectibles'].includes(openTab) && (
+                <View style={{ margin: -2 }}>
+                  <Search
+                    containerStyle={{ flex: 1, maxWidth: 212 }}
+                    control={control}
+                    height={32}
+                    placeholder={t(
+                      openTab === 'tokens' ? 'Search for tokens' : 'Search for collections'
+                    )}
+                  />
+                </View>
+              )}
             </View>
             {openTab === 'tokens' && !!tokens?.length && (
               <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
@@ -192,6 +193,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
               <Collections
                 pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
                 style={openTab !== 'collectibles' ? HIDDEN_STYLE : {}}
+                searchValue={searchValue}
               />
             )}
           </>
