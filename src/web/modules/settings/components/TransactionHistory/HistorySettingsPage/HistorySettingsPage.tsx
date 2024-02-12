@@ -60,6 +60,10 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const { t } = useTranslation()
+  const itemsTotal =
+    (historyType === 'messages'
+      ? activityState.signedMessages?.itemsTotal
+      : activityState.accountsOps?.itemsTotal) || 0
 
   const [account, setAccount] = useState<Account>(
     mainState.accounts.filter((acc) => acc.addr === mainState.selectedAccount)[0]
@@ -154,18 +158,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
 
   const goToNextPageDisabled = useMemo(() => {
-    if (historyType === 'transactions')
-      return (activityState?.accountsOps?.items?.length || 0) < ITEMS_PER_PAGE
-    if (historyType === 'messages')
-      return ITEMS_PER_PAGE * page - (activityState.signedMessages?.itemsTotal || 0) >= 0
-
-    return true
-  }, [
-    activityState?.accountsOps?.items?.length,
-    activityState.signedMessages?.itemsTotal,
-    historyType,
-    page
-  ])
+    return ITEMS_PER_PAGE * page - itemsTotal >= 0
+  }, [itemsTotal, page])
 
   return (
     <SettingsPage currentPage={historyType} withPanelScrollView={false}>
@@ -229,11 +223,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         )}
       </ScrollView>
       <Pagination
-        maxPages={
-          (historyType === 'messages'
-            ? activityState.signedMessages?.itemsTotal
-            : activityState.accountsOps?.itemsTotal) || 0
-        }
+        maxPages={Math.ceil(itemsTotal / ITEMS_PER_PAGE)}
         isNextDisabled={goToNextPageDisabled}
         style={{ marginLeft: 'auto' }}
         page={page}
