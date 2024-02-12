@@ -282,6 +282,9 @@ type EmailVaultControllerUploadKeystoreSecretAction = {
   type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
   params: { email: string }
 }
+type EmailVaultControllerCancelConfirmationAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION'
+}
 type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
   params: { email: string }
@@ -394,6 +397,7 @@ export type Action =
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
+  | EmailVaultControllerCancelConfirmationAction
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction

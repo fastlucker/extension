@@ -783,6 +783,8 @@ async function init() {
               return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
             case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
               return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
+              return mainCtrl.emailVault.cancelEmailConfirmation()
             case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
               return mainCtrl.emailVault.recoverKeyStore(data.params.email)
             case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':

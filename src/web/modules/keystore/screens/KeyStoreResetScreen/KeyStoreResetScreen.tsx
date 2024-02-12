@@ -59,8 +59,10 @@ const KeyStoreResetScreen = () => {
   }, [formEmail])
 
   const handleCancelLoginAttempt = useCallback(() => {
-    alert('Under development!')
-  }, [])
+    dispatch({
+      type: 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION'
+    })
+  }, [dispatch])
 
   const handleCompleteReset = useCallback(() => {
     handleSubmit(({ password }) => {

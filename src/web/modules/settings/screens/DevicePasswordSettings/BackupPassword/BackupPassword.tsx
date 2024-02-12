@@ -47,6 +47,12 @@ const BackupPassword = () => {
     })()
   }, [handleSubmit, dispatch, email])
 
+  const handleCancelLoginAttempt = useCallback(() => {
+    dispatch({
+      type: 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION'
+    })
+  }, [dispatch])
+
   return (
     <>
       <View style={flexbox.flex1}>
@@ -125,10 +131,7 @@ const BackupPassword = () => {
         modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
         title={t('Email Confirmation Required')}
       >
-        <EmailConfirmation
-          email={email}
-          handleCancelLoginAttempt={() => alert('Under development.')}
-        />
+        <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
       </Modal>
     </>
   )
