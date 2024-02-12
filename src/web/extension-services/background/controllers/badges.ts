@@ -30,9 +30,7 @@ export class BadgesController {
     this.#notificationCtrl = notificationCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      const nonWarningBanners = this.#mainCtrl.banners.filter(
-        (banner) => banner.topic !== 'WARNING'
-      )
+      const nonWarningBanners = this.#mainCtrl.banners.filter((banner) => banner.type !== 'warning')
 
       this.#bannersCount = nonWarningBanners.length
       this.badgesCount = this._badgesCount
