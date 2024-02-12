@@ -56,7 +56,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
         })
       }
 
-      if (action.actionName === 'open-external-url' && type === 'info') {
+      if (action.actionName === 'open-external-url' && type === 'success') {
         window.open(action.meta.url, '_blank')
       }
 
