@@ -3,30 +3,43 @@ import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import Text from '@common/components/Text'
+import usePagination, { DOTS } from '@common/hooks/usePagination'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+
+import PaginationItem from './PaginationItem'
 
 export const SMALL_PAGE_STEP = 1
 export const LARGE_PAGE_STEP = 10
 
 interface Props {
   page: number
+  maxPages: number
   setPage: (page: number) => void
   isNextDisabled?: boolean
   isPrevDisabled?: boolean
   isDisabled?: boolean
   style?: ViewStyle
+  hideLastPage?: boolean
 }
 
 const Pagination: FC<Props> = ({
   page,
+  maxPages,
   setPage,
   isNextDisabled,
   isPrevDisabled,
   isDisabled,
-  style
+  style,
+  hideLastPage
 }) => {
+  const paginationRange = usePagination({
+    currentPage: page,
+    maxPages,
+    siblingCount: 1,
+    hideLastPage
+  })
+
   const handleSmallPageStepDecrement = () => {
     setPage(page - SMALL_PAGE_STEP)
   }
@@ -44,6 +57,11 @@ const Pagination: FC<Props> = ({
   }
 
   const handleLargePageStepIncrement = () => {
+    if (page + LARGE_PAGE_STEP >= maxPages) {
+      setPage(maxPages)
+      return
+    }
+
     setPage(page + LARGE_PAGE_STEP)
   }
 
@@ -52,7 +70,7 @@ const Pagination: FC<Props> = ({
       <TouchableOpacity
         onPress={handleLargePageStepDecrement}
         disabled={page === 1 || isPrevDisabled || isDisabled}
-        style={[spacings.mrLg, (page === 1 || isPrevDisabled || isDisabled) && { opacity: 0.4 }]}
+        style={[spacings.mrTy, (page === 1 || isPrevDisabled || isDisabled) && { opacity: 0.4 }]}
       >
         <View style={flexbox.directionRow}>
           <LeftArrowIcon />
@@ -66,25 +84,19 @@ const Pagination: FC<Props> = ({
       >
         <LeftArrowIcon />
       </TouchableOpacity>
-      <Text style={spacings.phLg}>
-        {page > 2 && <Text>...</Text>}
-        {page === 1 && (
-          <Text>
-            <Text weight="semiBold">{page}</Text>
-            <Text>{`  ${page + 1}  ${page + 2}`}</Text>
-          </Text>
-        )}
-        {page !== 1 && (
-          <Text>
-            <Text>{`  ${page - 1}  `}</Text>
-            <Text weight="semiBold">{page}</Text>
-            <Text>{`  ${page + 1}`}</Text>
-          </Text>
-        )}
-        <Text>{'  ...'}</Text>
-      </Text>
+      <View style={[flexbox.directionRow, spacings.phSm]}>
+        {paginationRange.map((pageNumber) => {
+          if (pageNumber === DOTS || typeof pageNumber !== 'number') {
+            return <PaginationItem />
+          }
+
+          return (
+            <PaginationItem number={pageNumber} setPage={setPage} isActive={pageNumber === page} />
+          )
+        })}
+      </View>
       <TouchableOpacity
-        style={[spacings.mrLg, (isNextDisabled || isDisabled) && { opacity: 0.4 }]}
+        style={[spacings.mrTy, (isNextDisabled || isDisabled) && { opacity: 0.4 }]}
         disabled={isNextDisabled || isDisabled}
         onPress={handleSmallPageStepIncrement}
       >

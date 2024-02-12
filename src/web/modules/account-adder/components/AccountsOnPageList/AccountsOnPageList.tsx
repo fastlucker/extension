@@ -349,8 +349,10 @@ const AccountsList = ({
           {!!shouldEnablePagination && (
             <Pagination
               page={state.page}
+              maxPages={1000}
               setPage={setPage}
               isDisabled={state.accountsLoading || disablePagination}
+              hideLastPage
             />
           )}
         </View>
