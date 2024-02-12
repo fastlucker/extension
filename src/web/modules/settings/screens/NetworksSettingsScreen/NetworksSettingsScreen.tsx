@@ -11,11 +11,12 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPage from '@web/modules/settings/components/SettingsPage'
+import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 import NetworkForm from './NetworkForm'
 
@@ -99,19 +100,9 @@ const NetworksSettingsScreen = () => {
 
   return (
     <SettingsPage currentPage="networks">
-      <View
-        style={[
-          flexboxStyles.directionRow,
-          flexboxStyles.justifySpaceBetween,
-          flexboxStyles.alignCenter,
-          IS_SCREEN_SIZE_DESKTOP_LARGE ? spacings.mb2Xl : spacings.mbLg
-        ]}
-      >
-        <Text weight="medium" fontSize={20}>
-          {t('Networks')}
-        </Text>
-        <Search placeholder="Search for a previously added network" control={control} />
-      </View>
+      <SettingsPageHeader title="Networks">
+        <Search placeholder="Search for network" control={control} />
+      </SettingsPageHeader>
       <View style={[flexboxStyles.directionRow]}>
         <View style={flexboxStyles.flex1}>
           <View style={spacings.mbXl}>

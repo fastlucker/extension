@@ -1,32 +1,34 @@
-import React, { useCallback, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
+import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
+import Input from '@common/components/Input'
+import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
-import { SPACING_LG } from '@common/styles/spacings'
+import { isWeb } from '@common/config/env'
+import Header from '@common/modules/header/components/Header'
+import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
 
-import BackButton from '@common/components/BackButton'
-import Header from '@common/modules/header/components/Header'
-import Modal from '@common/components/Modal'
 import KeystoreResetForm from '../../components/KeyStoreResetForm'
 import styles from './styles'
 
 const KeyStoreResetScreen = () => {
   const { t } = useTranslation()
-  const [keyStoreResetStep, setKeyStoreResetStep] = useState<
-    'initial' | 'confirming' | 'confirmed'
-  >('initial')
-  const [timeoutToBeCleared, setTimeoutToBeCleared] = useState<any>(null)
-  const isInitial = keyStoreResetStep === 'initial'
-  const isConfirming = keyStoreResetStep === 'confirming'
+
   const {
     watch,
     control,
@@ -35,58 +37,77 @@ const KeyStoreResetScreen = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
+      email: '',
       password: '',
       confirmPassword: '',
       isRecoveryByEmailEnabled: false
     }
   })
 
+  const formEmail = watch('email')
+
+  const { dispatch } = useBackgroundService()
+  const [isPasswordChanged, setIsPasswordChanged] = useState(false)
+  const keystoreState = useKeystoreControllerState()
+  const ev = useEmailVaultControllerState()
+  const isWaitingConfirmation = ev.currentState === EmailVaultState.WaitingEmailConfirmation
+  const email = useMemo(
+    () => Object.keys(ev.emailVaultStates.email)[0],
+    [ev.emailVaultStates.email]
+  )
+
   const handleSendResetEmail = useCallback(() => {
-    setKeyStoreResetStep('confirming')
-
-    const timeout = setTimeout(() => {
-      setKeyStoreResetStep('confirmed')
-    }, 5000)
-
-    setTimeoutToBeCleared(timeout)
-  }, [setKeyStoreResetStep])
+    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE', params: { email: formEmail } })
+  }, [formEmail])
 
   const handleCancelLoginAttempt = useCallback(() => {
-    clearTimeout(timeoutToBeCleared)
-    setKeyStoreResetStep('initial')
-  }, [timeoutToBeCleared])
+    alert('Under development!')
+  }, [])
 
   const handleCompleteReset = useCallback(() => {
-    handleSubmit(({ password, confirmPassword, isRecoveryByEmailEnabled }) => {
-      console.log(password, confirmPassword, isRecoveryByEmailEnabled)
+    handleSubmit(({ password }) => {
+      dispatch({
+        type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY',
+        params: { newSecret: password }
+      })
     })()
-  }, [handleSubmit])
+  }, [dispatch, handleSubmit])
+
+  useEffect(() => {
+    if (
+      keystoreState.latestMethodCall === 'changeKeystorePassword' &&
+      keystoreState.status === 'SUCCESS'
+    ) {
+      setIsPasswordChanged(true)
+    }
+  }, [keystoreState.latestMethodCall, keystoreState.status])
 
   return (
     <TabLayoutContainer
-      width="sm"
+      width="xs"
       header={
-        <Header customTitle={t('Restore Device Password. Under development!')} withAmbireLogo mode="image-and-title" />
+        <Header customTitle={t('Restore Device Password')} withAmbireLogo mode="image-and-title" />
       }
       footer={
-        <>
-          <BackButton />
-          <View>
-            <Button
-              disabled={!isValid && !isInitial}
-              onPress={isInitial ? handleSendResetEmail : handleCompleteReset}
-              style={styles.button}
-              hasBottomSpacing={false}
-              text={isInitial ? t('Send Confirmation Email') : t('Setup Ambire Key Store')}
-            />
-          </View>
-        </>
+        <View style={[flexbox.flex1, flexbox.alignEnd]}>
+          <Button
+            disabled={!isValid || isWaitingConfirmation}
+            onPress={!keystoreState.isUnlocked ? handleSendResetEmail : handleCompleteReset}
+            style={styles.button}
+            hasBottomSpacing={false}
+            text={
+              !keystoreState.isUnlocked
+                ? t('Send Confirmation Email')
+                : t('Change Key Store password')
+            }
+          />
+        </View>
       }
     >
       <TabLayoutWrapperMainContent>
         <>
           <KeyStoreLogo width={120} height={120} style={styles.logo} />
-          {isInitial ? (
+          {!keystoreState.isUnlocked ? (
             <Text style={styles.text} weight="regular" fontSize={14}>
               At Ambire Wallet, we take your security seriously. To ensure that your Passphrase
               remains private, we do not keep a copy of it. Your KeyStore recovery is activated by
@@ -108,27 +129,69 @@ const KeyStoreResetScreen = () => {
               </Text>
             </>
           )}
-          <View
-            style={[
-              styles.currentEmailContainer,
-              {
-                marginBottom: isInitial ? SPACING_LG * 2 : SPACING_LG
-              }
-            ]}
-          >
-            <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
-              {t('The recovery email for current KeyStore is')}{' '}
-              <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
-                demo@ambire.com
+          {!keystoreState.isUnlocked && (
+            <View
+              style={[
+                {
+                  marginVertical: SPACING_LG * 2
+                }
+              ]}
+            >
+              <Controller
+                control={control}
+                rules={{
+                  validate: isEmail
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    label={t('Please insert your email')}
+                    onBlur={onBlur}
+                    placeholder={t('Email Address')}
+                    onChangeText={onChange}
+                    onSubmitEditing={handleSendResetEmail}
+                    value={value}
+                    autoFocus={isWeb}
+                    isValid={isEmail(value)}
+                    error={!!errors.email && (t('Please fill in a valid email.') as string)}
+                  />
+                )}
+                name="email"
+              />
+            </View>
+          )}
+          {keystoreState.isUnlocked && (
+            <View
+              style={[
+                styles.currentEmailContainer,
+                {
+                  marginBottom: SPACING_LG
+                }
+              ]}
+            >
+              <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
+                {t('The recovery email for current KeyStore is')}{' '}
+                <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
+                  {email}
+                </Text>
               </Text>
-            </Text>
-          </View>
-          {!isInitial && (
-            <KeystoreResetForm control={control} errors={errors} password={watch('password')} />
+            </View>
+          )}
+          {keystoreState.isUnlocked && (
+            <KeystoreResetForm
+              control={control}
+              errors={errors}
+              password={watch('password')}
+              isPasswordChanged={isPasswordChanged}
+              handleChangeKeystorePassword={handleCompleteReset}
+            />
           )}
         </>
-        <Modal isOpen={isConfirming} modalStyle={{ minWidth: 'unset' }}>
-          <EmailConfirmation handleCancelLoginAttempt={handleCancelLoginAttempt} />
+        <Modal
+          isOpen={ev.currentState === EmailVaultState.WaitingEmailConfirmation}
+          modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
+          title={t('Email Confirmation Required')}
+        >
+          <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
         </Modal>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

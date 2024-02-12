@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, StyleSheet, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
+import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -24,12 +26,11 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
 import { getUiType } from '@web/utils/uiType'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import FallbackVisualization from './FallbackVisualization'
 import Header from './Header/Header'
 import Info from './Info'
@@ -351,6 +352,13 @@ const SignMessageScreen = () => {
           {isChooseSignerShown ? (
             <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
           ) : null}
+          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
+            <HardwareWalletSigningModal
+              isOpen={signMessageState.status === 'LOADING'}
+              keyType={signMessageState.signingKeyType}
+              onReject={handleReject}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

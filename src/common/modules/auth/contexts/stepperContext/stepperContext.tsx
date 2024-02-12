@@ -32,6 +32,13 @@ export const STEPPER_FLOWS = {
     [WEB_ROUTES.importSeedPhrase]: 'Enter your\nSeed Phrase',
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
+  },
+  'create-seed': {
+    'select-recovery': 'Select the\nrecovery option',
+    [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
+    'secure-seed': 'Secure your\nSeed Phrase',
+    [WEB_ROUTES.createSeedPhraseConfirm]: 'Confirm your\nSeed Phrase',
+    [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   }
 }
 
@@ -40,7 +47,11 @@ export const STEPPER_FLOWS = {
   this route is the step 'connect-hardware-wallet' of the flow 'hw', but is not the only trigger,
   because the other HW wallet are not routes and instead open in a popup.
 */
-const EXTRA_STEP_SCREENS = [WEB_ROUTES.hardwareWalletLedger]
+const EXTRA_STEP_SCREENS = [
+  WEB_ROUTES.hardwareWalletLedger,
+  WEB_ROUTES.createSeedPhrasePrepare,
+  WEB_ROUTES.createSeedPhraseWrite
+]
 
 const ALL_STEPS_SCREENS = Object.keys(STEPPER_FLOWS)
   .map((key) => {

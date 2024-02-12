@@ -28,7 +28,7 @@ export const getDefaultAccountLabel = (
   const suffix =
     !keyType && !keyTypeInternalSubtype
       ? '(View Only)'
-      : `(${isSmartAccount(account) ? 'Ambire via' : 'Legacy from'} ${
+      : `(${isSmartAccount(account) ? 'Ambire via' : 'Basic from'} ${
           (keyType && HARDWARE_WALLET_DEVICE_NAMES[keyType]) ||
           KEY_SUBTYPE_TO_LABEL[keyTypeInternalSubtype as keyof typeof KEY_SUBTYPE_TO_LABEL] ||
           keyTypeInternalSubtype
@@ -53,7 +53,7 @@ export const getDefaultKeyLabel = (
   slot: number,
   customLabel?: string
 ) => {
-  const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Legacy Key'
+  const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Basic Key'
   const from =
     customLabel || (keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType])
 

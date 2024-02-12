@@ -1,4 +1,4 @@
-import { isValidPassword } from 'ambire-common/src/services/validations'
+import { isValidPassword } from '@ambire-common/services/validations'
 import { FC } from 'react'
 import { Controller, FieldErrorsImpl } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,8 @@ import InputPassword from '@common/components/InputPassword'
 import { isWeb } from '@common/config/env'
 import PasswordSetModal from '@web/components/PasswordSetModal'
 
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 import styles from './styles'
 
 interface Props {
@@ -19,10 +21,19 @@ interface Props {
       confirmPassword: string
     }>
   >
+  isPasswordChanged: boolean
+  handleChangeKeystorePassword: () => void
 }
 
-const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
+const KeystoreResetForm: FC<Props> = ({
+  password,
+  control,
+  errors,
+  isPasswordChanged,
+  handleChangeKeystorePassword
+}) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
 
   return (
     <>
@@ -42,6 +53,7 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
               (t('Please fill in at least 8 characters for passphrase.') as string)
             }
             containerStyle={styles.passwordInput}
+            onSubmitEditing={handleChangeKeystorePassword}
           />
         )}
         name="password"
@@ -62,11 +74,12 @@ const KeystoreResetForm: FC<Props> = ({ password, control, errors }) => {
             error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
             autoCorrect={false}
             containerStyle={styles.confirmPasswordInput}
+            onSubmitEditing={handleChangeKeystorePassword}
           />
         )}
         name="confirmPassword"
       />
-      <PasswordSetModal isOpen onPress={() => {}} />
+      <PasswordSetModal isOpen={isPasswordChanged} onPress={() => navigate(ROUTES.dashboard)} />
     </>
   )
 }

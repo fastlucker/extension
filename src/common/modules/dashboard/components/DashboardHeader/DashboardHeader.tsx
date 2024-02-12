@@ -14,6 +14,7 @@ import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -81,7 +82,7 @@ const DashboardHeader = () => {
                 backgroundColor: hovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND_HOVERED
               }
             ]}
-            onPress={() => navigate('account-select')}
+            onPress={() => navigate(WEB_ROUTES.accountSelect)}
           >
             {({ hovered }: any) => (
               <>
@@ -92,8 +93,8 @@ const DashboardHeader = () => {
                       <View
                         style={{
                           position: 'absolute',
-                          right: -4,
-                          top: -4,
+                          right: 2,
+                          top: -2,
                           backgroundColor: theme.primaryBackground,
                           padding: 2,
                           borderRadius: 50
@@ -153,7 +154,7 @@ const DashboardHeader = () => {
 
         <View style={styles.maximizeAndMenu}>
           {!!isPopup && (
-            <Pressable onPress={() => openInTab('tab.html#/dashboard')}>
+            <Pressable onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}>
               {({ hovered }: any) => (
                 <MaximizeIcon
                   opacity={hovered ? 1 : 0.7}
@@ -166,7 +167,9 @@ const DashboardHeader = () => {
           )}
           <Pressable
             style={{ ...spacings.mlLg, ...spacings.mrTy }}
-            onPress={() => (isPopup ? navigate('menu') : navigate('accounts'))}
+            onPress={() =>
+              isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.accountsSettings)
+            }
           >
             {({ hovered }: any) => (
               <BurgerIcon

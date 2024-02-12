@@ -19,6 +19,7 @@ import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 

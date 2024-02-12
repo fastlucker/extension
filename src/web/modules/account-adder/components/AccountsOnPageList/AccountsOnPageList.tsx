@@ -80,7 +80,7 @@ const AccountsList = ({
   const disablePagination = Object.keys(slots).length === 1
 
   const getType = useCallback((acc: any) => {
-    if (!acc.account.creation) return 'legacy'
+    if (!acc.account.creation) return 'basic'
     if (acc.isLinked) return 'linked'
 
     return 'smart'
@@ -110,12 +110,12 @@ const AccountsList = ({
       accounts,
       shouldCheckForLastAccountInTheList,
       slotIndex,
-      byType = ['legacy', 'smart']
+      byType = ['basic', 'smart']
     }: {
       accounts: any
       shouldCheckForLastAccountInTheList?: boolean
       slotIndex?: number
-      byType?: ('legacy' | 'linked' | 'smart')[]
+      byType?: ('basic' | 'linked' | 'smart')[]
     }) => {
       const filteredAccounts = accounts.filter((a: any) => byType.includes(getType(a)))
       return filteredAccounts.map((acc: any, i: number) => {
@@ -131,7 +131,7 @@ const AccountsList = ({
           (selectedAcc) => selectedAcc.addr === acc.account.addr
         )
 
-        if (hideEmptyAccounts && getType(acc) === 'legacy' && !acc.account.usedOnNetworks.length) {
+        if (hideEmptyAccounts && getType(acc) === 'basic' && !acc.account.usedOnNetworks.length) {
           return null
         }
 
@@ -140,7 +140,7 @@ const AccountsList = ({
             key={acc.account.addr}
             account={acc.account}
             type={getType(acc)}
-            shouldAddIntroStepsIds={['legacy', 'smart'].includes(getType(acc)) && slotIndex === 0}
+            shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
             isSelected={isSelected || isPreselected}
@@ -249,7 +249,7 @@ const AccountsList = ({
           <Alert type="info" style={spacings.mbTy}>
             <Text fontSize={16} style={flexbox.flex1} appearance="infoText">
               {t(
-                'Linked smart accounts are accounts that were not originally created with this key or Ambire V.1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
+                'Linked smart accounts are accounts that were not originally created with this key or Ambire v1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
               )}
             </Text>
           </Alert>
@@ -287,7 +287,7 @@ const AccountsList = ({
           <Toggle
             isOn={hideEmptyAccounts}
             onToggle={() => setHideEmptyAccounts((p) => !p)}
-            label={t('Hide empty legacy accounts')}
+            label={t('Hide empty basic accounts')}
             labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
           />
         </View>

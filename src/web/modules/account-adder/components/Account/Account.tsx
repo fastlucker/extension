@@ -38,7 +38,7 @@ const Account = ({
   isDisabled
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
-  type: 'legacy' | 'smart' | 'linked'
+  type: 'basic' | 'smart' | 'linked'
   unused: boolean
   isSelected: boolean
   withBottomSpacing: boolean
@@ -107,11 +107,11 @@ const Account = ({
                 </Pressable>
               )}
             </View>
-            {type === 'legacy' ? (
+            {type === 'basic' ? (
               <Badge
                 withRightSpacing
                 withIcon
-                text={t('Legacy Account')}
+                text={t('Basic Account')}
                 type="warning"
                 {...(shouldAddIntroStepsIds
                   ? {
@@ -136,7 +136,7 @@ const Account = ({
               <Badge withRightSpacing withIcon text={t('linked')} type="info" />
             )}
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
-              <Badge withRightSpacing withIcon text={t('v.1')} type="info" />
+              <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
             )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>

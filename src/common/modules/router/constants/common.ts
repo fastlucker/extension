@@ -13,6 +13,8 @@ const COMMON_ROUTES = {
   transfer: 'transfer',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
+  signedMessages: 'signed-messages',
+  keystore: 'keystore',
   gasTank: 'gas-tank',
   pendingTransactions: 'pending-transactions',
   receive: 'receive',
@@ -44,13 +46,11 @@ const MOBILE_ROUTES = {
 
 const WEB_ROUTES = {
   ...COMMON_ROUTES,
-  createEmailVault: 'create-email-vault',
   terms: 'terms',
   keyStoreSetup: 'keystore-setup',
   keyStoreReset: 'keystore-reset',
-  devicePassword: 'device-password',
   getEncryptionPublicKeyRequest: 'get-encryption-public-key-request',
-  onboarding: 'onboarding',
+  onboardingCompleted: 'onboarding-completed',
   dappConnectRequest: 'dapp-connect-request',
   watchAsset: 'watch-asset',
   addChain: 'add-chain',
@@ -63,10 +63,17 @@ const WEB_ROUTES = {
   accountSelect: 'account-select',
   viewOnlyAccountAdder: 'view-only-account-adder',
   networks: 'networks',
-  networksSettings: 'networks/settings',
+  settingsTerms: 'settings/terms',
+  networksSettings: 'settings/networks',
+  accountsSettings: 'settings/accounts',
+  devicePassword: 'settings/device-password',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
-  importSeedPhrase: 'import-seed-phrase'
+  importSeedPhrase: 'import-seed-phrase',
+  createHotWallet: 'create-hot-wallet',
+  createSeedPhrasePrepare: 'create-seed-phrase/prepare',
+  createSeedPhraseWrite: 'create-seed-phrase/write',
+  createSeedPhraseConfirm: 'create-seed-phrase/confirm'
 }
 
 const ROUTES = {

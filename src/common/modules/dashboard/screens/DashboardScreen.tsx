@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -15,8 +15,8 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import ReceiveModal from '@web/components/ReceiveModal'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -33,7 +33,6 @@ const { isPopup, isTab } = getUiType()
 
 const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
-  const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
@@ -47,7 +46,7 @@ const DashboardScreen = () => {
 
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, state, setAccountPortfolio } = usePortfolioControllerState()
+  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
 
   const { t } = useTranslation()
 
@@ -71,16 +70,6 @@ const DashboardScreen = () => {
 
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
-
-  const refreshPortfolio = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
-      params: {
-        forceUpdate: true
-      }
-    })
-    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
-  }, [dispatch, accountPortfolio, setAccountPortfolio])
 
   return (
     <>
@@ -125,9 +114,7 @@ const DashboardScreen = () => {
                           color={theme.primaryBackground}
                         >
                           {t('$')}
-                          {Number(totalPortfolioAmount.toFixed(2).split('.')[0]).toLocaleString(
-                            'en-US'
-                          )}
+                          {formatDecimals(totalPortfolioAmount).split('.')[0]}
                         </Text>
                         <Text
                           fontSize={20}
@@ -136,7 +123,7 @@ const DashboardScreen = () => {
                           color={theme.primaryBackground}
                         >
                           {t('.')}
-                          {Number(totalPortfolioAmount.toFixed(2).split('.')[1])}
+                          {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
 

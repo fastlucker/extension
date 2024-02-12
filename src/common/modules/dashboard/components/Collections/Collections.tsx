@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps } from 'react-native'
 
@@ -10,7 +10,11 @@ import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
 import styles from './styles'
 
-const Collections = ({ ...rest }: ViewProps) => {
+interface Props extends ViewProps {
+  searchValue: string
+}
+
+const Collections: FC<Props> = ({ searchValue, ...rest }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
   const { t } = useTranslation()
@@ -30,17 +34,25 @@ const Collections = ({ ...rest }: ViewProps) => {
         selectedCollectible={selectedCollectible}
       />
       {accountPortfolio?.collections?.length ? (
-        accountPortfolio.collections.map(({ address, name, networkId, collectibles, priceIn }) => (
-          <Collection
-            address={address}
-            networkId={networkId}
-            key={address}
-            name={name}
-            collectibles={collectibles}
-            priceIn={priceIn}
-            openCollectibleModal={openCollectibleModal}
-          />
-        ))
+        accountPortfolio.collections
+          .filter(({ name, address }) => {
+            if (!searchValue) return true
+            return (
+              name.toLowerCase().includes(searchValue.toLowerCase()) ||
+              address.toLowerCase().includes(searchValue.toLowerCase())
+            )
+          })
+          .map(({ address, name, networkId, collectibles, priceIn }) => (
+            <Collection
+              address={address}
+              networkId={networkId}
+              key={address}
+              name={name}
+              collectibles={collectibles}
+              priceIn={priceIn}
+              openCollectibleModal={openCollectibleModal}
+            />
+          ))
       ) : (
         <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
           {t("You don't have any collectibles (NFTs) yet")}

@@ -1,9 +1,9 @@
-import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
-import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 interface Styles {
   accountButton: ViewStyle
@@ -14,14 +14,16 @@ interface Styles {
   maximizeAndMenu: ViewStyle
 }
 
-const getStyles = (theme: ThemeProps) =>
+const { isTab } = getUiType()
+
+const getStyles = () =>
   StyleSheet.create<Styles>({
     // Account
     accountButton: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
       height: 40,
-      maxWidth: 412,
+      maxWidth: isTab ? 412 : 324,
       ...spacings.phMi,
       ...common.borderRadiusPrimary,
       ...spacings.mrSm
