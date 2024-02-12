@@ -33,7 +33,7 @@ type NetworkOption = {
   icon: JSX.Element
 }
 
-const ITEMS_PER_PAGE = 1
+const ITEMS_PER_PAGE = 10
 
 const formatAddressLabelInSelector = (label: string) => {
   if (label.length > (IS_SCREEN_SIZE_DESKTOP_LARGE ? 26 : 18))
