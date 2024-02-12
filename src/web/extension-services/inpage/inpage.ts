@@ -27,12 +27,16 @@ const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 let doesWebpageReadOurProvider: boolean = false
 let isEIP6963: boolean = false
+declare let defaultWallet: DefaultWallet
+let _defaultWallet: DefaultWallet = 'AMBIRE'
+let focusedListener: any = null
 
 //
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
 //
 
 const runReplacementScript = () => {
+  if (_defaultWallet === 'OTHER') return
   const hasMetaMaskInPage = isWordInPage('metamask')
   if (!doesWebpageReadOurProvider && !hasMetaMaskInPage) return
   const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
@@ -65,8 +69,6 @@ const runReplacementScript = () => {
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
-declare let defaultWallet: DefaultWallet
-let _defaultWallet: DefaultWallet = 'AMBIRE'
 let observer: MutationObserver | null = null
 let clickListener: any
 function cleanupObserver() {
@@ -388,7 +390,20 @@ export class EthereumProvider extends EventEmitter {
     if (data?.type === 'setDefaultWallet') {
       defaultWallet = data?.value
       if (data.shouldReload) {
-        window.location.reload()
+        const reload = () => {
+          if (focusedListener) {
+            window.removeEventListener('focus', reload)
+            focusedListener = null
+          }
+          if (isEIP6963) return
+          window.location.reload()
+        }
+
+        if (document.hasFocus()) {
+          reload()
+        } else {
+          focusedListener = window.addEventListener('focus', reload)
+        }
       }
       return
     }
