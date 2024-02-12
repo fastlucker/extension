@@ -33,7 +33,7 @@ type NetworkOption = {
   icon: JSX.Element
 }
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 1
 
 const formatAddressLabelInSelector = (label: string) => {
   if (label.length > (IS_SCREEN_SIZE_DESKTOP_LARGE ? 26 : 18))
@@ -152,14 +152,20 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   )
 
   const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
+
   const goToNextPageDisabled = useMemo(() => {
     if (historyType === 'transactions')
       return (activityState?.accountsOps?.items?.length || 0) < ITEMS_PER_PAGE
     if (historyType === 'messages')
-      return (activityState?.signedMessages?.items?.length || 0) < ITEMS_PER_PAGE
+      return ITEMS_PER_PAGE * page - (activityState.signedMessages?.itemsTotal || 0) >= 0
 
     return true
-  }, [activityState, historyType])
+  }, [
+    activityState?.accountsOps?.items?.length,
+    activityState.signedMessages?.itemsTotal,
+    historyType,
+    page
+  ])
 
   return (
     <SettingsPage currentPage={historyType} withPanelScrollView={false}>
@@ -223,6 +229,11 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         )}
       </ScrollView>
       <Pagination
+        maxPages={
+          (historyType === 'messages'
+            ? activityState.signedMessages?.itemsTotal
+            : activityState.accountsOps?.itemsTotal) || 0
+        }
         isNextDisabled={goToNextPageDisabled}
         style={{ marginLeft: 'auto' }}
         page={page}
