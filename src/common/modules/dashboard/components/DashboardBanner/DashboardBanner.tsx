@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { FC, useCallback } from 'react'
 import { View } from 'react-native'
 
@@ -74,7 +75,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
         })
       }
 
-      if (action.actionName === 'backup-keystore-secret' && type === 'warning') {
+      if (action.actionName === 'backup-keystore-secret') {
         navigate(ROUTES.devicePassword)
       }
     },
