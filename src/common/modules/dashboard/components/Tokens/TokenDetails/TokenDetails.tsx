@@ -214,18 +214,28 @@ const TokenDetails = ({
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}
-                <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-                  ({shortenAddress(address, isRewards || isVesting ? 10 : 22)})
-                </Text>
-                <TouchableOpacity
-                  style={spacings.mlMi}
-                  onPress={() => {
-                    Clipboard.setStringAsync(address).catch(() => null)
-                    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-                  }}
-                >
-                  <CopyIcon width={16} height={16} color={iconColors.secondary} strokeWidth="1.5" />
-                </TouchableOpacity>
+                {address !== `0x${'0'.repeat(40)}` ? (
+                  <>
+                    {' '}
+                    <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+                      ({shortenAddress(address, isRewards || isVesting ? 10 : 13)})
+                    </Text>
+                    <TouchableOpacity
+                      style={spacings.mlMi}
+                      onPress={() => {
+                        Clipboard.setStringAsync(address).catch(() => null)
+                        addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+                      }}
+                    >
+                      <CopyIcon
+                        width={16}
+                        height={16}
+                        color={iconColors.secondary}
+                        strokeWidth="1.5"
+                      />
+                    </TouchableOpacity>
+                  </>
+                ) : null}
               </Text>
             </View>
           </View>
