@@ -193,10 +193,9 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       })
     )
 
-    const prevAccountsCount = mainControllerState.accounts.length
     const readyToAddAccountPreferences = getDefaultAccountPreferences(
       accountAdderState.selectedAccounts.map(({ account }) => account),
-      prevAccountsCount,
+      mainControllerState.accounts,
       keyType,
       keyTypeInternalSubtype
     )
@@ -216,7 +215,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     accountAdderState.hdPathTemplate,
     completeStep,
     keyType,
-    mainControllerState.accounts.length,
+    mainControllerState.accounts,
     dispatch,
     privKeyOrSeed,
     addToast,
