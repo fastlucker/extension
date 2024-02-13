@@ -129,6 +129,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             explorerUrl={network.explorerUrl}
             rightIcon={<OpenIcon />}
             onRightIconPress={handleOpenExplorer}
+            isHistory
           />
         )
       })}
