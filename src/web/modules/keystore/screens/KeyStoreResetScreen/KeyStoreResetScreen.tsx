@@ -55,7 +55,7 @@ const KeyStoreResetScreen = () => {
   )
 
   const handleSendResetEmail = useCallback(() => {
-    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE', params: { email: formEmail } })
+    dispatch({ type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY', params: { email: formEmail } })
   }, [formEmail])
 
   const handleCancelLoginAttempt = useCallback(() => {
@@ -67,20 +67,17 @@ const KeyStoreResetScreen = () => {
   const handleCompleteReset = useCallback(() => {
     handleSubmit(({ password }) => {
       dispatch({
-        type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY',
-        params: { newSecret: password }
+        type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE',
+        params: { email, newPass: password }
       })
     })()
   }, [dispatch, handleSubmit])
 
   useEffect(() => {
-    if (
-      keystoreState.latestMethodCall === 'changeKeystorePassword' &&
-      keystoreState.status === 'SUCCESS'
-    ) {
+    if (keystoreState.isUnlocked) {
       setIsPasswordChanged(true)
     }
-  }, [keystoreState.latestMethodCall, keystoreState.status])
+  }, [keystoreState.isUnlocked])
 
   return (
     <TabLayoutContainer
@@ -92,11 +89,11 @@ const KeyStoreResetScreen = () => {
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
             disabled={!isValid || isWaitingConfirmation}
-            onPress={!keystoreState.isUnlocked ? handleSendResetEmail : handleCompleteReset}
+            onPress={!ev.hasConfirmedRecoveryEmail ? handleSendResetEmail : handleCompleteReset}
             style={styles.button}
             hasBottomSpacing={false}
             text={
-              !keystoreState.isUnlocked
+              !ev.hasConfirmedRecoveryEmail
                 ? t('Send Confirmation Email')
                 : t('Change Key Store password')
             }
@@ -107,7 +104,7 @@ const KeyStoreResetScreen = () => {
       <TabLayoutWrapperMainContent>
         <>
           <KeyStoreLogo width={120} height={120} style={styles.logo} />
-          {!keystoreState.isUnlocked ? (
+          {!ev.hasConfirmedRecoveryEmail ? (
             <Text style={styles.text} weight="regular" fontSize={14}>
               At Ambire Wallet, we take your security seriously. To ensure that your Passphrase
               remains private, we do not keep a copy of it. Your KeyStore recovery is activated by
@@ -129,7 +126,7 @@ const KeyStoreResetScreen = () => {
               </Text>
             </>
           )}
-          {!keystoreState.isUnlocked && (
+          {!ev.hasConfirmedRecoveryEmail && (
             <View
               style={[
                 {
@@ -159,7 +156,7 @@ const KeyStoreResetScreen = () => {
               />
             </View>
           )}
-          {keystoreState.isUnlocked && (
+          {ev.hasConfirmedRecoveryEmail && (
             <View
               style={[
                 styles.currentEmailContainer,
@@ -176,7 +173,7 @@ const KeyStoreResetScreen = () => {
               </Text>
             </View>
           )}
-          {keystoreState.isUnlocked && (
+          {ev.hasConfirmedRecoveryEmail && (
             <KeystoreResetForm
               control={control}
               errors={errors}
