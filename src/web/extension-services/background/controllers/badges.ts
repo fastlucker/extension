@@ -34,7 +34,8 @@ export class BadgesController {
       const blacklistBadgesForBannersWithId: (number | string)[] = ['keystore-secret-backup']
       const blacklistBadgesForBannersWithType: BannerType[] = ['error', 'warning']
 
-      const infoAndSuccessBanners = this.#mainCtrl.banners.filter(
+      const banners = this.#mainCtrl?.banners || []
+      const infoAndSuccessBanners = banners.filter(
         (banner) =>
           !blacklistBadgesForBannersWithType.includes(banner.type) &&
           !blacklistBadgesForBannersWithId.includes(banner.id)
