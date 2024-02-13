@@ -15,14 +15,14 @@ export default function useBanners(): BannerInterface[] {
         return [
           ...prev,
           {
-            id: 'enable-default-wallet',
-            topic: 'WARNING',
+            id: 'switch-default-wallet',
+            type: 'warning',
             title: 'Ambire Wallet is not your default wallet',
             text: 'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.',
             actions: [
               {
-                label: 'Enable',
-                actionName: 'enable-default-wallet',
+                label: 'Switch',
+                actionName: 'switch-default-wallet',
                 meta: {}
               }
             ]
@@ -30,7 +30,7 @@ export default function useBanners(): BannerInterface[] {
         ]
       })
     } else {
-      setInnerBanners((prev) => prev.filter((b) => b.id !== 'enable-default-wallet'))
+      setInnerBanners((prev) => prev.filter((b) => b.id !== 'switch-default-wallet'))
     }
   }, [walletState.isDefaultWallet])
 

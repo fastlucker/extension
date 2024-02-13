@@ -1,11 +1,4 @@
-export function formatThousands(input: string) {
-  const parts = input.split('.')
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  return parts.join('.')
-}
-
 const getIndexOfFirstNonZeroInDecimals = (value: number) => {
-  if (value === 0) return 0
   // Fixes scientific notation when converting to string
   const decimalValue = value.toFixed(value < 1 ? 16 : 2)
   const valueString = decimalValue.toString()
@@ -18,6 +11,8 @@ const getIndexOfFirstNonZeroInDecimals = (value: number) => {
 const DEFAULT_DECIMALS = 2
 
 const formatDecimals = (value: number, type?: 'value' | 'amount') => {
+  if (value === 0) return '0.00'
+
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value)
   let decimals = value > 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
 
@@ -25,7 +20,10 @@ const formatDecimals = (value: number, type?: 'value' | 'amount') => {
     decimals = 0
   }
 
-  return formatThousands(value.toFixed(decimals))
+  return value.toLocaleString(undefined, {
+    maximumFractionDigits: decimals,
+    minimumFractionDigits: decimals
+  })
 }
 
 export default formatDecimals
