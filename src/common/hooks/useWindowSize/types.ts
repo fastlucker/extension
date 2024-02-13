@@ -1,8 +1,10 @@
 import { breakpointsByWindowWidth } from './breakpoints'
 
+export type WindowSizes = keyof typeof breakpointsByWindowWidth
+
 export type WindowSizeProps = {
   width: number
   height: number
-  minWidthSize: (size: keyof typeof breakpointsByWindowWidth) => boolean
-  maxWidthSize: (size: keyof typeof breakpointsByWindowWidth) => boolean
+  minWidthSize: (size: WindowSizes) => boolean
+  maxWidthSize: (size: WindowSizes) => boolean
 }

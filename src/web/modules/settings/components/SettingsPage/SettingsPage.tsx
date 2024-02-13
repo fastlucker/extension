@@ -21,7 +21,7 @@ const SettingsPage: FC<Props> = ({ children, currentPage, withPanelScrollView = 
   const { maxWidthSize } = useWindowSize()
   const isScreenXxl = maxWidthSize('xxl')
   const isScreenXl = maxWidthSize('xl')
-  const panelPaddings = getPanelPaddings(isScreenXl, false)
+  const panelPaddings = getPanelPaddings(maxWidthSize, false)
   const wrapperProps = withPanelScrollView ? { contentContainerStyle: panelPaddings } : {}
   const Wrapper = withPanelScrollView ? ScrollView : Fragment
 
