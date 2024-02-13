@@ -31,6 +31,7 @@ import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import SigningKeySelect from '@web/modules/sign-message/components'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -335,14 +336,17 @@ const SignAccountOpScreen = () => {
           isEOA={!account?.creation}
           isSignLoading={isSignLoading}
           readyToSign={signAccountOpState.readyToSign}
-          isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
-          handleChangeSigningKey={handleChangeSigningKey}
-          selectedAccountKeyStoreKeys={signAccountOpState?.accountKeyStoreKeys}
           onSign={onSignButtonClick}
         />
       }
     >
+      <SigningKeySelect
+        isVisible={isChooseSignerShown}
+        handleClose={() => setIsChooseSignerShown(false)}
+        selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+        handleChangeSigningKey={handleChangeSigningKey}
+      />
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>

@@ -6,6 +6,7 @@ import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 
 interface Style {
   container: ViewStyle
+  overlay: ViewStyle
   title: TextStyle
   signer: ViewStyle
 }
@@ -14,7 +15,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
       position: 'absolute',
-      bottom: '100%',
+      bottom: 64,
       transform: [
         {
           translateY: -SPACING
@@ -22,11 +23,19 @@ const getStyles = (theme: ThemeProps) =>
       ],
       ...common.borderRadiusPrimary,
       ...common.shadowPrimary,
-      right: 0,
       backgroundColor: '#fff',
       width: 320,
       zIndex: 8,
       overflow: 'hidden'
+    },
+    overlay: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      backgroundColor: theme.backdrop,
+      zIndex: 0
     },
     title: {
       ...spacings.pvTy,
