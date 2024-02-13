@@ -14,7 +14,6 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -29,6 +28,7 @@ interface Props {
   rightIcon?: ReactNode
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
+  isHistory?: boolean
 }
 
 const sizeMultiplier = {
@@ -78,7 +78,8 @@ const TransactionSummary = ({
   explorerUrl,
   rightIcon,
   onRightIconPress,
-  size = 'lg'
+  size = 'lg',
+  isHistory
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -205,7 +206,7 @@ const TransactionSummary = ({
               )
             }
 
-            if (item.type === 'deadline')
+            if (item.type === 'deadline' && !isHistory)
               return (
                 <DeadlineVisualization
                   key={Number(item.id) || i}
@@ -241,7 +242,7 @@ const TransactionSummary = ({
         </View>
       )
     },
-    [networkId, explorerUrl, t, textSize, size]
+    [size, textSize, explorerUrl, isHistory, networkId, t]
   )
 
   return (
@@ -304,6 +305,8 @@ const TransactionSummary = ({
         }}
       >
         {call.warnings?.map((warning) => {
+          if (warning.content.toLowerCase() === 'unknown address' && isHistory) return null
+
           return (
             <Label
               size={size}
