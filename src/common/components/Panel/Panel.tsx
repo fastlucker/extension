@@ -4,6 +4,7 @@ import { Animated, View, ViewProps } from 'react-native'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
+import { WindowSizes } from '@common/hooks/useWindowSize/types'
 import spacings, { SPACING_3XL, SPACING_LG, SPACING_XL } from '@common/styles/spacings'
 
 import getStyles from './styles'
@@ -14,10 +15,14 @@ interface Props extends ViewProps {
   isAnimated?: boolean
 }
 
-export const getPanelPaddings = (isXl: boolean, forceContainerSmallSpacings?: boolean) => {
+export const getPanelPaddings = (
+  maxWidthSize: (size: WindowSizes) => boolean,
+  forceContainerSmallSpacings?: boolean
+) => {
   return {
-    paddingHorizontal: isXl && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
-    paddingVertical: isXl && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
+    paddingHorizontal:
+      maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_3XL : SPACING_XL,
+    paddingVertical: maxWidthSize('xl') && !forceContainerSmallSpacings ? SPACING_XL : SPACING_LG
   }
 }
 
@@ -36,11 +41,7 @@ const Panel: React.FC<Props> = ({
 
   return (
     <Container
-      style={[
-        styles.container,
-        getPanelPaddings(maxWidthSize('xl'), forceContainerSmallSpacings),
-        style
-      ]}
+      style={[styles.container, getPanelPaddings(maxWidthSize, forceContainerSmallSpacings), style]}
       {...rest}
     >
       {!!title && (

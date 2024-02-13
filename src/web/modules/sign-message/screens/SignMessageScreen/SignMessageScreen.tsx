@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -304,26 +304,23 @@ const SignMessageScreen = () => {
               {t("You can't sign messages with view-only accounts.")}
             </Text>
           ) : null}
-          <View style={styles.signButtonContainer}>
-            {isChooseSignerShown ? (
-              <SigningKeySelect
-                selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-                handleChangeSigningKey={handleChangeSigningKey}
-              />
-            ) : null}
-            <Button
-              text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-              disabled={
-                signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
-              }
-              type="primary"
-              style={styles.signButton}
-              onPress={onSignButtonClick}
-            />
-          </View>
+          <Button
+            text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+            disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
+            type="primary"
+            style={styles.signButton}
+            onPress={onSignButtonClick}
+          />
         </View>
       }
     >
+      <SigningKeySelect
+        isVisible={isChooseSignerShown}
+        isSigning={signMessageState.status === 'LOADING'}
+        selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
+        handleChangeSigningKey={handleChangeSigningKey}
+        handleClose={() => setIsChooseSignerShown(false)}
+      />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
           <Text weight="medium" fontSize={20}>
@@ -348,9 +345,6 @@ const SignMessageScreen = () => {
           ) : (
             <Text>Loading</Text>
           )}
-          {isChooseSignerShown ? (
-            <Pressable onPress={() => setIsChooseSignerShown(false)} style={styles.overlay} />
-          ) : null}
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
               isOpen={signMessageState.status === 'LOADING'}
