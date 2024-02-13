@@ -305,8 +305,6 @@ const TransactionSummary = ({
         }}
       >
         {call.warnings?.map((warning) => {
-          if (warning.content.toLowerCase() === 'unknown address' && isHistory) return null
-
           return (
             <Label
               size={size}
