@@ -343,6 +343,7 @@ const SignAccountOpScreen = () => {
     >
       <SigningKeySelect
         isVisible={isChooseSignerShown}
+        isSigning={isSignLoading || !signAccountOpState.readyToSign}
         handleClose={() => setIsChooseSignerShown(false)}
         selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
         handleChangeSigningKey={handleChangeSigningKey}

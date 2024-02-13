@@ -3,12 +3,14 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import spacings, { SPACING } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
   overlay: ViewStyle
   title: TextStyle
   signer: ViewStyle
+  spinner: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -46,7 +48,15 @@ const getStyles = (theme: ThemeProps) =>
       borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
       borderTopRightRadius: BORDER_RADIUS_PRIMARY
     },
-    signer: { ...spacings.pvTy, ...spacings.ph }
+    signer: { ...spacings.pvTy, ...spacings.ph },
+    spinner: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      ...flexbox.center
+    }
   })
 
 export default getStyles
