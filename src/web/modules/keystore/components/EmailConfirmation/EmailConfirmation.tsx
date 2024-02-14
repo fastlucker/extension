@@ -33,7 +33,7 @@ const EmailConfirmation: FC<Props> = ({ email, handleCancelLoginAttempt }) => {
         style={styles.cancelLoginAttemptText}
         onPress={handleCancelLoginAttempt}
       >
-        {t('Cancel Login Attempt')}
+        {t('Cancel')}
       </Text>
     </>
   )

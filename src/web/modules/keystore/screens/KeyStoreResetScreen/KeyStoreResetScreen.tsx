@@ -166,7 +166,7 @@ const KeyStoreResetScreen = () => {
               ]}
             >
               <Text style={styles.currentEmailLabel} weight="regular" fontSize={14}>
-                {t('The recovery email for current KeyStore is')}{' '}
+                {t('The recovery email for current device is')}{' '}
                 <Text style={styles.currentEmailValue} fontSize={14} weight="medium">
                   {email}
                 </Text>
@@ -188,7 +188,10 @@ const KeyStoreResetScreen = () => {
           modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
           title={t('Email Confirmation Required')}
         >
-          <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
+          <EmailConfirmation
+            email={formEmail}
+            handleCancelLoginAttempt={handleCancelLoginAttempt}
+          />
         </Modal>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
