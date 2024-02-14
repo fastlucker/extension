@@ -1,40 +1,53 @@
-import { FC, useCallback } from 'react'
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import React, { FC, useCallback } from 'react'
 import { View } from 'react-native'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
-import EditIcon from '@common/assets/svg/EditIcon'
+import ErrorIcon from '@common/assets/svg/ErrorIcon'
+import InfoIcon from '@common/assets/svg/InfoIcon'
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
 
-import { ROUTES } from '@common/modules/router/constants/common'
 import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
 const ERROR_ACTIONS = ['reject']
 
-const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) => {
+const ICON_MAP = {
+  error: ErrorIcon,
+  warning: WarningIcon,
+  success: SuccessIcon,
+  info: InfoIcon
+}
+
+const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
+  const Icon = ICON_MAP[type]
 
   const handleActionPress = useCallback(
     (action: Action) => {
-      if (action.actionName === 'open' && topic === 'TRANSACTION') {
+      if (action.actionName === 'open' && type === 'info') {
         dispatch({
           type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST',
           params: { id: action.meta.ids[0] }
         })
       }
 
-      if (action.actionName === 'reject' && topic === 'TRANSACTION') {
+      if (action.actionName === 'reject' && type === 'info') {
         action.meta.ids.forEach((reqId: number) => {
           dispatch({
             type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
@@ -43,11 +56,11 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
         })
       }
 
-      if (action.actionName === 'open-external-url' && topic === 'TRANSACTION') {
+      if (action.actionName === 'open-external-url' && type === 'success') {
         window.open(action.meta.url, '_blank')
       }
 
-      if (action.actionName === 'enable-default-wallet') {
+      if (action.actionName === 'switch-default-wallet') {
         dispatch({
           type: 'SET_IS_DEFAULT_WALLET',
           params: { isDefaultWallet: true }
@@ -55,7 +68,7 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
         addToast('Ambire is your default wallet.', { timeout: 2000 })
       }
 
-      if (action.actionName === 'sync-keys' && topic === 'ANNOUNCEMENT') {
+      if (action.actionName === 'sync-keys' && type === 'info') {
         dispatch({
           type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC',
           params: { email: action.meta.email, keys: action.meta.keys }
@@ -66,30 +79,26 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
         navigate(ROUTES.devicePassword)
       }
     },
-    [dispatch, addToast, topic]
+    [dispatch, addToast, navigate, type]
   )
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.icon}>
-          {/* icon */}
-          {topic !== 'WARNING' ? (
-            <EditIcon color={theme.primaryBackground} width={24} height={24} />
-          ) : (
-            <WarningIcon color={theme.primaryBackground} width={24} height={24} />
-          )}
+    <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }]}>
+      <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
+        <View style={[spacings.mrSm]}>
+          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
         </View>
-        <View style={styles.contentInner}>
-          <Text style={styles.title} fontSize={isTab ? 16 : 14} weight="medium">
+
+        <View style={[flexbox.wrap, flexbox.flex1]}>
+          <Text appearance="primaryText" fontSize={isTab ? 16 : 14} weight="medium">
             {title}
           </Text>
-          <Text appearance="secondaryText" fontSize={isTab ? 14 : 12} weight="regular">
+          <Text fontSize={isTab ? 14 : 12} weight="regular" appearance="secondaryText">
             {text}
           </Text>
         </View>
       </View>
-      <View style={styles.actions}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {actions.map((action) => {
           const isReject = ERROR_ACTIONS.includes(action.actionName)
 
@@ -98,9 +107,12 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
               key={action.actionName}
               size="small"
               text={action.label}
-              style={styles.action}
+              textUnderline={isReject}
+              textStyle={isReject && { color: theme.errorDecorative }}
+              style={[spacings.mlTy, spacings.ph, isReject && { borderWidth: 0 }, { minWidth: 80 }]}
+              hasBottomSpacing={false}
               onPress={() => handleActionPress(action)}
-              type={isReject ? 'danger' : 'primary'}
+              type={isReject ? 'ghost' : type}
             />
           )
         })}
@@ -109,4 +121,4 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
   )
 }
 
-export default DashboardBanner
+export default React.memo(DashboardBanner)

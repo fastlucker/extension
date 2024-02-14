@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
@@ -30,6 +31,7 @@ import Footer from '@web/modules/sign-account-op/components/Footer'
 import Header from '@web/modules/sign-account-op/components/Header'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import SigningKeySelect from '@web/modules/sign-message/components'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -48,6 +50,8 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
+  const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
+  const [estimationContentHeight, setEstimationContentHeight] = useState(0)
 
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -149,11 +153,21 @@ const SignAccountOpScreen = () => {
     }
   }, [navigate])
 
-  const callsToVisualize: IrCall[] = useMemo(() => {
-    if (!signAccountOpState || !signAccountOpState?.humanReadable) return []
-    if (signAccountOpState.humanReadable.length) return signAccountOpState.humanReadable
-    return signAccountOpState.accountOp?.calls || []
-  }, [signAccountOpState])
+  const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
+    if (!signAccountOpState?.accountOp) return []
+
+    if (signAccountOpState.accountOp?.calls?.length) {
+      return signAccountOpState.accountOp.calls.map((opCall) => {
+        return (
+          (signAccountOpState.humanReadable || []).find(
+            (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
+          ) || opCall
+        )
+      })
+    }
+
+    return []
+  }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
@@ -220,6 +234,11 @@ const SignAccountOpScreen = () => {
   const pendingReceiveTokens = useMemo(
     () => pendingTokens.filter((token) => token.type === 'receive'),
     [pendingTokens]
+  )
+
+  const hasScrollEstimationContainer = useMemo(
+    () => estimationContentHeight > estimationContainerHeight,
+    [estimationContainerHeight, estimationContentHeight]
   )
 
   if (mainState.signAccOpInitError) {
@@ -317,14 +336,18 @@ const SignAccountOpScreen = () => {
           isEOA={!account?.creation}
           isSignLoading={isSignLoading}
           readyToSign={signAccountOpState.readyToSign}
-          isChooseSignerShown={isChooseSignerShown}
           isViewOnly={isViewOnly}
-          handleChangeSigningKey={handleChangeSigningKey}
-          selectedAccountKeyStoreKeys={signAccountOpState?.accountKeyStoreKeys}
           onSign={onSignButtonClick}
         />
       }
     >
+      <SigningKeySelect
+        isVisible={isChooseSignerShown}
+        isSigning={isSignLoading || !signAccountOpState.readyToSign}
+        handleClose={() => setIsChooseSignerShown(false)}
+        selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+        handleChangeSigningKey={handleChangeSigningKey}
+      />
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
@@ -446,7 +469,19 @@ const SignAccountOpScreen = () => {
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            <ScrollView style={styles.estimationScrollView} contentContainerStyle={{ flexGrow: 1 }}>
+            <ScrollView
+              style={[
+                styles.estimationScrollView,
+                hasScrollEstimationContainer ? spacings.pr : spacings.pr0
+              ]}
+              contentContainerStyle={{ flexGrow: 1 }}
+              onLayout={(e) => {
+                setEstimationContainerHeight(e.nativeEvent.layout.height)
+              }}
+              onContentSizeChange={(_, height) => {
+                setEstimationContentHeight(height)
+              }}
+            >
               {hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
@@ -491,4 +526,4 @@ const SignAccountOpScreen = () => {
   )
 }
 
-export default SignAccountOpScreen
+export default React.memo(SignAccountOpScreen)

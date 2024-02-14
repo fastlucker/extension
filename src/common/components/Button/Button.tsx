@@ -1,21 +1,24 @@
 import React from 'react'
-import {
-  Animated,
-  ColorValue,
-  Pressable,
-  PressableProps,
-  Text,
-  TextStyle,
-  ViewStyle
-} from 'react-native'
+import { Animated, ColorValue, Pressable, PressableProps, TextStyle, ViewStyle } from 'react-native'
 
+import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import textStyles from '@common/styles/utils/text'
 
 import getStyles from './styles'
 
-type ButtonTypes = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost'
+type ButtonTypes =
+  | 'primary'
+  | 'secondary'
+  | 'danger'
+  | 'outline'
+  | 'ghost'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'success'
 
 type ButtonSizes = 'regular' | 'small' | 'large'
 export interface Props extends PressableProps {
@@ -23,6 +26,7 @@ export interface Props extends PressableProps {
   type?: ButtonTypes
   size?: ButtonSizes
   textStyle?: any
+  textUnderline?: boolean
   accentColor?: ColorValue
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
@@ -39,6 +43,7 @@ const Button = ({
   text,
   style = {},
   textStyle = {},
+  textUnderline,
   disabled = false,
   hasBottomSpacing = true,
   children,
@@ -60,7 +65,23 @@ const Button = ({
     secondary: styles.buttonContainerSecondary,
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
-    ghost: styles.buttonContainerGhost
+    ghost: styles.buttonContainerGhost,
+    error: {
+      backgroundColor: theme.errorText,
+      borderWidth: 0
+    },
+    warning: {
+      backgroundColor: theme.warningText,
+      borderWidth: 0
+    },
+    info: {
+      backgroundColor: theme.infoText,
+      borderWidth: 0
+    },
+    success: {
+      backgroundColor: theme.successText,
+      borderWidth: 0
+    }
   }
 
   const hoveredContainerStyles: { [key in ButtonTypes]: ViewStyle } = {
@@ -73,7 +94,19 @@ const Button = ({
     // @TODO: add hover styles for other button types
     danger: styles.buttonContainerDanger,
     outline: styles.buttonContainerOutline,
-    ghost: styles.buttonContainerGhost
+    ghost: styles.buttonContainerGhost,
+    error: {
+      backgroundColor: theme.errorDecorative
+    },
+    warning: {
+      backgroundColor: theme.warningDecorative
+    },
+    info: {
+      backgroundColor: theme.infoDecorative
+    },
+    success: {
+      backgroundColor: theme.successDecorative
+    }
   }
 
   const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
@@ -87,7 +120,11 @@ const Button = ({
     secondary: styles.buttonTextSecondary,
     danger: styles.buttonTextDanger,
     outline: styles.buttonTextOutline,
-    ghost: styles.buttonTextGhost
+    ghost: styles.buttonTextGhost,
+    error: styles.buttonTextPrimary,
+    warning: styles.buttonTextPrimary,
+    info: styles.buttonTextPrimary,
+    success: styles.buttonTextPrimary
   }
 
   const buttonTextStylesSizes: { [key in ButtonSizes]: TextStyle } = {
@@ -120,8 +157,10 @@ const Button = ({
       {!!text && (
         <Text
           selectable={false}
+          underline={textUnderline}
+          weight="medium"
           style={[
-            styles.buttonText,
+            textStyles.center,
             buttonTextStyles[type],
             buttonTextStylesSizes[size],
             !!accentColor && { color: accentColor },

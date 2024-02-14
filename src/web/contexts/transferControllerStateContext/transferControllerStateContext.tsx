@@ -62,7 +62,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           t.networkId === selectedTokenFromUrl.networkId &&
           t.flags.onGasTank === false
       )
-      if (tokenToSelect) {
+      if (tokenToSelect && Number(tokenToSelect.amount) > 0) {
         dispatch({
           type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
           params: { selectedToken: tokenToSelect, isTopUp: selectedTokenFromUrl.isTopUp }
@@ -77,7 +77,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
         params: { isTopUp: false }
       })
     }
-  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch, state.isTopUp])
 
   useEffect(() => {
     dispatch({

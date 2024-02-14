@@ -14,7 +14,6 @@ import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -29,6 +28,7 @@ interface Props {
   rightIcon?: ReactNode
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
+  isHistory?: boolean
 }
 
 const sizeMultiplier = {
@@ -37,7 +37,7 @@ const sizeMultiplier = {
   lg: 1
 }
 
-const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
+const DeadlineVisualization = ({ deadline, textSize }: { deadline: bigint; textSize: number }) => {
   const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
   const remainingTime = deadline - BigInt(Date.now())
   const minute: bigint = 60000n
@@ -62,9 +62,13 @@ const DeadlineVisualization = ({ deadline }: { deadline: bigint }) => {
     }, updateAfter)
 
     return () => clearTimeout(timeoutId)
-  }, [deadlineText])
+  }, [deadlineText, deadline, minute, remainingTime])
 
-  return <p>{deadlineText}</p>
+  return (
+    <Text fontSize={textSize} weight="medium" appearance="warningText">
+      {`(${deadlineText})`}
+    </Text>
+  )
 }
 
 const TransactionSummary = ({
@@ -74,7 +78,8 @@ const TransactionSummary = ({
   explorerUrl,
   rightIcon,
   onRightIconPress,
-  size = 'lg'
+  size = 'lg',
+  isHistory
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -102,16 +107,16 @@ const TransactionSummary = ({
           }
         ]}
       >
-        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} appearance="successText" weight="semiBold">
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${call.to} `}
         </Text>
-        <Text fontSize={textSize} color={colors.greenHaze} weight="semiBold">
+        <Text fontSize={textSize} appearance="successText" weight="semiBold">
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={textSize} color={colors.martinique_65} weight="regular">
+        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
@@ -139,7 +144,7 @@ const TransactionSummary = ({
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {` ${
                         item.readableAmount ||
                         formatUnits(item.amount || '0x0', item.decimals || 18)
@@ -156,11 +161,11 @@ const TransactionSummary = ({
                     />
                   ) : null}
                   {item.symbol ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {` ${item.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {t(' units of unknown token ')}
                     </Text>
                   ) : null}
@@ -171,7 +176,7 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={textSize} weight="medium" color={colors.martinique}>
+                  <Text fontSize={textSize} weight="medium" appearance="primaryText">
                     {` ${item.name ? item.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
@@ -194,23 +199,20 @@ const TransactionSummary = ({
                   key={Number(item.id) || i}
                   fontSize={textSize}
                   weight="medium"
-                  color={colors.martinique}
+                  appearance="primaryText"
                 >
                   {` ${item.name || item.address} `}
                 </Text>
               )
             }
 
-            if (item.type === 'deadline')
+            if (item.type === 'deadline' && !isHistory)
               return (
-                <Text
+                <DeadlineVisualization
                   key={Number(item.id) || i}
-                  fontSize={textSize}
-                  weight="medium"
-                  color={colors.martinique}
-                >
-                  <DeadlineVisualization deadline={item.amount!} />
-                </Text>
+                  deadline={item.amount!}
+                  textSize={textSize}
+                />
               )
             if (item.content) {
               return (
@@ -224,12 +226,12 @@ const TransactionSummary = ({
                       ? 'semiBold'
                       : 'medium'
                   }
-                  color={
+                  appearance={
                     item.type === 'label'
-                      ? colors.martinique_65
+                      ? 'secondaryText'
                       : item.type === 'action'
-                      ? colors.greenHaze
-                      : colors.martinique
+                      ? 'successText'
+                      : 'primaryText'
                   }
                 >{` ${item.content} `}</Text>
               )
@@ -240,7 +242,7 @@ const TransactionSummary = ({
         </View>
       )
     },
-    [networkId, explorerUrl, t, textSize, size]
+    [size, textSize, explorerUrl, isHistory, networkId, t]
   )
 
   return (

@@ -58,7 +58,7 @@ const CreateSeedPhrasePrepareScreen = () => {
   const [checkboxesState, setCheckboxesState] = useState([false, false, false])
   const allCheckboxesChecked = checkboxesState.every((checkbox) => checkbox)
   const seed = Wallet.createRandom().mnemonic?.phrase || null
-  const panelPaddingStyle = getPanelPaddings(maxWidthSize('xl'))
+  const panelPaddingStyle = getPanelPaddings(maxWidthSize)
 
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')

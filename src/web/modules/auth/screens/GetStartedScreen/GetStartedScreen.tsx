@@ -30,7 +30,7 @@ import useWalletStateController from '@web/hooks/useWalletStateController'
 import Card from '@web/modules/auth/components/Card'
 import Stories from '@web/modules/auth/components/Stories'
 import { STORY_CARD_WIDTH } from '@web/modules/auth/components/Stories/styles'
-import { TERMS_VERSION } from '@web/modules/auth/screens/Terms'
+import { TERMS_VERSION } from '@web/modules/terms/screens/Terms'
 
 import HotWalletCreateCards from '../../components/HotWalletCreateCards'
 import { ONBOARDING_VERSION } from '../../components/Stories/Stories'

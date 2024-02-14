@@ -66,7 +66,8 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank
+        isDisabled: isGasTank,
+        strokeWidth: 1.5
       },
       {
         id: 'swap',
@@ -74,14 +75,16 @@ const TokenDetails = ({
         icon: SwapIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           createTab(`https://app.uniswap.org/swap?inputCurrency=${address}&chain=${networkId}`),
-        isDisabled: isGasTank
+        isDisabled: isGasTank,
+        strokeWidth: 1.5
       },
       {
         id: 'deposit',
         text: t('Deposit'),
         icon: DepositIcon,
         onPress: () => {},
-        isDisabled: true
+        isDisabled: true,
+        strokeWidth: 1
       },
       {
         id: 'top-up',
@@ -89,28 +92,32 @@ const TokenDetails = ({
         icon: TopUpIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`),
-        isDisabled: !isGasTankFeeToken
+        isDisabled: !isGasTankFeeToken,
+        strokeWidth: 1
       },
       {
         id: 'earn',
         text: t('Earn'),
         icon: EarnIcon,
         onPress: () => {},
-        isDisabled: true
+        isDisabled: true,
+        strokeWidth: 1
       },
       {
         id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
         onPress: () => createTab(BRIDGE_URL),
-        isDisabled: isGasTank
+        isDisabled: isGasTank,
+        strokeWidth: 1.5
       },
       {
         id: 'withdraw',
         text: t('Withdraw'),
         icon: WithdrawIcon,
         onPress: () => {},
-        isDisabled: true
+        isDisabled: true,
+        strokeWidth: 1
       },
       {
         id: 'info',
@@ -207,18 +214,28 @@ const TokenDetails = ({
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}
-                <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-                  ({shortenAddress(address, isRewards || isVesting ? 10 : 22)})
-                </Text>
-                <TouchableOpacity
-                  style={spacings.mlMi}
-                  onPress={() => {
-                    Clipboard.setStringAsync(address).catch(() => null)
-                    addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-                  }}
-                >
-                  <CopyIcon width={16} height={16} color={iconColors.secondary} strokeWidth="1.5" />
-                </TouchableOpacity>
+                {address !== `0x${'0'.repeat(40)}` ? (
+                  <>
+                    {' '}
+                    <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+                      ({shortenAddress(address, isRewards || isVesting ? 10 : 13)})
+                    </Text>
+                    <TouchableOpacity
+                      style={spacings.mlMi}
+                      onPress={() => {
+                        Clipboard.setStringAsync(address).catch(() => null)
+                        addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
+                      }}
+                    >
+                      <CopyIcon
+                        width={16}
+                        height={16}
+                        color={iconColors.secondary}
+                        strokeWidth="1.5"
+                      />
+                    </TouchableOpacity>
+                  </>
+                ) : null}
               </Text>
             </View>
           </View>
@@ -272,7 +289,12 @@ const TokenDetails = ({
                 {isTokenInfo && isTokenInfoLoading ? (
                   <Spinner style={{ width: 32, height: 32 }} />
                 ) : (
-                  <Icon color={theme.primary} width={32} height={32} strokeWidth="1" />
+                  <Icon
+                    color={theme.primary}
+                    width={32}
+                    height={32}
+                    strokeWidth={action.strokeWidth}
+                  />
                 )}
               </View>
               <Text fontSize={14} weight="medium" style={text.center}>

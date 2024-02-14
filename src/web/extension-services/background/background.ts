@@ -574,10 +574,9 @@ async function init() {
               )
             }
             case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
-              const prevAccountsCount = mainCtrl.accounts.length
               const defaultAccountPreferences = getDefaultAccountPreferences(
                 data.params.accounts,
-                prevAccountsCount
+                mainCtrl.accounts
               )
 
               const ensOrUdAccountPreferences: AccountPreferences = data.params.accounts.reduce(
@@ -643,10 +642,9 @@ async function init() {
 
               await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
 
-              const prevAccountsCount = mainCtrl.accounts.length
               const readyToAddAccountPreferences = getDefaultAccountPreferences(
                 mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                prevAccountsCount,
+                mainCtrl.accounts,
                 'internal',
                 'seed'
               )

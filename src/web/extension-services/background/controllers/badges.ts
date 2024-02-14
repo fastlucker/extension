@@ -1,4 +1,5 @@
 import { MainController } from '@ambire-common/controllers/main/main'
+import { BannerType } from '@ambire-common/interfaces/banner'
 import colors from '@common/styles/colors'
 import { browser } from '@web/constants/browserapi'
 import {
@@ -30,11 +31,17 @@ export class BadgesController {
     this.#notificationCtrl = notificationCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      const nonWarningBanners = this.#mainCtrl.banners.filter(
-        (banner) => banner.topic !== 'WARNING'
+      const blacklistBadgesForBannersWithId: (number | string)[] = ['keystore-secret-backup']
+      const blacklistBadgesForBannersWithType: BannerType[] = ['error', 'warning']
+
+      const banners = this.#mainCtrl?.banners || []
+      const infoAndSuccessBanners = banners.filter(
+        (banner) =>
+          !blacklistBadgesForBannersWithType.includes(banner.type) &&
+          !blacklistBadgesForBannersWithId.includes(banner.id)
       )
 
-      this.#bannersCount = nonWarningBanners.length
+      this.#bannersCount = infoAndSuccessBanners.length
       this.badgesCount = this._badgesCount
     }, 'badges')
 

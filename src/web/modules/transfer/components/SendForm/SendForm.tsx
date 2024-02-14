@@ -145,7 +145,7 @@ const SendForm = ({
   }, [updateTransferCtrlProperty])
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isTopUp ? styles.topUpContainer : {}]}>
       <Select
         setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}

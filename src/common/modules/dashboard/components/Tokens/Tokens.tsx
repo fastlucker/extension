@@ -51,11 +51,8 @@ const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
         const bBalance = calculateTokenBalance(b)
 
         if (a.flags.rewardsType === b.flags.rewardsType) {
-          if (aBalance === 0 && bBalance !== 0) {
-            return 1
-          }
-          if (aBalance !== 0 && bBalance === 0) {
-            return -1
+          if (aBalance === bBalance) {
+            return Number(b.amount) - Number(a.amount)
           }
 
           return bBalance - aBalance

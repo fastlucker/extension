@@ -2,27 +2,29 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+
+import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
+import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
+import Input from '@common/components/Input'
+import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
+import Header from '@common/modules/header/components/Header'
 import { SPACING_3XL, SPACING_LG } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import Header from '@common/modules/header/components/Header'
-import Modal from '@common/components/Modal'
-import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import flexbox from '@common/styles/utils/flexbox'
-import { isEmail } from '@ambire-common/services/validations'
-import Input from '@common/components/Input'
-import { isWeb } from '@common/config/env'
-import styles from './styles'
+
 import KeystoreResetForm from '../../components/KeyStoreResetForm'
+import styles from './styles'
 
 const KeyStoreResetScreen = () => {
   const { t } = useTranslation()
@@ -81,7 +83,7 @@ const KeyStoreResetScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="sm"
+      width="xs"
       header={
         <Header customTitle={t('Restore Device Password')} withAmbireLogo mode="image-and-title" />
       }
