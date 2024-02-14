@@ -95,7 +95,7 @@ const KeyStoreResetScreen = () => {
             text={
               !ev.hasConfirmedRecoveryEmail
                 ? t('Send Confirmation Email')
-                : t('Change Key Store password')
+                : t('Change Device password')
             }
           />
         </View>
@@ -120,7 +120,7 @@ const KeyStoreResetScreen = () => {
               </Text>
               <Text style={styles.text} weight="regular" fontSize={14}>
                 {t(
-                  'To finish the KeyStore recovery procedure, simply add your new password when prompted'
+                  'To finish the Device password recovery procedure, simply add your new password when prompted'
                 )}
                 .
               </Text>
