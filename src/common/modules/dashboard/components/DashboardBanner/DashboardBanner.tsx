@@ -62,7 +62,7 @@ const DashboardBanner: FC<BannerType> = ({ topic, title, text, actions = [] }) =
         })
       }
 
-      if (action.actionName === 'backup-keystore-secret' && topic === 'WARNING') {
+      if (action.actionName === 'backup-keystore-secret') {
         navigate(ROUTES.devicePassword)
       }
     },
