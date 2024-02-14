@@ -143,6 +143,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
 
   const handleSetAccountValue = useCallback(
     (accountOption: AccountOption) => {
+      setPage(1)
       setAccount(mainState.accounts.filter((acc) => acc.addr === accountOption.value)[0])
     },
     [mainState.accounts]
