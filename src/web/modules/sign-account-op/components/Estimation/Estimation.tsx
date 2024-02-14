@@ -187,10 +187,12 @@ const Estimation = ({
               <Text fontSize={16} weight="medium">
                 {formatDecimals(parseFloat(selectedFee.amountFormatted))} {payValue.token?.symbol}
               </Text>
-              <Text weight="medium" fontSize={16} appearance="primary">
-                {' '}
-                (~ ${formatDecimals(Number(selectedFee.amountUsd))})
-              </Text>
+              {selectedFee.amountUsd ? (
+                <Text weight="medium" fontSize={16} appearance="primary">
+                  {' '}
+                  (~ ${formatDecimals(Number(selectedFee.amountUsd))})
+                </Text>
+              ) : null}
             </View>
           </View>
         )}
