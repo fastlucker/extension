@@ -282,9 +282,19 @@ type EmailVaultControllerUploadKeystoreSecretAction = {
   type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
   params: { email: string }
 }
+type EmailVaultControllerCancelConfirmationAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION'
+}
+type EmailVaultControllerHandleMagicLinkKeyAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY'
+  params: { email: string }
+}
 type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
-  params: { email: string }
+  params: { email: string; newPass: string }
+}
+type EmailVaultControllerCleanMagicAndSessionKeysAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS'
 }
 type EmailVaultControllerRequestKeysSyncAction = {
   type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
@@ -394,7 +404,10 @@ export type Action =
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
+  | EmailVaultControllerCancelConfirmationAction
+  | EmailVaultControllerHandleMagicLinkKeyAction
   | EmailVaultControllerRecoverKeystoreAction
+  | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
