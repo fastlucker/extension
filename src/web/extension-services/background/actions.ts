@@ -293,6 +293,9 @@ type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
   params: { email: string; newPass: string }
 }
+type EmailVaultControllerCleanMagicAndSessionKeysAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS'
+}
 type EmailVaultControllerRequestKeysSyncAction = {
   type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
   params: { email: string; keys: string[] }
@@ -404,6 +407,7 @@ export type Action =
   | EmailVaultControllerCancelConfirmationAction
   | EmailVaultControllerHandleMagicLinkKeyAction
   | EmailVaultControllerRecoverKeystoreAction
+  | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction

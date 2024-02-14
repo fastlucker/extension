@@ -789,6 +789,8 @@ async function init() {
               return mainCtrl.emailVault.cancelEmailConfirmation()
             case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
               return mainCtrl.emailVault.recoverKeyStore(data.params.email, data.params.newPass)
+            case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
+              return mainCtrl.emailVault.cleanMagicAndSessionKeys()
             case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
               return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
             case 'SET_IS_DEFAULT_WALLET': {
