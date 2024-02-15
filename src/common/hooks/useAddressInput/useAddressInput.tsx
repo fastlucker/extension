@@ -93,7 +93,6 @@ const useAddressInput = ({
           setAddressState({
             ensAddress: newEnsAddress
           })
-          console.log('zdes')
         })
         .catch(() => {
           setAddressState({
