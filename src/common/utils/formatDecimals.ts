@@ -14,7 +14,7 @@ const formatDecimals = (value: number, type?: 'value' | 'amount') => {
   if (value === 0) return '0.00'
 
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value)
-  let decimals = value > 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
+  let decimals = value >= 1 ? DEFAULT_DECIMALS : indexOfFirstNonZero + DEFAULT_DECIMALS
 
   if ((type === 'value' && value > 10) || (type === 'amount' && value > 100)) {
     decimals = 0
