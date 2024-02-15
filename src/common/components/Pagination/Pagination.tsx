@@ -86,12 +86,17 @@ const Pagination: FC<Props> = ({
       </TouchableOpacity>
       <View style={[flexbox.directionRow, spacings.phSm]}>
         {paginationRange.map((pageNumber) => {
-          if (pageNumber === DOTS || typeof pageNumber !== 'number') {
-            return <PaginationItem />
+          if (typeof pageNumber !== 'number' || String(pageNumber).includes(DOTS)) {
+            return <PaginationItem key={pageNumber} />
           }
 
           return (
-            <PaginationItem number={pageNumber} setPage={setPage} isActive={pageNumber === page} />
+            <PaginationItem
+              key={pageNumber}
+              number={pageNumber}
+              setPage={setPage}
+              isActive={pageNumber === page}
+            />
           )
         })}
       </View>

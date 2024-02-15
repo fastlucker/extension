@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import { ethErrors } from 'eth-rpc-errors'
-import { Linking } from 'react-native'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -9,6 +8,7 @@ import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
@@ -194,7 +194,7 @@ export class NotificationController extends EventEmitter {
       notificationRequest?.resolve(data)
 
       if (data?.hash && data?.networkId) {
-        Linking.openURL(
+        createTab(
           `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
             data?.isUserOp ? '&isUserOp' : ''
           }`

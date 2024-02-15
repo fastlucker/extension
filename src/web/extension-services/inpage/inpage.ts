@@ -163,7 +163,6 @@ const impersonateMetamaskWhitelist = [
   'telx.network',
   'link3.to',
   'hypercerts.org',
-
   'quickswap.exchange'
 ]
 
@@ -280,9 +279,7 @@ export class EthereumProvider extends EventEmitter {
 
   private _dedupePromise = new DedupePromise([])
 
-  private _bcm = new BroadcastChannelMessage(
-    window.name.startsWith('ambire-') ? window.name : ambireChannelName || 'ambire-inpage'
-  )
+  private _bcm = new BroadcastChannelMessage(ambireChannelName || 'ambire-inpage')
 
   constructor({ maxListeners = 100 } = {}) {
     super()

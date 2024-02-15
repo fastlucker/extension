@@ -20,21 +20,27 @@ const KEY_SUBTYPE_TO_LABEL = {
 
 export const getDefaultAccountLabel = (
   account: Account,
-  prevAccountsCount: number,
+  prevAccounts: Account[],
   i: number,
   keyType?: Key['type'],
   keyTypeInternalSubtype?: keyof typeof KEY_SUBTYPE_TO_LABEL
 ) => {
+  // Makes sure that if an account with the same address already exists, the
+  // new account will have the same number as the existing one.
+  const index = prevAccounts.findIndex(({ addr }) => addr === account.addr)
+  const number = index !== -1 ? index + 1 : prevAccounts.length + (i + 1)
+
   const suffix =
     !keyType && !keyTypeInternalSubtype
       ? '(View Only)'
       : `(${isSmartAccount(account) ? 'Ambire via' : 'Basic from'} ${
+          (index !== -1 && 'Diverse Origins') ||
           (keyType && HARDWARE_WALLET_DEVICE_NAMES[keyType]) ||
           KEY_SUBTYPE_TO_LABEL[keyTypeInternalSubtype as keyof typeof KEY_SUBTYPE_TO_LABEL] ||
           keyTypeInternalSubtype
         })`
 
-  return `Account ${prevAccountsCount + (i + 1)} ${suffix}`
+  return `Account ${number} ${suffix}`
 }
 
 // TODO: temp disabled (will use only blockies with no option to customize the pfp)
@@ -61,21 +67,15 @@ export const getDefaultKeyLabel = (
 }
 
 export const getDefaultAccountPreferences = (
-  accounts: Account[],
-  prevAccountsCount: number,
+  newAccounts: Account[],
+  prevAccounts: Account[],
   keyType?: Key['type'],
   keyTypeInternalSubtype?: 'seed' | 'private-key'
 ) => {
   const defaultAccountPreferences: AccountPreferences = {}
 
-  accounts.forEach((account, i) => {
-    const label = getDefaultAccountLabel(
-      account,
-      prevAccountsCount,
-      i,
-      keyType,
-      keyTypeInternalSubtype
-    )
+  newAccounts.forEach((account, i) => {
+    const label = getDefaultAccountLabel(account, prevAccounts, i, keyType, keyTypeInternalSubtype)
 
     defaultAccountPreferences[account.addr] = { label, pfp: account.addr }
   })

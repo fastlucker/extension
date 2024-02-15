@@ -13,7 +13,6 @@ import PortMessage from '@web/extension-services/message/portMessage'
 import { storage } from '../background/webapi/storage'
 
 const channelName = nanoid()
-window.name = `ambire-${channelName}`
 
 const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
@@ -35,11 +34,11 @@ const injectProviderScript = () => {
 // to avoid duplicated requests (window.top is the top-level frame)
 if (window === window.top) {
   const pm = new PortMessage().connect()
-  const bcm = new BroadcastChannelMessage(
-    window.name.startsWith('ambire-') ? window.name : !isManifestV3 ? channelName : 'ambire-inpage'
-  ).listen((data: any) => {
-    return pm.request(data)
-  })
+  const bcm = new BroadcastChannelMessage(!isManifestV3 ? channelName : 'ambire-inpage').listen(
+    (data: any) => {
+      return pm.request(data)
+    }
+  )
 
   // messages coming from the background service and will be passed to the injected script (handled in inpage.ts)
   pm.on('message', (data) => bcm.send('message', data))

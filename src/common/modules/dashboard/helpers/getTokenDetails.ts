@@ -17,16 +17,18 @@ const getTokenDetails = ({
 
   const balance = parseFloat(formatUnits(amount, decimals))
   const priceUSD =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
+    priceIn.find(
+      ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
+    )?.price || 0
   const balanceUSD = balance * priceUSD
 
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
     priceUSD,
-    priceUSDFormatted: formatDecimals(priceUSD),
+    priceUSDFormatted: priceIn.length ? formatDecimals(priceUSD) : '-',
     balanceUSD,
-    balanceUSDFormatted: formatDecimals(balanceUSD, 'value'),
+    balanceUSDFormatted: priceIn.length ? formatDecimals(balanceUSD, 'value') : '-',
     networkData,
     isRewards,
     isVesting
