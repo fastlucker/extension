@@ -4,7 +4,6 @@ import AccountAdderController, {
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
-import { CachedResolvedDomain } from '@ambire-common/interfaces/domains'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
@@ -341,13 +340,6 @@ type SetIsDefaultWalletAction = {
   params: { isDefaultWallet: boolean }
 }
 
-type CacheResolvedDomainAction = {
-  type: 'CACHE_RESOLVED_DOMAIN'
-  params: {
-    domain: CachedResolvedDomain
-  }
-}
-
 type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
@@ -419,7 +411,6 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
-  | CacheResolvedDomainAction
   | SetOnboardingStateAction
 
 /**
