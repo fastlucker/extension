@@ -22,7 +22,11 @@ const AuthProvider: React.FC = ({ children }: any) => {
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    if (!mainCtrlState.accounts.length) {
+    // authStatus = AUTH_STATUS.LOADING while mainCtrlState not initialized in the context yet
+    if (!mainCtrlState.accounts) return
+
+    // if no accounts were added authStatus = AUTH_STATUS.NOT_AUTHENTICATED
+    if (!mainCtrlState.accounts?.length) {
       setAuthStatus(AUTH_STATUS.NOT_AUTHENTICATED)
       return
     }

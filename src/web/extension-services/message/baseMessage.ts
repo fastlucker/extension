@@ -1,22 +1,11 @@
-// @ts-nocheck
-
-/**
- * this script is live in content-script / dapp's page
- */
-
 import { ethErrors } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 
+// used to extend BroadcastChannelMessage and PortMessage
 abstract class Message extends EventEmitter {
-  // avaiable id list
-  // max concurrent request limit
-  private _requestIdPool = [...Array(1000).keys()]
+  #requestIdPool = [...Array(1000).keys()]
 
-  protected _EVENT_PRE = 'ETH_WALLET_'
-
-  protected listenCallback: any
-
-  private _waitingMap = new Map<
+  #waitingMap = new Map<
     number,
     {
       data: any
@@ -25,16 +14,20 @@ abstract class Message extends EventEmitter {
     }
   >()
 
+  protected EVENT_PREFIX = 'AMBIRE_WALLET_'
+
+  protected listenCallback?: Function
+
   abstract send(type: string, data: any): void
 
-  request = (data) => {
-    if (!this._requestIdPool.length) {
-      throw ethErrors.rpc.limitExceeded()
+  request = (data: any) => {
+    if (!this.#requestIdPool.length) {
+      console.error('Ambire Error: maximum pending requests limit exceeded!')
     }
-    const ident = this._requestIdPool.shift()!
+    const ident = this.#requestIdPool.shift()!
 
     return new Promise((resolve, reject) => {
-      this._waitingMap.set(ident, {
+      this.#waitingMap.set(ident, {
         data,
         resolve,
         reject
@@ -45,22 +38,19 @@ abstract class Message extends EventEmitter {
   }
 
   onResponse = async ({ ident, res, err }: any = {}) => {
-    // the url may update
-    if (!this._waitingMap.has(ident)) {
-      return
-    }
+    if (!this.#waitingMap.has(ident)) return
 
-    const { resolve, reject } = this._waitingMap.get(ident)!
+    const { resolve, reject } = this.#waitingMap.get(ident)!
 
-    this._requestIdPool.push(ident)
-    this._waitingMap.delete(ident)
+    this.#requestIdPool.push(ident)
+    this.#waitingMap.delete(ident)
     err ? reject(err) : resolve(res)
   }
 
-  onRequest = async ({ ident, data }) => {
+  onRequest = async ({ ident, data }: any) => {
     if (this.listenCallback) {
-      let res
-      let err
+      let res: any
+      let err: any
 
       try {
         res = await this.listenCallback(data)
@@ -78,11 +68,11 @@ abstract class Message extends EventEmitter {
 
   _dispose = () => {
     // eslint-disable-next-line no-restricted-syntax
-    for (const request of this._waitingMap.values()) {
+    for (const request of this.#waitingMap.values()) {
       request.reject(ethErrors.provider.userRejectedRequest())
     }
 
-    this._waitingMap.clear()
+    this.#waitingMap.clear()
   }
 }
 

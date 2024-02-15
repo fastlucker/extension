@@ -14,6 +14,7 @@ import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountA
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -30,7 +31,6 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
 import {
@@ -244,7 +244,7 @@ async function init() {
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
         Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.request({
+          backgroundState.portMessageUIRefs[key]?.send('broadcast', {
             type: 'broadcast',
             method: ctrlName,
             params: ctrl
@@ -325,7 +325,7 @@ async function init() {
             if (lastError) console.error(lastError.error)
             logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-              backgroundState.portMessageUIRefs[key]?.request({
+              backgroundState.portMessageUIRefs[key]?.send('broadcast', {
                 type: 'broadcast-error',
                 method: ctrlName,
                 params: { errors, controller: ctrlName }
@@ -353,7 +353,7 @@ async function init() {
     if (lastError) console.error(lastError.error)
     logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'main',
         params: { errors, controller: 'main' }
@@ -370,7 +370,7 @@ async function init() {
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'walletState',
         params: { errors, controller: 'walletState' }
@@ -387,7 +387,7 @@ async function init() {
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'notification',
         params: { errors, controller: 'notification' }
@@ -406,30 +406,27 @@ async function init() {
       pm.listen(async (data: Action) => {
         if (data?.type) {
           switch (data.type) {
-            case 'broadcast':
-              eventBus.emit(data.method, data.params)
-              break
             case 'INIT_CONTROLLER_STATE': {
               if (data.params.controller === ('main' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'main',
                   params: mainCtrl
                 })
               } else if (data.params.controller === ('notification' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
                 })
               } else if (data.params.controller === ('walletState' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'walletState',
                   params: walletStateCtrl
                 })
               } else {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: data.params.controller,
                   params: (mainCtrl as any)[data.params.controller]
@@ -573,10 +570,24 @@ async function init() {
               )
             }
             case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
-              const prevAccountsCount = mainCtrl.accounts.length
               const defaultAccountPreferences = getDefaultAccountPreferences(
                 data.params.accounts,
-                prevAccountsCount
+                mainCtrl.accounts
+              )
+
+              const ensOrUdAccountPreferences: AccountPreferences = data.params.accounts.reduce(
+                (acc: AccountPreferences, account) => {
+                  if (account.domainName) {
+                    acc[account.addr] = {
+                      pfp: defaultAccountPreferences[account.addr].pfp,
+                      label: account.domainName
+                    }
+                    return acc
+                  }
+
+                  return acc
+                },
+                {}
               )
 
               // Since these accounts are view-only, directly add them in the
@@ -588,7 +599,10 @@ async function init() {
               // flow was bypassed and the `onAccountAdderSuccess` subscription
               // in the MainController won't click.
               return Promise.all([
-                mainCtrl.settings.addAccountPreferences(defaultAccountPreferences),
+                mainCtrl.settings.addAccountPreferences({
+                  ...defaultAccountPreferences,
+                  ...ensOrUdAccountPreferences
+                }),
                 mainCtrl.selectAccount(data.params.accounts[0].addr)
               ])
             }
@@ -624,10 +638,9 @@ async function init() {
 
               await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
 
-              const prevAccountsCount = mainCtrl.accounts.length
               const readyToAddAccountPreferences = getDefaultAccountPreferences(
                 mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                prevAccountsCount,
+                mainCtrl.accounts,
                 'internal',
                 'seed'
               )
@@ -764,16 +777,19 @@ async function init() {
               return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
             case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
               return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
+              return mainCtrl.emailVault.handleMagicLinkKey(data.params.email)
+            case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
+              return mainCtrl.emailVault.cancelEmailConfirmation()
             case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-              return mainCtrl.emailVault.recoverKeyStore(data.params.email)
+              return mainCtrl.emailVault.recoverKeyStore(data.params.email, data.params.newPass)
+            case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
+              return mainCtrl.emailVault.cleanMagicAndSessionKeys()
             case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
               return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
             case 'SET_IS_DEFAULT_WALLET': {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
               break
-            }
-            case 'CACHE_RESOLVED_DOMAIN': {
-              return walletStateCtrl.cacheResolvedDomain(data.params.domain)
             }
             case 'SET_ONBOARDING_STATE': {
               walletStateCtrl.onboardingState = data.params
@@ -830,14 +846,6 @@ async function init() {
         }
       })
 
-      const broadcastCallback = (data: any) => {
-        pm.request({
-          type: 'broadcast',
-          method: data.method,
-          params: data.params
-        })
-      }
-
       port.onDisconnect.addListener(() => {
         delete backgroundState.portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
@@ -847,11 +855,6 @@ async function init() {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
-      })
-
-      eventBus.addEventListener('broadcastToUI', broadcastCallback)
-      port.onDisconnect.addListener(() => {
-        eventBus.removeEventListener('broadcastToUI', broadcastCallback)
       })
 
       return

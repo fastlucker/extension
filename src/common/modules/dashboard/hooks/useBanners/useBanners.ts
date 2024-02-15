@@ -1,11 +1,27 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
+
+const getCurrentAccountBanners = (banners: BannerInterface[], selectAccount: AccountId | null) =>
+  banners.filter((banner) => {
+    if (!banner.accountAddr) return true
+
+    return banner.accountAddr === selectAccount
+  })
 
 export default function useBanners(): BannerInterface[] {
   const state = useMainControllerState()
+  const {
+    state: { banners: portfolioBanners = [] }
+  } = usePortfolioControllerState()
+  const { banners: activityBanners = [] } = useActivityControllerState()
+  const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
   const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
   const walletState = useWalletStateController()
 
@@ -15,14 +31,14 @@ export default function useBanners(): BannerInterface[] {
         return [
           ...prev,
           {
-            id: 'enable-default-wallet',
-            topic: 'WARNING',
+            id: 'switch-default-wallet',
+            type: 'warning',
             title: 'Ambire Wallet is not your default wallet',
             text: 'Another wallet is set as default browser wallet for connecting with dApps. You can switch it to Ambire Wallet.',
             actions: [
               {
-                label: 'Enable',
-                actionName: 'enable-default-wallet',
+                label: 'Switch',
+                actionName: 'switch-default-wallet',
                 meta: {}
               }
             ]
@@ -30,13 +46,26 @@ export default function useBanners(): BannerInterface[] {
         ]
       })
     } else {
-      setInnerBanners((prev) => prev.filter((b) => b.id !== 'enable-default-wallet'))
+      setInnerBanners((prev) => prev.filter((b) => b.id !== 'switch-default-wallet'))
     }
   }, [walletState.isDefaultWallet])
 
   const allBanners = useMemo(() => {
-    return [...innerBanners, ...state.banners]
-  }, [innerBanners, state.banners])
+    return [
+      ...innerBanners,
+      ...state.banners,
+      ...getCurrentAccountBanners(portfolioBanners, state.selectedAccount),
+      ...activityBanners,
+      ...getCurrentAccountBanners(emailVaultBanners, state.selectedAccount)
+    ]
+  }, [
+    activityBanners,
+    emailVaultBanners,
+    innerBanners,
+    portfolioBanners,
+    state.banners,
+    state.selectedAccount
+  ])
 
   return allBanners
 }

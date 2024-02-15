@@ -43,14 +43,13 @@ const KeystoreResetForm: FC<Props> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
             onBlur={onBlur}
-            placeholder={t('Enter Passphrase')}
+            placeholder={t('Enter Password')}
             onChangeText={onChange}
             isValid={isValidPassword(value)}
             autoFocus={isWeb}
             value={value}
             error={
-              errors.password &&
-              (t('Please fill in at least 8 characters for passphrase.') as string)
+              errors.password && (t('Please fill in at least 8 characters for password.') as string)
             }
             containerStyle={styles.passwordInput}
             onSubmitEditing={handleChangeKeystorePassword}
@@ -66,12 +65,12 @@ const KeystoreResetForm: FC<Props> = ({
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
-            placeholder={t('Repeat Passphrase')}
+            placeholder={t('Repeat Password')}
             onChangeText={onChange}
             value={value}
             isValid={!!value && password === value}
             secureTextEntry
-            error={errors.confirmPassword && (t("Passphrases don't match.") as string)}
+            error={errors.confirmPassword && (t("Passwords don't match.") as string)}
             autoCorrect={false}
             containerStyle={styles.confirmPasswordInput}
             onSubmitEditing={handleChangeKeystorePassword}

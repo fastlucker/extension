@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react'
-import { Controller, UseFormSetValue, UseFormWatch } from 'react-hook-form'
+import { Controller, UseFormSetValue, UseFormTrigger, UseFormWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -23,6 +23,7 @@ interface Props {
   remove: (index: number) => void
   disabled: boolean
   setValue: UseFormSetValue<any>
+  trigger: UseFormTrigger<any>
 }
 const AddressField: FC<Props> = ({
   duplicateAccountsIndexes,
@@ -34,7 +35,8 @@ const AddressField: FC<Props> = ({
   handleSubmit,
   remove,
   disabled,
-  setValue
+  setValue,
+  trigger
 }) => {
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
@@ -45,7 +47,11 @@ const AddressField: FC<Props> = ({
     (newState: AddressStateOptional) => {
       Object.keys(newState).forEach((key) => {
         // @ts-ignore
-        setValue(`accounts.${index}.${key}`, newState[key])
+        setValue(`accounts.${index}.${key}`, newState[key], {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true
+        })
       })
     },
     [index, setValue]
@@ -64,10 +70,15 @@ const AddressField: FC<Props> = ({
     return ''
   }, [duplicateAccountsIndexes, index, mainControllerState.accounts, value])
 
+  const handleRevalidate = useCallback(() => {
+    trigger(`accounts.${index}.fieldValue`)
+  }, [index, trigger])
+
   const { validation, RHFValidate } = useAddressInput({
     addressState: value,
     setAddressState,
-    overwriteError
+    overwriteError,
+    handleRevalidate
   })
 
   return (
@@ -89,8 +100,8 @@ const AddressField: FC<Props> = ({
             value={value.fieldValue}
             autoFocus
             disabled={isSubmitting}
-            isValidEns={!!value.ensAddress}
-            isValidUDomain={!!value.udAddress}
+            ensAddress={value.ensAddress}
+            udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}
             onSubmitEditing={disabled ? undefined : handleSubmit}
             button={accounts.length > 1 ? <DeleteIcon style={spacings.mlTy} /> : null}

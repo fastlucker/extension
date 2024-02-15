@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native'
 import { networks } from '@ambire-common/consts/networks'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -21,6 +22,7 @@ const SortHat = () => {
   const keystoreState = useKeystoreControllerState()
   const notificationState = useNotificationControllerState()
   const mainState = useMainControllerState()
+  const { params } = useRoute()
 
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
@@ -96,10 +98,13 @@ const SortHat = () => {
       if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
+    } else if (params?.openOnboardingCompleted) {
+      navigate(ROUTES.onboardingCompleted, { state: { validSession: true } })
     } else {
       navigate(ROUTES.dashboard)
     }
   }, [
+    params?.openOnboardingCompleted,
     isNotification,
     notificationState.currentNotificationRequest,
     authStatus,

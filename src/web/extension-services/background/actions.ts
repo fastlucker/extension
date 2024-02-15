@@ -4,7 +4,6 @@ import AccountAdderController, {
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
-import { CachedResolvedDomain } from '@ambire-common/interfaces/domains'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
@@ -86,7 +85,11 @@ type MainControllerAccountAdderAddAccounts = {
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
-  params: { accounts: Account[] }
+  params: {
+    accounts: (Account & {
+      domainName: string | null
+    })[]
+  }
 }
 type MainControllerAddSeedPhraseAccounts = {
   type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
@@ -278,9 +281,19 @@ type EmailVaultControllerUploadKeystoreSecretAction = {
   type: 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET'
   params: { email: string }
 }
+type EmailVaultControllerCancelConfirmationAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION'
+}
+type EmailVaultControllerHandleMagicLinkKeyAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY'
+  params: { email: string }
+}
 type EmailVaultControllerRecoverKeystoreAction = {
   type: 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE'
-  params: { email: string }
+  params: { email: string; newPass: string }
+}
+type EmailVaultControllerCleanMagicAndSessionKeysAction = {
+  type: 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS'
 }
 type EmailVaultControllerRequestKeysSyncAction = {
   type: 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC'
@@ -325,13 +338,6 @@ type ChangeCurrentDappNetworkAction = {
 type SetIsDefaultWalletAction = {
   type: 'SET_IS_DEFAULT_WALLET'
   params: { isDefaultWallet: boolean }
-}
-
-type CacheResolvedDomainAction = {
-  type: 'CACHE_RESOLVED_DOMAIN'
-  params: {
-    domain: CachedResolvedDomain
-  }
 }
 
 type SetOnboardingStateAction = {
@@ -390,7 +396,10 @@ export type Action =
   | KeystoreControllerChangePasswordFromRecoveryAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
+  | EmailVaultControllerCancelConfirmationAction
+  | EmailVaultControllerHandleMagicLinkKeyAction
   | EmailVaultControllerRecoverKeystoreAction
+  | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
   | WalletControllerGetConnectedSiteAction
   | WalletControllerRequestVaultControllerMethodAction
@@ -402,7 +411,6 @@ export type Action =
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
-  | CacheResolvedDomainAction
   | SetOnboardingStateAction
 
 /**

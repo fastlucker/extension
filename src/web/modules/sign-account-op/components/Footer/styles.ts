@@ -4,7 +4,6 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  signButtonContainer: ViewStyle
 }
 
 const getStyles = () =>
@@ -13,13 +12,8 @@ const getStyles = () =>
       ...flexbox.directionRow,
       ...flexbox.justifySpaceBetween,
       ...flexbox.alignCenter,
-      ...flexbox.flex1,
-      // zIndex is 0 by default. We need to set it to 'unset' to make sure the shadow isn't visible
-      // when we show the select signer overlay
-      // @ts-ignore
-      zIndex: 'unset'
-    },
-    signButtonContainer: { position: 'relative', zIndex: 'unset' }
+      ...flexbox.flex1
+    }
   })
 
 export default getStyles

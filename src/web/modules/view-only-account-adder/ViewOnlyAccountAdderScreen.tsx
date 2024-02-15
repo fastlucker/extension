@@ -64,6 +64,7 @@ const ViewOnlyScreen = () => {
     watch,
     setValue,
     handleSubmit,
+    trigger,
     formState: { isValid, isSubmitting }
   } = useForm({
     mode: 'all',
@@ -121,7 +122,9 @@ const ViewOnlyScreen = () => {
         addr: ethers.getAddress(address),
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
-        creation
+        creation,
+        // account.fieldValue is the domain name if it's an ENS/UD address
+        domainName: account.ensAddress || account.udAddress ? account.fieldValue : null
       }
     })
 
@@ -220,6 +223,7 @@ const ViewOnlyScreen = () => {
               field={field}
               watch={watch}
               setValue={setValue}
+              trigger={trigger}
             />
           ))}
           <View>

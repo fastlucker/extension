@@ -15,6 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
@@ -167,7 +168,7 @@ const Estimation = ({
                 key={fee.amount + fee.type}
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                 type={fee.type}
-                amount={fee.amountFormatted}
+                amount={formatDecimals(parseFloat(fee.amountFormatted))}
                 onPress={onFeeSelect}
                 isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
               />
@@ -184,13 +185,14 @@ const Estimation = ({
                 {t('Fee')}:
               </Text>
               <Text fontSize={16} weight="medium">
-                {parseFloat(Number(selectedFee.amountFormatted).toFixed(6)).toString()}{' '}
-                {payValue.token?.symbol}
+                {formatDecimals(parseFloat(selectedFee.amountFormatted))} {payValue.token?.symbol}
               </Text>
-              <Text weight="medium" fontSize={16} appearance="primary">
-                {' '}
-                (~ ${Number(selectedFee.amountUsd).toFixed(2)})
-              </Text>
+              {selectedFee.amountUsd ? (
+                <Text weight="medium" fontSize={16} appearance="primary">
+                  {' '}
+                  (~ ${formatDecimals(Number(selectedFee.amountUsd))})
+                </Text>
+              ) : null}
             </View>
           </View>
         )}
@@ -204,4 +206,4 @@ const Estimation = ({
   )
 }
 
-export default Estimation
+export default React.memo(Estimation)

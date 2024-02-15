@@ -5,7 +5,6 @@ import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import useWalletStateController from '@web/hooks/useWalletStateController'
 
 import useDebounce from '../useDebounce'
 import useToast from '../useToast'
@@ -16,17 +15,21 @@ interface Props {
   setAddressState: (newState: AddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
+  // handleRevalidate is required when the address input is used
+  // together with react-hook-form. It is used to trigger the revalidation of the input.
+  // !!! Must be memoized with useCallback
+  handleRevalidate?: () => void
 }
 
 const useAddressInput = ({
   addressState,
   setAddressState,
   overwriteError,
-  overwriteValidLabel
+  overwriteValidLabel,
+  handleRevalidate
 }: Props) => {
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const { cachedResolvedDomains = [] } = useWalletStateController()
   const { addToast } = useToast()
   const debouncedAddress = useDebounce({
     value: addressState?.fieldValue || '',
@@ -70,48 +73,11 @@ const useAddressInput = ({
       isDomainResolving: true
     })
 
-    // Attempt to get the address from the list of cached domains
-    const cachedResolvedDomain = cachedResolvedDomains.find(({ name }) => name === trimmedAddress)
-
-    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ens') {
-      setAddressState({
-        ensAddress: cachedResolvedDomain.address,
-        udAddress: '',
-        isDomainResolving: false
-      })
-      return
-    }
-
-    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ud') {
-      setAddressState({
-        ensAddress: '',
-        udAddress: cachedResolvedDomain.address,
-        isDomainResolving: false
-      })
-      return
-    }
-
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
-          if (!newUDAddress) {
-            setAddressState({
-              udAddress: ''
-            })
-            return
-          }
           setAddressState({
             udAddress: newUDAddress
-          })
-          dispatch({
-            type: 'CACHE_RESOLVED_DOMAIN',
-            params: {
-              domain: {
-                name: debouncedAddress,
-                address: newUDAddress,
-                type: 'ud'
-              }
-            }
           })
         })
         .catch(() => {
@@ -124,24 +90,8 @@ const useAddressInput = ({
         }),
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
-          if (!newEnsAddress) {
-            setAddressState({
-              ensAddress: ''
-            })
-            return
-          }
           setAddressState({
             ensAddress: newEnsAddress
-          })
-          dispatch({
-            type: 'CACHE_RESOLVED_DOMAIN',
-            params: {
-              domain: {
-                name: debouncedAddress,
-                address: newEnsAddress,
-                type: 'ens'
-              }
-            }
           })
         })
         .catch(() => {
@@ -164,8 +114,9 @@ const useAddressInput = ({
         setAddressState({
           isDomainResolving: false
         })
+        handleRevalidate && handleRevalidate()
       })
-  }, [addToast, cachedResolvedDomains, debouncedAddress, dispatch, networks, setAddressState])
+  }, [addToast, debouncedAddress, dispatch, handleRevalidate, networks, setAddressState])
 
   const reset = useCallback(() => {
     setAddressState({
@@ -183,8 +134,16 @@ const useAddressInput = ({
     // Disable the form if there is an error
     if (validation?.isError) return validation.message
 
+    if (addressState?.isDomainResolving) return false
+
     return true
-  }, [addressState?.fieldValue, debouncedAddress, validation?.isError, validation.message])
+  }, [
+    addressState?.fieldValue,
+    addressState?.isDomainResolving,
+    debouncedAddress,
+    validation?.isError,
+    validation.message
+  ])
 
   const setFieldValue = useCallback(
     (newValue: string) => {

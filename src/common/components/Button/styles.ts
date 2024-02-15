@@ -1,7 +1,5 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import commonStyles from '@common/styles/utils/common'
@@ -18,8 +16,6 @@ interface Style {
   buttonContainerStylesSizeLarge: ViewStyle
   buttonContainerStylesSizeRegular: ViewStyle
   buttonContainerStylesSizeSmall: ViewStyle
-
-  buttonText: TextStyle
 
   buttonTextPrimary: TextStyle
   buttonTextSecondary: TextStyle
@@ -88,15 +84,9 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mbTy
     },
 
-    // Default button text styles
-    buttonText: {
-      fontFamily: FONT_FAMILIES.MEDIUM,
-      textAlign: 'center'
-    },
-
     // Button text styles by type
     buttonTextPrimary: {
-      color: colors.titan
+      color: '#fff'
     },
     buttonTextSecondary: {
       color: theme.primary

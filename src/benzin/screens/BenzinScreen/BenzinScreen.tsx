@@ -3,6 +3,9 @@ import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Storage } from '@ambire-common/interfaces/storage'
+import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
+import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -19,9 +22,41 @@ import Steps from './components/Steps'
 import useSteps from './components/Steps/hooks/useSteps'
 import getStyles from './styles'
 
+function produceMemoryStore(): Storage {
+  const storage = new Map()
+
+  return {
+    get: (key, defaultValue): any => {
+      const serialized = storage.get(key)
+      return Promise.resolve(serialized ? parse(serialized) : defaultValue)
+    },
+    set: (key, value) => {
+      storage.set(key, stringify(value))
+      return Promise.resolve(null)
+    }
+  }
+}
+const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
+  // remove deadlines from humanizer
+  const finalParsedCalls = humanizedCalls.map((call) => {
+    const localCall = { ...call }
+    localCall.fullVisualization = call.fullVisualization?.filter(
+      (visual) => visual.type !== 'deadline'
+    )
+    localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
+    return localCall
+  })
+  setCalls(finalParsedCalls)
+}
+const storage = produceMemoryStore()
 const emittedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
-const standardOptions = { fetch, emitError: mockEmitError }
+const standardOptions = {
+  fetch: window.fetch.bind(window),
+  emitError: mockEmitError,
+  storage,
+  parser: parseHumanizer
+}
 
 const BenzinScreen = () => {
   const { styles } = useTheme(getStyles)

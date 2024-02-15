@@ -35,8 +35,6 @@ const NetworkBottomSheet = ({
   const { networks } = useSettingsControllerState()
   const networkData = networks.find((network) => network.id === selectedNetworkId)
 
-  if (!selectedNetworkId) return null
-
   return (
     <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>

@@ -12,7 +12,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -84,7 +84,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         submittedAccountOpFee.decimals
       )
     )
-    return `${fee} ${submittedAccountOpFee.symbol}`
+    return `${formatDecimals(fee)} ${submittedAccountOpFee.symbol}`
   }, [submittedAccountOp.gasFeePayment, submittedAccountOpFee])
 
   useEffect(() => {
@@ -123,27 +123,28 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         return (
           <TransactionSummary
             key={call.fromUserRequestId}
-            style={spacings.mbSm}
+            style={styles.summaryItem}
             call={call}
             networkId={submittedAccountOp.networkId}
             explorerUrl={network.explorerUrl}
             rightIcon={<OpenIcon />}
             onRightIconPress={handleOpenExplorer}
+            isHistory
           />
         )
       })}
-      <View style={[flexbox.directionRow, flexbox.flex1, spacings.mbSm, spacings.phSm]}>
-        <View style={flexbox.flex1}>
-          <Text style={spacings.mbTy} fontSize={14}>
-            {t('Fee')}
+      <View style={styles.footer}>
+        <View style={styles.footerItem}>
+          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+            {t('Fee')}:{' '}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
             {feeFormattedValue}
           </Text>
         </View>
-        <View style={flexbox.flex1}>
-          <Text style={spacings.mbTy} fontSize={14}>
-            {t('Submitted on')}
+        <View style={styles.footerItem}>
+          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+            {t('Submitted on')}:{' '}
           </Text>
           {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
             <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
@@ -153,9 +154,9 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             </Text>
           )}
         </View>
-        <View style={flexbox.flex1}>
-          <Text style={spacings.mbTy} fontSize={14}>
-            {t('Block Explorer')}
+        <View style={styles.footerItem}>
+          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+            {t('Block Explorer')}:{' '}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
             {new URL(network.explorerUrl).hostname}

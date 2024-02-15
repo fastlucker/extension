@@ -6,7 +6,7 @@ export type BackgroundServiceContextReturnType = {
    * Does not return the result of the action.
    * It will only work when called from a focused window!
    */
-  dispatch: (action: Action) => Promise<unknown>
+  dispatch: (action: Action) => void
   /**
    * Dispatches an action to the extension background service.
    * Returns a Promise with the result of the action.

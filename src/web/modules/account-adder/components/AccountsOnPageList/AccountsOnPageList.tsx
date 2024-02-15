@@ -249,7 +249,7 @@ const AccountsList = ({
           <Alert type="info" style={spacings.mbTy}>
             <Text fontSize={16} style={flexbox.flex1} appearance="infoText">
               {t(
-                'Linked smart accounts are accounts that were not originally created with this key or Ambire V.1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
+                'Linked smart accounts are accounts that were not originally created with this key or Ambire v1, but this key is authorized to control and sign transactions for that linked smart account on one or more networks.'
               )}
             </Text>
           </Alert>
@@ -349,8 +349,10 @@ const AccountsList = ({
           {!!shouldEnablePagination && (
             <Pagination
               page={state.page}
+              maxPages={1000}
               setPage={setPage}
               isDisabled={state.accountsLoading || disablePagination}
+              hideLastPage
             />
           )}
         </View>

@@ -6,6 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   pinExtension: ViewStyle
+  missedRewardsImg: ImageStyle
   tokensImg: ImageStyle
   confettiAnimationContainer: ViewStyle
 }
@@ -18,6 +19,12 @@ const getStyles = (theme: ThemeProps) =>
       right: SPACING_4XL + SPACING_XL,
       top: -SPACING_TY,
       zIndex: 10
+    },
+    missedRewardsImg: {
+      height: 220,
+      width: 106,
+      ...flexbox.alignSelfCenter,
+      ...spacings.mb2Xl
     },
     tokensImg: {
       height: 165,
