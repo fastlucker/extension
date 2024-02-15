@@ -17,7 +17,9 @@ const getTokenDetails = ({
 
   const balance = parseFloat(formatUnits(amount, decimals))
   const priceUSD =
-    priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
+    priceIn.find(
+      ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
+    )?.price || 0
   const balanceUSD = balance * priceUSD
 
   return {
