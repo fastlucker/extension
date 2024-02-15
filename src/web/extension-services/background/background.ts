@@ -789,9 +789,6 @@ async function init() {
               walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
               break
             }
-            case 'CACHE_RESOLVED_DOMAIN': {
-              return walletStateCtrl.cacheResolvedDomain(data.params.domain)
-            }
             case 'SET_ONBOARDING_STATE': {
               walletStateCtrl.onboardingState = data.params
               break

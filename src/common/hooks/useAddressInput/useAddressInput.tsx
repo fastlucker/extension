@@ -5,7 +5,6 @@ import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { resolveUDomain } from '@ambire-common/services/unstoppableDomains'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import useWalletStateController from '@web/hooks/useWalletStateController'
 
 import useDebounce from '../useDebounce'
 import useToast from '../useToast'
@@ -31,7 +30,6 @@ const useAddressInput = ({
 }: Props) => {
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const { cachedResolvedDomains = [] } = useWalletStateController()
   const { addToast } = useToast()
   const debouncedAddress = useDebounce({
     value: addressState?.fieldValue || '',
@@ -75,50 +73,11 @@ const useAddressInput = ({
       isDomainResolving: true
     })
 
-    // Attempt to get the address from the list of cached domains
-    const cachedResolvedDomain = cachedResolvedDomains.find(({ name }) => name === trimmedAddress)
-
-    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ens') {
-      setAddressState({
-        ensAddress: cachedResolvedDomain.address,
-        udAddress: '',
-        isDomainResolving: false
-      })
-      handleRevalidate && handleRevalidate()
-      return
-    }
-
-    if (cachedResolvedDomain && cachedResolvedDomain.type === 'ud') {
-      setAddressState({
-        ensAddress: '',
-        udAddress: cachedResolvedDomain.address,
-        isDomainResolving: false
-      })
-      handleRevalidate && handleRevalidate()
-      return
-    }
-
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
-          if (!newUDAddress) {
-            setAddressState({
-              udAddress: ''
-            })
-            return
-          }
           setAddressState({
             udAddress: newUDAddress
-          })
-          dispatch({
-            type: 'CACHE_RESOLVED_DOMAIN',
-            params: {
-              domain: {
-                name: debouncedAddress,
-                address: newUDAddress,
-                type: 'ud'
-              }
-            }
           })
         })
         .catch(() => {
@@ -131,25 +90,10 @@ const useAddressInput = ({
         }),
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
-          if (!newEnsAddress) {
-            setAddressState({
-              ensAddress: ''
-            })
-            return
-          }
           setAddressState({
             ensAddress: newEnsAddress
           })
-          dispatch({
-            type: 'CACHE_RESOLVED_DOMAIN',
-            params: {
-              domain: {
-                name: debouncedAddress,
-                address: newEnsAddress,
-                type: 'ens'
-              }
-            }
-          })
+          console.log('zdes')
         })
         .catch(() => {
           setAddressState({
@@ -173,15 +117,7 @@ const useAddressInput = ({
         })
         handleRevalidate && handleRevalidate()
       })
-  }, [
-    addToast,
-    cachedResolvedDomains,
-    debouncedAddress,
-    dispatch,
-    handleRevalidate,
-    networks,
-    setAddressState
-  ])
+  }, [addToast, debouncedAddress, dispatch, handleRevalidate, networks, setAddressState])
 
   const reset = useCallback(() => {
     setAddressState({
