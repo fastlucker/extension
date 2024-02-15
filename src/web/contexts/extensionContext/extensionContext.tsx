@@ -55,7 +55,7 @@ const Provider: React.FC<any> = ({ children }) => {
       }
 
       alert(
-        t('Are you sere you want to disconnect {{name}} ({{url}})?', {
+        t('Are you sure you want to disconnect {{name}} ({{url}})?', {
           name: siteToDisconnect.name,
           url: siteToDisconnect.origin
         }),
