@@ -1,4 +1,4 @@
-import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
+import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { browser } from '@web/constants/browserapi'
 
 import Message from './baseMessage'

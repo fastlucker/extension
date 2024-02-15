@@ -4,8 +4,8 @@ import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
-import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
