@@ -31,7 +31,6 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import eventBus from '@web/extension-services/event/eventBus'
 import PortMessage from '@web/extension-services/message/portMessage'
 import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
 import {
@@ -245,7 +244,7 @@ async function init() {
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
         Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.request({
+          backgroundState.portMessageUIRefs[key]?.send('broadcast', {
             type: 'broadcast',
             method: ctrlName,
             params: ctrl
@@ -326,7 +325,7 @@ async function init() {
             if (lastError) console.error(lastError.error)
             logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-              backgroundState.portMessageUIRefs[key]?.request({
+              backgroundState.portMessageUIRefs[key]?.send('broadcast', {
                 type: 'broadcast-error',
                 method: ctrlName,
                 params: { errors, controller: ctrlName }
@@ -354,7 +353,7 @@ async function init() {
     if (lastError) console.error(lastError.error)
     logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'main',
         params: { errors, controller: 'main' }
@@ -371,7 +370,7 @@ async function init() {
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'walletState',
         params: { errors, controller: 'walletState' }
@@ -388,7 +387,7 @@ async function init() {
     const lastError = errors[errors.length - 1]
     if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.request({
+      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'notification',
         params: { errors, controller: 'notification' }
@@ -407,30 +406,27 @@ async function init() {
       pm.listen(async (data: Action) => {
         if (data?.type) {
           switch (data.type) {
-            case 'broadcast':
-              eventBus.emit(data.method, data.params)
-              break
             case 'INIT_CONTROLLER_STATE': {
               if (data.params.controller === ('main' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'main',
                   params: mainCtrl
                 })
               } else if (data.params.controller === ('notification' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'notification',
                   params: notificationCtrl
                 })
               } else if (data.params.controller === ('walletState' as any)) {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: 'walletState',
                   params: walletStateCtrl
                 })
               } else {
-                pm.request({
+                pm.send('broadcast', {
                   type: 'broadcast',
                   method: data.params.controller,
                   params: (mainCtrl as any)[data.params.controller]
@@ -853,14 +849,6 @@ async function init() {
         }
       })
 
-      const broadcastCallback = (data: any) => {
-        pm.request({
-          type: 'broadcast',
-          method: data.method,
-          params: data.params
-        })
-      }
-
       port.onDisconnect.addListener(() => {
         delete backgroundState.portMessageUIRefs[pm.id]
         setPortfolioFetchInterval()
@@ -870,11 +858,6 @@ async function init() {
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
         }
-      })
-
-      eventBus.addEventListener('broadcastToUI', broadcastCallback)
-      port.onDisconnect.addListener(() => {
-        eventBus.removeEventListener('broadcastToUI', broadcastCallback)
       })
 
       return

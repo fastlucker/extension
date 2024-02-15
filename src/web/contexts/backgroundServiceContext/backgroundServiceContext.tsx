@@ -29,7 +29,6 @@ if (isExtension) {
   const isNotification = getUiType().isNotification
 
   let portName = 'popup'
-
   if (isTab) portName = 'tab'
   if (isNotification) portName = 'notification'
 
@@ -44,17 +43,23 @@ if (isExtension) {
     }
   })
 
-  eventBus.addEventListener('broadcastToBackground', (data) => {
-    portMessageChannel.request({
-      type: 'broadcast',
-      method: data.method,
-      params: data.data
-    })
-  })
-
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
   dispatch = (action) => {
+    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
+    // from all opened extension instances, leading to some unpredictable behaviors of the state.
+    if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
+
+    portMessageChannel.send('broadcast', {
+      type: action.type,
+      // TypeScript being unable to guarantee that every member of the Action
+      // union has the `params` property (some indeed don't), but this is fine.
+      // @ts-ignore
+      params: action.params
+    })
+  }
+
+  dispatchAsync = (action) => {
     // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type))
@@ -67,8 +72,6 @@ if (isExtension) {
       params: action.params
     })
   }
-
-  dispatchAsync = dispatch
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(

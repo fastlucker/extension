@@ -1,9 +1,7 @@
-// @ts-nocheck
-
 import Message from './baseMessage'
 
 export default class BroadcastChannelMessage extends Message {
-  private _channel: BroadcastChannel
+  #channel: BroadcastChannel
 
   constructor(name?: string) {
     super()
@@ -11,11 +9,11 @@ export default class BroadcastChannelMessage extends Message {
       throw new Error('the broadcastChannel name is missing')
     }
 
-    this._channel = new BroadcastChannel(name)
+    this.#channel = new BroadcastChannel(name)
   }
 
   connect = () => {
-    this._channel.onmessage = ({ data: { type, data } }) => {
+    this.#channel.onmessage = ({ data: { type, data } }) => {
       if (type === 'message') {
         this.emit('message', data)
       } else if (type === 'response') {
@@ -26,20 +24,18 @@ export default class BroadcastChannelMessage extends Message {
     return this
   }
 
-  listen = (listenCallback) => {
+  listen = (listenCallback: Function) => {
     this.listenCallback = listenCallback
 
-    this._channel.onmessage = ({ data: { type, data } }) => {
-      if (type === 'request') {
-        this.onRequest(data)
-      }
+    this.#channel.onmessage = ({ data: { type, data } }) => {
+      if (type === 'request') this.onRequest(data)
     }
 
     return this
   }
 
-  send = (type, data) => {
-    this._channel.postMessage({
+  send = (type: string, data: any) => {
+    this.#channel.postMessage({
       type,
       data
     })
@@ -47,6 +43,6 @@ export default class BroadcastChannelMessage extends Message {
 
   dispose = () => {
     this._dispose()
-    this._channel.close()
+    this.#channel.close()
   }
 }
