@@ -47,7 +47,8 @@ export async function bootStrap(options = {}) {
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
         await new Promise((r) => setTimeout(r, 1000));
-        const importButton = '[data-testid="button-Import"]'
+        const importButton = '[data-testid="padding-button-Next"]'
+        
 
         let attempts = 0;
         let element = null;
@@ -71,10 +72,51 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
         /*Click on "Import" button */
         await page.$eval(importButton, button => button.click());
 
+
+
+await page.waitForXPath('//div[contains(text(),"Previous")]')
+
+        /*Click on "Import" button */
+        await page.$eval(importButton, button => button.click());
+
+// Wait for navigation to complete
+// await page.waitForNavigation({ waitUntil: 'networkidle0' });
+        /*Click on "Import" button */
+        await page.$eval(importButton, button => button.click());
+
+
+
+// Wait for navigation to complete
+// await page.waitForNavigation({ waitUntil: 'networkidle0' });
+
+        /*Click on "Import" button */
+        await page.$eval(importButton, button => button.click());
+
+
+
+
+// Wait for navigation to complete
+await page.waitForNavigation({ waitUntil: 'networkidle0' });
+
+
+
+//         /*Click on "Import" button */
+        await page.$eval(importButton, button => button.click());
+//         // Wait for navigation to complete
+await page.waitForNavigation({ waitUntil: 'networkidle0' });
+
+
+
+await page.$eval(importButton, button => button.click());
+
+
+
         await page.waitForXPath('//div[contains(text(), "Private Key")]');
 
         /*Click on "Import" button */
         await page.$eval(privKeyOrPhraseSelector, button => button.click());
+
+        
 
         /* type phrase */
         const phrase = 'Password'

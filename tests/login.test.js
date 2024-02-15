@@ -218,7 +218,7 @@ describe('login', () => {
     });
 
     //--------------------------------------------------------------------------------------------------------------
-    it.only('change selected account name', (async () => {
+    it('change selected account name', (async () => {
         await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
 
         await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
