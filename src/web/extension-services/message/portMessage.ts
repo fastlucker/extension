@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { parse, stringify } from '@ambire-common/libs/bigintJson/bigintJson'
 import { browser } from '@web/constants/browserapi'
 
@@ -8,9 +6,7 @@ import Message from './baseMessage'
 class PortMessage extends Message {
   port: any = null
 
-  id: string
-
-  listenCallback: any
+  id?: string
 
   constructor(port?: any, id?: string) {
     super()
@@ -26,27 +22,27 @@ class PortMessage extends Message {
 
   connect = (name?: string) => {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
-    this.port.onMessage.addListener((message) => {
+    this.port.onMessage.addListener((message: any) => {
       // message should be a stringified json but in some cases it comes as an object
       // and in that case if parsing fails it defaults to destructing the message object
       try {
-        const { _type_, data } = parse(message)
-        if (_type_ === `${this._EVENT_PRE}message`) {
+        const { messageType, data } = parse(message)
+        if (messageType === `${this.EVENT_PREFIX}message`) {
           this.emit('message', data)
           return
         }
 
-        if (_type_ === `${this._EVENT_PRE}response`) {
+        if (messageType === `${this.EVENT_PREFIX}response`) {
           this.onResponse(data)
         }
       } catch (error) {
-        const { _type_, data } = message
-        if (_type_ === `${this._EVENT_PRE}message`) {
+        const { messageType, data } = message
+        if (messageType === `${this.EVENT_PREFIX}message`) {
           this.emit('message', data)
           return
         }
 
-        if (_type_ === `${this._EVENT_PRE}response`) {
+        if (messageType === `${this.EVENT_PREFIX}response`) {
           this.onResponse(data)
         }
       }
@@ -55,21 +51,27 @@ class PortMessage extends Message {
     return this
   }
 
-  listen = (listenCallback: any) => {
+  listen = (listenCallback: Function) => {
     if (!this.port) return
     this.listenCallback = listenCallback
-    this.port.onMessage.addListener((message) => {
+    this.port.onMessage.addListener((message: string | object) => {
       // message should be a stringified json but in some cases it comes as an object
       // and in that case if parsing fails it defaults to destructing the message object
       try {
-        const { _type_, data } = parse(message)
-        if (_type_ === `${this._EVENT_PRE}request`) {
+        const { messageType, data } = parse(message as string)
+        if (messageType === `${this.EVENT_PREFIX}request`) {
           this.onRequest(data)
         }
+        if (messageType === 'broadcast') {
+          !!this.listenCallback && this.listenCallback(data)
+        }
       } catch (error) {
-        const { _type_, data } = message
-        if (_type_ === `${this._EVENT_PRE}request`) {
+        const { messageType, data }: any = message
+        if (messageType === `${this.EVENT_PREFIX}request`) {
           this.onRequest(data)
+        }
+        if (messageType === 'broadcast') {
+          !!this.listenCallback && this.listenCallback(data)
         }
       }
     })
@@ -77,10 +79,16 @@ class PortMessage extends Message {
     return this
   }
 
-  send = (type, data) => {
+  send = (type: string, data: any) => {
     if (!this.port) return
     try {
-      const message = stringify({ _type_: `${this._EVENT_PRE}${type}`, data })
+      let message
+
+      if (type === 'broadcast') {
+        message = stringify({ messageType: type, data })
+      } else {
+        message = stringify({ messageType: `${this.EVENT_PREFIX}${type}`, data })
+      }
       this.port.postMessage(message)
     } catch (e) {
       // DO NOTHING BUT CATCH THIS ERROR

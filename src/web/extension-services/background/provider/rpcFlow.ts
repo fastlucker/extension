@@ -4,11 +4,9 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
-import { EVENTS } from '@web/constants/common'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import permissionService from '@web/extension-services/background/services/permission'
-import eventBus from '@web/extension-services/event/eventBus'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
@@ -166,30 +164,6 @@ const flowContext = flow
       })
     )
 
-    requestDefer
-      .then((result) => {
-        if (isSignRequest(requestType)) {
-          eventBus.emit(EVENTS.broadcastToUI, {
-            method: EVENTS.SIGN_FINISHED,
-            params: {
-              success: true,
-              data: result
-            }
-          })
-        }
-        return result
-      })
-      .catch((e: any) => {
-        if (isSignRequest(requestType)) {
-          eventBus.emit(EVENTS.broadcastToUI, {
-            method: EVENTS.SIGN_FINISHED,
-            params: {
-              success: false,
-              errorMsg: JSON.stringify(e)
-            }
-          })
-        }
-      })
     async function requestNotificationRequestLoop({
       uiRequestComponent,
       ...rest
