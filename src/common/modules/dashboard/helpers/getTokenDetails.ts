@@ -24,9 +24,9 @@ const getTokenDetails = ({
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
     priceUSD,
-    priceUSDFormatted: formatDecimals(priceUSD),
+    priceUSDFormatted: priceIn.length ? formatDecimals(priceUSD) : '-',
     balanceUSD,
-    balanceUSDFormatted: formatDecimals(balanceUSD, 'value'),
+    balanceUSDFormatted: priceIn.length ? formatDecimals(balanceUSD, 'value') : '-',
     networkData,
     isRewards,
     isVesting
