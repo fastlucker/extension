@@ -63,7 +63,8 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       !isNotification &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      !SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method)
+      !SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method) &&
+      state.currentNotificationRequest?.screen !== 'Benzin'
     ) {
       dispatch({
         type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'

@@ -380,7 +380,7 @@ async function init() {
 
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
+    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
   })
   notificationCtrl.onError(() => {
     const errors = notificationCtrl.getErrors()

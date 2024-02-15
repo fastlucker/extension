@@ -8,14 +8,14 @@ import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
-import { createTab } from '@web/extension-services/background/webapi/tab'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SendTransaction',
   'SignText',
   'SignTypedData',
-  'LedgerHardwareWaiting'
+  'LedgerHardwareWaiting',
+  'Benzin'
 ]
 
 export const SIGN_METHODS = [
@@ -193,18 +193,31 @@ export class NotificationController extends EventEmitter {
     if (notificationRequest) {
       notificationRequest?.resolve(data)
 
-      if (data?.hash && data?.networkId) {
-        createTab(
-          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
-            data?.isUserOp ? '&isUserOp' : ''
-          }`
-        )
-      }
-
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
         this.deleteNotificationRequest(notificationRequest)
-        this.currentNotificationRequest = null
+        if (
+          isSignAccountOpMethod(notificationRequest.params?.method) &&
+          data?.hash &&
+          data?.networkId
+        ) {
+          const newRequest = {
+            id: new Date().getTime(),
+            screen: 'Benzin',
+            params: {
+              networkId: notificationRequest.networkId,
+              txnId: data.hash,
+              isUserOp: !!data?.isUserOp
+            },
+            resolve: () => {},
+            reject: () => {}
+          }
+
+          this.currentNotificationRequest = newRequest
+
+          this.emitUpdate()
+          return
+        }
       } else {
         const currentOrigin = notificationRequest.params?.session?.origin
         this.deleteNotificationRequest(notificationRequest)
@@ -271,7 +284,11 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  requestNotificationRequest = (data: any, winProps?: any): Promise<any> => {
+  requestNotificationRequest = (
+    data: any,
+    winProps?: any,
+    openNewWindow: boolean = true
+  ): Promise<any> => {
     return new Promise((resolve, reject) => {
       const id = new Date().getTime()
       const notificationRequest: NotificationRequest = {
@@ -377,7 +394,7 @@ export class NotificationController extends EventEmitter {
         })
       }
       this.emitUpdate()
-      this.openNotification(notificationRequest.winProps)
+      if (openNewWindow) this.openNotification(notificationRequest.winProps)
     })
   }
 

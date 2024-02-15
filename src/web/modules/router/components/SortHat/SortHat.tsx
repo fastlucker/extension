@@ -27,6 +27,7 @@ const SortHat = () => {
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
+      console.log('ClooooSed')
       return
     }
 
@@ -97,6 +98,15 @@ const SortHat = () => {
       }
       if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
+      }
+      if (notificationState.currentNotificationRequest?.screen === 'Benzin') {
+        return navigate(
+          `${ROUTES.benzin}?networkId=${
+            notificationState.currentNotificationRequest.params.networkId
+          }&txnId=${notificationState.currentNotificationRequest?.params?.txnId}${
+            notificationState.currentNotificationRequest?.params?.isUserOp ? '&isUserOp=true' : ''
+          }`
+        )
       }
     } else if (params?.openOnboardingCompleted) {
       navigate(ROUTES.onboardingCompleted, { state: { validSession: true } })

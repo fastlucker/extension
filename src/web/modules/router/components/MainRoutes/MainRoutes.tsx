@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import BenzinScreen from '@benzin/screens/BenzinScreen'
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
@@ -142,6 +143,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />

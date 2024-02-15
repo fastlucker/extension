@@ -73,7 +73,8 @@ const WEB_ROUTES = {
   createHotWallet: 'create-hot-wallet',
   createSeedPhrasePrepare: 'create-seed-phrase/prepare',
   createSeedPhraseWrite: 'create-seed-phrase/write',
-  createSeedPhraseConfirm: 'create-seed-phrase/confirm'
+  createSeedPhraseConfirm: 'create-seed-phrase/confirm',
+  benzin: 'benzin'
 }
 
 const ROUTES = {
