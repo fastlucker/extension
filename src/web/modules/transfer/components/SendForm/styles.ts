@@ -11,14 +11,13 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   container: {
-    ...flexbox.flex1,
-    maxWidth: 500
+    ...flexbox.flex1
   },
   topUpContainer: {
     maxWidth: '100%',
     width: '100%'
   },
-  tokenSelect: spacings.mbXl
+  tokenSelect: spacings.mbLg
 })
 
 export default styles

@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -14,10 +14,12 @@ import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import Header from '@common/modules/header/components/Header'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -42,7 +44,11 @@ const TransferScreen = () => {
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
-
+  const [formContainerHeight, setFormContainerHeight] = useState(0)
+  const [formContentHeight, setFormContentHeight] = useState(0)
+  const [addressBookContainerHeight, setAddressBookContainerHeight] = useState(0)
+  const [addressBookContentHeight, setAddressBookContentHeight] = useState(0)
+  const { maxWidthSize } = useWindowSize()
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -81,11 +87,21 @@ const TransferScreen = () => {
     })
   }, [dispatch])
 
+  const hasScrollFormContainer = useMemo(
+    () => formContentHeight > formContainerHeight,
+    [formContainerHeight, formContentHeight]
+  )
+
+  const hasScrollAddressBookContainer = useMemo(
+    () => addressBookContentHeight > addressBookContainerHeight,
+    [addressBookContainerHeight, addressBookContentHeight]
+  )
+
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width={isTopUp ? 'sm' : 'lg'}
-      header={<Header withAmbireLogo mode="custom-inner-content" />}
+      width={isTopUp ? 'sm' : 'xl'}
+      header={<HeaderAccountAndNetworkInfo containerStyle={{ borderWidth: 0 }} />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -124,20 +140,46 @@ const TransferScreen = () => {
             style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
-            <View style={styles.container}>
-              <View style={flexbox.flex1}>
+            <View style={[flexbox.directionRow, flexbox.flex1, common.fullWidth, spacings.pvXl]}>
+              <ScrollView
+                style={[flexbox.flex1, hasScrollFormContainer ? spacings.pr : spacings.pr0]}
+                contentContainerStyle={{ flexGrow: 1 }}
+                onLayout={(e) => {
+                  setFormContainerHeight(e.nativeEvent.layout.height)
+                }}
+                onContentSizeChange={(_, height) => {
+                  setFormContentHeight(height)
+                }}
+              >
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
                 />
-              </View>
+              </ScrollView>
               {!isTopUp && (
                 <>
-                  <View style={styles.separator} />
-                  <View style={flexbox.flex1}>
+                  <View
+                    style={[
+                      styles.separator,
+                      { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
+                    ]}
+                  />
+                  <ScrollView
+                    style={[
+                      flexbox.flex1,
+                      hasScrollAddressBookContainer ? spacings.pr : spacings.pr0
+                    ]}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    onLayout={(e) => {
+                      setAddressBookContainerHeight(e.nativeEvent.layout.height)
+                    }}
+                    onContentSizeChange={(_, height) => {
+                      setAddressBookContentHeight(height)
+                    }}
+                  >
                     <AddressBookSection />
-                  </View>
+                  </ScrollView>
                 </>
               )}
             </View>
@@ -162,4 +204,4 @@ const TransferScreen = () => {
   )
 }
 
-export default TransferScreen
+export default React.memo(TransferScreen)
