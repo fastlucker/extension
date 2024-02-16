@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { Avatar } from '@common/components/Avatar'
+import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
@@ -42,11 +43,15 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
   const fontSize = useMemo(() => {
-    return maxWidthSize(650) ? 16 : 14
+    return maxWidthSize(750) ? 16 : 14
   }, [maxWidthSize])
 
+  const account = useMemo(() => {
+    return mainCtrl.accounts.find((acc) => acc.addr === mainCtrl.selectedAccount)
+  }, [mainCtrl.accounts, mainCtrl.selectedAccount])
+
   return (
-    <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(600)}>
+    <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>
       <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
@@ -54,11 +59,15 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             {selectedAccountLabel}{' '}
           </Text>
           <Text appearance="primaryText" weight="medium" fontSize={fontSize}>
-            ({minWidthSize(800) && shortenAddress(selectedAccount, 12)}
-            {maxWidthSize(800) && minWidthSize(900) && shortenAddress(selectedAccount, 20)}
-            {maxWidthSize(900) && minWidthSize(1050) && shortenAddress(selectedAccount, 30)}
-            {maxWidthSize(1050) && selectedAccount}){' '}
+            ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
+            {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
+            {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}
+            {maxWidthSize(1150) && selectedAccount}){' '}
           </Text>
+          <Badge
+            type={!account?.creation ? 'warning' : 'success'}
+            text={!account?.creation ? t('Basic Account') : t('Smart Account')}
+          />
           {!!networkName && !!networkId && (
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}>
               <Text appearance="secondaryText" weight="regular" fontSize={fontSize}>
@@ -67,13 +76,13 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
               <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
                 {networkName || t('Unknown network')}
               </Text>
-              {networkId && maxWidthSize(700) ? (
+              {networkId && maxWidthSize(800) ? (
                 <NetworkIcon name={networkId} style={styles.networkIcon} />
               ) : null}
             </View>
           )}
         </View>
-        {!!withAmbireLogo && maxWidthSize(600) && <AmbireLogoHorizontal />}
+        {!!withAmbireLogo && maxWidthSize(700) && <AmbireLogoHorizontal />}
       </View>
     </Header>
   )
