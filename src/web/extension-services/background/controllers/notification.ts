@@ -196,26 +196,28 @@ export class NotificationController extends EventEmitter {
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
         this.deleteNotificationRequest(notificationRequest)
+        this.currentNotificationRequest = null
         if (
           isSignAccountOpMethod(notificationRequest.params?.method) &&
           data?.hash &&
           data?.networkId
         ) {
-          const newRequest = {
-            id: new Date().getTime(),
-            screen: 'Benzin',
-            params: {
-              networkId: notificationRequest.networkId,
-              txnId: data.hash,
-              isUserOp: !!data?.isUserOp
+          this.requestNotificationRequest(
+            {
+              screen: 'Benzin',
+              params: {
+                method: 'benzin',
+                networkId: notificationRequest.networkId,
+                txnId: data.hash,
+                isUserOp: !!data?.isUserOp
+              },
+              resolve: () => {},
+              reject: () => {}
             },
-            resolve: () => {},
-            reject: () => {}
-          }
+            undefined,
+            false
+          )
 
-          this.currentNotificationRequest = newRequest
-
-          this.emitUpdate()
           return
         }
       } else {
@@ -289,6 +291,12 @@ export class NotificationController extends EventEmitter {
     winProps?: any,
     openNewWindow: boolean = true
   ): Promise<any> => {
+    // Delete the current notification request if it's a benzin request
+    if (this.currentNotificationRequest?.params?.method === 'benzin') {
+      this.deleteNotificationRequest(this.currentNotificationRequest)
+      this.currentNotificationRequest = null
+    }
+
     return new Promise((resolve, reject) => {
       const id = new Date().getTime()
       const notificationRequest: NotificationRequest = {
