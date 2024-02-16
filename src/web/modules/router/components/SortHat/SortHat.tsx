@@ -27,7 +27,6 @@ const SortHat = () => {
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
       window.close()
-      console.log('ClooooSed')
       return
     }
 
