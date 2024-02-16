@@ -14,9 +14,13 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SendTransaction',
   'SignText',
   'SignTypedData',
-  'LedgerHardwareWaiting',
-  'Benzin'
+  'LedgerHardwareWaiting'
 ]
+
+export const BENZIN_NOTIFICATION_DATA = {
+  screen: 'Benzin',
+  method: 'benzin'
+}
 
 export const SIGN_METHODS = [
   'eth_signTypedData',
@@ -204,9 +208,9 @@ export class NotificationController extends EventEmitter {
         ) {
           this.requestNotificationRequest(
             {
-              screen: 'Benzin',
+              screen: BENZIN_NOTIFICATION_DATA.screen,
               params: {
-                method: 'benzin',
+                method: BENZIN_NOTIFICATION_DATA.method,
                 networkId: notificationRequest.networkId,
                 txnId: data.hash,
                 isUserOp: !!data?.isUserOp
@@ -292,7 +296,7 @@ export class NotificationController extends EventEmitter {
     openNewWindow: boolean = true
   ): Promise<any> => {
     // Delete the current notification request if it's a benzin request
-    if (this.currentNotificationRequest?.params?.method === 'benzin') {
+    if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
       this.deleteNotificationRequest(this.currentNotificationRequest)
       this.currentNotificationRequest = null
     }

@@ -5,6 +5,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import {
+  BENZIN_NOTIFICATION_DATA,
   NotificationController,
   SIGN_METHODS
 } from '@web/extension-services/background/controllers/notification'
@@ -64,7 +65,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       state.notificationWindowId &&
       state.currentNotificationRequest &&
       !SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method) &&
-      state.currentNotificationRequest?.screen !== 'Benzin'
+      state.currentNotificationRequest?.params?.method !== BENZIN_NOTIFICATION_DATA.method
     ) {
       dispatch({
         type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
