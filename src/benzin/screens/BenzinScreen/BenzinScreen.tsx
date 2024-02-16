@@ -1,5 +1,5 @@
 import { setStringAsync } from 'expo-clipboard'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -22,7 +22,7 @@ import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/B
 import Buttons from './components/Buttons'
 import Header from './components/Header'
 import Steps from './components/Steps'
-import useSteps from './components/Steps/hooks/useSteps'
+import useSteps from './hooks/useSteps'
 import getStyles from './styles'
 
 function produceMemoryStore(): Storage {
