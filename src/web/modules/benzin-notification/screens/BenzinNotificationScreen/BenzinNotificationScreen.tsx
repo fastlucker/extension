@@ -30,6 +30,7 @@ const BenzinNotificationScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
+      withHorizontalPadding={false}
       footer={
         <>
           <Button
