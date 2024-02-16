@@ -4,7 +4,7 @@ import { Linking, View, ViewStyle } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { getKnownAddressLabels } from '@ambire-common/libs/account/account'
-import { callsHumanizer } from '@ambire-common/libs/humanizer'
+import { HUMANIZER_META_KEY, callsHumanizer } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -89,7 +89,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
   useEffect(() => {
     ;(async () => {
-      const meta = await storage.get('HumanizerMeta', {})
+      const meta = await storage.get(HUMANIZER_META_KEY, {})
       const res = tokenParsing(
         {
           humanizerMeta: meta,
