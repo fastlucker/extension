@@ -29,6 +29,7 @@ const BenzinNotificationScreen = () => {
 
   return (
     <TabLayoutContainer
+      width="full"
       footer={
         <>
           <Button
