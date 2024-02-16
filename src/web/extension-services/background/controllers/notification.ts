@@ -137,6 +137,10 @@ export class NotificationController extends EventEmitter {
   }
 
   openNotificationRequest = async (notificationId: number) => {
+    if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
+      this.deleteNotificationRequest(this.currentNotificationRequest)
+      this.currentNotificationRequest = null
+    }
     try {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
