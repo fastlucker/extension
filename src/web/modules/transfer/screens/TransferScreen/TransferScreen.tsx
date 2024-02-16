@@ -98,7 +98,7 @@ const TransferScreen = () => {
             }
             onPress={sendTransaction}
             hasBottomSpacing={false}
-            style={{ minWidth: 124 }}
+            size="large"
             disabled={
               !!userRequest ||
               !isFormValid ||

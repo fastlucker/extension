@@ -81,7 +81,7 @@ const CreateSeedPhraseWriteScreen = () => {
           <Button
             accessibilityRole="button"
             text={t('Continue')}
-            style={{ minWidth: 180 }}
+            size="large"
             hasBottomSpacing={false}
             onPress={() => {
               navigate(WEB_ROUTES.createSeedPhraseConfirm, {

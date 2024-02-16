@@ -101,6 +101,7 @@ const AccountPersonalizeScreen = () => {
       footer={
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
+            size="large"
             onPress={handleSubmit(handleSave)}
             hasBottomSpacing={false}
             text={t('Save and Continue')}

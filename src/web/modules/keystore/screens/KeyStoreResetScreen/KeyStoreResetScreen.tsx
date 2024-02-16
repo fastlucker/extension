@@ -91,6 +91,7 @@ const KeyStoreResetScreen = () => {
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
             disabled={!isValid || isWaitingConfirmation}
+            size="large"
             onPress={!ev.hasConfirmedRecoveryEmail ? handleSendResetEmail : handleCompleteReset}
             style={styles.button}
             hasBottomSpacing={false}

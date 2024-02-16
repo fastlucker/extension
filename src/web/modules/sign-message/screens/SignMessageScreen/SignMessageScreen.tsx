@@ -16,6 +16,7 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -287,20 +288,22 @@ const SignMessageScreen = () => {
           <Button
             text="Reject"
             type="danger"
-            style={styles.rejectButton}
-            textStyle={styles.rejectButtonText}
+            size="large"
+            hasBottomSpacing={false}
             onPress={handleReject}
           >
-            <CloseIcon color={theme.errorDecorative} />
+            <View style={spacings.mlSm}>
+              <CloseIcon color={theme.errorDecorative} />
+            </View>
           </Button>
 
           {isScrollToBottomForced && !isViewOnly ? (
-            <Text appearance="errorText" weight="medium">
+            <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
               {t('Please read the message before signing.')}
             </Text>
           ) : null}
           {isViewOnly ? (
-            <Text appearance="errorText" weight="medium">
+            <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
               {t("You can't sign messages with view-only accounts.")}
             </Text>
           ) : null}
@@ -308,7 +311,8 @@ const SignMessageScreen = () => {
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
             disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
             type="primary"
-            style={styles.signButton}
+            size="large"
+            hasBottomSpacing={false}
             onPress={onSignButtonClick}
           />
         </View>

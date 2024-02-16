@@ -94,7 +94,7 @@ const DappConnectScreen = () => {
             text={t('Deny')}
             type="danger"
             hasBottomSpacing={false}
-            style={spacings.phLg}
+            size="large"
             onPress={handleDenyButtonPress}
           >
             <View style={spacings.pl}>
@@ -122,6 +122,7 @@ const DappConnectScreen = () => {
           </View>
           <Button
             style={spacings.phLg}
+            size="large"
             hasBottomSpacing={false}
             onPress={handleAuthorizeButtonPress}
             disabled={isAuthorizing}

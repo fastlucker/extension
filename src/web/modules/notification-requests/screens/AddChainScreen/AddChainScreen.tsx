@@ -75,7 +75,7 @@ const AddChainScreen = () => {
             text={t('Deny')}
             type="danger"
             hasBottomSpacing={false}
-            style={spacings.phLg}
+            size="large"
             onPress={handleDenyButtonPress}
           >
             <View style={spacings.pl}>
