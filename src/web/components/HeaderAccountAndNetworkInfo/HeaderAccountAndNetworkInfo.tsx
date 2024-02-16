@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { View } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { Avatar } from '@common/components/Avatar'
@@ -12,7 +12,7 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
-import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -24,13 +24,11 @@ import getStyles from './styles'
 interface Props {
   networkName?: string
   networkId?: NetworkIconNameType
-  containerStyle?: ViewStyle
   withAmbireLogo?: boolean
 }
 const HeaderAccountAndNetworkInfo: FC<Props> = ({
   networkName,
   networkId,
-  containerStyle = {},
   withAmbireLogo = true
 }) => {
   const { t } = useTranslation()
