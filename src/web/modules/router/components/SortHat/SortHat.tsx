@@ -102,7 +102,7 @@ const SortHat = () => {
         return navigate(
           `${ROUTES.benzin}?networkId=${
             notificationState.currentNotificationRequest.params.networkId
-          }&txnId=${notificationState.currentNotificationRequest?.params?.txnId}${
+          }&txnId=${notificationState.currentNotificationRequest?.params?.txnId}&isInternal${
             notificationState.currentNotificationRequest?.params?.isUserOp ? '&isUserOp=true' : ''
           }`
         )

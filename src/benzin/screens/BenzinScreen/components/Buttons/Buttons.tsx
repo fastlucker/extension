@@ -1,4 +1,3 @@
-import { setStringAsync } from 'expo-clipboard'
 import React, { FC } from 'react'
 import { Pressable, View } from 'react-native'
 
@@ -7,28 +6,18 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '../../styles'
 import getStyles from './styles'
 
 interface Props {
+  handleCopyText: () => void
   handleOpenExplorer: () => void
 }
 
-const Buttons: FC<Props> = ({ handleOpenExplorer }) => {
-  const { addToast } = useToast()
+const Buttons: FC<Props> = ({ handleCopyText, handleOpenExplorer }) => {
   const { styles, theme } = useTheme(getStyles)
-
-  const handleCopyText = async () => {
-    try {
-      await setStringAsync(window.location.href)
-    } catch {
-      addToast('Error copying to clipboard', { type: 'error' })
-    }
-    addToast('Copied to clipboard!')
-  }
 
   return (
     <View style={styles.buttons}>

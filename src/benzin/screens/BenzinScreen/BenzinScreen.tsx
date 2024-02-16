@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react'
+import { setStringAsync } from 'expo-clipboard'
+import React, { useCallback, useMemo, useState } from 'react'
 import { ImageBackground, Linking, ScrollView, View } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -14,7 +15,9 @@ import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/BenzinNotificationScreen'
 
 import Buttons from './components/Buttons'
 import Header from './components/Header'
@@ -60,11 +63,13 @@ const standardOptions = {
 
 const BenzinScreen = () => {
   const { styles } = useTheme(getStyles)
+  const { addToast } = useToast()
   const route = useRoute()
 
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId')
   const userOpHash = params.get('userOpHash') ?? null
+  const isRenderedInternally = typeof params.get('isInternal') === 'string'
   const [networkId, isUserOp] = [
     params.get('networkId'),
     userOpHash?.length === 66 || typeof params.get('isUserOp') === 'string'
@@ -87,32 +92,75 @@ const BenzinScreen = () => {
     setActiveStep
   })
 
+  const handleCopyText = useCallback(async () => {
+    try {
+      let address = window.location.href
+
+      if (isRenderedInternally) {
+        address = `https://benzin.ambire.com/?txnId=${txnId}&networkId=${networkId}${
+          isUserOp ? '&isUserOp' : ''
+        }`
+      }
+
+      await setStringAsync(address)
+    } catch {
+      addToast('Error copying to clipboard', { type: 'error' })
+    }
+    addToast('Copied to clipboard!')
+  }, [addToast, isRenderedInternally, isUserOp, networkId, txnId])
+
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
     const realTxnId = stepsState.userOpStatusData.txnId ?? txnId
     await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
   }, [network, txnId, stepsState])
 
-  return (
-    <ImageBackground
-      style={styles.backgroundImage}
-      source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
-      resizeMode="cover"
+  const Benzin = useCallback(
+    () => (
+      <ImageBackground
+        style={styles.backgroundImage}
+        source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
+        resizeMode="cover"
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.content}>
+            <Header activeStep={activeStep} network={network} stepsState={stepsState} />
+            <Steps
+              activeStep={activeStep}
+              network={network}
+              txnId={txnId}
+              handleOpenExplorer={handleOpenExplorer}
+              stepsState={stepsState}
+            />
+            {!isRenderedInternally && (
+              <Buttons handleCopyText={handleCopyText} handleOpenExplorer={handleOpenExplorer} />
+            )}
+          </View>
+        </ScrollView>
+      </ImageBackground>
+    ),
+    [
+      activeStep,
+      handleCopyText,
+      handleOpenExplorer,
+      isRenderedInternally,
+      network,
+      stepsState,
+      styles.backgroundImage,
+      styles.container,
+      styles.content,
+      txnId
+    ]
+  )
+
+  return isRenderedInternally ? (
+    <BenzinNotificationScreen
+      buttons={<Buttons handleCopyText={handleCopyText} handleOpenExplorer={handleOpenExplorer} />}
     >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.content}>
-          <Header activeStep={activeStep} network={network} stepsState={stepsState} />
-          <Steps
-            activeStep={activeStep}
-            network={network}
-            txnId={txnId}
-            handleOpenExplorer={handleOpenExplorer}
-            stepsState={stepsState}
-          />
-          <Buttons handleOpenExplorer={handleOpenExplorer} />
-        </View>
-      </ScrollView>
-    </ImageBackground>
+      <Benzin />
+    </BenzinNotificationScreen>
+  ) : (
+    <Benzin />
   )
 }
 
