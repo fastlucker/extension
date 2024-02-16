@@ -17,6 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -33,7 +34,6 @@ import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary
 import { getUiType } from '@web/utils/uiType'
 
 import FallbackVisualization from './FallbackVisualization'
-import Header from './Header/Header'
 import Info from './Info'
 import styles from './styles'
 
@@ -278,9 +278,9 @@ const SignMessageScreen = () => {
     <TabLayoutContainer
       width="full"
       header={
-        <Header
-          networkId={networkData?.id as NetworkIconNameType}
+        <HeaderAccountAndNetworkInfo
           networkName={networkData?.name}
+          networkId={networkData?.id as NetworkIconNameType}
         />
       }
       footer={
