@@ -17,8 +17,8 @@ const getStyles = () =>
         ? flexbox.directionRow
         : { flexDirection: 'column-reverse' }),
       ...flexbox.alignCenter,
-      ...flexbox.justifyCenter
-      // ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : spacings.mbMd)
+      ...flexbox.justifyCenter,
+      ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : spacings.mbMd)
     },
     openExplorer: {
       ...flexbox.directionRow,

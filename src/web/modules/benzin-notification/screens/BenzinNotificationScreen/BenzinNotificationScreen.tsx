@@ -1,27 +1,31 @@
-import React, { FC } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import Benzin from '@benzin/screens/BenzinScreen/components/Benzin/Benzin'
+import Buttons from '@benzin/screens/BenzinScreen/components/Buttons'
+import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
 import Button from '@common/components/Button'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-interface Props {
-  buttons: React.ReactNode
-  children: React.ReactElement
-}
-
-const BenzinNotificationScreen: FC<Props> = ({ children, buttons }) => {
+const BenzinNotificationScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
 
-  const closeNotification = () => {
+  const closeNotification = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: {
         data: {}
       }
     })
-  }
+  }, [dispatch])
+
+  const state = useBenzin({
+    onOpenExplorer: closeNotification
+  })
 
   return (
     <TabLayoutContainer
@@ -34,11 +38,17 @@ const BenzinNotificationScreen: FC<Props> = ({ children, buttons }) => {
             hasBottomSpacing={false}
             text={t('Close')}
           />
-          {buttons}
+          {state?.handleCopyText && state?.handleOpenExplorer ? (
+            <Buttons
+              handleCopyText={state.handleCopyText}
+              handleOpenExplorer={state.handleOpenExplorer}
+              style={{ ...flexbox.directionRow, ...spacings.mb0 }}
+            />
+          ) : null}
         </>
       }
     >
-      {children}
+      <Benzin state={state} />
     </TabLayoutContainer>
   )
 }
