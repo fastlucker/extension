@@ -145,10 +145,10 @@ const TransactionSummary = ({
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${
-                        item.readableAmount ||
-                        formatUnits(item.amount || '0x0', item.decimals || 18)
-                      } `}
+                      {` ${formatUnits(
+                        item.amount || '0x0',
+                        item?.humanizerMeta?.token?.decimals || 18
+                      )} `}
                     </Text>
                   ) : null}
 
@@ -160,15 +160,21 @@ const TransactionSummary = ({
                       address={item.address}
                     />
                   ) : null}
-                  {item.symbol ? (
+                  {item?.humanizerMeta?.token ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${item.symbol || ''} `}
+                      {` ${item?.humanizerMeta?.token?.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {t(' units of unknown token ')}
                     </Text>
-                  ) : null}
+                  ) : (
+                    // there are cases where the humanizer would return token with amount = 0
+                    // still, not having humanizerMeta.token is bad
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                      {t('unknown token ')}
+                    </Text>
+                  )}
                 </Fragment>
               )
             }
@@ -177,7 +183,7 @@ const TransactionSummary = ({
               return (
                 <Fragment key={Number(item.id) || i}>
                   <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                    {` ${item.name ? item.name : item.address} `}
+                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
@@ -201,7 +207,7 @@ const TransactionSummary = ({
                   weight="medium"
                   appearance="primaryText"
                 >
-                  {` ${item.name || item.address} `}
+                  {` ${item?.humanizerMeta?.name || item.address} `}
                 </Text>
               )
             }

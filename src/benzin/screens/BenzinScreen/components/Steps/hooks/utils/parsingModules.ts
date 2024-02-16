@@ -1,6 +1,6 @@
 import { HumanizerParsingModule } from '@ambire-common/libs/humanizer/interfaces'
-import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
+import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
 
-const parsingModules: HumanizerParsingModule[] = [tokenParsing]
+const parsingModules: HumanizerParsingModule[] = [humanizerMetaParsing]
 
 export default parsingModules

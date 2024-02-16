@@ -1,12 +1,11 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking, View, ViewStyle } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
-import { getKnownAddressLabels } from '@ambire-common/libs/account/account'
 import { HUMANIZER_META_KEY, callsHumanizer } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { tokenParsing } from '@ambire-common/libs/humanizer/parsers/tokenParsing'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -19,6 +18,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
 import getStyles from './styles'
 
 interface Props {
@@ -40,15 +40,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   useEffect(() => {
-    const knownAddressLabels = getKnownAddressLabels(
-      mainState.accounts,
-      settingsState.accountPreferences,
-      keystoreState.keys,
-      settingsState.keyPreferences
-    )
     callsHumanizer(
       submittedAccountOp,
-      knownAddressLabels,
       storage,
       fetch,
       (calls) => {
@@ -81,16 +74,16 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     const fee = parseFloat(
       formatUnits(
         submittedAccountOpFee!.amount || submittedAccountOp.gasFeePayment!.amount,
-        submittedAccountOpFee.decimals
+        submittedAccountOpFee?.humanizerMeta?.token?.decimals
       )
     )
-    return `${formatDecimals(fee)} ${submittedAccountOpFee.symbol}`
+    return `${formatDecimals(fee)} ${submittedAccountOpFee?.humanizerMeta?.token?.symbol}`
   }, [submittedAccountOp.gasFeePayment, submittedAccountOpFee])
 
   useEffect(() => {
     ;(async () => {
       const meta = await storage.get(HUMANIZER_META_KEY, {})
-      const res = tokenParsing(
+      const res = humanizerMetaParsing(
         {
           humanizerMeta: meta,
           accountAddr: submittedAccountOp.accountAddr,
