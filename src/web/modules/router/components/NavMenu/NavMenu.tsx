@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -21,8 +21,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  tabLayoutWidths,
-  TabLayoutWrapperMainContent
+  tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -164,25 +163,37 @@ const NavMenu = () => {
           </View>
         </View>
 
-        <TabLayoutWrapperMainContent style={commonWebStyles.contentContainer}>
-          <View style={[spacings.ph]}>
-            <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
+        <View style={[commonWebStyles.contentContainer, flexbox.flex1, spacings.pt]}>
+          <View style={[spacings.ph, flexbox.flex1]}>
+            <Text
+              fontSize={20}
+              weight="medium"
+              style={[SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb, spacings.pl]}
+            >
               {t('Settings')}
             </Text>
-            {SETTINGS_LINKS.map((link) => (
-              <NavLink
-                {...link}
-                isActive={false}
-                style={{
-                  width: '100%'
-                }}
-              />
-            ))}
+            <ScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={[flexbox.directionRow, flexbox.wrap, flexbox.alignStart]}>
+                {SETTINGS_LINKS.map((link, i) => (
+                  <NavLink
+                    {...link}
+                    isActive={false}
+                    style={{
+                      width: '50%',
+                      ...spacings.mv0,
+                      ...(i !== SETTINGS_LINKS.length - 1 && i !== SETTINGS_LINKS.length - 2
+                        ? spacings.mbTy
+                        : spacings.mb0)
+                    }}
+                  />
+                ))}
+              </View>
+            </ScrollView>
           </View>
           <View style={styles.separatorWrapper}>
             <View style={styles.separator} />
           </View>
-          <View style={[flexbox.directionRow, spacings.ph, spacings.pbLg]}>
+          <View style={[flexbox.directionRow, spacings.ph, spacings.pb]}>
             {SOCIAL.map(({ Icon, url, label }) => (
               <Pressable
                 style={() => [
@@ -214,7 +225,7 @@ const NavMenu = () => {
               </Pressable>
             ))}
           </View>
-        </TabLayoutWrapperMainContent>
+        </View>
       </View>
     </TabLayoutContainer>
   )
