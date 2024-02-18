@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
@@ -19,9 +19,9 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import flexboxStyles from '@common/styles/utils/flexbox'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
+
+import getStyles from './styles'
 
 export const SETTINGS_LINKS = [
   {
@@ -93,25 +93,27 @@ const OTHER_LINKS = [
 ]
 
 const Sidebar = ({ activeLink }: { activeLink: string }) => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { maxWidthSize } = useWindowSize()
   const isWidthXl = maxWidthSize('xl')
 
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [contentHeight, setContentHeight] = useState(0)
+
+  const hasScrollContainer = useMemo(
+    () => contentHeight > containerHeight,
+    [containerHeight, contentHeight]
+  )
+
   return (
-    <View style={{ ...spacings.pbMd, position: 'relative' }}>
+    <View style={{ ...spacings.pbLg, position: 'relative', height: '100%' }}>
       <Pressable
         style={({ hovered }: any) => [
-          isWidthXl ? spacings.mbLg : spacings.mb,
-          spacings.pv,
-          spacings.ph,
-          flexboxStyles.directionRow,
-          flexboxStyles.alignCenter,
+          styles.backToDashboardButton,
           {
-            width: '100%',
-            backgroundColor: hovered ? theme.tertiaryBackground : 'transparent',
-            borderRadius: BORDER_RADIUS_PRIMARY
+            backgroundColor: hovered ? theme.tertiaryBackground : 'transparent'
           }
         ]}
         onPress={() => navigate(ROUTES.dashboard)}
@@ -121,29 +123,40 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           {t('Dashboard')}
         </Text>
       </Pressable>
-      <Text style={[spacings.ml, spacings.mbLg]} fontSize={20} weight="medium">
+      <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      {SETTINGS_LINKS.map((link) => {
-        const isActive = activeLink === link.key
-
-        return <SettingsLink {...link} isActive={isActive} />
-      })}
-      <View
-        style={{
-          width: '100%',
-          borderBottomWidth: 2,
-          borderColor: theme.secondaryBorder,
-          ...(isWidthXl ? spacings.mvXl : spacings.mv)
+      <ScrollView
+        style={[hasScrollContainer ? spacings.prTy : spacings.pr0]}
+        contentContainerStyle={{ flexGrow: 1 }}
+        onLayout={(e) => {
+          setContainerHeight(e.nativeEvent.layout.height)
         }}
-      />
-      {OTHER_LINKS.map((link) => {
-        const isActive = activeLink === link.key
+        onContentSizeChange={(_, height) => {
+          setContentHeight(height)
+        }}
+      >
+        {SETTINGS_LINKS.map((link) => {
+          const isActive = activeLink === link.key
 
-        return <SettingsLink {...link} isActive={isActive} />
-      })}
+          return <SettingsLink {...link} isActive={isActive} />
+        })}
+        <View
+          style={{
+            width: '100%',
+            borderBottomWidth: 1,
+            borderColor: theme.secondaryBorder,
+            ...(isWidthXl ? spacings.mvXl : spacings.mv)
+          }}
+        />
+        {OTHER_LINKS.map((link) => {
+          const isActive = activeLink === link.key
+
+          return <SettingsLink {...link} isActive={isActive} />
+        })}
+      </ScrollView>
     </View>
   )
 }
 
-export default Sidebar
+export default React.memo(Sidebar)

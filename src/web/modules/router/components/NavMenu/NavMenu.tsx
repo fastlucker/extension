@@ -26,7 +26,7 @@ import {
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import NavLink from '@web/modules/settings/components/SettingsLink'
+import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import { SETTINGS_LINKS } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
@@ -175,12 +175,11 @@ const NavMenu = () => {
             <ScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <View style={[flexbox.directionRow, flexbox.wrap, flexbox.alignStart]}>
                 {SETTINGS_LINKS.map((link, i) => (
-                  <NavLink
+                  <SettingsLink
                     {...link}
                     isActive={false}
                     style={{
                       width: '50%',
-                      ...spacings.mv0,
                       ...(i !== SETTINGS_LINKS.length - 1 && i !== SETTINGS_LINKS.length - 2
                         ? spacings.mbTy
                         : spacings.mb0)

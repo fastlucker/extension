@@ -8,7 +8,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
@@ -61,7 +61,6 @@ const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, styl
         spacings.pv,
         {
           borderRadius: BORDER_RADIUS_PRIMARY,
-          marginVertical: SPACING_MI / 2,
           width: 250,
           backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent',
           opacity: isDisabled ? 0.6 : 1
