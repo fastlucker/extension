@@ -25,9 +25,6 @@ export const DEVICE_WIDTH = isWeb ? WEB_DEVICE_WIDTH : Dimensions.get('window').
 const WEB_DEVICE_HEIGHT = 600
 export const DEVICE_HEIGHT = isWeb ? WEB_DEVICE_HEIGHT : Dimensions.get('window').height
 
-export const IS_SCREEN_SIZE_DESKTOP_LARGE = isWeb && Dimensions.get('window').width >= 1440
-export const IS_SCREEN_SIZE_TAB_CONTENT_UP =
-  isWeb && Dimensions.get('window').width > TAB_CONTENT_WIDTH
 export const IS_SCREEN_SIZE_L = !isWeb && DEVICE_WIDTH >= 768
 export const IS_SCREEN_SIZE_S = !isWeb && (DEVICE_HEIGHT <= 670 || DEVICE_WIDTH <= 370)
 

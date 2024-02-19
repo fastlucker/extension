@@ -14,7 +14,8 @@ import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
@@ -53,7 +54,7 @@ const SignAccountOpScreen = () => {
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
   const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
   const [estimationContentHeight, setEstimationContentHeight] = useState(0)
-
+  const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
@@ -460,7 +461,7 @@ const SignAccountOpScreen = () => {
           <View
             style={[
               styles.separator,
-              IS_SCREEN_SIZE_DESKTOP_LARGE
+              maxWidthSize('xl')
                 ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
                 : { ...spacings.mrXl, ...spacings.ml }
             ]}
