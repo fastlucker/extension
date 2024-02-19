@@ -19,6 +19,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
+import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { pinnedTokens } from '@common/constants/tokens'
@@ -46,7 +47,6 @@ import LedgerKeyIterator from '@web/modules/hardware-wallet/libs/ledgerKeyIterat
 import LedgerSigner from '@web/modules/hardware-wallet/libs/LedgerSigner'
 import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterator'
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
-import { addGettersToControllerState } from '@web/utils/addGettersToControllerState'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
@@ -250,10 +250,7 @@ async function init() {
             params: ctrl
           })
         })
-        logInfoWithPrefix(
-          `onUpdate (${ctrlName} ctrl)`,
-          addGettersToControllerState(stateToLog || mainCtrl)
-        )
+        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -320,15 +317,12 @@ async function init() {
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            const errors = (mainCtrl as any)[ctrlName].getErrors()
-            const lastError = errors[errors.length - 1]
-            if (lastError) console.error(lastError.error)
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, addGettersToControllerState(mainCtrl))
+            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
               backgroundState.portMessageUIRefs[key]?.send('broadcast', {
                 type: 'broadcast-error',
                 method: ctrlName,
-                params: { errors, controller: ctrlName }
+                params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
               })
             })
           }, 'background')
@@ -348,15 +342,12 @@ async function init() {
     }
   }, 'background')
   mainCtrl.onError(() => {
-    const errors = mainCtrl.getErrors()
-    const lastError = errors[errors.length - 1]
-    if (lastError) console.error(lastError.error)
-    logInfoWithPrefix('onError (main ctrl)', addGettersToControllerState(mainCtrl))
+    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'main',
-        params: { errors, controller: 'main' }
+        params: { errors: mainCtrl.emittedErrors, controller: 'main' }
       })
     })
   })
@@ -366,14 +357,11 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
   })
   walletStateCtrl.onError(() => {
-    const errors = walletStateCtrl.getErrors()
-    const lastError = errors[errors.length - 1]
-    if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'walletState',
-        params: { errors, controller: 'walletState' }
+        params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
       })
     })
   })
@@ -383,14 +371,11 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
   })
   notificationCtrl.onError(() => {
-    const errors = notificationCtrl.getErrors()
-    const lastError = errors[errors.length - 1]
-    if (lastError) console.error(lastError.error)
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
       backgroundState.portMessageUIRefs[key]?.send('broadcast', {
         type: 'broadcast-error',
         method: 'notification',
-        params: { errors, controller: 'notification' }
+        params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
       })
     })
   })
