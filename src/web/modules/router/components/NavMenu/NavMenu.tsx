@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
@@ -15,6 +14,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
+import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
@@ -44,11 +44,11 @@ const SOCIAL = [
   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
 ]
 
-const { isTab, isPopup } = getUiType()
+const { isTab } = getUiType()
 
 const NavMenu = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { dispatch } = useBackgroundService()
@@ -80,22 +80,7 @@ const NavMenu = () => {
         <Header withPopupBackButton mode="custom">
           <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
             <View style={[headerStyles.sideContainer, { width: 130 }]}>
-              {!!isPopup && (
-                <Pressable
-                  style={[flexbox.directionRow, flexbox.alignCenter]}
-                  onPress={() => goBack()}
-                >
-                  <LeftArrowIcon />
-                  <Text
-                    style={spacings.plTy}
-                    fontSize={16}
-                    weight="medium"
-                    appearance="secondaryText"
-                  >
-                    {t('Back')}
-                  </Text>
-                </Pressable>
-              )}
+              <HeaderBackButton />
             </View>
             <View style={headerStyles.containerInner}>
               <Text
