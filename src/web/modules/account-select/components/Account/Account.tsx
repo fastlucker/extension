@@ -106,7 +106,6 @@ const Account = ({
                 iconWidth={20}
                 iconHeight={20}
                 style={{
-                  ...spacings.mrTy,
                   backgroundColor: 'transparent',
                   borderColor: 'transparent'
                 }}
