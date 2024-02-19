@@ -16,7 +16,6 @@ import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
@@ -96,8 +95,6 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { maxWidthSize } = useWindowSize()
-  const isWidthXl = maxWidthSize('xl')
 
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
@@ -146,7 +143,7 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
             width: '100%',
             borderBottomWidth: 1,
             borderColor: theme.secondaryBorder,
-            ...(isWidthXl ? spacings.mvXl : spacings.mv)
+            ...spacings.mv
           }}
         />
         {OTHER_LINKS.map((link) => {
