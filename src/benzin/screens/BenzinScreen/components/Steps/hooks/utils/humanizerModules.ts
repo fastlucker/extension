@@ -11,7 +11,6 @@ import {
 import { uniswapHumanizer } from '@ambire-common/libs/humanizer/modules/Uniswap'
 import { WALLETModule } from '@ambire-common/libs/humanizer/modules/WALLET'
 import { wrappingModule } from '@ambire-common/libs/humanizer/modules/wrapped'
-import { yearnVaultModule } from '@ambire-common/libs/humanizer/modules/yearnTesseractVault'
 
 const humanizerModules: HumanizerCallModule[] = [
   genericErc20Humanizer,
@@ -22,7 +21,6 @@ const humanizerModules: HumanizerCallModule[] = [
   aaveHumanizer,
   WALLETModule,
   privilegeHumanizer,
-  yearnVaultModule,
   sushiSwapModule,
   fallbackHumanizer
 ]
