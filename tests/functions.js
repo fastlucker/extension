@@ -5,10 +5,10 @@ let puppeteerArgs = [
     `--disable-extensions-except=${__dirname}/../webkit-prod/`,
     `--load-extension=${__dirname}/webkit-prod/`,
     '--disable-features=DialMediaRouteProvider',
-    
+
     // '--disable-features=ClipboardContentSetting',
-    '--clipboard-write: granted', 
-    '--clipboard-read: prompt',  
+    '--clipboard-write: granted',
+    '--clipboard-read: prompt',
 
     // '--detectOpenHandles',
     // '--start-maximized'
@@ -46,92 +46,70 @@ export async function bootStrap(options = {}) {
 }
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
-        await new Promise((r) => setTimeout(r, 1000));
-        const importButton = '[data-testid="padding-button-Next"]'
-        
+    await new Promise((r) => setTimeout(r, 1000));
+    const buttonNext = '[data-testid="padding-button-Next"]'
 
-        let attempts = 0;
-        let element = null;
 
-        while (attempts < 5) {
-            element = await page.$(importButton)
-            if (element) {
-                break;
-            } else {
-                console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
-                await new Promise((r) => setTimeout(r, 1000));
+    let attempts = 0;
+    let element = null;
 
-                await page.reload();
-                attempts++;
-            }
+    while (attempts < 5) {
+        element = await page.$(buttonNext)
+        if (element) {
+            break;
+        } else {
+            console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
+            await new Promise((r) => setTimeout(r, 1000));
+
+            await page.reload();
+            attempts++;
         }
-        if (!element) {
-            console.log('Welcome to Ambire screen not displayed after 5 attempts.');
-        }
+    }
+    if (!element) {
+        console.log('Welcome to Ambire screen not displayed after 5 attempts.');
+    }
 
-        /*Click on "Import" button */
-        await page.$eval(importButton, button => button.click());
+    /* Click on "Next" button several times to finish the onboarding */
+    await page.$eval(buttonNext, button => button.click());
 
+    await page.waitForXPath('//div[contains(text(),"Previous")]')
 
+    await page.$eval(buttonNext, button => button.click());
+    await page.$eval(buttonNext, button => button.click());
+    await page.$eval(buttonNext, button => button.click());
+    await page.$eval(buttonNext, button => button.click());
 
-await page.waitForXPath('//div[contains(text(),"Previous")]')
+    /* check the checkbox "I agree ..."*/
+    await page.$eval('[data-testid="checkbox"]', button => button.click());
+    /* Click on "Got it" */
+    await page.$eval('[data-testid="padding-button-Got-it"]', button => button.click());
 
-        /*Click on "Import" button */
-        await page.$eval(importButton, button => button.click());
+    await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]');
 
-// Wait for navigation to complete
-// await page.waitForNavigation({ waitUntil: 'networkidle0' });
-        /*Click on "Import" button */
-        await page.$eval(importButton, button => button.click());
+    /*Click on "Import" button */
+    await page.$eval(privKeyOrPhraseSelector, button => button.click());
 
+    await page.waitForFunction(() => {
+        return window.location.href.includes('/import-hot-wallet');
+    }, { timeout: 60000 });
 
+    /* Click on "Import" private key*/
+    await page.$eval(privKeyOrPhraseSelector, button => button.click());
 
-// Wait for navigation to complete
-// await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    /* type phrase */
+    const phrase = 'Password'
+    await typeText(page, '[data-testid="enter-pass-field"]', phrase)
+    await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
 
-        /*Click on "Import" button */
-        await page.$eval(importButton, button => button.click());
+    /* Click on "Set up Ambire Key Store" button */
+    await clickOnElement(page, '[data-testid="padding-button-Create"]')
 
+    const modalSelector = '[aria-modal="true"]'; // Selector for the modal
+    const buttonSelector = `${modalSelector} [data-testid="padding-button-Continue"]`;
 
-
-
-// Wait for navigation to complete
-await page.waitForNavigation({ waitUntil: 'networkidle0' });
-
-
-
-//         /*Click on "Import" button */
-        await page.$eval(importButton, button => button.click());
-//         // Wait for navigation to complete
-await page.waitForNavigation({ waitUntil: 'networkidle0' });
-
-
-
-await page.$eval(importButton, button => button.click());
-
-
-
-        await page.waitForXPath('//div[contains(text(), "Private Key")]');
-
-        /*Click on "Import" button */
-        await page.$eval(privKeyOrPhraseSelector, button => button.click());
-
-        
-
-        /* type phrase */
-        const phrase = 'Password'
-        await typeText(page, '[data-testid="enter-pass-field"]', phrase)
-        await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
-
-        /* Click on "Set up Ambire Key Store" button */
-        await clickOnElement(page, '[data-testid="padding-button-Create"]')
-
-        const modalSelector = '[aria-modal="true"]'; // Selector for the modal
-        const buttonSelector = `${modalSelector} [data-testid="padding-button-Continue"]`;
-
-        await page.waitForSelector(modalSelector); // Wait for the modal to appear
-        await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
-        await page.click(buttonSelector);
+    await page.waitForSelector(modalSelector); // Wait for the modal to appear
+    await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
+    await page.click(buttonSelector);
 
 }
 //----------------------------------------------------------------------------------------------

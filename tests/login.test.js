@@ -34,11 +34,6 @@ describe('login', () => {
         const pages = await browser.pages()
         // pages[0].close() // blank tab
         pages[1].close() // tab always opened after extension installation
-
-        // await page.evaluate(() => {
-        //     location.reload(true)
-        // })
-
     })
 
     afterEach(async () => {
@@ -85,13 +80,24 @@ describe('login', () => {
         /* Click on Import Accounts button*/
         await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
 
-        await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
+
+
+
+        await page.waitForFunction(() => {
+            return window.location.href.includes('/onboarding-completed');
+        }, { timeout: 60000 });
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
+
+
+
+
 
         /* Verify that selected accounts exist on the page */
-        const selectedLegacyAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[0].innerText);
+        const selectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', el => el[0].innerText);
         expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount);
 
-        const selectedSmartAccount = await page.$$eval('[data-testid="personalize-account"]', el => el[1].innerText);
+        const selectedSmartAccount = await page.$$eval('[data-testid="add-account"]', el => el[1].innerText);
         expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
     }));
 
@@ -164,7 +170,7 @@ describe('login', () => {
                     const inputSelector = `[placeholder="Word ${i + 1}"]`;
                     await page.type(inputSelector, wordToType);
                 }
-                
+
                 /* Check whether button is disabled */
                 const isButtonDisabled = await page.$eval('[data-testid="padding-button-Import"]', (button) => {
                     return button.getAttribute('aria-disabled');
@@ -230,6 +236,11 @@ describe('login', () => {
 
         await page.waitForXPath('//div[contains(text(), "Import Accounts from Private Key")]');
 
+        await new Promise((r) => setTimeout(r, 2000))
+        await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
+
+        await new Promise((r) => setTimeout(r, 2000))
+        await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
         /* Select one Legacy and one Smart account and keep the addresses of the accounts */
         await page.waitForSelector('[data-testid="checkbox"]')
         /* Select one Legacy account and one Smart account */
@@ -244,8 +255,8 @@ describe('login', () => {
         })
 
         /* Click on Import Accounts button*/
-        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')        
-      
+        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
+
         await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
 
         let accountName1 = 'Test-Account-1'
@@ -253,47 +264,32 @@ describe('login', () => {
 
         const editAccountNameFields = await page.$$('[data-testid="penIcon-edit-name"]');
 
-await editAccountNameFields[0].click();
-await new Promise(r=>setTimeout(r,500 ))
+        await editAccountNameFields[0].click();
+        await new Promise(r => setTimeout(r, 500))
 
-await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
+        await typeText(page, '[data-testid="edit-name-field-0"]', accountName1)
 
+        await editAccountNameFields[1].click();
+        await new Promise(r => setTimeout(r, 500))
 
+        await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
+        /* Click on "Save and Continue" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
 
-await editAccountNameFields[1].click();
-await new Promise(r=>setTimeout(r,500 ))
+        await page.waitForFunction(() => {
+            return window.location.href.includes('/onboarding-completed');
+        }, { timeout: 60000 });
 
-await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
-// const accountNameFieldSelector = '[data-testid="edit-name-field"]';
-
-// // Get all matching elements
-// const allAccountNameFields = await page.$$(accountNameFieldSelector);
-
-
-
-
-
-
-
-
-return true
-
-        /* Change the names of the chosen accounts */
-        await typeText(page, '[value="Account 1 (Legacy from Private Key)"]', accountName1)
-        await typeText(page, '[value="Account 2 (Ambire via Private Key)"]', accountName2)
-
-        /* Click on Save and Continue button */
-        const SaveButton = await page.waitForSelector('xpath///div[contains(text(), "Save and Continue")]');
-        await SaveButton.click();
-
-        /* Move to account select page */
-        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load', })
 
         /* Verify that selected accounts exist on the page */
-        const text = await page.$eval('*', el => el.innerText);
-        expect(text).toContain(accountName1);
-        expect(text).toContain(accountName2);
+        const selectedLegacyAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
+        expect(selectedLegacyAccount).toContain(accountName1);
+
+        const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
+        expect(selectedSmartAccount).toContain(accountName2);
+
     }));
 });
