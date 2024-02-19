@@ -529,19 +529,21 @@ async function init() {
                   lattice: latticeCtrl.deviceModel
                 }
 
-                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
-                  ({ accountKeyAddr, index, isLinked }) => ({
-                    addr: accountKeyAddr,
-                    type: keyType,
-                    dedicatedToOneSA: !isLinked,
-                    meta: {
-                      deviceId: deviceIds[keyType],
-                      deviceModel: deviceModels[keyType],
-                      // always defined in the case of external keys
-                      hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                      index
-                    }
-                  })
+                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                  ({ accountKeys, isLinked }) =>
+                    accountKeys.map(({ addr, index }) => ({
+                      addr,
+                      type: keyType,
+                      dedicatedToOneSA: !isLinked,
+                      meta: {
+                        deviceId: deviceIds[keyType],
+                        deviceModel: deviceModels[keyType],
+                        // always defined in the case of external keys
+                        hdPathTemplate: mainCtrl.accountAdder
+                          .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                        index
+                      }
+                    }))
                 )
 
                 readyToAddKeys.external = readyToAddExternalKeys

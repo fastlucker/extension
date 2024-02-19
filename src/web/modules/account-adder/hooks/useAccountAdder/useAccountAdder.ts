@@ -148,6 +148,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
           )
 
+        // TODO: Change based on the new structure
         const readyToAddInternalKeys = accountAdderState.selectedAccounts.map((acc) => {
           let privateKey = privKeyOrSeed
 
@@ -185,12 +186,12 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       readyToAddKeys.externalTypeOnly = keyType
     }
 
-    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.map(
-      ({ accountKeyAddr, slot, index }) => ({
-        addr: accountKeyAddr,
+    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.flatMap(({ accountKeys }) =>
+      accountKeys.map(({ addr, slot, index }) => ({
+        addr,
         type: keyType,
         label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
-      })
+      }))
     )
 
     const readyToAddAccountPreferences = getDefaultAccountPreferences(
