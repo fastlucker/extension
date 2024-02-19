@@ -7,6 +7,8 @@ import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 
 type ContextReturn = {
   state: TransferControllerState
@@ -49,7 +51,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
       params: {
-        humanizerInfo: constants.humanizerInfo
+        humanizerInfo: humanizerInfo as HumanizerMeta
       }
     })
   }, [constants, dispatch])
