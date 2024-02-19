@@ -417,7 +417,6 @@ const useSteps = ({
       }
       callsHumanizer(
         accountOp,
-        {},
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
