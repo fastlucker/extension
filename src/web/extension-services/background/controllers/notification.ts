@@ -464,6 +464,7 @@ export class NotificationController extends EventEmitter {
   toJSON() {
     return {
       ...this,
+      ...super.toJSON(),
       notificationRequests: this.notificationRequests // includes the getter in the stringified instance
     }
   }

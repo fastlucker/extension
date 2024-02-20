@@ -28,11 +28,19 @@ const useWindowSize = (): WindowSizeProps => {
     }
   }, [])
 
-  const maxWidthSize = (size: keyof typeof breakpointsByWindowWidth) => {
+  const maxWidthSize = (size: number | keyof typeof breakpointsByWindowWidth) => {
+    if (typeof size === 'number') {
+      return size <= dimensions.width
+    }
+
     return breakpointsByWindowWidth[size] <= dimensions.width
   }
 
-  const minWidthSize = (size: keyof typeof breakpointsByWindowWidth) => {
+  const minWidthSize = (size: number | keyof typeof breakpointsByWindowWidth) => {
+    if (typeof size === 'number') {
+      return size > dimensions.width
+    }
+
     return breakpointsByWindowWidth[size] > dimensions.width
   }
 

@@ -16,11 +16,12 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
@@ -77,6 +78,7 @@ const SeedPhraseImportScreen = () => {
       seedLength: SEED_LENGTH_SELECT_OPTIONS[0]
     }
   })
+  const { maxWidthSize } = useWindowSize()
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -229,7 +231,7 @@ const SeedPhraseImportScreen = () => {
           <View style={[spacings.mbMd, flexbox.directionRow, flexbox.justifySpaceBetween]}>
             <View style={spacings.ptTy}>
               <Text
-                fontSize={IS_SCREEN_SIZE_DESKTOP_LARGE ? 20 : 18}
+                fontSize={maxWidthSize('xl') ? 20 : 18}
                 weight="medium"
                 appearance="primaryText"
                 numberOfLines={1}

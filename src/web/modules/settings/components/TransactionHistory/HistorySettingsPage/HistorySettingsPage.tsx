@@ -11,7 +11,8 @@ import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -35,9 +36,9 @@ type NetworkOption = {
 
 const ITEMS_PER_PAGE = 10
 
-const formatAddressLabelInSelector = (label: string) => {
-  if (label.length > (IS_SCREEN_SIZE_DESKTOP_LARGE ? 26 : 18))
-    return `${label.slice(0, IS_SCREEN_SIZE_DESKTOP_LARGE ? 24 : 16)}...`
+const formatAddressLabelInSelector = (label: string, isLargeScreen: boolean) => {
+  if (label.length > (isLargeScreen ? 26 : 18))
+    return `${label.slice(0, isLargeScreen ? 24 : 16)}...`
 
   return label
 }
@@ -60,6 +61,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const { t } = useTranslation()
+  const { maxWidthSize } = useWindowSize()
   const itemsTotal =
     (historyType === 'messages'
       ? activityState.signedMessages?.itemsTotal
@@ -78,13 +80,14 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       label: (
         <Text weight="medium" numberOfLines={1}>
           {`${formatAddressLabelInSelector(
-            accountPreferences?.[acc.addr]?.label || ''
+            accountPreferences?.[acc.addr]?.label || '',
+            maxWidthSize('xl')
           )} (${shortenAddress(acc.addr, 10)})`}
         </Text>
       ),
       icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} style={spacings.pr0} />
     }))
-  }, [accountPreferences, mainState.accounts])
+  }, [accountPreferences, mainState.accounts, maxWidthSize])
 
   const networksOptions: NetworkOption[] = useMemo(
     () =>
@@ -170,7 +173,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       <View style={[flexbox.directionRow, spacings.mbLg]}>
         <Select
           setValue={handleSetAccountValue}
-          style={{ width: IS_SCREEN_SIZE_DESKTOP_LARGE ? 420 : 340, ...spacings.mr }}
+          style={{ width: maxWidthSize('xl') ? 420 : 340, ...spacings.mr }}
           options={accountsOptions}
           value={accountsOptions.filter((opt) => opt.value === account.addr)[0]}
         />

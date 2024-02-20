@@ -72,12 +72,7 @@ const AccountAdderScreen = () => {
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
             onPress={onImportReady}
-            size={
-              accountAdderState.preselectedAccounts.length &&
-              !accountAdderState.selectedAccounts.length
-                ? 'large'
-                : 'regular'
-            }
+            size="large"
             disabled={
               accountAdderState.accountsLoading ||
               accountAdderState.addAccountsStatus === 'LOADING' ||

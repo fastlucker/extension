@@ -11,12 +11,13 @@ import Steps from '@benzin/screens/BenzinScreen/components/Steps'
 import useBenzin from '@benzin/screens/BenzinScreen/hooks/useBenzin'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
 
 import getStyles from './styles'
 
 const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { styles } = useTheme(getStyles)
+  const { maxWidthSize } = useWindowSize()
 
   if (!state?.network || !state?.txnId) {
     // @TODO
@@ -36,7 +37,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   return (
     <ImageBackground
       style={styles.backgroundImage}
-      source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
+      source={maxWidthSize('xl') ? meshGradientLarge : meshGradient}
       resizeMode="cover"
     >
       <ScrollView contentContainerStyle={styles.container}>

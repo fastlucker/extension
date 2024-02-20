@@ -8,10 +8,13 @@ import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 interface Style {
   background: ViewStyle
   container: ViewStyle
+  contentContainer: ViewStyle
+  header: ViewStyle
   panel: ViewStyle
-  fullWidth: ViewStyle
   sideContainer: ViewStyle
 }
+
+export const SETTINGS_HEADER_HEIGHT = 64
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -22,16 +25,24 @@ const getStyles = (theme: ThemeProps) =>
     },
     container: {
       ...flexbox.directionRow,
-      ...flexbox.flex1,
-      ...spacings.ptSm
+      ...flexbox.flex1
     },
-    panel: {
-      ...spacings.mhXl,
+    contentContainer: {
+      ...spacings.mhLg,
       ...flexbox.flex1,
       width: TAB_CONTENT_WIDTH
     },
-    fullWidth: {
-      width: '100%'
+    header: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...flexbox.justifyEnd,
+      height: SETTINGS_HEADER_HEIGHT
+    },
+    panel: {
+      ...spacings.mbLg,
+      ...flexbox.flex1,
+      width: TAB_CONTENT_WIDTH,
+      maxHeight: '100%'
     },
     sideContainer: {
       opacity: 0,
