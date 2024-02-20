@@ -88,7 +88,7 @@ const TokenDetails = ({
       },
       {
         id: 'top-up',
-        text: t('Top Up'),
+        text: isGasTankFeeToken ? t('Top Up Gas Tank') : t('Top Up'),
         icon: TopUpIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`),
@@ -250,7 +250,7 @@ const TokenDetails = ({
               (1 ${symbol} ≈ ${priceUSDFormatted})
             </Text>
           </View>
-          {onGasTank && (
+          {!!onGasTank && (
             <View style={styles.balance}>
               <Text
                 style={spacings.mtMi}
@@ -297,7 +297,7 @@ const TokenDetails = ({
                   />
                 )}
               </View>
-              <Text fontSize={14} weight="medium" style={text.center}>
+              <Text fontSize={14} weight="medium" style={text.center} numberOfLines={1}>
                 {action.text}
               </Text>
             </Pressable>
