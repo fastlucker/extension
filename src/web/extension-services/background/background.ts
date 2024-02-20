@@ -33,7 +33,6 @@ import permissionService from '@web/extension-services/background/services/permi
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import PortMessage from '@web/extension-services/message/portMessage'
-import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
 import {
   getDefaultAccountPreferences,
   getDefaultKeyLabel
@@ -434,12 +433,7 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'trezor'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -448,12 +442,7 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'lattice'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
@@ -462,12 +451,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 pageSize,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'internal'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
@@ -597,7 +581,6 @@ async function init() {
               await mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: [],
                 pageSize: 1
               })
 
