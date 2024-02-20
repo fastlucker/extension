@@ -14,8 +14,7 @@ interface Style {
 
 const styles = StyleSheet.create<Style>({
   panel: {
-    maxHeight: '100%',
-    paddingVertical: 0
+    maxHeight: '100%'
   },
   topUpPanel: {
     ...spacings.pvXl,

@@ -101,7 +101,7 @@ const TransferScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width={isTopUp ? 'sm' : 'xl'}
-      header={<HeaderAccountAndNetworkInfo containerStyle={{ borderWidth: 0 }} />}
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -137,7 +137,8 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
+            style={[styles.panel, !state.isTopUp && spacings.pv0]}
+            forceContainerSmallSpacings={state.isTopUp}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
             <View style={[flexbox.directionRow, flexbox.flex1, common.fullWidth, spacings.pvXl]}>
