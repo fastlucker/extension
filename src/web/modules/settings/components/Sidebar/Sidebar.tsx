@@ -91,14 +91,13 @@ const OTHER_LINKS = [
   }
 ]
 
-const Sidebar = ({ activeLink }: { activeLink: string }) => {
+const Sidebar = ({ activeLink }: { activeLink?: string }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
 
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
-
   const hasScrollContainer = useMemo(
     () => contentHeight > containerHeight,
     [containerHeight, contentHeight]
@@ -133,10 +132,16 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
           setContentHeight(height)
         }}
       >
-        {SETTINGS_LINKS.map((link) => {
+        {SETTINGS_LINKS.map((link, i) => {
           const isActive = activeLink === link.key
 
-          return <SettingsLink {...link} isActive={isActive} />
+          return (
+            <SettingsLink
+              {...link}
+              isActive={isActive}
+              style={i === SETTINGS_LINKS.length - 1 ? spacings.mb0 : {}}
+            />
+          )
         })}
         <View
           style={{
@@ -146,10 +151,16 @@ const Sidebar = ({ activeLink }: { activeLink: string }) => {
             ...spacings.mv
           }}
         />
-        {OTHER_LINKS.map((link) => {
+        {OTHER_LINKS.map((link, i) => {
           const isActive = activeLink === link.key
 
-          return <SettingsLink {...link} isActive={isActive} />
+          return (
+            <SettingsLink
+              {...link}
+              isActive={isActive}
+              style={i === OTHER_LINKS.length - 1 ? spacings.mb0 : {}}
+            />
+          )
         })}
       </ScrollView>
     </View>

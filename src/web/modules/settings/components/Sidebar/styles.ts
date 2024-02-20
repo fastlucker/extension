@@ -5,7 +5,7 @@ import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-import { SETTINGS_HEADER_HEIGHT } from '../styles'
+import { SETTINGS_HEADER_HEIGHT } from '../../contexts/SettingsRoutesContext/styles'
 
 interface Style {
   backToDashboardButton: ViewStyle

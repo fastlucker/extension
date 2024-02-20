@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
@@ -15,8 +15,8 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 import NetworkForm from './NetworkForm'
 
@@ -75,6 +75,12 @@ const NetworksSettingsScreen = () => {
     }
   })
 
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage('networks')
+  }, [setCurrentSettingsPage])
+
   const networkFormValues = networkForm.watch()
 
   const filteredNetworkBySearch = networks.filter((network) =>
@@ -99,7 +105,7 @@ const NetworksSettingsScreen = () => {
   }
 
   return (
-    <SettingsPage currentPage="networks">
+    <>
       <SettingsPageHeader title="Networks">
         <Search placeholder="Search for network" control={control} />
       </SettingsPageHeader>
@@ -161,8 +167,8 @@ const NetworksSettingsScreen = () => {
           selectedNetworkId={selectedNetworkId}
         />
       </View>
-    </SettingsPage>
+    </>
   )
 }
 
-export default NetworksSettingsScreen
+export default React.memo(NetworksSettingsScreen)
