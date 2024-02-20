@@ -3,6 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { View, ViewProps } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -33,40 +34,51 @@ const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
+  const hasNonZeroToken = tokens.some(({ amount }) => amount > 0n)
   const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
 
   const sortedTokens = useMemo(
     () =>
-      tokens.sort((a, b) => {
-        // If a is a rewards token and b is not, a should come before b.
-        if (a.flags.rewardsType && !b.flags.rewardsType) {
-          return -1
-        }
-        if (!a.flags.rewardsType && b.flags.rewardsType) {
-          // If b is a rewards token and a is not, b should come before a.
-          return 1
-        }
-
-        const aBalance = calculateTokenBalance(a)
-        const bBalance = calculateTokenBalance(b)
-
-        if (a.flags.rewardsType === b.flags.rewardsType) {
-          if (aBalance === bBalance) {
-            return Number(b.amount) - Number(a.amount)
+      tokens
+        .filter(
+          (token) =>
+            token.amount > 0n ||
+            (!hasNonZeroToken &&
+              PINNED_TOKENS.find(
+                ({ address, networkId }) =>
+                  token.address === address && token.networkId === networkId
+              ))
+        )
+        .sort((a, b) => {
+          // If a is a rewards token and b is not, a should come before b.
+          if (a.flags.rewardsType && !b.flags.rewardsType) {
+            return -1
+          }
+          if (!a.flags.rewardsType && b.flags.rewardsType) {
+            // If b is a rewards token and a is not, b should come before a.
+            return 1
           }
 
-          return bBalance - aBalance
-        }
+          const aBalance = calculateTokenBalance(a)
+          const bBalance = calculateTokenBalance(b)
 
-        if (a.flags.onGasTank && !b.flags.onGasTank) {
-          return -1
-        }
-        if (!a.flags.onGasTank && b.flags.onGasTank) {
-          return 1
-        }
+          if (a.flags.rewardsType === b.flags.rewardsType) {
+            if (aBalance === bBalance) {
+              return Number(b.amount) - Number(a.amount)
+            }
 
-        return 0
-      }),
+            return bBalance - aBalance
+          }
+
+          if (a.flags.onGasTank && !b.flags.onGasTank) {
+            return -1
+          }
+          if (!a.flags.onGasTank && b.flags.onGasTank) {
+            return 1
+          }
+
+          return 0
+        }),
     [tokens]
   )
 
