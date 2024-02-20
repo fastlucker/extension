@@ -84,7 +84,9 @@ const Account = ({
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
         { borderWidth: 1, borderColor: theme.secondaryBackground },
-        hovered && { borderColor: theme.secondaryBorder }
+        ((hovered && !isDisabled) || alreadyImportedWithSameKey) && {
+          borderColor: theme.secondaryBorder
+        }
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
     >
