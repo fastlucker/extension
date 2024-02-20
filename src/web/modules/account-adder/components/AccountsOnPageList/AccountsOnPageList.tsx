@@ -4,7 +4,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Dimensions, ScrollView, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  AccountOnPage
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
@@ -112,13 +114,13 @@ const AccountsList = ({
       slotIndex,
       byType = ['basic', 'smart']
     }: {
-      accounts: any
+      accounts: AccountOnPage[]
       shouldCheckForLastAccountInTheList?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
     }) => {
-      const filteredAccounts = accounts.filter((a: any) => byType.includes(getType(a)))
-      return filteredAccounts.map((acc: any, i: number) => {
+      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
+      return filteredAccounts.map((acc, i: number) => {
         let hasBottomSpacing = true
         if (shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1) {
           hasBottomSpacing = false
@@ -126,9 +128,6 @@ const AccountsList = ({
 
         const isSelected = state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.account.addr === acc.account.addr
-        )
-        const isPreselected = state.preselectedAccounts.some(
-          (selectedAcc) => selectedAcc.addr === acc.account.addr
         )
 
         if (hideEmptyAccounts && getType(acc) === 'basic' && !acc.account.usedOnNetworks.length) {
@@ -143,22 +142,17 @@ const AccountsList = ({
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
-            isSelected={isSelected || isPreselected}
-            isDisabled={isPreselected}
+            isSelected={isSelected || acc.alreadyImportedWithSameKey}
+            isDisabled={acc.alreadyImportedWithSameKey}
+            alreadyImportedWithSameKey={acc.alreadyImportedWithSameKey}
+            alreadyImportedWithDifferentKey={acc.alreadyImportedWithDifferentKey}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
           />
         )
       })
     },
-    [
-      handleDeselectAccount,
-      handleSelectAccount,
-      hideEmptyAccounts,
-      state.preselectedAccounts,
-      state.selectedAccounts,
-      getType
-    ]
+    [handleDeselectAccount, handleSelectAccount, hideEmptyAccounts, state.selectedAccounts, getType]
   )
 
   const setTitle = useCallback(() => {

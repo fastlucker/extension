@@ -35,7 +35,9 @@ const Account = ({
   isSelected,
   onSelect,
   onDeselect,
-  isDisabled
+  isDisabled,
+  alreadyImportedWithSameKey,
+  alreadyImportedWithDifferentKey
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'basic' | 'smart' | 'linked'
@@ -46,6 +48,8 @@ const Account = ({
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
+  alreadyImportedWithSameKey?: boolean
+  alreadyImportedWithDifferentKey?: boolean
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -137,6 +141,21 @@ const Account = ({
             )}
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
               <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
+            )}
+            {(alreadyImportedWithSameKey || alreadyImportedWithDifferentKey) && (
+              <View style={{ flexDirection: 'row', position: 'absolute', left: 0, bottom: -20 }}>
+                {alreadyImportedWithSameKey && (
+                  <Badge withRightSpacing withIcon text={t('already imported')} type="success" />
+                )}
+                {alreadyImportedWithDifferentKey && (
+                  <Badge
+                    withRightSpacing
+                    withIcon
+                    text={t('imported with different key')}
+                    type="success"
+                  />
+                )}
+              </View>
             )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>

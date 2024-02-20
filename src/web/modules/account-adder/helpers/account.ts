@@ -2,6 +2,7 @@
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 
+// TODO: Remove
 // TODO: Move this logic in the Account Adder
 // Preselected accounts are the one for which we have a key (with the same type) stored.
 export const getPreselectedAccounts = (

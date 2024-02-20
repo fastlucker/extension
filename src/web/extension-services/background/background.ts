@@ -425,11 +425,6 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'ledger'
-                ),
                 hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
               })
             }
