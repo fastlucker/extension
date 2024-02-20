@@ -1,7 +1,6 @@
 import { Dimensions, ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
   [key: string]: TextStyle | ViewStyle | ImageStyle
