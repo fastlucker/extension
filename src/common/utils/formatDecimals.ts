@@ -13,8 +13,8 @@ const getPrefix = (widthDollarPrefix: boolean) => (widthDollarPrefix ? '$' : '')
 const DEFAULT_DECIMALS = 2
 const TYPES_WITH_DOLLAR_PREFIX = ['value', 'price']
 
-// A function that formats a number to a string with a specific number of decimals
-// and a dollar sign prefix if the type is 'value'
+// A function that formats a number to a string with a specific number of decimals.
+// Based on the passed type it will add a dollar sign prefix.
 const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => {
   let withDollarPrefix = TYPES_WITH_DOLLAR_PREFIX.includes(type || '')
 
