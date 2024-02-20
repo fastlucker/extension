@@ -51,7 +51,7 @@ const AccountsSettingsScreen = () => {
             isCopyVisible={false}
             key={account.addr}
             account={account}
-            shortenAccountAddr={shortenAccountAddr()}
+            maxAccountAddrLength={shortenAccountAddr()}
           />
         ))}
       </View>
