@@ -18,6 +18,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
+import { getUiType } from '@web/utils/uiType'
 
 import { tabLayoutWidths } from '../TabLayoutWrapper'
 import getStyles from './styles'
@@ -42,6 +43,8 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
+  const isNotification = getUiType().isNotification
+
   const fontSize = useMemo(() => {
     return maxWidthSize(750) ? 16 : 14
   }, [maxWidthSize])
@@ -52,7 +55,9 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
 
   return (
     <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>
-      <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
+      <View
+        style={[headerStyles.widthContainer, !isNotification && { maxWidth: tabLayoutWidths.xl }]}
+      >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
           <Text appearance="secondaryText" weight="medium" fontSize={fontSize}>
