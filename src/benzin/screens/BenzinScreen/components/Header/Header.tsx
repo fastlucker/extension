@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import AmbireLogo from '@common/assets/svg/AmbireLogoWithText'
@@ -11,7 +12,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-import { StepsData } from '../Steps/hooks/useSteps'
 import getStyles from './styles'
 
 interface Props {

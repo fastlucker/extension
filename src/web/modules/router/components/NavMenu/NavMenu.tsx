@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 import DiscordIcon from '@common/assets/svg/DiscordIcon'
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import LockFilledIcon from '@common/assets/svg/LockFilledIcon'
 import TelegramIcon from '@common/assets/svg/TelegramIcon'
 import TwitterIcon from '@common/assets/svg/TwitterIcon'
@@ -15,19 +14,19 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
+import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import {
   TabLayoutContainer,
-  tabLayoutWidths,
-  TabLayoutWrapperMainContent
+  tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useWalletStateController from '@web/hooks/useWalletStateController'
-import NavLink from '@web/modules/settings/components/SettingsLink'
+import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import { SETTINGS_LINKS } from '@web/modules/settings/components/SettingsPage/Sidebar/Sidebar'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
@@ -44,11 +43,11 @@ const SOCIAL = [
   { Icon: DiscordIcon, url: DISCORD_URL, label: 'Discord' }
 ]
 
-const { isTab, isPopup } = getUiType()
+const { isTab } = getUiType()
 
 const NavMenu = () => {
   const { t } = useTranslation()
-  const { navigate, goBack } = useNavigation()
+  const { navigate } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { dispatch } = useBackgroundService()
@@ -80,22 +79,7 @@ const NavMenu = () => {
         <Header withPopupBackButton mode="custom">
           <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
             <View style={[headerStyles.sideContainer, { width: 130 }]}>
-              {!!isPopup && (
-                <Pressable
-                  style={[flexbox.directionRow, flexbox.alignCenter]}
-                  onPress={() => goBack()}
-                >
-                  <LeftArrowIcon />
-                  <Text
-                    style={spacings.plTy}
-                    fontSize={16}
-                    weight="medium"
-                    appearance="secondaryText"
-                  >
-                    {t('Back')}
-                  </Text>
-                </Pressable>
-              )}
+              <HeaderBackButton />
             </View>
             <View style={headerStyles.containerInner}>
               <Text
@@ -164,25 +148,36 @@ const NavMenu = () => {
           </View>
         </View>
 
-        <TabLayoutWrapperMainContent style={commonWebStyles.contentContainer}>
-          <View style={[spacings.ph]}>
-            <Text fontSize={20} weight="medium" style={[spacings.mbMd, spacings.pl]}>
+        <View style={[commonWebStyles.contentContainer, flexbox.flex1, spacings.pt]}>
+          <View style={[spacings.ph, flexbox.flex1]}>
+            <Text
+              fontSize={20}
+              weight="medium"
+              style={[SETTINGS_LINKS.length > 8 ? spacings.mbSm : spacings.mb, spacings.pl]}
+            >
               {t('Settings')}
             </Text>
-            {SETTINGS_LINKS.map((link) => (
-              <NavLink
-                {...link}
-                isActive={false}
-                style={{
-                  width: '100%'
-                }}
-              />
-            ))}
+            <ScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={[flexbox.directionRow, flexbox.wrap, flexbox.alignStart]}>
+                {SETTINGS_LINKS.map((link, i) => (
+                  <SettingsLink
+                    {...link}
+                    isActive={false}
+                    style={{
+                      width: '50%',
+                      ...(i !== SETTINGS_LINKS.length - 1 && i !== SETTINGS_LINKS.length - 2
+                        ? spacings.mbTy
+                        : spacings.mb0)
+                    }}
+                  />
+                ))}
+              </View>
+            </ScrollView>
           </View>
           <View style={styles.separatorWrapper}>
             <View style={styles.separator} />
           </View>
-          <View style={[flexbox.directionRow, spacings.ph, spacings.pbLg]}>
+          <View style={[flexbox.directionRow, spacings.ph, spacings.pb]}>
             {SOCIAL.map(({ Icon, url, label }) => (
               <Pressable
                 style={() => [
@@ -214,7 +209,7 @@ const NavMenu = () => {
               </Pressable>
             ))}
           </View>
-        </TabLayoutWrapperMainContent>
+        </View>
       </View>
     </TabLayoutContainer>
   )

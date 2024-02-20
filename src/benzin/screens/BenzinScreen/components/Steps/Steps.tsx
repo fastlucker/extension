@@ -3,6 +3,7 @@ import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -11,7 +12,6 @@ import spacings from '@common/styles/spacings'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import Step from './components/Step'
-import { StepsData } from './hooks/useSteps'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {

@@ -6,38 +6,27 @@ import { View } from 'react-native'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import { Avatar } from '@common/components/Avatar'
 import Button from '@common/components/Button'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
-import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-
-import styles from './styles'
 
 // Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
 const DappConnectScreen = () => {
-  const mainCtrl = useMainControllerState()
-  const settingsCtrl = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
   const { t } = useTranslation()
   const { theme } = useTheme()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
@@ -63,38 +52,14 @@ const DappConnectScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <Header withAmbireLogo mode="custom">
-          <View
-            style={[
-              flexbox.flex1,
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.justifySpaceBetween
-            ]}
-          >
-            <View style={styles.accountInfo}>
-              <Avatar pfp={selectedAccountPref?.pfp} size={32} />
-              <View style={styles.accountAddressAndLabel}>
-                <Text weight="number_bold" fontSize={16} appearance="secondaryText">
-                  {selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL}
-                </Text>
-                <Text weight="number_medium" style={styles.accountInfoText} fontSize={16}>
-                  ({selectedAccount})
-                </Text>
-              </View>
-            </View>
-            <AmbireLogoHorizontal width={72} />
-          </View>
-        </Header>
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
           <Button
             text={t('Deny')}
             type="danger"
             hasBottomSpacing={false}
-            style={spacings.phLg}
+            size="large"
             onPress={handleDenyButtonPress}
           >
             <View style={spacings.pl}>
@@ -122,6 +87,7 @@ const DappConnectScreen = () => {
           </View>
           <Button
             style={spacings.phLg}
+            size="large"
             hasBottomSpacing={false}
             onPress={handleAuthorizeButtonPress}
             disabled={isAuthorizing}
