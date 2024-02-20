@@ -141,7 +141,14 @@ const TransferScreen = () => {
             forceContainerSmallSpacings={state.isTopUp}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
-            <View style={[flexbox.directionRow, flexbox.flex1, common.fullWidth, spacings.pvXl]}>
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.flex1,
+                common.fullWidth,
+                !state.isTopUp && spacings.pvXl
+              ]}
+            >
               <ScrollView
                 style={[flexbox.flex1, hasScrollFormContainer ? spacings.pr : spacings.pr0]}
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -185,14 +192,16 @@ const TransferScreen = () => {
               )}
             </View>
             {isTopUp && !isSmartAccount && (
-              <Alert
-                type="warning"
-                // @TODO: replace temporary text
-                title={t(
-                  'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
-                )}
-                isTypeLabelHidden
-              />
+              <View style={spacings.ptLg}>
+                <Alert
+                  type="warning"
+                  // @TODO: replace temporary text
+                  title={t(
+                    'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
+                  )}
+                  isTypeLabelHidden
+                />
+              </View>
             )}
           </Panel>
         ) : (
