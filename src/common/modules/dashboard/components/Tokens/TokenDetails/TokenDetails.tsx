@@ -244,10 +244,10 @@ const TokenDetails = ({
               {balanceFormatted} {symbol}
             </Text>
             <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
-              ≈ ${balanceUSDFormatted}
+              ≈ {balanceUSDFormatted}
             </Text>
             <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-              (1 ${symbol} ≈ ${priceUSDFormatted})
+              (1 ${symbol} ≈ {priceUSDFormatted})
             </Text>
           </View>
           {onGasTank && (
