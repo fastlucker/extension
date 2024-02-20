@@ -19,7 +19,7 @@ const formatDecimals = (value?: number, type?: 'value' | 'amount' | 'price') => 
   let withDollarPrefix = TYPES_WITH_DOLLAR_PREFIX.includes(type || '')
 
   if (value === 0) return `${getPrefix(withDollarPrefix)}0.00`
-  if (!value || isNaN(value)) return `${getPrefix(withDollarPrefix)}-`
+  if (!value || Number.isNaN(value)) return `${getPrefix(withDollarPrefix)}-`
 
   const indexOfFirstNonZero = getIndexOfFirstNonZeroInDecimals(value)
 
