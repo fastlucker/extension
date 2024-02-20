@@ -24,6 +24,7 @@ import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCr
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
+import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/BenzinNotificationScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -36,6 +37,7 @@ import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardin
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
@@ -55,6 +57,7 @@ const stepperProvider = (
     <Outlet />
   </StepperProvider>
 )
+
 const isPopup = getUiType().isPopup
 const MainRoutes = () => {
   return (
@@ -113,19 +116,24 @@ const MainRoutes = () => {
                   </TransferControllerStateProvider>
                 }
               />
-              <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
-              <Route
-                path={WEB_ROUTES.transactions}
-                element={<TransactionHistorySettingsScreen />}
-              />
-              <Route
-                path={WEB_ROUTES.signedMessages}
-                element={<SignedMessageHistorySettingsScreen />}
-              />
-              <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
-              <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
-              <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
-              <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+              <Route element={<SettingsRoutesProvider />}>
+                <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
+                <Route
+                  path={WEB_ROUTES.transactions}
+                  element={<TransactionHistorySettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.signedMessages}
+                  element={<SignedMessageHistorySettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.devicePassword}
+                  element={<DevicePasswordSettingsScreen />}
+                />
+                <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+                <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+              </Route>
             </Route>
           </Route>
         </Route>
@@ -142,6 +150,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={WEB_ROUTES.benzin} element={<BenzinNotificationScreen />} />
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />

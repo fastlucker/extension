@@ -1,6 +1,6 @@
 import { breakpointsByWindowWidth } from './breakpoints'
 
-export type WindowSizes = keyof typeof breakpointsByWindowWidth
+export type WindowSizes = number | keyof typeof breakpointsByWindowWidth
 
 export type WindowSizeProps = {
   width: number

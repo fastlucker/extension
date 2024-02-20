@@ -87,6 +87,7 @@ const useSteps = ({
   const [finalizedStatus, setFinalizedStatus] = useState<FinalizedStatusType>({
     status: 'fetching'
   })
+  const [refetchUserOpStatusCounter, setRefetchUserOpStatusCounter] = useState<number>(0)
   const [refetchTxnCounter, setRefetchTxnCounter] = useState<number>(0)
   const [refetchReceiptCounter, setRefetchReceiptCounter] = useState<number>(0)
   const [cost, setCost] = useState<null | string>(null)
@@ -118,7 +119,11 @@ const useSteps = ({
           case 'not_submitted':
             setFinalizedStatus({ status: 'fetching' })
             setActiveStep('in-progress')
-            setUserOpStatusData({ status: userOpStatusAndId.status, txnId: null })
+
+            // send requests to the bundler until submitted
+            setTimeout(() => {
+              setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+            }, REFETCH_TXN_TIME)
             break
 
           case 'submitted':
@@ -138,7 +143,16 @@ const useSteps = ({
         }
       })
       .catch(() => setUserOpStatusData({ status: 'not_found', txnId: null }))
-  }, [isUserOp, userOpStatusData, network, finalUserOpHash, txnReceipt, setActiveStep, userOpHash])
+  }, [
+    isUserOp,
+    userOpStatusData,
+    network,
+    finalUserOpHash,
+    txnReceipt,
+    setActiveStep,
+    userOpHash,
+    refetchUserOpStatusCounter
+  ])
 
   useEffect(() => {
     if (!network || txn || (isUserOp && !userOpHash && !userOpStatusData.txnId)) return

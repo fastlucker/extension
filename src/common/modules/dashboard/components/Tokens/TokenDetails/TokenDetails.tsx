@@ -30,6 +30,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import getStyles from './styles'
@@ -47,6 +48,15 @@ const TokenDetails = ({
   const { t } = useTranslation()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
+  const mainState = useMainControllerState()
+
+  const account = useMemo(() => {
+    return mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount)
+  }, [mainState.accounts, mainState.selectedAccount])
+
+  const isSmartAccount = useMemo(() => {
+    return account?.creation
+  }, [account?.creation])
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -58,6 +68,7 @@ const TokenDetails = ({
           gsToken.networkId === token.networkId
       )
     : false
+
   const actions = useMemo(
     () => [
       {
@@ -88,11 +99,11 @@ const TokenDetails = ({
       },
       {
         id: 'top-up',
-        text: t('Top Up'),
+        text: isGasTankFeeToken ? t('Top Up Gas Tank') : t('Top Up'),
         icon: TopUpIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`),
-        isDisabled: !isGasTankFeeToken,
+        isDisabled: !isGasTankFeeToken || !isSmartAccount,
         strokeWidth: 1
       },
       {
@@ -244,13 +255,13 @@ const TokenDetails = ({
               {balanceFormatted} {symbol}
             </Text>
             <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
-              ≈ ${balanceUSDFormatted}
+              ≈ {balanceUSDFormatted}
             </Text>
             <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-              (1 ${symbol} ≈ ${priceUSDFormatted})
+              (1 ${symbol} ≈ {priceUSDFormatted})
             </Text>
           </View>
-          {onGasTank && (
+          {!!onGasTank && (
             <View style={styles.balance}>
               <Text
                 style={spacings.mtMi}
@@ -297,7 +308,7 @@ const TokenDetails = ({
                   />
                 )}
               </View>
-              <Text fontSize={14} weight="medium" style={text.center}>
+              <Text fontSize={14} weight="medium" style={text.center} numberOfLines={1}>
                 {action.text}
               </Text>
             </Pressable>

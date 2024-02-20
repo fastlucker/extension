@@ -1,33 +1,3 @@
-import { Dimensions, StyleSheet, ViewStyle } from 'react-native'
-
-import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
+import { Dimensions } from 'react-native'
 
 export const IS_MOBILE_UP_BENZIN_BREAKPOINT = Dimensions.get('window').width > 700
-
-interface Style {
-  backgroundImage: ViewStyle
-  container: ViewStyle
-  content: ViewStyle
-}
-
-const getStyles = () =>
-  StyleSheet.create<Style>({
-    backgroundImage: {
-      ...flexbox.flex1,
-      width: '100%',
-      height: '100%'
-    },
-    container: {
-      ...flexbox.flex1,
-      ...flexbox.alignCenter,
-      ...spacings.pv,
-      ...spacings.phLg
-    },
-    content: {
-      maxWidth: 620,
-      width: '100%'
-    }
-  })
-
-export default getStyles

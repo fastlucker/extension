@@ -63,8 +63,8 @@ const TokenItem = ({
             />
           )}
         </View>
-        <View>
-          <Text style={[spacings.mrTy]} fontSize={16} weight="number_bold" numberOfLines={1}>
+        <View style={flexboxStyles.flex1}>
+          <Text style={spacings.mrTy} fontSize={16} weight="number_bold" numberOfLines={1}>
             {balanceFormatted} {symbol}
           </Text>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
@@ -81,10 +81,10 @@ const TokenItem = ({
         </View>
       </View>
       <Text fontSize={16} weight="number_regular" style={{ flex: 0.7 }}>
-        ${priceUSDFormatted}
+        {priceUSDFormatted}
       </Text>
       <Text fontSize={16} weight="number_bold" style={{ flex: 0.8, textAlign: 'right' }}>
-        ${balanceUSDFormatted}
+        {balanceUSDFormatted}
       </Text>
     </Pressable>
   )

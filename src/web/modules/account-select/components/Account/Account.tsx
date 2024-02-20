@@ -26,11 +26,13 @@ const { isTab } = getUiType()
 const Account = ({
   account,
   onSelect,
-  isCopyVisible = true
+  isCopyVisible = true,
+  maxAccountAddrLength
 }: {
   account: AccountInterface
-  onSelect?: () => void
+  onSelect?: (addr: string) => void
   isCopyVisible?: boolean
+  maxAccountAddrLength?: number
 }) => {
   const { addr, creation, associatedKeys } = account
   const { t } = useTranslation()
@@ -46,7 +48,7 @@ const Account = ({
       type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
       params: { accountAddr: selectedAddr }
     })
-    onSelect && onSelect()
+    onSelect && onSelect(addr)
   }
 
   return (
@@ -75,8 +77,9 @@ const Account = ({
             <View>
               <View style={flexboxStyles.directionRow}>
                 <Text fontSize={isTab ? 16 : 14} weight="regular">
-                  {isTab ? addr : shortenAddress(addr, 18)}
+                  {maxAccountAddrLength ? shortenAddress(addr, maxAccountAddrLength) : addr}
                 </Text>
+
                 <Badge
                   withIcon
                   style={spacings.mlTy}
@@ -103,7 +106,6 @@ const Account = ({
                 iconWidth={20}
                 iconHeight={20}
                 style={{
-                  ...spacings.mrTy,
                   backgroundColor: 'transparent',
                   borderColor: 'transparent'
                 }}
@@ -123,4 +125,4 @@ const Account = ({
   )
 }
 
-export default Account
+export default React.memo(Account)

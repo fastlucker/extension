@@ -25,7 +25,6 @@ import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigne
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
-import { pinnedTokens } from '@common/constants/tokens'
 import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -160,8 +159,7 @@ async function init() {
     onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
       setAccountStateInterval(backgroundState.accountStateIntervals.pending)
-    },
-    pinned: pinnedTokens
+    }
   })
   const walletStateCtrl = new WalletStateController()
   const notificationCtrl = new NotificationController(mainCtrl)
@@ -376,7 +374,7 @@ async function init() {
 
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl)
+    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
   })
   notificationCtrl.onError(() => {
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {

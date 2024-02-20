@@ -1,6 +1,6 @@
 import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -30,15 +30,12 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderRadius: 24,
       width: 'auto',
+      height: 24,
+      ...flexbox.justifyCenter,
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
-      ...spacings.plLg,
-      ...spacings.prMi,
-      paddingVertical: SPACING_MI / 2,
-      marginLeft: 'auto',
-      position: 'absolute',
-      right: 0,
-      bottom: -(SPACING_MI / 2)
+      ...spacings.pl,
+      ...spacings.prMi
     },
     kindOfMessageText: spacings.mr
   })

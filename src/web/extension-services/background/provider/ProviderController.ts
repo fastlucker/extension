@@ -251,7 +251,7 @@ export class ProviderController {
       chainId = Number(chainId)
     }
 
-    const network = this.mainCtrl.settings.networks.find((n) => n.chainId === chainId)
+    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
