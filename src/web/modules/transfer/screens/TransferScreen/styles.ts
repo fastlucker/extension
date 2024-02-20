@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -12,28 +12,29 @@ interface Style {
   spinnerContainer: ViewStyle
 }
 
-const styles = StyleSheet.create<Style>({
-  panel: {
-    maxHeight: '100%'
-  },
-  topUpPanel: {
-    ...spacings.pvXl,
-    ...spacings.phXl
-  },
-  container: {
-    ...flexbox.directionRow,
-    ...flexbox.flex1,
-    width: '100%'
-  },
-  separator: {
-    width: 1,
-    height: '100%',
-    backgroundColor: colors.scampi_20
-  },
-  spinnerContainer: {
-    ...flexbox.center,
-    ...flexbox.flex1
-  }
-})
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create<Style>({
+    panel: {
+      maxHeight: '100%'
+    },
+    topUpPanel: {
+      ...spacings.pvXl,
+      ...spacings.phXl
+    },
+    container: {
+      ...flexbox.directionRow,
+      ...flexbox.flex1,
+      width: '100%'
+    },
+    separator: {
+      width: 1,
+      height: '100%',
+      backgroundColor: theme.secondaryBorder
+    },
+    spinnerContainer: {
+      ...flexbox.center,
+      ...flexbox.flex1
+    }
+  })
 
-export default styles
+export default getStyles

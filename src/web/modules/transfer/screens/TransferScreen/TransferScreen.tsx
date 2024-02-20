@@ -31,7 +31,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -40,7 +40,7 @@ const TransferScreen = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
