@@ -31,7 +31,7 @@ const getStyles = (theme: ThemeProps) =>
     },
     separatorWrapper: {
       ...spacings.ph,
-      ...spacings.pvLg
+      ...spacings.pv
     },
     separator: {
       width: '100%',

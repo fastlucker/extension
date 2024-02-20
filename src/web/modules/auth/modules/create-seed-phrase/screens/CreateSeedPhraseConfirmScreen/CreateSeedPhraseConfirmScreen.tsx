@@ -121,6 +121,7 @@ const CreateSeedPhraseConfirmScreen = () => {
           <Button
             accessibilityRole="button"
             text={!isLoading ? t('Continue') : t('Importing...')}
+            size="large"
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
             disabled={!isValid || accountAdderState.accountsLoading || isLoading}

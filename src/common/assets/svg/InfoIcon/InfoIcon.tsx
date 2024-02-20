@@ -9,7 +9,7 @@ const InfoIcon: React.FC<SvgProps> = ({
   color = colors.martinique,
   ...rest
 }) => (
-  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24" {...rest}>
+  <Svg width={width} height={height} fill="none" viewBox="0 0 22 22" {...rest}>
     <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M10.75 15.05V9.8" strokeWidth="1.5" />
       <Path d="M10.75 6.6v-.1" strokeWidth="2" />

@@ -184,7 +184,7 @@ const SendForm = ({
         {isSWWarningVisible ? (
           <Checkbox
             value={isSWWarningAgreed}
-            style={spacings.plTy}
+            style={{ ...spacings.plTy, ...spacings.mb0 }}
             onValueChange={onSWWarningCheckboxClick}
           >
             <Text fontSize={12} onPress={onSWWarningCheckboxClick}>

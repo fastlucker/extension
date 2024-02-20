@@ -1,12 +1,11 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   contentContainer: ViewStyle
-  sideContentContainer: ViewStyle
   informationCircle: ViewStyle
   footerContainer: ViewStyle
   footer: ViewStyle
@@ -19,15 +18,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.pbLg,
       ...spacings.ph0,
       ...flexbox.flex1
-    },
-    sideContentContainer: {
-      ...spacings.ph0,
-      ...spacings.plXl,
-      maxWidth: 582,
-      minWidth: 300,
-      // TODO: this is a temp solution because Dimensions gets the static sizes of the window and doesn't update dynamically
-      width: IS_SCREEN_SIZE_DESKTOP_LARGE ? 300 : '30%',
-      overflow: 'hidden'
     },
     informationCircle: {
       ...flexbox.alignSelfCenter,

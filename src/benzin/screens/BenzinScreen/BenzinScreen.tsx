@@ -14,7 +14,7 @@ import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
 
 import Buttons from './components/Buttons'
 import Header from './components/Header'
@@ -61,6 +61,7 @@ const standardOptions = {
 const BenzinScreen = () => {
   const { styles } = useTheme(getStyles)
   const route = useRoute()
+  const { maxWidthSize } = useWindowSize()
 
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId')
@@ -96,7 +97,7 @@ const BenzinScreen = () => {
   return (
     <ImageBackground
       style={styles.backgroundImage}
-      source={IS_SCREEN_SIZE_DESKTOP_LARGE ? meshGradientLarge : meshGradient}
+      source={maxWidthSize('xl') ? meshGradientLarge : meshGradient}
       resizeMode="cover"
     >
       <ScrollView contentContainerStyle={styles.container}>
