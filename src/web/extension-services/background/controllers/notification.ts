@@ -8,7 +8,6 @@ import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import userNotification from '@web/extension-services/background/libs/user-notification'
-import { createTab } from '@web/extension-services/background/webapi/tab'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
@@ -17,6 +16,11 @@ const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SignTypedData',
   'LedgerHardwareWaiting'
 ]
+
+export const BENZIN_NOTIFICATION_DATA = {
+  screen: 'Benzin',
+  method: 'benzin'
+}
 
 export const SIGN_METHODS = [
   'eth_signTypedData',
@@ -133,6 +137,10 @@ export class NotificationController extends EventEmitter {
   }
 
   openNotificationRequest = async (notificationId: number) => {
+    if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
+      this.deleteNotificationRequest(this.currentNotificationRequest)
+      this.currentNotificationRequest = null
+    }
     try {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
@@ -193,18 +201,33 @@ export class NotificationController extends EventEmitter {
     if (notificationRequest) {
       notificationRequest?.resolve(data)
 
-      if (data?.hash && data?.networkId) {
-        createTab(
-          `https://benzin.ambire.com/index.html?txnId=${data.hash}&networkId=${data.networkId}${
-            data?.isUserOp ? '&isUserOp' : ''
-          }`
-        )
-      }
-
       if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
         this.#mainCtrl.removeUserRequest(notificationRequest?.id)
         this.deleteNotificationRequest(notificationRequest)
         this.currentNotificationRequest = null
+        if (
+          isSignAccountOpMethod(notificationRequest.params?.method) &&
+          data?.hash &&
+          data?.networkId
+        ) {
+          this.requestNotificationRequest(
+            {
+              screen: BENZIN_NOTIFICATION_DATA.screen,
+              params: {
+                method: BENZIN_NOTIFICATION_DATA.method,
+                networkId: notificationRequest.networkId,
+                txnId: data.hash,
+                isUserOp: !!data?.isUserOp
+              },
+              resolve: () => {},
+              reject: () => {}
+            },
+            undefined,
+            false
+          )
+
+          return
+        }
       } else {
         const currentOrigin = notificationRequest.params?.session?.origin
         this.deleteNotificationRequest(notificationRequest)
@@ -271,7 +294,17 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  requestNotificationRequest = (data: any, winProps?: any): Promise<any> => {
+  requestNotificationRequest = (
+    data: any,
+    winProps?: any,
+    openNewWindow: boolean = true
+  ): Promise<any> => {
+    // Delete the current notification request if it's a benzin request
+    if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
+      this.deleteNotificationRequest(this.currentNotificationRequest)
+      this.currentNotificationRequest = null
+    }
+
     return new Promise((resolve, reject) => {
       const id = new Date().getTime()
       const notificationRequest: NotificationRequest = {
@@ -377,7 +410,7 @@ export class NotificationController extends EventEmitter {
         })
       }
       this.emitUpdate()
-      this.openNotification(notificationRequest.winProps)
+      if (openNewWindow) this.openNotification(notificationRequest.winProps)
     })
   }
 
@@ -431,6 +464,7 @@ export class NotificationController extends EventEmitter {
   toJSON() {
     return {
       ...this,
+      ...super.toJSON(),
       notificationRequests: this.notificationRequests // includes the getter in the stringified instance
     }
   }

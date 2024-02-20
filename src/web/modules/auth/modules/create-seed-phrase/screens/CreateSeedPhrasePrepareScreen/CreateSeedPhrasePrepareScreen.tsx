@@ -94,6 +94,7 @@ const CreateSeedPhrasePrepareScreen = () => {
           <Button
             disabled={!allCheckboxesChecked}
             accessibilityRole="button"
+            size="large"
             text={t('Review Seed Phrase')}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}

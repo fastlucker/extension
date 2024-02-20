@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
+import BenzinScreen from '@benzin/screens/BenzinScreen'
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
@@ -24,6 +25,7 @@ import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCr
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
+import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/BenzinNotificationScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -143,6 +145,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
+          <Route path={WEB_ROUTES.benzin} element={<BenzinNotificationScreen />} />
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />

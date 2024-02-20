@@ -13,10 +13,24 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  panel: { alignItems: 'center' },
-  topUpPanel: { alignItems: 'flex-start' },
-  container: { ...flexbox.directionRow, ...spacings.pv, ...flexbox.flex1, width: '100%' },
-  separator: { width: 1, height: '100%', backgroundColor: colors.scampi_20, marginHorizontal: 30 },
+  panel: {
+    maxHeight: '100%',
+    paddingVertical: 0
+  },
+  topUpPanel: {
+    ...spacings.pvXl,
+    ...spacings.phXl
+  },
+  container: {
+    ...flexbox.directionRow,
+    ...flexbox.flex1,
+    width: '100%'
+  },
+  separator: {
+    width: 1,
+    height: '100%',
+    backgroundColor: colors.scampi_20
+  },
   spinnerContainer: {
     ...flexbox.center,
     ...flexbox.flex1

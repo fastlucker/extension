@@ -63,8 +63,8 @@ const TokenItem = ({
             />
           )}
         </View>
-        <View>
-          <Text style={[spacings.mrTy]} fontSize={16} weight="number_bold" numberOfLines={1}>
+        <View style={flexboxStyles.flex1}>
+          <Text style={spacings.mrTy} fontSize={16} weight="number_bold" numberOfLines={1}>
             {balanceFormatted} {symbol}
           </Text>
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
