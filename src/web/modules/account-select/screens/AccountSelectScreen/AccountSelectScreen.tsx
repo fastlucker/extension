@@ -62,7 +62,7 @@ const AccountSelectScreen = () => {
                 onSelect={goBack}
                 key={account.addr}
                 account={account}
-                shortenAccountAddr={shortenAccountAddr()}
+                maxAccountAddrLength={shortenAccountAddr()}
               />
             ))
           ) : (

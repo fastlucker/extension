@@ -1,17 +1,23 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import TermsComponent from '@web/modules/terms/components'
 
 import SettingsPageHeader from '../../components/SettingsPageHeader'
 
 const TermsSettingsScreen = () => {
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage('terms-of-service')
+  }, [setCurrentSettingsPage])
+
   return (
-    <SettingsPage currentPage="terms-of-service">
+    <>
       <SettingsPageHeader title="Terms of Service" />
       <TermsComponent />
-    </SettingsPage>
+    </>
   )
 }
 
-export default TermsSettingsScreen
+export default React.memo(TermsSettingsScreen)

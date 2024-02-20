@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useContext, useEffect, useRef } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -12,8 +12,9 @@ import spacings from '@common/styles/spacings'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+
+import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
@@ -22,6 +23,11 @@ const AccountsSettingsScreen = () => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
   const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage('accounts')
+  }, [setCurrentSettingsPage])
 
   const shortenAccountAddr = () => {
     if (maxElementWidthSize(800)) return undefined
@@ -40,7 +46,7 @@ const AccountsSettingsScreen = () => {
   )
 
   return (
-    <SettingsPage currentPage="accounts">
+    <>
       <SettingsPageHeader title="Accounts">
         <Search placeholder="Search for account" control={control} />
       </SettingsPageHeader>
@@ -51,15 +57,20 @@ const AccountsSettingsScreen = () => {
             isCopyVisible={false}
             key={account.addr}
             account={account}
-            shortenAccountAddr={shortenAccountAddr()}
+            maxAccountAddrLength={shortenAccountAddr()}
           />
         ))}
       </View>
-      <Button type="secondary" onPress={openBottomSheet as any} text="Add account" />
+      <Button
+        type="secondary"
+        onPress={openBottomSheet as any}
+        text="Add account"
+        hasBottomSpacing={false}
+      />
       <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
         <AddAccount />
       </BottomSheet>
-    </SettingsPage>
+    </>
   )
 }
 

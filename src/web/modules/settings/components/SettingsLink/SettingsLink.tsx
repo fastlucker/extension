@@ -59,6 +59,7 @@ const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, styl
         flexbox.directionRow,
         spacings.pl,
         spacings.pv,
+        spacings.mbMi,
         {
           borderRadius: BORDER_RADIUS_PRIMARY,
           width: 250,
