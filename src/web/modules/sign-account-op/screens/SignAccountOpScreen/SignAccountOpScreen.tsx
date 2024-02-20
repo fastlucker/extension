@@ -159,13 +159,14 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState?.accountOp) return []
 
     if (signAccountOpState.accountOp?.calls?.length) {
-      return signAccountOpState.accountOp.calls.map((opCall) => {
-        return (
-          (signAccountOpState.humanReadable || []).find(
+      return signAccountOpState.accountOp.calls
+        .map((opCall) => {
+          const found: IrCall[] = (signAccountOpState.humanReadable || []).filter(
             (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
-          ) || opCall
-        )
-      })
+          )
+          return found.length ? found : [opCall]
+        })
+        .flat()
     }
 
     return []
