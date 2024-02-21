@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Linking, View, ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { getKnownAddressLabels } from '@ambire-common/libs/account/account'
@@ -11,9 +11,11 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import { createTab } from '@web/extension-services/background/webapi/tab'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -28,6 +30,7 @@ interface Props {
 
 const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
+  const { addToast } = useToast()
   const mainState = useMainControllerState()
   const settingsState = useSettingsControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -113,9 +116,21 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     submittedAccountOp.networkId
   ])
 
-  const handleOpenExplorer = useCallback(() => {
-    Linking.openURL(`${network.explorerUrl}/tx/${submittedAccountOp.txnId}`)
-  }, [network.explorerUrl, submittedAccountOp.txnId])
+  const handleOpenExplorer = useCallback(async () => {
+    const networkId = network.id
+
+    if (!networkId || !submittedAccountOp.txnId) throw new Error('Invalid networkId or txnId')
+
+    try {
+      await createTab(
+        `https://benzin.ambire.com/?txnId=${submittedAccountOp.txnId}&networkId=${networkId}${
+          submittedAccountOp.asUserOperation ? '&isUserOp' : ''
+        }`
+      )
+    } catch (e: any) {
+      addToast(e?.message || 'Error opening explorer', { type: 'error' })
+    }
+  }, [addToast, network.id, submittedAccountOp.asUserOperation, submittedAccountOp.txnId])
 
   return (
     <View style={[styles.container, style]}>
