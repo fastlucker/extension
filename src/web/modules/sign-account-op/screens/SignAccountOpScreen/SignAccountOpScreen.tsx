@@ -313,13 +313,20 @@ const SignAccountOpScreen = () => {
   }
 
   let shouldShowSimulation = false
+  const isReloading = initialSimulationLoaded && !hasEstimation
   if (
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !!pendingTokens.length &&
-    !hasSimulationError
+    !hasSimulationError &&
+    !isReloading
   ) {
     shouldShowSimulation = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
+
+  let shouldShowLoader = false
+  if ((!!portfolioStatePending?.isLoading && !initialSimulationLoaded) || isReloading) {
+    shouldShowLoader = true
   }
 
   return (
@@ -434,7 +441,7 @@ const SignAccountOpScreen = () => {
                   />
                 </View>
               )}
-              {!!portfolioStatePending?.isLoading && !initialSimulationLoaded && (
+              {shouldShowLoader && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
