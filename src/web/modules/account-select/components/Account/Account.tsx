@@ -27,12 +27,12 @@ const Account = ({
   account,
   onSelect,
   isCopyVisible = true,
-  shortenAccountAddr
+  maxAccountAddrLength
 }: {
   account: AccountInterface
   onSelect?: (addr: string) => void
   isCopyVisible?: boolean
-  shortenAccountAddr?: number
+  maxAccountAddrLength?: number
 }) => {
   const { addr, creation, associatedKeys } = account
   const { t } = useTranslation()
@@ -77,7 +77,7 @@ const Account = ({
             <View>
               <View style={flexboxStyles.directionRow}>
                 <Text fontSize={isTab ? 16 : 14} weight="regular">
-                  {shortenAccountAddr ? shortenAddress(addr, shortenAccountAddr) : addr}
+                  {maxAccountAddrLength ? shortenAddress(addr, maxAccountAddrLength) : addr}
                 </Text>
 
                 <Badge
