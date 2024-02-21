@@ -66,7 +66,8 @@ const DashboardScreen = () => {
 
     if (!selectedAccount) return 0
 
-    const selectedAccountPortfolio = state.latest[selectedAccount][filterByNetworkId]?.result?.total
+    const selectedAccountPortfolio =
+      state?.latest?.[selectedAccount]?.[filterByNetworkId]?.result?.total
 
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
