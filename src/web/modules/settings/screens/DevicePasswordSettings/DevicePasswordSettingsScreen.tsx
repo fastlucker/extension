@@ -1,24 +1,26 @@
-import React from 'react'
-
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
-import flexbox from '@common/styles/utils/flexbox'
+import React, { useContext, useEffect } from 'react'
 import { View } from 'react-native'
-import ChangePassword from './ChangePassword'
-import BackupPassword from './BackupPassword'
 
+import flexbox from '@common/styles/utils/flexbox'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+
+import BackupPassword from './BackupPassword'
+import ChangePassword from './ChangePassword'
 import styles from './styles'
 
 const DevicePasswordSettingsScreen = () => {
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage('device-password')
+  }, [setCurrentSettingsPage])
   return (
-    <SettingsPage currentPage="device-password">
-      <View style={flexbox.directionRow}>
-        <ChangePassword />
-        <View style={styles.separator} />
-        <BackupPassword />
-      </View>
-    </SettingsPage>
+    <View style={flexbox.directionRow}>
+      <ChangePassword />
+      <View style={styles.separator} />
+      <BackupPassword />
+    </View>
   )
 }
 
-export default DevicePasswordSettingsScreen
-
+export default React.memo(DevicePasswordSettingsScreen)

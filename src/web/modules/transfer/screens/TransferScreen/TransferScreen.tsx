@@ -31,7 +31,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -40,7 +40,7 @@ const TransferScreen = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
@@ -101,7 +101,7 @@ const TransferScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width={isTopUp ? 'sm' : 'xl'}
-      header={<HeaderAccountAndNetworkInfo containerStyle={{ borderWidth: 0 }} />}
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -137,10 +137,18 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
+            style={[styles.panel, !state.isTopUp && spacings.pv0]}
+            forceContainerSmallSpacings={state.isTopUp}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
-            <View style={[flexbox.directionRow, flexbox.flex1, common.fullWidth, spacings.pvXl]}>
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.flex1,
+                common.fullWidth,
+                !state.isTopUp && spacings.pvXl
+              ]}
+            >
               <ScrollView
                 style={[flexbox.flex1, hasScrollFormContainer ? spacings.pr : spacings.pr0]}
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -155,6 +163,7 @@ const TransferScreen = () => {
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
+                  disableForm={state.isTopUp && !isSmartAccount}
                 />
               </ScrollView>
               {!isTopUp && (
@@ -184,14 +193,16 @@ const TransferScreen = () => {
               )}
             </View>
             {isTopUp && !isSmartAccount && (
-              <Alert
-                type="warning"
-                // @TODO: replace temporary text
-                title={t(
-                  'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
-                )}
-                isTypeLabelHidden
-              />
+              <View style={spacings.ptLg}>
+                <Alert
+                  type="warning"
+                  // @TODO: replace temporary text
+                  title={t(
+                    'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
+                  )}
+                  isTypeLabelHidden
+                />
+              </View>
             )}
           </Panel>
         ) : (

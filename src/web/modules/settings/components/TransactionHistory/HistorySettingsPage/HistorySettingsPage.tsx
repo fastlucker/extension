@@ -1,4 +1,12 @@
-import React, { ComponentType, FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  ComponentType,
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -18,8 +26,8 @@ import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import shortenAddress from '@web/utils/shortenAddress'
 
 type AccountOption = {
@@ -62,6 +70,12 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const [contentHeight, setContentHeight] = useState(0)
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage(historyType)
+  }, [setCurrentSettingsPage, historyType])
+
   const itemsTotal =
     (historyType === 'messages'
       ? activityState.signedMessages?.itemsTotal
@@ -166,7 +180,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   }, [itemsTotal, page])
 
   return (
-    <SettingsPage currentPage={historyType} withPanelScrollView={false}>
+    <>
       <SettingsPageHeader
         title={historyType === 'messages' ? 'Signed Messages' : 'Transaction History'}
       />
@@ -233,7 +247,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         page={page}
         setPage={(p) => setPage(p)}
       />
-    </SettingsPage>
+    </>
   )
 }
 

@@ -81,10 +81,10 @@ const TokenItem = ({
         </View>
       </View>
       <Text fontSize={16} weight="number_regular" style={{ flex: 0.7 }}>
-        ${priceUSDFormatted}
+        {priceUSDFormatted}
       </Text>
       <Text fontSize={16} weight="number_bold" style={{ flex: 0.8, textAlign: 'right' }}>
-        ${balanceUSDFormatted}
+        {balanceUSDFormatted}
       </Text>
     </Pressable>
   )
