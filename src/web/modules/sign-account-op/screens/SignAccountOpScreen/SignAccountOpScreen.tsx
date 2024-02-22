@@ -7,6 +7,7 @@ import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
+import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
@@ -223,6 +224,13 @@ const SignAccountOpScreen = () => {
 
     setIsChooseSignerShown(true)
   }
+
+  const onGasUsedTooHighAgreed = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+      params: { gasUsedTooHighAgreed: !signAccountOpState?.gasUsedTooHighAgreed }
+    })
+  }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -500,6 +508,27 @@ const SignAccountOpScreen = () => {
                   disabled={isViewOnly || isSignLoading}
                 />
               )}
+              {!!hasEstimation &&
+                !estimationFailed &&
+                signAccountOpState.gasUsedTooHigh &&
+                !signAccountOpState?.errors.length && (
+                  <View style={styles.errorContainer}>
+                    <Alert
+                      type="warning"
+                      title="Estimation for this request is enormously high (more than 10 miliion gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+                    />
+                    <Checkbox
+                      value={signAccountOpState.gasUsedTooHighAgreed}
+                      onValueChange={onGasUsedTooHighAgreed}
+                      style={spacings.mtSm}
+                    >
+                      <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
+                        {t('I understand the risks')}
+                      </Text>
+                    </Checkbox>
+                  </View>
+                )}
+
               {!hasEstimation && !estimationFailed && (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                   <Spinner style={styles.spinner} />
