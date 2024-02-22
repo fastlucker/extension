@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
-import useConstants from '@common/hooks/useConstants'
 import useRoute from '@common/hooks/useRoute'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -30,7 +29,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as TransferControllerState)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const { constants } = useConstants()
   const { accountPortfolio } = usePortfolioControllerState()
   const { search } = useRoute()
   const tokens = accountPortfolio?.tokens
@@ -43,23 +41,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
       })
     }
   }, [dispatch])
-
-  useEffect(() => {
-    if (!constants) return
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        humanizerInfo: constants.humanizerInfo
-      }
-    })
-  }, [constants, dispatch])
-
-  useEffect(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: { isTopUp: !!selectedTokenFromUrl?.isTopUp }
-    })
-  }, [selectedTokenFromUrl?.isTopUp, dispatch])
 
   useEffect(() => {
     if (tokens?.length && selectedTokenFromUrl && !state.selectedToken) {
