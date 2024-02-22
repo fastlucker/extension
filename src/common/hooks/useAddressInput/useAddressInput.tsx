@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
@@ -31,6 +31,7 @@ const useAddressInput = ({
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const fieldValueRef = useRef(addressState?.fieldValue)
   const debouncedAddress = useDebounce({
     value: addressState?.fieldValue || '',
     delay: 300
@@ -76,6 +77,7 @@ const useAddressInput = ({
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
+          if (fieldValueRef.current !== debouncedAddress) return
           setAddressState({
             udAddress: newUDAddress
           })
@@ -90,6 +92,7 @@ const useAddressInput = ({
         }),
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
+          if (fieldValueRef.current !== debouncedAddress) return
           setAddressState({
             ensAddress: newEnsAddress
           })
@@ -117,6 +120,10 @@ const useAddressInput = ({
         handleRevalidate && handleRevalidate()
       })
   }, [addToast, debouncedAddress, dispatch, handleRevalidate, networks, setAddressState])
+
+  useEffect(() => {
+    fieldValueRef.current = addressState?.fieldValue
+  }, [addressState?.fieldValue])
 
   const reset = useCallback(() => {
     setAddressState({
