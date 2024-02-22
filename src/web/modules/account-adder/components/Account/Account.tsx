@@ -8,6 +8,7 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import Badge from '@common/components/Badge'
 import Checkbox from '@common/components/Checkbox'
+import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -78,7 +79,6 @@ const Account = ({
     <Pressable
       key={account.addr}
       style={({ hovered }: any) => [
-        flexbox.directionRow,
         flexbox.alignCenter,
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
@@ -143,22 +143,6 @@ const Account = ({
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
               <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
             )}
-            {(importStatus === ImportStatus.ImportedWithSameKey ||
-              importStatus === ImportStatus.ImportedWithDifferentKey) && (
-              <View style={{ flexDirection: 'row', position: 'absolute', left: 0, bottom: -25 }}>
-                {importStatus === ImportStatus.ImportedWithSameKey && (
-                  <Badge withRightSpacing withIcon text={t('already imported')} type="success" />
-                )}
-                {importStatus === ImportStatus.ImportedWithDifferentKey && (
-                  <Badge
-                    withRightSpacing
-                    withIcon
-                    text={t('imported with different key')}
-                    type="success"
-                  />
-                )}
-              </View>
-            )}
           </View>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {!!account.usedOnNetworks.length && (
@@ -185,6 +169,29 @@ const Account = ({
           </View>
         </View>
       </View>
+      {(importStatus === ImportStatus.ImportedWithSameKey ||
+        importStatus === ImportStatus.ImportedWithDifferentKey) && (
+        <View style={[spacings.mh, spacings.mvSm, { alignSelf: 'flex-start' }]}>
+          {importStatus === ImportStatus.ImportedWithSameKey && (
+            <Label
+              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              hasBottomSpacing={false}
+              text={t('Already imported with the same key.')}
+              type="success"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithDifferentKey && (
+            <Label
+              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported, associated with a different key. Re-import now to use this account with multiple keys.'
+              )}
+              type="info"
+            />
+          )}
+        </View>
+      )}
     </Pressable>
   )
 }
