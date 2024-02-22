@@ -1,4 +1,5 @@
 import { Mnemonic } from 'ethers'
+import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Dimensions, ScrollView, View } from 'react-native'
@@ -91,7 +92,15 @@ const AccountsOnPageList = ({
 
   const linkedAccounts = useMemo(() => {
     if (lookingForLinkedAccounts) return []
-    return state.accountsOnPage.filter((a) => getType(a) === 'linked')
+
+    // A linked account with the same address could have multiple Basic accounts
+    // added as keys. Therefore, it could appear multiple times in the list.
+    // In this case, show it only one time. When it gets selected, all keys
+    // will get selected (and later on, imported) below the hood.
+    return uniqBy(
+      state.accountsOnPage.filter((a) => getType(a) === 'linked'),
+      (a) => a.account.addr
+    )
   }, [state.accountsOnPage, getType, lookingForLinkedAccounts])
 
   const numberOfSelectedLinkedAccounts = useMemo(() => {
