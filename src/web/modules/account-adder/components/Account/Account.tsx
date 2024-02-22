@@ -169,8 +169,11 @@ const Account = ({
           </View>
         </View>
       </View>
-      {(importStatus === ImportStatus.ImportedWithSameKey ||
-        importStatus === ImportStatus.ImportedWithDifferentKey) && (
+      {[
+        ImportStatus.ImportedWithSameKey,
+        ImportStatus.ImportedWithDifferentKey,
+        ImportStatus.ImportedWithoutKey
+      ].includes(importStatus) && (
         <View style={[spacings.mh, spacings.mvSm, { alignSelf: 'flex-start' }]}>
           {importStatus === ImportStatus.ImportedWithSameKey && (
             <Label
@@ -186,6 +189,16 @@ const Account = ({
               hasBottomSpacing={false}
               text={t(
                 'Already imported, associated with a different key. Re-import now to use this account with multiple keys.'
+              )}
+              type="info"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithoutKey && (
+            <Label
+              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported as a view only account. Import now to be able to manage this account.'
               )}
               type="info"
             />
