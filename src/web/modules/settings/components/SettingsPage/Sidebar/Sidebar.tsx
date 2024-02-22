@@ -65,7 +65,7 @@ export const SETTINGS_LINKS = [
     key: 'custom-tokens',
     Icon: React.memo(CustomTokensIcon),
     label: 'Custom Tokens',
-    path: '/settings/custom-tokens'
+    path: ROUTES.customTokens
   }
 ]
 

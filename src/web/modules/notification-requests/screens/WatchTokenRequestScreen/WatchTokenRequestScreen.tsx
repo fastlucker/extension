@@ -2,19 +2,16 @@ import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import { Avatar } from '@common/components/Avatar'
 import Button from '@common/components/Button'
+import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
+import networks from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
-import Header from '@common/modules/header/components/Header'
+import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import textStyles from '@common/styles/utils/text'
-import ManifestImage from '@web/components/ManifestImage'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -22,10 +19,8 @@ import {
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-
-// TODO: Reuse styles?
-import styles from '../DappConnectScreen/styles'
 
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
@@ -35,8 +30,9 @@ const WatchTokenRequestScreen = () => {
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
+  const { accountPortfolio } = usePortfolioControllerState()
 
+  // TODO: Notification window not closing
   const handleCancel = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
@@ -46,36 +42,15 @@ const WatchTokenRequestScreen = () => {
 
   // TODO:
   const handleAddToken = useCallback(() => {}, [])
-
+  // TODO: Add standard and handle different types
+  const tokenData = state?.currentNotificationRequest?.params?.data?.options
+  const origin = state?.currentNotificationRequest?.params?.session?.origin
+  const network = networks.find((n) => n.explorerUrl === origin)
+  console.log(state)
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        // TODO: Re-use Header from DappConnectScreen?
-        <Header withAmbireLogo mode="custom">
-          <View
-            style={[
-              flexbox.flex1,
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.justifySpaceBetween
-            ]}
-          >
-            <View style={styles.accountInfo}>
-              <Avatar pfp={selectedAccountPref?.pfp} size={32} />
-              <View style={styles.accountAddressAndLabel}>
-                <Text weight="number_bold" fontSize={16} appearance="secondaryText">
-                  {selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL}
-                </Text>
-                <Text weight="number_medium" style={styles.accountInfoText} fontSize={16}>
-                  ({selectedAccount})
-                </Text>
-              </View>
-            </View>
-            <AmbireLogoHorizontal width={72} />
-          </View>
-        </Header>
-      }
+      header={<HeaderAccountAndNetworkInfo networkName={network.name} networkId={network.id} />}
       footer={
         <>
           <Button
@@ -104,11 +79,74 @@ const WatchTokenRequestScreen = () => {
         <Text weight="medium" fontSize={20} style={spacings.mbLg}>
           {t('Add suggested token')}
         </Text>
-        <Text weight="regular" fontSize={16} style={spacings.mb2Xl}>
+        <Text weight="regular" fontSize={16} color={theme.secondaryText} style={spacings.mbXl}>
           {t('Would you like to add this token?')}
         </Text>
 
-        {/* TODO: Display token details */}
+        <View
+          style={{
+            width: '100%',
+            borderBottomWidth: 1,
+            borderColor: theme.secondaryBorder,
+            ...spacings.mb
+          }}
+        />
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
+          <View>
+            <Text fontSize={12} weight="medium" style={spacings.mbMd} appearance="secondaryText">
+              {t('ASSET/AMOUNT')}
+            </Text>
+            <View style={flexbox.directionRow}>
+              <TokenIcon
+                withContainer
+                uri={tokenData.image}
+                networkId={network.id}
+                containerHeight={40}
+                containerWidth={40}
+                width={28}
+                height={28}
+              />
+              <View style={spacings.ml}>
+                <Text weight="number_bold" fontSize={16}>
+                  {tokenData.name} {tokenData.symbol}
+                </Text>
+                <Text fontSize={12}>
+                  {t('on')} {network.name}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View>
+            <Text
+              fontSize={12}
+              weight="medium"
+              style={[spacings.mbMd, { textAlign: 'left' }]}
+              appearance="secondaryText"
+            >
+              {t('Price')}
+            </Text>
+            <Text fontSize={16} style={{ textAlign: 'left' }}>
+              $0.04
+            </Text>
+          </View>
+
+          <View>
+            <Text fontSize={12} weight="medium" style={spacings.mbMd} appearance="secondaryText">
+              {t('USD Value')}
+            </Text>
+            <View style={flexbox.directionRow}>
+              <Text
+                weight="number_bold"
+                fontSize={16}
+                style={[{ textAlign: 'right' }, spacings.mr4Xl]}
+              >
+                $0.00
+              </Text>
+              <CoingeckoConfirmedBadge text={t('Confirmed')} />
+            </View>
+          </View>
+        </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )

@@ -40,6 +40,7 @@ import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokens'
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
@@ -128,6 +129,8 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
               <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
               <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
+              <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+
               <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
             </Route>
           </Route>
