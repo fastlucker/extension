@@ -13,8 +13,8 @@ import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-p
 import {
   ambireSvg,
   isWordInPage,
-  replaceMMBrandInPage,
-  replaceMMImgInPage
+  replaceMMImgInPage,
+  replaceOtherWalletWithAmbireInConnectionModals
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
@@ -63,7 +63,7 @@ const runReplacementScript = () => {
       return
     }
 
-    replaceMMBrandInPage(ambireSvg)
+    replaceOtherWalletWithAmbireInConnectionModals(['metamask', 'connect by metamask'])
   })()
 }
 

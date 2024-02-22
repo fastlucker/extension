@@ -134,7 +134,7 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
   return false
 }
 
-function replaceMMBrandInPage(replacementIcon?: string) {
+function replaceOtherWalletWithAmbireInConnectionModals(otherWalletNames: string[] = []) {
   let additionalNodes: any[] = []
   const onboardElement = document.querySelector('onboard-v2')
   const allShadowRoots = findAllShadowRoots()
@@ -148,11 +148,7 @@ function replaceMMBrandInPage(replacementIcon?: string) {
       if (childNode.nodeType === Node.TEXT_NODE) {
         const text = childNode.nodeValue
 
-        if (
-          replacementIcon &&
-          (new RegExp('^metamask$', 'i').test(text.trim()) ||
-            new RegExp('^connect by metamask$', 'i').test(text.trim()))
-        ) {
+        if (otherWalletNames.some((name) => new RegExp(`^${name}$`, 'i').test(text.trim()))) {
           function lookForIcon() {
             let ancestorNode = childNode.parentNode
             let maxLevels = 4
@@ -163,14 +159,14 @@ function replaceMMBrandInPage(replacementIcon?: string) {
               if (allNestedShadowRootsForAncestorNode.length) {
                 for (let i = 0; i < allNestedShadowRootsForAncestorNode.length; i++) {
                   const node = allNestedShadowRootsForAncestorNode[i]
-                  const replaced = findAndReplaceIcon(node, replacementIcon!)
+                  const replaced = findAndReplaceIcon(node, ambireSvg)
                   if (replaced) {
                     shouldBreakWhileLoop = true
                     break
                   }
                 }
               } else {
-                const replaced = findAndReplaceIcon(ancestorNode, replacementIcon!)
+                const replaced = findAndReplaceIcon(ancestorNode, ambireSvg)
                 if (replaced) break
               }
 
@@ -199,4 +195,9 @@ function replaceMMBrandInPage(replacementIcon?: string) {
   })
 }
 
-export { ambireSvg, isWordInPage, replaceMMBrandInPage, replaceMMImgInPage }
+export {
+  ambireSvg,
+  isWordInPage,
+  replaceOtherWalletWithAmbireInConnectionModals,
+  replaceMMImgInPage
+}
