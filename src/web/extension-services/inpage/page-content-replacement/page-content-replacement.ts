@@ -30,33 +30,69 @@ function findAllShadowRoots(n = document.body) {
   return shadowRoots
 }
 
-function getNumberOfWordOccurrencesInPage(word: string) {
+// function getNumberOfWordsOccurrencesInPage(words: string[]) {
+//   let wordCount = 0
+//   const allShadowRoots = findAllShadowRoots()
+//   for (const shadowRoot of allShadowRoots) {
+//     const textInShadowRoot = shadowRoot?.textContent || shadowRoot?.innerText
+//     for (let i = 0; i < words.length; i++) {
+//       wordCount += (textInShadowRoot?.match(new RegExp(words[i], 'gi')) || [])?.length || 0
+//     }
+//   }
+//   const allText = document?.body?.textContent || document?.body?.innerText
+//   for (let i = 0; i < words.length; i++) {
+//     wordCount += (allText?.match(new RegExp(words[i], 'gi')) || [])?.length || 0
+//   }
+
+//   return wordCount
+// }
+
+function getNumberOfWordsOccurrencesInPage(words: string[]) {
   let wordCount = 0
+
+  const searchForWords = (node: HTMLElement) => {
+    const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        // Check if the current node is visible
+        if (node.parentElement?.clientHeight === 0 && node.parentElement?.clientWidth === 0) {
+          return NodeFilter.FILTER_REJECT // Current node is hidden, reject it
+        }
+
+        return NodeFilter.FILTER_ACCEPT // Current node is visible, accept it
+      }
+    })
+
+    while (treeWalker.nextNode()) {
+      const textContent = treeWalker.currentNode.textContent || ''
+      for (let i = 0; i < words.length; i++) {
+        if (textContent.toLowerCase().includes(words[i].toLowerCase())) wordCount += 1
+      }
+    }
+  }
+
   const allShadowRoots = findAllShadowRoots()
   for (const shadowRoot of allShadowRoots) {
-    const textInShadowRoot = shadowRoot?.textContent || shadowRoot?.innerText
-    wordCount += (textInShadowRoot?.match(new RegExp(word, 'gi')) || [])?.length || 0
+    searchForWords(shadowRoot)
   }
-  const allText = document?.body?.textContent || document?.body?.innerText
-  wordCount += (allText?.match(new RegExp(word, 'gi')) || [])?.length || 0
 
+  searchForWords(document.body)
   return wordCount
 }
 
-function isWordInPage(word: string) {
-  return getNumberOfWordOccurrencesInPage(word) !== 0
+function hasWordsFoundInPage(words: string[]) {
+  return getNumberOfWordsOccurrencesInPage(words) !== 0
 }
 
-function replaceMMImgInPage() {
+function replaceIconOnlyConnectionButtons(iconName: string) {
   const imgElements = document.getElementsByTagName('img')
   for (let i = 0; i < imgElements.length; i++) {
-    if (imgElements[i].src.includes('metamask')) {
+    if (imgElements[i].src.includes(iconName)) {
       imgElements[i].src = ambireSvg
     }
   }
 }
 
-const findAndReplaceIcon = (node: any, replacementIcon: string) => {
+const findAndReplaceOtherWalletIconWithAmbireIcon = (node: any, iconNames: string[]) => {
   const imgElement = node.querySelector('img')
   const svgElement = node.querySelector('svg')
   const imgElementByRole = node.querySelector('[role="img"]')
@@ -65,14 +101,14 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
   const mmIconDivs = Array.from(allDivs).filter((div: any) => {
     const background = window.getComputedStyle(div).getPropertyValue('background')
     const backgroundImg = window.getComputedStyle(div).getPropertyValue('background-image')
-    return background.includes('metamask') || backgroundImg.includes('metamask')
+    return iconNames.some((name) => background.includes(name) || backgroundImg.includes(name))
   })
 
   if (imgElement || svgElement || imgElementByRole || mmIconDivs.length) {
     const newImgElement = document.createElement('img')
-    newImgElement.src = replacementIcon!
+    newImgElement.src = ambireSvg
     if (imgElement) {
-      imgElement.src = replacementIcon
+      imgElement.src = ambireSvg
       imgElement.removeAttribute('srcset')
     }
 
@@ -134,7 +170,10 @@ const findAndReplaceIcon = (node: any, replacementIcon: string) => {
   return false
 }
 
-function replaceOtherWalletWithAmbireInConnectionModals(otherWalletNames: string[] = []) {
+function replaceOtherWalletWithAmbireInConnectionModals(
+  otherWalletNames: string[],
+  nameToReplace: string
+) {
   let additionalNodes: any[] = []
   const onboardElement = document.querySelector('onboard-v2')
   const allShadowRoots = findAllShadowRoots()
@@ -159,14 +198,20 @@ function replaceOtherWalletWithAmbireInConnectionModals(otherWalletNames: string
               if (allNestedShadowRootsForAncestorNode.length) {
                 for (let i = 0; i < allNestedShadowRootsForAncestorNode.length; i++) {
                   const node = allNestedShadowRootsForAncestorNode[i]
-                  const replaced = findAndReplaceIcon(node, ambireSvg)
+                  const replaced = findAndReplaceOtherWalletIconWithAmbireIcon(
+                    node,
+                    otherWalletNames
+                  )
                   if (replaced) {
                     shouldBreakWhileLoop = true
                     break
                   }
                 }
               } else {
-                const replaced = findAndReplaceIcon(ancestorNode, ambireSvg)
+                const replaced = findAndReplaceOtherWalletIconWithAmbireIcon(
+                  ancestorNode,
+                  otherWalletNames
+                )
                 if (replaced) break
               }
 
@@ -185,7 +230,7 @@ function replaceOtherWalletWithAmbireInConnectionModals(otherWalletNames: string
           }
         }
 
-        const replacedText = text.replace(new RegExp('metamask', 'gi'), 'Ambire')
+        const replacedText = text.replace(new RegExp(nameToReplace, 'gi'), 'Ambire')
 
         if (text !== replacedText) {
           childNode.nodeValue = replacedText
@@ -197,7 +242,8 @@ function replaceOtherWalletWithAmbireInConnectionModals(otherWalletNames: string
 
 export {
   ambireSvg,
-  isWordInPage,
+  hasWordsFoundInPage,
+  getNumberOfWordsOccurrencesInPage,
   replaceOtherWalletWithAmbireInConnectionModals,
-  replaceMMImgInPage
+  replaceIconOnlyConnectionButtons
 }
