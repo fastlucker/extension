@@ -12,7 +12,6 @@ import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import {
   getNumberOfWordsOccurrencesInPage,
-  hasWordsFoundInPage,
   replaceIconOnlyConnectionButtons,
   replaceOtherWalletWithAmbireInConnectionModals
 } from '@web/extension-services/inpage/page-content-replacement'
@@ -31,29 +30,29 @@ declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 let focusedListener: any = null
 let mmOccurrencesOnFirstDOMLoad: number | null = null
+
 //
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
 //
 
 const runReplacementScript = () => {
   if (_defaultWallet === 'OTHER') return
+  if (window.location.hostname.includes('metamask')) return
+
   const mmWordOccurrences = getNumberOfWordsOccurrencesInPage(['metamask'])
   if (mmOccurrencesOnFirstDOMLoad === null) {
     mmOccurrencesOnFirstDOMLoad = mmWordOccurrences
   }
-  console.log('mmOccurrencesOnFirstLoad', mmOccurrencesOnFirstDOMLoad)
-  console.log('mmWordOccurrences', mmWordOccurrences)
+
   const hasMetaMaskInPage = mmWordOccurrences !== 0
-  const hasOKXWalletInPage = hasWordsFoundInPage(['okx wallet'])
+  const hasOKXWalletInPage = getNumberOfWordsOccurrencesInPage(['okx wallet']) !== 0
 
   if (!doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
 
-  const hasWalletConnectInPage = hasWordsFoundInPage(['walletconnect', 'wallet connect'])
-  const hasCoinbaseWalletInPage = hasWordsFoundInPage([
-    'coinbasewallet',
-    'coinbase wallet',
-    'coinbase'
-  ])
+  const hasWalletConnectInPage =
+    getNumberOfWordsOccurrencesInPage(['walletconnect', 'wallet connect']) !== 0
+  const hasCoinbaseWalletInPage =
+    getNumberOfWordsOccurrencesInPage(['coinbasewallet', 'coinbase wallet', 'coinbase']) !== 0
 
   // most dapps read the provider but some don't till connection
   if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
@@ -66,8 +65,10 @@ const runReplacementScript = () => {
     }
     if (isEIP6963) return
     if (hasWalletConnectInPage) replaceIconOnlyConnectionButtons('metamask')
-    const hasTrustWalletInPage = hasWordsFoundInPage(['trustwallet', 'trust wallet'])
-    const isW3Modal = hasWordsFoundInPage(['connect your wallet', 'scan with your wallet'])
+    const hasTrustWalletInPage =
+      getNumberOfWordsOccurrencesInPage(['trustwallet', 'trust wallet']) !== 0
+    const isW3Modal =
+      getNumberOfWordsOccurrencesInPage(['connect your wallet', 'scan with your wallet']) !== 0
 
     if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
@@ -85,7 +86,7 @@ const runReplacementScript = () => {
       return
     }
 
-    const hasAmbireInPage = hasWordsFoundInPage(['ambire'])
+    const hasAmbireInPage = getNumberOfWordsOccurrencesInPage(['ambire']) !== 0
 
     if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
       replaceOtherWalletWithAmbireInConnectionModals(
