@@ -174,10 +174,10 @@ const Account = ({
         ImportStatus.ImportedWithDifferentKey,
         ImportStatus.ImportedWithoutKey
       ].includes(importStatus) && (
-        <View style={[spacings.mh, spacings.mvSm, { alignSelf: 'flex-start' }]}>
+        <View style={[spacings.mh, spacings.mvTy, flexbox.alignSelfStart]}>
           {importStatus === ImportStatus.ImportedWithSameKey && (
             <Label
-              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t('Already imported with the same key.')}
               type="success"
@@ -185,7 +185,7 @@ const Account = ({
           )}
           {importStatus === ImportStatus.ImportedWithDifferentKey && (
             <Label
-              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t(
                 'Already imported, associated with a different key. Re-import now to use this account with multiple keys.'
@@ -195,7 +195,7 @@ const Account = ({
           )}
           {importStatus === ImportStatus.ImportedWithoutKey && (
             <Label
-              customTextStyle={{ fontSize: 12, textTransform: 'none' }}
+              customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t(
                 'Already imported as a view only account. Import now to be able to manage this account.'
