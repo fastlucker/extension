@@ -5,7 +5,8 @@ import { Dimensions, ScrollView, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController, {
-  AccountOnPage
+  AccountOnPage,
+  ImportStatus
 } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
@@ -30,7 +31,7 @@ import Account from '@web/modules/account-adder/components/Account'
 import { AccountAdderIntroStepsProvider } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
-const AccountsList = ({
+const AccountsOnPageList = ({
   state,
   setPage,
   keyType,
@@ -142,10 +143,9 @@ const AccountsList = ({
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
-            isSelected={isSelected || acc.alreadyImportedWithSameKey}
-            isDisabled={acc.alreadyImportedWithSameKey}
-            alreadyImportedWithSameKey={acc.alreadyImportedWithSameKey}
-            alreadyImportedWithDifferentKey={acc.alreadyImportedWithDifferentKey}
+            isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithSameKey}
+            isDisabled={acc.importStatus === ImportStatus.ImportedWithSameKey}
+            importStatus={acc.importStatus}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
           />
@@ -355,4 +355,4 @@ const AccountsList = ({
   )
 }
 
-export default React.memo(AccountsList)
+export default React.memo(AccountsOnPageList)

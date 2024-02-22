@@ -2,6 +2,7 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { ImportStatus } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
@@ -36,8 +37,7 @@ const Account = ({
   onSelect,
   onDeselect,
   isDisabled,
-  alreadyImportedWithSameKey,
-  alreadyImportedWithDifferentKey
+  importStatus
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'basic' | 'smart' | 'linked'
@@ -48,8 +48,7 @@ const Account = ({
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
-  alreadyImportedWithSameKey?: boolean
-  alreadyImportedWithDifferentKey?: boolean
+  importStatus: ImportStatus
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -84,7 +83,7 @@ const Account = ({
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
         { borderWidth: 1, borderColor: theme.secondaryBackground },
-        ((hovered && !isDisabled) || alreadyImportedWithSameKey) && {
+        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithSameKey) && {
           borderColor: theme.secondaryBorder
         }
       ]}
@@ -144,12 +143,13 @@ const Account = ({
             {type === 'linked' && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
               <Badge withRightSpacing withIcon text={t('Ambire v1')} type="info" />
             )}
-            {(alreadyImportedWithSameKey || alreadyImportedWithDifferentKey) && (
-              <View style={{ flexDirection: 'row', position: 'absolute', left: 0, bottom: -20 }}>
-                {alreadyImportedWithSameKey && (
+            {(importStatus === ImportStatus.ImportedWithSameKey ||
+              importStatus === ImportStatus.ImportedWithDifferentKey) && (
+              <View style={{ flexDirection: 'row', position: 'absolute', left: 0, bottom: -25 }}>
+                {importStatus === ImportStatus.ImportedWithSameKey && (
                   <Badge withRightSpacing withIcon text={t('already imported')} type="success" />
                 )}
-                {alreadyImportedWithDifferentKey && (
+                {importStatus === ImportStatus.ImportedWithDifferentKey && (
                   <Badge
                     withRightSpacing
                     withIcon
