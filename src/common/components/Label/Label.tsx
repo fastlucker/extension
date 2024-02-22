@@ -1,6 +1,8 @@
 import React from 'react'
-import { View } from 'react-native'
+import { TextStyle, View } from 'react-native'
 
+import InfoIcon from '@common/assets/svg/InfoIcon'
+import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -15,6 +17,7 @@ type Props = {
   hasBottomSpacing?: boolean
   hasRightSpacing?: boolean
   size?: 'sm' | 'md' | 'lg'
+  customTextStyle?: TextStyle
 }
 
 const sizeMultiplier = {
@@ -28,14 +31,16 @@ const Label = ({
   type,
   hasBottomSpacing = true,
   hasRightSpacing = true,
-  size = 'lg'
+  size = 'lg',
+  customTextStyle = {}
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
 
   const textStyle = [
     textStyles.capitalize,
     textStyles.left,
-    type === 'warning' && styles.warningText
+    type === 'warning' && styles.warningText,
+    customTextStyle
   ]
 
   return (
@@ -50,6 +55,20 @@ const Label = ({
         {type === 'warning' && (
           <WarningIcon
             color={theme.warningDecorative}
+            width={20 * sizeMultiplier[size]}
+            height={19 * sizeMultiplier[size]}
+          />
+        )}
+        {type === 'info' && (
+          <InfoIcon
+            color={theme.infoDecorative}
+            width={20 * sizeMultiplier[size]}
+            height={19 * sizeMultiplier[size]}
+          />
+        )}
+        {type === 'success' && (
+          <SuccessIcon
+            color={theme.successDecorative}
             width={20 * sizeMultiplier[size]}
             height={19 * sizeMultiplier[size]}
           />
