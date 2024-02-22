@@ -515,7 +515,7 @@ const SignAccountOpScreen = () => {
                   <View style={styles.errorContainer}>
                     <Alert
                       type="warning"
-                      title="Estimation for this request is enormously high (more than 10 miliion gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+                      title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
                     />
                     <Checkbox
                       value={signAccountOpState.gasUsedTooHighAgreed}
