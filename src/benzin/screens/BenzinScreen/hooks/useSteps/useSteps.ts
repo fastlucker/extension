@@ -2,7 +2,7 @@ import { AbiCoder, Block, ethers, TransactionReceipt, TransactionResponse } from
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
+import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
@@ -431,7 +431,6 @@ const useSteps = ({
       }
       callsHumanizer(
         accountOp,
-        {},
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),

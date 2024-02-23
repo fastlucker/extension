@@ -1,12 +1,13 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
-import useConstants from '@common/hooks/useConstants'
 import useRoute from '@common/hooks/useRoute'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 
 type ContextReturn = {
   state: TransferControllerState
@@ -30,7 +31,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as TransferControllerState)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const { constants } = useConstants()
   const { accountPortfolio } = usePortfolioControllerState()
   const { search } = useRoute()
   const tokens = accountPortfolio?.tokens
@@ -45,14 +45,13 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch])
 
   useEffect(() => {
-    if (!constants) return
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
       params: {
-        humanizerInfo: constants.humanizerInfo
+        humanizerInfo: humanizerInfo as HumanizerMeta
       }
     })
-  }, [constants, dispatch])
+  }, [dispatch])
 
   useEffect(() => {
     dispatch({
