@@ -34,51 +34,40 @@ const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
   const { t } = useTranslation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
-  const hasNonZeroToken = tokens.some(({ amount }) => amount > 0n)
   const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
 
   const sortedTokens = useMemo(
     () =>
-      tokens
-        .filter(
-          (token) =>
-            token.amount > 0n ||
-            (!hasNonZeroToken &&
-              PINNED_TOKENS.find(
-                ({ address, networkId }) =>
-                  token.address === address && token.networkId === networkId
-              ))
-        )
-        .sort((a, b) => {
-          // If a is a rewards token and b is not, a should come before b.
-          if (a.flags.rewardsType && !b.flags.rewardsType) {
-            return -1
-          }
-          if (!a.flags.rewardsType && b.flags.rewardsType) {
-            // If b is a rewards token and a is not, b should come before a.
-            return 1
+      tokens.sort((a, b) => {
+        // If a is a rewards token and b is not, a should come before b.
+        if (a.flags.rewardsType && !b.flags.rewardsType) {
+          return -1
+        }
+        if (!a.flags.rewardsType && b.flags.rewardsType) {
+          // If b is a rewards token and a is not, b should come before a.
+          return 1
+        }
+
+        const aBalance = calculateTokenBalance(a)
+        const bBalance = calculateTokenBalance(b)
+
+        if (a.flags.rewardsType === b.flags.rewardsType) {
+          if (aBalance === bBalance) {
+            return Number(b.amount) - Number(a.amount)
           }
 
-          const aBalance = calculateTokenBalance(a)
-          const bBalance = calculateTokenBalance(b)
+          return bBalance - aBalance
+        }
 
-          if (a.flags.rewardsType === b.flags.rewardsType) {
-            if (aBalance === bBalance) {
-              return Number(b.amount) - Number(a.amount)
-            }
+        if (a.flags.onGasTank && !b.flags.onGasTank) {
+          return -1
+        }
+        if (!a.flags.onGasTank && b.flags.onGasTank) {
+          return 1
+        }
 
-            return bBalance - aBalance
-          }
-
-          if (a.flags.onGasTank && !b.flags.onGasTank) {
-            return -1
-          }
-          if (!a.flags.onGasTank && b.flags.onGasTank) {
-            return 1
-          }
-
-          return 0
-        }),
+        return 0
+      }),
     [tokens]
   )
 
