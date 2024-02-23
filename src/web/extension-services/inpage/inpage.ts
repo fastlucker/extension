@@ -30,6 +30,11 @@ declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 let focusedListener: any = null
 let mmOccurrencesOnFirstDOMLoad: number | null = null
+export type DefaultWallet = 'AMBIRE' | 'OTHER'
+
+let observer: MutationObserver | null = null
+let observerOptions: MutationObserverInit = { childList: true }
+let clickListener: any
 
 //
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
@@ -75,6 +80,7 @@ const runReplacementScript = () => {
     if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal)) {
       return
     }
+
     if (hasMetaMaskInPage) {
       if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmWordOccurrences)
         return
@@ -97,10 +103,6 @@ const runReplacementScript = () => {
   })()
 }
 
-export type DefaultWallet = 'AMBIRE' | 'OTHER'
-
-let observer: MutationObserver | null = null
-let clickListener: any
 function cleanupObserver() {
   if (observer) {
     observer.disconnect()
@@ -126,7 +128,7 @@ Object.defineProperty(window, 'defaultWallet', {
         clickListener = document.addEventListener('click', runReplacementScript)
       }
       if (!observer) {
-        setupObserver({ childList: true })
+        setupObserver(observerOptions)
       }
     }
   }
@@ -661,7 +663,8 @@ const setAmbireProvider = () => {
               if (callerPage.includes(window.location.hostname)) {
                 doesWebpageReadOurProvider = true
                 clickListener = document.addEventListener('click', runReplacementScript)
-                setupObserver({ childList: true, subtree: true, attributes: true })
+                observerOptions = { childList: true, subtree: true, attributes: true }
+                setupObserver(observerOptions)
               }
             }
           }
