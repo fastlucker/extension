@@ -46,10 +46,17 @@ export interface StepsData {
 // if the transaction hash is found, we make the top url the real txn id
 // because user operation hashes are not reliable long term
 const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: string) => {
-  window.history.replaceState(
+  const splitUrl = (window.location.href || '').split('?')
+  const search = splitUrl[1]
+  const searchParams = new URLSearchParams(search)
+  const isInternal = searchParams.get('isInternal') !== undefined
+
+  window.history.pushState(
     null,
     '',
-    `/?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}`
+    `${splitUrl[0]}?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}${
+      isInternal ? '&isInternal' : ''
+    }`
   )
 }
 

@@ -6,7 +6,6 @@ import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import BottomSheet from '@common/components/BottomSheet'
@@ -52,6 +51,12 @@ const AccountsList = ({
   const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
+
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -168,16 +173,16 @@ const AccountsList = ({
       })
     }
 
-    if (privKeyOrSeed && Mnemonic.isValidMnemonic(privKeyOrSeed)) {
+    if (keyTypeInternalSubtype === 'seed') {
       return t('Import Accounts from Seed Phrase')
     }
 
-    if (privKeyOrSeed && isValidPrivateKey(privKeyOrSeed)) {
+    if (keyTypeInternalSubtype === 'private-key') {
       return t('Import Accounts from Private Key')
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, privKeyOrSeed, t])
+  }, [keyType, keyTypeInternalSubtype, t])
 
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
@@ -283,14 +288,16 @@ const AccountsList = ({
           </View>
         </BottomSheet>
 
-        <View style={[spacings.mbLg, flexbox.alignStart]}>
-          <Toggle
-            isOn={hideEmptyAccounts}
-            onToggle={() => setHideEmptyAccounts((p) => !p)}
-            label={t('Hide empty basic accounts')}
-            labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-          />
-        </View>
+        {keyTypeInternalSubtype !== 'private-key' && (
+          <View style={[spacings.mbLg, flexbox.alignStart]}>
+            <Toggle
+              isOn={hideEmptyAccounts}
+              onToggle={() => setHideEmptyAccounts((p) => !p)}
+              label={t('Hide empty basic accounts')}
+              labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+            />
+          </View>
+        )}
         <Wrapper
           style={shouldEnablePagination && spacings.mbLg}
           contentContainerStyle={{
