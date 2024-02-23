@@ -124,20 +124,26 @@ const decodeUserOp = (userOp: UserOperation) => {
   }
 }
 
-const decodeUserOpWithoutUserOpHash = (txnData: string) => {
-  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
-  const sigHashValues = Object.values(userOpSigHashes)
-  const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  if (!userOps.length) return null
+// Note<Bobby>: stop decoding handleOps casually as we cannot determine
+// what the user op hash is. Since we're not reading logs as well, there's
+// a chance we read one user op but get the logs for another, displaying
+// totally wrong information. So, if we don't have the user op hash, we just
+// say that's it's a request to the entry point
 
-  return decodeUserOp({
-    sender: '',
-    callData: userOps[0][3],
-    hashStatus: 'not_found'
-  })
-}
+// const decodeUserOpWithoutUserOpHash = (txnData: string) => {
+//   const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
+//   const sigHashValues = Object.values(userOpSigHashes)
+//   const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
+//   if (!userOps.length) return null
 
-const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOperation | null) => {
+//   return decodeUserOp({
+//     sender: '',
+//     callData: userOps[0][3],
+//     hashStatus: 'not_found'
+//   })
+// }
+
+const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) => {
   if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
 
   const sigHash = txn.data.slice(0, 10)
@@ -198,11 +204,10 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOp
       .map((call: any) => transformToAccOpCall(call))
   }
 
-  // entry point sighash but no userOpHash
-  if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
-    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
-    if (decodedUserOp) return decodedUserOp
-  }
+  // if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
+  //   const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
+  //   if (decodedUserOp) return decodedUserOp
+  // }
 
   // @non-ambire executeBatch
   if (sigHash === executeBatchInterface.getFunction('executeBatch')!.selector) {
