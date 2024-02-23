@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
@@ -11,8 +12,10 @@ import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import {
-  getNumberOfWordsOccurrencesInPage,
+  findShadowRootElementById,
+  getWordsOccurrencesInPage,
   replaceIconOnlyConnectionButtons,
+  replaceMetamaskInW3Modal,
   replaceOtherWalletWithAmbireInConnectionModals
 } from '@web/extension-services/inpage/page-content-replacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
@@ -44,40 +47,45 @@ const runReplacementScript = () => {
   if (_defaultWallet === 'OTHER') return
   if (window.location.hostname.includes('metamask')) return
 
-  const mmWordOccurrences = getNumberOfWordsOccurrencesInPage(['metamask'])
+  const { count: mmWordOccurrences, nodes: mmWordNodes } = getWordsOccurrencesInPage(['metamask'])
+  const { count: OKXWalletWordOccurrences, nodes: OKXWalletWordNodes } = getWordsOccurrencesInPage([
+    'okx wallet'
+  ])
   if (mmOccurrencesOnFirstDOMLoad === null) {
     mmOccurrencesOnFirstDOMLoad = mmWordOccurrences
   }
 
   const hasMetaMaskInPage = mmWordOccurrences !== 0
-  const hasOKXWalletInPage = getNumberOfWordsOccurrencesInPage(['okx wallet']) !== 0
+  const hasOKXWalletInPage = OKXWalletWordOccurrences !== 0
 
   if (!doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
 
   const hasWalletConnectInPage =
-    getNumberOfWordsOccurrencesInPage(['walletconnect', 'wallet connect']) !== 0
+    getWordsOccurrencesInPage(['walletconnect', 'wallet connect']).count !== 0
   const hasCoinbaseWalletInPage =
-    getNumberOfWordsOccurrencesInPage(['coinbasewallet', 'coinbase wallet', 'coinbase']) !== 0
+    getWordsOccurrencesInPage(['coinbasewallet', 'coinbase wallet', 'coinbase']).count !== 0
 
   // most dapps read the provider but some don't till connection
   if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
     return
   }
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+
   ;(async () => {
     if (!isEIP6963) {
       await delayPromise(30)
     }
     if (isEIP6963) return
+
+    const w3Modal = findShadowRootElementById('w3m-modal')
+    if (w3Modal) replaceMetamaskInW3Modal(w3Modal)
+
     if (hasWalletConnectInPage) replaceIconOnlyConnectionButtons('metamask')
     const hasTrustWalletInPage =
-      getNumberOfWordsOccurrencesInPage(['trustwallet', 'trust wallet']) !== 0
-    const isW3Modal =
-      getNumberOfWordsOccurrencesInPage(['connect your wallet', 'scan with your wallet']) !== 0
+      getWordsOccurrencesInPage(['trustwallet', 'trust wallet']).count !== 0
 
     if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
-    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal)) {
+    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
       return
     }
 
@@ -85,20 +93,26 @@ const runReplacementScript = () => {
       if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmWordOccurrences)
         return
 
-      replaceOtherWalletWithAmbireInConnectionModals(
-        ['metamask', 'connect by metamask'],
-        'metamask'
-      )
+      mmWordNodes.forEach((n) => {
+        replaceOtherWalletWithAmbireInConnectionModals(
+          ['metamask', 'connect by metamask'],
+          'metamask',
+          n.parentNode as any
+        )
+      })
       return
     }
 
-    const hasAmbireInPage = getNumberOfWordsOccurrencesInPage(['ambire']) !== 0
+    const hasAmbireInPage = getWordsOccurrencesInPage(['ambire']).count !== 0
 
     if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
-      replaceOtherWalletWithAmbireInConnectionModals(
-        ['okx wallet', 'connect by okx wallet'],
-        'okx wallet'
-      )
+      OKXWalletWordNodes.forEach((n) => {
+        replaceOtherWalletWithAmbireInConnectionModals(
+          ['okx wallet', 'connect by okx wallet'],
+          'okx wallet',
+          n.parentNode as any
+        )
+      })
     }
   })()
 }
