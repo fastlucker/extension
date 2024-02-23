@@ -33,7 +33,7 @@ const BackupPassword = () => {
   } = useForm({
     reValidateMode: 'onChange',
     defaultValues: {
-      email: Object.keys(ev.emailVaultStates.email)[0] || '' // it should be string, otherwise it will cause a crash
+      email: ev.keystoreRecoveryEmail || '' // it should be string, otherwise it will cause a crash
     }
   })
 

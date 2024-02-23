@@ -9,7 +9,6 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
@@ -41,18 +40,19 @@ const HumanizedVisualization: FC<{
             <>
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text fontSize={16} weight="medium">
-                  {` ${
-                    item.readableAmount || formatUnits(item.amount || '0x0', item.decimals || 18)
-                  } `}
+                  {` ${formatUnits(
+                    item.amount || '0x0',
+                    item?.humanizerMeta?.token?.decimals || 18
+                  )} `}
                 </Text>
               ) : null}
 
               {item.address ? (
                 <TokenIcon width={24} height={24} networkId={networkId} address={item.address} />
               ) : null}
-              {item.symbol ? (
+              {item?.humanizerMeta?.token?.symbol ? (
                 <Text fontSize={16} weight="medium">
-                  {` ${item.symbol || ''} `}
+                  {` ${item?.humanizerMeta?.token?.symbol || ''} `}
                 </Text>
               ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text fontSize={16} weight="medium">
@@ -67,7 +67,7 @@ const HumanizedVisualization: FC<{
           return (
             <>
               <Text fontSize={16} weight="medium">
-                {` ${item.name ? item.name : item.address} `}
+                {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
               </Text>
               {!!item.address && !!explorerUrl && (
                 <TouchableOpacity

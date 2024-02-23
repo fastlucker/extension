@@ -2,7 +2,7 @@ import { AbiCoder, Block, ethers, TransactionReceipt, TransactionResponse } from
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
+import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
@@ -46,10 +46,17 @@ export interface StepsData {
 // if the transaction hash is found, we make the top url the real txn id
 // because user operation hashes are not reliable long term
 const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: string) => {
-  window.history.replaceState(
+  const splitUrl = (window.location.href || '').split('?')
+  const search = splitUrl[1]
+  const searchParams = new URLSearchParams(search)
+  const isInternal = searchParams.get('isInternal') !== undefined
+
+  window.history.pushState(
     null,
     '',
-    `/?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}`
+    `${splitUrl[0]}?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}${
+      isInternal ? '&isInternal' : ''
+    }`
   )
 }
 
@@ -431,7 +438,6 @@ const useSteps = ({
       }
       callsHumanizer(
         accountOp,
-        {},
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),

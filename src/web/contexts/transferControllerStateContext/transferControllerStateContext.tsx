@@ -1,12 +1,13 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
-import useConstants from '@common/hooks/useConstants'
 import useRoute from '@common/hooks/useRoute'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 
 type ContextReturn = {
   state: TransferControllerState
@@ -30,7 +31,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as TransferControllerState)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const { constants } = useConstants()
   const { accountPortfolio } = usePortfolioControllerState()
   const { search } = useRoute()
   const tokens = accountPortfolio?.tokens
@@ -45,14 +45,20 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch])
 
   useEffect(() => {
-    if (!constants) return
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
       params: {
-        humanizerInfo: constants.humanizerInfo
+        humanizerInfo: humanizerInfo as HumanizerMeta
       }
     })
-  }, [constants, dispatch])
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+      params: { isTopUp: !!selectedTokenFromUrl?.isTopUp }
+    })
+  }, [selectedTokenFromUrl?.isTopUp, dispatch])
 
   useEffect(() => {
     if (tokens?.length && selectedTokenFromUrl && !state.selectedToken) {
@@ -65,19 +71,11 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
       if (tokenToSelect && Number(tokenToSelect.amount) > 0) {
         dispatch({
           type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-          params: { selectedToken: tokenToSelect, isTopUp: selectedTokenFromUrl.isTopUp }
+          params: { selectedToken: tokenToSelect }
         })
       }
-    } else if (tokens?.length && !selectedTokenFromUrl && state.isTopUp) {
-      // if there's no token in the url, it means it cannot be a topUp
-      // but sometimes we have a cached state with isTopUp true that prevents
-      // displaying the transfer screen
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-        params: { isTopUp: false }
-      })
     }
-  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch, state.isTopUp])
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 
   useEffect(() => {
     dispatch({

@@ -163,6 +163,7 @@ const TransferScreen = () => {
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
+                  disableForm={state.isTopUp && !isSmartAccount}
                 />
               </ScrollView>
               {!isTopUp && (

@@ -1,14 +1,17 @@
-import React, { ReactNode } from 'react'
-import { Modal as RNModal, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
+import React, { ReactNode, useEffect, useRef } from 'react'
+import { Animated, Easing, Pressable, TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import { Portal } from '@gorhom/portal'
 
 import BackButton from '../BackButton'
 import getStyles from './styles'
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 type Props = {
   isOpen: boolean
@@ -34,15 +37,59 @@ const Modal = ({
   hideLeftSideContainer = false
 }: Props) => {
   const { styles } = useTheme(getStyles)
+  const backdropOpacity = useRef(new Animated.Value(0)).current
+  const modalOpacity = useRef(new Animated.Value(0)).current
+  const modalScale = useRef(new Animated.Value(0.85)).current
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: isOpen ? 1 : 0,
+        duration: 100,
+        useNativeDriver: true,
+        easing: Easing.inOut(Easing.ease)
+      }),
+      Animated.timing(modalOpacity, {
+        toValue: isOpen ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.inOut(Easing.ease)
+      }),
+      Animated.timing(modalScale, {
+        toValue: isOpen ? 1 : 0.85,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1)
+      })
+    ]).start()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   return (
-    <RNModal animationType="fade" transparent visible={isOpen} onRequestClose={onClose}>
-      <Pressable
+    <Portal hostName="global">
+      <AnimatedPressable
         onPress={() => !!onClose && onClose()}
-        // @ts-ignore
-        style={[styles.container, !onClose && isWeb ? { cursor: 'default' } : {}]}
+        style={[
+          styles.container,
+          {
+            opacity: backdropOpacity,
+            // @ts-expect-error
+            pointerEvents: isOpen ? 'auto' : 'none'
+          },
+          // @ts-expect-error
+          !onClose && isWeb ? { cursor: 'default' } : {}
+        ]}
       >
-        <Pressable style={[styles.modal, modalStyle]}>
+        <AnimatedPressable
+          style={[
+            styles.modal,
+            {
+              opacity: modalOpacity,
+              transform: [{ scale: modalScale }]
+            },
+            modalStyle
+          ]}
+        >
           {!customHeader ? (
             <View style={styles.modalHeader}>
               {!hideLeftSideContainer && (
@@ -72,9 +119,9 @@ const Modal = ({
             customHeader
           )}
           {children}
-        </Pressable>
-      </Pressable>
-    </RNModal>
+        </AnimatedPressable>
+      </AnimatedPressable>
+    </Portal>
   )
 }
 
