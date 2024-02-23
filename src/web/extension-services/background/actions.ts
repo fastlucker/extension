@@ -1,6 +1,4 @@
-import AccountAdderController, {
-  ReadyToAddKeys
-} from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
@@ -208,6 +206,12 @@ type MainControllerUpdateSelectedAccount = {
     forceUpdate?: boolean
   }
 }
+type PortfolioControllerUpdateTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
+  params: {
+    tokenPreferences: any[]
+  }
+}
 type MainControllerSignAccountOpInitAction = {
   params: {
     accountAddr: AccountId
@@ -388,6 +392,7 @@ export type Action =
   | LedgerControllerUnlockAction
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
+  | PortfolioControllerUpdateTokenPreferences
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction

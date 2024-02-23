@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -9,6 +9,7 @@ import { useTranslation } from '@common/config/localization'
 import networks from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
+import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -17,28 +18,15 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const state = useNotificationControllerState()
-  const mainCtrl = useMainControllerState()
-  const settingsCtrl = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
-  const { accountPortfolio } = usePortfolioControllerState()
-
-  // TODO: Notification window not closing
-  const handleCancel = useCallback(() => {
-    dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-      params: { err: t('User rejected the request.') }
-    })
-  }, [t, dispatch])
+  const portfolio = usePortfolioControllerState()
 
   // TODO:
   const handleAddToken = useCallback(() => {}, [])
@@ -46,11 +34,46 @@ const WatchTokenRequestScreen = () => {
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
   const network = networks.find((n) => n.explorerUrl === origin)
-  console.log(state)
+  console.log(network)
+  useEffect(() => {
+    const token = {
+      address: tokenData.address,
+      name: tokenData?.name,
+      symbol: tokenData?.symbol,
+      decimals: tokenData?.decimals,
+      standard: state?.currentNotificationRequest?.params?.data?.type,
+      networkId: network?.id
+    }
+
+    portfolio.updateTokenPreferences(token)
+  }, [portfolio])
+
+  // TODO: Notification window not closing
+  const handleCancel = useCallback(() => {
+    portfolio.removeTokenPreferences(tokenData.address)
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }, [portfolio, tokenData.address, t, dispatch])
+
+  const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
+    ({ address }) => address === tokenData.address
+  )
+
+  // TODO: Loading state
+  if (!portfolioFoundToken) return null
+  const { balance, priceUSDFormatted, balanceUSDFormatted } = getTokenDetails(portfolioFoundToken)
+
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo networkName={network.name} networkId={network.id} />}
+      header={
+        <HeaderAccountAndNetworkInfo
+          networkName={network?.name || undefined}
+          networkId={network?.id || undefined}
+        />
+      }
       footer={
         <>
           <Button
@@ -100,7 +123,7 @@ const WatchTokenRequestScreen = () => {
               <TokenIcon
                 withContainer
                 uri={tokenData.image}
-                networkId={network.id}
+                networkId={network?.id}
                 containerHeight={40}
                 containerWidth={40}
                 width={28}
@@ -108,11 +131,14 @@ const WatchTokenRequestScreen = () => {
               />
               <View style={spacings.ml}>
                 <Text weight="number_bold" fontSize={16}>
-                  {tokenData.name} {tokenData.symbol}
+                  {balance || '0.00'} {tokenData.symbol}
                 </Text>
-                <Text fontSize={12}>
-                  {t('on')} {network.name}
-                </Text>
+
+                {network && (
+                  <Text fontSize={12}>
+                    {t('on')} {network.name}
+                  </Text>
+                )}
               </View>
             </View>
           </View>
@@ -127,7 +153,7 @@ const WatchTokenRequestScreen = () => {
               {t('Price')}
             </Text>
             <Text fontSize={16} style={{ textAlign: 'left' }}>
-              $0.04
+              ${priceUSDFormatted || '0.00'}
             </Text>
           </View>
 
@@ -141,9 +167,9 @@ const WatchTokenRequestScreen = () => {
                 fontSize={16}
                 style={[{ textAlign: 'right' }, spacings.mr4Xl]}
               >
-                $0.00
+                ${balanceUSDFormatted || '0.00'}
               </Text>
-              <CoingeckoConfirmedBadge text={t('Confirmed')} />
+              {portfolioFoundToken?.priceIn && <CoingeckoConfirmedBadge text={t('Confirmed')} />}
             </View>
           </View>
         </View>
