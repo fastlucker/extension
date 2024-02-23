@@ -7,13 +7,18 @@ interface UserOperationEventData {
 
 export const parseLogs = (
   logs: readonly Log[],
-  userOpHash: string
+  userOpHash: string,
+  userOpsLength: number
 ): UserOperationEventData | null => {
-  let userOpLog = null
+  if (userOpHash === '' && userOpsLength !== 1) return null
 
+  let userOpLog = null
   logs.forEach((log: Log) => {
     try {
-      if (log.topics.length === 4 && log.topics[1].toLowerCase() === userOpHash.toLowerCase()) {
+      if (
+        log.topics.length === 4 &&
+        (log.topics[1].toLowerCase() === userOpHash.toLowerCase() || userOpsLength === 1)
+      ) {
         // decode data for UserOperationEvent:
         // 'event UserOperationEvent(bytes32 indexed userOpHash, address indexed sender, address indexed paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGasUsed)'
         const coder = new AbiCoder()

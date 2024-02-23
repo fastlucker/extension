@@ -231,7 +231,17 @@ const useSteps = ({
           blockNumber: BigInt(receipt.blockNumber)
         })
 
-        const userOpLog = finalUserOpHash ? parseLogs(receipt.logs, finalUserOpHash) : null
+        let userOpsLength = 0
+        if (!finalUserOpHash && txn) {
+          try {
+            const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+            userOpsLength = handleOpsData[0].length
+          } catch (e: any) {
+            /* silence is bitcoin */
+          }
+        }
+
+        const userOpLog = parseLogs(receipt.logs, finalUserOpHash ?? '', userOpsLength)
         if (userOpLog && !userOpLog.success) {
           setFinalizedStatus({
             status: 'failed',
