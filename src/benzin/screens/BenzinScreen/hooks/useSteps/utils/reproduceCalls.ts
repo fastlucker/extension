@@ -128,7 +128,9 @@ const decodeUserOpWithoutUserOpHash = (txnData: string) => {
   const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
   const sigHashValues = Object.values(userOpSigHashes)
   const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
-  if (!userOps.length) return null
+  // if there's more than 1 user op, we cannot guess which is the
+  // correct one. We do not guess
+  if (!userOps.length || userOps.length > 1) return null
 
   return decodeUserOp({
     sender: '',
@@ -137,7 +139,7 @@ const decodeUserOpWithoutUserOpHash = (txnData: string) => {
   })
 }
 
-const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOperation | null) => {
+const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) => {
   if (userOp && userOp.hashStatus === 'found') return decodeUserOp(userOp)
 
   const sigHash = txn.data.slice(0, 10)
@@ -198,7 +200,6 @@ const reproduceCalls = (txn: TransactionResponse, sender: string, userOp: UserOp
       .map((call: any) => transformToAccOpCall(call))
   }
 
-  // entry point sighash but no userOpHash
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
     const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
     if (decodedUserOp) return decodedUserOp

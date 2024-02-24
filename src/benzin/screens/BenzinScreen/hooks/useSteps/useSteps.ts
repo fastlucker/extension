@@ -14,6 +14,7 @@ import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/human
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
@@ -229,7 +230,26 @@ const useSteps = ({
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
-        setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+
+        let userOpsLength = 0
+        if (!finalUserOpHash && txn) {
+          try {
+            const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+            userOpsLength = handleOpsData[0].length
+          } catch (e: any) {
+            /* silence is bitcoin */
+          }
+        }
+
+        const userOpLog = parseLogs(receipt.logs, finalUserOpHash ?? '', userOpsLength)
+        if (userOpLog && !userOpLog.success) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Inner calls failed'
+          })
+        } else {
+          setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+        }
         setActiveStep('finalized')
       })
       .catch(() => null)
@@ -241,6 +261,7 @@ const useSteps = ({
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
+    finalUserOpHash,
     isUserOp,
     userOpStatusData.txnId
   ])
@@ -399,7 +420,7 @@ const useSteps = ({
         )
       )
 
-      if (finalHash === finalUserOpHash) {
+      if (finalHash.toLowerCase() === finalUserOpHash.toLowerCase()) {
         hashFound = true
         setUserOp({
           sender,
@@ -429,7 +450,7 @@ const useSteps = ({
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, txnReceipt.from, userOp),
+        calls: reproduceCalls(txn, userOp),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
