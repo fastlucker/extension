@@ -25,11 +25,11 @@ import BroadcastChannelMessage from '@web/extension-services/message/broadcastCh
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 declare let ambireChannelName: string
+declare let defaultWallet: DefaultWallet
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 let doesWebpageReadOurProvider: boolean = false
 let isEIP6963: boolean = false
-declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 let focusedListener: any = null
 let mmOccurrencesOnFirstDOMLoad: number | null = null
@@ -38,6 +38,7 @@ export type DefaultWallet = 'AMBIRE' | 'OTHER'
 let observer: MutationObserver | null = null
 let observerOptions: MutationObserverInit = { childList: true }
 let clickListener: any
+let initializeReplacementTimeout: any
 
 //
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
@@ -45,6 +46,11 @@ let clickListener: any
 
 const runReplacementScript = () => {
   if (_defaultWallet === 'OTHER') return
+
+  if (initializeReplacementTimeout) {
+    clearTimeout(initializeReplacementTimeout)
+  }
+
   if (window.location.hostname.includes('metamask')) return
 
   const { count: mmWordOccurrences, nodes: mmWordNodes } = getWordsOccurrencesInPage(['metamask'])
@@ -138,6 +144,11 @@ Object.defineProperty(window, 'defaultWallet', {
   set(value: DefaultWallet) {
     _defaultWallet = value
     if (value === 'AMBIRE') {
+      initializeReplacementTimeout = setTimeout(() => {
+        if (mmOccurrencesOnFirstDOMLoad === null) {
+          runReplacementScript()
+        }
+      }, 250)
       if (!clickListener) {
         clickListener = document.addEventListener('click', runReplacementScript)
       }
