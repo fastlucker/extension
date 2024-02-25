@@ -53,23 +53,35 @@ const runReplacementScript = () => {
 
   if (window.location.hostname.includes('metamask')) return
 
-  const { count: mmWordOccurrences, nodes: mmWordNodes } = getWordsOccurrencesInPage(['metamask'])
-  const { count: OKXWalletWordOccurrences, nodes: OKXWalletWordNodes } = getWordsOccurrencesInPage([
-    'okx wallet'
+  const wordsOccurrencesResult = getWordsOccurrencesInPage([
+    ['metamask'],
+    ['okx wallet'],
+    ['walletconnect', 'wallet connect'],
+    ['coinbasewallet', 'coinbase wallet', 'coinbase'],
+    ['trustwallet', 'trust wallet']
   ])
+
+  const mmOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('metamask'))[0]
+  const okxOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('okx wallet'))[0]
+
   if (mmOccurrencesOnFirstDOMLoad === null) {
-    mmOccurrencesOnFirstDOMLoad = mmWordOccurrences
+    mmOccurrencesOnFirstDOMLoad = mmOccurrences.count
   }
 
-  const hasMetaMaskInPage = mmWordOccurrences !== 0
-  const hasOKXWalletInPage = OKXWalletWordOccurrences !== 0
+  const hasMetaMaskInPage = mmOccurrences.count !== 0
+  const hasOKXWalletInPage = okxOccurrences.count !== 0
 
   if (!doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
 
-  const hasWalletConnectInPage =
-    getWordsOccurrencesInPage(['walletconnect', 'wallet connect']).count !== 0
-  const hasCoinbaseWalletInPage =
-    getWordsOccurrencesInPage(['coinbasewallet', 'coinbase wallet', 'coinbase']).count !== 0
+  const wcOccurrences = wordsOccurrencesResult.filter((res) =>
+    res.words.includes('walletconnect')
+  )[0]
+  const coinbaseOccurrences = wordsOccurrencesResult.filter((res) =>
+    res.words.includes('coinbase')
+  )[0]
+
+  const hasWalletConnectInPage = wcOccurrences.count !== 0
+  const hasCoinbaseWalletInPage = coinbaseOccurrences.count !== 0
 
   // most dapps read the provider but some don't till connection
   if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
@@ -86,8 +98,11 @@ const runReplacementScript = () => {
     if (w3Modal) replaceMetamaskInW3Modal(w3Modal)
 
     if (hasWalletConnectInPage) replaceIconOnlyConnectionButtons('metamask')
-    const hasTrustWalletInPage =
-      getWordsOccurrencesInPage(['trustwallet', 'trust wallet']).count !== 0
+
+    const trustWalletOccurrences = wordsOccurrencesResult.filter((res) =>
+      res.words.includes('trustwallet')
+    )[0]
+    const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
 
     if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
@@ -96,10 +111,10 @@ const runReplacementScript = () => {
     }
 
     if (hasMetaMaskInPage) {
-      if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmWordOccurrences)
+      if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmOccurrences.count)
         return
 
-      mmWordNodes.forEach((n) => {
+      mmOccurrences.nodes.forEach((n) => {
         replaceOtherWalletWithAmbireInConnectionModals(
           ['metamask', 'connect by metamask'],
           'metamask',
@@ -109,10 +124,10 @@ const runReplacementScript = () => {
       return
     }
 
-    const hasAmbireInPage = getWordsOccurrencesInPage(['ambire']).count !== 0
+    const hasAmbireInPage = getWordsOccurrencesInPage([['ambire']])[0].count !== 0
 
     if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
-      OKXWalletWordNodes.forEach((n) => {
+      okxOccurrences.nodes.forEach((n) => {
         replaceOtherWalletWithAmbireInConnectionModals(
           ['okx wallet', 'connect by okx wallet'],
           'okx wallet',

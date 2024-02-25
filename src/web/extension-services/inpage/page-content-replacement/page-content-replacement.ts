@@ -41,9 +41,16 @@ function findShadowRootElementById(id: string) {
   }
 }
 
-function getWordsOccurrencesInPage(words: string[], nodeToQuery?: ParentNode) {
-  let wordCount = 0
-  const nodes: HTMLElement[] = []
+function getWordsOccurrencesInPage(words: string[][], nodeToQuery?: ParentNode) {
+  const results: {
+    words: string[]
+    count: number
+    nodes: HTMLElement[]
+  }[] = words.map((wordsGroup: string[]) => ({
+    words: wordsGroup,
+    count: 0,
+    nodes: []
+  }))
 
   const searchForWords = (node: Node | HTMLElement) => {
     const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
@@ -65,10 +72,12 @@ function getWordsOccurrencesInPage(words: string[], nodeToQuery?: ParentNode) {
         ''
 
       for (let i = 0; i < words.length; i++) {
-        if (textContent.toLowerCase().includes(words[i].toLowerCase())) {
-          wordCount += 1
-          if (currentNode.parentElement) {
-            nodes.push(currentNode.parentElement)
+        for (let j = 0; j < words[i].length; j++) {
+          if (textContent.toLowerCase().includes(words[i][j].toLowerCase())) {
+            results[i].count += 1
+            if (currentNode.parentElement) {
+              results[i].nodes.push(currentNode.parentElement)
+            }
           }
         }
       }
@@ -80,10 +89,7 @@ function getWordsOccurrencesInPage(words: string[], nodeToQuery?: ParentNode) {
   }
 
   searchForWords(nodeToQuery || document.body)
-  return {
-    count: wordCount,
-    nodes
-  }
+  return results
 }
 
 function replaceIconOnlyConnectionButtons(iconName: string) {
@@ -254,7 +260,7 @@ async function replaceMetamaskInW3Modal(el: HTMLElement) {
   for (const key of [...Array(4).keys()]) {
     // eslint-disable-next-line no-await-in-loop
     await delayPromise(250)
-    if (getWordsOccurrencesInPage(['metamask'], el).count) {
+    if (getWordsOccurrencesInPage([['metamask']], el)[0].count) {
       return replaceOtherWalletWithAmbireInConnectionModals(['metamask'], 'metamask', el)
     }
   }
