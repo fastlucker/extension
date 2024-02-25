@@ -118,6 +118,20 @@ const useSteps = ({
       .then((userOpStatusAndId: { status: string; transactionHash: null | string }) => {
         switch (userOpStatusAndId.status) {
           case 'not_found':
+            if (refetchUserOpStatusCounter > 5) {
+              setFinalizedStatus({ status: 'dropped' })
+              setActiveStep('finalized')
+              setUserOpStatusData({ status: userOpStatusAndId.status, txnId: null })
+              break
+            }
+
+            // if not found, try at least 6 times (30 seconds)
+            // before declaring failure
+            setTimeout(() => {
+              setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+            }, REFETCH_RECEIPT_TIME)
+            break
+
           case 'rejected':
             setFinalizedStatus({ status: 'dropped' })
             setActiveStep('finalized')
