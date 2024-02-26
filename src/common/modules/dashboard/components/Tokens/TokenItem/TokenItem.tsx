@@ -25,7 +25,7 @@ const TokenItem = ({
 }) => {
   const { symbol, address, networkId, flags } = token
   const { styles, theme } = useTheme(getStyles)
-  const [bind, style] = useCustomHover({
+  const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
@@ -50,8 +50,8 @@ const TokenItem = ({
   return (
     <AnimatedPressable
       onPress={() => handleTokenSelect(token)}
-      style={[styles.container, style]}
-      {...bind}
+      style={[styles.container, animStyle]}
+      {...bindAnim}
     >
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
         <View style={[spacings.mr, flexboxStyles.justifyCenter]}>

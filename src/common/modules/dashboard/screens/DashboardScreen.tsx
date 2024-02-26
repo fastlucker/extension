@@ -36,7 +36,7 @@ const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
-  const [bindNetworkButton, networkButtonStyle] = useHover({
+  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
@@ -143,7 +143,7 @@ const DashboardScreen = () => {
                       </View>
                     </View>
                     <AnimatedPressable
-                      style={[flexbox.directionRow, flexbox.alignCenter, networkButtonStyle]}
+                      style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
                       onPress={() => {
                         navigate(WEB_ROUTES.networks, {
                           state: {
@@ -151,7 +151,7 @@ const DashboardScreen = () => {
                           }
                         })
                       }}
-                      {...bindNetworkButton}
+                      {...bindNetworkButtonAnim}
                     >
                       {filterByNetworkId ? (
                         <FilterIcon
