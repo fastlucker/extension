@@ -29,6 +29,7 @@ export interface Props extends PressableProps {
   textStyle?: any
   textUnderline?: boolean
   accentColor?: ColorValue
+  initialBackground?: ColorValue
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
@@ -41,6 +42,7 @@ const Button = ({
   type = 'primary',
   size = 'regular',
   accentColor,
+  initialBackground: _initialBackground,
   text,
   style = {},
   textStyle = {},
@@ -54,6 +56,9 @@ const Button = ({
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
+  // In order to animate the button background color we have to set the
+  // initial background color value.
+  const initialBackground = _initialBackground || theme.primaryBackground
 
   const buttonColors: {
     [key in ButtonTypes]: AnimationValues[]
@@ -69,11 +74,11 @@ const Button = ({
       secondary: [
         {
           key: 'backgroundColor',
-          from: theme.primaryBackground,
+          from: initialBackground,
           to: theme.secondaryBackground
         }
       ],
-      danger: [{ key: 'backgroundColor', from: 'transparent', to: theme.errorBackground }],
+      danger: [{ key: 'backgroundColor', from: initialBackground, to: theme.errorBackground }],
       outline: [],
       ghost: [],
       error: [],
@@ -82,9 +87,9 @@ const Button = ({
       success: []
     }),
     [
+      initialBackground,
       theme.errorBackground,
       theme.primary,
-      theme.primaryBackground,
       theme.primaryLight,
       theme.secondaryBackground
     ]
