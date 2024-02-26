@@ -119,31 +119,6 @@ const Button = ({
     }
   }
 
-  // const hoveredContainerStyles: { [key in ButtonTypes]: ViewStyle } = {
-  //   primary: {
-  //     backgroundColor: theme.primaryLight
-  //   },
-  //   secondary: {
-  //     backgroundColor: theme.secondaryBackground
-  //   },
-  //   // @TODO: add hover styles for other button types
-  //   danger: styles.buttonContainerDanger,
-  //   outline: styles.buttonContainerOutline,
-  //   ghost: styles.buttonContainerGhost,
-  //   error: {
-  //     backgroundColor: theme.errorDecorative
-  //   },
-  //   warning: {
-  //     backgroundColor: theme.warningDecorative
-  //   },
-  //   info: {
-  //     backgroundColor: theme.infoDecorative
-  //   },
-  //   success: {
-  //     backgroundColor: theme.successDecorative
-  //   }
-  // }
-
   const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
     large: styles.buttonContainerStylesSizeLarge,
     regular: styles.buttonContainerStylesSizeRegular,
