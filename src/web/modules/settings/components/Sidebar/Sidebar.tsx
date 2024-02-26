@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, ScrollView, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
@@ -18,6 +18,7 @@ import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 
 import getStyles from './styles'
@@ -95,6 +96,13 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: theme.secondaryBackground,
+      to: theme.tertiaryBackground
+    }
+  })
 
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
@@ -105,20 +113,16 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
 
   return (
     <View style={{ ...spacings.pbLg, position: 'relative', height: '100%' }}>
-      <Pressable
-        style={({ hovered }: any) => [
-          styles.backToDashboardButton,
-          {
-            backgroundColor: hovered ? theme.tertiaryBackground : 'transparent'
-          }
-        ]}
+      <AnimatedPressable
+        style={[styles.backToDashboardButton, animStyle]}
         onPress={() => navigate(ROUTES.dashboard)}
+        {...bindAnim}
       >
         <LeftArrowIcon color={theme.secondaryText} />
         <Text fontSize={16} weight="medium" appearance="secondaryText" style={spacings.mlLg}>
           {t('Dashboard')}
         </Text>
-      </Pressable>
+      </AnimatedPressable>
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
