@@ -77,20 +77,6 @@ function findShadowRootElementById(id: string, shadowRootsToQuery?: ShadowRoot[]
   return undefined
 }
 
-function quickWordsCountInPage(word: string, shadowRootsToQuery: ShadowRoot[]) {
-  let wordCount = 0
-  if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return wordCount
-
-  for (const shadowRoot of shadowRootsToQuery) {
-    const textInShadowRoot = shadowRoot?.textContent || shadowRoot.parentElement?.innerText
-    wordCount += (textInShadowRoot?.match(new RegExp(word, 'gi')) || [])?.length || 0
-  }
-  const allText = document?.body?.textContent || document?.body?.innerText
-  wordCount += (allText?.match(new RegExp(word, 'gi')) || [])?.length || 0
-
-  return wordCount
-}
-
 function getVisibleWordsOccurrencesInPage(
   words: string[][],
   nodeToQuery?: ParentNode,
@@ -322,7 +308,7 @@ async function replaceMetamaskInW3Modal(el: HTMLElement) {
 
 export {
   ambireSvg,
-  quickWordsCountInPage,
+  blacklistedPages,
   getVisibleWordsOccurrencesInPage,
   getAllShadowRoots,
   findShadowRootElementById,

@@ -12,10 +12,10 @@ import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import {
+  blacklistedPages,
   findShadowRootElementById,
   getAllShadowRoots,
   getVisibleWordsOccurrencesInPage,
-  quickWordsCountInPage,
   replaceIconOnlyConnectionButtons,
   replaceMetamaskInW3Modal,
   replaceOtherWalletWithAmbireInConnectionModals
@@ -56,13 +56,6 @@ const runReplacementScript = (shouldUpdateShadowRoots: boolean = true) => {
 
   if (shouldUpdateShadowRoots || shadowRoots === null) {
     shadowRoots = getAllShadowRoots()
-  }
-
-  if (quickWordsCountInPage('metamask', shadowRoots) === 0) {
-    if (mmOccurrencesOnFirstDOMLoad === null) {
-      mmOccurrencesOnFirstDOMLoad = 0
-    }
-    return
   }
 
   const wordsOccurrencesResult = getVisibleWordsOccurrencesInPage(
@@ -182,6 +175,8 @@ Object.defineProperty(window, 'defaultWallet', {
   set(value: DefaultWallet) {
     _defaultWallet = value
     if (value === 'AMBIRE') {
+      if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
+
       initializeReplacementTimeout = setTimeout(() => {
         if (mmOccurrencesOnFirstDOMLoad === null) {
           runReplacementScriptWithShadowRoots()
@@ -725,6 +720,8 @@ const setAmbireProvider = () => {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
                 doesWebpageReadOurProvider = true
+
+                if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
                 clickListener = document.addEventListener(
                   'click',
                   runReplacementScriptWithoutShadowRoots
