@@ -92,7 +92,7 @@ function getVisibleWordsOccurrencesInPage(
         }
 
         // Check if the current node is visible
-        if (node.parentElement?.clientHeight === 0 && node.parentElement?.clientWidth === 0) {
+        if (node.parentElement?.offsetHeight === 0 && node.parentElement?.offsetWidth === 0) {
           return NodeFilter.FILTER_REJECT
         }
 
@@ -221,6 +221,7 @@ function replaceOtherWalletWithAmbireInConnectionModals(
   nodeToQuery?: ParentNode
 ) {
   let additionalNodes: any[] = []
+  let isBlockNativeModal = false
   const onboardElement = (nodeToQuery || document).querySelector('onboard-v2')
   const allShadowRoots = getAllShadowRoots()
   for (const shadowRoot of allShadowRoots) {
@@ -237,8 +238,13 @@ function replaceOtherWalletWithAmbireInConnectionModals(
     Array.from(node.childNodes).forEach((childNode: any) => {
       if (childNode.nodeType === Node.TEXT_NODE) {
         const text = childNode.nodeValue
+        if (text.trim().includes('Available Wallets')) {
+          isBlockNativeModal = true
+        }
 
-        if (otherWalletNames.some((name) => new RegExp(`^${name}$`, 'i').test(text.trim()))) {
+        if (
+          otherWalletNames.some((name) => text.toLowerCase().trim().includes(name.toLowerCase()))
+        ) {
           function lookForIcon() {
             let ancestorNode = childNode.parentNode
             let maxLevels = 4
@@ -272,7 +278,7 @@ function replaceOtherWalletWithAmbireInConnectionModals(
 
           // For some reason the onboard-v2 lib renders wallet icons async and we should
           // wait for the MM icon to be rendered in order to find it and replace it with our own icon
-          if (onboardElement) {
+          if (onboardElement || isBlockNativeModal) {
             setTimeout(() => {
               lookForIcon()
             }, 400)
