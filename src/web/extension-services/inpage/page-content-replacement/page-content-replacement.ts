@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable prefer-regex-literals */
 /* eslint-disable @typescript-eslint/no-shadow */
@@ -15,7 +16,6 @@ const blacklistedPages = [
   'youtube',
   'facebook',
   'amazon',
-  'netflix',
   'yahoo',
   'wikipedia',
   'reddit',
@@ -24,20 +24,9 @@ const blacklistedPages = [
   'github',
   'gitlab',
   'linkedin',
-  'microsoft',
-  'apple',
   'dropbox',
   'adobe',
-  'ebay',
-  'spotify',
-  'pinterest',
   'wordpress',
-  'bbc',
-  'paypal',
-  'twitch',
-  'slack',
-  'imdb',
-  'alibaba',
   'duckduckgo',
   'stackoverflow',
   'medium',
@@ -95,6 +84,13 @@ function getVisibleWordsOccurrencesInPage(
   const searchForWords = (node: Node | HTMLElement) => {
     const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
+        if (
+          (node.parentElement?.offsetHeight || 0) > screen.height * 2 ||
+          (node.parentElement?.offsetWidth || 0) > screen.width * 2
+        ) {
+          return NodeFilter.FILTER_REJECT
+        }
+
         // Check if the current node is visible
         if (node.parentElement?.clientHeight === 0 && node.parentElement?.clientWidth === 0) {
           return NodeFilter.FILTER_REJECT
