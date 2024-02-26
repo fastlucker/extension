@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Animated, ColorValue, GestureResponderEvent, MouseEvent, ViewStyle } from 'react-native'
 
 import DURATIONS from './durations'
@@ -151,7 +151,11 @@ const useMultiHover = ({
     )
   }, [animatedValues, values])
 
-  return [bind, style, isHovered] as [
+  const triggerHover = useCallback(() => {
+    setIsHovered(true)
+  }, [])
+
+  return [bind, style, isHovered, triggerHover] as [
     {
       onHoverIn: (event: MouseEvent) => void
       onHoverOut: (event: MouseEvent) => void
@@ -159,7 +163,8 @@ const useMultiHover = ({
       onPressOut: (event: GestureResponderEvent) => void
     },
     ViewStyle,
-    boolean
+    boolean,
+    () => void
   ]
 }
 
