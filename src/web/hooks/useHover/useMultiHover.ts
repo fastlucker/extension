@@ -21,10 +21,12 @@ interface Props {
 
 const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
   const [isHovered, setIsHovered] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
   const animatedValuesRef = useRef<AnimationValuesExtended[] | null>(null)
   const animatedValues = animatedValuesRef.current
 
   useEffect(() => {
+    const opacity = values.find(({ key }) => key === 'opacity')
     animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => ({
       value: new Animated.Value(from),
       key,
@@ -32,6 +34,16 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
       to,
       duration: valueDuration
     }))
+
+    if (opacity) return
+
+    animatedValuesRef.current.push({
+      value: new Animated.Value(1),
+      key: 'opacity',
+      from: 1,
+      to: 1,
+      duration
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values?.length])
 
@@ -51,6 +63,22 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovered])
 
+  useEffect(() => {
+    if (!animatedValues) return
+
+    const opacity = animatedValues.find(({ key }) => key === 'opacity')
+
+    if (!opacity) return
+
+    Animated.timing(opacity.value, {
+      toValue: isPressed ? 0.7 : 1,
+      duration: 0,
+      useNativeDriver: true
+    }).start()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPressed])
+
   const bind = useMemo(
     () => ({
       onHoverIn: () => {
@@ -58,6 +86,12 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
       },
       onHoverOut: () => {
         setIsHovered(false)
+      },
+      onPressIn: () => {
+        setIsPressed(true)
+      },
+      onPressOut: () => {
+        setIsPressed(false)
       }
     }),
     []
@@ -87,6 +121,8 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
     {
       onHoverIn: () => void
       onHoverOut: () => void
+      onPressIn: () => void
+      onPressOut: () => void
     },
     ViewStyle,
     boolean
