@@ -17,7 +17,6 @@ type AnimationValuesExtended = AnimationValues & {
 
 interface Props {
   values: AnimationValues[]
-  duration?: number
   forceHoveredStyle?: boolean
 }
 
@@ -26,11 +25,7 @@ interface Props {
 */
 const INTERPOLATE_KEYS = ['backgroundColor', 'color', 'borderColor']
 
-const useMultiHover = ({
-  values,
-  duration = DURATIONS.REGULAR,
-  forceHoveredStyle = false
-}: Props) => {
+const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
   const animatedValuesRef = useRef<AnimationValuesExtended[] | null>(null)
@@ -41,7 +36,7 @@ const useMultiHover = ({
 
     animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => {
       const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
-      const defaultDuration = shouldInterpolate ? DURATIONS.FAST : duration
+      const defaultDuration = shouldInterpolate ? DURATIONS.FAST : DURATIONS.REGULAR
       let value = null
 
       if (forceHoveredStyle) {
@@ -67,7 +62,7 @@ const useMultiHover = ({
       key: 'opacity',
       from: 1,
       to: 1,
-      duration
+      duration: DURATIONS.REGULAR
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values?.length])
