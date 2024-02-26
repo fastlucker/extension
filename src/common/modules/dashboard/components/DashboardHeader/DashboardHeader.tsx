@@ -18,7 +18,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useHover, { AnimatedPressable, DURATIONS, useCustomHover } from '@web/hooks/useHover'
+import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -50,8 +50,13 @@ const DashboardHeader = () => {
     values: {
       from: 0,
       to: 4
-    },
-    duration: DURATIONS.FAST
+    }
+  })
+  const [bindBurgerAnim, burgerAnimStyle] = useHover({
+    preset: 'opacity'
+  })
+  const [bindMaximizeAnim, maximizeAnimStyle] = useHover({
+    preset: 'opacity'
   })
 
   const { navigate } = useNavigation()
@@ -142,7 +147,7 @@ const DashboardHeader = () => {
               </Animated.View>
             </>
           </AnimatedPressable>
-          <AnimatedPressable
+          <Pressable
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, addressAnimStyle]}
             onPress={handleCopyText}
             {...bindAddressAnim}
@@ -156,20 +161,18 @@ const DashboardHeader = () => {
               ({shortenAddress(selectedAccount, 13)})
             </Text>
             <CopyIcon width={20} height={20} color={theme.primaryBackground} />
-          </AnimatedPressable>
+          </Pressable>
         </View>
 
         <View style={styles.maximizeAndMenu}>
           {!!isPopup && (
-            <Pressable onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}>
-              {({ hovered }: any) => (
-                <MaximizeIcon
-                  opacity={hovered ? 1 : 0.7}
-                  color={theme.secondaryBackground}
-                  width={16}
-                  height={16}
-                />
-              )}
+            <Pressable
+              onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
+              {...bindMaximizeAnim}
+            >
+              <Animated.View style={maximizeAnimStyle}>
+                <MaximizeIcon color={theme.secondaryBackground} width={16} height={16} />
+              </Animated.View>
             </Pressable>
           )}
           <Pressable
@@ -177,15 +180,11 @@ const DashboardHeader = () => {
             onPress={() =>
               isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.accountsSettings)
             }
+            {...bindBurgerAnim}
           >
-            {({ hovered }: any) => (
-              <BurgerIcon
-                opacity={hovered ? 1 : 0.7}
-                color={theme.primaryBackground}
-                width={20}
-                height={20}
-              />
-            )}
+            <Animated.View style={burgerAnimStyle}>
+              <BurgerIcon color={theme.primaryBackground} width={20} height={20} />
+            </Animated.View>
           </Pressable>
         </View>
       </View>

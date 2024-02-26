@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -10,6 +10,7 @@ import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -23,7 +24,14 @@ const TokenItem = ({
   handleTokenSelect: ({ address, networkId, flags }: TokenResult) => void
 }) => {
   const { symbol, address, networkId, flags } = token
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
+  const [bind, style] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: theme.primaryBackground,
+      to: theme.secondaryBackground
+    }
+  })
   const { t } = useTranslation()
   const onGasTank = flags.onGasTank
 
@@ -40,9 +48,10 @@ const TokenItem = ({
   if ((isRewards || isVesting) && !balance) return null
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={() => handleTokenSelect(token)}
-      style={({ hovered }: any) => [styles.container, hovered ? styles.containerHovered : {}]}
+      style={[styles.container, style]}
+      {...bind}
     >
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
         <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
@@ -86,7 +95,7 @@ const TokenItem = ({
       <Text fontSize={16} weight="number_bold" style={{ flex: 0.8, textAlign: 'right' }}>
         {balanceUSDFormatted}
       </Text>
-    </Pressable>
+    </AnimatedPressable>
   )
 }
 
