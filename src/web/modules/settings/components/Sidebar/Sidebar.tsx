@@ -13,6 +13,7 @@ import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
+import PaddedScrollView from '@common/components/PaddedScrollView'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
@@ -104,13 +105,6 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
     }
   })
 
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
-  const hasScrollContainer = useMemo(
-    () => contentHeight > containerHeight,
-    [containerHeight, contentHeight]
-  )
-
   return (
     <View style={{ ...spacings.pbLg, position: 'relative', height: '100%' }}>
       <AnimatedPressable
@@ -126,16 +120,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      <ScrollView
-        style={[hasScrollContainer ? spacings.prTy : spacings.pr0]}
-        contentContainerStyle={{ flexGrow: 1 }}
-        onLayout={(e) => {
-          setContainerHeight(e.nativeEvent.layout.height)
-        }}
-        onContentSizeChange={(_, height) => {
-          setContentHeight(height)
-        }}
-      >
+      <PaddedScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {SETTINGS_LINKS.map((link, i) => {
           const isActive = activeLink === link.key
 
@@ -166,7 +151,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
             />
           )
         })}
-      </ScrollView>
+      </PaddedScrollView>
     </View>
   )
 }
