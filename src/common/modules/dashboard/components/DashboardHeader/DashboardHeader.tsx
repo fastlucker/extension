@@ -147,7 +147,7 @@ const DashboardHeader = () => {
               </Animated.View>
             </>
           </AnimatedPressable>
-          <Pressable
+          <AnimatedPressable
             style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, addressAnimStyle]}
             onPress={handleCopyText}
             {...bindAddressAnim}
@@ -161,7 +161,7 @@ const DashboardHeader = () => {
               ({shortenAddress(selectedAccount, 13)})
             </Text>
             <CopyIcon width={20} height={20} color={theme.primaryBackground} />
-          </Pressable>
+          </AnimatedPressable>
         </View>
 
         <View style={styles.maximizeAndMenu}>
