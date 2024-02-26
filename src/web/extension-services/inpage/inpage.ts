@@ -13,7 +13,9 @@ import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import {
   findShadowRootElementById,
-  getWordsOccurrencesInPage,
+  getAllShadowRoots,
+  getVisibleWordsOccurrencesInPage,
+  quickWordsCountInPage,
   replaceIconOnlyConnectionButtons,
   replaceMetamaskInW3Modal,
   replaceOtherWalletWithAmbireInConnectionModals
@@ -33,6 +35,7 @@ let isEIP6963: boolean = false
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 let focusedListener: any = null
 let mmOccurrencesOnFirstDOMLoad: number | null = null
+let shadowRoots: ShadowRoot[] | null = null
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
 let observer: MutationObserver | null = null
@@ -44,22 +47,35 @@ let initializeReplacementTimeout: any
 // MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
 //
 
-const runReplacementScript = () => {
+const runReplacementScript = (shouldUpdateShadowRoots: boolean = true) => {
   if (_defaultWallet === 'OTHER') return
 
   if (initializeReplacementTimeout) {
     clearTimeout(initializeReplacementTimeout)
   }
 
-  if (window.location.hostname.includes('metamask')) return
+  if (shouldUpdateShadowRoots || shadowRoots === null) {
+    shadowRoots = getAllShadowRoots()
+  }
 
-  const wordsOccurrencesResult = getWordsOccurrencesInPage([
-    ['metamask'],
-    ['okx wallet'],
-    ['walletconnect', 'wallet connect'],
-    ['coinbasewallet', 'coinbase wallet', 'coinbase'],
-    ['trustwallet', 'trust wallet']
-  ])
+  if (quickWordsCountInPage('metamask', shadowRoots) === 0) {
+    if (mmOccurrencesOnFirstDOMLoad === null) {
+      mmOccurrencesOnFirstDOMLoad = 0
+    }
+    return
+  }
+
+  const wordsOccurrencesResult = getVisibleWordsOccurrencesInPage(
+    [
+      ['metamask'],
+      ['okx wallet'],
+      ['walletconnect', 'wallet connect'],
+      ['coinbasewallet', 'coinbase wallet', 'coinbase'],
+      ['trustwallet', 'trust wallet']
+    ],
+    undefined,
+    shadowRoots
+  )
 
   const mmOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('metamask'))[0]
   const okxOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('okx wallet'))[0]
@@ -113,7 +129,6 @@ const runReplacementScript = () => {
     if (hasMetaMaskInPage) {
       if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmOccurrences.count)
         return
-
       mmOccurrences.nodes.forEach((n) => {
         replaceOtherWalletWithAmbireInConnectionModals(
           ['metamask', 'connect by metamask'],
@@ -124,7 +139,7 @@ const runReplacementScript = () => {
       return
     }
 
-    const hasAmbireInPage = getWordsOccurrencesInPage([['ambire']])[0].count !== 0
+    const hasAmbireInPage = getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
 
     if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
       okxOccurrences.nodes.forEach((n) => {
@@ -138,6 +153,14 @@ const runReplacementScript = () => {
   })()
 }
 
+function runReplacementScriptWithShadowRoots() {
+  runReplacementScript(true)
+}
+
+function runReplacementScriptWithoutShadowRoots() {
+  runReplacementScript(false)
+}
+
 function cleanupObserver() {
   if (observer) {
     observer.disconnect()
@@ -147,7 +170,7 @@ function cleanupObserver() {
 
 function setupObserver(options?: MutationObserverInit) {
   cleanupObserver()
-  observer = new MutationObserver(runReplacementScript)
+  observer = new MutationObserver(runReplacementScriptWithShadowRoots)
   observer.observe(document, options)
 }
 
@@ -161,11 +184,11 @@ Object.defineProperty(window, 'defaultWallet', {
     if (value === 'AMBIRE') {
       initializeReplacementTimeout = setTimeout(() => {
         if (mmOccurrencesOnFirstDOMLoad === null) {
-          runReplacementScript()
+          runReplacementScriptWithShadowRoots()
         }
       }, 250)
       if (!clickListener) {
-        clickListener = document.addEventListener('click', runReplacementScript)
+        clickListener = document.addEventListener('click', runReplacementScriptWithoutShadowRoots)
       }
       if (!observer) {
         setupObserver(observerOptions)
@@ -177,7 +200,7 @@ Object.defineProperty(window, 'defaultWallet', {
 function cleanup() {
   cleanupObserver()
   if (clickListener) {
-    document.removeEventListener('click', runReplacementScript)
+    document.removeEventListener('click', runReplacementScriptWithoutShadowRoots)
   }
 }
 
@@ -702,7 +725,10 @@ const setAmbireProvider = () => {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
                 doesWebpageReadOurProvider = true
-                clickListener = document.addEventListener('click', runReplacementScript)
+                clickListener = document.addEventListener(
+                  'click',
+                  runReplacementScriptWithoutShadowRoots
+                )
                 observerOptions = { childList: true, subtree: true, attributes: true }
                 setupObserver(observerOptions)
               }
