@@ -44,7 +44,6 @@ const getStyles = (theme: ThemeProps) =>
 
     // Button container styles by type
     buttonContainerPrimary: {
-      backgroundColor: theme.primary,
       borderWidth: 0
     },
     buttonContainerSecondary: {
@@ -52,9 +51,7 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       borderColor: theme.primary
     },
-    buttonContainerDanger: {
-      borderColor: theme.errorDecorative
-    },
+    buttonContainerDanger: {},
     buttonContainerOutline: {
       borderColor: theme.successDecorative
     },

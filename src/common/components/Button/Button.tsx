@@ -1,11 +1,12 @@
-import React from 'react'
-import { Animated, ColorValue, Pressable, PressableProps, TextStyle, ViewStyle } from 'react-native'
+import React, { useMemo } from 'react'
+import { ColorValue, PressableProps, TextStyle, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import textStyles from '@common/styles/utils/text'
+import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
+import { AnimationValues } from '@web/hooks/useHover/useMultiHover'
 
 import getStyles from './styles'
 
@@ -53,12 +54,46 @@ const Button = ({
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
-  const animated = new Animated.Value(1)
 
-  const fadeIn = () =>
-    Animated.timing(animated, { toValue: 0.7, duration: 100, useNativeDriver: !isWeb }).start()
-  const fadeOut = () =>
-    Animated.timing(animated, { toValue: 1, duration: 200, useNativeDriver: !isWeb }).start()
+  const buttonColors: {
+    [key in ButtonTypes]: AnimationValues[]
+  } = useMemo(
+    () => ({
+      primary: [
+        {
+          key: 'backgroundColor',
+          from: theme.primary,
+          to: theme.primaryLight
+        }
+      ],
+      secondary: [
+        {
+          key: 'backgroundColor',
+          from: theme.primaryBackground,
+          to: theme.secondaryBackground
+        }
+      ],
+      danger: [{ key: 'backgroundColor', from: 'transparent', to: theme.errorBackground }],
+      outline: [],
+      ghost: [],
+      error: [],
+      warning: [],
+      info: [],
+      success: []
+    }),
+    [
+      theme.errorBackground,
+      theme.primary,
+      theme.primaryBackground,
+      theme.primaryLight,
+      theme.secondaryBackground
+    ]
+  )
+
+  const [bind, animatedStyle] = useMultiHover({
+    values: buttonColors[type],
+    forceHoveredStyle
+  })
 
   const containerStyles: { [key in ButtonTypes]: ViewStyle } = {
     primary: styles.buttonContainerPrimary,
@@ -84,30 +119,30 @@ const Button = ({
     }
   }
 
-  const hoveredContainerStyles: { [key in ButtonTypes]: ViewStyle } = {
-    primary: {
-      backgroundColor: theme.primaryLight
-    },
-    secondary: {
-      backgroundColor: theme.secondaryBackground
-    },
-    // @TODO: add hover styles for other button types
-    danger: styles.buttonContainerDanger,
-    outline: styles.buttonContainerOutline,
-    ghost: styles.buttonContainerGhost,
-    error: {
-      backgroundColor: theme.errorDecorative
-    },
-    warning: {
-      backgroundColor: theme.warningDecorative
-    },
-    info: {
-      backgroundColor: theme.infoDecorative
-    },
-    success: {
-      backgroundColor: theme.successDecorative
-    }
-  }
+  // const hoveredContainerStyles: { [key in ButtonTypes]: ViewStyle } = {
+  //   primary: {
+  //     backgroundColor: theme.primaryLight
+  //   },
+  //   secondary: {
+  //     backgroundColor: theme.secondaryBackground
+  //   },
+  //   // @TODO: add hover styles for other button types
+  //   danger: styles.buttonContainerDanger,
+  //   outline: styles.buttonContainerOutline,
+  //   ghost: styles.buttonContainerGhost,
+  //   error: {
+  //     backgroundColor: theme.errorDecorative
+  //   },
+  //   warning: {
+  //     backgroundColor: theme.warningDecorative
+  //   },
+  //   info: {
+  //     backgroundColor: theme.infoDecorative
+  //   },
+  //   success: {
+  //     backgroundColor: theme.successDecorative
+  //   }
+  // }
 
   const containerStylesSizes: { [key in ButtonSizes]: ViewStyle } = {
     large: styles.buttonContainerStylesSizeLarge,
@@ -133,25 +168,43 @@ const Button = ({
     small: styles.buttonTextStylesSizeSmall
   }
   return (
-    <Pressable
+    <AnimatedPressable
       disabled={disabled}
-      style={({ hovered }: any) =>
+      style={
         [
           containerStylesSizes[size],
           styles.buttonContainer,
           containerStyles[type],
-          hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
+          // hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
           style,
           !!accentColor && { borderColor: accentColor },
           !hasBottomSpacing && spacings.mb0,
+          animatedStyle,
           disabled && disabledStyle ? disabledStyle : {},
           disabled && !disabledStyle ? styles.disabled : {}
         ] as ViewStyle
       }
-      // Animates all other components to mimic the TouchableOpacity effect
-      onPressIn={type === 'primary' ? null : fadeIn}
-      onPressOut={type === 'primary' ? null : fadeOut}
       {...rest}
+      onHoverIn={(e) => {
+        bind.onHoverIn(e)
+
+        rest?.onHoverIn && rest.onHoverIn(e)
+      }}
+      onHoverOut={(e) => {
+        bind.onHoverOut(e)
+
+        rest?.onHoverOut && rest.onHoverOut(e)
+      }}
+      onPressIn={(e) => {
+        bind.onPressIn(e)
+
+        rest?.onPressIn && rest.onPressIn(e)
+      }}
+      onPressOut={(e) => {
+        bind.onPressOut(e)
+
+        rest?.onPressOut && rest.onPressOut(e)
+      }}
     >
       {childrenPosition === 'left' && children}
       {!!text && (
@@ -171,7 +224,7 @@ const Button = ({
         </Text>
       )}
       {childrenPosition === 'right' && children}
-    </Pressable>
+    </AnimatedPressable>
   )
 }
 
