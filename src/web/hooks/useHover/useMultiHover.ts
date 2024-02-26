@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Animated, ColorValue, ViewStyle } from 'react-native'
+import { Animated, ColorValue, GestureResponderEvent, MouseEvent, ViewStyle } from 'react-native'
 
 import DURATIONS from './durations'
 
-type AnimationValues = {
+export type AnimationValues = {
   key: keyof ViewStyle
   from: number | ColorValue
   to: number | ColorValue
@@ -12,11 +12,13 @@ type AnimationValues = {
 
 type AnimationValuesExtended = AnimationValues & {
   value: Animated.Value
+  duration: number
 }
 
 interface Props {
   values: AnimationValues[]
   duration?: number
+  forceHoveredStyle?: boolean
 }
 
 /*
@@ -24,7 +26,11 @@ interface Props {
 */
 const INTERPOLATE_KEYS = ['backgroundColor', 'color', 'borderColor']
 
-const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
+const useMultiHover = ({
+  values,
+  duration = DURATIONS.REGULAR,
+  forceHoveredStyle = false
+}: Props) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
   const animatedValuesRef = useRef<AnimationValuesExtended[] | null>(null)
@@ -32,13 +38,19 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
 
   useEffect(() => {
     const opacity = values.find(({ key }) => key === 'opacity')
-    animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => ({
-      value: new Animated.Value(INTERPOLATE_KEYS.includes(key) ? 0 : (from as number)),
-      key,
-      from,
-      to,
-      duration: valueDuration
-    }))
+
+    animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => {
+      const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
+      const defaultDuration = shouldInterpolate ? DURATIONS.FAST : duration
+
+      return {
+        value: new Animated.Value(shouldInterpolate ? 0 : (from as number)),
+        key,
+        from,
+        to,
+        duration: valueDuration || defaultDuration
+      }
+    })
 
     if (opacity) return
 
@@ -62,15 +74,15 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
         const fromValue = !INTERPOLATE_KEYS.includes(key) ? (from as number) : 0
 
         Animated.timing(value, {
-          toValue: isHovered ? toValue : fromValue,
-          duration: valueDuration || duration,
+          toValue: isHovered || forceHoveredStyle ? toValue : fromValue,
+          duration: valueDuration,
           useNativeDriver: true
         }).start()
       }
     )
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHovered])
+  }, [isHovered, forceHoveredStyle])
 
   useEffect(() => {
     if (!animatedValues) return
@@ -134,10 +146,10 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
 
   return [bind, style, isHovered] as [
     {
-      onHoverIn: () => void
-      onHoverOut: () => void
-      onPressIn: () => void
-      onPressOut: () => void
+      onHoverIn: (event: MouseEvent) => void
+      onHoverOut: (event: MouseEvent) => void
+      onPressIn: (event: GestureResponderEvent) => void
+      onPressOut: (event: GestureResponderEvent) => void
     },
     ViewStyle,
     boolean

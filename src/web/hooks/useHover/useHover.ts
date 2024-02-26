@@ -7,6 +7,7 @@ export const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 interface Props {
   preset: 'opacity'
   duration?: number
+  forceHoveredStyle?: boolean
 }
 
 const presets = {
@@ -16,11 +17,12 @@ const presets = {
   }
 }
 
-const useHover = ({ preset, duration }: Props) => {
+const useHover = ({ preset, duration, forceHoveredStyle }: Props) => {
   const value = useCustomHover({
     property: preset,
     values: presets[preset],
-    duration
+    duration,
+    forceHoveredStyle
   })
 
   return value

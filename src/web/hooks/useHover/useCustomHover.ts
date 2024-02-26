@@ -9,12 +9,14 @@ interface Props {
     to: number | ColorValue
   }
   duration?: number
+  forceHoveredStyle?: boolean
 }
 
-const useCustomHover = ({ property, values, duration }: Props) => {
+const useCustomHover = ({ property, values, duration, forceHoveredStyle }: Props) => {
   const value = useMultiHover({
     values: [{ key: property, ...values }],
-    duration
+    duration,
+    forceHoveredStyle
   })
 
   return value
