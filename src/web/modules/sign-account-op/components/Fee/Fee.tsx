@@ -1,5 +1,5 @@
 import React from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable } from 'react-native'
 
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import Text from '@common/components/Text'
