@@ -52,8 +52,7 @@ const getStyles = (theme: ThemeProps) =>
       borderColor: theme.primary
     },
     buttonContainerDanger: {
-      borderColor: theme.errorDecorative,
-      borderWidth: 1
+      borderColor: theme.errorDecorative
     },
     buttonContainerOutline: {
       borderColor: theme.successDecorative
