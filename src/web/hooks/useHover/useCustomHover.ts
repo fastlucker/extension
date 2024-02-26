@@ -1,12 +1,12 @@
-import { ViewStyle } from 'react-native'
+import { ColorValue, ViewStyle } from 'react-native'
 
 import useMultiHover from './useMultiHover'
 
 interface Props {
   property: keyof ViewStyle
   values: {
-    from: number
-    to: number
+    from: number | ColorValue
+    to: number | ColorValue
   }
   duration?: number
 }

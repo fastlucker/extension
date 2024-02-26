@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Animated, ViewStyle } from 'react-native'
+import { Animated, ColorValue, ViewStyle } from 'react-native'
 
 import DURATIONS from './durations'
 
 type AnimationValues = {
   key: keyof ViewStyle
-  from: number
-  to: number
+  from: number | ColorValue
+  to: number | ColorValue
   duration?: number
 }
 
@@ -19,6 +19,11 @@ interface Props {
   duration?: number
 }
 
+/*
+  Some of the values have to be interpolated, like backgroundColor, color, borderColor
+*/
+const INTERPOLATE_KEYS = ['backgroundColor', 'color', 'borderColor']
+
 const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
   const [isHovered, setIsHovered] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
@@ -28,7 +33,7 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
   useEffect(() => {
     const opacity = values.find(({ key }) => key === 'opacity')
     animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => ({
-      value: new Animated.Value(from),
+      value: new Animated.Value(INTERPOLATE_KEYS.includes(key) ? 0 : (from as number)),
       key,
       from,
       to,
@@ -37,6 +42,7 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
 
     if (opacity) return
 
+    // Opacity is always needed for onPressIn and onPressOut
     animatedValuesRef.current.push({
       value: new Animated.Value(1),
       key: 'opacity',
@@ -51,9 +57,12 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
     if (!animatedValues) return
 
     animatedValues.forEach(
-      ({ value, from, to, duration: valueDuration }: AnimationValuesExtended) => {
+      ({ key, value, from, to, duration: valueDuration }: AnimationValuesExtended) => {
+        const toValue = !INTERPOLATE_KEYS.includes(key) ? (to as number) : 1
+        const fromValue = !INTERPOLATE_KEYS.includes(key) ? (from as number) : 0
+
         Animated.timing(value, {
-          toValue: isHovered ? to : from,
+          toValue: isHovered ? toValue : fromValue,
           duration: valueDuration || duration,
           useNativeDriver: true
         }).start()
@@ -99,13 +108,19 @@ const useMultiHover = ({ values, duration = DURATIONS.REGULAR }: Props) => {
 
   const style = useMemo(() => {
     if (animatedValues)
-      return animatedValues?.reduce(
-        (acc, { key, value }) => ({
+      return animatedValues?.reduce((acc, { key, value, from, to }) => {
+        const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
+
+        return {
           ...acc,
-          [key]: value
-        }),
-        {}
-      )
+          [key]: shouldInterpolate
+            ? value.interpolate({
+                inputRange: [0, 1],
+                outputRange: [from as string, to as string]
+              })
+            : value
+        }
+      }, {})
 
     // Prevents the hook from returning an empty style object on the first render
     return values.reduce(
