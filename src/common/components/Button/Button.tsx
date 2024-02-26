@@ -155,7 +155,6 @@ const Button = ({
           containerStylesSizes[size],
           styles.buttonContainer,
           containerStyles[type],
-          // hovered || forceHoveredStyle ? hoveredContainerStyles[type] : {},
           style,
           !!accentColor && { borderColor: accentColor },
           !hasBottomSpacing && spacings.mb0,
