@@ -1,7 +1,7 @@
 const DURATIONS = {
   FAST: 150,
-  REGULAR: 250,
-  SLOW: 300
+  REGULAR: 200,
+  SLOW: 250
 }
 
 export default DURATIONS
