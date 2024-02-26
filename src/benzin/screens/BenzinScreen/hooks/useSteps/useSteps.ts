@@ -2,7 +2,7 @@ import { AbiCoder, Block, ethers, TransactionReceipt, TransactionResponse } from
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
+import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
@@ -14,6 +14,7 @@ import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/human
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
@@ -46,10 +47,17 @@ export interface StepsData {
 // if the transaction hash is found, we make the top url the real txn id
 // because user operation hashes are not reliable long term
 const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: string) => {
-  window.history.replaceState(
+  const splitUrl = (window.location.href || '').split('?')
+  const search = splitUrl[1]
+  const searchParams = new URLSearchParams(search)
+  const isInternal = searchParams.get('isInternal') !== undefined
+
+  window.history.pushState(
     null,
     '',
-    `/?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}`
+    `${splitUrl[0]}?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}${
+      isInternal ? '&isInternal' : ''
+    }`
   )
 }
 
@@ -110,6 +118,20 @@ const useSteps = ({
       .then((userOpStatusAndId: { status: string; transactionHash: null | string }) => {
         switch (userOpStatusAndId.status) {
           case 'not_found':
+            if (refetchUserOpStatusCounter > 5) {
+              setFinalizedStatus({ status: 'dropped' })
+              setActiveStep('finalized')
+              setUserOpStatusData({ status: userOpStatusAndId.status, txnId: null })
+              break
+            }
+
+            // if not found, try at least 6 times (30 seconds)
+            // before declaring failure
+            setTimeout(() => {
+              setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+            }, REFETCH_RECEIPT_TIME)
+            break
+
           case 'rejected':
             setFinalizedStatus({ status: 'dropped' })
             setActiveStep('finalized')
@@ -222,7 +244,26 @@ const useSteps = ({
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
-        setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+
+        let userOpsLength = 0
+        if (!finalUserOpHash && txn) {
+          try {
+            const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+            userOpsLength = handleOpsData[0].length
+          } catch (e: any) {
+            /* silence is bitcoin */
+          }
+        }
+
+        const userOpLog = parseLogs(receipt.logs, finalUserOpHash ?? '', userOpsLength)
+        if (userOpLog && !userOpLog.success) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Inner calls failed'
+          })
+        } else {
+          setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+        }
         setActiveStep('finalized')
       })
       .catch(() => null)
@@ -234,6 +275,7 @@ const useSteps = ({
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
+    finalUserOpHash,
     isUserOp,
     userOpStatusData.txnId
   ])
@@ -392,7 +434,7 @@ const useSteps = ({
         )
       )
 
-      if (finalHash === finalUserOpHash) {
+      if (finalHash.toLowerCase() === finalUserOpHash.toLowerCase()) {
         hashFound = true
         setUserOp({
           sender,
@@ -422,7 +464,7 @@ const useSteps = ({
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, txnReceipt.from, userOp),
+        calls: reproduceCalls(txn, userOp),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
@@ -431,7 +473,6 @@ const useSteps = ({
       }
       callsHumanizer(
         accountOp,
-        {},
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),

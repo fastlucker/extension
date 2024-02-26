@@ -58,7 +58,7 @@ const Footer = ({
           <Button
             type="outline"
             accentColor={theme.primary}
-            text={t('Add to Cart')}
+            text={t('Queue and Sign Later')}
             onPress={onAddToCart}
             disabled={isSignLoading || isViewOnly}
             hasBottomSpacing={false}
