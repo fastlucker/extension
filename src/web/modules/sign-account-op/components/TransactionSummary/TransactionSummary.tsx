@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -145,9 +146,13 @@ const TransactionSummary = ({
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${formatUnits(
-                        item.amount || '0x0',
-                        item?.humanizerMeta?.token?.decimals || 18
+                      {` ${formatDecimals(
+                        Number(
+                          formatUnits(
+                            item.amount || '0x0',
+                            item?.humanizerMeta?.token?.decimals || 18
+                          )
+                        )
                       )} `}
                     </Text>
                   ) : null}
