@@ -42,9 +42,16 @@ const useMultiHover = ({
     animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => {
       const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
       const defaultDuration = shouldInterpolate ? DURATIONS.FAST : duration
+      let value = null
+
+      if (forceHoveredStyle) {
+        value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
+      } else {
+        value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
+      }
 
       return {
-        value: new Animated.Value(shouldInterpolate ? 0 : (from as number)),
+        value,
         key,
         from,
         to,
