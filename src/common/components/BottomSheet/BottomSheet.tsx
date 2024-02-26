@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
@@ -6,7 +6,11 @@ import { isWeb } from '@common/config/env'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
+import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import { getUiType } from '@web/utils/uiType'
 
 import Backdrop from './Backdrop'
 import getStyles from './styles'
@@ -24,9 +28,12 @@ interface Props {
   containerInnerWrapperStyles?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
   scrollViewProps?: ModalizeProps['scrollViewProps']
+  forceModal?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
+
+const { isTab, isPopup } = getUiType()
 
 const BottomSheet: React.FC<Props> = ({
   // Useful for debugging and generally knowing which bottom sheet is triggered
@@ -41,7 +48,8 @@ const BottomSheet: React.FC<Props> = ({
   onClosed,
   onBackdropPress,
   flatListProps,
-  scrollViewProps
+  scrollViewProps,
+  forceModal = false
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
@@ -75,6 +83,13 @@ const BottomSheet: React.FC<Props> = ({
     return () => backHandler.remove()
   }, [closeBottomSheet, isOpen])
 
+  const modalTopOffset = useMemo(() => {
+    if (isPopup && forceModal) return 0
+    if (isWeb) return HEADER_HEIGHT - 20
+
+    return HEADER_HEIGHT + 10
+  }, [forceModal])
+
   return (
     <Portal hostName="global">
       {!!isBackdropVisible && (
@@ -89,13 +104,34 @@ const BottomSheet: React.FC<Props> = ({
       )}
       <Modalize
         ref={sheetRef}
-        modalStyle={[styles.bottomSheet, style]}
-        rootStyle={styles.root}
-        handleStyle={styles.dragger}
+        modalStyle={[
+          styles.bottomSheet,
+          isTab || forceModal
+            ? {
+                borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
+                borderBottomStartRadius: BORDER_RADIUS_PRIMARY,
+                maxWidth: TAB_CONTENT_WIDTH,
+                width: '100%',
+                margin: 'auto'
+              }
+            : {},
+          isPopup && !forceModal ? { paddingTop: 23 } : {},
+          isPopup && forceModal ? { height: '100%' } : {},
+          style
+        ]}
+        rootStyle={[styles.root, isPopup && forceModal ? spacings.phSm : {}]}
+        handleStyle={[
+          styles.dragger,
+          isTab || forceModal
+            ? {
+                display: 'none'
+              }
+            : {}
+        ]}
         handlePosition="inside"
         useNativeDriver={!isWeb}
         avoidKeyboardLikeIOS
-        modalTopOffset={isWeb ? HEADER_HEIGHT - 20 : HEADER_HEIGHT + 10}
+        modalTopOffset={modalTopOffset}
         threshold={90}
         adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}
