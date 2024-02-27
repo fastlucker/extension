@@ -51,10 +51,11 @@ const BottomSheet: React.FC<Props> = ({
   scrollViewProps,
   forceModal = false
 }) => {
+  const { styles } = useTheme(getStyles)
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
-  const { styles } = useTheme(getStyles)
+
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
       setTimeout(() => {
