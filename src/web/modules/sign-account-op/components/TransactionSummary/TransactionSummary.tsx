@@ -139,7 +139,7 @@ const TransactionSummary = ({
           ]}
         >
           {dataToVisualize.map((item, i) => {
-            if (!item) return null
+            if (!item || item.isHidden) return null
 
             if (item.type === 'token') {
               return (
