@@ -4,168 +4,37 @@
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
-import { forIn, isUndefined } from 'lodash'
+import forIn from 'lodash/forIn'
+import isUndefined from 'lodash/isUndefined'
 import { nanoid } from 'nanoid'
 
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
-import {
-  blacklistedPages,
-  findShadowRootElementById,
-  getAllShadowRoots,
-  getVisibleWordsOccurrencesInPage,
-  replaceIconOnlyConnectionButtons,
-  replaceMetamaskInW3Modal,
-  replaceOtherWalletWithAmbireInConnectionModals
-} from '@web/extension-services/inpage/page-content-replacement'
+import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-declare let ambireChannelName: string
-declare let defaultWallet: DefaultWallet
-const ambireId = nanoid()
-const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-let doesWebpageReadOurProvider: boolean = false
-let isEIP6963: boolean = false
-let _defaultWallet: DefaultWallet = 'AMBIRE'
-let focusedListener: any = null
-let mmOccurrencesOnFirstDOMLoad: number | null = null
-let shadowRoots: ShadowRoot[] | null = null
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
-let observer: MutationObserver | null = null
-let observerOptions: MutationObserverInit = { childList: true }
-let clickListener: any
-let initializeReplacementTimeout: any
+declare let ambireChannelName: string
+declare let defaultWallet: DefaultWallet
+let _defaultWallet: DefaultWallet = 'AMBIRE'
 
-//
-// MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
-//
+const ambireId = nanoid()
+const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
-const runReplacementScript = (shouldUpdateShadowRoots: boolean = true) => {
-  if (_defaultWallet === 'OTHER') return
+let isEIP6963: boolean = false
+let focusedListener: any = null
 
-  if (initializeReplacementTimeout) {
-    clearTimeout(initializeReplacementTimeout)
-  }
-
-  if (shouldUpdateShadowRoots || shadowRoots === null) {
-    shadowRoots = getAllShadowRoots()
-  }
-
-  const wordsOccurrencesResult = getVisibleWordsOccurrencesInPage(
-    [
-      ['metamask'],
-      ['okx wallet'],
-      ['walletconnect', 'wallet connect'],
-      ['coinbasewallet', 'coinbase wallet', 'coinbase'],
-      ['trustwallet', 'trust wallet']
-    ],
-    undefined,
-    shadowRoots
-  )
-
-  const mmOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('metamask'))[0]
-  const okxOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('okx wallet'))[0]
-
-  if (mmOccurrencesOnFirstDOMLoad === null) {
-    mmOccurrencesOnFirstDOMLoad = mmOccurrences.count
-  }
-
-  const hasMetaMaskInPage = mmOccurrences.count !== 0
-  const hasOKXWalletInPage = okxOccurrences.count !== 0
-
-  if (!doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
-
-  const wcOccurrences = wordsOccurrencesResult.filter((res) =>
-    res.words.includes('walletconnect')
-  )[0]
-  const coinbaseOccurrences = wordsOccurrencesResult.filter((res) =>
-    res.words.includes('coinbase')
-  )[0]
-
-  const hasWalletConnectInPage = wcOccurrences.count !== 0
-  const hasCoinbaseWalletInPage = coinbaseOccurrences.count !== 0
-
-  // most dapps read the provider but some don't till connection
-  if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
-    return
-  }
-
-  ;(async () => {
-    if (!isEIP6963) {
-      await delayPromise(30)
-    }
-    if (isEIP6963) return
-
-    const w3Modal = findShadowRootElementById('w3m-modal')
-    if (w3Modal) replaceMetamaskInW3Modal(w3Modal)
-
-    if (hasWalletConnectInPage) replaceIconOnlyConnectionButtons('metamask')
-
-    const trustWalletOccurrences = wordsOccurrencesResult.filter((res) =>
-      res.words.includes('trustwallet')
-    )[0]
-    const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
-
-    if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
-
-    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
-      return
-    }
-
-    if (hasMetaMaskInPage) {
-      if (mmOccurrencesOnFirstDOMLoad !== 0 && mmOccurrencesOnFirstDOMLoad === mmOccurrences.count)
-        return
-      mmOccurrences.nodes.forEach((n) => {
-        replaceOtherWalletWithAmbireInConnectionModals(
-          ['metamask', 'connect by metamask'],
-          'metamask',
-          n.parentNode as any
-        )
-      })
-      return
-    }
-
-    const hasAmbireInPage = getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
-
-    if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
-      okxOccurrences.nodes.forEach((n) => {
-        replaceOtherWalletWithAmbireInConnectionModals(
-          ['okx wallet', 'connect by okx wallet'],
-          'okx wallet',
-          n.parentNode as any
-        )
-      })
-    }
-  })()
-}
-
-function runReplacementScriptWithShadowRoots() {
-  runReplacementScript(true)
-}
-
-function runReplacementScriptWithoutShadowRoots() {
-  runReplacementScript(false)
-}
-
-function cleanupObserver() {
-  if (observer) {
-    observer.disconnect()
-    observer = null
-  }
-}
-
-function setupObserver(options?: MutationObserverInit) {
-  cleanupObserver()
-  observer = new MutationObserver(runReplacementScriptWithShadowRoots)
-  observer.observe(document, options)
-}
+const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
+  isEIP6963,
+  defaultWallet: _defaultWallet
+})
 
 Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
@@ -174,33 +43,12 @@ Object.defineProperty(window, 'defaultWallet', {
   },
   set(value: DefaultWallet) {
     _defaultWallet = value
+    connectButtonReplacementCtrl.update({ defaultWallet: _defaultWallet })
     if (value === 'AMBIRE') {
-      if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
-
-      initializeReplacementTimeout = setTimeout(() => {
-        if (mmOccurrencesOnFirstDOMLoad === null) {
-          runReplacementScriptWithShadowRoots()
-        }
-      }, 250)
-      if (!clickListener) {
-        clickListener = document.addEventListener('click', runReplacementScriptWithoutShadowRoots)
-      }
-      if (!observer) {
-        setupObserver(observerOptions)
-      }
+      connectButtonReplacementCtrl.init()
     }
   }
 })
-
-function cleanup() {
-  cleanupObserver()
-  if (clickListener) {
-    document.removeEventListener('click', runReplacementScriptWithoutShadowRoots)
-  }
-}
-
-window.addEventListener('beforeunload', cleanup)
-window.addEventListener('unload', cleanup)
 
 //
 // EthereumProvider Injection
@@ -711,7 +559,7 @@ const setAmbireProvider = () => {
         // (only pages that are dapps should read the ethereum provider)
         // the provider is called from multiple instances (current page and other extensions)
         // we need only the calls from the current page
-        if (!doesWebpageReadOurProvider) {
+        if (!connectButtonReplacementCtrl.doesWebpageReadOurProvider) {
           try {
             throw new Error()
           } catch (error: any) {
@@ -719,15 +567,11 @@ const setAmbireProvider = () => {
             if (stack) {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
-                doesWebpageReadOurProvider = true
+                connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
 
-                if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
-                clickListener = document.addEventListener(
-                  'click',
-                  runReplacementScriptWithoutShadowRoots
-                )
-                observerOptions = { childList: true, subtree: true, attributes: true }
-                setupObserver(observerOptions)
+                connectButtonReplacementCtrl.update({
+                  observerOptions: { childList: true, subtree: true, attributes: true }
+                })
               }
             }
           }
@@ -802,6 +646,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
   isEIP6963 = true
+  connectButtonReplacementCtrl.update({ isEIP6963: true })
   announceEip6963Provider(ambireProvider)
 })
 
