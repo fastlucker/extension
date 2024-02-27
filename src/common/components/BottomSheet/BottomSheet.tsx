@@ -4,6 +4,7 @@ import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
 import usePrevious from '@common/hooks/usePrevious'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
@@ -52,6 +53,7 @@ const BottomSheet: React.FC<Props> = ({
   forceModal = false
 }) => {
   const { styles } = useTheme(getStyles)
+  const { path } = useRoute()
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
@@ -64,6 +66,21 @@ const BottomSheet: React.FC<Props> = ({
       }, ANIMATION_DURATION)
     }
   }, [isOpen, prevIsOpen])
+
+  // Without this useEffect the bottom sheet won't close when navigating
+  // to a route that also has a bottom sheet.
+  useEffect(() => {
+    if (!isOpen) return
+
+    // sheetRef has to be assigned to a variable so it's available in the cleanup function
+    const ref = sheetRef?.current
+
+    return () => {
+      // closeBottomSheet is not always defined as some modals are not closable
+      // through the UI, thus we have to close it through the ref
+      ref?.close()
+    }
+  }, [sheetRef, path, isOpen])
 
   // Hook up the back button (or action) to close the bottom sheet
   useEffect(() => {
