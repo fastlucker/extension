@@ -147,6 +147,8 @@ const TransactionSummary = ({
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
                       {` ${formatDecimals(
+                        // @TODO test with dapps that make max approval
+                        // refer to typed message humanization
                         Number(
                           formatUnits(
                             item.amount || '0x0',

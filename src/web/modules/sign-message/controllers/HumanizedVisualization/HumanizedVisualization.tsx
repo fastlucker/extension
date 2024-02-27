@@ -40,10 +40,17 @@ const HumanizedVisualization: FC<{
             <>
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text fontSize={16} weight="medium">
-                  {` ${formatUnits(
-                    item.amount || '0x0',
-                    item?.humanizerMeta?.token?.decimals || 18
-                  )} `}
+                  {` ${
+                    // permit2 uniswap requested amount
+                    item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
+                    // uint256 amount
+                    item.amount.toString(16).toLowerCase() === 'f'.repeat(64)
+                      ? 'all your'
+                      : formatUnits(
+                          item.amount || '0x0',
+                          item?.humanizerMeta?.token?.decimals || 18
+                        )
+                  } `}
                 </Text>
               ) : null}
 
