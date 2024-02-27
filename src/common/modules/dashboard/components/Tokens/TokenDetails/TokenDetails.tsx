@@ -2,7 +2,7 @@ import { getAddress } from 'ethers'
 import * as Clipboard from 'expo-clipboard'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
@@ -16,7 +16,6 @@ import SendIcon from '@common/assets/svg/SendIcon'
 import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
@@ -27,11 +26,11 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import shortenAddress from '@web/utils/shortenAddress'
 
+import TokenDetailsButton from './Button'
 import getStyles from './styles'
 
 const TokenDetails = ({
@@ -41,7 +40,7 @@ const TokenDetails = ({
   token: TokenResult | null
   handleClose: () => void
 }) => {
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -267,43 +266,15 @@ const TokenDetails = ({
         </View>
       </View>
       <View style={styles.actionsContainer}>
-        {actions.map((action) => {
-          const Icon = action.icon
-          const isTokenInfo = action.id === 'info'
-
-          return (
-            <Pressable
-              key={action.id}
-              style={({ hovered }: any) => [
-                styles.action,
-                action.isDisabled && { opacity: 0.4 },
-                hovered && { backgroundColor: theme.secondaryBackground }
-              ]}
-              disabled={action.isDisabled}
-              onPress={() => {
-                action.onPress(token)
-
-                handleClose()
-              }}
-            >
-              <View style={spacings.mbMi}>
-                {isTokenInfo && isTokenInfoLoading ? (
-                  <Spinner style={{ width: 32, height: 32 }} />
-                ) : (
-                  <Icon
-                    color={theme.primary}
-                    width={32}
-                    height={32}
-                    strokeWidth={action.strokeWidth}
-                  />
-                )}
-              </View>
-              <Text fontSize={14} weight="medium" style={text.center} numberOfLines={1}>
-                {action.text}
-              </Text>
-            </Pressable>
-          )
-        })}
+        {actions.map((action) => (
+          <TokenDetailsButton
+            key={action.id}
+            {...action}
+            token={token}
+            isTokenInfoLoading={isTokenInfoLoading}
+            handleClose={handleClose}
+          />
+        ))}
       </View>
     </View>
   )

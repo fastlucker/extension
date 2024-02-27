@@ -18,6 +18,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import ReceiveModal from '@web/components/ReceiveModal'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -37,6 +38,9 @@ const DashboardScreen = () => {
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
+  const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
+    preset: 'opacity'
+  })
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
     width: 0,
     height: 0
@@ -139,12 +143,8 @@ const DashboardScreen = () => {
                         )}
                       </View>
                     </View>
-                    <Pressable
-                      style={({ hovered }: any) => [
-                        flexbox.directionRow,
-                        flexbox.alignCenter,
-                        { opacity: hovered ? 1 : 0.7 }
-                      ]}
+                    <AnimatedPressable
+                      style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
                       onPress={() => {
                         navigate(WEB_ROUTES.networks, {
                           state: {
@@ -152,6 +152,7 @@ const DashboardScreen = () => {
                           }
                         })
                       }}
+                      {...bindNetworkButtonAnim}
                     >
                       {filterByNetworkId ? (
                         <FilterIcon
@@ -170,7 +171,7 @@ const DashboardScreen = () => {
                         width={12}
                         height={6.5}
                       />
-                    </Pressable>
+                    </AnimatedPressable>
                   </View>
                   <Routes openReceiveModal={openReceiveModal} />
                 </View>

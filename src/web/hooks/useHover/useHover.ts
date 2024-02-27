@@ -1,0 +1,31 @@
+import { Animated, Pressable } from 'react-native'
+
+import useCustomHover from './useCustomHover'
+
+export const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
+interface Props {
+  preset: 'opacity'
+  duration?: number
+  forceHoveredStyle?: boolean
+}
+
+const presets = {
+  opacity: {
+    from: 0.7,
+    to: 1
+  }
+}
+
+const useHover = ({ preset, duration, forceHoveredStyle }: Props) => {
+  const value = useCustomHover({
+    property: preset,
+    values: presets[preset],
+    duration,
+    forceHoveredStyle
+  })
+
+  return value
+}
+
+export default useHover
