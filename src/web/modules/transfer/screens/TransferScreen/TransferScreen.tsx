@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -9,6 +9,7 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import PaddedScrollView from '@common/components/PaddedScrollView'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -44,10 +45,6 @@ const TransferScreen = () => {
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
-  const [formContainerHeight, setFormContainerHeight] = useState(0)
-  const [formContentHeight, setFormContentHeight] = useState(0)
-  const [addressBookContainerHeight, setAddressBookContainerHeight] = useState(0)
-  const [addressBookContentHeight, setAddressBookContentHeight] = useState(0)
   const { maxWidthSize } = useWindowSize()
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
@@ -86,16 +83,6 @@ const TransferScreen = () => {
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
   }, [dispatch])
-
-  const hasScrollFormContainer = useMemo(
-    () => formContentHeight > formContainerHeight,
-    [formContainerHeight, formContentHeight]
-  )
-
-  const hasScrollAddressBookContainer = useMemo(
-    () => addressBookContentHeight > addressBookContainerHeight,
-    [addressBookContainerHeight, addressBookContentHeight]
-  )
 
   return (
     <TabLayoutContainer
@@ -149,23 +136,14 @@ const TransferScreen = () => {
                 !state.isTopUp && spacings.pvXl
               ]}
             >
-              <ScrollView
-                style={[flexbox.flex1, hasScrollFormContainer ? spacings.pr : spacings.pr0]}
-                contentContainerStyle={{ flexGrow: 1 }}
-                onLayout={(e) => {
-                  setFormContainerHeight(e.nativeEvent.layout.height)
-                }}
-                onContentSizeChange={(_, height) => {
-                  setFormContentHeight(height)
-                }}
-              >
+              <PaddedScrollView style={[flexbox.flex1]} contentContainerStyle={{ flexGrow: 1 }}>
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
                   disableForm={state.isTopUp && !isSmartAccount}
                 />
-              </ScrollView>
+              </PaddedScrollView>
               {!isTopUp && (
                 <>
                   <View
@@ -174,21 +152,9 @@ const TransferScreen = () => {
                       { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
                     ]}
                   />
-                  <ScrollView
-                    style={[
-                      flexbox.flex1,
-                      hasScrollAddressBookContainer ? spacings.pr : spacings.pr0
-                    ]}
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    onLayout={(e) => {
-                      setAddressBookContainerHeight(e.nativeEvent.layout.height)
-                    }}
-                    onContentSizeChange={(_, height) => {
-                      setAddressBookContentHeight(height)
-                    }}
-                  >
+                  <PaddedScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
                     <AddressBookSection />
-                  </ScrollView>
+                  </PaddedScrollView>
                 </>
               )}
             </View>

@@ -244,6 +244,7 @@ type MainControllerSignAccountOpUpdateAction = {
     speed?: FeeSpeed
     signingKeyAddr?: string
     signingKeyType?: string
+    gasUsedTooHighAgreed?: boolean
   }
 }
 type MainControllerSignAccountOpSignAction = {
