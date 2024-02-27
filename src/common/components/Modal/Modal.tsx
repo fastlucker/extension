@@ -41,7 +41,6 @@ const Modal = ({
 
   return (
     <BottomSheet
-      id="add-token"
       sheetRef={modalRef}
       closeBottomSheet={() => handleClose && handleClose()}
       style={{

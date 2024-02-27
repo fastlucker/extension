@@ -21,7 +21,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 
 type Props = {
-  isOpen: boolean
+  modalRef: any
   keyType: ExternalKey['type']
   onReject: () => void
 }
@@ -32,7 +32,7 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
+const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
 
@@ -50,7 +50,7 @@ const HardwareWalletSigningModal = ({ isOpen, keyType, onReject }: Props) => {
         deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
       })}
       titleSuffix={titleSuffix}
-      isOpen={isOpen}
+      modalRef={modalRef}
     >
       <View
         style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
