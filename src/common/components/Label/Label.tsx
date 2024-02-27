@@ -16,6 +16,7 @@ type Props = {
   type: 'error' | 'warning' | 'info' | 'success'
   hasBottomSpacing?: boolean
   hasRightSpacing?: boolean
+  isTypeLabelHidden?: boolean
   size?: 'sm' | 'md' | 'lg'
   customTextStyle?: TextStyle
 }
@@ -31,6 +32,7 @@ const Label = ({
   type,
   hasBottomSpacing = true,
   hasRightSpacing = true,
+  isTypeLabelHidden = false,
   size = 'lg',
   customTextStyle = {}
 }: Props) => {
@@ -75,9 +77,11 @@ const Label = ({
         )}
       </View>
       <Text>
-        <Text fontSize={16 * sizeMultiplier[size]} weight="semiBold" style={textStyle}>
-          {`${type}: `}
-        </Text>
+        {!isTypeLabelHidden && (
+          <Text fontSize={16 * sizeMultiplier[size]} weight="semiBold" style={textStyle}>
+            {`${type}: `}
+          </Text>
+        )}
         <Text fontSize={16 * sizeMultiplier[size]} weight="regular" style={textStyle}>
           {text}
         </Text>

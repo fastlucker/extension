@@ -178,6 +178,7 @@ const Account = ({
         <View style={[spacings.mh, spacings.mvTy, flexbox.alignSelfStart]}>
           {importStatus === ImportStatus.ImportedWithSomeOfTheKeys && (
             <Label
+              isTypeLabelHidden
               customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t(
@@ -188,6 +189,7 @@ const Account = ({
           )}
           {importStatus === ImportStatus.ImportedWithTheSameKeys && (
             <Label
+              isTypeLabelHidden
               customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t('Already imported with the same key.')}
@@ -196,6 +198,7 @@ const Account = ({
           )}
           {importStatus === ImportStatus.ImportedWithDifferentKeys && (
             <Label
+              isTypeLabelHidden
               customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t(
@@ -206,6 +209,7 @@ const Account = ({
           )}
           {importStatus === ImportStatus.ImportedWithoutKey && (
             <Label
+              isTypeLabelHidden
               customTextStyle={styles.label}
               hasBottomSpacing={false}
               text={t(
