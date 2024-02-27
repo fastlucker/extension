@@ -8,7 +8,10 @@ import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
-import humanizerJSON from '@ambire-common/consts/humanizerInfo.json'
+import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
+
 import { networks } from '@ambire-common/consts/networks'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -67,11 +70,16 @@ async function init() {
     initRpcProviders(rpcProviders)
   }
 
-  // Initialize humanizer in storage
-  const humanizerMetaInStorage = await storage.get('HumanizerMeta', {})
-  if (Object.keys(humanizerMetaInStorage).length < Object.keys(humanizerJSON).length) {
-    await storage.set('HumanizerMeta', humanizerJSON)
-  }
+  const humanizerMetaInStorage: HumanizerMeta = await storage.get(HUMANIZER_META_KEY, {})
+  if (
+    Object.keys(humanizerMetaInStorage).length === 0 ||
+    Object.keys(humanizerMetaInStorage.knownAddresses).length <
+      Object.keys(humanizerJSON.knownAddresses).length ||
+    Object.keys(humanizerMetaInStorage.abis).length < Object.keys(humanizerJSON.abis).length ||
+    Object.keys(humanizerMetaInStorage.abis.NO_ABI).length <
+      Object.keys(humanizerJSON.abis.NO_ABI).length
+  )
+    await storage.set(HUMANIZER_META_KEY, humanizerJSON)
 
   await permissionService.init()
 }

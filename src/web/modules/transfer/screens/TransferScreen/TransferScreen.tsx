@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -9,6 +9,7 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import PaddedScrollView from '@common/components/PaddedScrollView'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -31,7 +32,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -40,14 +41,10 @@ const TransferScreen = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
-  const [formContainerHeight, setFormContainerHeight] = useState(0)
-  const [formContentHeight, setFormContentHeight] = useState(0)
-  const [addressBookContainerHeight, setAddressBookContainerHeight] = useState(0)
-  const [addressBookContentHeight, setAddressBookContentHeight] = useState(0)
   const { maxWidthSize } = useWindowSize()
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
@@ -87,21 +84,11 @@ const TransferScreen = () => {
     })
   }, [dispatch])
 
-  const hasScrollFormContainer = useMemo(
-    () => formContentHeight > formContainerHeight,
-    [formContainerHeight, formContentHeight]
-  )
-
-  const hasScrollAddressBookContainer = useMemo(
-    () => addressBookContentHeight > addressBookContainerHeight,
-    [addressBookContainerHeight, addressBookContentHeight]
-  )
-
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       width={isTopUp ? 'sm' : 'xl'}
-      header={<HeaderAccountAndNetworkInfo containerStyle={{ borderWidth: 0 }} />}
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -137,26 +124,26 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
+            style={[styles.panel, !state.isTopUp && spacings.pv0]}
+            forceContainerSmallSpacings={state.isTopUp}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
-            <View style={[flexbox.directionRow, flexbox.flex1, common.fullWidth, spacings.pvXl]}>
-              <ScrollView
-                style={[flexbox.flex1, hasScrollFormContainer ? spacings.pr : spacings.pr0]}
-                contentContainerStyle={{ flexGrow: 1 }}
-                onLayout={(e) => {
-                  setFormContainerHeight(e.nativeEvent.layout.height)
-                }}
-                onContentSizeChange={(_, height) => {
-                  setFormContentHeight(height)
-                }}
-              >
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.flex1,
+                common.fullWidth,
+                !state.isTopUp && spacings.pvXl
+              ]}
+            >
+              <PaddedScrollView style={[flexbox.flex1]} contentContainerStyle={{ flexGrow: 1 }}>
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
+                  disableForm={state.isTopUp && !isSmartAccount}
                 />
-              </ScrollView>
+              </PaddedScrollView>
               {!isTopUp && (
                 <>
                   <View
@@ -165,33 +152,23 @@ const TransferScreen = () => {
                       { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
                     ]}
                   />
-                  <ScrollView
-                    style={[
-                      flexbox.flex1,
-                      hasScrollAddressBookContainer ? spacings.pr : spacings.pr0
-                    ]}
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    onLayout={(e) => {
-                      setAddressBookContainerHeight(e.nativeEvent.layout.height)
-                    }}
-                    onContentSizeChange={(_, height) => {
-                      setAddressBookContentHeight(height)
-                    }}
-                  >
+                  <PaddedScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
                     <AddressBookSection />
-                  </ScrollView>
+                  </PaddedScrollView>
                 </>
               )}
             </View>
             {isTopUp && !isSmartAccount && (
-              <Alert
-                type="warning"
-                // @TODO: replace temporary text
-                title={t(
-                  'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
-                )}
-                isTypeLabelHidden
-              />
+              <View style={spacings.ptLg}>
+                <Alert
+                  type="warning"
+                  // @TODO: replace temporary text
+                  title={t(
+                    'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
+                  )}
+                  isTypeLabelHidden
+                />
+              </View>
             )}
           </Panel>
         ) : (

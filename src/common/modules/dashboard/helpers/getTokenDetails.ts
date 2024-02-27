@@ -16,19 +16,18 @@ const getTokenDetails = ({
   const networkData = networks.find(({ id }) => networkId === id)
 
   const balance = parseFloat(formatUnits(amount, decimals))
-  const priceUSD =
-    priceIn.find(
-      ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
-    )?.price || 0
-  const balanceUSD = balance * priceUSD
+  const priceUSD = priceIn.find(
+    ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
+  )?.price
+  const balanceUSD = priceUSD ? balance * priceUSD : undefined
 
   return {
     balance,
     balanceFormatted: formatDecimals(balance, 'amount'),
     priceUSD,
-    priceUSDFormatted: priceIn.length ? formatDecimals(priceUSD) : '-',
+    priceUSDFormatted: formatDecimals(priceUSD, 'price'),
     balanceUSD,
-    balanceUSDFormatted: priceIn.length ? formatDecimals(balanceUSD, 'value') : '-',
+    balanceUSDFormatted: formatDecimals(balanceUSD, 'value'),
     networkData,
     isRewards,
     isVesting

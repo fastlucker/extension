@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View, ViewStyle } from 'react-native'
+import { ColorValue, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import Text from '@common/components/Text'
@@ -12,6 +12,7 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   label: string
@@ -20,6 +21,7 @@ interface Props {
   Icon?: FC<SvgProps>
   isExternal?: boolean
   style?: ViewStyle
+  initialBackground?: ColorValue
 }
 
 const getColor = (isActive: boolean, isHovered: boolean) => {
@@ -33,15 +35,31 @@ const getColor = (isActive: boolean, isHovered: boolean) => {
   return 'secondaryText'
 }
 
-const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, style }) => {
+const SettingsLink: FC<Props> = ({
+  label,
+  path,
+  Icon,
+  isActive,
+  isExternal,
+  style,
+  initialBackground
+}) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
+  const [bindAnim, animStyle, isHovered] = useCustomHover({
+    property: 'backgroundColor',
+    values: {
+      from: initialBackground || theme.secondaryBackground,
+      to: theme.tertiaryBackground
+    },
+    forceHoveredStyle: isActive
+  })
   const isDisabled = !Object.values(ROUTES).includes(path) && !isExternal
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={async () => {
         if (isExternal) {
           try {
@@ -55,32 +73,33 @@ const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, styl
         navigate(path)
       }}
       disabled={isDisabled}
-      style={({ hovered }: any) => [
+      style={[
         flexbox.directionRow,
         spacings.pl,
         spacings.pv,
+        spacings.mbMi,
         {
           borderRadius: BORDER_RADIUS_PRIMARY,
-          width: 250,
-          backgroundColor: isActive || hovered ? theme.tertiaryBackground : 'transparent',
-          opacity: isDisabled ? 0.6 : 1
+          width: 250
         },
-        style
+        style,
+        animStyle,
+        isDisabled ? { opacity: 0.6 } : {}
       ]}
+      {...bindAnim}
     >
-      {({ hovered }: any) => {
-        const color = theme[getColor(isActive, hovered)]
-
-        return (
-          <View style={flexbox.directionRow}>
-            {Icon ? <Icon width={24} height={24} color={color} /> : null}
-            <Text style={Icon ? spacings.ml : {}} color={color} fontSize={16} weight="medium">
-              {t(label)}
-            </Text>
-          </View>
-        )
-      }}
-    </Pressable>
+      <View style={flexbox.directionRow}>
+        {Icon ? <Icon width={24} height={24} color={theme[getColor(isActive, isHovered)]} /> : null}
+        <Text
+          style={Icon ? spacings.ml : {}}
+          color={theme[getColor(isActive, isHovered)]}
+          fontSize={16}
+          weight="medium"
+        >
+          {t(label)}
+        </Text>
+      </View>
+    </AnimatedPressable>
   )
 }
 

@@ -40,7 +40,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow
     },
     actionsContainer: {
-      ...spacings.phLg,
+      ...spacings.ph,
       ...spacings.pv,
       backgroundColor: theme.primaryBackground,
       ...common.borderRadiusPrimary,
@@ -51,7 +51,8 @@ const getStyles = (theme: ThemeProps) =>
       width: '25%',
       maxWidth: '25%',
       ...flexbox.alignCenter,
-      ...spacings.phSm,
+      ...flexbox.justifyCenter,
+      ...spacings.phMi,
       ...spacings.pvSm,
       ...common.borderRadiusPrimary
     }

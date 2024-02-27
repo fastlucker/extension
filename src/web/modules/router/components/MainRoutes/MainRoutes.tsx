@@ -2,7 +2,6 @@ import React from 'react'
 import { View } from 'react-native'
 import { Outlet, Route, Routes } from 'react-router-dom'
 
-import BenzinScreen from '@benzin/screens/BenzinScreen'
 import { StepperProvider } from '@common/modules/auth/contexts/stepperContext'
 import DashboardScreen from '@common/modules/dashboard/screens/DashboardScreen'
 import NoConnectionScreen from '@common/modules/no-connection/screens/NoConnectionScreen'
@@ -39,6 +38,7 @@ import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardin
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
+import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokens'
 import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
@@ -59,6 +59,7 @@ const stepperProvider = (
     <Outlet />
   </StepperProvider>
 )
+
 const isPopup = getUiType().isPopup
 const MainRoutes = () => {
   return (
@@ -117,21 +118,25 @@ const MainRoutes = () => {
                   </TransferControllerStateProvider>
                 }
               />
-              <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
-              <Route
-                path={WEB_ROUTES.transactions}
-                element={<TransactionHistorySettingsScreen />}
-              />
-              <Route
-                path={WEB_ROUTES.signedMessages}
-                element={<SignedMessageHistorySettingsScreen />}
-              />
-              <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
-              <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
-              <Route path={WEB_ROUTES.devicePassword} element={<DevicePasswordSettingsScreen />} />
-              <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
-
-              <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+              <Route element={<SettingsRoutesProvider />}>
+                <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
+                <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
+                <Route
+                  path={WEB_ROUTES.transactions}
+                  element={<TransactionHistorySettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.signedMessages}
+                  element={<SignedMessageHistorySettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.devicePassword}
+                  element={<DevicePasswordSettingsScreen />}
+                />
+                <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
+                <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
+              </Route>
             </Route>
           </Route>
         </Route>
