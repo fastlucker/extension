@@ -9,6 +9,7 @@ import { Storage } from '@ambire-common/interfaces/storage'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
@@ -98,15 +99,7 @@ const useSteps = ({
   useEffect(() => {
     if (!userOpHash || txnId || userOpStatusData.txnId) return
 
-    const url = `https://api.jiffyscan.xyz/v0/getUserOp?hash=${userOpHash}`
-    standardOptions
-      .fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.REACT_APP_JIFFYSCAN_API_KEY
-        }
-      })
+    fetchUserOp(userOpHash, standardOptions.fetch)
       .then((reqRes: any) => {
         if (reqRes.status !== 200) {
           setTimeout(() => {
@@ -141,6 +134,7 @@ const useSteps = ({
           setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
         })
       })
+      .catch((e) => e)
   }, [
     userOpHash,
     standardOptions,
