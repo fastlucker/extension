@@ -114,12 +114,24 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
     if (!networkId || !submittedAccountOp.txnId) throw new Error('Invalid networkId or txnId')
 
+    let link = `https://benzin.ambire.com/?txnId=${
+      submittedAccountOp.txnId
+    }&networkId=${networkId}${
+      submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
+    }`
+
+    // in the rare case of a bug where we've failed to find the txnId
+    // for an userOpHash, the userOpHash and the txnId will be the same.
+    // In that case, open benzina only with the userOpHash
+    if (
+      submittedAccountOp.userOpHash &&
+      submittedAccountOp.userOpHash === submittedAccountOp.txnId
+    ) {
+      link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
+    }
+
     try {
-      await createTab(
-        `https://benzin.ambire.com/?txnId=${submittedAccountOp.txnId}&networkId=${networkId}${
-          submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
-        }`
-      )
+      await createTab(link)
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }

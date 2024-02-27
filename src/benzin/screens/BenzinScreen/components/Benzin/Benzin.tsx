@@ -19,7 +19,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
-  if (!state?.network || !state?.txnId) {
+  if (!state?.network || (!state?.txnId && !state?.userOpHash)) {
     // @TODO
     return <Text>Error loading transaction</Text>
   }
@@ -28,6 +28,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     activeStep,
     network,
     txnId,
+    userOpHash,
     stepsState,
     isRenderedInternally,
     handleCopyText,
@@ -47,6 +48,7 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
             activeStep={activeStep}
             network={network}
             txnId={txnId}
+            userOpHash={userOpHash}
             handleOpenExplorer={handleOpenExplorer}
             stepsState={stepsState}
           />
