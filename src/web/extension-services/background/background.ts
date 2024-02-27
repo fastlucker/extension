@@ -736,6 +736,12 @@ async function init() {
             case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
               return mainCtrl.portfolio.updateTokenPreferences(data.params.tokenPreferences)
             }
+            case 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES': {
+              return mainCtrl.portfolio.updateLocalTokenPreferences(data.params.tokenPreferences)
+            }
+            case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
+              return mainCtrl.portfolio.resetAdditionalHints()
+            }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
                 data.params.secretId,

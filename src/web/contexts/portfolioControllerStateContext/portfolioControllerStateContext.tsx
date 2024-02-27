@@ -117,7 +117,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('portfolio', onUpdate)
   }, [])
 
-  const updateTokenPreferences = useCallback(
+  const updateLocalTokenPreferences = useCallback(
     (token: any) => {
       const tokenPreferences = state?.tokenPreferences
       const tokenIsNotInPreferences = !tokenPreferences.find(
@@ -127,9 +127,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       if (!tokenIsNotInPreferences) return
       tokenPreferences.push(token)
       dispatch({
-        type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+        type: 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES',
         params: {
-          tokenPreferences
+          tokenPreferences: [token.address]
         }
       })
       dispatch({
@@ -139,7 +139,27 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         }
       })
     },
-    [state?.tokenPreferences]
+    [dispatch, state?.tokenPreferences]
+  )
+
+  const updateTokenPreferences = useCallback(
+    (token: any) => {
+      const tokenPreferences = state?.tokenPreferences
+      const tokenIsNotInPreferences = !tokenPreferences.find(
+        ({ address }) => address === token.address
+      )
+      if (!tokenIsNotInPreferences) {
+        tokenPreferences.push(token)
+      }
+
+      dispatch({
+        type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+        params: {
+          tokenPreferences
+        }
+      })
+    },
+    [dispatch, state?.tokenPreferences]
   )
 
   const removeTokenPreferences = useCallback(
@@ -162,7 +182,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         }
       })
     },
-    [state?.tokenPreferences]
+    [dispatch, state?.tokenPreferences]
   )
 
   const refreshPortfolio = useCallback(() => {
@@ -184,6 +204,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           refreshPortfolio,
           startedLoading,
           updateTokenPreferences,
+          updateLocalTokenPreferences,
           removeTokenPreferences
         }),
         [
@@ -192,6 +213,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           startedLoading,
           refreshPortfolio,
           updateTokenPreferences,
+          updateLocalTokenPreferences,
           removeTokenPreferences
         ]
       )}

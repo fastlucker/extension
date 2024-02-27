@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
@@ -28,38 +29,58 @@ const WatchTokenRequestScreen = () => {
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
 
-  // TODO:
-  const handleAddToken = useCallback(() => {}, [])
   // TODO: Add standard and handle different types
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
   const network = networks.find((n) => n.explorerUrl === origin)
-  console.log(network)
+
   useEffect(() => {
     const token = {
-      address: tokenData.address,
+      address: getAddress(tokenData.address),
       name: tokenData?.name,
       symbol: tokenData?.symbol,
       decimals: tokenData?.decimals,
       standard: state?.currentNotificationRequest?.params?.data?.type,
-      networkId: network?.id
+      networkId: network?.id,
+      isHidden: false
     }
 
+    portfolio.updateLocalTokenPreferences(token)
+  }, [tokenData?.address])
+
+  const handleAddToken = useCallback(() => {
+    const token = {
+      address: getAddress(tokenData.address),
+      name: tokenData?.name,
+      symbol: tokenData?.symbol,
+      decimals: tokenData?.decimals,
+      standard: state?.currentNotificationRequest?.params?.data?.type,
+      networkId: network?.id,
+      isHidden: false
+    }
+
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+      params: { data: null }
+    })
     portfolio.updateTokenPreferences(token)
-  }, [portfolio])
+  }, [dispatch])
 
   // TODO: Notification window not closing
   const handleCancel = useCallback(() => {
-    portfolio.removeTokenPreferences(tokenData.address)
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS'
+    })
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: { err: t('User rejected the request.') }
     })
-  }, [portfolio, tokenData.address, t, dispatch])
+  }, [t, dispatch])
 
   const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
-    ({ address }) => address === tokenData.address
+    ({ address }) => address === getAddress(tokenData.address)
   )
+  console.log({ portfolio, portfolioFoundToken })
 
   // TODO: Loading state
   if (!portfolioFoundToken) return null
@@ -169,7 +190,9 @@ const WatchTokenRequestScreen = () => {
               >
                 ${balanceUSDFormatted || '0.00'}
               </Text>
-              {portfolioFoundToken?.priceIn && <CoingeckoConfirmedBadge text={t('Confirmed')} />}
+              {portfolioFoundToken?.priceIn?.length ? (
+                <CoingeckoConfirmedBadge text={t('Confirmed')} />
+              ) : null}
             </View>
           </View>
         </View>

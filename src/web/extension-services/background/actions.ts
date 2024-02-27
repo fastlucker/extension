@@ -212,6 +212,15 @@ type PortfolioControllerUpdateTokenPreferences = {
     tokenPreferences: any[]
   }
 }
+type PortfolioControllerUpdateLocalTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES'
+  params: {
+    tokenPreferences: any[]
+  }
+}
+type PortfolioControllerResetAdditionalHints = {
+  type: 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS'
+}
 type MainControllerSignAccountOpInitAction = {
   params: {
     accountAddr: AccountId
@@ -393,6 +402,8 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerUpdateLocalTokenPreferences
+  | PortfolioControllerResetAdditionalHints
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
