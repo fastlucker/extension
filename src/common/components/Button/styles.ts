@@ -44,7 +44,6 @@ const getStyles = (theme: ThemeProps) =>
 
     // Button container styles by type
     buttonContainerPrimary: {
-      backgroundColor: theme.primary,
       borderWidth: 0
     },
     buttonContainerSecondary: {

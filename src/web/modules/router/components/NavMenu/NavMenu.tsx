@@ -163,6 +163,7 @@ const NavMenu = () => {
                   <SettingsLink
                     {...link}
                     isActive={false}
+                    initialBackground={theme.primaryBackground}
                     style={{
                       width: '50%',
                       ...(i !== SETTINGS_LINKS.length - 1 && i !== SETTINGS_LINKS.length - 2

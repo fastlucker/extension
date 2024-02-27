@@ -11,6 +11,8 @@ interface KeyIteratorProps {
  * Serves for retrieving a range of addresses/keys from a Ledger hardware wallet
  */
 class LedgerKeyIterator implements KeyIteratorInterface {
+  type = 'ledger'
+
   walletSDK: KeyIteratorProps['walletSDK']
 
   constructor({ walletSDK }: KeyIteratorProps) {
