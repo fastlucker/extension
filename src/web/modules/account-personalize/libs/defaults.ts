@@ -34,6 +34,8 @@ export const getDefaultAccountLabel = (
     !keyType && !keyTypeInternalSubtype
       ? '(View Only)'
       : `(${isSmartAccount(account) ? 'Ambire via' : 'Basic from'} ${
+          // FIXME: View only accounts before that just got a key
+          // misleadingly display as "Diverse Origins" in the account label.
           (index !== -1 && 'Diverse Origins') ||
           (keyType && HARDWARE_WALLET_DEVICE_NAMES[keyType]) ||
           KEY_SUBTYPE_TO_LABEL[keyTypeInternalSubtype as keyof typeof KEY_SUBTYPE_TO_LABEL] ||
@@ -66,6 +68,9 @@ export const getDefaultKeyLabel = (
   return `${prefix} (${from}) from slot ${slot}`
 }
 
+// TODO: Importing account as view only, but we have a key for this account,
+// so technically... it's not a view only account anymore.
+// TODO: Importing account, but is was previously imported as a view only one.
 export const getDefaultAccountPreferences = (
   newAccounts: Account[],
   prevAccounts: Account[],
