@@ -17,11 +17,11 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
 
 type Props = {
-  isOpen: boolean
-  onClose: () => void
+  modalRef: any
+  handleClose: () => void
 }
 
-const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
+const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
@@ -66,7 +66,12 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
   }
 
   return (
-    <Modal title={t('Connect your HW wallet')} isOpen={isOpen} onClose={onClose}>
+    <Modal
+      modalRef={modalRef}
+      handleClose={handleClose}
+      title={t('Connect your HW wallet')}
+      autoWidth={false}
+    >
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={14}>
           {t('1. Plug your Ledger device into your computer')}

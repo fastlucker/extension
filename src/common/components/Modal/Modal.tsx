@@ -12,7 +12,7 @@ import getStyles from './styles'
 
 type Props = {
   modalRef: any
-  handleClose: () => void
+  handleClose?: () => void
   title?: string
   titleSuffix?: JSX.Element
   hideLeftSideContainer?: boolean
@@ -21,6 +21,7 @@ type Props = {
   children: ReactNode | ReactNode[]
   customHeader?: ReactNode
   withBackButton?: boolean
+  autoWidth?: boolean
 }
 
 const Modal = ({
@@ -33,7 +34,8 @@ const Modal = ({
   children,
   withBackButton,
   customHeader,
-  hideLeftSideContainer = false
+  hideLeftSideContainer = false,
+  autoWidth = true
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
 
@@ -41,10 +43,11 @@ const Modal = ({
     <BottomSheet
       id="add-token"
       sheetRef={modalRef}
-      closeBottomSheet={handleClose}
+      closeBottomSheet={() => handleClose && handleClose()}
       style={{
         backgroundColor: theme.primaryBackground,
         ...styles.modal,
+        ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}),
         ...modalStyle
       }}
       forceModal

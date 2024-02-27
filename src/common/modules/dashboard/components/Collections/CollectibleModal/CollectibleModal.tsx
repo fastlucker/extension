@@ -147,7 +147,6 @@ const CollectibleModal = ({
       customHeader={<></>}
       modalRef={modalRef}
       handleClose={handleClose}
-      modalStyle={styles.modal}
       modalInnerStyle={styles.modalInner}
     >
       <ModalInner />

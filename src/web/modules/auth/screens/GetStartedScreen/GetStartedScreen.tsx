@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Animated, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
@@ -10,7 +11,6 @@ import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
@@ -41,14 +41,13 @@ const GetStartedScreen = () => {
   const { styles: panelStyles } = useTheme(getPanelStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { search } = useRoute()
   const keystoreState = useKeystoreControllerState()
+  const {
+    ref: hotWalletModalRef,
+    open: openHotWalletModal,
+    close: closeHotWalletModal
+  } = useModalize()
   const wrapperRef: any = useRef(null)
-  const [isCreateHotWalletModalOpen, setIsCreateHotWalletModalOpen] = useState(() => {
-    const searchParams = new URLSearchParams(search)
-
-    return searchParams.has('createHotWallet')
-  })
   const animation = useRef(new Animated.Value(0)).current
   const { width } = useWindowSize()
   const { authStatus } = useAuth()
@@ -76,7 +75,7 @@ const GetStartedScreen = () => {
       flow: 'email' | 'hw' | 'import-hot-wallet' | 'create-seed' | 'create-hot-wallet' | 'view-only'
     ) => {
       if (flow === 'create-hot-wallet') {
-        setIsCreateHotWalletModalOpen(true)
+        openHotWalletModal()
         return
       }
       if (flow === 'view-only') {
@@ -146,13 +145,13 @@ const GetStartedScreen = () => {
       <Modal
         modalStyle={{
           alignItems: 'flex-start',
-          minWidth: 'initial',
           ...spacings.pbXl,
           ...spacings.phXl,
           ...spacings.pbLg
         }}
-        onClose={() => setIsCreateHotWalletModalOpen(false)}
-        isOpen={isCreateHotWalletModalOpen}
+        autoWidth
+        handleClose={closeHotWalletModal}
+        modalRef={hotWalletModalRef}
         hideLeftSideContainer
         title={t('Select the recovery option of your new wallet')}
       >

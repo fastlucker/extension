@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -65,7 +66,7 @@ const KeyStoreSetupScreen = () => {
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC
     }
   })
-  const [keystoreReady, setKeystoreReady] = useState(false)
+  const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
   const password = watch('password', '')
 
   useEffect(() => {
@@ -89,9 +90,9 @@ const KeyStoreSetupScreen = () => {
 
   useEffect(() => {
     if (state.latestMethodCall === 'addSecret' && state.status === 'SUCCESS') {
-      setKeystoreReady(true)
+      openDevicePasswordSetModal()
     }
-  }, [state.latestMethodCall, state.status])
+  }, [openDevicePasswordSetModal, state.latestMethodCall, state.status])
 
   useEffect(() => {
     ;(async () => {
@@ -202,7 +203,7 @@ const KeyStoreSetupScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <Modal
-        isOpen={keystoreReady}
+        modalRef={devicePasswordSetModalRef}
         modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>

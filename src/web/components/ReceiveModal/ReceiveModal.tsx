@@ -53,6 +53,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
       handleClose={handleClose}
       modalStyle={styles.modal}
       title="Receive Assets"
+      autoWidth={false}
     >
       <View style={styles.content}>
         {isViewOnly ? (

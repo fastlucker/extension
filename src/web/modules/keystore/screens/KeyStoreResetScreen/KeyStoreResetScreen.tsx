@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
@@ -47,7 +48,17 @@ const KeyStoreResetScreen = () => {
   const formEmail = watch('email')
 
   const { dispatch } = useBackgroundService()
-  const [isPasswordChanged, setIsPasswordChanged] = useState(false)
+  const {
+    ref: passwordSetModalRef,
+    open: openPasswordSetModal,
+    close: closePasswordSetModal
+  } = useModalize()
+  const {
+    ref: confirmationModalRef,
+    open: openConfirmationModal,
+    close: closeConfirmationModal
+  } = useModalize()
+
   const keystoreState = useKeystoreControllerState()
   const ev = useEmailVaultControllerState()
   const isWaitingConfirmation = ev.currentState === EmailVaultState.WaitingEmailConfirmation
@@ -77,9 +88,21 @@ const KeyStoreResetScreen = () => {
 
   useEffect(() => {
     if (keystoreState.isUnlocked) {
-      setIsPasswordChanged(true)
+      openPasswordSetModal()
+      return
     }
-  }, [keystoreState.isUnlocked])
+
+    closePasswordSetModal()
+  }, [closePasswordSetModal, keystoreState.isUnlocked, openPasswordSetModal])
+
+  useEffect(() => {
+    if (isWaitingConfirmation) {
+      openConfirmationModal()
+      return
+    }
+
+    closeConfirmationModal()
+  }, [closeConfirmationModal, isWaitingConfirmation, openConfirmationModal])
 
   return (
     <TabLayoutContainer
@@ -181,13 +204,13 @@ const KeyStoreResetScreen = () => {
               control={control}
               errors={errors}
               password={watch('password')}
-              isPasswordChanged={isPasswordChanged}
+              modalRef={passwordSetModalRef}
               handleChangeKeystorePassword={handleCompleteReset}
             />
           )}
         </>
         <Modal
-          isOpen={ev.currentState === EmailVaultState.WaitingEmailConfirmation}
+          modalRef={confirmationModalRef}
           modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
           title={t('Email Confirmation Required')}
         >
