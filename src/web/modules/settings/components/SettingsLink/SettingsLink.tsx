@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { ColorValue, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import Text from '@common/components/Text'
@@ -21,6 +21,7 @@ interface Props {
   Icon?: FC<SvgProps>
   isExternal?: boolean
   style?: ViewStyle
+  initialBackground?: ColorValue
 }
 
 const getColor = (isActive: boolean, isHovered: boolean) => {
@@ -34,7 +35,15 @@ const getColor = (isActive: boolean, isHovered: boolean) => {
   return 'secondaryText'
 }
 
-const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, style }) => {
+const SettingsLink: FC<Props> = ({
+  label,
+  path,
+  Icon,
+  isActive,
+  isExternal,
+  style,
+  initialBackground
+}) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -42,7 +51,7 @@ const SettingsLink: FC<Props> = ({ label, path, Icon, isActive, isExternal, styl
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'backgroundColor',
     values: {
-      from: theme.secondaryBackground,
+      from: initialBackground || theme.secondaryBackground,
       to: theme.tertiaryBackground
     },
     forceHoveredStyle: isActive
