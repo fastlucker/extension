@@ -215,7 +215,11 @@ export class ConnectButtonReplacementController {
     }
   }
 
-  findAndReplaceOtherWalletIconWithAmbireIcon(node: any, iconNames: string[]) {
+  findAndReplaceOtherWalletIconWithAmbireIcon(
+    node: any,
+    iconNames: string[],
+    foundTextElement?: Element
+  ) {
     const imgElement = node.querySelector('img')
     const svgElement = node.querySelector('svg')
     const imgElementByRole = node.querySelector('[role="img"]')
@@ -227,12 +231,47 @@ export class ConnectButtonReplacementController {
       return iconNames.some((name) => background.includes(name) || backgroundImg.includes(name))
     })
 
-    if (imgElement || svgElement || imgElementByRole || mmIconDivs.length) {
+    const allIconElements: { type: string; el: any }[] = [
+      { type: 'img', el: imgElement },
+      { type: 'svg', el: svgElement },
+      { type: 'img-role', el: imgElementByRole },
+      ...mmIconDivs.map((div) => ({ type: 'div', el: div }))
+    ].filter((icon) => !!icon.el)
+
+    if (allIconElements.length) {
+      const findClosestIconType = (textEl?: Element) => {
+        if (!textEl) return null
+
+        const textElRect = textEl.getBoundingClientRect()
+        let closestElementType = null
+        let minDistance = Infinity
+
+        allIconElements.forEach((icon) => {
+          const elementRect = icon.el.getBoundingClientRect()
+          const distance = Math.sqrt(
+            (elementRect.x - textElRect.x) ** 2 + (elementRect.y - textElRect.y) ** 2
+          )
+
+          // Update closestElement and minDistance if the current element is closer
+          if (distance < minDistance) {
+            closestElementType = icon.type
+            minDistance = distance
+          }
+        })
+
+        return closestElementType
+      }
+
+      const closestFoundIconType =
+        allIconElements.length > 1 ? findClosestIconType(foundTextElement) : null
       const newImgElement = document.createElement('img')
       newImgElement.src = ambireSvg
+
       if (imgElement) {
         imgElement.src = ambireSvg
         imgElement.removeAttribute('srcset')
+
+        if (closestFoundIconType === 'img') return true
       }
 
       if (svgElement) {
@@ -253,6 +292,8 @@ export class ConnectButtonReplacementController {
           svgElement.parentNode.insertBefore(newImgElement, svgElement)
           svgElement.style.display = 'none'
         }
+
+        if (closestFoundIconType === 'svg') return true
       }
 
       if (imgElementByRole) {
@@ -273,6 +314,8 @@ export class ConnectButtonReplacementController {
           imgElementByRole.parentNode.insertBefore(newImgElement, imgElementByRole)
           imgElementByRole.style.display = 'none'
         }
+
+        if (closestFoundIconType === 'img-role') return true
       }
 
       mmIconDivs.forEach((div: any) => {
@@ -335,7 +378,8 @@ export class ConnectButtonReplacementController {
                     const node = allNestedShadowRootsForAncestorNode[i]
                     const replaced = this.findAndReplaceOtherWalletIconWithAmbireIcon(
                       node,
-                      otherWalletNames
+                      otherWalletNames,
+                      childNode.parentElement
                     )
                     if (replaced) {
                       shouldBreakWhileLoop = true
@@ -345,7 +389,8 @@ export class ConnectButtonReplacementController {
                 } else {
                   const replaced = this.findAndReplaceOtherWalletIconWithAmbireIcon(
                     ancestorNode,
-                    otherWalletNames
+                    otherWalletNames,
+                    childNode.parentElement
                   )
                   if (replaced) break
                 }
@@ -421,6 +466,7 @@ export class ConnectButtonReplacementController {
     const hasMetaMaskInPage = mmOccurrences.count !== 0
     const hasOKXWalletInPage = okxOccurrences.count !== 0
 
+    // probably not a dapp and there is no wallet button to be replaced
     if (!this.doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
 
     const wcOccurrences = wordsOccurrencesResult.filter((res) =>
@@ -433,8 +479,8 @@ export class ConnectButtonReplacementController {
     const hasWalletConnectInPage = wcOccurrences.count !== 0
     const hasCoinbaseWalletInPage = coinbaseOccurrences.count !== 0
 
-    // most dapps read the provider but some don't till connection
-    if (!this.doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
+    // probably not a dapp and there are no other wallets found like "Wallet Connect" and "Coinbase Wallet"
+    if (!this.doesWebpageReadOurProvider && !hasWalletConnectInPage && !hasCoinbaseWalletInPage) {
       return
     }
 
@@ -453,7 +499,6 @@ export class ConnectButtonReplacementController {
         res.words.includes('trustwallet')
       )[0]
       const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
-
       if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
       if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
