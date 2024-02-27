@@ -83,7 +83,7 @@ const Account = ({
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
         { borderWidth: 1, borderColor: theme.secondaryBackground },
-        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithSameKey) && {
+        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithTheSameKeys) && {
           borderColor: theme.secondaryBorder
         }
       ]}
@@ -170,12 +170,23 @@ const Account = ({
         </View>
       </View>
       {[
-        ImportStatus.ImportedWithSameKey,
-        ImportStatus.ImportedWithDifferentKey,
+        ImportStatus.ImportedWithSomeOfTheKeys,
+        ImportStatus.ImportedWithTheSameKeys,
+        ImportStatus.ImportedWithDifferentKeys,
         ImportStatus.ImportedWithoutKey
       ].includes(importStatus) && (
         <View style={[spacings.mh, spacings.mvTy, flexbox.alignSelfStart]}>
-          {importStatus === ImportStatus.ImportedWithSameKey && (
+          {importStatus === ImportStatus.ImportedWithSomeOfTheKeys && (
+            <Label
+              customTextStyle={styles.label}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported with some of the keys found on this page but not all. Re-import now to use this account with multiple keys.'
+              )}
+              type="success"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithTheSameKeys && (
             <Label
               customTextStyle={styles.label}
               hasBottomSpacing={false}
@@ -183,7 +194,7 @@ const Account = ({
               type="success"
             />
           )}
-          {importStatus === ImportStatus.ImportedWithDifferentKey && (
+          {importStatus === ImportStatus.ImportedWithDifferentKeys && (
             <Label
               customTextStyle={styles.label}
               hasBottomSpacing={false}

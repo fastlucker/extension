@@ -157,8 +157,8 @@ const AccountsOnPageList = ({
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
-            isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithSameKey}
-            isDisabled={acc.importStatus === ImportStatus.ImportedWithSameKey}
+            isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
+            isDisabled={acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
             importStatus={acc.importStatus}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
