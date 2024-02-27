@@ -19,13 +19,13 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 interface Props {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  modalRef: any
+  handleClose: () => void
 }
 
 const { isPopup } = getUiType()
 
-const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
+const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const {
     selectedAccount,
     accounts,
@@ -49,8 +49,8 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
   return (
     <Modal
       withBackButton={isPopup}
-      isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
+      modalRef={modalRef}
+      handleClose={handleClose}
       modalStyle={styles.modal}
       title="Receive Assets"
     >

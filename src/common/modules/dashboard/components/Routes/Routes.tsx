@@ -20,11 +20,7 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 
 import { NEUTRAL_BACKGROUND, NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
-const Routes = ({
-  setIsReceiveModalVisible
-}: {
-  setIsReceiveModalVisible: (isOpen: boolean) => void
-}) => {
+const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -35,7 +31,7 @@ const Routes = ({
     {
       icon: ReceiveIcon,
       label: t('Receive'),
-      onPress: () => setIsReceiveModalVisible(true),
+      onPress: openReceiveModal,
       isExternal: false
     },
     { icon: SwapIcon, label: t('Swap'), route: 'https://app.uniswap.org/swap', isExternal: true },

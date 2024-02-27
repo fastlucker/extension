@@ -17,6 +17,7 @@ type Props = {
   titleSuffix?: JSX.Element
   hideLeftSideContainer?: boolean
   modalStyle?: ViewStyle | ViewStyle[]
+  modalInnerStyle?: ViewStyle | ViewStyle[]
   children: ReactNode | ReactNode[]
   customHeader?: ReactNode
   withBackButton?: boolean
@@ -27,7 +28,8 @@ const Modal = ({
   handleClose,
   title,
   titleSuffix,
-  modalStyle,
+  modalStyle = {},
+  modalInnerStyle = {},
   children,
   withBackButton,
   customHeader,
@@ -41,11 +43,13 @@ const Modal = ({
       sheetRef={modalRef}
       closeBottomSheet={handleClose}
       style={{
-        backgroundColor: theme.primaryBackground
+        backgroundColor: theme.primaryBackground,
+        ...styles.modal,
+        ...modalStyle
       }}
       forceModal
     >
-      <View style={[styles.modal, modalStyle]}>
+      <View style={[styles.modalInner, modalInnerStyle]}>
         {!customHeader ? (
           <View style={styles.modalHeader}>
             {!hideLeftSideContainer && (

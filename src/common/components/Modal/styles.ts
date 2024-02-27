@@ -2,24 +2,25 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { getUiType } from '@web/utils/uiType'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
   modal: ViewStyle
+  modalInner: ViewStyle
   modalHeader: ViewStyle
   sideContainer: ViewStyle
   backButton: ViewStyle
   closeIcon: ViewStyle
 }
 
-const { isTab } = getUiType()
-
 const getStyles = () =>
   StyleSheet.create<Style>({
     modal: {
-      ...flexbox.alignCenter,
-      minWidth: isTab ? 798 : '100%',
-      height: isTab ? 'auto' : '100%'
+      maxWidth: TAB_CONTENT_WIDTH
+    },
+    modalInner: {
+      width: '100%',
+      ...flexbox.alignCenter
     },
     modalHeader: {
       position: 'relative',
