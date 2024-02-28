@@ -141,6 +141,7 @@ const BackupPassword = () => {
         />
       </View>
       <Modal
+        id="backup-password-confirmation-modal"
         modalRef={confirmationModalRef}
         modalStyle={{ paddingVertical: SPACING_3XL }}
         title={t('Email Confirmation Required')}

@@ -4,7 +4,6 @@ import { Modalize, ModalizeProps } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
 import usePrevious from '@common/hooks/usePrevious'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
@@ -17,7 +16,7 @@ import Backdrop from './Backdrop'
 import getStyles from './styles'
 
 interface Props {
-  id?: string
+  id: string
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
@@ -37,8 +36,7 @@ const ANIMATION_DURATION: number = 250
 const { isTab, isPopup } = getUiType()
 
 const BottomSheet: React.FC<Props> = ({
-  // Useful for debugging and generally knowing which bottom sheet is triggered
-  // eslint-disable-next-line
+  // Unique identifier for the bottom sheet
   id,
   sheetRef,
   children,
@@ -53,7 +51,6 @@ const BottomSheet: React.FC<Props> = ({
   forceModal = false
 }) => {
   const { styles } = useTheme(getStyles)
-  const { path } = useRoute()
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
@@ -66,21 +63,6 @@ const BottomSheet: React.FC<Props> = ({
       }, ANIMATION_DURATION)
     }
   }, [isOpen, prevIsOpen])
-
-  // Without this useEffect the bottom sheet won't close when navigating
-  // to a route that also has a bottom sheet.
-  useEffect(() => {
-    if (!isOpen) return
-
-    // sheetRef has to be assigned to a variable so it's available in the cleanup function
-    const ref = sheetRef?.current
-
-    return () => {
-      // closeBottomSheet is not always defined as some modals are not closable
-      // through the UI, thus we have to close it through the ref
-      ref?.close()
-    }
-  }, [sheetRef, path, isOpen])
 
   // Hook up the back button (or action) to close the bottom sheet
   useEffect(() => {
@@ -121,6 +103,10 @@ const BottomSheet: React.FC<Props> = ({
         />
       )}
       <Modalize
+        // The key is used to force the re-render of the component when there is an opened
+        // bottom sheet and the user navigates to a route that also has a bottom sheet. Without
+        // this key or without a unique key, the bottom sheet will not close when navigating
+        key={id}
         ref={sheetRef}
         modalStyle={[
           styles.bottomSheet,

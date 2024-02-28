@@ -48,6 +48,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
 
   return (
     <Modal
+      id="receive-assets-modal"
       withBackButton={isPopup}
       modalRef={modalRef}
       handleClose={handleClose}

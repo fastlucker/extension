@@ -22,6 +22,7 @@ const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
 
   return (
     <Modal
+      id="password-set-modal"
       modalRef={modalRef}
       modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
     >

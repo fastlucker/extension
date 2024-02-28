@@ -203,6 +203,7 @@ const KeyStoreSetupScreen = () => {
         </Panel>
       </TabLayoutWrapperMainContent>
       <Modal
+        id="keystore-device-password-set-modal"
         modalRef={devicePasswordSetModalRef}
         modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
       >

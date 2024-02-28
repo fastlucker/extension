@@ -210,6 +210,7 @@ const KeyStoreResetScreen = () => {
           )}
         </>
         <Modal
+          id="keystore-reset-confirmation-modal"
           modalRef={confirmationModalRef}
           modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
           title={t('Email Confirmation Required')}

@@ -161,7 +161,11 @@ const ChangePassword = () => {
           onPress={handleChangeKeystorePassword}
         />
       </View>
-      <Modal modalRef={modalRef} modalStyle={{ minWidth: 'unset' }}>
+      <Modal
+        id="device-password-success-modal"
+        modalRef={modalRef}
+        modalStyle={{ minWidth: 'unset' }}
+      >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
           {t('Device Password')}
         </Text>

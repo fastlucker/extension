@@ -67,6 +67,7 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
 
   return (
     <Modal
+      id="ledger-connect-modal"
       modalRef={modalRef}
       handleClose={handleClose}
       title={t('Connect your HW wallet')}

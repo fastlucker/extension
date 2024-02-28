@@ -45,6 +45,7 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
 
   return (
     <Modal
+      id="hardware-wallet-signing-modal"
       modalStyle={{ minWidth: 'auto', height: 'auto' }}
       title={t('Sign with your {{deviceName}} device', {
         deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]

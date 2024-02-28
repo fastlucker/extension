@@ -11,6 +11,7 @@ import BottomSheet from '../BottomSheet'
 import getStyles from './styles'
 
 type Props = {
+  id: string
   modalRef: any
   handleClose?: () => void
   title?: string
@@ -25,6 +26,7 @@ type Props = {
 }
 
 const Modal = ({
+  id,
   modalRef,
   handleClose,
   title,
@@ -41,6 +43,7 @@ const Modal = ({
 
   return (
     <BottomSheet
+      id={id}
       sheetRef={modalRef}
       closeBottomSheet={() => handleClose && handleClose()}
       style={{

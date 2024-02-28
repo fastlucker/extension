@@ -243,6 +243,7 @@ const AccountsOnPageList = ({
         )}
 
         <BottomSheet
+          id="linked-accounts"
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
           scrollViewProps={{

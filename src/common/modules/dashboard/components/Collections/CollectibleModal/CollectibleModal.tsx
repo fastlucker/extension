@@ -143,6 +143,7 @@ const CollectibleModal = ({
 
   return (
     <Modal
+      id="collectible-modal"
       // eslint-disable-next-line react/jsx-no-useless-fragment
       customHeader={<></>}
       modalRef={modalRef}

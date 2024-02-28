@@ -143,6 +143,7 @@ const GetStartedScreen = () => {
       }
     >
       <Modal
+        id="hot-wallet-modal"
         modalStyle={{
           alignItems: 'flex-start',
           ...spacings.pbXl,
