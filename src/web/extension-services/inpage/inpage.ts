@@ -1,88 +1,40 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
-import { forIn, isUndefined } from 'lodash'
+import forIn from 'lodash/forIn'
+import isUndefined from 'lodash/isUndefined'
 import { nanoid } from 'nanoid'
 
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
-import {
-  ambireSvg,
-  isWordInPage,
-  replaceMMBrandInPage,
-  replaceMMImgInPage
-} from '@web/extension-services/inpage/page-content-replacement'
+import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
-declare let ambireChannelName: string
-const ambireId = nanoid()
-const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
-let doesWebpageReadOurProvider: boolean = false
-let isEIP6963: boolean = false
-declare let defaultWallet: DefaultWallet
-let _defaultWallet: DefaultWallet = 'AMBIRE'
-let focusedListener: any = null
-
-//
-// MetaMask text and icon replacement (for dApps using legacy connect only) (not replacing when EIP6963)
-//
-
-const runReplacementScript = () => {
-  if (_defaultWallet === 'OTHER') return
-  const hasMetaMaskInPage = isWordInPage('metamask')
-  if (!doesWebpageReadOurProvider && !hasMetaMaskInPage) return
-  const hasWalletConnectInPage = isWordInPage('walletconnect') || isWordInPage('wallet connect')
-  const hasCoinbaseWalletInPage =
-    isWordInPage('coinbasewallet') || isWordInPage('coinbase wallet') || isWordInPage('coinbase')
-
-  // most dapps read the provider but some don't till connection
-  if (!doesWebpageReadOurProvider && !(hasWalletConnectInPage && hasCoinbaseWalletInPage)) {
-    return
-  }
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  ;(async () => {
-    if (!isEIP6963) {
-      await delayPromise(30)
-    }
-    if (isEIP6963) return
-    if (hasWalletConnectInPage) replaceMMImgInPage()
-    const hasTrustWalletInPage = isWordInPage('trustwallet') || isWordInPage('trust wallet')
-    const isW3Modal = isWordInPage('connect your wallet') && isWordInPage('scan with your wallet')
-
-    if (!hasMetaMaskInPage) return
-
-    if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage || isW3Modal)) {
-      return
-    }
-
-    replaceMMBrandInPage(ambireSvg)
-  })()
-}
-
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
-let observer: MutationObserver | null = null
-let clickListener: any
-function cleanupObserver() {
-  if (observer) {
-    observer.disconnect()
-    observer = null
-  }
-}
+declare let ambireChannelName: string
+declare let defaultWallet: DefaultWallet
+let _defaultWallet: DefaultWallet = 'AMBIRE'
 
-function setupObserver(options?: MutationObserverInit) {
-  cleanupObserver()
-  observer = new MutationObserver(runReplacementScript)
-  observer.observe(document, options)
-}
+const ambireId = nanoid()
+const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
+
+let isEIP6963: boolean = false
+let focusedListener: any = null
+
+const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
+  isEIP6963,
+  defaultWallet: _defaultWallet
+})
 
 Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
@@ -91,26 +43,12 @@ Object.defineProperty(window, 'defaultWallet', {
   },
   set(value: DefaultWallet) {
     _defaultWallet = value
+    connectButtonReplacementCtrl.update({ defaultWallet: _defaultWallet })
     if (value === 'AMBIRE') {
-      if (!clickListener) {
-        clickListener = document.addEventListener('click', runReplacementScript)
-      }
-      if (!observer) {
-        setupObserver({ childList: true })
-      }
+      connectButtonReplacementCtrl.init()
     }
   }
 })
-
-function cleanup() {
-  cleanupObserver()
-  if (clickListener) {
-    document.removeEventListener('click', runReplacementScript)
-  }
-}
-
-window.addEventListener('beforeunload', cleanup)
-window.addEventListener('unload', cleanup)
 
 //
 // EthereumProvider Injection
@@ -621,7 +559,7 @@ const setAmbireProvider = () => {
         // (only pages that are dapps should read the ethereum provider)
         // the provider is called from multiple instances (current page and other extensions)
         // we need only the calls from the current page
-        if (!doesWebpageReadOurProvider) {
+        if (!connectButtonReplacementCtrl.doesWebpageReadOurProvider) {
           try {
             throw new Error()
           } catch (error: any) {
@@ -629,9 +567,11 @@ const setAmbireProvider = () => {
             if (stack) {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
-                doesWebpageReadOurProvider = true
-                clickListener = document.addEventListener('click', runReplacementScript)
-                setupObserver({ childList: true, subtree: true, attributes: true })
+                connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
+
+                connectButtonReplacementCtrl.update({
+                  observerOptions: { childList: true, subtree: true, attributes: true }
+                })
               }
             }
           }
@@ -706,6 +646,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
   isEIP6963 = true
+  connectButtonReplacementCtrl.update({ isEIP6963: true })
   announceEip6963Provider(ambireProvider)
 })
 
