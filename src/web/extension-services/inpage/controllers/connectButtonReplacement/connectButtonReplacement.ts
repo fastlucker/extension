@@ -486,10 +486,8 @@ export class ConnectButtonReplacementController {
     }
 
     ;(async () => {
-      if (!this.#isEIP6963) {
-        await delayPromise(30)
-      }
       if (this.#isEIP6963 && !whitelistedEIP6963Pages.includes(window.location.origin)) return
+      if (!this.#isEIP6963) await delayPromise(30)
 
       const w3Modal = this.findShadowRootElementById('w3m-modal')
       if (w3Modal) this.replaceMetamaskInW3Modal(w3Modal)
@@ -505,7 +503,11 @@ export class ConnectButtonReplacementController {
       if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
         return
       }
-      console.log('6')
+
+      //
+      // MetaMask Button Replacement
+      //
+
       if (hasMetaMaskInPage) {
         if (
           this.mmOccurrencesOnFirstDOMLoad !== 0 &&
@@ -521,6 +523,10 @@ export class ConnectButtonReplacementController {
         })
         return
       }
+
+      //
+      // OKX Wallet Button Replacement
+      //
 
       const hasAmbireInPage = this.getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
 
