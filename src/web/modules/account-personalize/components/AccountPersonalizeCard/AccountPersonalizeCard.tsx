@@ -2,13 +2,12 @@ import React, { useState } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
-import { Account, ImportStatus } from '@ambire-common/interfaces/account'
+import { Account } from '@ambire-common/interfaces/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import Input from '@common/components/Input'
-import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -28,7 +27,6 @@ export type AccountPersonalizeFormValues = {
 type Props = {
   address: Account['addr']
   isSmartAccount: boolean
-  importStatus: ImportStatus
   pfp: string
   index: number
   control: Control<AccountPersonalizeFormValues>
@@ -38,13 +36,11 @@ type Props = {
 const AccountPersonalizeCard = ({
   address,
   isSmartAccount,
-  importStatus,
   index,
   pfp,
   control,
   hasBottomSpacing = true
 }: Props) => {
-  console.log('importStatus', importStatus)
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
 
@@ -130,17 +126,6 @@ const AccountPersonalizeCard = ({
           </View>
         </View>
       </View>
-
-      {importStatus === ImportStatus.ImportedWithoutKey && (
-        <Label
-          isTypeLabelHidden
-          hasBottomSpacing={false}
-          text={t(
-            'Already imported as a view only account. Import now to be able to manage this account.'
-          )}
-          type="info"
-        />
-      )}
 
       {/* <Text style={[spacings.mbTy]} fontSize={14} appearance="secondaryText">
         {t('Choose an avatar')}
