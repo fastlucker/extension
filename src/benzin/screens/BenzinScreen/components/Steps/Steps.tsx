@@ -17,13 +17,48 @@ import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from '.
 interface Props {
   activeStep: ActiveStepType
   network: NetworkDescriptor
-  txnId: string
+  txnId: string | null
+  userOpHash: string | null
   handleOpenExplorer: () => void
   stepsState: StepsData
 }
 
-const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, stepsState }) => {
+const Steps: FC<Props> = ({
+  activeStep,
+  network,
+  txnId,
+  userOpHash,
+  handleOpenExplorer,
+  stepsState
+}) => {
   const { nativePrice, blockData, finalizedStatus, cost, calls } = stepsState
+
+  const stepRows: any = [
+    {
+      label: 'Timestamp',
+      value: getTimestamp(blockData, finalizedStatus)
+    },
+    {
+      label: 'Transaction fee',
+      value: getFee(cost, network, nativePrice, finalizedStatus)
+    }
+  ]
+
+  if (txnId) {
+    stepRows.push({
+      label: 'Transaction ID',
+      value: txnId,
+      isValueSmall: true
+    })
+  }
+
+  if (userOpHash) {
+    stepRows.push({
+      label: 'User Op ID',
+      value: userOpHash,
+      isValueSmall: true
+    })
+  }
 
   return (
     <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
@@ -32,21 +67,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, step
         stepName="signed"
         activeStep={activeStep}
         finalizedStatus={finalizedStatus}
-        rows={[
-          {
-            label: 'Timestamp',
-            value: getTimestamp(blockData, finalizedStatus)
-          },
-          {
-            label: 'Transaction fee',
-            value: getFee(cost, network, nativePrice, finalizedStatus)
-          },
-          {
-            label: 'Transaction ID',
-            value: txnId,
-            isValueSmall: true
-          }
-        ]}
+        rows={stepRows}
       />
       {shouldShowTxnProgress(finalizedStatus) && (
         <Step
