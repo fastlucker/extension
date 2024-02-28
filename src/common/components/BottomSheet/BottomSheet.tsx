@@ -7,9 +7,8 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
-import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
+import useIsScrollable from '@web/hooks/useIsScrollable'
 import { getUiType } from '@web/utils/uiType'
 
 import Backdrop from './Backdrop'
@@ -18,7 +17,7 @@ import getStyles from './styles'
 interface Props {
   id: string
   sheetRef: React.RefObject<Modalize>
-  closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
+  closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
   onClosed?: () => void
   children?: React.ReactNode
@@ -34,7 +33,7 @@ interface Props {
 
 const ANIMATION_DURATION: number = 250
 
-const { isTab, isPopup } = getUiType()
+const { isPopup } = getUiType()
 
 const BottomSheet: React.FC<Props> = ({
   // Unique identifier for the bottom sheet
@@ -52,12 +51,13 @@ const BottomSheet: React.FC<Props> = ({
   scrollViewProps,
   autoWidth = false
 }) => {
-  const type = _type || (isTab ? 'modal' : 'bottom-sheet')
+  const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
   const { styles } = useTheme(getStyles)
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
+  const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
 
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
@@ -112,20 +112,12 @@ const BottomSheet: React.FC<Props> = ({
         // this key or without a unique key, the bottom sheet will not close when navigating
         key={id}
         ref={sheetRef}
+        contentRef={scrollViewRef}
         modalStyle={[
           styles.bottomSheet,
           isModal
-            ? {
-                borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
-                borderBottomStartRadius: BORDER_RADIUS_PRIMARY,
-                maxWidth: TAB_CONTENT_WIDTH,
-                width: '100%',
-                margin: 'auto',
-                // backgroundColor: theme.primaryBackground,
-                ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {})
-              }
+            ? { ...styles.modal, ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}) }
             : {},
-          isPopup && !isModal ? { paddingTop: 23 } : {},
           isPopup && isModal ? { height: '100%' } : {},
           style
         ]}
@@ -161,7 +153,6 @@ const BottomSheet: React.FC<Props> = ({
               flatListProps: {
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
-                contentContainerStyle: styles.containerInnerWrapper,
                 ...(flatListProps || {})
               }
             }
@@ -172,6 +163,7 @@ const BottomSheet: React.FC<Props> = ({
         closeAnimationConfig={{
           timing: { duration: ANIMATION_DURATION, delay: 0 }
         }}
+        onLayout={checkIsScrollable}
         onOpen={() => {
           setIsOpen(true)
           setIsBackdropVisible(true)
@@ -180,13 +172,7 @@ const BottomSheet: React.FC<Props> = ({
         onClosed={() => !!onClosed && onClosed()}
       >
         {!flatListProps && (
-          <View
-            style={[
-              styles.containerInnerWrapper,
-              isModal ? styles.modalContainerInnerWrapper : {},
-              containerInnerWrapperStyles
-            ]}
-          >
+          <View style={[isScrollable ? spacings.prTy : {}, containerInnerWrapperStyles]}>
             {children}
           </View>
         )}

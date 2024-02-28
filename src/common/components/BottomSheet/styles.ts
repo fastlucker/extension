@@ -1,15 +1,15 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
-import spacings, { DEVICE_HEIGHT, SPACING, SPACING_LG, SPACING_MD } from '@common/styles/spacings'
+import spacings, { DEVICE_HEIGHT, SPACING, SPACING_LG } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
   root: ViewStyle
   bottomSheet: ViewStyle
-  containerInnerWrapper: ViewStyle
-  modalContainerInnerWrapper: ViewStyle
+  modal: ViewStyle
 
   dragger: ViewStyle
   backDrop: ViewStyle
@@ -26,14 +26,15 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
-      ...spacings.ptMd
-    },
-    containerInnerWrapper: {
-      paddingBottom: SPACING_MD,
+      ...spacings.pvMd,
       paddingHorizontal: isWeb ? SPACING_LG : SPACING
     },
-    modalContainerInnerWrapper: {
-      width: '100%'
+    modal: {
+      borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
+      borderBottomStartRadius: BORDER_RADIUS_PRIMARY,
+      maxWidth: TAB_CONTENT_WIDTH,
+      width: '100%',
+      margin: 'auto'
     },
     dragger: {
       width: 60,
