@@ -13,6 +13,8 @@ export const ambireSvg =
 
 export const whitelistedEIP6963Pages = ['https://toros.finance']
 
+export const forceAdvancedObserverPages = ['https://verse.bitcoin.com']
+
 export const blacklistedPages = [
   'google',
   'youtube',
@@ -68,7 +70,9 @@ export class ConnectButtonReplacementController {
   constructor({ defaultWallet, isEIP6963 }: ConstructProps) {
     this.#defaultWallet = defaultWallet
     this.#isEIP6963 = isEIP6963
-    this.#observerOptions = { childList: true }
+    this.#observerOptions = forceAdvancedObserverPages.includes(window.location.origin)
+      ? { childList: true, subtree: true, attributes: true }
+      : { childList: true }
 
     this.runReplacementScriptWithShadowRoots = this.runReplacementScriptWithShadowRoots.bind(this)
     this.runReplacementScriptWithoutShadowRoots =
