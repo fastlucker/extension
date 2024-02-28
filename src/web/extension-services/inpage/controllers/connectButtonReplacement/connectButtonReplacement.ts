@@ -18,6 +18,8 @@ export const whitelistedEIP6963Pages = ['https://toros.finance']
 export const forceAdvancedObserverPages = ['https://verse.bitcoin.com']
 
 // Disable replacements on pages that contain some of these strings in the URL
+// The script is well optimized but in case the page is with huge DOM there is some small delay on every mouse click
+// TODO: extend it with other heavy pages
 export const blacklistedPages = [
   'google',
   'youtube',
@@ -52,23 +54,23 @@ type UpdateProps = {
 }
 
 export class ConnectButtonReplacementController {
+  public doesWebpageReadOurProvider: boolean = false
+
   #defaultWallet: DefaultWallet
 
   #isEIP6963: boolean
 
-  doesWebpageReadOurProvider: boolean = false
+  #mmOccurrencesOnFirstDOMLoad: number | null = null
 
-  mmOccurrencesOnFirstDOMLoad: number | null = null
+  #shadowRoots: ShadowRoot[] | null = null
 
-  shadowRoots: ShadowRoot[] | null = null
-
-  observer: MutationObserver | null = null
+  #observer: MutationObserver | null = null
 
   #observerOptions: MutationObserverInit
 
-  clickListener: any
+  #clickListener: any
 
-  initializeReplacementTimeout: any
+  #initializeReplacementTimeout: any
 
   constructor({ defaultWallet, isEIP6963 }: ConstructProps) {
     this.#defaultWallet = defaultWallet
@@ -96,32 +98,32 @@ export class ConnectButtonReplacementController {
 
     if (observerOptions) {
       this.#observerOptions = observerOptions
-      this.setupObserver(this.#observerOptions)
+      this.#setupObserver(this.#observerOptions)
     }
   }
 
   init() {
     if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
 
-    this.initializeReplacementTimeout = setTimeout(() => {
-      if (this.mmOccurrencesOnFirstDOMLoad === null) {
+    this.#initializeReplacementTimeout = setTimeout(() => {
+      if (this.#mmOccurrencesOnFirstDOMLoad === null) {
         this.runReplacementScriptWithShadowRoots()
       }
     }, 250)
 
-    if (!this.clickListener) {
-      this.clickListener = document.addEventListener(
+    if (!this.#clickListener) {
+      this.#clickListener = document.addEventListener(
         'click',
         this.runReplacementScriptWithoutShadowRoots
       )
     }
-    if (!this.observer) {
-      this.setupObserver(this.#observerOptions)
+    if (!this.#observer) {
+      this.#setupObserver(this.#observerOptions)
     }
   }
 
   // Find all shadow roots in a node
-  getAllShadowRoots(n: Node = document.body) {
+  #getAllShadowRoots(n: Node = document.body) {
     const shadowRoots: ShadowRoot[] = []
 
     function traverse(node: Node) {
@@ -144,8 +146,8 @@ export class ConnectButtonReplacementController {
     return shadowRoots
   }
 
-  findShadowRootElementById(id: string, shadowRootsToQuery?: ShadowRoot[]) {
-    for (const shadowRoot of shadowRootsToQuery || this.getAllShadowRoots()) {
+  #findShadowRootElementById(id: string, shadowRootsToQuery?: ShadowRoot[]) {
+    for (const shadowRoot of shadowRootsToQuery || this.#getAllShadowRoots()) {
       const el = shadowRoot.getElementById(id)
       if (el) return el
     }
@@ -153,7 +155,7 @@ export class ConnectButtonReplacementController {
     return undefined
   }
 
-  getVisibleWordsOccurrencesInPage(
+  #getVisibleWordsOccurrencesInPage(
     words: string[][],
     nodeToQuery?: ParentNode,
     shadowRootsToQuery?: ShadowRoot[]
@@ -207,7 +209,7 @@ export class ConnectButtonReplacementController {
       }
     }
 
-    for (const shadowRoot of shadowRootsToQuery || this.getAllShadowRoots()) {
+    for (const shadowRoot of shadowRootsToQuery || this.#getAllShadowRoots()) {
       searchForWords(shadowRoot)
     }
 
@@ -215,7 +217,7 @@ export class ConnectButtonReplacementController {
     return results
   }
 
-  replaceIconOnlyConnectionButtons(iconName: string) {
+  #replaceIconOnlyConnectionButtons(iconName: string) {
     const imgElements = document.getElementsByTagName('img')
     for (let i = 0; i < imgElements.length; i++) {
       if (imgElements[i].src.includes(iconName)) {
@@ -224,7 +226,7 @@ export class ConnectButtonReplacementController {
     }
   }
 
-  findAndReplaceOtherWalletIconWithAmbireIcon(
+  #findAndReplaceOtherWalletIconWithAmbireIcon(
     node: any,
     iconNames: string[],
     foundTextElement?: Element
@@ -345,7 +347,7 @@ export class ConnectButtonReplacementController {
     return false
   }
 
-  replaceOtherWalletWithAmbireInConnectionModals(
+  #replaceOtherWalletWithAmbireInConnectionModals(
     otherWalletNames: string[],
     nameToReplace: string,
     nodeToQuery?: ParentNode
@@ -353,7 +355,7 @@ export class ConnectButtonReplacementController {
     let additionalNodes: any[] = []
     let isBlockNativeModal = false
     const onboardElement = (nodeToQuery || document).querySelector('onboard-v2')
-    const allShadowRoots = this.getAllShadowRoots()
+    const allShadowRoots = this.#getAllShadowRoots()
     for (const shadowRoot of allShadowRoots) {
       additionalNodes = [...additionalNodes, ...Array.from(shadowRoot.querySelectorAll('*'))]
     }
@@ -381,11 +383,11 @@ export class ConnectButtonReplacementController {
               let shouldBreakWhileLoop = false
               while (ancestorNode && maxLevels > 0 && !shouldBreakWhileLoop) {
                 maxLevels--
-                const allNestedShadowRootsForAncestorNode = this.getAllShadowRoots(ancestorNode)
+                const allNestedShadowRootsForAncestorNode = this.#getAllShadowRoots(ancestorNode)
                 if (allNestedShadowRootsForAncestorNode.length) {
                   for (let i = 0; i < allNestedShadowRootsForAncestorNode.length; i++) {
                     const node = allNestedShadowRootsForAncestorNode[i]
-                    const replaced = this.findAndReplaceOtherWalletIconWithAmbireIcon(
+                    const replaced = this.#findAndReplaceOtherWalletIconWithAmbireIcon(
                       node,
                       otherWalletNames,
                       childNode.parentElement
@@ -396,7 +398,7 @@ export class ConnectButtonReplacementController {
                     }
                   }
                 } else {
-                  const replaced = this.findAndReplaceOtherWalletIconWithAmbireIcon(
+                  const replaced = this.#findAndReplaceOtherWalletIconWithAmbireIcon(
                     ancestorNode,
                     otherWalletNames,
                     childNode.parentElement
@@ -429,29 +431,29 @@ export class ConnectButtonReplacementController {
     })
   }
 
-  async replaceMetamaskInW3Modal(el: HTMLElement) {
+  async #replaceMetamaskInW3Modal(el: HTMLElement) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const key of [...Array(5).keys()]) {
       // eslint-disable-next-line no-await-in-loop
       await delayPromise(250)
-      if (this.getVisibleWordsOccurrencesInPage([['metamask']], el)[0].count) {
-        return this.replaceOtherWalletWithAmbireInConnectionModals(['metamask'], 'metamask', el)
+      if (this.#getVisibleWordsOccurrencesInPage([['metamask']], el)[0].count) {
+        return this.#replaceOtherWalletWithAmbireInConnectionModals(['metamask'], 'metamask', el)
       }
     }
   }
 
-  runReplacementScript(shouldUpdateShadowRoots: boolean = true) {
+  #runReplacementScript(shouldUpdateShadowRoots: boolean = true) {
     if (this.#defaultWallet === 'OTHER') return
 
-    if (this.initializeReplacementTimeout) {
-      clearTimeout(this.initializeReplacementTimeout)
+    if (this.#initializeReplacementTimeout) {
+      clearTimeout(this.#initializeReplacementTimeout)
     }
 
-    if (shouldUpdateShadowRoots || this.shadowRoots === null) {
-      this.shadowRoots = this.getAllShadowRoots()
+    if (shouldUpdateShadowRoots || this.#shadowRoots === null) {
+      this.#shadowRoots = this.#getAllShadowRoots()
     }
 
-    const wordsOccurrencesResult = this.getVisibleWordsOccurrencesInPage(
+    const wordsOccurrencesResult = this.#getVisibleWordsOccurrencesInPage(
       [
         ['metamask'],
         ['okx wallet'],
@@ -460,15 +462,15 @@ export class ConnectButtonReplacementController {
         ['trustwallet', 'trust wallet']
       ],
       undefined,
-      this.shadowRoots
+      this.#shadowRoots
     )
 
     const mmOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('metamask'))[0]
     const okxOccurrences = wordsOccurrencesResult.filter((res) =>
       res.words.includes('okx wallet')
     )[0]
-    if (this.mmOccurrencesOnFirstDOMLoad === null) {
-      this.mmOccurrencesOnFirstDOMLoad = mmOccurrences.count
+    if (this.#mmOccurrencesOnFirstDOMLoad === null) {
+      this.#mmOccurrencesOnFirstDOMLoad = mmOccurrences.count
     }
 
     const hasMetaMaskInPage = mmOccurrences.count !== 0
@@ -496,10 +498,10 @@ export class ConnectButtonReplacementController {
       if (this.#isEIP6963 && !whitelistedEIP6963Pages.includes(window.location.origin)) return
       if (!this.#isEIP6963) await delayPromise(30)
 
-      const w3Modal = this.findShadowRootElementById('w3m-modal')
-      if (w3Modal) this.replaceMetamaskInW3Modal(w3Modal)
+      const w3Modal = this.#findShadowRootElementById('w3m-modal')
+      if (w3Modal) this.#replaceMetamaskInW3Modal(w3Modal)
 
-      if (hasWalletConnectInPage) this.replaceIconOnlyConnectionButtons('metamask')
+      if (hasWalletConnectInPage) this.#replaceIconOnlyConnectionButtons('metamask')
 
       const trustWalletOccurrences = wordsOccurrencesResult.filter((res) =>
         res.words.includes('trustwallet')
@@ -524,12 +526,12 @@ export class ConnectButtonReplacementController {
 
       if (hasMetaMaskInPage) {
         if (
-          this.mmOccurrencesOnFirstDOMLoad !== 0 &&
-          this.mmOccurrencesOnFirstDOMLoad === mmOccurrences.count
+          this.#mmOccurrencesOnFirstDOMLoad !== 0 &&
+          this.#mmOccurrencesOnFirstDOMLoad === mmOccurrences.count
         )
           return
         mmOccurrences.nodes.forEach((n) => {
-          this.replaceOtherWalletWithAmbireInConnectionModals(
+          this.#replaceOtherWalletWithAmbireInConnectionModals(
             ['metamask', 'connect by metamask'],
             'metamask',
             n.parentNode as any
@@ -542,11 +544,11 @@ export class ConnectButtonReplacementController {
       // OKX Wallet Button Replacement
       //
 
-      const hasAmbireInPage = this.getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
+      const hasAmbireInPage = this.#getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
 
       if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
         okxOccurrences.nodes.forEach((n) => {
-          this.replaceOtherWalletWithAmbireInConnectionModals(
+          this.#replaceOtherWalletWithAmbireInConnectionModals(
             ['okx wallet', 'connect by okx wallet'],
             'okx wallet',
             n.parentNode as any
@@ -557,32 +559,32 @@ export class ConnectButtonReplacementController {
   }
 
   runReplacementScriptWithShadowRoots() {
-    this.runReplacementScript(true)
+    this.#runReplacementScript(true)
   }
 
   runReplacementScriptWithoutShadowRoots() {
-    this.runReplacementScript(false)
+    this.#runReplacementScript(false)
   }
 
-  setupObserver(options?: MutationObserverInit) {
-    this.cleanupObserver()
+  #setupObserver(options?: MutationObserverInit) {
+    this.#cleanupObserver()
 
     if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
 
-    this.observer = new MutationObserver(this.runReplacementScriptWithShadowRoots)
-    this.observer.observe(document, options)
+    this.#observer = new MutationObserver(this.runReplacementScriptWithShadowRoots)
+    this.#observer.observe(document, options)
   }
 
-  cleanupObserver() {
-    if (this.observer) {
-      this.observer.disconnect()
-      this.observer = null
+  #cleanupObserver() {
+    if (this.#observer) {
+      this.#observer.disconnect()
+      this.#observer = null
     }
   }
 
   #cleanup() {
-    this.cleanupObserver()
-    if (this.clickListener) {
+    this.#cleanupObserver()
+    if (this.#clickListener) {
       document.removeEventListener('click', this.runReplacementScriptWithoutShadowRoots)
     }
   }
