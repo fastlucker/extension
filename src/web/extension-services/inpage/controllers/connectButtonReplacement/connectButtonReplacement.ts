@@ -87,7 +87,7 @@ export class ConnectButtonReplacementController {
     window.addEventListener('unload', this.#cleanup)
   }
 
-  update({ defaultWallet, isEIP6963, observerOptions }: UpdateProps) {
+  public update({ defaultWallet, isEIP6963, observerOptions }: UpdateProps) {
     if (defaultWallet) {
       this.#defaultWallet = defaultWallet
     }
@@ -102,7 +102,7 @@ export class ConnectButtonReplacementController {
     }
   }
 
-  init() {
+  public init() {
     if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
 
     this.#initializeReplacementTimeout = setTimeout(() => {
@@ -558,11 +558,11 @@ export class ConnectButtonReplacementController {
     })()
   }
 
-  runReplacementScriptWithShadowRoots() {
+  public runReplacementScriptWithShadowRoots() {
     this.#runReplacementScript(true)
   }
 
-  runReplacementScriptWithoutShadowRoots() {
+  public runReplacementScriptWithoutShadowRoots() {
     this.#runReplacementScript(false)
   }
 
