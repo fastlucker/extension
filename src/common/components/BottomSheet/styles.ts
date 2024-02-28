@@ -9,6 +9,7 @@ interface Style {
   root: ViewStyle
   bottomSheet: ViewStyle
   containerInnerWrapper: ViewStyle
+  modalContainerInnerWrapper: ViewStyle
 
   dragger: ViewStyle
   backDrop: ViewStyle
@@ -30,6 +31,9 @@ const getStyles = (theme: ThemeProps) =>
     containerInnerWrapper: {
       paddingBottom: SPACING_MD,
       paddingHorizontal: isWeb ? SPACING_LG : SPACING
+    },
+    modalContainerInnerWrapper: {
+      width: '100%'
     },
     dragger: {
       width: 60,

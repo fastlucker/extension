@@ -23,12 +23,13 @@ interface Props {
   onClosed?: () => void
   children?: React.ReactNode
   // Preferences
+  type?: 'modal' | 'bottom-sheet'
   adjustToContentHeight?: boolean
   style?: ViewStyle
   containerInnerWrapperStyles?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
   scrollViewProps?: ModalizeProps['scrollViewProps']
-  forceModal?: boolean
+  autoWidth?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -38,6 +39,7 @@ const { isTab, isPopup } = getUiType()
 const BottomSheet: React.FC<Props> = ({
   // Unique identifier for the bottom sheet
   id,
+  type: _type,
   sheetRef,
   children,
   closeBottomSheet = () => {},
@@ -48,8 +50,10 @@ const BottomSheet: React.FC<Props> = ({
   onBackdropPress,
   flatListProps,
   scrollViewProps,
-  forceModal = false
+  autoWidth = false
 }) => {
+  const type = _type || (isTab ? 'modal' : 'bottom-sheet')
+  const isModal = type === 'modal'
   const { styles } = useTheme(getStyles)
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
@@ -84,11 +88,11 @@ const BottomSheet: React.FC<Props> = ({
   }, [closeBottomSheet, isOpen])
 
   const modalTopOffset = useMemo(() => {
-    if (isPopup && forceModal) return 0
+    if (isPopup && isModal) return 0
     if (isWeb) return HEADER_HEIGHT - 20
 
     return HEADER_HEIGHT + 10
-  }, [forceModal])
+  }, [isModal])
 
   return (
     <Portal hostName="global">
@@ -110,23 +114,25 @@ const BottomSheet: React.FC<Props> = ({
         ref={sheetRef}
         modalStyle={[
           styles.bottomSheet,
-          isTab || forceModal
+          isModal
             ? {
                 borderBottomEndRadius: BORDER_RADIUS_PRIMARY,
                 borderBottomStartRadius: BORDER_RADIUS_PRIMARY,
                 maxWidth: TAB_CONTENT_WIDTH,
                 width: '100%',
-                margin: 'auto'
+                margin: 'auto',
+                // backgroundColor: theme.primaryBackground,
+                ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {})
               }
             : {},
-          isPopup && !forceModal ? { paddingTop: 23 } : {},
-          isPopup && forceModal ? { height: '100%' } : {},
+          isPopup && !isModal ? { paddingTop: 23 } : {},
+          isPopup && isModal ? { height: '100%' } : {},
           style
         ]}
-        rootStyle={[styles.root, isPopup && forceModal ? spacings.phSm : {}]}
+        rootStyle={[styles.root, isPopup && isModal ? spacings.phSm : {}]}
         handleStyle={[
           styles.dragger,
-          isTab || forceModal
+          isModal
             ? {
                 display: 'none'
               }
@@ -174,7 +180,13 @@ const BottomSheet: React.FC<Props> = ({
         onClosed={() => !!onClosed && onClosed()}
       >
         {!flatListProps && (
-          <View style={[styles.containerInnerWrapper, containerInnerWrapperStyles]}>
+          <View
+            style={[
+              styles.containerInnerWrapper,
+              isModal ? styles.modalContainerInnerWrapper : {},
+              containerInnerWrapperStyles
+            ]}
+          >
             {children}
           </View>
         )}
