@@ -504,7 +504,14 @@ export class ConnectButtonReplacementController {
       const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
       if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
-      if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
+      if (
+        !(
+          hasWalletConnectInPage ||
+          hasCoinbaseWalletInPage ||
+          hasTrustWalletInPage ||
+          hasOKXWalletInPage
+        )
+      ) {
         return
       }
 
