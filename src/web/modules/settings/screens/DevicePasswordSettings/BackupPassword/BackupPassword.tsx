@@ -6,9 +6,10 @@ import { useModalize } from 'react-native-modalize'
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
 import Alert from '@common/components/Alert'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -140,14 +141,15 @@ const BackupPassword = () => {
           )}
         />
       </View>
-      <Modal
+      <BottomSheet
+        backgroundColor="primaryBackground"
         id="backup-password-confirmation-modal"
-        modalRef={confirmationModalRef}
-        modalStyle={{ paddingVertical: SPACING_3XL }}
-        title={t('Email Confirmation Required')}
+        sheetRef={confirmationModalRef}
+        style={{ paddingVertical: SPACING_3XL }}
       >
+        <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
-      </Modal>
+      </BottomSheet>
     </>
   )
 }

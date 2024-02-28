@@ -4,8 +4,8 @@ import { Image, Pressable, View } from 'react-native'
 
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -142,16 +142,17 @@ const CollectibleModal = ({
   ])
 
   return (
-    <Modal
+    <BottomSheet
       id="collectible-modal"
-      // eslint-disable-next-line react/jsx-no-useless-fragment
-      customHeader={<></>}
-      modalRef={modalRef}
-      handleClose={handleClose}
-      modalInnerStyle={styles.modalInner}
+      type="modal"
+      sheetRef={modalRef}
+      closeBottomSheet={handleClose}
+      style={styles.modal}
+      backgroundColor="primaryBackground"
+      autoWidth
     >
       <ModalInner />
-    </Modal>
+    </BottomSheet>
   )
 }
 

@@ -23,7 +23,6 @@ const getStyles = (theme: ThemeProps) =>
       elevation: 19
     },
     bottomSheet: {
-      backgroundColor: theme.secondaryBackground,
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
       ...spacings.pvMd,

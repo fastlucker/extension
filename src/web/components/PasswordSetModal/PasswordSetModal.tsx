@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_3XL } from '@common/styles/spacings'
@@ -21,10 +21,12 @@ const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
   const { t } = useTranslation()
 
   return (
-    <Modal
+    <BottomSheet
+      backgroundColor="primaryBackground"
       id="password-set-modal"
-      modalRef={modalRef}
-      modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
+      sheetRef={modalRef}
+      autoWidth
+      style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
     >
       <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
         {t('Device Password')}
@@ -43,7 +45,7 @@ const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
           <RightArrowIcon color={colors.titan} />
         </View>
       </Button>
-    </Modal>
+    </BottomSheet>
   )
 }
 

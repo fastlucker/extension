@@ -7,6 +7,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
 import useIsScrollable from '@web/hooks/useIsScrollable'
 import { getUiType } from '@web/utils/uiType'
@@ -28,6 +29,7 @@ interface Props {
   containerInnerWrapperStyles?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
   scrollViewProps?: ModalizeProps['scrollViewProps']
+  backgroundColor?: 'primaryBackground' | 'secondaryBackground'
   autoWidth?: boolean
 }
 
@@ -49,11 +51,12 @@ const BottomSheet: React.FC<Props> = ({
   onBackdropPress,
   flatListProps,
   scrollViewProps,
+  backgroundColor = 'secondaryBackground',
   autoWidth = false
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
@@ -118,6 +121,7 @@ const BottomSheet: React.FC<Props> = ({
           isModal
             ? { ...styles.modal, ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}) }
             : {},
+          { backgroundColor: theme[backgroundColor] },
           isPopup && isModal ? { height: '100%' } : {},
           style
         ]}
@@ -172,7 +176,13 @@ const BottomSheet: React.FC<Props> = ({
         onClosed={() => !!onClosed && onClosed()}
       >
         {!flatListProps && (
-          <View style={[isScrollable ? spacings.prTy : {}, containerInnerWrapperStyles]}>
+          <View
+            style={[
+              isScrollable ? spacings.prTy : {},
+              common.fullWidth,
+              containerInnerWrapperStyles
+            ]}
+          >
             {children}
           </View>
         )}

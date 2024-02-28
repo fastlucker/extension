@@ -9,8 +9,9 @@ import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
 import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon/TrezorMiniIcon'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -44,15 +45,18 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
   }, [keyType])
 
   return (
-    <Modal
+    <BottomSheet
       id="hardware-wallet-signing-modal"
-      modalStyle={{ minWidth: 'auto', height: 'auto' }}
-      title={t('Sign with your {{deviceName}} device', {
-        deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
-      })}
-      titleSuffix={titleSuffix}
-      modalRef={modalRef}
+      backgroundColor="primaryBackground"
+      autoWidth
+      sheetRef={modalRef}
     >
+      <ModalHeader
+        title={t('Sign with your {{deviceName}} device', {
+          deviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
+        })}
+        titleSuffix={titleSuffix}
+      />
       <View
         style={[flexbox.directionRow, flexbox.alignSelfCenter, flexbox.alignCenter, spacings.mv3Xl]}
       >
@@ -82,7 +86,7 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
           <CloseIcon color={theme.errorDecorative} />
         </View>
       </Button>
-    </Modal>
+    </BottomSheet>
   )
 }
 

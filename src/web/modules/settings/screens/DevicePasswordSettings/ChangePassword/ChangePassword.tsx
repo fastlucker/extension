@@ -4,10 +4,10 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
@@ -161,10 +161,11 @@ const ChangePassword = () => {
           onPress={handleChangeKeystorePassword}
         />
       </View>
-      <Modal
+      <BottomSheet
         id="device-password-success-modal"
-        modalRef={modalRef}
-        modalStyle={{ minWidth: 'unset' }}
+        backgroundColor="primaryBackground"
+        sheetRef={modalRef}
+        autoWidth
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
           {t('Device Password')}
@@ -184,7 +185,7 @@ const ChangePassword = () => {
             resetField('confirmNewPassword')
           }}
         />
-      </Modal>
+      </BottomSheet>
     </View>
   )
 }

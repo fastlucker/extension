@@ -6,7 +6,8 @@ import CreateWalletIcon from '@common/assets/svg/CreateWalletIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
 import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
-import Modal from '@common/components/Modal'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Panel from '@common/components/Panel'
 import getPanelStyles from '@common/components/Panel/styles'
 import { useTranslation } from '@common/config/localization'
@@ -142,25 +143,22 @@ const GetStartedScreen = () => {
         </Animated.View>
       }
     >
-      <Modal
+      <BottomSheet
         id="hot-wallet-modal"
-        modalStyle={{
-          alignItems: 'flex-start',
-          ...spacings.pbXl,
-          ...spacings.phXl,
-          ...spacings.pbLg
-        }}
         autoWidth
-        handleClose={closeHotWalletModal}
-        modalRef={hotWalletModalRef}
-        hideLeftSideContainer
-        title={t('Select the recovery option of your new wallet')}
+        closeBottomSheet={closeHotWalletModal}
+        backgroundColor="primaryBackground"
+        sheetRef={hotWalletModalRef}
       >
+        <ModalHeader
+          hideLeftSideContainer
+          title={t('Select the recovery option of your new wallet')}
+        />
         <HotWalletCreateCards
           handleEmailPress={() => handleAuthButtonPress('email')}
           handleSeedPress={() => handleAuthButtonPress('create-seed')}
         />
-      </Modal>
+      </BottomSheet>
       <TabLayoutWrapperMainContent wrapperRef={wrapperRef} contentContainerStyle={spacings.mbLg}>
         {!state.onboardingState && <Stories onComplete={handleSetStoriesCompleted} />}
         {!!state.onboardingState && (

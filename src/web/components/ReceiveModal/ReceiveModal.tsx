@@ -6,13 +6,15 @@ import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader/ModalHeader'
 import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -47,15 +49,15 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   }
 
   return (
-    <Modal
+    <BottomSheet
       id="receive-assets-modal"
-      withBackButton={isPopup}
-      modalRef={modalRef}
-      handleClose={handleClose}
-      modalStyle={styles.modal}
-      title="Receive Assets"
-      autoWidth={false}
+      type="modal"
+      sheetRef={modalRef}
+      backgroundColor="primaryBackground"
+      containerInnerWrapperStyles={flexbox.alignCenter}
+      closeBottomSheet={handleClose}
     >
+      <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
         {isViewOnly ? (
           <Text
@@ -129,7 +131,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
         </View>
       </View>
       <AmbireLogoHorizontal />
-    </Modal>
+    </BottomSheet>
   )
 }
 

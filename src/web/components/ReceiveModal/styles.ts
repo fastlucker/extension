@@ -12,11 +12,9 @@ import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-// import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
 interface Style {
-  modal: ViewStyle
   content: ViewStyle
   qrCodeContainer: ViewStyle
   qrCode: ViewStyle
@@ -32,10 +30,6 @@ const { isTab } = getUiType()
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    // modal: {
-    //   paddingBottom: isTab ? SPACING_SM : SPACING_TY
-    // },
-    modal: {},
     content: {
       backgroundColor: theme.secondaryBackground,
       paddingTop: isTab ? SPACING_XL : SPACING_MD,

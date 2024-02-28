@@ -5,7 +5,7 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
 interface Style {
-  modalInner: ViewStyle
+  modal: ViewStyle
   image: ImageStyle
 }
 
@@ -15,10 +15,9 @@ export const COLLECTIBLE_IMAGE_SIZE = isTab ? 400 : 300
 
 const getStyles = () =>
   StyleSheet.create<Style>({
-    modalInner: {
-      width: '100%',
-      height: 'auto',
-      borderRadius: BORDER_RADIUS_PRIMARY
+    modal: {
+      ...spacings.phSm,
+      ...spacings.pvSm
     },
     image: {
       ...spacings.mbSm,
