@@ -213,7 +213,6 @@ const KeyStoreResetScreen = () => {
         <BottomSheet
           id="keystore-reset-confirmation-modal"
           sheetRef={confirmationModalRef}
-          autoWidth
           backgroundColor="primaryBackground"
           style={{ minWidth: 500, paddingVertical: SPACING_3XL }}
         >
