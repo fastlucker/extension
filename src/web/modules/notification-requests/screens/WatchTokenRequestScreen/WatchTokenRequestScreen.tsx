@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import networks from '@common/constants/networks'
@@ -28,25 +29,35 @@ const WatchTokenRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
-
+  // TODO: Handle if user has the token already
   // TODO: Add standard and handle different types
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
   const network = networks.find((n) => n.explorerUrl === origin)
 
-  useEffect(() => {
-    const token = {
-      address: getAddress(tokenData.address),
-      name: tokenData?.name,
-      symbol: tokenData?.symbol,
-      decimals: tokenData?.decimals,
-      standard: state?.currentNotificationRequest?.params?.data?.type,
-      networkId: network?.id,
-      isHidden: false
-    }
+  // TODO: Notification window not closing
+  const handleCancel = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }, [t, dispatch])
 
-    portfolio.updateLocalTokenPreferences(token)
-  }, [tokenData?.address])
+  const portfolioFoundToken =
+    tokenData &&
+    portfolio.accountPortfolio?.tokens?.find(
+      ({ address }) => address === getAddress(tokenData?.address)
+    )
+
+  useEffect(() => {
+    if (!tokenData) return
+    const address = getAddress(tokenData.address)
+
+    if (!portfolioFoundToken) {
+      portfolio.updateAdditionalHints([address])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [portfolioFoundToken, tokenData])
 
   const handleAddToken = useCallback(() => {
     const token = {
@@ -55,46 +66,22 @@ const WatchTokenRequestScreen = () => {
       symbol: tokenData?.symbol,
       decimals: tokenData?.decimals,
       standard: state?.currentNotificationRequest?.params?.data?.type,
-      networkId: network?.id,
-      isHidden: false
+      networkId: network?.id
     }
 
+    portfolio.updateTokenPreferences(token)
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: { data: null }
     })
-    portfolio.updateTokenPreferences(token)
-  }, [dispatch])
+  }, [dispatch, state, tokenData, network, portfolio])
 
-  // TODO: Notification window not closing
-  const handleCancel = useCallback(() => {
-    dispatch({
-      type: 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS'
-    })
-    dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-      params: { err: t('User rejected the request.') }
-    })
-  }, [t, dispatch])
-
-  const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
-    ({ address }) => address === getAddress(tokenData.address)
-  )
-  console.log({ portfolio, portfolioFoundToken })
-
-  // TODO: Loading state
-  if (!portfolioFoundToken) return null
-  const { balance, priceUSDFormatted, balanceUSDFormatted } = getTokenDetails(portfolioFoundToken)
+  const tokenDetails = portfolioFoundToken && getTokenDetails(portfolioFoundToken)
 
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={network?.name || undefined}
-          networkId={network?.id || undefined}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo networkName={network?.name} networkId={network?.id} />}
       footer={
         <>
           <Button
@@ -135,6 +122,7 @@ const WatchTokenRequestScreen = () => {
             ...spacings.mb
           }}
         />
+
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
           <View>
             <Text fontSize={12} weight="medium" style={spacings.mbMd} appearance="secondaryText">
@@ -143,7 +131,7 @@ const WatchTokenRequestScreen = () => {
             <View style={flexbox.directionRow}>
               <TokenIcon
                 withContainer
-                uri={tokenData.image}
+                uri={tokenData?.image}
                 networkId={network?.id}
                 containerHeight={40}
                 containerWidth={40}
@@ -152,7 +140,7 @@ const WatchTokenRequestScreen = () => {
               />
               <View style={spacings.ml}>
                 <Text weight="number_bold" fontSize={16}>
-                  {balance || '0.00'} {tokenData.symbol}
+                  {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
                 </Text>
 
                 {network && (
@@ -174,27 +162,26 @@ const WatchTokenRequestScreen = () => {
               {t('Price')}
             </Text>
             <Text fontSize={16} style={{ textAlign: 'left' }}>
-              ${priceUSDFormatted || '0.00'}
+              {tokenDetails?.priceUSDFormatted || <Spinner style={{ width: 18, height: 18 }} />}
             </Text>
           </View>
 
-          <View>
+          <View style={[flexbox.alignEnd]}>
             <Text fontSize={12} weight="medium" style={spacings.mbMd} appearance="secondaryText">
               {t('USD Value')}
             </Text>
-            <View style={flexbox.directionRow}>
-              <Text
-                weight="number_bold"
-                fontSize={16}
-                style={[{ textAlign: 'right' }, spacings.mr4Xl]}
-              >
-                ${balanceUSDFormatted || '0.00'}
+
+            <View style={[flexbox.directionRow, flexbox.alignEnd]}>
+              <Text weight="number_bold" fontSize={16} style={flexbox.justifyEnd}>
+                {tokenDetails?.balanceUSDFormatted || <Spinner style={{ width: 18, height: 18 }} />}
               </Text>
-              {portfolioFoundToken?.priceIn?.length ? (
-                <CoingeckoConfirmedBadge text={t('Confirmed')} />
-              ) : null}
             </View>
           </View>
+          {portfolioFoundToken?.priceIn?.length ? (
+            <View style={[flexbox.alignEnd, flexbox.justifyCenter]}>
+              <CoingeckoConfirmedBadge text={t('Confirmed')} containerStyle={spacings.mtMd} />
+            </View>
+          ) : null}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
@@ -21,6 +22,8 @@ const PortfolioControllerStateContext = createContext<{
   state: PortfolioController
   startedLoading: null | number
   refreshPortfolio: () => void
+  updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
+  updateTokenPreferences: (token: CustomToken) => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -30,7 +33,9 @@ const PortfolioControllerStateContext = createContext<{
   },
   state: {} as any,
   startedLoading: null,
-  refreshPortfolio: () => {}
+  refreshPortfolio: () => {},
+  updateAdditionalHints: () => {},
+  updateTokenPreferences: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -117,19 +122,12 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('portfolio', onUpdate)
   }, [])
 
-  const updateLocalTokenPreferences = useCallback(
-    (token: any) => {
-      const tokenPreferences = state?.tokenPreferences
-      const tokenIsNotInPreferences = !tokenPreferences.find(
-        ({ address }) => address === token.address
-      )
-
-      if (!tokenIsNotInPreferences) return
-      tokenPreferences.push(token)
+  const updateAdditionalHints = useCallback(
+    (tokenIds: any[]) => {
       dispatch({
-        type: 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES',
+        type: 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS',
         params: {
-          tokenPreferences: [token.address]
+          tokenIds
         }
       })
       dispatch({
@@ -204,7 +202,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           refreshPortfolio,
           startedLoading,
           updateTokenPreferences,
-          updateLocalTokenPreferences,
+          updateAdditionalHints,
           removeTokenPreferences
         }),
         [
@@ -213,7 +211,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           startedLoading,
           refreshPortfolio,
           updateTokenPreferences,
-          updateLocalTokenPreferences,
+          updateAdditionalHints,
           removeTokenPreferences
         ]
       )}

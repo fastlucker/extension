@@ -212,10 +212,10 @@ type PortfolioControllerUpdateTokenPreferences = {
     tokenPreferences: any[]
   }
 }
-type PortfolioControllerUpdateLocalTokenPreferences = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES'
+type PortfolioControllerUpdateAdditionalHints = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS'
   params: {
-    tokenPreferences: any[]
+    tokenIds: any[]
   }
 }
 type PortfolioControllerResetAdditionalHints = {
@@ -403,7 +403,7 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
-  | PortfolioControllerUpdateLocalTokenPreferences
+  | PortfolioControllerUpdateAdditionalHints
   | PortfolioControllerResetAdditionalHints
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction

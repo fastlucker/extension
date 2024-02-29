@@ -9,9 +9,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-
 import { networks } from '@ambire-common/consts/networks'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -20,6 +17,8 @@ import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -744,8 +743,8 @@ async function init() {
             case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
               return mainCtrl.portfolio.updateTokenPreferences(data.params.tokenPreferences)
             }
-            case 'PORTFOLIO_CONTROLLER_UPDATE_LOCAL_TOKEN_PREFERENCES': {
-              return mainCtrl.portfolio.updateLocalTokenPreferences(data.params.tokenPreferences)
+            case 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS': {
+              return mainCtrl.portfolio.updateAdditionalHints(data.params.tokenIds)
             }
             case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
               return mainCtrl.portfolio.resetAdditionalHints()

@@ -11,13 +11,14 @@ import getStyles from './styles'
 
 type Props = {
   text: string
+  containerStyle?: any
 }
 
-const CoingeckoConfirmedBadge = ({ text }: Props) => {
+const CoingeckoConfirmedBadge = ({ text, containerStyle }: Props) => {
   const { styles } = useTheme(getStyles)
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <Text weight="medium" fontSize={10} color="#8DC63F" style={spacings.mrMi}>
         {text}
       </Text>

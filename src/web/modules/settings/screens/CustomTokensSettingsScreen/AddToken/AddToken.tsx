@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
@@ -49,23 +50,24 @@ const AddToken = () => {
         label: <Text weight="medium">{t(n.name)}</Text>,
         icon: <NetworkIcon name={n.id as NetworkIconNameType} />
       })),
-    [networks]
+    [t, networks]
   )
 
   const handleSetAddress = useCallback(
     (e: any) => {
-      setAddress(e.target.value)
+      const tokenAddr = getAddress(e.target.value)
+      setAddress(tokenAddr)
 
-      if (isValidAddress(e.target.value) && network) {
-        portfolio.updateLocalTokenPreferences({
-          address: e.target.value,
-          networkId: network.id,
-          standard: 'ERC20'
-        })
+      if (isValidAddress(getAddress(tokenAddr)) && network) {
+        portfolio.updateAdditionalHints([tokenAddr])
       }
     },
     [network, portfolio]
   )
+  const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
+    (token) => token.address === address
+  )
+  console.log(portfolioFoundToken)
 
   const handleAddToken = useCallback(() => {
     if (!isValidAddress(address) || !network) return
@@ -75,12 +77,8 @@ const AddToken = () => {
       networkId: network.id,
       standard: 'ERC20'
     })
-  }, [])
+  }, [address, network, portfolio])
 
-  const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
-    (token) => token.address === address
-  )
-  console.log(portfolioFoundToken, portfolio.accountPortfolio.tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
