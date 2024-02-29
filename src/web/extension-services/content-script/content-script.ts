@@ -7,12 +7,12 @@
 import { nanoid } from 'nanoid'
 
 import { isManifestV3 } from '@web/constants/browserapi'
+import { storage } from '@web/extension-services/background/webapi/storage'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import PortMessage from '@web/extension-services/message/portMessage'
 
-import { storage } from '../background/webapi/storage'
-
 const channelName = nanoid()
+let initialized = false
 
 const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
@@ -31,13 +31,11 @@ const injectProviderScript = () => {
 
 // we run this content script in all_frames (see the manifest file) for better injection
 // but we want the BroadcastChannelMessage to send messages to the service_worker/background only from one of the frames
-// to avoid duplicated requests (window.top is the top-level frame)
-if (window === window.top) {
+// to avoid duplicated requests so we run this logic only once
+if (!initialized) {
   const pm = new PortMessage().connect()
   const bcm = new BroadcastChannelMessage(!isManifestV3 ? channelName : 'ambire-inpage').listen(
-    (data: any) => {
-      return pm.request(data)
-    }
+    (data: any) => pm.request(data)
   )
 
   // messages coming from the background service and will be passed to the injected script (handled in inpage.ts)
@@ -76,6 +74,7 @@ if (window === window.top) {
   setTimeout(() => {
     initIsDefaultWallet()
   }, 1)
+  initialized = true
 }
 
 // the injection for manifest v3 is located in background.js
