@@ -20,6 +20,8 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
@@ -37,25 +39,31 @@ const PrivateKeyImportScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { dispatch } = useBackgroundService()
+  const accountAdderControllerState = useAccountAdderControllerState()
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
   }, [updateStepperState])
 
+  useEffect(() => {
+    if (accountAdderControllerState.isInitialized) navigate(WEB_ROUTES.accountAdder)
+  }, [accountAdderControllerState.isInitialized, navigate])
+
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
       let formattedPrivateKey = privateKey.trim()
-
       formattedPrivateKey = privateKey.slice(0, 2) === '0x' ? privateKey.slice(2) : privateKey
 
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'internal',
-          privKeyOrSeed: formattedPrivateKey
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: {
+          privKeyOrSeed: formattedPrivateKey,
+          keyTypeInternalSubtype: 'private-key'
         }
       })
     })()
-  }, [handleSubmit, navigate])
+  }, [dispatch, handleSubmit])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
