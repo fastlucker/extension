@@ -6,13 +6,13 @@ import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import Button from '@common/components/Button'
 import Modal from '@common/components/Modal'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -32,7 +32,8 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
     settings: { networks }
   } = useMainControllerState()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
+  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
   const selectedAccountData = accounts.find(({ addr }) => addr === selectedAccount)
   const isViewOnly = selectedAccountData?.associatedKeys?.length === 0
   const qrCodeRef: any = useRef(null)
@@ -83,25 +84,16 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
             </Text>
           )}
         </View>
-        <Text
-          numberOfLines={1}
-          fontSize={14}
-          ellipsizeMode="middle"
-          weight="medium"
-          style={styles.accountAddress}
-        >
-          {selectedAccount}
-        </Text>
-        <Button
-          style={styles.copyButton}
-          textStyle={spacings.mrTy}
-          text="Copy address"
-          size="small"
-          type="secondary"
+        <AnimatedPressable
+          style={[styles.accountAddress, animStyle]}
           onPress={handleCopyAddress}
+          {...bindAnim}
         >
-          <CopyIcon color={theme.primary} />
-        </Button>
+          <Text numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
+            {selectedAccount}
+          </Text>
+          <CopyIcon style={spacings.mlTy} />
+        </AnimatedPressable>
         <View style={styles.supportedNetworksContainer}>
           <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
             {t('Following networks supported on this address:')}

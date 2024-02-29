@@ -4,8 +4,10 @@ import useCustomHover from './useCustomHover'
 
 export const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-interface Presets {
-  [key: string]: {
+type Preset = 'opacity' | 'opacityInverted'
+
+type Presets = {
+  [key in Preset]: {
     property: keyof ViewStyle
     from: number
     to: number
@@ -26,7 +28,7 @@ const presets: Presets = {
 }
 
 interface Props {
-  preset: keyof typeof presets
+  preset: Preset
   duration?: number
   forceHoveredStyle?: boolean
 }
