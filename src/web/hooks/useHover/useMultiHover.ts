@@ -40,8 +40,10 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
 
       if (forceHoveredStyle) {
         value = new Animated.Value(shouldInterpolate ? 1 : (to as number))
+        setIsHovered(true)
       } else {
         value = new Animated.Value(shouldInterpolate ? 0 : (from as number))
+        setIsHovered(false)
       }
 
       return {
@@ -64,7 +66,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       duration: DURATIONS.FAST
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values?.length])
+  }, [values?.length, forceHoveredStyle])
 
   useEffect(() => {
     if (!animatedValues) return
