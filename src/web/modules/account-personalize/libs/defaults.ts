@@ -55,15 +55,9 @@ export const getDefaultAccountLabel = (
 //   )
 // }
 
-export const getDefaultKeyLabel = (
-  keyType: Key['type'],
-  index: number,
-  slot: number,
-  customLabel?: string
-) => {
+export const getDefaultKeyLabel = (keyType: Key['type'], index: number, slot: number) => {
   const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Basic Key'
-  const from =
-    customLabel || (keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType])
+  const from = keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType]
 
   return `${prefix} (${from}) from slot ${slot}`
 }
