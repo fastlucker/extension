@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
@@ -37,6 +37,9 @@ const DashboardScreen = () => {
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
+    preset: 'opacity'
+  })
+  const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
@@ -136,9 +139,13 @@ const DashboardScreen = () => {
                         {!accountPortfolio?.isAllReady ? (
                           <Spinner style={{ width: 16, height: 16 }} />
                         ) : (
-                          <Pressable onPress={refreshPortfolio}>
+                          <AnimatedPressable
+                            style={refreshButtonAnimStyle}
+                            onPress={refreshPortfolio}
+                            {...bindRefreshButtonAnim}
+                          >
                             <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </Pressable>
+                          </AnimatedPressable>
                         )}
                       </View>
                     </View>
