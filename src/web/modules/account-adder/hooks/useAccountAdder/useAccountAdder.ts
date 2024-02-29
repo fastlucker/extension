@@ -1,11 +1,12 @@
 import { Mnemonic } from 'ethers'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import {
   HD_PATH_TEMPLATE_TYPE,
   SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
 } from '@ambire-common/consts/derivation'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
+import { KeyIterator } from '@ambire-common/interfaces/keyIterator'
 import { Key } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
@@ -27,12 +28,11 @@ import {
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
-  keyType: Key['type']
-  keyLabel?: string
-  privKeyOrSeed?: string
+  keyType: KeyIterator['type']
+  keySubType: KeyIterator['subType']
 }
 
-const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
+const useAccountAdder = ({ keyType, keySubType }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
@@ -40,11 +40,6 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const { addToast } = useToast()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
-  const keyTypeInternalSubtype = useMemo(() => {
-    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
-
-    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
-  }, [keyType, privKeyOrSeed])
 
   const setPage: any = React.useCallback(
     (page = 1) => {
@@ -55,52 +50,57 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     [dispatch, createTask]
   )
 
+  // TODO: Implement
   useEffect(() => {
-    const step: keyof typeof STEPPER_FLOWS = keyTypeInternalSubtype || 'hw'
+    const step: keyof typeof STEPPER_FLOWS = keySubType || 'hw'
 
     updateStepperState(WEB_ROUTES.accountAdder, step)
-  }, [keyTypeInternalSubtype, updateStepperState])
+  }, [keySubType, updateStepperState])
 
-  useEffect(() => {
-    if (!mainControllerState.isReady) return
-    if (accountAdderState.isInitialized) return
+  // TODO: Remove
+  // useEffect(() => {
+  //   if (!mainControllerState.isReady) return
+  //   // if (accountAdderState.isInitialized) return
 
-    const init: any = {
-      internal: () => {
-        if (!privKeyOrSeed) return
+  //   debugger
 
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-          params: { privKeyOrSeed, keyTypeInternalSubtype }
-        })
-      },
-      trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
-      ledger: async () => {
-        // Ensures account adder is initialized with unlocked key iterator
-        await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
+  //   const init: any = {
+  //     internal: () => {
+  //       if (!privKeyOrSeed) return
 
-        dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
-      },
-      lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
-    }
+  //       dispatch({
+  //         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+  //         params: { privKeyOrSeed, keyTypeInternalSubtype }
+  //       })
+  //     },
+  //     trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
+  //     ledger: async () => {
+  //       // Ensures account adder is initialized with unlocked key iterator
+  //       await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
 
-    init[keyType]()
-  }, [
-    accountAdderState.isInitialized,
-    createTask,
-    dispatch,
-    dispatchAsync,
-    mainControllerState.isReady,
-    privKeyOrSeed,
-    keyType,
-    keyTypeInternalSubtype
-  ])
+  //       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
+  //     },
+  //     lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
+  //   }
 
-  useEffect(() => {
-    if (!accountAdderState.isInitialized) return
+  //   init[keyType]()
+  // }, [
+  //   createTask,
+  //   dispatch,
+  //   dispatchAsync,
+  //   mainControllerState.isReady,
+  //   privKeyOrSeed,
+  //   keyType,
+  //   keyTypeInternalSubtype
+  // ])
 
-    setPage()
-  }, [accountAdderState.isInitialized, setPage])
+  // TODO: Move to the background
+  // useEffect(() => {
+  //   if (!accountAdderState.isInitialized) return
+
+  //   // TODO: Move this in the background process!
+  //   setPage()
+  // }, [accountAdderState.isInitialized, setPage])
 
   useEffect(() => {
     return () => {
@@ -108,6 +108,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     }
   }, [dispatch])
 
+  // TODO: Implement
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       hasAccountsToImport
@@ -115,12 +116,12 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             state: {
               accounts: accountAdderState.readyToAddAccounts,
               keyType,
-              keyTypeInternalSubtype
+              keyTypeInternalSubtype: keySubType
             }
           })
         : navigate('/', { state: { openOnboardingCompleted: true } })
     },
-    [navigate, accountAdderState, keyType, keyTypeInternalSubtype]
+    [navigate, accountAdderState, keyType, keySubType]
   )
 
   useEffect(() => {
@@ -135,6 +136,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)
 
+    // TODO: Figure out how to access the private key or seed phrase here?
     const readyToAddKeys: {
       internal: ReadyToAddKeys['internal']
       externalTypeOnly: Key['type']
@@ -191,10 +193,11 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       accountKeys.map(({ addr, slot, index }) => ({
         addr,
         type: keyType,
-        label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
+        label: getDefaultKeyLabel(keyType, index, slot)
       }))
     )
 
+    const keyTypeInternalSubtype = 'seed'
     const readyToAddAccountPreferences = getDefaultAccountPreferences(
       accountAdderState.selectedAccounts.map(({ account }) => account),
       mainControllerState.accounts,
@@ -219,10 +222,7 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
     keyType,
     mainControllerState.accounts,
     dispatch,
-    privKeyOrSeed,
-    addToast,
-    keyLabel,
-    keyTypeInternalSubtype
+    addToast
   ])
 
   return { setPage, onImportReady }

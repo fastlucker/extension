@@ -1,4 +1,3 @@
-import { Mnemonic } from 'ethers'
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -35,13 +34,13 @@ const AccountsOnPageList = ({
   state,
   setPage,
   keyType,
-  privKeyOrSeed,
+  subType,
   lookingForLinkedAccounts
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
-  keyType: string
-  privKeyOrSeed?: string
+  keyType: AccountAdderController['type']
+  subType: AccountAdderController['subType']
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
@@ -55,12 +54,6 @@ const AccountsOnPageList = ({
   const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-
-  const keyTypeInternalSubtype = useMemo(() => {
-    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
-
-    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
-  }, [keyType, privKeyOrSeed])
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -170,22 +163,22 @@ const AccountsOnPageList = ({
   )
 
   const setTitle = useCallback(() => {
-    if (keyType !== 'internal') {
+    if (keyType && keyType !== 'internal') {
       return t('Import Accounts From {{ hwDeviceName }}', {
         hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
       })
     }
 
-    if (keyTypeInternalSubtype === 'seed') {
+    if (subType === 'seed') {
       return t('Import Accounts from Seed Phrase')
     }
 
-    if (keyTypeInternalSubtype === 'private-key') {
+    if (subType === 'private-key') {
       return t('Import Accounts from Private Key')
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, keyTypeInternalSubtype, t])
+  }, [keyType, subType, t])
 
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
@@ -291,7 +284,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {keyTypeInternalSubtype !== 'private-key' && (
+        {subType !== 'private-key' && (
           <View style={[spacings.mbLg, flexbox.alignStart]}>
             <Toggle
               isOn={hideEmptyAccounts}

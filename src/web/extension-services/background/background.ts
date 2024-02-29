@@ -9,9 +9,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-
 import { networks } from '@ambire-common/consts/networks'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -20,6 +17,8 @@ import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -428,6 +427,7 @@ async function init() {
               const keyIterator = new LedgerKeyIterator({
                 walletSDK: ledgerCtrl.walletSDK
               })
+              // TODO: Set page
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
@@ -437,6 +437,7 @@ async function init() {
               const keyIterator = new TrezorKeyIterator({
                 walletSDK: trezorCtrl.walletSDK
               })
+              // TODO: Set page
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
@@ -446,6 +447,7 @@ async function init() {
               const keyIterator = new LatticeKeyIterator({
                 sdkSession: latticeCtrl.sdkSession
               })
+              // TODO: Set page
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
@@ -454,10 +456,16 @@ async function init() {
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
               const pageSize = data.params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
-              return mainCtrl.accountAdder.init({
+              mainCtrl.accountAdder.init({
                 keyIterator,
                 pageSize,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+              })
+
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
@@ -584,7 +592,7 @@ async function init() {
               const seed = data.params.seed
               const keyIterator = new KeyIterator(seed)
 
-              await mainCtrl.accountAdder.init({
+              mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 pageSize: 1
