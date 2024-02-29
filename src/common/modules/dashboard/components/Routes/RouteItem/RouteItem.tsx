@@ -37,12 +37,12 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   const [bindAccountBtnAnim, accountBtnAnimStyle, isAccountBtnHovered] = useMultiHover({
     values: [
       {
-        key: 'opacity',
+        property: 'opacity',
         from: 0.7,
         to: 1
       },
       {
-        key: 'scaleX',
+        property: 'scaleX',
         from: 1,
         to: 1.2,
         duration: DURATIONS.FAST

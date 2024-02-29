@@ -4,7 +4,7 @@ import { Animated, ColorValue, GestureResponderEvent, MouseEvent, ViewStyle } fr
 import DURATIONS from './durations'
 
 export type AnimationValues = {
-  key: keyof ViewStyle
+  property: keyof ViewStyle
   from: number | ColorValue
   to: number | ColorValue
   duration?: number
@@ -23,7 +23,7 @@ interface Props {
 /*
   Some of the values have to be interpolated, like backgroundColor, color, borderColor
 */
-const INTERPOLATE_KEYS = ['backgroundColor', 'color', 'borderColor']
+const INTERPOLATE_PROPERTIES = ['backgroundColor', 'color', 'borderColor']
 
 const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   const [isHovered, setIsHovered] = useState(false)
@@ -32,10 +32,10 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   const animatedValues = animatedValuesRef.current
 
   useEffect(() => {
-    const opacity = values.find(({ key }) => key === 'opacity')
+    const opacity = values.find(({ property }) => property === 'opacity')
 
-    animatedValuesRef.current = values.map(({ key, from, to, duration: valueDuration }) => {
-      const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
+    animatedValuesRef.current = values.map(({ property, from, to, duration: valueDuration }) => {
+      const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
       const defaultDuration = shouldInterpolate ? DURATIONS.FAST : DURATIONS.REGULAR
       let value = null
 
@@ -47,7 +47,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
 
       return {
         value,
-        key,
+        property,
         from,
         to,
         duration: valueDuration || defaultDuration
@@ -59,7 +59,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
     // Opacity is always needed for onPressIn and onPressOut
     animatedValuesRef.current.push({
       value: new Animated.Value(1),
-      key: 'opacity',
+      property: 'opacity',
       from: 1,
       to: 1,
       duration: DURATIONS.REGULAR
@@ -71,9 +71,9 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
     if (!animatedValues) return
 
     animatedValues.forEach(
-      ({ key, value, from, to, duration: valueDuration }: AnimationValuesExtended) => {
-        const toValue = !INTERPOLATE_KEYS.includes(key) ? (to as number) : 1
-        const fromValue = !INTERPOLATE_KEYS.includes(key) ? (from as number) : 0
+      ({ property, value, from, to, duration: valueDuration }: AnimationValuesExtended) => {
+        const toValue = !INTERPOLATE_PROPERTIES.includes(property) ? (to as number) : 1
+        const fromValue = !INTERPOLATE_PROPERTIES.includes(property) ? (from as number) : 0
 
         Animated.timing(value, {
           toValue: isHovered || forceHoveredStyle ? toValue : fromValue,
@@ -89,7 +89,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
   useEffect(() => {
     if (!animatedValues) return
 
-    const opacity = animatedValues.find(({ key }) => key === 'opacity')
+    const opacity = animatedValues.find(({ property }) => property === 'opacity')
 
     if (!opacity) return
 
@@ -122,12 +122,12 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
 
   const style = useMemo(() => {
     if (animatedValues)
-      return animatedValues?.reduce((acc, { key, value, from, to }) => {
-        const shouldInterpolate = INTERPOLATE_KEYS.includes(key)
+      return animatedValues?.reduce((acc, { property, value, from, to }) => {
+        const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
 
         return {
           ...acc,
-          [key]: shouldInterpolate
+          [property]: shouldInterpolate
             ? value.interpolate({
                 inputRange: [0, 1],
                 outputRange: [from as string, to as string]
@@ -138,9 +138,9 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
 
     // Prevents the hook from returning an empty style object on the first render
     return values.reduce(
-      (acc, { key, from }) => ({
+      (acc, { property, from }) => ({
         ...acc,
-        [key]: from
+        [property]: from
       }),
       {}
     )

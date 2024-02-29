@@ -61,21 +61,21 @@ const Button = ({
     () => ({
       primary: [
         {
-          key: 'backgroundColor',
+          property: 'backgroundColor',
           from: theme.primary,
           to: theme.primaryLight
         }
       ],
       secondary: [
         {
-          key: 'backgroundColor',
+          property: 'backgroundColor',
           from: `${String(theme.secondaryBackground)}00`,
           to: theme.secondaryBackground
         }
       ],
       danger: [
         {
-          key: 'backgroundColor',
+          property: 'backgroundColor',
           from: `${String(theme.errorBackground)}00`,
           to: theme.errorBackground
         }
@@ -83,7 +83,7 @@ const Button = ({
       outline: [],
       ghost: [
         {
-          key: 'opacity',
+          property: 'opacity',
           from: 1,
           to: 0.7
         }
