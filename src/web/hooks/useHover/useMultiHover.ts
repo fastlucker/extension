@@ -36,7 +36,6 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
 
     animatedValuesRef.current = values.map(({ property, from, to, duration: valueDuration }) => {
       const shouldInterpolate = INTERPOLATE_PROPERTIES.includes(property)
-      const defaultDuration = shouldInterpolate ? DURATIONS.FAST : DURATIONS.REGULAR
       let value = null
 
       if (forceHoveredStyle) {
@@ -50,7 +49,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
         property,
         from,
         to,
-        duration: valueDuration || defaultDuration
+        duration: valueDuration || DURATIONS.FAST
       }
     })
 
@@ -62,7 +61,7 @@ const useMultiHover = ({ values, forceHoveredStyle = false }: Props) => {
       property: 'opacity',
       from: 1,
       to: 1,
-      duration: DURATIONS.REGULAR
+      duration: DURATIONS.FAST
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values?.length])
