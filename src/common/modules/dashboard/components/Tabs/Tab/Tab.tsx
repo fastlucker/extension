@@ -30,7 +30,8 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }
 
   return (
     <Pressable
-      onPress={() => {
+    testID={'tab-' + tabLabel.toLowerCase().replace(/\s+/g, '-')}
+    onPress={() => {
         if (disabled) return
         handleChangeQuery(tab)
         setOpenTab(tab)

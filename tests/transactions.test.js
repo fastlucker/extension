@@ -84,10 +84,8 @@ describe('transactions', () => {
         pages[1].close() // tab always opened after extension installation
 
         await new Promise((r) => setTimeout(r, 2000));
-
         /*Open the page again to load the browser local storage */
         page = await browser.newPage();
-
 
         // Navigate to a specific URL if necessary
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
@@ -100,8 +98,7 @@ describe('transactions', () => {
         await page.evaluate(() => {
             location.reload(true)
         })
-        
-        await typeSeedPhrase(page,process.env.KEYSTORE_PASS_PHRASE_1)
+        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
     afterEach(async () => {
@@ -113,6 +110,7 @@ describe('transactions', () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
+        await page.waitForSelector('[data-testid="full-balance"]')
         /* Get the available balance */
         const availableAmmount = await page.evaluate(() => {
             const balance = document.querySelector('[data-testid="full-balance"]')
@@ -121,22 +119,33 @@ describe('transactions', () => {
 
         let availableAmmountNum = availableAmmount.replace(/\n/g, "");
         availableAmmountNum = availableAmmountNum.split('$')[1]
-
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
 
-        // await page.waitForSelector('[data-testid="dashboard-button-Send"]');
+
         /* Click on "Send" button */
-        await clickOnElement(page, '[data-testid="dashboard-button-Send"]')
+        await clickOnElement(page, '[data-testid="dashboard-button-send"]')
+
+        await page.waitForSelector(amountField)
+
+
+        /* Check if selected network is Polygon */
+        const textExists = await page.evaluate(() => {
+            return document.body.innerText.includes('MATIC');
+        });
+
+        if (!textExists) {
+            /* If "MATIC" text does not exist, select network Polygon */
+            await clickOnElement(page, 'xpath///div[contains(text(), "on")]')
+            await clickOnElement(page, 'xpath///div[contains(text(), "MATIC")]')
+        }
 
         /* Type the amount */
         await typeText(page, amountField, "0.0001")
 
         /* Type the adress of the recipient  */
         await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
-
         await page.waitForXPath(`//div[contains(text(), "You're trying to send to an unknown address. If you're really sure, confirm using the checkbox below.")]`);
-
         await page.waitForSelector('[data-testid="checkbox"]')
 
         /* Check the checkbox "I confirm this address is not a Binance wallets...." */
@@ -144,9 +153,9 @@ describe('transactions', () => {
 
         /* Check the checkbox "Confirm sending to a previously unknown address" */
         await clickOnElement(page, '[data-testid="checkbox"]')
-
+     
         /* Click on "Send" button and cofirm transaction */
-        await confirmTransaction(page, extensionRootUrl, browser, 'xpath///div[contains(text(), "Send")]')
+        await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="padding-button-Send"]')
     }));
 
 
@@ -227,7 +236,7 @@ describe('transactions', () => {
         const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-message`);
         const newPage = await newTarget.page();
         /* Click on "Sign" button */
-        await clickOnElement(newPage, '[data-testid="sign-button"]')
+        await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
         await page.waitForSelector('.signatureResult-signature')
         /* Get the Message signature text */
         const messageSignature = await page.evaluate(() => {
@@ -323,19 +332,23 @@ describe('transactions', () => {
         await clickOnElement(page, '[data-testid="account-select"]')
 
         /* Click on "+ Add Account"  */
-        await clickOnElement(page, '[data-testid="button"]')
+        await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
 
         /* Seleck "Watch an address" */
-        await clickOnElement(page, '[data-testid="add-address-Watch"]')
-
-        let viewOnlyAddress = '0xC254b41be9582e45a8aCE62D5adD3F8092D4ea6C'
+        await clickOnElement(page, '[data-testid="watch-an-address"]')
+        
+        let viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
+        
         await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+        await new Promise((r) => setTimeout(r, 500))
 
         /* Click on "Import View-Only Accounts" button*/
-        await clickWhenClickable(page, '[data-testid="button"]')
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
         /* Click on "Account"  */
-        await clickWhenClickable(page, '[ data-testid="account-select"]')
+        await clickWhenClickable(page, '[data-testid="padding-button-Save-and-Continue"]')
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
         /* Find the element containing the specified address */
         const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`);

@@ -67,6 +67,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
         <>
           {!error && data?.image && !imageFailed && (
             <Image
+              testID='colectible-picture'
               onError={() => setImageFailed(true)}
               source={{ uri: data.image }}
               style={[

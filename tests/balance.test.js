@@ -96,14 +96,14 @@ describe('balance', () => {
         await page.evaluate(() => {
             location.reload(true)
         })
-       await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
+        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
 
     })
 
     afterEach(async () => {
         await browser.close();
     });
-   
+
     //--------------------------------------------------------------------------------------------------------------
     it('check if networks Ethereum, USDC and Polygon exist in the account  ', (async () => {
 
@@ -127,10 +127,9 @@ describe('balance', () => {
     //--------------------------------------------------------------------------------------------------------------
     it('check if item exist in Collectibles tab', (async () => {
 
-        await new Promise((r) => setTimeout(r, 2000))
         /* Click on "Collectibles" button */
-        await clickOnElement(page, '[data-testid="collectibles-tab"]')
-
+        await clickOnElement(page, '[data-testid="tab-nfts"]')
+        await new Promise((r) => setTimeout(r, 1000))
 
         const collectionItem = '[data-testid="collection-item"]';
         await page.waitForSelector(collectionItem)
@@ -140,25 +139,21 @@ describe('balance', () => {
             return element[0].textContent
         });
 
-        let firstCollectiblesItemCut = firstCollectiblesItem.split(' ')[0]
 
+        const colectiblPicture = '[data-testid="colectible-picture"]'
         /* Click on the first item */
-        let elements = await page.$$(collectionItem);
-        /* Loop trough items */          
-        for (let i = 0; i < elements.length; i++) {
-            let text = await page.evaluate(el => el.innerText, elements[i]);
-            if (text.indexOf(firstCollectiblesItemCut) > -1) {
-                await elements[i].click();
-            }
-        }
+        await page.waitForSelector(colectiblPicture, { visible: true });
+        const element = await page.$(colectiblPicture);
+        await element.click();
 
-        /* Verify that the correct url os loaded */
-        const url = page.url()
-        expect(url).toContain('collection');
 
-        /* Verify that selected item exist on the page */
-        const text = await page.$eval('*', el => el.innerText);
-        expect(text).toContain(firstCollectiblesItemCut);
+        /* Get the text of the modal and verify that the name of the first collectible item is included*/
+        const modalText = await page.$eval('[aria-modal="true"]', el => {
+            return el.textContent
+        });
+
+        expect(modalText).toContain(firstCollectiblesItem);
+
     }));
 })
 

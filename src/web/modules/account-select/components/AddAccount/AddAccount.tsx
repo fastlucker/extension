@@ -61,6 +61,7 @@ const AddAccount = () => {
       const Icon = option.icon
       return (
         <Pressable
+          testID={option.text.toLowerCase().replace(/\s+/g, '-')}
           key={option.text}
           style={({ hovered }: any) => [
             styles.addAccountOptionContainer,

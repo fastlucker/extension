@@ -87,7 +87,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]');
 
     /*Click on "Import" button */
-    await page.$eval(privKeyOrPhraseSelector, button => button.click());
+    await page.$eval('[data-testid="button-Import"]', button => button.click());
 
     await page.waitForFunction(() => {
         return window.location.href.includes('/import-hot-wallet');
@@ -171,19 +171,11 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
         await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
 
         /* Click on "Sign" button */
-        await newPage.$$eval('[data-testid="button"]', (buttons) => {
-            const button = buttons.find(btn => btn.textContent.includes("Sign"))
-            button.click();
-        });
+        await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
 
         /* Set up a promise to await on the new page being created */
         const newPagePromise = new Promise(x => browser.once('targetcreated', target => x(target.page())));
 
-        /* Perform the click that opens the new window or tab */
-        await newPage.$$eval('[data-testid="button"]', (buttons) => {
-            const button = buttons.find(btn => btn.textContent.includes("Sign"))
-            button.click();
-        });
         /* Wait for the new page to be created */
         const newPage2 = await newPagePromise;
         const two = await newPage2.waitForFunction(() => {

@@ -40,7 +40,7 @@ describe('login', () => {
     })
 
 
-    it('Create legacy account', (async () => {
+    it('Create basic account with private key', (async () => {
         await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
 
         await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
@@ -64,7 +64,6 @@ describe('login', () => {
             element[0].click()
             return element[0].textContent
         })
-
         let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[1].click()
             return element[1].textContent

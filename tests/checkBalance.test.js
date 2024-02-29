@@ -71,7 +71,6 @@ describe('balance', () => {
             parsedPreviousHints
         );
 
-
         await new Promise((r) => setTimeout(r, 2000));
 
         let pages = await browser.pages()

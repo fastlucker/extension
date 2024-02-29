@@ -59,7 +59,7 @@ const Collection: FC<Props> = ({
   return (
     <View style={styles.container}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pbTy]}>
-        <Text fontSize={isTab ? 16 : 14} weight="medium">
+        <Text testID='collection-item' fontSize={isTab ? 16 : 14} weight="medium">
           {name}
         </Text>
         <Text style={spacings.mlTy} fontSize={isTab ? 16 : 14} appearance="secondaryText">

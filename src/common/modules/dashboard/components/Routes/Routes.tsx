@@ -58,7 +58,8 @@ const Routes = ({
     <View style={[flexbox.directionRow]}>
       {routeItems.map((routeItem, index) => (
         <Pressable
-          key={routeItem.label}
+        testID={'dashboard-button-' + routeItem.label.toLowerCase().replace(/\s+/g, '-')}
+        key={routeItem.label}
           style={[flexbox.alignCenter, index !== routeItems.length - 1 && spacings.mr]}
           disabled={routeItem.disabled}
           onPress={async () => {

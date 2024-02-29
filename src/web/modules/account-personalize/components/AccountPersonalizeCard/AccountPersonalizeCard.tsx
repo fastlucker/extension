@@ -70,8 +70,7 @@ const AccountPersonalizeCard = ({
                 <View style={[{ height: 24 }, flexbox.justifyCenter]}>
                   {!!editNameEnabled && (
                     <Input
-                    testID={`edit-name-field-${index}`}
-
+                      testID={`edit-name-field-${index}`}
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}

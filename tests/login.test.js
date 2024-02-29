@@ -61,9 +61,16 @@ describe('login', () => {
             await page.type(inputSelector, wordToType);
         }
 
-        await clickOnElement(page, '[data-testid="padding-button-Import"]');
-        await page.waitForSelector('xpath///div[contains(text(), "Import Accounts from Seed Phrase")]');
+        /* Click on Import button. */
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
+        await page.waitForXPath('//div[contains(text(), "Import Accounts from Seed Phrase")]');
+
+        await new Promise((r) => setTimeout(r, 2000))
+        await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
+
+        await new Promise((r) => setTimeout(r, 2000))
+        await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
         /* Select one Legacy and one Smart account and keep the addresses of the accounts */
         await page.waitForSelector('[data-testid="checkbox"]')
         /* Select one Legacy account and one Smart account */
@@ -71,7 +78,6 @@ describe('login', () => {
             element[0].click()
             return element[0].textContent
         })
-
         let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
             element[1].click()
             return element[1].textContent
@@ -80,8 +86,8 @@ describe('login', () => {
         /* Click on Import Accounts button*/
         await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
 
-
-
+        /* Click on "Save and Continue" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
 
         await page.waitForFunction(() => {
             return window.location.href.includes('/onboarding-completed');
@@ -89,15 +95,11 @@ describe('login', () => {
 
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
-
-
-
-
         /* Verify that selected accounts exist on the page */
-        const selectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', el => el[0].innerText);
+        const selectedLegacyAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
         expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount);
 
-        const selectedSmartAccount = await page.$$eval('[data-testid="add-account"]', el => el[1].innerText);
+        const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
         expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
     }));
 

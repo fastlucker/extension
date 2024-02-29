@@ -76,6 +76,7 @@ const DashboardHeader = () => {
       >
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           <Pressable
+            testID='account-select'
             style={({ hovered }: any) => [
               styles.accountButton,
               {
