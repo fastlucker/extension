@@ -41,10 +41,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: {
-    privKeyOrSeed: string
-    keyTypeInternalSubtype?: 'seed' | 'private-key'
-  }
+  params: { privKeyOrSeed: string }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'

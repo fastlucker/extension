@@ -57,10 +57,7 @@ const PrivateKeyImportScreen = () => {
 
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: {
-          privKeyOrSeed: formattedPrivateKey,
-          keyTypeInternalSubtype: 'private-key'
-        }
+        params: { privKeyOrSeed: formattedPrivateKey }
       })
     })()
   }, [dispatch, handleSubmit])
