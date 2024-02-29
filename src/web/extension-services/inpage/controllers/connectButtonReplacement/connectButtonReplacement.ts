@@ -375,7 +375,11 @@ export class ConnectButtonReplacementController {
           }
 
           if (
-            otherWalletNames.some((name) => text.toLowerCase().trim().includes(name.toLowerCase()))
+            otherWalletNames.some(
+              (name) =>
+                text.trim().split(/\s+/).length <= 5 &&
+                text.toLowerCase().trim().includes(name.toLowerCase())
+            )
           ) {
             const lookForIcon = () => {
               let ancestorNode = childNode.parentNode
