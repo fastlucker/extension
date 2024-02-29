@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { Image, Pressable, View } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import useNft from '@common/hooks/useNft'
@@ -9,6 +9,7 @@ import { formatCollectiblePrice } from '@common/modules/dashboard/components/Col
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
+import { DURATIONS, useCustomHover } from '@web/hooks/useHover'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
@@ -32,6 +33,14 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
     id,
     address: collectionData.address,
     networkId: collectionData.networkId
+  })
+  const [bindAnim, animStyle] = useCustomHover({
+    property: 'scaleX',
+    values: {
+      from: 1,
+      to: 1.15
+    },
+    duration: DURATIONS.FAST
   })
   const renderFallbackImage = error || imageFailed || !data?.image
 
@@ -62,18 +71,18 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
           collectionName: collectionData.name
         })
       }}
+      {...bindAnim}
     >
       {({ hovered }: any) => (
         <>
           {!error && data?.image && !imageFailed && (
-            <Image
-              testID='colectible-picture'
+            <Animated.Image
               onError={() => setImageFailed(true)}
               source={{ uri: data.image }}
               style={[
                 styles.image,
                 {
-                  transform: [{ scale: hovered ? 1.15 : 1 }]
+                  transform: [{ scale: animStyle.scaleX as number }]
                 }
               ]}
             />

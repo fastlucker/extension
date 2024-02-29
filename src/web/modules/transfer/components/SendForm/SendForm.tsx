@@ -65,11 +65,13 @@ const getSelectProps = ({
 const SendForm = ({
   addressInputState,
   state,
-  isAllReady = false
+  isAllReady = false,
+  disableForm
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   state: TransferControllerState
   isAllReady?: boolean
+  disableForm?: boolean
 }) => {
   const { dispatch } = useBackgroundService()
   const { validation, setFieldValue } = addressInputState
@@ -151,7 +153,7 @@ const SendForm = ({
         label={t('Select Token')}
         options={options}
         value={tokenSelectValue}
-        disabled={tokenSelectDisabled}
+        disabled={tokenSelectDisabled || disableForm}
         style={styles.tokenSelect}
       />
       <InputSendToken
@@ -161,10 +163,12 @@ const SendForm = ({
         onAmountChange={onAmountChange}
         setMaxAmount={setMaxAmount}
         maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
+        disabled={disableForm}
       />
       <View>
         {!isTopUp && (
           <Recipient
+            disabled={disableForm}
             setAddress={setFieldValue}
             validation={validation}
             address={addressState.fieldValue}
@@ -184,7 +188,7 @@ const SendForm = ({
         {isSWWarningVisible ? (
           <Checkbox
             value={isSWWarningAgreed}
-            style={spacings.plTy}
+            style={{ ...spacings.plTy, ...spacings.mb0 }}
             onValueChange={onSWWarningCheckboxClick}
           >
             <Text testID='confirm-address-checkbox' fontSize={12} onPress={onSWWarningCheckboxClick}>

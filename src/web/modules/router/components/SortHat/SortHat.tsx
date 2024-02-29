@@ -98,6 +98,19 @@ const SortHat = () => {
       if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
+      if (notificationState.currentNotificationRequest?.screen === 'Benzin') {
+        let link = `${ROUTES.benzin}?networkId=${notificationState.currentNotificationRequest.params.networkId}&isInternal`
+
+        if (notificationState.currentNotificationRequest?.params?.txnId) {
+          link += `&txnId=${notificationState.currentNotificationRequest?.params?.txnId}`
+        }
+
+        if (notificationState.currentNotificationRequest?.params?.userOpHash) {
+          link += `&userOpHash=${notificationState.currentNotificationRequest?.params?.userOpHash}`
+        }
+
+        return navigate(link)
+      }
     } else if (params?.openOnboardingCompleted) {
       navigate(ROUTES.onboardingCompleted, { state: { validSession: true } })
     } else {

@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -18,6 +18,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -41,6 +42,22 @@ const DashboardHeader = () => {
 
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
+  const [bindAddressAnim, addressAnimStyle] = useHover({
+    preset: 'opacity'
+  })
+  const [bindAccountBtnAnim, accountBtnAnimStyle, isAccountBtnHovered] = useCustomHover({
+    property: 'left',
+    values: {
+      from: 0,
+      to: 4
+    }
+  })
+  const [bindBurgerAnim, burgerAnimStyle] = useHover({
+    preset: 'opacity'
+  })
+  const [bindMaximizeAnim, maximizeAnimStyle] = useHover({
+    preset: 'opacity'
+  })
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
@@ -75,71 +92,65 @@ const DashboardHeader = () => {
         style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
       >
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <Pressable
-            testID='account-select'
-            style={({ hovered }: any) => [
+          <AnimatedPressable
+            style={[
               styles.accountButton,
               {
-                backgroundColor: hovered ? NEUTRAL_BACKGROUND_HOVERED : NEUTRAL_BACKGROUND_HOVERED
+                backgroundColor: isAccountBtnHovered
+                  ? NEUTRAL_BACKGROUND_HOVERED
+                  : NEUTRAL_BACKGROUND_HOVERED
               }
             ]}
             onPress={() => navigate(WEB_ROUTES.accountSelect)}
+            {...bindAccountBtnAnim}
           >
-            {({ hovered }: any) => (
-              <>
-                <View style={styles.accountButtonInfo}>
-                  <View>
-                    <Avatar pfp={selectedAccPref?.pfp} size={32} />
-                    {isViewOnly && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          right: 2,
-                          top: -2,
-                          backgroundColor: theme.primaryBackground,
-                          padding: 2,
-                          borderRadius: 50
-                        }}
-                      >
-                        <ViewOnlyIconFilled
-                          width={14}
-                          height={14}
-                          strokeWidth={4}
-                          color={theme.infoDecorative}
-                        />
-                      </View>
-                    )}
-                  </View>
-                  <Text
-                    numberOfLines={1}
-                    weight="semiBold"
-                    style={[spacings.mlTy, spacings.mrLg]}
-                    color={theme.primaryBackground}
-                    fontSize={14}
-                  >
-                    {selectedAccLabel}
-                  </Text>
+            <>
+              <View style={styles.accountButtonInfo}>
+                <View>
+                  <Avatar pfp={selectedAccPref?.pfp} size={32} />
+                  {isViewOnly && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        right: 2,
+                        top: -2,
+                        backgroundColor: theme.primaryBackground,
+                        padding: 2,
+                        borderRadius: 50
+                      }}
+                    >
+                      <ViewOnlyIconFilled
+                        width={14}
+                        height={14}
+                        strokeWidth={4}
+                        color={theme.infoDecorative}
+                      />
+                    </View>
+                  )}
                 </View>
+                <Text
+                  numberOfLines={1}
+                  weight="semiBold"
+                  style={[spacings.mlTy, spacings.mrLg]}
+                  color={theme.primaryBackground}
+                  fontSize={14}
+                >
+                  {selectedAccLabel}
+                </Text>
+              </View>
+              <Animated.View style={accountBtnAnimStyle}>
                 <RightArrowIcon
-                  style={[
-                    styles.accountButtonRightIcon,
-                    {
-                      transform: [{ translateX: hovered ? 4 : 0 }]
-                    }
-                  ]}
+                  style={styles.accountButtonRightIcon}
                   width={12}
                   color={theme.primaryBackground}
                 />
-              </>
-            )}
-          </Pressable>
-          <Pressable
-            style={({ hovered }: any) => [
-              flexboxStyles.directionRow,
-              flexboxStyles.alignCenter,
-              { opacity: hovered ? 1 : 0.7 }
-            ]}
+              </Animated.View>
+            </>
+          </AnimatedPressable>
+          <AnimatedPressable
+            style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, addressAnimStyle]}
             onPress={handleCopyText}
+            {...bindAddressAnim}
           >
             <Text
               color={theme.primaryBackground}
@@ -150,20 +161,18 @@ const DashboardHeader = () => {
               ({shortenAddress(selectedAccount, 13)})
             </Text>
             <CopyIcon width={20} height={20} color={theme.primaryBackground} />
-          </Pressable>
+          </AnimatedPressable>
         </View>
 
         <View style={styles.maximizeAndMenu}>
           {!!isPopup && (
-            <Pressable onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}>
-              {({ hovered }: any) => (
-                <MaximizeIcon
-                  opacity={hovered ? 1 : 0.7}
-                  color={theme.secondaryBackground}
-                  width={16}
-                  height={16}
-                />
-              )}
+            <Pressable
+              onPress={() => openInTab(`tab.html#/${WEB_ROUTES.dashboard}`)}
+              {...bindMaximizeAnim}
+            >
+              <Animated.View style={maximizeAnimStyle}>
+                <MaximizeIcon color={theme.secondaryBackground} width={16} height={16} />
+              </Animated.View>
             </Pressable>
           )}
           <Pressable
@@ -171,15 +180,11 @@ const DashboardHeader = () => {
             onPress={() =>
               isPopup ? navigate(WEB_ROUTES.menu) : navigate(WEB_ROUTES.accountsSettings)
             }
+            {...bindBurgerAnim}
           >
-            {({ hovered }: any) => (
-              <BurgerIcon
-                opacity={hovered ? 1 : 0.7}
-                color={theme.primaryBackground}
-                width={20}
-                height={20}
-              />
-            )}
+            <Animated.View style={burgerAnimStyle}>
+              <BurgerIcon color={theme.primaryBackground} width={20} height={20} />
+            </Animated.View>
           </Pressable>
         </View>
       </View>

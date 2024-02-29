@@ -8,6 +8,7 @@ interface Styles {
   borderRadiusPrimary: ViewStyle
   borderRadiusSecondary: ViewStyle
   hidden: ViewStyle
+  fullWidth: ViewStyle
   visibilityHidden: ViewStyle
 }
 
@@ -43,6 +44,9 @@ const commonStyles: Styles = {
   },
   hidden: {
     overflow: 'hidden'
+  },
+  fullWidth: {
+    width: '100%'
   },
   visibilityHidden: {
     opacity: 0

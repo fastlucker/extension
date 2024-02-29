@@ -7,14 +7,18 @@ import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
+import Checkbox from '@common/components/Checkbox'
+import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
-import { useTranslation } from '@common/config/localization'
+import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import spacings, { IS_SCREEN_SIZE_DESKTOP_LARGE } from '@common/styles/spacings'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -28,7 +32,6 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
-import Header from '@web/modules/sign-account-op/components/Header'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import SigningKeySelect from '@web/modules/sign-message/components'
@@ -52,7 +55,7 @@ const SignAccountOpScreen = () => {
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
   const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
   const [estimationContentHeight, setEstimationContentHeight] = useState(0)
-
+  const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
@@ -157,13 +160,14 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState?.accountOp) return []
 
     if (signAccountOpState.accountOp?.calls?.length) {
-      return signAccountOpState.accountOp.calls.map((opCall) => {
-        return (
-          (signAccountOpState.humanReadable || []).find(
+      return signAccountOpState.accountOp.calls
+        .map((opCall) => {
+          const found: IrCall[] = (signAccountOpState.humanReadable || []).filter(
             (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
-          ) || opCall
-        )
-      })
+          )
+          return found.length ? found : [opCall]
+        })
+        .flat()
     }
 
     return []
@@ -220,6 +224,13 @@ const SignAccountOpScreen = () => {
 
     setIsChooseSignerShown(true)
   }
+
+  const onGasUsedTooHighAgreed = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+      params: { gasUsedTooHighAgreed: !signAccountOpState?.gasUsedTooHighAgreed }
+    })
+  }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
 
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
@@ -310,23 +321,29 @@ const SignAccountOpScreen = () => {
   }
 
   let shouldShowSimulation = false
+  const isReloading = initialSimulationLoaded && !hasEstimation
   if (
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !!pendingTokens.length &&
-    !hasSimulationError
+    !hasSimulationError &&
+    !isReloading
   ) {
     shouldShowSimulation = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
+  }
+
+  let shouldShowLoader = false
+  if ((!!portfolioStatePending?.isLoading && !initialSimulationLoaded) || isReloading) {
+    shouldShowLoader = true
   }
 
   return (
     <TabLayoutContainer
       width="full"
       header={
-        <Header
-          networkId={network!.id as any}
-          isEOA={!account?.creation}
+        <HeaderAccountAndNetworkInfo
           networkName={network?.name}
+          networkId={network?.id as NetworkIconNameType}
         />
       }
       footer={
@@ -355,7 +372,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Simulation results')}
               </Text>
-              {shouldShowSimulation && (
+              {!!shouldShowSimulation && (
                 <View style={[flexbox.directionRow, flexbox.flex1]}>
                   {!!pendingSendTokens.length && (
                     <View
@@ -410,29 +427,29 @@ const SignAccountOpScreen = () => {
                   )}
                 </View>
               )}
-              {hasSimulationError && (
+              {!!hasSimulationError && (
                 <View>
                   <Alert type="error" title={simulationErrorMsg} />
                 </View>
               )}
-              {shouldShowNoBalanceChanges && (
+              {!!shouldShowNoBalanceChanges && (
                 <View>
                   <Alert
                     type="info"
                     isTypeLabelHidden
                     title={
-                      <>
+                      <Trans>
                         No token balance changes detected. Please{' '}
                         <Text appearance="infoText" weight="semiBold">
                           carefully
                         </Text>{' '}
                         review the transaction preview below.
-                      </>
+                      </Trans>
                     }
                   />
                 </View>
               )}
-              {portfolioStatePending?.isLoading && !initialSimulationLoaded && (
+              {shouldShowLoader && (
                 <View style={spacings.mt}>
                   <Spinner style={styles.spinner} />
                 </View>
@@ -460,7 +477,7 @@ const SignAccountOpScreen = () => {
           <View
             style={[
               styles.separator,
-              IS_SCREEN_SIZE_DESKTOP_LARGE
+              maxWidthSize('xl')
                 ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
                 : { ...spacings.mrXl, ...spacings.ml }
             ]}
@@ -482,7 +499,7 @@ const SignAccountOpScreen = () => {
                 setEstimationContentHeight(height)
               }}
             >
-              {hasEstimation && !estimationFailed && (
+              {!!hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
                   signAccountOpState={signAccountOpState}
@@ -491,13 +508,34 @@ const SignAccountOpScreen = () => {
                   disabled={isViewOnly || isSignLoading}
                 />
               )}
+              {!!hasEstimation &&
+                !estimationFailed &&
+                signAccountOpState.gasUsedTooHigh &&
+                !signAccountOpState?.errors.length && (
+                  <View style={styles.errorContainer}>
+                    <Alert
+                      type="warning"
+                      title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+                    />
+                    <Checkbox
+                      value={signAccountOpState.gasUsedTooHighAgreed}
+                      onValueChange={onGasUsedTooHighAgreed}
+                      style={spacings.mtSm}
+                    >
+                      <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
+                        {t('I understand the risks')}
+                      </Text>
+                    </Checkbox>
+                  </View>
+                )}
+
               {!hasEstimation && !estimationFailed && (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                   <Spinner style={styles.spinner} />
                 </View>
               )}
 
-              {!hasEstimation && slowRequest && !signAccountOpState?.errors.length ? (
+              {!hasEstimation && !!slowRequest && !signAccountOpState?.errors.length ? (
                 <View style={styles.errorContainer}>
                   <Alert
                     type="warning"

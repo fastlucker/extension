@@ -9,6 +9,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 
 import getStyles from './styles'
 
@@ -41,14 +42,14 @@ const Footer = ({
         text={t('Reject')}
         onPress={onReject}
         hasBottomSpacing={false}
-        style={spacings.phLg}
+        size="large"
       >
         <View style={spacings.plSm}>
           <CloseIcon color={theme.errorDecorative} />
         </View>
       </Button>
       {!!isViewOnly && (
-        <Text appearance="errorText" weight="medium">
+        <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
           {t("You can't sign transactions with view-only accounts.")}
         </Text>
       )}
@@ -57,11 +58,12 @@ const Footer = ({
           <Button
             type="outline"
             accentColor={theme.primary}
-            text={t('Add to Cart')}
+            text={t('Queue and Sign Later')}
             onPress={onAddToCart}
             disabled={isSignLoading || isViewOnly}
             hasBottomSpacing={false}
-            style={[spacings.phLg, spacings.mr]}
+            style={spacings.mr}
+            size="large"
           >
             <View style={spacings.plSm}>
               <CartIcon color={theme.primary} />
@@ -74,7 +76,7 @@ const Footer = ({
           text={isSignLoading ? t('Signing...') : t('Sign')}
           onPress={onSign}
           hasBottomSpacing={false}
-          style={spacings.phLg}
+          size="large"
         />
       </View>
     </View>

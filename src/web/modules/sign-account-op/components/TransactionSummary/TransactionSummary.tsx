@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -107,13 +108,28 @@ const TransactionSummary = ({
           }
         ]}
       >
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
+        <Text
+          fontSize={textSize}
+          appearance="secondaryText"
+          weight="regular"
+          style={{ maxWidth: '100%' }}
+        >
           {` ${call.to} `}
         </Text>
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Value to be sent (value): ')}
         </Text>
         <Text fontSize={textSize} appearance="secondaryText" weight="regular">
@@ -138,17 +154,26 @@ const TransactionSummary = ({
           ]}
         >
           {dataToVisualize.map((item, i) => {
-            if (!item) return null
+            if (!item || item.isHidden) return null
 
             if (item.type === 'token') {
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${
-                        item.readableAmount ||
-                        formatUnits(item.amount || '0x0', item.decimals || 18)
-                      } `}
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
+                      {` ${formatDecimals(
+                        Number(
+                          formatUnits(
+                            item.amount || '0x0',
+                            item?.humanizerMeta?.token?.decimals || 18
+                          )
+                        )
+                      )} `}
                     </Text>
                   ) : null}
 
@@ -160,15 +185,26 @@ const TransactionSummary = ({
                       address={item.address}
                     />
                   ) : null}
-                  {item.symbol ? (
+                  {item?.humanizerMeta?.token ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${item.symbol || ''} `}
+                      {` ${item?.humanizerMeta?.token?.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
                       {t(' units of unknown token ')}
                     </Text>
-                  ) : null}
+                  ) : (
+                    // there are cases where the humanizer would return token with amount = 0
+                    // still, not having humanizerMeta.token is bad
+                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                      {t('unknown token ')}
+                    </Text>
+                  )}
                 </Fragment>
               )
             }
@@ -176,8 +212,13 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                    {` ${item.name ? item.name : item.address} `}
+                  <Text
+                    fontSize={textSize}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={{ maxWidth: '100%' }}
+                  >
+                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
                     <TouchableOpacity
@@ -200,8 +241,9 @@ const TransactionSummary = ({
                   fontSize={textSize}
                   weight="medium"
                   appearance="primaryText"
+                  style={{ maxWidth: '100%' }}
                 >
-                  {` ${item.name || item.address} `}
+                  {` ${item?.humanizerMeta?.name || item.address} `}
                 </Text>
               )
             }
@@ -218,6 +260,7 @@ const TransactionSummary = ({
               return (
                 <Text
                   key={Number(item.id) || i}
+                  style={{ maxWidth: '100%' }}
                   fontSize={textSize}
                   weight={
                     item.type === 'label'

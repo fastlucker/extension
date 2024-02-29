@@ -14,6 +14,8 @@ type WALLET_TYPE = {
  * Serves for retrieving a range of addresses/keys from a Lattice hardware wallet
  */
 class LatticeKeyIterator implements KeyIteratorInterface {
+  type = 'lattice'
+
   sdkSession?: Client | null
 
   constructor(_wallet: WALLET_TYPE) {

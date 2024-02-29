@@ -21,9 +21,12 @@ const { isTab } = getUiType()
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...flexbox.flex1,
-      ...flexbox.justifyCenter,
-      ...flexbox.alignCenter,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      ...flexbox.center,
       backgroundColor: theme.backdrop
     },
     modal: {

@@ -9,15 +9,18 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
+import PaddedScrollView from '@common/components/PaddedScrollView'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import Header from '@common/modules/header/components/Header'
+import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
@@ -29,7 +32,7 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
-import styles from './styles'
+import getStyles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
@@ -38,11 +41,11 @@ const TransferScreen = () => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
-
+  const { maxWidthSize } = useWindowSize()
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -84,8 +87,8 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width={isTopUp ? 'sm' : 'lg'}
-      header={<Header withAmbireLogo mode="custom-inner-content" />}
+      width={isTopUp ? 'sm' : 'xl'}
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
           <BackButton onPress={onBack} />
@@ -98,7 +101,7 @@ const TransferScreen = () => {
             }
             onPress={sendTransaction}
             hasBottomSpacing={false}
-            style={{ minWidth: 124 }}
+            size="large"
             disabled={
               !!userRequest ||
               !isFormValid ||
@@ -121,35 +124,51 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, state.isTopUp ? styles.topUpPanel : {}]}
+            style={[styles.panel, !state.isTopUp && spacings.pv0]}
+            forceContainerSmallSpacings={state.isTopUp}
             title={state.isTopUp ? 'Top Up Gas Tank' : ''}
           >
-            <View style={styles.container}>
-              <View style={flexbox.flex1}>
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.flex1,
+                common.fullWidth,
+                !state.isTopUp && spacings.pvXl
+              ]}
+            >
+              <PaddedScrollView style={[flexbox.flex1]} contentContainerStyle={{ flexGrow: 1 }}>
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
+                  disableForm={state.isTopUp && !isSmartAccount}
                 />
-              </View>
+              </PaddedScrollView>
               {!isTopUp && (
                 <>
-                  <View style={styles.separator} />
-                  <View style={flexbox.flex1}>
+                  <View
+                    style={[
+                      styles.separator,
+                      { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
+                    ]}
+                  />
+                  <PaddedScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
                     <AddressBookSection />
-                  </View>
+                  </PaddedScrollView>
                 </>
               )}
             </View>
             {isTopUp && !isSmartAccount && (
-              <Alert
-                type="warning"
-                // @TODO: replace temporary text
-                title={t(
-                  'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
-                )}
-                isTypeLabelHidden
-              />
+              <View style={spacings.ptLg}>
+                <Alert
+                  type="warning"
+                  // @TODO: replace temporary text
+                  title={t(
+                    'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
+                  )}
+                  isTypeLabelHidden
+                />
+              </View>
             )}
           </Panel>
         ) : (
@@ -162,4 +181,4 @@ const TransferScreen = () => {
   )
 }
 
-export default TransferScreen
+export default React.memo(TransferScreen)

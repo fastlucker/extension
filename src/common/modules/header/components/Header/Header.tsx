@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ColorValue, Image, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useMemo, useState } from 'react'
+import { ColorValue, Image, View } from 'react-native'
 
-import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
-import useNavigation, { titleChangeEventStream } from '@common/hooks/useNavigation'
+import { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
+import BackButton from '@common/modules/header/components/HeaderBackButton'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -30,9 +29,9 @@ interface Props {
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
-const { isTab, isPopup, isNotification } = getUiType()
+const { isTab, isNotification } = getUiType()
 
-const Header: React.FC<Props> = ({
+const Header = ({
   mode = 'title',
   customTitle,
   withPopupBackButton = false,
@@ -43,25 +42,13 @@ const Header: React.FC<Props> = ({
   onGoBackPress,
   image,
   width = 'xl'
-}) => {
+}: Props) => {
   const { styles } = useTheme(getStyles)
 
-  const { path, params } = useRoute()
-  const { navigate } = useNavigation()
-  const { t } = useTranslation()
+  const { path } = useRoute()
   const { maxWidthSize } = useWindowSize()
 
   const [title, setTitle] = useState('')
-  const handleGoBack = useCallback(() => navigate(params?.backTo || -1), [navigate, params])
-  const showBackButtonInPopup = isPopup && withPopupBackButton
-
-  const navigationEnabled = !getUiType().isNotification
-
-  const canGoBack =
-    !!params?.prevRoute?.key &&
-    params?.prevRoute?.pathname !== '/' &&
-    path !== '/get-started' &&
-    navigationEnabled
 
   useEffect(() => {
     if (!path) return
@@ -74,20 +61,6 @@ const Header: React.FC<Props> = ({
     const subscription = titleChangeEventStream!.subscribe({ next: (v) => setTitle(v) })
     return () => subscription.unsubscribe()
   }, [])
-
-  const renderBackButton = () => {
-    return (
-      <TouchableOpacity
-        style={[flexbox.directionRow, flexbox.alignCenter]}
-        onPress={onGoBackPress || handleGoBack}
-      >
-        <LeftArrowIcon />
-        <Text style={spacings.plTy} fontSize={16} weight="medium" appearance="secondaryText">
-          {t('Back')}
-        </Text>
-      </TouchableOpacity>
-    )
-  }
 
   const paddingHorizontalStyle = useMemo(() => {
     if (isTab || isNotification) {
@@ -106,7 +79,11 @@ const Header: React.FC<Props> = ({
       {mode !== 'custom' ? (
         <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>
           <View style={styles.sideContainer}>
-            {showBackButtonInPopup && (!!canGoBack || !!forceBack) && renderBackButton()}
+            <BackButton
+              hideInPopup={!withPopupBackButton}
+              onGoBackPress={onGoBackPress}
+              forceBack={forceBack}
+            />
           </View>
           {/* Middle content start */}
           {mode === 'title' && (

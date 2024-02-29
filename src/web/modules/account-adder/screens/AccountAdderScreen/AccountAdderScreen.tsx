@@ -72,17 +72,11 @@ const AccountAdderScreen = () => {
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
             onPress={onImportReady}
-            size={
-              accountAdderState.preselectedAccounts.length &&
-              !accountAdderState.selectedAccounts.length
-                ? 'large'
-                : 'regular'
-            }
+            size="large"
             disabled={
               accountAdderState.accountsLoading ||
               accountAdderState.addAccountsStatus === 'LOADING' ||
-              (!accountAdderState.selectedAccounts.length &&
-                !accountAdderState.preselectedAccounts.length) ||
+              !accountAdderState.selectedAccounts.length ||
               (mainControllerState.status === 'LOADING' &&
                 mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
             }
@@ -91,8 +85,7 @@ const AccountAdderScreen = () => {
               (mainControllerState.status === 'LOADING' &&
                 mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
                 ? t('Importing...')
-                : accountAdderState.preselectedAccounts.length &&
-                  !accountAdderState.selectedAccounts.length
+                : !accountAdderState.selectedAccounts.length
                 ? t('Continue')
                 : t('Import Accounts')
             }

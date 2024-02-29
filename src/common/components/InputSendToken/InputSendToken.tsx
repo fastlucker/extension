@@ -42,6 +42,7 @@ interface Props {
   errorMessage: string
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
+  disabled?: boolean
 }
 
 const InputSendToken = ({
@@ -50,7 +51,8 @@ const InputSendToken = ({
   onAmountChange,
   setMaxAmount,
   maxAmount,
-  errorMessage
+  errorMessage,
+  disabled
 }: Props) => {
   const { t } = useTranslation()
 
@@ -79,6 +81,7 @@ const InputSendToken = ({
           error={errorMessage || undefined}
           button={maxAmount ? t('MAX') : null}
           onButtonPress={handleSetMaxAmount}
+          disabled={disabled}
         />
       </View>
     </>

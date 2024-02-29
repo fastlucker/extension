@@ -3,6 +3,7 @@ import React, { FC } from 'react'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
 import OpenIcon from '@common/assets/svg/OpenIcon'
@@ -11,19 +12,53 @@ import spacings from '@common/styles/spacings'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import Step from './components/Step'
-import { StepsData } from './hooks/useSteps'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
 
 interface Props {
   activeStep: ActiveStepType
   network: NetworkDescriptor
-  txnId: string
+  txnId: string | null
+  userOpHash: string | null
   handleOpenExplorer: () => void
   stepsState: StepsData
 }
 
-const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, stepsState }) => {
+const Steps: FC<Props> = ({
+  activeStep,
+  network,
+  txnId,
+  userOpHash,
+  handleOpenExplorer,
+  stepsState
+}) => {
   const { nativePrice, blockData, finalizedStatus, cost, calls } = stepsState
+
+  const stepRows: any = [
+    {
+      label: 'Timestamp',
+      value: getTimestamp(blockData, finalizedStatus)
+    },
+    {
+      label: 'Transaction fee',
+      value: getFee(cost, network, nativePrice, finalizedStatus)
+    }
+  ]
+
+  if (txnId) {
+    stepRows.push({
+      label: 'Transaction ID',
+      value: txnId,
+      isValueSmall: true
+    })
+  }
+
+  if (userOpHash) {
+    stepRows.push({
+      label: 'User Op ID',
+      value: userOpHash,
+      isValueSmall: true
+    })
+  }
 
   return (
     <View style={IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : spacings.mbXl}>
@@ -32,21 +67,7 @@ const Steps: FC<Props> = ({ activeStep, network, txnId, handleOpenExplorer, step
         stepName="signed"
         activeStep={activeStep}
         finalizedStatus={finalizedStatus}
-        rows={[
-          {
-            label: 'Timestamp',
-            value: getTimestamp(blockData, finalizedStatus)
-          },
-          {
-            label: 'Transaction fee',
-            value: getFee(cost, network, nativePrice, finalizedStatus)
-          },
-          {
-            label: 'Transaction ID',
-            value: txnId,
-            isValueSmall: true
-          }
-        ]}
+        rows={stepRows}
       />
       {shouldShowTxnProgress(finalizedStatus) && (
         <Step

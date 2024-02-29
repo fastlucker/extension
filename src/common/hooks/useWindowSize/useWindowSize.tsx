@@ -4,12 +4,20 @@ import { breakpointsByWindowWidth } from './breakpoints'
 import { WindowSizeProps } from './types'
 
 const useWindowSize = (): WindowSizeProps => {
-  const maxWidthSize = (size: keyof typeof breakpointsByWindowWidth) => {
+  const maxWidthSize: WindowSizeProps['maxWidthSize'] = (size) => {
+    if (typeof size === 'number') {
+      return size <= Dimensions.get('window').width
+    }
+
     return breakpointsByWindowWidth[size] <= Dimensions.get('window').width
   }
 
-  const minWidthSize = (size: keyof typeof breakpointsByWindowWidth) => {
-    return breakpointsByWindowWidth[size] > Dimensions.get('window').height
+  const minWidthSize: WindowSizeProps['minWidthSize'] = (size) => {
+    if (typeof size === 'number') {
+      return size > Dimensions.get('window').width
+    }
+
+    return breakpointsByWindowWidth[size] > Dimensions.get('window').width
   }
 
   return {

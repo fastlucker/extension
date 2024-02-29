@@ -42,6 +42,7 @@ jobs:
     - name: Build project 🛠️
       env:
         REACT_APP_PIMLICO_API_KEY: ${{ secrets.REACT_APP_PIMLICO_API_KEY }}
+        REACT_APP_JIFFYSCAN_API_KEY: ${{ secrets.REACT_APP_JIFFYSCAN_API_KEY }}
       run: yarn build:web:benzin
 
     - name: Deploy 🚀🌕 

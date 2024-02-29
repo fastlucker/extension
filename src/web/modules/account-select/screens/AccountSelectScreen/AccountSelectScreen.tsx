@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -11,6 +11,7 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper from '@common/components/Wrapper'
 import useAccounts from '@common/hooks/useAccounts'
+import useElementSize from '@common/hooks/useElementSize'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
@@ -31,13 +32,25 @@ const AccountSelectScreen = () => {
   const { goBack } = useNavigation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
+  const accountsContainerRef = useRef(null)
+  const { minElementWidthSize, maxElementWidthSize } = useElementSize(accountsContainerRef)
+
+  const shortenAccountAddr = () => {
+    if (maxElementWidthSize(800)) return undefined
+    if (maxElementWidthSize(700) && minElementWidthSize(800)) return 32
+    if (maxElementWidthSize(600) && minElementWidthSize(700)) return 24
+    if (maxElementWidthSize(500) && minElementWidthSize(600)) return 18
+
+    return 10
+  }
+
   return (
     <TabLayoutContainer
       header={<Header withPopupBackButton withAmbireLogo />}
       footer={<BackButton />}
       hideFooterInPopup
     >
-      <View style={[flexbox.flex1, spacings.pv]}>
+      <View style={[flexbox.flex1, spacings.pv]} ref={accountsContainerRef}>
         <View style={styles.container}>
           <Search control={control} placeholder="Search for account" style={styles.searchBar} />
         </View>
@@ -45,7 +58,12 @@ const AccountSelectScreen = () => {
         <Wrapper contentContainerStyle={styles.container}>
           {accounts.length ? (
             accounts.map((account) => (
-              <Account onSelect={goBack} key={account.addr} account={account} />
+              <Account
+                onSelect={goBack}
+                key={account.addr}
+                account={account}
+                maxAccountAddrLength={shortenAccountAddr()}
+              />
             ))
           ) : (
             // @TODO: add a proper label

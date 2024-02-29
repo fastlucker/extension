@@ -1,12 +1,15 @@
 import { Mnemonic } from 'ethers'
+import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Dimensions, ScrollView, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController, {
+  AccountOnPage,
+  ImportStatus
+} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
-import { isValidPrivateKey } from '@ambire-common/libs/keyIterator/keyIterator'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import BottomSheet from '@common/components/BottomSheet'
@@ -28,7 +31,7 @@ import Account from '@web/modules/account-adder/components/Account'
 import { AccountAdderIntroStepsProvider } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
-const AccountsList = ({
+const AccountsOnPageList = ({
   state,
   setPage,
   keyType,
@@ -52,6 +55,12 @@ const AccountsList = ({
   const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
+
+  const keyTypeInternalSubtype = useMemo(() => {
+    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
+
+    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
+  }, [keyType, privKeyOrSeed])
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -88,7 +97,15 @@ const AccountsList = ({
 
   const linkedAccounts = useMemo(() => {
     if (lookingForLinkedAccounts) return []
-    return state.accountsOnPage.filter((a) => getType(a) === 'linked')
+
+    // A linked account with the same address could have multiple Basic accounts
+    // added as keys. Therefore, it could appear multiple times in the list.
+    // In this case, show it only one time. When it gets selected, all keys
+    // will get selected (and later on, imported) below the hood.
+    return uniqBy(
+      state.accountsOnPage.filter((a) => getType(a) === 'linked'),
+      (a) => a.account.addr
+    )
   }, [state.accountsOnPage, getType, lookingForLinkedAccounts])
 
   const numberOfSelectedLinkedAccounts = useMemo(() => {
@@ -112,13 +129,13 @@ const AccountsList = ({
       slotIndex,
       byType = ['basic', 'smart']
     }: {
-      accounts: any
+      accounts: AccountOnPage[]
       shouldCheckForLastAccountInTheList?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
     }) => {
-      const filteredAccounts = accounts.filter((a: any) => byType.includes(getType(a)))
-      return filteredAccounts.map((acc: any, i: number) => {
+      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
+      return filteredAccounts.map((acc, i: number) => {
         let hasBottomSpacing = true
         if (shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1) {
           hasBottomSpacing = false
@@ -126,9 +143,6 @@ const AccountsList = ({
 
         const isSelected = state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.account.addr === acc.account.addr
-        )
-        const isPreselected = state.preselectedAccounts.some(
-          (selectedAcc) => selectedAcc.addr === acc.account.addr
         )
 
         if (hideEmptyAccounts && getType(acc) === 'basic' && !acc.account.usedOnNetworks.length) {
@@ -143,22 +157,16 @@ const AccountsList = ({
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
             unused={!acc.account.usedOnNetworks.length}
-            isSelected={isSelected || isPreselected}
-            isDisabled={isPreselected}
+            isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
+            isDisabled={acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
+            importStatus={acc.importStatus}
             onSelect={handleSelectAccount}
             onDeselect={handleDeselectAccount}
           />
         )
       })
     },
-    [
-      handleDeselectAccount,
-      handleSelectAccount,
-      hideEmptyAccounts,
-      state.preselectedAccounts,
-      state.selectedAccounts,
-      getType
-    ]
+    [handleDeselectAccount, handleSelectAccount, hideEmptyAccounts, state.selectedAccounts, getType]
   )
 
   const setTitle = useCallback(() => {
@@ -168,16 +176,16 @@ const AccountsList = ({
       })
     }
 
-    if (privKeyOrSeed && Mnemonic.isValidMnemonic(privKeyOrSeed)) {
+    if (keyTypeInternalSubtype === 'seed') {
       return t('Import Accounts from Seed Phrase')
     }
 
-    if (privKeyOrSeed && isValidPrivateKey(privKeyOrSeed)) {
+    if (keyTypeInternalSubtype === 'private-key') {
       return t('Import Accounts from Private Key')
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, privKeyOrSeed, t])
+  }, [keyType, keyTypeInternalSubtype, t])
 
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
@@ -283,14 +291,16 @@ const AccountsList = ({
           </View>
         </BottomSheet>
 
-        <View style={[spacings.mbLg, flexbox.alignStart]}>
-          <Toggle
-            isOn={hideEmptyAccounts}
-            onToggle={() => setHideEmptyAccounts((p) => !p)}
-            label={t('Hide empty basic accounts')}
-            labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
-          />
-        </View>
+        {keyTypeInternalSubtype !== 'private-key' && (
+          <View style={[spacings.mbLg, flexbox.alignStart]}>
+            <Toggle
+              isOn={hideEmptyAccounts}
+              onToggle={() => setHideEmptyAccounts((p) => !p)}
+              label={t('Hide empty basic accounts')}
+              labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+            />
+          </View>
+        )}
         <Wrapper
           style={shouldEnablePagination && spacings.mbLg}
           contentContainerStyle={{
@@ -361,4 +371,4 @@ const AccountsList = ({
   )
 }
 
-export default React.memo(AccountsList)
+export default React.memo(AccountsOnPageList)

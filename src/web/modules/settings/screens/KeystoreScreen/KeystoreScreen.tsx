@@ -1,26 +1,24 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import Button from '@common/components/Button'
-import Text from '@common/components/Text'
-import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import SettingsPage from '@web/modules/settings/components/SettingsPage'
-import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import { Controller, useForm } from 'react-hook-form'
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
+import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
+import spacings from '@common/styles/spacings'
+import flexboxStyles from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 const KeystoreScreen = () => {
   const ev = useEmailVaultControllerState()
-  const keystoreState = useKeystoreControllerState()
-  const { t } = useTranslation()
 
+  const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
 
   const {
@@ -35,7 +33,11 @@ const KeystoreScreen = () => {
     }
   })
 
-  console.log({ ev, keystoreState })
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+
+  useEffect(() => {
+    setCurrentSettingsPage('keystore')
+  }, [setCurrentSettingsPage])
 
   const email = watch('email')
 
@@ -46,7 +48,7 @@ const KeystoreScreen = () => {
   }, [handleSubmit, dispatch, email])
 
   return (
-    <SettingsPage currentPage="keystore">
+    <>
       <View
         style={[
           flexboxStyles.directionRow,
@@ -111,7 +113,7 @@ const KeystoreScreen = () => {
           onPress={handleFormSubmit}
         />
       </View>
-    </SettingsPage>
+    </>
   )
 }
 

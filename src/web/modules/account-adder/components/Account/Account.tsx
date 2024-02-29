@@ -2,11 +2,13 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useContext, useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 
+import { ImportStatus } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import Badge from '@common/components/Badge'
 import Checkbox from '@common/components/Checkbox'
+import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -35,7 +37,8 @@ const Account = ({
   isSelected,
   onSelect,
   onDeselect,
-  isDisabled
+  isDisabled,
+  importStatus
 }: {
   account: AccountInterface & { usedOnNetworks: NetworkDescriptor[] }
   type: 'basic' | 'smart' | 'linked'
@@ -46,6 +49,7 @@ const Account = ({
   onSelect: (account: AccountInterface) => void
   onDeselect: (account: AccountInterface) => void
   isDisabled?: boolean
+  importStatus: ImportStatus
 }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
@@ -75,12 +79,13 @@ const Account = ({
     <Pressable
       key={account.addr}
       style={({ hovered }: any) => [
-        flexbox.directionRow,
         flexbox.alignCenter,
         withBottomSpacing ? spacings.mbTy : spacings.mb0,
         common.borderRadiusPrimary,
         { borderWidth: 1, borderColor: theme.secondaryBackground },
-        hovered && { borderColor: theme.secondaryBorder }
+        ((hovered && !isDisabled) || importStatus === ImportStatus.ImportedWithTheSameKeys) && {
+          borderColor: theme.secondaryBorder
+        }
       ]}
       onPress={isDisabled ? undefined : toggleSelectedState}
     >
@@ -164,6 +169,57 @@ const Account = ({
           </View>
         </View>
       </View>
+      {[
+        ImportStatus.ImportedWithSomeOfTheKeys,
+        ImportStatus.ImportedWithTheSameKeys,
+        ImportStatus.ImportedWithDifferentKeys,
+        ImportStatus.ImportedWithoutKey
+      ].includes(importStatus) && (
+        <View style={[spacings.mh, spacings.mvTy, flexbox.alignSelfStart]}>
+          {importStatus === ImportStatus.ImportedWithSomeOfTheKeys && (
+            <Label
+              isTypeLabelHidden
+              customTextStyle={styles.label}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported with some of the keys found on this page but not all. Re-import now to use this account with multiple keys.'
+              )}
+              type="success"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithTheSameKeys && (
+            <Label
+              isTypeLabelHidden
+              customTextStyle={styles.label}
+              hasBottomSpacing={false}
+              text={t('Already imported with the same key.')}
+              type="success"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithDifferentKeys && (
+            <Label
+              isTypeLabelHidden
+              customTextStyle={styles.label}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported, associated with a different key. Re-import now to use this account with multiple keys.'
+              )}
+              type="info"
+            />
+          )}
+          {importStatus === ImportStatus.ImportedWithoutKey && (
+            <Label
+              isTypeLabelHidden
+              customTextStyle={styles.label}
+              hasBottomSpacing={false}
+              text={t(
+                'Already imported as a view only account. Import now to be able to manage this account.'
+              )}
+              type="info"
+            />
+          )}
+        </View>
+      )}
     </Pressable>
   )
 }
