@@ -81,7 +81,13 @@ const Button = ({
         }
       ],
       outline: [],
-      ghost: [],
+      ghost: [
+        {
+          key: 'opacity',
+          from: 1,
+          to: 0.7
+        }
+      ],
       error: [],
       warning: [],
       info: [],
