@@ -1,8 +1,7 @@
 import { getAddress } from 'ethers'
-import * as Clipboard from 'expo-clipboard'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
@@ -26,11 +25,10 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import shortenAddress from '@web/utils/shortenAddress'
 
 import TokenDetailsButton from './Button'
+import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
 
 const TokenDetails = ({
@@ -214,28 +212,7 @@ const TokenDetails = ({
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}
-                {address !== `0x${'0'.repeat(40)}` ? (
-                  <>
-                    {' '}
-                    <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-                      ({shortenAddress(address, isRewards || isVesting ? 10 : 13)})
-                    </Text>
-                    <TouchableOpacity
-                      style={spacings.mlMi}
-                      onPress={() => {
-                        Clipboard.setStringAsync(address).catch(() => null)
-                        addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-                      }}
-                    >
-                      <CopyIcon
-                        width={16}
-                        height={16}
-                        color={iconColors.secondary}
-                        strokeWidth="1.5"
-                      />
-                    </TouchableOpacity>
-                  </>
-                ) : null}
+                <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
           </View>
