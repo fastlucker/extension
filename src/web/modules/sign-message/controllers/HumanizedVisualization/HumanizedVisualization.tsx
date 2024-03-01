@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, TouchableOpacity, View } from 'react-native'
+import { Linking, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
@@ -9,6 +9,7 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
@@ -29,6 +30,9 @@ const HumanizedVisualization: FC<{
 }> = ({ kind, data = [], networkId, explorerUrl }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const [bindOpenIconAnim, openIconAnimStyle] = useHover({
+    preset: 'opacityInverted'
+  })
 
   return (
     <View style={styles.headerContent}>
@@ -70,15 +74,17 @@ const HumanizedVisualization: FC<{
                 {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
               </Text>
               {!!item.address && !!explorerUrl && (
-                <TouchableOpacity
+                <AnimatedPressable
                   disabled={!explorerUrl}
                   onPress={() => {
                     Linking.openURL(`${explorerUrl}/address/${item.address}`)
                   }}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={openIconAnimStyle}
+                  {...bindOpenIconAnim}
                 >
                   <OpenIcon width={14} height={14} strokeWidth="2" />
-                </TouchableOpacity>
+                </AnimatedPressable>
               )}
             </>
           )
