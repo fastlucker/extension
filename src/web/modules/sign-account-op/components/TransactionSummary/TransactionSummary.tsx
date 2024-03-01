@@ -16,6 +16,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -107,13 +108,28 @@ const TransactionSummary = ({
           }
         ]}
       >
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
+        <Text
+          fontSize={textSize}
+          appearance="secondaryText"
+          weight="regular"
+          style={{ maxWidth: '100%' }}
+        >
           {` ${call.to} `}
         </Text>
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Value to be sent (value): ')}
         </Text>
         <Text fontSize={textSize} appearance="secondaryText" weight="regular">
@@ -144,16 +160,25 @@ const TransactionSummary = ({
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
                       {` ${
                         // permit2 uniswap requested amount
                         item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
                         // uint256 amount
                         item.amount === ethers.MaxUint256
                           ? 'all your'
-                          : formatUnits(
-                              item.amount || '0x0',
-                              item?.humanizerMeta?.token?.decimals || 18
+                          : formatDecimals(
+                              Number(
+                                formatUnits(
+                                  item.amount || '0x0',
+                                  item?.humanizerMeta?.token?.decimals || 18
+                                )
+                              )
                             )
                       }`}
                     </Text>
@@ -172,7 +197,12 @@ const TransactionSummary = ({
                       {` ${item?.humanizerMeta?.token?.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
                       {t(' units of unknown token ')}
                     </Text>
                   ) : (
@@ -189,7 +219,12 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                  <Text
+                    fontSize={textSize}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={{ maxWidth: '100%' }}
+                  >
                     {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
@@ -213,6 +248,7 @@ const TransactionSummary = ({
                   fontSize={textSize}
                   weight="medium"
                   appearance="primaryText"
+                  style={{ maxWidth: '100%' }}
                 >
                   {` ${item?.humanizerMeta?.name || item.address} `}
                 </Text>
@@ -231,6 +267,7 @@ const TransactionSummary = ({
               return (
                 <Text
                   key={Number(item.id) || i}
+                  style={{ maxWidth: '100%' }}
                   fontSize={textSize}
                   weight={
                     item.type === 'label'
