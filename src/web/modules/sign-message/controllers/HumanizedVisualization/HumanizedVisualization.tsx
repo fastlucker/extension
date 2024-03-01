@@ -11,6 +11,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
+import formatDecimals from '@common/utils/formatDecimals'
 import getStyles from './styles'
 
 const visualizeContent = (kind: string, content?: string) => {
@@ -45,10 +46,14 @@ const HumanizedVisualization: FC<{
                     item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
                     // uint256 amount
                     item.amount === ethers.MaxUint256
-                      ? 'all your'
-                      : formatUnits(
-                          item.amount || '0x0',
-                          item?.humanizerMeta?.token?.decimals || 18
+                      ? 'unlimited '
+                      : formatDecimals(
+                          Number(
+                            formatUnits(
+                              item.amount || '0x0',
+                              item?.humanizerMeta?.token?.decimals || 18
+                            )
+                          )
                         )
                   } `}
                 </Text>

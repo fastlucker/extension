@@ -171,7 +171,7 @@ const TransactionSummary = ({
                         item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
                         // uint256 amount
                         item.amount === ethers.MaxUint256
-                          ? 'all your'
+                          ? 'unlimited '
                           : formatDecimals(
                               Number(
                                 formatUnits(
