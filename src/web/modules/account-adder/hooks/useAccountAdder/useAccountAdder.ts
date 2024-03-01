@@ -1,18 +1,6 @@
-import { Mnemonic } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 
-import {
-  HD_PATH_TEMPLATE_TYPE,
-  SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-} from '@ambire-common/consts/derivation'
-import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { KeyIterator } from '@ambire-common/interfaces/keyIterator'
-import { Key } from '@ambire-common/interfaces/keystore'
-import {
-  derivePrivateKeyFromAnotherPrivateKey,
-  getPrivateKeyFromSeed,
-  isValidPrivateKey
-} from '@ambire-common/libs/keyIterator/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
@@ -21,10 +9,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import {
-  getDefaultAccountPreferences,
-  getDefaultKeyLabel
-} from '@web/modules/account-personalize/libs/defaults'
+import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
@@ -136,67 +121,7 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)
 
-    // TODO: Figure out how to access the private key or seed phrase here?
-    const readyToAddKeys: {
-      internal: ReadyToAddKeys['internal']
-      externalTypeOnly: Key['type']
-    } = { internal: [], externalTypeOnly: '' }
-    if (keyType === 'internal') {
-      try {
-        // TODO: throw?
-        if (!privKeyOrSeed) throw new Error('No private key or seed provided.')
-        if (!accountAdderState.hdPathTemplate)
-          throw new Error(
-            'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
-          )
-
-        const readyToAddInternalKeys = accountAdderState.selectedAccounts.flatMap((acc) => {
-          return acc.accountKeys.map(({ index }) => {
-            let privateKey = privKeyOrSeed
-
-            // In case it is a seed, the private keys have to be extracted
-            if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
-              privateKey = getPrivateKeyFromSeed(
-                privKeyOrSeed,
-                index,
-                // should always be provided, otherwise it would have thrown an error above
-                accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
-              )
-            }
-
-            // Private keys for accounts used as smart account keys should be derived
-            const isPrivateKeyThatShouldBeDerived =
-              isValidPrivateKey(privKeyOrSeed) &&
-              index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-            if (isPrivateKeyThatShouldBeDerived) {
-              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
-            }
-
-            return { privateKey, dedicatedToOneSA: !acc.isLinked }
-          })
-        })
-
-        readyToAddKeys.internal = readyToAddInternalKeys
-      } catch (error: any) {
-        console.error(error)
-
-        addToast(
-          'The selected accounts got imported, but Ambire failed to retrieve their keys. Please log out of these accounts and try to import them again. Until then, these accounts will be view only. If the problem persists, please contact support.',
-          { timeout: 4000, type: 'error' }
-        )
-      }
-    } else {
-      readyToAddKeys.externalTypeOnly = keyType
-    }
-
-    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.flatMap(({ accountKeys }) =>
-      accountKeys.map(({ addr, slot, index }) => ({
-        addr,
-        type: keyType,
-        label: getDefaultKeyLabel(keyType, index, slot)
-      }))
-    )
-
+    // TODO: Move to background
     const keyTypeInternalSubtype = 'seed'
     const readyToAddAccountPreferences = getDefaultAccountPreferences(
       accountAdderState.selectedAccounts.map(({ account }) => account),

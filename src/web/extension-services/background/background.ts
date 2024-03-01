@@ -502,12 +502,16 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
               const readyToAddKeys: ReadyToAddKeys = {
-                internal: data.params.readyToAddKeys.internal,
+                internal: [],
                 external: []
               }
 
-              if (data.params.readyToAddKeys.externalTypeOnly) {
-                const keyType = data.params.readyToAddKeys.externalTypeOnly
+              if (mainCtrl.accountAdder.type === 'internal') {
+                readyToAddKeys.internal =
+                  mainCtrl.accountAdder.retrievePrivateKeysOfSelectedAccounts()
+              } else {
+                // External keys flow
+                const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
 
                 const deviceIds: { [key in ExternalKey['type']]: string } = {
                   ledger: ledgerCtrl.deviceId,
@@ -541,11 +545,20 @@ async function init() {
                 readyToAddKeys.external = readyToAddExternalKeys
               }
 
+              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                ({ accountKeys }) =>
+                  accountKeys.map(({ addr, slot, index }) => ({
+                    addr,
+                    type: mainCtrl.accountAdder.type,
+                    label: getDefaultKeyLabel(mainCtrl.accountAdder.type, index, slot)
+                  }))
+              )
+
               return mainCtrl.accountAdder.addAccounts(
                 data.params.selectedAccounts,
                 data.params.readyToAddAccountPreferences,
                 readyToAddKeys,
-                data.params.readyToAddKeyPreferences
+                readyToAddKeyPreferences
               )
             }
             case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
