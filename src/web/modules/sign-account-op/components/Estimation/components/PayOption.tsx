@@ -27,24 +27,73 @@ const PayOption = ({
   const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
 
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      <Avatar pfp={accountPref?.pfp} size={32} />
-      <Text weight="medium">
-        {label} ({!isGasTank ? shortenAddress(account.addr, 11) : 'Gas Tank'})
-      </Text>
-      <Text weight="medium"> - </Text>
-      <TokenIcon
-        containerHeight={32}
-        containerWidth={32}
-        networkSize={12}
-        withContainer
-        address={token.address}
-        networkId={token.networkId}
-        onGasTank={token.flags.onGasTank}
-      />
-      <Text weight="medium" style={spacings.mlTy}>
-        {token.symbol}
-      </Text>
+    <View
+      style={[
+        flexbox.directionRow,
+        flexbox.alignCenter,
+        {
+          width: '100%'
+        }
+      ]}
+    >
+      <View
+        style={[
+          flexbox.directionRow,
+          flexbox.alignCenter,
+          spacings.mrTy,
+          {
+            flexGrow: 1,
+            flexShrink: 1
+          }
+        ]}
+      >
+        <Avatar pfp={accountPref?.pfp} size={32} />
+        <View style={[flexbox.flex1, spacings.mrMi]}>
+          <Text weight="medium" fontSize={12} numberOfLines={1}>
+            {label}
+          </Text>
+          <Text weight="medium" fontSize={10} numberOfLines={1} appearance="secondaryText">
+            ({!isGasTank ? shortenAddress(account.addr, 13) : 'Gas Tank'})
+          </Text>
+        </View>
+      </View>
+      <View>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.justifyEnd,
+            flexbox.flex1,
+            {
+              minWidth: 'fit-content',
+              flexShrink: 0
+            }
+          ]}
+        >
+          <TokenIcon
+            containerHeight={24}
+            containerWidth={24}
+            width={16}
+            height={16}
+            networkSize={10}
+            address={token.address}
+            networkId={token.networkId}
+            onGasTank={token.flags.onGasTank}
+          />
+          <Text weight="medium" numberOfLines={1} style={spacings.mlMi} fontSize={12}>
+            {token.symbol}
+          </Text>
+        </View>
+        <View
+          style={{
+            marginLeft: 'auto'
+          }}
+        >
+          <Text fontSize={10} appearance="secondaryText" weight="medium">
+            Fee token
+          </Text>
+        </View>
+      </View>
     </View>
   )
 }
