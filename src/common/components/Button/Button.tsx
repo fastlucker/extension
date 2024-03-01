@@ -149,6 +149,7 @@ const Button = ({
   }
   return (
     <AnimatedPressable
+      testID={`padding-button-${text?.replace(/\s+/g, "-")}`}
       disabled={disabled}
       style={
         [

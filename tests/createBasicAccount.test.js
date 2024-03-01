@@ -42,7 +42,6 @@ describe('login', () => {
 
     it('Create basic account with private key', (async () => {
         await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
-
         await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
 
         await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)

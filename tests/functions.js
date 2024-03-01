@@ -95,7 +95,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 
     /* Click on "Import" private key*/
     await page.$eval(privKeyOrPhraseSelector, button => button.click());
-
+    
     /* type phrase */
     const phrase = 'Password'
     await typeText(page, '[data-testid="enter-pass-field"]', phrase)
@@ -104,14 +104,12 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     /* Click on "Set up Ambire Key Store" button */
     await clickOnElement(page, '[data-testid="padding-button-Create"]')
 
-    const modalSelector = '[aria-modal="true"]'; // Selector for the modal
-    const buttonSelector = `${modalSelector} [data-testid="padding-button-Continue"]`;
+    await page.waitForSelector('[data-testid="padding-button-Continue"]');
 
-    await page.waitForSelector(modalSelector); // Wait for the modal to appear
-    await page.waitForSelector(buttonSelector); // Wait for the button inside the modal
-    await page.click(buttonSelector);
+    await page.$eval('[data-testid="padding-button-Continue"]', button => button.click());
 
 }
+
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
     try {
@@ -157,7 +155,6 @@ export async function clickWhenClickable(page, selector) {
 }
 //----------------------------------------------------------------------------------------------
 export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
-    try {
         let elementToClick = await page.waitForSelector(triggerTransactionSelector);
         await elementToClick.click();
 
@@ -191,10 +188,8 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
         await new Promise((r) => setTimeout(r, 300))
         expect(doesFailedExist).toBe(false); // This will fail the test if 'Failed' exists
 
-    } catch (error) {
-        throw new Error(`Can not sign the transaction`)
-    }
-}
+    } 
+
 //----------------------------------------------------------------------------------------------
 export async function generateEthereumPrivateKey() {
     try {

@@ -52,6 +52,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
 
   return (
     <Pressable
+      testID={'dashboard-button-' + routeItem.label.toLowerCase().replace(/\s+/g, '-')}
       key={routeItem.label}
       style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mr]}
       disabled={routeItem.disabled}
