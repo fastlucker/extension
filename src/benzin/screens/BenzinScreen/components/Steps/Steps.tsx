@@ -54,7 +54,7 @@ const Steps: FC<Props> = ({
 
   if (userOpHash) {
     stepRows.push({
-      label: 'User Operation ID',
+      label: 'User Op ID',
       value: userOpHash,
       isValueSmall: true
     })

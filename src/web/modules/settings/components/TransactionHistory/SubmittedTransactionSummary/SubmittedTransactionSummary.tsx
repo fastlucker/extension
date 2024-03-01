@@ -124,8 +124,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     // for an userOpHash, the userOpHash and the txnId will be the same.
     // In that case, open benzina only with the userOpHash
     if (
-      submittedAccountOp.userOpHash &&
-      submittedAccountOp.userOpHash === submittedAccountOp.txnId
+      !submittedAccountOp.txnId ||
+      (submittedAccountOp.userOpHash && submittedAccountOp.userOpHash === submittedAccountOp.txnId)
     ) {
       link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
     }

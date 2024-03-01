@@ -51,7 +51,7 @@ const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: str
   const splitUrl = (window.location.href || '').split('?')
   const search = splitUrl[1]
   const searchParams = new URLSearchParams(search)
-  const isInternal = searchParams.get('isInternal')
+  const isInternal = typeof searchParams.get('isInternal') === 'string'
 
   window.history.pushState(
     null,
