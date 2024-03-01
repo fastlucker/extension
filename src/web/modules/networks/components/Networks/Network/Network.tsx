@@ -12,7 +12,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import { AnimatedPressable, useCustomHover, useMultiHover } from '@web/hooks/useHover'
+import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -51,6 +51,7 @@ const Network: FC<Props> = ({
     ],
     forceHoveredStyle: filterByNetworkId === networkId
   })
+  const isInternalNetwork = networkId === 'rewards' || networkId === 'gasTank'
   // Doesn't have to be binded
   const [, explorerIconAnimStyle] = useCustomHover({
     property: 'opacity',
@@ -58,7 +59,8 @@ const Network: FC<Props> = ({
       from: 0,
       to: 1
     },
-    forceHoveredStyle: isHovered || filterByNetworkId === networkId
+    forceHoveredStyle: (isHovered || filterByNetworkId === networkId) && !isInternalNetwork,
+    duration: DURATIONS.REGULAR
   })
 
   const portfolioByNetworks = useMemo(
@@ -76,7 +78,6 @@ const Network: FC<Props> = ({
 
   const networkData = networks.find((network) => network.id === networkId)
   const networkBalance = portfolioByNetworks[networkId]?.result?.total
-  const isInternalNetwork = networkId === 'rewards' || networkId === 'gasTank'
   let networkName = networkData?.name
 
   if (networkId === 'rewards') {
@@ -98,23 +99,21 @@ const Network: FC<Props> = ({
         <Text style={spacings.mlMi} fontSize={16}>
           {networkName}
         </Text>
-        {!isInternalNetwork && (
-          <AnimatedPressable
-            onPress={async () => {
-              await openBlockExplorer(networkData?.explorerUrl)
-            }}
-            style={[spacings.mlSm, explorerIconAnimStyle]}
-            onHoverIn={triggerHover}
-          >
-            {({ hovered }: any) => (
-              <OpenIcon
-                width={16}
-                height={16}
-                color={hovered ? theme.primaryText : theme.secondaryText}
-              />
-            )}
-          </AnimatedPressable>
-        )}
+        <AnimatedPressable
+          onPress={async () => {
+            await openBlockExplorer(networkData?.explorerUrl)
+          }}
+          style={[spacings.mlSm, explorerIconAnimStyle]}
+          onHoverIn={triggerHover}
+        >
+          {({ hovered }: any) => (
+            <OpenIcon
+              width={16}
+              height={16}
+              color={hovered ? theme.primaryText : theme.secondaryText}
+            />
+          )}
+        </AnimatedPressable>
       </View>
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
         <Text fontSize={filterByNetworkId === networkId ? 20 : 16} weight="semiBold">
