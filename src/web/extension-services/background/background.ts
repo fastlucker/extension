@@ -554,9 +554,16 @@ async function init() {
                   }))
               )
 
+              const readyToAddAccountPreferences = getDefaultAccountPreferences(
+                mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
+                mainCtrl.accounts,
+                mainCtrl.accountAdder.type,
+                mainCtrl.accountAdder.subType
+              )
+
               return mainCtrl.accountAdder.addAccounts(
-                data.params.selectedAccounts,
-                data.params.readyToAddAccountPreferences,
+                mainCtrl.accountAdder.selectedAccounts,
+                readyToAddAccountPreferences,
                 readyToAddKeys,
                 readyToAddKeyPreferences
               )

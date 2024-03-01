@@ -9,7 +9,6 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import { getDefaultAccountPreferences } from '@web/modules/account-personalize/libs/defaults'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
@@ -121,34 +120,9 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)
 
-    // TODO: Move to background
-    const keyTypeInternalSubtype = 'seed'
-    const readyToAddAccountPreferences = getDefaultAccountPreferences(
-      accountAdderState.selectedAccounts.map(({ account }) => account),
-      mainControllerState.accounts,
-      keyType,
-      keyTypeInternalSubtype
-    )
-
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS',
-      params: {
-        selectedAccounts: accountAdderState.selectedAccounts,
-        readyToAddAccountPreferences,
-        readyToAddKeys,
-        readyToAddKeyPreferences
-      }
-    })
-  }, [
-    accountAdderState.selectedAccounts,
-    accountAdderState.hdPathTemplate,
-    completeStep,
-    keyType,
-    mainControllerState.accounts,
-    dispatch,
-    addToast
-  ])
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS' })
+  }, [accountAdderState.selectedAccounts, completeStep, dispatch])
 
   return { setPage, onImportReady }
 }

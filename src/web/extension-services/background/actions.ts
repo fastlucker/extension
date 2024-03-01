@@ -1,16 +1,10 @@
-import AccountAdderController, {
-  ReadyToAddKeys
-} from '@ambire-common/controllers/accountAdder/accountAdder'
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -70,15 +64,6 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: {
-    selectedAccounts: AccountAdderController['selectedAccounts']
-    readyToAddAccountPreferences: AccountPreferences
-    readyToAddKeys: {
-      internal: ReadyToAddKeys['internal']
-      externalTypeOnly: Key['type']
-    }
-    readyToAddKeyPreferences: KeyPreferences
-  }
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
