@@ -53,7 +53,6 @@ const AccountsOnPageList = ({
   const [contentHeight, setContentHeight] = useState(0)
   const [modalContainerHeight, setModalContainerHeight] = useState(0)
   const [modalContentHeight, setModalContentHeight] = useState(0)
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
@@ -62,6 +61,12 @@ const AccountsOnPageList = ({
 
     return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
   }, [keyType, privKeyOrSeed])
+
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(() => {
+    if (keyTypeInternalSubtype === 'seed') return true
+
+    return false
+  })
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
