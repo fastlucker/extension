@@ -1,4 +1,4 @@
-import { formatUnits } from 'ethers'
+import { formatUnits, ethers } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, TouchableOpacity, View } from 'react-native'
@@ -44,7 +44,7 @@ const HumanizedVisualization: FC<{
                     // permit2 uniswap requested amount
                     item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
                     // uint256 amount
-                    item.amount.toString(16).toLowerCase() === 'f'.repeat(64)
+                    item.amount === ethers.MaxUint256
                       ? 'all your'
                       : formatUnits(
                           item.amount || '0x0',

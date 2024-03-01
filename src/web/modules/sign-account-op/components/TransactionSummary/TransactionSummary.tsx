@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { formatUnits } from 'ethers'
+import { ethers, formatUnits } from 'ethers'
 import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
@@ -16,7 +16,6 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
 import getStyles from './styles'
@@ -146,16 +145,17 @@ const TransactionSummary = ({
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                     <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${formatDecimals(
-                        // @TODO test with dapps that make max approval
-                        // refer to typed message humanization
-                        Number(
-                          formatUnits(
-                            item.amount || '0x0',
-                            item?.humanizerMeta?.token?.decimals || 18
-                          )
-                        )
-                      )} `}
+                      {` ${
+                        // permit2 uniswap requested amount
+                        item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
+                        // uint256 amount
+                        item.amount === ethers.MaxUint256
+                          ? 'all your'
+                          : formatUnits(
+                              item.amount || '0x0',
+                              item?.humanizerMeta?.token?.decimals || 18
+                            )
+                      }`}
                     </Text>
                   ) : null}
 
