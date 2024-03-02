@@ -22,6 +22,12 @@ import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
 declare let ambireChannelName: string
+let channelName: string
+try {
+  channelName = ambireChannelName
+} catch (error) {
+  channelName = 'ambire-inpage'
+}
 declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 
@@ -217,7 +223,7 @@ export class EthereumProvider extends EventEmitter {
 
   private _dedupePromise = new DedupePromise([])
 
-  private _bcm = new BroadcastChannelMessage(ambireChannelName || 'ambire-inpage')
+  private _bcm = new BroadcastChannelMessage(channelName)
 
   constructor({ maxListeners = 100 } = {}) {
     super()

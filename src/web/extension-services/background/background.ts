@@ -9,9 +9,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-
 import { networks } from '@ambire-common/consts/networks'
 import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -20,6 +17,8 @@ import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -34,6 +33,7 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import PortMessage from '@web/extension-services/message/portMessage'
 import {
   getDefaultAccountPreferences,
@@ -895,28 +895,31 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
   })
 }
 
-/*
- * This content script is injected programmatically because
- * MAIN world injection does not work properly via manifest
- * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
- */
-const registerInPageContentScript = async () => {
+const INPAGE_ID = 'inpage'
+export async function handleSetupInpage() {
+  const registeredContentScripts = await browser.scripting.getRegisteredContentScripts()
+  const inpageRegisteredContentScript = registeredContentScripts.find((cs) => cs.id === INPAGE_ID)
   try {
-    await browser.scripting.registerContentScripts([
-      {
-        id: 'inpage',
-        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-        js: ['inpage.js'],
-        runAt: 'document_start',
-        world: 'MAIN'
-      }
-    ])
-  } catch (err) {
-    console.warn(`Failed to inject EthereumProvider: ${err}`)
+    if (!inpageRegisteredContentScript && !navigator.userAgent.toLowerCase().includes('firefox')) {
+      browser.scripting.registerContentScripts([
+        {
+          id: INPAGE_ID,
+          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          js: ['inpage.js'],
+          runAt: 'document_start',
+          world: 'MAIN'
+        }
+      ])
+    }
+  } catch (e) {
+    // This will trigger if the service worker restarts and the current tab
+    // is still open and we already injected the content script.
+    // We're logging it and swallowing the error because it's expected
+    console.log('failed to register content scripts', e)
   }
 }
 
 // For mv2 the injection is located in the content-script
 if (isManifestV3) {
-  registerInPageContentScript()
+  handleSetupInpage()
 }

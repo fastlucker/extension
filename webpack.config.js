@@ -24,7 +24,7 @@ module.exports = async function (env, argv) {
     // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
     // https://github.com/trezor/trezor-suite/issues/6458
     // https://github.com/trezor/trezor-suite/pull/9525
-    const manifestVersion = 2
+    const manifestVersion = 3
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -52,6 +52,16 @@ module.exports = async function (env, argv) {
       manifest.content_security_policy = {
         extension_pages: csp
       }
+      manifest.content_scripts = [
+        ...manifest.content_scripts,
+        {
+          all_frames: false,
+          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          exclude_matches: ['*://doInWebPack.lan/*'],
+          run_at: 'document_start',
+          js: ['browser-polyfill.min.js', 'content-script.js']
+        }
+      ]
       // This value can be used to control the unique ID of an extension,
       // when it is loaded during development. In prod, the ID is generated
       // in Chrome Web Store and can't be changed.
@@ -68,6 +78,16 @@ module.exports = async function (env, argv) {
         scripts: ['background.js'],
         persistent: true
       }
+      manifest.content_scripts = [
+        ...manifest.content_scripts,
+        {
+          all_frames: true,
+          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+          exclude_matches: ['*://doInWebPack.lan/*'],
+          run_at: 'document_start',
+          js: ['browser-polyfill.min.js', 'content-script.js']
+        }
+      ]
       // Chrome extensions do not respect `browser_specific_settings`
       // {@link https://stackoverflow.com/a/72527986/1333836}
       if (process.env.WEB_ENGINE === 'gecko') {
