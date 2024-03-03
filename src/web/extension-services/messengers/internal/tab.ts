@@ -2,14 +2,23 @@ import { CallbackFunction, createMessenger, ReplyMessage, SendMessage } from './
 import { isValidReply } from './isValidReply'
 import { isValidSend } from './isValidSend'
 
+// Prevent the Ambire extension tab to be the last tab returned by the getActiveTabs func
 let activeTab: chrome.tabs.Tab
 
 function getActiveTabs() {
   if (!chrome.tabs) return Promise.resolve([])
-  return chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
-    if (!tab?.url?.startsWith('http') && activeTab) return [activeTab]
-    activeTab = tab
-    return [tab]
+
+  return new Promise((resolve: (v: [chrome.tabs.Tab]) => void) => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
+      if (!tab?.url?.startsWith('http') && activeTab) {
+        resolve([activeTab])
+        return
+      }
+
+      activeTab = tab
+
+      resolve([tab])
+    })
   })
 }
 
