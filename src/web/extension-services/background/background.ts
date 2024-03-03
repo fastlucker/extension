@@ -51,8 +51,10 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
+import { initializeMessenger } from '../messengers'
 import { Action } from './actions'
 import { WalletStateController } from './controllers/wallet-state'
+import { providerRequestTransport } from './provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from './types'
 
 function saveTimestamp() {
@@ -827,37 +829,68 @@ async function init() {
           trezorCtrl.cleanUp()
         }
       })
+    }
 
+    // const pm = new PortMessage(port)
+
+    // pm.listen(async (data: any) => {
+    //   const sessionId = port.sender?.tab?.id
+    //   if (sessionId === undefined || !port.sender?.url) {
+    //     return
+    //   }
+
+    //   const origin = getOriginFromUrl(port.sender.url)
+    //   const session = sessionService.getOrCreateSession(sessionId, origin)
+
+    //   const req = { data, session, origin }
+    //   // for background push to respective page
+    //   req.session!.setPortMessage(pm)
+
+    //   // Temporarily resolves the subscription methods as successful
+    //   // but the rpc block subscription is actually not implemented because it causes app crashes
+    //   if (data?.method === 'eth_subscribe' || data?.method === 'eth_unsubscribe') {
+    //     return true
+    //   }
+
+    //   return provider({ ...req, mainCtrl, notificationCtrl })
+    // })
+  })
+
+  const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+    console.log('background providerRequestTransport', { method, id, params }, meta)
+    const sessionId = meta.sender?.tab?.id
+    if (sessionId === undefined || !meta.sender?.url) {
       return
     }
 
-    if (!port.sender?.tab) {
-      return
+    const origin = getOriginFromUrl(meta.sender.url)
+    const session = sessionService.getOrCreateSession(sessionId, origin)
+
+    const req = {
+      data: {
+        method,
+        params
+      },
+      session,
+      origin
+    }
+    // for background push to respective page
+    req.session!.setMessenger(bridgeMessenger)
+
+    // Temporarily resolves the subscription methods as successful
+    // but the rpc block subscription is actually not implemented because it causes app crashes
+    if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+      return true
     }
 
-    const pm = new PortMessage(port)
-
-    pm.listen(async (data: any) => {
-      const sessionId = port.sender?.tab?.id
-      if (sessionId === undefined || !port.sender?.url) {
-        return
-      }
-
-      const origin = getOriginFromUrl(port.sender.url)
-      const session = sessionService.getOrCreateSession(sessionId, origin)
-
-      const req = { data, session, origin }
-      // for background push to respective page
-      req.session!.setPortMessage(pm)
-
-      // Temporarily resolves the subscription methods as successful
-      // but the rpc block subscription is actually not implemented because it causes app crashes
-      if (data?.method === 'eth_subscribe' || data?.method === 'eth_unsubscribe') {
-        return true
-      }
-
-      return provider({ ...req, mainCtrl, notificationCtrl })
-    })
+    try {
+      const res = await provider({ ...req, mainCtrl, notificationCtrl })
+      return { id, result: res }
+    } catch (error: any) {
+      return { id, error: <Error>error }
+    }
   })
 })()
 

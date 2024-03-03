@@ -17,7 +17,10 @@ import DedupePromise from '@web/extension-services/inpage/services/dedupePromise
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
+import { initializeMessenger, Messenger } from '@web/extension-services/messengers'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
+
+import { providerRequestTransport } from '../background/provider/providerRequestTransport'
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
@@ -217,26 +220,31 @@ export class EthereumProvider extends EventEmitter {
     }
   }
 
+  requestId = 0
+
   private _pushEventHandlers: PushEventHandlers
 
   private _requestPromise = new ReadyPromise(2)
 
   private _dedupePromise = new DedupePromise([])
 
-  private _bcm = new BroadcastChannelMessage(channelName)
+  backgroundMessenger: Messenger
 
-  constructor({ maxListeners = 100 } = {}) {
+  constructor(backgroundMessenger: Messenger) {
     super()
-    this.setMaxListeners(maxListeners)
+
+    this.backgroundMessenger = backgroundMessenger
+
+    this.setMaxListeners(100)
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
+    this.backgroundMessenger.reply('message', this._handleBackgroundMessage)
   }
 
   initialize = async () => {
     document.addEventListener('visibilitychange', this._requestPromiseCheckVisibility)
 
-    this._bcm.connect().on('message', this._handleBackgroundMessage)
     domReadyCall(() => {
       const origin = location.origin
       const icon =
@@ -246,10 +254,15 @@ export class EthereumProvider extends EventEmitter {
       const name =
         document.title || ($('head > meta[name="title"]') as HTMLMetaElement)?.content || origin
 
-      this._bcm.request({
-        method: 'tabCheckin',
-        params: { icon, name, origin }
-      })
+      const id = this.requestId++
+      providerRequestTransport.send(
+        {
+          id,
+          method: 'tabCheckin',
+          params: { icon, name, origin }
+        },
+        { id }
+      )
 
       this._requestPromise.check(2)
     })
@@ -349,8 +362,8 @@ export class EthereumProvider extends EventEmitter {
       return
     }
 
-    if (this._pushEventHandlers[event]) {
-      return this._pushEventHandlers[event](data)
+    if ((this._pushEventHandlers as any)[event]) {
+      return (this._pushEventHandlers as any)[event](data)
     }
 
     this.emit(event, data)
@@ -419,20 +432,26 @@ export class EthereumProvider extends EventEmitter {
         logInfoWithPrefix('[request]', data)
       }
 
-      return this._bcm
-        .request(data)
-        .then((res) => {
-          if (data.method !== 'eth_call') {
-            logInfoWithPrefix('[request: success]', data.method, res)
-          }
-          return res
-        })
-        .catch((err) => {
-          if (data.method !== 'eth_call') {
-            logInfoWithPrefix('[request: error]', data.method, serializeError(err))
-          }
-          throw serializeError(err)
-        })
+      const id = this.requestId++
+      const response = await providerRequestTransport.send(
+        {
+          id,
+          method: data.method,
+          params: data.params
+        },
+        { id }
+      )
+
+      if (response.id !== id) return
+      if (response.error) {
+        if (data.method !== 'eth_call') {
+          logInfoWithPrefix('[request: error]', data.method, serializeError(response.error))
+        }
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw serializeError(response.error)
+      }
+
+      return response.result
     })
   }
 
@@ -527,7 +546,8 @@ declare global {
   }
 }
 
-const provider = new EthereumProvider()
+const backgroundMessenger = initializeMessenger({ connect: 'background' })
+const provider = new EthereumProvider(backgroundMessenger)
 patchProvider(provider)
 let cacheOtherProvider: EthereumProvider | null = null
 const ambireProvider = new Proxy(provider, {

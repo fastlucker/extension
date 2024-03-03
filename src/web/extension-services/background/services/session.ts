@@ -1,5 +1,5 @@
 import permissionService from '@web/extension-services/background/services/permission'
-import PortMessage from '@web/extension-services/message/portMessage'
+import { Messenger } from '@web/extension-services/messengers'
 
 export interface SessionProp {
   origin: string
@@ -14,11 +14,11 @@ export class Session {
 
   name = ''
 
-  pm: PortMessage | null = null
+  messenger: Messenger | null = null
 
-  pushMessage(event: any, data: any) {
-    if (this.pm) {
-      this.pm.send('message', { event, data })
+  sendMessage(event: any, data: any) {
+    if (this.messenger) {
+      this.messenger.send('message', { event, data })
     }
   }
 
@@ -28,8 +28,8 @@ export class Session {
     }
   }
 
-  setPortMessage(pm: PortMessage) {
-    this.pm = pm
+  setMessenger(messenger: Messenger) {
+    this.messenger = messenger
   }
 
   setProp({ origin, icon, name }: SessionProp) {
@@ -82,7 +82,7 @@ const broadcastEvent = (ev: any, data?: any, origin?: string) => {
 
   sessions.forEach((session) => {
     try {
-      session.data.pushMessage?.(ev, data)
+      session.data.sendMessage?.(ev, data)
     } catch (e) {
       if (sessionMap.has(session.key)) {
         deleteSession(session.key)
