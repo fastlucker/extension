@@ -16,7 +16,6 @@ import { ConnectButtonReplacementController } from '@web/extension-services/inpa
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
-import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import { initializeMessenger, Messenger } from '@web/extension-services/messengers'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
@@ -24,13 +23,6 @@ import { providerRequestTransport } from '../background/provider/providerRequest
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
-declare let ambireChannelName: string
-let channelName: string
-try {
-  channelName = ambireChannelName
-} catch (error) {
-  channelName = 'ambire-inpage'
-}
 declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 

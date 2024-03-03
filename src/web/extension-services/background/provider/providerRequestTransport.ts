@@ -66,7 +66,6 @@ export function createTransport<TPayload, TResponse>({
   }
   return {
     async send(payload: TPayload, { id }: { id: number }) {
-      console.log('send', payload)
       return messenger.send<TPayload, TResponse>(topic, payload, { id })
     },
     async reply(

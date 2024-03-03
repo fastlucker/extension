@@ -33,7 +33,6 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
 import PortMessage from '@web/extension-services/message/portMessage'
 import {
   getDefaultAccountPreferences,
@@ -830,36 +829,11 @@ async function init() {
         }
       })
     }
-
-    // const pm = new PortMessage(port)
-
-    // pm.listen(async (data: any) => {
-    //   const sessionId = port.sender?.tab?.id
-    //   if (sessionId === undefined || !port.sender?.url) {
-    //     return
-    //   }
-
-    //   const origin = getOriginFromUrl(port.sender.url)
-    //   const session = sessionService.getOrCreateSession(sessionId, origin)
-
-    //   const req = { data, session, origin }
-    //   // for background push to respective page
-    //   req.session!.setPortMessage(pm)
-
-    //   // Temporarily resolves the subscription methods as successful
-    //   // but the rpc block subscription is actually not implemented because it causes app crashes
-    //   if (data?.method === 'eth_subscribe' || data?.method === 'eth_unsubscribe') {
-    //     return true
-    //   }
-
-    //   return provider({ ...req, mainCtrl, notificationCtrl })
-    // })
   })
 
   const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-    console.log('background providerRequestTransport', { method, id, params }, meta)
     const sessionId = meta.sender?.tab?.id
     if (sessionId === undefined || !meta.sender?.url) {
       return

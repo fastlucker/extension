@@ -4,24 +4,17 @@
 // Content Script is mainly a relayer between pageContext(injected script) and the background service_worker
 //
 
-import { nanoid } from 'nanoid'
-
 import { isManifestV3 } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 import { initializeMessenger } from '../messengers'
 import { setupBridgeMessengerRelay } from '../messengers/internal/bridge'
 
-const channelName = nanoid()
-
 const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
   let content = ';(function () {'
-  if (!isManifestV3) {
-    content += `let ambireChannelName = '${channelName}';`
-  }
   content += '#PAGEPROVIDER#'
   content += '\n})();'
   ele.textContent = content
