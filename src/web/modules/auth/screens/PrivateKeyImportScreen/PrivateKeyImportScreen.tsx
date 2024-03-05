@@ -44,14 +44,15 @@ const PrivateKeyImportScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
-      let formattedPrivateKey = privateKey.trim()
+      const trimmedPrivateKey = privateKey.trim()
 
-      formattedPrivateKey = privateKey.slice(0, 2) === '0x' ? privateKey.slice(2) : privateKey
+      const noPrefixPrivateKey =
+        trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       navigate(WEB_ROUTES.accountAdder, {
         state: {
           keyType: 'internal',
-          privKeyOrSeed: formattedPrivateKey
+          privKeyOrSeed: noPrefixPrivateKey
         }
       })
     })()

@@ -9,17 +9,15 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-
 import { networks } from '@ambire-common/consts/networks'
-import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { ExternalKey } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -35,7 +33,6 @@ import permissionService from '@web/extension-services/background/services/permi
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import PortMessage from '@web/extension-services/message/portMessage'
-import { getPreselectedAccounts } from '@web/modules/account-adder/helpers/account'
 import {
   getDefaultAccountPreferences,
   getDefaultKeyLabel
@@ -431,11 +428,6 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'ledger'
-                ),
                 hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
               })
             }
@@ -445,12 +437,7 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'trezor'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -459,12 +446,7 @@ async function init() {
               })
               return mainCtrl.accountAdder.init({
                 keyIterator,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'lattice'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
@@ -473,12 +455,7 @@ async function init() {
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 pageSize,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: getPreselectedAccounts(
-                  mainCtrl.accounts,
-                  mainCtrl.keystore.keys,
-                  'internal'
-                )
+                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
@@ -535,19 +512,21 @@ async function init() {
                   lattice: latticeCtrl.deviceModel
                 }
 
-                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.map(
-                  ({ accountKeyAddr, index, isLinked }) => ({
-                    addr: accountKeyAddr,
-                    type: keyType,
-                    dedicatedToOneSA: !isLinked,
-                    meta: {
-                      deviceId: deviceIds[keyType],
-                      deviceModel: deviceModels[keyType],
-                      // always defined in the case of external keys
-                      hdPathTemplate: mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
-                      index
-                    }
-                  })
+                const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                  ({ accountKeys, isLinked }) =>
+                    accountKeys.map(({ addr, index }) => ({
+                      addr,
+                      type: keyType,
+                      dedicatedToOneSA: !isLinked,
+                      meta: {
+                        deviceId: deviceIds[keyType],
+                        deviceModel: deviceModels[keyType],
+                        // always defined in the case of external keys
+                        hdPathTemplate: mainCtrl.accountAdder
+                          .hdPathTemplate as HD_PATH_TEMPLATE_TYPE,
+                        index
+                      }
+                    }))
                 )
 
                 readyToAddKeys.external = readyToAddExternalKeys
@@ -606,7 +585,6 @@ async function init() {
               await mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
-                preselectedAccounts: [],
                 pageSize: 1
               })
 

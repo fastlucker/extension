@@ -36,7 +36,11 @@ const NetworkBottomSheet = ({
   const networkData = networks.find((network) => network.id === selectedNetworkId)
 
   return (
-    <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+    <BottomSheet
+      id="dashboard-networks-network"
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+    >
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
         {/* @ts-ignore */}
         <NetworkIcon width={32} height={32} name={selectedNetworkId} />

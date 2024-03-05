@@ -1,11 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
+
 import { isValidPassword } from '@ambire-common/services/validations'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
@@ -22,7 +24,7 @@ const DevicePasswordChangeSettingsScreen = () => {
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const state = useKeystoreControllerState()
-  const [changePasswordReady, setChangePasswordReady] = useState(false)
+  const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
 
   const {
@@ -67,9 +69,9 @@ const DevicePasswordChangeSettingsScreen = () => {
 
   useEffect(() => {
     if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'SUCCESS') {
-      setChangePasswordReady(true)
+      openModal()
     }
-  }, [state.latestMethodCall, state.status])
+  }, [openModal, state.latestMethodCall, state.status])
 
   const handleChangeKeystorePassword = () => {
     handleSubmit(({ password, newPassword: newPasswordFieldValue }) => {
@@ -165,7 +167,12 @@ const DevicePasswordChangeSettingsScreen = () => {
           onPress={handleChangeKeystorePassword}
         />
       </View>
-      <Modal isOpen={changePasswordReady} modalStyle={{ minWidth: 'unset' }}>
+      <BottomSheet
+        id="device-password-success-modal"
+        backgroundColor="primaryBackground"
+        sheetRef={modalRef}
+        autoWidth
+      >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
           {t('Device Password')}
         </Text>
@@ -178,13 +185,13 @@ const DevicePasswordChangeSettingsScreen = () => {
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}
           onPress={() => {
-            setChangePasswordReady(false)
+            closeModal()
             resetField('password')
             resetField('newPassword')
             resetField('confirmNewPassword')
           }}
         />
-      </Modal>
+      </BottomSheet>
     </View>
   )
 }

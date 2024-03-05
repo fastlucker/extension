@@ -78,7 +78,8 @@ const getStyles = (theme: ThemeProps) =>
     },
     button: {
       ...flexbox.justifyCenter,
-      ...spacings.phTy
+      ...spacings.mlTy,
+      ...spacings.mr
     },
     leftIcon: {
       ...flexbox.justifyCenter,

@@ -76,8 +76,7 @@ const AccountAdderScreen = () => {
             disabled={
               accountAdderState.accountsLoading ||
               accountAdderState.addAccountsStatus === 'LOADING' ||
-              (!accountAdderState.selectedAccounts.length &&
-                !accountAdderState.preselectedAccounts.length) ||
+              !accountAdderState.selectedAccounts.length ||
               (mainControllerState.status === 'LOADING' &&
                 mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
             }
@@ -86,8 +85,7 @@ const AccountAdderScreen = () => {
               (mainControllerState.status === 'LOADING' &&
                 mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
                 ? t('Importing...')
-                : accountAdderState.preselectedAccounts.length &&
-                  !accountAdderState.selectedAccounts.length
+                : !accountAdderState.selectedAccounts.length
                 ? t('Continue')
                 : t('Import Accounts')
             }

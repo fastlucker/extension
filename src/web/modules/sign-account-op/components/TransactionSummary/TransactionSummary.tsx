@@ -16,7 +16,9 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -86,6 +88,15 @@ const TransactionSummary = ({
 
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
+  const [bindExplorerIconAnim, explorerIconAnimStyle] = useHover({
+    preset: 'opacityInverted'
+  })
+  const [bindDeleteIconAnim, deleteIconAnimStyle] = useHover({
+    preset: 'opacityInverted'
+  })
+  const [bindRightIconAnim, rightIconAnimStyle] = useHover({
+    preset: 'opacityInverted'
+  })
 
   const handleRemoveCall = useCallback(() => {
     dispatch({
@@ -107,13 +118,28 @@ const TransactionSummary = ({
           }
         ]}
       >
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Interacting with (to): ')}
         </Text>
-        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
+        <Text
+          fontSize={textSize}
+          appearance="secondaryText"
+          weight="regular"
+          style={{ maxWidth: '100%' }}
+        >
           {` ${call.to} `}
         </Text>
-        <Text fontSize={textSize} appearance="successText" weight="semiBold">
+        <Text
+          fontSize={textSize}
+          appearance="successText"
+          weight="semiBold"
+          style={{ maxWidth: '100%' }}
+        >
           {t(' Value to be sent (value): ')}
         </Text>
         <Text fontSize={textSize} appearance="secondaryText" weight="regular">
@@ -138,16 +164,25 @@ const TransactionSummary = ({
           ]}
         >
           {dataToVisualize.map((item, i) => {
-            if (!item) return null
+            if (!item || item.isHidden) return null
 
             if (item.type === 'token') {
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${formatUnits(
-                        item.amount || '0x0',
-                        item?.humanizerMeta?.token?.decimals || 18
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
+                      {` ${formatDecimals(
+                        Number(
+                          formatUnits(
+                            item.amount || '0x0',
+                            item?.humanizerMeta?.token?.decimals || 18
+                          )
+                        )
                       )} `}
                     </Text>
                   ) : null}
@@ -165,7 +200,12 @@ const TransactionSummary = ({
                       {` ${item?.humanizerMeta?.token?.symbol || ''} `}
                     </Text>
                   ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                    <Text
+                      fontSize={textSize}
+                      weight="medium"
+                      appearance="primaryText"
+                      style={{ maxWidth: '100%' }}
+                    >
                       {t(' units of unknown token ')}
                     </Text>
                   ) : (
@@ -182,19 +222,26 @@ const TransactionSummary = ({
             if (item.type === 'address')
               return (
                 <Fragment key={Number(item.id) || i}>
-                  <Text fontSize={textSize} weight="medium" appearance="primaryText">
+                  <Text
+                    fontSize={textSize}
+                    weight="medium"
+                    appearance="primaryText"
+                    style={{ maxWidth: '100%' }}
+                  >
                     {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
-                    <TouchableOpacity
+                    <AnimatedPressable
                       disabled={!explorerUrl}
                       onPress={() => {
                         Linking.openURL(`${explorerUrl}/address/${item.address}`)
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      style={explorerIconAnimStyle}
+                      {...bindExplorerIconAnim}
                     >
                       <OpenIcon width={14} height={14} strokeWidth="2" />
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                   )}
                 </Fragment>
               )
@@ -206,6 +253,7 @@ const TransactionSummary = ({
                   fontSize={textSize}
                   weight="medium"
                   appearance="primaryText"
+                  style={{ maxWidth: '100%' }}
                 >
                   {` ${item?.humanizerMeta?.name || item.address} `}
                 </Text>
@@ -224,6 +272,7 @@ const TransactionSummary = ({
               return (
                 <Text
                   key={Number(item.id) || i}
+                  style={{ maxWidth: '100%' }}
                   fontSize={textSize}
                   weight={
                     item.type === 'label'
@@ -248,7 +297,16 @@ const TransactionSummary = ({
         </View>
       )
     },
-    [size, textSize, explorerUrl, isHistory, networkId, t]
+    [
+      size,
+      textSize,
+      explorerUrl,
+      explorerIconAnimStyle,
+      bindExplorerIconAnim,
+      isHistory,
+      networkId,
+      t
+    ]
   )
 
   return (
@@ -266,12 +324,22 @@ const TransactionSummary = ({
             ? humanizedVisualization(call.fullVisualization)
             : fallbackVisualization()}
           {!!rightIcon && (
-            <TouchableOpacity onPress={onRightIconPress}>{rightIcon}</TouchableOpacity>
+            <TouchableOpacity
+              onPress={onRightIconPress}
+              style={rightIconAnimStyle}
+              {...bindRightIconAnim}
+            >
+              {rightIcon}
+            </TouchableOpacity>
           )}
           {!!call.fromUserRequestId && !rightIcon && (
-            <TouchableOpacity onPress={handleRemoveCall}>
+            <AnimatedPressable
+              style={deleteIconAnimStyle}
+              onPress={handleRemoveCall}
+              {...bindDeleteIconAnim}
+            >
               <DeleteIcon />
-            </TouchableOpacity>
+            </AnimatedPressable>
           )}
         </>
       }

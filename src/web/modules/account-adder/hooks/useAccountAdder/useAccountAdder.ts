@@ -5,8 +5,7 @@ import {
   HD_PATH_TEMPLATE_TYPE,
   SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
 } from '@ambire-common/consts/derivation'
-import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
   getPrivateKeyFromSeed,
@@ -148,28 +147,30 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
             'No HD path template provided. Please try to start the process of selecting accounts again. If the problem persist, please contact support.'
           )
 
-        const readyToAddInternalKeys = accountAdderState.selectedAccounts.map((acc) => {
-          let privateKey = privKeyOrSeed
+        const readyToAddInternalKeys = accountAdderState.selectedAccounts.flatMap((acc) => {
+          return acc.accountKeys.map(({ index }) => {
+            let privateKey = privKeyOrSeed
 
-          // In case it is a seed, the private keys have to be extracted
-          if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
-            privateKey = getPrivateKeyFromSeed(
-              privKeyOrSeed,
-              acc.index,
-              // should always be provided, otherwise it would have thrown an error above
-              accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
-            )
-          }
+            // In case it is a seed, the private keys have to be extracted
+            if (Mnemonic.isValidMnemonic(privKeyOrSeed)) {
+              privateKey = getPrivateKeyFromSeed(
+                privKeyOrSeed,
+                index,
+                // should always be provided, otherwise it would have thrown an error above
+                accountAdderState.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
+              )
+            }
 
-          // Private keys for accounts used as smart account keys should be derived
-          const isPrivateKeyThatShouldBeDerived =
-            isValidPrivateKey(privKeyOrSeed) &&
-            acc.index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-          if (isPrivateKeyThatShouldBeDerived) {
-            privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
-          }
+            // Private keys for accounts used as smart account keys should be derived
+            const isPrivateKeyThatShouldBeDerived =
+              isValidPrivateKey(privKeyOrSeed) &&
+              index >= SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+            if (isPrivateKeyThatShouldBeDerived) {
+              privateKey = derivePrivateKeyFromAnotherPrivateKey(privKeyOrSeed)
+            }
 
-          return { privateKey, dedicatedToOneSA: !acc.isLinked }
+            return { privateKey, dedicatedToOneSA: !acc.isLinked }
+          })
         })
 
         readyToAddKeys.internal = readyToAddInternalKeys
@@ -185,12 +186,12 @@ const useAccountAdder = ({ keyType, privKeyOrSeed, keyLabel }: Props) => {
       readyToAddKeys.externalTypeOnly = keyType
     }
 
-    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.map(
-      ({ accountKeyAddr, slot, index }) => ({
-        addr: accountKeyAddr,
+    const readyToAddKeyPreferences = accountAdderState.selectedAccounts.flatMap(({ accountKeys }) =>
+      accountKeys.map(({ addr, slot, index }) => ({
+        addr,
         type: keyType,
         label: getDefaultKeyLabel(keyType, index, slot, keyLabel)
-      })
+      }))
     )
 
     const readyToAddAccountPreferences = getDefaultAccountPreferences(

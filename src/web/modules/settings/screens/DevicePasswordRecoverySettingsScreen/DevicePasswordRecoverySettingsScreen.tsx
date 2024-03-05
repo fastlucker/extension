@@ -1,19 +1,23 @@
 import React, { useCallback, useContext, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
+
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
+import Alert from '@common/components/Alert'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
-import Text from '@common/components/Text'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { View } from 'react-native'
-import Alert from '@common/components/Alert'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import Modal from '@common/components/Modal'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -26,6 +30,12 @@ const DevicePasswordRecoverySettingsScreen = () => {
   const { t } = useTranslation()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { navigate } = useNavigation()
+  const {
+    ref: confirmationModalRef,
+    open: openConfirmationModal,
+    close: closeConfirmationModal
+  } = useModalize()
+
   const { dispatch } = useBackgroundService()
 
   const {
@@ -45,6 +55,17 @@ const DevicePasswordRecoverySettingsScreen = () => {
   }, [setCurrentSettingsPage])
 
   const email = watch('email')
+
+  useEffect(() => {
+    if (
+      ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
+      ev.currentState === EmailVaultState.UploadingSecret
+    ) {
+      openConfirmationModal()
+      return
+    }
+    closeConfirmationModal()
+  }, [closeConfirmationModal, ev.currentState, openConfirmationModal])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(async () => {
@@ -154,16 +175,15 @@ const DevicePasswordRecoverySettingsScreen = () => {
           )}
         />
       </View>
-      <Modal
-        isOpen={
-          ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
-          ev.currentState === EmailVaultState.UploadingSecret
-        }
-        modalStyle={{ minWidth: 500, paddingVertical: SPACING_3XL }}
-        title={t('Email Confirmation Required')}
+      <BottomSheet
+        backgroundColor="primaryBackground"
+        id="backup-password-confirmation-modal"
+        sheetRef={confirmationModalRef}
+        style={{ paddingVertical: SPACING_3XL }}
       >
+        <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
-      </Modal>
+      </BottomSheet>
     </>
   )
 }

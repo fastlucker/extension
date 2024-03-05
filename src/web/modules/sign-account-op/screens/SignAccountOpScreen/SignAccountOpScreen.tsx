@@ -1,12 +1,14 @@
 import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
+import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
@@ -47,6 +49,7 @@ const SignAccountOpScreen = () => {
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
+  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -59,6 +62,20 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+
+  const isSignLoading =
+    signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.Done ||
+    mainState.broadcastStatus === 'LOADING'
+
+  useEffect(() => {
+    if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
+      openHwModal()
+      return
+    }
+
+    closeHwModal()
+  }, [closeHwModal, isSignLoading, openHwModal, signAccountOpState?.accountOp.signingKeyType])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -224,6 +241,13 @@ const SignAccountOpScreen = () => {
     setIsChooseSignerShown(true)
   }
 
+  const onGasUsedTooHighAgreed = useCallback(() => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+      params: { gasUsedTooHighAgreed: !signAccountOpState?.gasUsedTooHighAgreed }
+    })
+  }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
+
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
@@ -262,11 +286,6 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
-
-  const isSignLoading =
-    signAccountOpState.status?.type === SigningStatus.InProgress ||
-    signAccountOpState.status?.type === SigningStatus.Done ||
-    mainState.broadcastStatus === 'LOADING'
 
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
@@ -500,6 +519,27 @@ const SignAccountOpScreen = () => {
                   disabled={isViewOnly || isSignLoading}
                 />
               )}
+              {!!hasEstimation &&
+                !estimationFailed &&
+                signAccountOpState.gasUsedTooHigh &&
+                !signAccountOpState?.errors.length && (
+                  <View style={styles.errorContainer}>
+                    <Alert
+                      type="warning"
+                      title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
+                    />
+                    <Checkbox
+                      value={signAccountOpState.gasUsedTooHighAgreed}
+                      onValueChange={onGasUsedTooHighAgreed}
+                      style={spacings.mtSm}
+                    >
+                      <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
+                        {t('I understand the risks')}
+                      </Text>
+                    </Checkbox>
+                  </View>
+                )}
+
               {!hasEstimation && !estimationFailed && (
                 <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
                   <Spinner style={styles.spinner} />
@@ -522,13 +562,11 @@ const SignAccountOpScreen = () => {
               ) : null}
             </ScrollView>
           </View>
-          {signAccountOpState.accountOp.signingKeyType !== 'internal' && (
-            <HardwareWalletSigningModal
-              isOpen={isSignLoading}
-              keyType={signAccountOpState.accountOp.signingKeyType}
-              onReject={handleRejectAccountOp}
-            />
-          )}
+          <HardwareWalletSigningModal
+            modalRef={hwModalRef}
+            keyType={signAccountOpState.accountOp.signingKeyType}
+            onReject={handleRejectAccountOp}
+          />
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

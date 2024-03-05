@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
+import { TextStyle, View, ViewStyle } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import Button from '@common/components/Button'
@@ -10,6 +10,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -39,24 +40,26 @@ const Card: React.FC<Props> = ({
   iconProps = {}
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const [isHovered, setIsHovered] = useState(false)
+  const [bindAnim, animStyle, isHovered, triggerHovered] = useCustomHover({
+    property: 'borderColor',
+    values: {
+      from: isSecondary ? theme.secondaryBorder : theme.primaryBackground,
+      to: theme.primary
+    }
+  })
   const { t } = useTranslation()
   const hoveredIconColor = isSecondary ? theme.primary : theme.primaryText
 
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={!isDisabled ? onPress : () => {}}
       style={[
         styles.container,
         isSecondary && styles.secondaryContainer,
         !isDisabled && {
-          borderWidth: 1,
-          borderColor: isHovered
-            ? theme.primary
-            : isSecondary
-            ? theme.secondaryBorder
-            : 'transparent'
+          borderWidth: 1
         },
+        animStyle,
         isDisabled && { opacity: 0.7 },
         isDisabled &&
           isWeb && {
@@ -65,8 +68,7 @@ const Card: React.FC<Props> = ({
           },
         style
       ]}
-      onHoverIn={() => !isDisabled && setIsHovered(true)}
-      onHoverOut={() => setIsHovered(false)}
+      {...bindAnim}
     >
       {!!Icon && (
         <View style={styles.iconWrapper}>
@@ -94,12 +96,12 @@ const Card: React.FC<Props> = ({
           text={t(buttonText)}
           type={isSecondary ? 'secondary' : 'primary'}
           onPress={!isDisabled ? onPress : () => {}}
-          onHoverIn={() => !isDisabled && setIsHovered(true)}
+          onHoverIn={() => !isDisabled && triggerHovered()}
           hasBottomSpacing={false}
           forceHoveredStyle={isHovered}
         />
       )}
-    </Pressable>
+    </AnimatedPressable>
   )
 }
 

@@ -31,7 +31,7 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   const finalParsedCalls = humanizedCalls.map((call) => {
     const localCall = { ...call }
     localCall.fullVisualization = call.fullVisualization?.filter(
-      (visual) => visual.type !== 'deadline'
+      (visual) => visual.type !== 'deadline' && !visual.isHidden
     )
     localCall.warnings = call.warnings?.filter((warn) => warn.content !== 'Unknown address')
     return localCall
@@ -57,24 +57,20 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const route = useRoute()
 
   const params = new URLSearchParams(route?.search)
-  const txnId = params.get('txnId')
+  const txnId = params.get('txnId') ?? null
   const userOpHash = params.get('userOpHash') ?? null
   const isRenderedInternally = typeof params.get('isInternal') === 'string'
-  const [networkId, isUserOp] = [
-    params.get('networkId'),
-    userOpHash?.length === 66 || typeof params.get('isUserOp') === 'string'
-  ]
+  const networkId = params.get('networkId')
   const network = networks.find((n) => n.id === networkId)
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
-  if (!txnId || !network) return null
+  if ((!txnId && !userOpHash) || !network) return null
 
   const stepsState = useSteps({
     txnId,
     userOpHash,
     network,
-    isUserOp,
     standardOptions,
     setActiveStep
   })
@@ -84,9 +80,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       let address = window.location.href
 
       if (isRenderedInternally) {
-        address = `https://benzin.ambire.com/?txnId=${txnId}&networkId=${networkId}${
-          isUserOp ? '&isUserOp' : ''
-        }`
+        address = `https://benzin.ambire.com/?networkId=${networkId}${
+          txnId ? `&txnId=${txnId}` : ''
+        }${userOpHash ? `&userOpHash=${userOpHash}` : ''}`
       }
 
       await setStringAsync(address)
@@ -94,18 +90,22 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, isRenderedInternally, isUserOp, networkId, txnId])
+  }, [addToast, isRenderedInternally, userOpHash, networkId, txnId])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
-    const realTxnId = stepsState.userOpStatusData.txnId ?? txnId
+
+    const link = stepsState.txnId
+      ? `${network.explorerUrl}/tx/${stepsState.txnId}`
+      : `https://jiffyscan.xyz/userOpHash/${userOpHash}?network=${network.id}`
+
     try {
-      await Linking.openURL(`${network.explorerUrl}/tx/${realTxnId}`)
+      await Linking.openURL(link)
     } catch {
       addToast('Error opening explorer', { type: 'error' })
     }
     onOpenExplorer && onOpenExplorer()
-  }, [network, stepsState.userOpStatusData.txnId, txnId, onOpenExplorer, addToast])
+  }, [network, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
 
   return {
     activeStep,
@@ -113,7 +113,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     handleOpenExplorer,
     stepsState,
     network,
-    txnId,
+    txnId: stepsState.txnId,
+    userOpHash,
     isRenderedInternally
   }
 }

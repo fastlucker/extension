@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewProps } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import Text from '@common/components/Text'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -16,20 +17,27 @@ interface Props extends ViewProps {
 
 const Collections: FC<Props> = ({ searchValue, ...rest }) => {
   const { accountPortfolio } = usePortfolioControllerState()
-  const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
+  const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
-  const closeCollectibleModal = () => {
-    setSelectedCollectible(null)
-  }
+  const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
 
-  const openCollectibleModal = useCallback((collectible: SelectedCollectible) => {
-    setSelectedCollectible(collectible)
-  }, [])
+  const closeCollectibleModal = useCallback(() => {
+    setSelectedCollectible(null)
+    closeModal()
+  }, [closeModal])
+
+  const openCollectibleModal = useCallback(
+    (collectible: SelectedCollectible) => {
+      setSelectedCollectible(collectible)
+      openModal()
+    },
+    [openModal]
+  )
 
   return (
     <View {...rest}>
       <CollectibleModal
-        isOpen={!!selectedCollectible}
+        modalRef={modalRef}
         handleClose={closeCollectibleModal}
         selectedCollectible={selectedCollectible}
       />

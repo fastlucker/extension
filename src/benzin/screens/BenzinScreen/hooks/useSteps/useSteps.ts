@@ -9,21 +9,22 @@ import { Storage } from '@ambire-common/interfaces/storage'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
-import { Bundler } from '@ambire-common/services/bundlers/bundler'
+import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
 const REFETCH_TXN_TIME = 3500 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
+const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slower
 
 interface Props {
-  txnId: string
+  txnId: string | null
   userOpHash: string | null
   network: NetworkDescriptor
-  isUserOp: boolean
   standardOptions: {
     storage: Storage
     fetch: any
@@ -41,15 +42,23 @@ export interface StepsData {
   calls: IrCall[] | null
   pendingTime: number
   userOpStatusData: { status: null | string; txnId: null | string }
+  txnId: string | null
 }
 
 // if the transaction hash is found, we make the top url the real txn id
 // because user operation hashes are not reliable long term
 const setUrlToTxnId = (transactionHash: string, userOpHash: string, network: string) => {
-  window.history.replaceState(
+  const splitUrl = (window.location.href || '').split('?')
+  const search = splitUrl[1]
+  const searchParams = new URLSearchParams(search)
+  const isInternal = typeof searchParams.get('isInternal') === 'string'
+
+  window.history.pushState(
     null,
     '',
-    `/?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}`
+    `${splitUrl[0]}?txnId=${transactionHash}&userOpHash=${userOpHash}&networkId=${network}${
+      isInternal ? '&isInternal' : ''
+    }`
   )
 }
 
@@ -57,18 +66,9 @@ const useSteps = ({
   txnId,
   userOpHash,
   network,
-  isUserOp,
   standardOptions,
   setActiveStep
 }: Props): StepsData => {
-  // set the user operation hash
-  // txnId=0x1aac37bc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&networkId=avalanche
-  // it is null in the above case
-  // txnId=0x1aac37bc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&networkId=avalanche&isUserOp
-  // it is the txnId in the above
-  // txnId=0x1aac37bc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&userOpHash=0x98g65jbc62f72ca903ebecf9c2a48d116bb0b881edff3171d87a427484bdef71&networkId=avalanche&
-  // it is the userOpHash in the above
-  const finalUserOpHash = isUserOp ? userOpHash ?? txnId : null
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
   const [userOpStatusData, setUserOpStatusData] = useState<{
@@ -95,72 +95,64 @@ const useSteps = ({
   const [pendingTime, setPendingTime] = useState<number>(30)
   const [userOp, setUserOp] = useState<null | UserOperation>(null)
 
+  // if we have a userOpHash only, try to find the txnId
   useEffect(() => {
-    if (
-      !finalUserOpHash ||
-      !network ||
-      !isUserOp ||
-      userOpStatusData.status !== null ||
-      txnReceipt.blockNumber ||
-      (isUserOp && userOpHash)
-    )
-      return
+    if (!userOpHash || txnId || userOpStatusData.txnId) return
 
-    Bundler.getStatusAndTxnId(finalUserOpHash, network)
-      .then((userOpStatusAndId: { status: string; transactionHash: null | string }) => {
-        switch (userOpStatusAndId.status) {
-          case 'not_found':
-          case 'rejected':
-            setFinalizedStatus({ status: 'dropped' })
-            setActiveStep('finalized')
-            setUserOpStatusData({ status: userOpStatusAndId.status, txnId: null })
-            break
+    fetchUserOp(userOpHash, standardOptions.fetch)
+      .then((reqRes: any) => {
+        if (reqRes.status !== 200) {
+          setTimeout(() => {
+            setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
+          }, REFETCH_JIFFY_SCAN_TIME)
+          return
+        }
 
-          case 'not_submitted':
-            setFinalizedStatus({ status: 'fetching' })
-            setActiveStep('in-progress')
+        reqRes.json().then((data: any) => {
+          const userOps = data.userOps
+          if (!userOps.length) {
+            // if we can't find it in the next 2 minutes, we drop it
+            if (refetchUserOpStatusCounter > 10) {
+              setFinalizedStatus({ status: 'dropped' })
+              setActiveStep('finalized')
+              setUserOpStatusData({ status: 'not_found', txnId: null })
+              return
+            }
 
-            // send requests to the bundler until submitted
             setTimeout(() => {
               setRefetchUserOpStatusCounter(refetchUserOpStatusCounter + 1)
-            }, REFETCH_TXN_TIME)
-            break
+            }, REFETCH_JIFFY_SCAN_TIME)
+            return
+          }
 
-          case 'submitted':
-          case 'included':
-          case 'failed':
-            setUserOpStatusData({
-              status: userOpStatusAndId.status,
-              txnId: userOpStatusAndId.transactionHash
-            })
-            setActiveStep('in-progress')
-            if (userOpStatusAndId.transactionHash && finalUserOpHash)
-              setUrlToTxnId(userOpStatusAndId.transactionHash, finalUserOpHash, network.id)
-            break
-
-          default:
-            throw new Error('Unhandled user operation status. Please contact support')
-        }
+          const foundUserOp = userOps[0]
+          setUserOpStatusData({
+            status: 'submitted',
+            txnId: foundUserOp.transactionHash
+          })
+          setActiveStep('in-progress')
+          setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
+        })
       })
-      .catch(() => setUserOpStatusData({ status: 'not_found', txnId: null }))
+      .catch((e) => e)
   }, [
-    isUserOp,
-    userOpStatusData,
-    network,
-    finalUserOpHash,
-    txnReceipt,
-    setActiveStep,
     userOpHash,
-    refetchUserOpStatusCounter
+    standardOptions,
+    refetchUserOpStatusCounter,
+    network,
+    setActiveStep,
+    txnId,
+    userOpStatusData
   ])
 
+  // find the transaction
   useEffect(() => {
-    if (!network || txn || (isUserOp && !userOpHash && !userOpStatusData.txnId)) return
+    if (!network || txn || (!txnId && !userOpStatusData.txnId)) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
-      .getTransaction(finalTxnId)
+      .getTransaction(finalTxnId!)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
           // try to refetch 3 times; if it fails, mark it as dropped
@@ -179,25 +171,15 @@ const useSteps = ({
         setTxn(fetchedTxn)
       })
       .catch(() => null)
-  }, [
-    txnId,
-    network,
-    userOpStatusData,
-    isUserOp,
-    userOpHash,
-    txn,
-    refetchTxnCounter,
-    setActiveStep
-  ])
+  }, [txnId, network, userOpStatusData, txn, refetchTxnCounter, setActiveStep])
 
   useEffect(() => {
-    if (!network || txnReceipt.blockNumber || (isUserOp && !userOpHash && !userOpStatusData.txnId))
-      return
+    if (!network || txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId)) return
 
     const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
-      .getTransactionReceipt(finalTxnId)
+      .getTransactionReceipt(finalTxnId!)
       .then((receipt: null | TransactionReceipt) => {
         if (!receipt) {
           // if there is a txn but no receipt, it means it is pending
@@ -222,7 +204,26 @@ const useSteps = ({
           actualGasCost: receipt.gasUsed * receipt.gasPrice,
           blockNumber: BigInt(receipt.blockNumber)
         })
-        setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+
+        let userOpsLength = 0
+        if (!userOpHash && txn) {
+          try {
+            const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+            userOpsLength = handleOpsData[0].length
+          } catch (e: any) {
+            /* silence is bitcoin */
+          }
+        }
+
+        const userOpLog = parseLogs(receipt.logs, userOpHash ?? '', userOpsLength)
+        if (userOpLog && !userOpLog.success) {
+          setFinalizedStatus({
+            status: 'failed',
+            reason: 'Inner calls failed'
+          })
+        } else {
+          setFinalizedStatus(receipt.status ? { status: 'confirmed' } : { status: 'failed' })
+        }
         setActiveStep('finalized')
       })
       .catch(() => null)
@@ -234,7 +235,6 @@ const useSteps = ({
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
-    isUserOp,
     userOpStatusData.txnId
   ])
 
@@ -338,7 +338,7 @@ const useSteps = ({
   // and find the matching hash
   // only after pass to reproduce calls
   useEffect(() => {
-    if (!finalUserOpHash || !network || !txn || userOp) return
+    if (!userOpHash || !network || !txn || userOp) return
 
     const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
     const userOperations = handleOpsData[0]
@@ -392,7 +392,7 @@ const useSteps = ({
         )
       )
 
-      if (finalHash === finalUserOpHash) {
+      if (finalHash.toLowerCase() === userOpHash.toLowerCase()) {
         hashFound = true
         setUserOp({
           sender,
@@ -408,10 +408,10 @@ const useSteps = ({
         hashStatus: 'not_found'
       })
     }
-  }, [network, txn, finalUserOpHash, userOp])
+  }, [network, txn, userOpHash, userOp])
 
   useEffect(() => {
-    if (isUserOp && !userOp) return
+    if (userOpHash && !userOp) return
     if (calls) return
 
     if (network && txnReceipt.from && txn) {
@@ -422,7 +422,7 @@ const useSteps = ({
         signingKeyAddr: txnReceipt.from!, // irrelevant
         signingKeyType: 'internal', // irrelevant
         nonce: BigInt(0), // irrelevant
-        calls: reproduceCalls(txn, txnReceipt.from, userOp),
+        calls: reproduceCalls(txn, userOp),
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
@@ -440,7 +440,7 @@ const useSteps = ({
         return e
       })
     }
-  }, [network, txnReceipt, txn, isUserOp, standardOptions, userOp, calls])
+  }, [network, txnReceipt, txn, userOpHash, standardOptions, userOp, calls])
 
   return {
     nativePrice,
@@ -449,7 +449,8 @@ const useSteps = ({
     cost,
     calls,
     pendingTime,
-    userOpStatusData
+    userOpStatusData,
+    txnId: userOpStatusData.txnId ?? txnId
   }
 }
 
