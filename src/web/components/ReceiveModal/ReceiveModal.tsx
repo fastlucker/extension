@@ -6,12 +6,14 @@ import QRCode from 'react-native-qrcode-svg'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import Modal from '@common/components/Modal'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader/ModalHeader'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -19,13 +21,13 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 interface Props {
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
+  modalRef: any
+  handleClose: () => void
 }
 
 const { isPopup } = getUiType()
 
-const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
+const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const {
     selectedAccount,
     accounts,
@@ -48,13 +50,15 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
   }
 
   return (
-    <Modal
-      withBackButton={isPopup}
-      isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
-      modalStyle={styles.modal}
-      title="Receive Assets"
+    <BottomSheet
+      id="receive-assets-modal"
+      type="modal"
+      sheetRef={modalRef}
+      backgroundColor="primaryBackground"
+      containerInnerWrapperStyles={flexbox.alignCenter}
+      closeBottomSheet={handleClose}
     >
+      <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
         {isViewOnly ? (
           <Text
@@ -119,7 +123,7 @@ const ReceiveModal: FC<Props> = ({ isOpen, setIsOpen }) => {
         </View>
       </View>
       <AmbireLogoHorizontal />
-    </Modal>
+    </BottomSheet>
   )
 }
 

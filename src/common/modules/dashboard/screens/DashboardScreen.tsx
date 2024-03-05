@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
@@ -36,13 +37,13 @@ const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
+  const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
-  const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
     width: 0,
     height: 0
@@ -81,7 +82,7 @@ const DashboardScreen = () => {
 
   return (
     <>
-      <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
+      <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
       <View style={styles.container}>
         <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
           <View style={[styles.contentContainer]}>
@@ -179,7 +180,7 @@ const DashboardScreen = () => {
                       />
                     </AnimatedPressable>
                   </View>
-                  <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
+                  <Routes openReceiveModal={openReceiveModal} />
                 </View>
               </View>
             </View>

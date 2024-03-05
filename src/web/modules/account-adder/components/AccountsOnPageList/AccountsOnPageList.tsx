@@ -21,7 +21,6 @@ import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
 import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -48,7 +47,6 @@ const AccountsOnPageList = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const { theme } = useTheme()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const [modalContainerHeight, setModalContainerHeight] = useState(0)
@@ -244,13 +242,15 @@ const AccountsOnPageList = ({
         )}
 
         <BottomSheet
+          id="linked-accounts"
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
           scrollViewProps={{
             scrollEnabled: false
           }}
+          backgroundColor="primaryBackground"
           containerInnerWrapperStyles={{ maxHeight: Dimensions.get('window').height * 0.65 }}
-          style={{ maxWidth: tabLayoutWidths.lg, backgroundColor: theme.primaryBackground }}
+          style={{ maxWidth: tabLayoutWidths.lg }}
         >
           <Text style={spacings.mbMd} weight="medium" fontSize={20}>
             {t('Add Linked Accounts')}
