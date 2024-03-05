@@ -446,13 +446,16 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-              const keyIterator = new LatticeKeyIterator({
-                sdkSession: latticeCtrl.sdkSession
-              })
-              // TODO: Set page
-              return mainCtrl.accountAdder.init({
-                keyIterator,
+              const { sdkSession } = latticeCtrl
+              mainCtrl.accountAdder.init({
+                keyIterator: new LatticeKeyIterator({ sdkSession }),
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+              })
+
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {

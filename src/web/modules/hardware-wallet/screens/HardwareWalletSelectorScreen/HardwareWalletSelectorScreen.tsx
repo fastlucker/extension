@@ -54,13 +54,12 @@ const HardwareWalletSelectorScreen = () => {
   const onGridPlusPress = useCallback(async () => {
     try {
       await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
-      navigate(WEB_ROUTES.accountAdder, {
-        state: { keyType: 'lattice' }
-      })
     } catch (error: any) {
       addToast(error.message, { type: 'error' })
     }
-  }, [addToast, dispatchAsync, navigate])
+
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
+  }, [addToast, dispatch, dispatchAsync])
 
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),
