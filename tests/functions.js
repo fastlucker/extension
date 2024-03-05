@@ -155,40 +155,37 @@ export async function clickWhenClickable(page, selector) {
 }
 //----------------------------------------------------------------------------------------------
 export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
-        let elementToClick = await page.waitForSelector(triggerTransactionSelector);
-        await elementToClick.click();
+    let elementToClick = await page.waitForSelector(triggerTransactionSelector);
+    await elementToClick.click();
 
-        await new Promise((r) => setTimeout(r, 1000))
+    await new Promise((r) => setTimeout(r, 1000));
 
-        // Wait for the new window to be created and switch to it 
-        const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`);
-        const newPage = await newTarget.page();
+    // Wait for the new page to be created
+    const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`);
+    const newPage = await newTarget.page();
 
-        /* Click on "Medium" button */
-        await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
+    /* Click on "Medium" button */
+    await clickOnElement(newPage, 'xpath///div[contains(text(), "Slow:")]')
 
-        /* Click on "Sign" button */
-        await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
+    /* Click on "Sign" button */
+    await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
 
-        /* Set up a promise to await on the new page being created */
-        const newPagePromise = new Promise(x => browser.once('targetcreated', target => x(target.page())));
+    // Wait for the 'Timestamp' text to appear twice on the page
+    await newPage.waitForFunction(() => {
+        const pageText = document.documentElement.innerText;
+        const occurrences = (pageText.match(/Timestamp/g) || []).length;
+        return occurrences >= 2;
+    });
 
-        /* Wait for the new page to be created */
-        const newPage2 = await newPagePromise;
-        const two = await newPage2.waitForFunction(() => {
-            const pageText = document.documentElement.innerText;
-            const occurrences = (pageText.match(/Timestamp/g) || []).length;
-            return occurrences >= 2;
-        }, {})
+    const doesFailedExist = await newPage.evaluate(() => {
+        return document.documentElement.innerText.includes('Failed');
+    });
 
-        const doesFailedExist = await newPage2.evaluate(() => {
-            return document.documentElement.innerText.includes('Failed');
-        });
+    await new Promise((r) => setTimeout(r, 300));
 
-        await new Promise((r) => setTimeout(r, 300))
-        expect(doesFailedExist).toBe(false); // This will fail the test if 'Failed' exists
+    expect(doesFailedExist).toBe(false); // This will fail the test if 'Failed' exists
+}
 
-    } 
 
 //----------------------------------------------------------------------------------------------
 export async function generateEthereumPrivateKey() {

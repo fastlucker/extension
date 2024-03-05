@@ -93,6 +93,7 @@ const DashboardHeader = () => {
       >
         <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
           <AnimatedPressable
+            testID={'account-select'}
             style={[
               styles.accountButton,
               {
