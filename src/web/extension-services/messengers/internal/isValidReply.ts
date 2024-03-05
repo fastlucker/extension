@@ -1,4 +1,4 @@
-import { ReplyMessage } from './createMessenger'
+import { ReplyMessage } from '@web/extension-services/messengers/internal/createMessenger'
 
 export function isValidReply<TResponse>({
   id,

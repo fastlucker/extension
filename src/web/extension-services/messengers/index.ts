@@ -1,6 +1,6 @@
-import PortMessage from './internal/portMessage'
+import PortMessenger from '@web/extension-services/messengers/internal/portMessenger'
 
-export { PortMessage }
+export { PortMessenger }
 
-export type { Messenger } from './internal/createMessenger'
-export { initializeMessenger } from './initializeMessenger'
+export type { Messenger } from '@web/extension-services/messengers/internal/createMessenger'
+export { initializeMessenger } from '@web/extension-services/messengers/initializeMessenger'

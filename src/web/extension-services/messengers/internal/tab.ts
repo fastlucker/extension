@@ -1,6 +1,11 @@
-import { CallbackFunction, createMessenger, ReplyMessage, SendMessage } from './createMessenger'
-import { isValidReply } from './isValidReply'
-import { isValidSend } from './isValidSend'
+import {
+  CallbackFunction,
+  createMessenger,
+  ReplyMessage,
+  SendMessage
+} from '@web/extension-services/messengers/internal/createMessenger'
+import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
+import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 
 // Prevent the Ambire extension tab to be the last tab returned by the getActiveTabs func
 let activeTab: chrome.tabs.Tab
@@ -35,9 +40,7 @@ function sendMessage<TPayload>(message: SendMessage<TPayload>, { tabId }: { tabI
  * scripts where `chrome.tabs` & `chrome.runtime` is defined.
  *
  * Compatible connections:
- * - ❌ Popup <-> Inpage
  * - ❌ Background <-> Inpage
- * - ✅ Popup <-> Content Script
  * - ✅ Background <-> Content Script
  * - ❌ Content Script <-> Inpage
  */

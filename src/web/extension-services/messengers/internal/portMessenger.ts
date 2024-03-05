@@ -19,7 +19,17 @@ export type PortMessageType = {
   params: any
 }
 
-class PortMessage {
+/**
+ * Creates a "port messenger" that can be used for communication between ui <-> background.
+ *
+ * Compatible connections:
+ * - ✅ UI <-> Background
+ * - ❌ Background <-> Inpage
+ * - ❌ Background <-> Content Script
+ * - ❌ Content Script <-> Inpage
+ */
+
+class PortMessenger {
   port?: chrome.runtime.Port
 
   id: string = new Date().getTime().toString()
@@ -52,4 +62,4 @@ class PortMessage {
   }
 }
 
-export default PortMessage
+export default PortMessenger

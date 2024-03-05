@@ -12,7 +12,7 @@ export type CallbackFunction<TPayload, TResponse> = (
   callbackOptions: CallbackOptions
 ) => Promise<TResponse>
 
-export type Source = 'background' | 'content' | 'inpage' | 'popup'
+export type Source = 'background' | 'content' | 'inpage'
 
 export type Messenger = {
   /** Whether or not the messenger is available in the context. */

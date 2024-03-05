@@ -1,7 +1,10 @@
-import { bridgeMessenger } from './internal/bridge'
-import { tabMessenger } from './internal/tab'
-import { windowMessenger } from './internal/window'
-import { detectScriptType, ScriptType } from './utils/detectScriptType'
+import { bridgeMessenger } from '@web/extension-services/messengers/internal/bridge'
+import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
+import { windowMessenger } from '@web/extension-services/messengers/internal/window'
+import {
+  detectScriptType,
+  ScriptType
+} from '@web/extension-services/messengers/utils/detectScriptType'
 
 const messengersForConnection = {
   'popup <-> inpage': bridgeMessenger,

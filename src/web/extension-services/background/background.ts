@@ -33,7 +33,7 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import { PortMessage } from '@web/extension-services/messengers'
+import { PortMessenger } from '@web/extension-services/messengers'
 import {
   getDefaultAccountPreferences,
   getDefaultKeyLabel
@@ -100,7 +100,7 @@ async function init() {
       standBy: number
     }
     hasSignAccountOpCtrlInitialized: boolean
-    portMessageUIRefs: { [key: string]: PortMessage }
+    portMessengers: { [key: string]: PortMessenger }
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
     reestimateInterval?: ReturnType<typeof setInterval>
@@ -119,7 +119,7 @@ async function init() {
       standBy: 300000
     },
     hasSignAccountOpCtrlInitialized: false,
-    portMessageUIRefs: {}
+    portMessengers: {}
   }
 
   const ledgerCtrl = new LedgerController()
@@ -177,7 +177,7 @@ async function init() {
       () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
       // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      Object.keys(backgroundState.portMessageUIRefs).length ? 60000 : 600000
+      Object.keys(backgroundState.portMessengers).length ? 60000 : 600000
     )
   }
 
@@ -248,8 +248,8 @@ async function init() {
     // Debounce multiple emits in the same tick and only execute one if them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
-        Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.send('> ui', {
+        Object.keys(backgroundState.portMessengers).forEach((key: string) => {
+          backgroundState.portMessengers[key]?.send('> ui', {
             method: ctrlName,
             params: ctrl
           })
@@ -322,8 +322,8 @@ async function init() {
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
-            Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-              backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
+            Object.keys(backgroundState.portMessengers).forEach((key: string) => {
+              backgroundState.portMessengers[key]?.send('> ui-error', {
                 method: ctrlName,
                 params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
               })
@@ -346,8 +346,8 @@ async function init() {
   }, 'background')
   mainCtrl.onError(() => {
     logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
-    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
+    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
+      backgroundState.portMessengers[key]?.send('> ui-error', {
         method: 'main',
         params: { errors: mainCtrl.emittedErrors, controller: 'main' }
       })
@@ -359,8 +359,8 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
   })
   walletStateCtrl.onError(() => {
-    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
+    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
+      backgroundState.portMessengers[key]?.send('> ui-error', {
         method: 'walletState',
         params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
       })
@@ -372,8 +372,8 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
   })
   notificationCtrl.onError(() => {
-    Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
+    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
+      backgroundState.portMessengers[key]?.send('> ui-error', {
         method: 'notification',
         params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
       })
@@ -383,8 +383,8 @@ async function init() {
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: chrome.runtime.Port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessage(port)
-      backgroundState.portMessageUIRefs[pm.id] = pm
+      const pm = new PortMessenger(port)
+      backgroundState.portMessengers[pm.id] = pm
       setPortfolioFetchInterval()
 
       // @ts-ignore
@@ -790,7 +790,7 @@ async function init() {
       })
 
       port.onDisconnect.addListener(() => {
-        delete backgroundState.portMessageUIRefs[pm.id]
+        delete backgroundState.portMessengers[pm.id]
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {

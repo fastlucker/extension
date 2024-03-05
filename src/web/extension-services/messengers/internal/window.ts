@@ -1,15 +1,17 @@
-import { CallbackFunction, createMessenger, SendMessage } from './createMessenger'
-import { isValidReply } from './isValidReply'
-import { isValidSend } from './isValidSend'
+import {
+  CallbackFunction,
+  createMessenger,
+  SendMessage
+} from '@web/extension-services/messengers/internal/createMessenger'
+import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
+import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 
 /**
  * Creates a "window messenger" that can be used to communicate between
  * scripts where `window` is defined.
  *
  * Compatible connections:
- * - ❌ Popup <-> Inpage
  * - ❌ Background <-> Inpage
- * - ❌ Popup <-> Content Script
  * - ❌ Background <-> Content Script
  * - ✅ Content Script <-> Inpage
  */

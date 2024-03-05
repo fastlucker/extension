@@ -1,4 +1,4 @@
-import { SendMessage } from './createMessenger'
+import { SendMessage } from '@web/extension-services/messengers/internal/createMessenger'
 
 export function isValidSend({ topic, message }: { topic: string; message: SendMessage<unknown> }) {
   if (!message.topic) return false

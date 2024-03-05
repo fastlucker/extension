@@ -1,7 +1,7 @@
-import { detectScriptType } from '../utils/detectScriptType'
-import { createMessenger } from './createMessenger'
-import { tabMessenger } from './tab'
-import { windowMessenger } from './window'
+import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
+import { tabMessenger } from '@web/extension-services/messengers/internal/tab'
+import { windowMessenger } from '@web/extension-services/messengers/internal/window'
+import { detectScriptType } from '@web/extension-services/messengers/utils/detectScriptType'
 
 const messenger = tabMessenger.available ? tabMessenger : windowMessenger
 
@@ -10,9 +10,7 @@ const messenger = tabMessenger.available ? tabMessenger : windowMessenger
  * scripts where there isn't a direct messaging connection (ie. inpage <-> background).
  *
  * Compatible connections:
- * - ✅ Popup <-> Inpage
  * - ✅ Background <-> Inpage
- * - ❌ Popup <-> Content Script
  * - ❌ Background <-> Content Script
  * - ❌ Content Script <-> Inpage
  */
