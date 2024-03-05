@@ -52,12 +52,13 @@ const PrivateKeyImportScreen = () => {
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
-      let formattedPrivateKey = privateKey.trim()
-      formattedPrivateKey = privateKey.slice(0, 2) === '0x' ? privateKey.slice(2) : privateKey
+      const trimmedPrivateKey = privateKey.trim()
+      const noPrefixPrivateKey =
+        trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
       dispatch({
         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-        params: { privKeyOrSeed: formattedPrivateKey }
+        params: { privKeyOrSeed: noPrefixPrivateKey }
       })
     })()
   }, [dispatch, handleSubmit])

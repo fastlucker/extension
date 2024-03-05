@@ -4,11 +4,12 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Dimensions, ScrollView, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import AccountAdderController, {
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import {
+  Account as AccountInterface,
   AccountOnPage,
   ImportStatus
-} from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+} from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import BottomSheet from '@common/components/BottomSheet'

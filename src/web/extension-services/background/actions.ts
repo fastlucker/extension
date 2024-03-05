@@ -2,7 +2,7 @@ import AccountAdderController from '@ambire-common/controllers/accountAdder/acco
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
