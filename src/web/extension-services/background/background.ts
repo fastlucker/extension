@@ -423,13 +423,38 @@ async function init() {
               break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-              const keyIterator = new LedgerKeyIterator({
-                walletSDK: ledgerCtrl.walletSDK
-              })
-              // TODO: Set page
-              return mainCtrl.accountAdder.init({
+              if (!ledgerCtrl.isUnlocked()) {
+                try {
+                  await ledgerCtrl.unlock()
+                } catch (e: any) {
+                  const message =
+                    e?.message || 'Could not unlock the Ledger device. Please try again.'
+                  const error = { message, level: 'major', error: e }
+
+                  return pm.send('broadcast', {
+                    type: 'broadcast-error',
+                    method: 'ledger',
+                    params: {
+                      errors: [error],
+                      controller: 'ledger'
+                    }
+                  })
+                }
+              }
+
+              const { walletSDK } = ledgerCtrl
+              // Should never happen
+              if (!walletSDK) console.error('Ledger walletSDK is not initialized')
+
+              const keyIterator = new LedgerKeyIterator({ walletSDK })
+              mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
+              })
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
@@ -739,9 +764,6 @@ async function init() {
               return notificationCtrl.reopenCurrentNotificationRequest()
             case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
               return notificationCtrl.openNotificationRequest(data.params.id)
-
-            case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock()
 
             case 'LATTICE_CONTROLLER_UNLOCK':
               return latticeCtrl.unlock()

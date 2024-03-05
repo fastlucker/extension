@@ -8,13 +8,12 @@ import Button from '@common/components/Button'
 import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 type Props = {
   isOpen: boolean
@@ -22,47 +21,27 @@ type Props = {
 }
 
 const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
-  const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
 
   useEffect(() => {
     updateStepperState('connect-hardware-wallet', 'hw')
   }, [updateStepperState])
 
   const onPressNext = async () => {
-    const supportWebHID = await TransportWebHID.isSupported()
-    const hasConnectedLedger = await hasConnectedLedgerDevice()
+    // TODO: Probably not needed anymore?
+    // const hasConnectedLedger = await hasConnectedLedgerDevice()
+    // if (!hasConnectedLedger) {
+    //   try {
+    //     const transport = await TransportWebHID.create()
+    //     await transport.close()
+    //   } catch (e) {
+    //     console.error(e)
+    //   }
+    // }
 
-    if (!supportWebHID) {
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'ledger',
-          isWebHID: false
-        }
-      })
-    } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'ledger',
-          isWebHID: true
-        }
-      })
-    } else {
-      try {
-        const transport = await TransportWebHID.create()
-        await transport.close()
-
-        navigate(WEB_ROUTES.accountAdder, {
-          state: {
-            keyType: 'ledger',
-            isWebHID: true
-          }
-        })
-      } catch (e) {
-        console.error(e)
-      }
-    }
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
 
   return (
