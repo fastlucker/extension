@@ -1,13 +1,13 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
+import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import useRoute from '@common/hooks/useRoute'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 
 type ContextReturn = {
   state: TransferControllerState
@@ -85,13 +85,13 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [tokens, dispatch])
 
   useEffect(() => {
-    if (!mainState.selectedAccount) return
+    if (!mainState.selectedAccount || !mainState.accounts) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: { selectedAccount: mainState.selectedAccount }
+      params: { selectedAccount: mainState.selectedAccount, accounts: mainState.accounts }
     })
-  }, [mainState.selectedAccount, dispatch])
+  }, [mainState.selectedAccount, dispatch, mainState.accounts])
 
   useEffect(() => {
     if (mainState.isReady && !Object.keys(state).length) {
