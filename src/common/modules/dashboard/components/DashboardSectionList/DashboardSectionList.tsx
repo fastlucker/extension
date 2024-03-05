@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
 
 import { Banner } from '@ambire-common/interfaces/banner'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
@@ -26,6 +27,7 @@ import Tokens from '../Tokens'
 interface Props {
   accountPortfolio: AccountPortfolio | null
   filterByNetworkId: any
+  tokenPreferences: CustomToken[]
 }
 
 // We do this instead of unmounting the component to prevent component rerendering when switching tabs.
@@ -33,7 +35,7 @@ const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0, display: 'no
 
 const { isPopup } = getUiType()
 
-const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) => {
+const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPreferences }: Props) => {
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const { theme } = useTheme()
@@ -186,6 +188,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
                 pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
                 style={openTab !== 'tokens' ? HIDDEN_STYLE : {}}
                 isLoading={!accountPortfolio?.isAllReady}
+                tokenPreferences={tokenPreferences}
               />
             )}
 

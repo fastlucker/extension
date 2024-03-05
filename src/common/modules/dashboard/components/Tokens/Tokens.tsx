@@ -10,6 +10,8 @@ import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -30,26 +32,41 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
+const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: Props) => {
   const { t } = useTranslation()
+  const { navigate } = useNavigation()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  // Filter out tokens which are not custom
-  const hasNonZeroToken = tokens.some(({ amount }) => amount > 0n)
+
+  // Filter out tokens which are not in
+  // tokenPreferences and pinned
+  const hasNonZeroToken = tokens
+    .filter(
+      ({ address, amount }) =>
+        !PINNED_TOKENS.find((token) => token.address === address && token.amount > 0n) &&
+        !tokenPreferences.find((token) => token.address === address) &&
+        amount > 0n
+    )
+    .some((token) => token.amount > 0n)
 
   const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
+
   // TODO Bring back the pinned tokens and add isHidden filter
   const sortedTokens = useMemo(
     () =>
       tokens
         .filter(
           (token) =>
-            token ||
+            token.amount > 0n ||
+            tokenPreferences.find(
+              ({ address, networkId }) => token.address === address && token.networkId === networkId
+            ) ||
             (!hasNonZeroToken &&
               PINNED_TOKENS.find(
                 ({ address, networkId }) =>
                   token.address === address && token.networkId === networkId
               ))
         )
+        .filter((token) => !token.isHidden)
         .sort((a, b) => {
           // If a is a rewards token and b is not, a should come before b.
           if (a.flags.rewardsType && !b.flags.rewardsType) {
@@ -145,7 +162,11 @@ const Tokens = ({ isLoading, tokens, searchValue, ...rest }: Props) => {
       </View>
 
       {/* TODO: implementation of add custom token will be in sprint 4 */}
-      <Button disabled type="secondary" text="+ Add Custom" />
+      <Button
+        type="secondary"
+        text="+ Add Custom"
+        onPress={() => navigate(WEB_ROUTES.customTokens)}
+      />
     </View>
   )
 }

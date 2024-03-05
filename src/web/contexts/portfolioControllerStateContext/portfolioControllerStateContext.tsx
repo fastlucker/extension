@@ -141,15 +141,21 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const updateTokenPreferences = useCallback(
-    (token: any) => {
+    async (token: any) => {
       const tokenPreferences = state?.tokenPreferences
       const tokenIsNotInPreferences = !tokenPreferences.find(
         ({ address }) => address === token.address
       )
-      if (!tokenIsNotInPreferences) {
+      if (tokenIsNotInPreferences) {
         tokenPreferences.push(token)
+      } else {
+        tokenPreferences.map((t: any) => {
+          if (t.address === token.address) {
+            t = token
+          }
+          return t
+        })
       }
-
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
         params: {

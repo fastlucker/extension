@@ -48,7 +48,7 @@ const WatchTokenRequestScreen = () => {
     portfolio.accountPortfolio?.tokens?.find(
       ({ address }) => address === getAddress(tokenData?.address)
     )
-
+  console.log(portfolioFoundToken)
   useEffect(() => {
     if (!tokenData) return
     const address = getAddress(tokenData.address)
@@ -59,7 +59,7 @@ const WatchTokenRequestScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioFoundToken, tokenData])
 
-  const handleAddToken = useCallback(() => {
+  const handleAddToken = useCallback(async () => {
     const token = {
       address: getAddress(tokenData.address),
       name: tokenData?.name,
@@ -69,7 +69,7 @@ const WatchTokenRequestScreen = () => {
       networkId: network?.id
     }
 
-    portfolio.updateTokenPreferences(token)
+    await portfolio.updateTokenPreferences(token)
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: { data: null }
