@@ -5,19 +5,17 @@ import { Pressable, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import AddIcon from '@common/assets/svg/AddIcon'
-import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
+import Network from './Network'
 import NetworkForm from './NetworkForm'
 
 const getAreDefaultsChanged = (values: any, selectedNetwork?: NetworkDescriptor) => {
@@ -114,26 +112,12 @@ const NetworksSettingsScreen = () => {
           <View style={spacings.mbXl}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
-                <Pressable
+                <Network
                   key={network.id}
-                  onPress={() => handleSelectNetwork(network.id)}
-                  style={({ hovered }: any) => [
-                    flexboxStyles.directionRow,
-                    flexboxStyles.alignCenter,
-                    spacings.pvTy,
-                    spacings.phTy,
-                    common.borderRadiusPrimary,
-                    spacings.mbMi,
-                    network.id === selectedNetworkId || hovered
-                      ? { backgroundColor: theme.secondaryBackground }
-                      : {}
-                  ]}
-                >
-                  <NetworkIcon name={network.id as NetworkIconNameType} />
-                  <Text fontSize={16} weight="regular" style={spacings.mlMi}>
-                    {network.name}
-                  </Text>
-                </Pressable>
+                  network={network}
+                  selectedNetworkId={selectedNetworkId}
+                  handleSelectNetwork={handleSelectNetwork}
+                />
               ))
             ) : (
               <Text weight="regular" style={spacings.mlSm}>

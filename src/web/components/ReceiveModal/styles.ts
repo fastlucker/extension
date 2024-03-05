@@ -38,12 +38,17 @@ const getStyles = (theme: ThemeProps) =>
       marginBottom: isTab ? SPACING_LG : SPACING,
       width: '100%'
     },
-    qrCodeContainer: { ...flexbox.alignCenter, marginBottom: isTab ? SPACING_XL : SPACING_MD },
+    qrCodeContainer: { ...flexbox.alignCenter, ...spacings.mb },
     qrCode: {
       ...common.borderRadiusPrimary,
       overflow: 'hidden'
     },
-    accountAddress: { marginHorizontal: 'auto', ...spacings.mb },
+    accountAddress: {
+      marginHorizontal: 'auto',
+      ...spacings.mbXl,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter
+    },
     copyButton: {
       width: 160,
       marginHorizontal: 'auto',

@@ -35,7 +35,7 @@ import getStyles from './styles'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
+const DISCORD_URL = 'https://www.ambire.com/discord'
 
 const SOCIAL = [
   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },

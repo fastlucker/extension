@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -39,6 +39,9 @@ const DashboardScreen = () => {
   const { minWidthSize } = useWindowSize()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
+    preset: 'opacity'
+  })
+  const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
@@ -137,9 +140,13 @@ const DashboardScreen = () => {
                         {!accountPortfolio?.isAllReady ? (
                           <Spinner style={{ width: 16, height: 16 }} />
                         ) : (
-                          <Pressable onPress={refreshPortfolio}>
+                          <AnimatedPressable
+                            style={refreshButtonAnimStyle}
+                            onPress={refreshPortfolio}
+                            {...bindRefreshButtonAnim}
+                          >
                             <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </Pressable>
+                          </AnimatedPressable>
                         )}
                       </View>
                     </View>

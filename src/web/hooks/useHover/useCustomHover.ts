@@ -14,7 +14,7 @@ interface Props {
 
 const useCustomHover = ({ property, values, duration, forceHoveredStyle }: Props) => {
   const value = useMultiHover({
-    values: [{ key: property, ...values, duration }],
+    values: [{ property, ...values, duration }],
     forceHoveredStyle
   })
 

@@ -5,8 +5,7 @@ import {
   HD_PATH_TEMPLATE_TYPE,
   SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
 } from '@ambire-common/consts/derivation'
-import { ReadyToAddKeys } from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Key } from '@ambire-common/interfaces/keystore'
+import { Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import {
   derivePrivateKeyFromAnotherPrivateKey,
   getPrivateKeyFromSeed,
