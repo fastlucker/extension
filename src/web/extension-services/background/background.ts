@@ -437,9 +437,14 @@ async function init() {
                 walletSDK: trezorCtrl.walletSDK
               })
               // TODO: Set page
-              return mainCtrl.accountAdder.init({
+              mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+              })
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {

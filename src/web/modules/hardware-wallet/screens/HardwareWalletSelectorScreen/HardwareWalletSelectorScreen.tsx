@@ -16,6 +16,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -28,7 +29,8 @@ const HardwareWalletSelectorScreen = () => {
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { updateStepperState } = useStepper()
-  const { dispatchAsync } = useBackgroundService()
+  const accountAdderCtrlState = useAccountAdderControllerState()
+  const { dispatchAsync, dispatch } = useBackgroundService()
   const { theme } = useTheme()
   const [ledgerModalOpened, setLedgerModalOpened] = useState(false)
 
@@ -36,16 +38,14 @@ const HardwareWalletSelectorScreen = () => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
   }, [updateStepperState])
 
-  const onTrezorPress = useCallback(async () => {
-    try {
-      // No need for a separate request to unlock Trezor, it's done in the background
-      navigate(WEB_ROUTES.accountAdder, {
-        state: { keyType: 'trezor' }
-      })
-    } catch (error: any) {
-      addToast(error.message, { type: 'error' })
-    }
-  }, [addToast, navigate])
+  useEffect(() => {
+    if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
+  }, [accountAdderCtrlState.isInitialized, navigate])
+
+  const onTrezorPress = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
+    [dispatch]
+  )
 
   const onLedgerPress = useCallback(async () => {
     setLedgerModalOpened(true)
