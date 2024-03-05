@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
@@ -297,10 +298,8 @@ const SignMessageScreen = () => {
             </View>
           </Button>
 
-          {isScrollToBottomForced && !isViewOnly ? (
-            <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
-              {t('Please read the message before signing.')}
-            </Text>
+          {isScrollToBottomForced && !isViewOnly && shouldShowFallback ? (
+            <Alert type="error" text={t('Please, read the entire message before signing it.')} />
           ) : null}
           {isViewOnly ? (
             <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
