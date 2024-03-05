@@ -4,7 +4,6 @@ import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { isValidAddress } from '@ambire-common/services/address'
-import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Input from '@common/components/Input'
@@ -13,6 +12,7 @@ import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -28,6 +28,7 @@ type NetworkOption = {
 const AddToken = () => {
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
+  const { addToast } = useToast()
 
   const [network, setNetwork] = useState<NetworkDescriptor>(
     networks.filter((n) => n.id === 'ethereum')[0]
@@ -67,17 +68,27 @@ const AddToken = () => {
   const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
     (token) => token.address === address
   )
-  console.log(portfolioFoundToken)
 
-  const handleAddToken = useCallback(() => {
+  const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
 
-    portfolio.updateTokenPreferences({
+    await portfolio.updateTokenPreferences({
       address,
       networkId: network.id,
-      standard: 'ERC20'
+      standard: 'ERC20',
+      decimals: portfolioFoundToken?.decimals,
+      name: portfolioFoundToken?.name
     })
-  }, [address, network, portfolio])
+
+    addToast(`Added token ${address} on ${network.name} to your portfolio`)
+  }, [
+    address,
+    network,
+    portfolio,
+    addToast,
+    portfolioFoundToken?.decimals,
+    portfolioFoundToken?.name
+  ])
 
   return (
     <View style={flexbox.flex1}>
@@ -127,7 +138,6 @@ const AddToken = () => {
             {portfolioFoundToken?.priceIn?.length ? (
               <CoingeckoConfirmedBadge text="Confirmed" />
             ) : null}
-            <DeleteIcon color="#54597a" style={[spacings.phTy, { cursor: 'pointer' }]} />
           </View>
         </View>
       ) : null}
@@ -138,10 +148,7 @@ const AddToken = () => {
         style={{ maxWidth: 196 }}
         onPress={() => {
           handleAddToken()
-          // setChangePasswordReady(false)
-          // resetField('password')
-          // resetField('newPassword')
-          // resetField('confirmNewPassword')
+          setAddress('')
         }}
       />
     </View>

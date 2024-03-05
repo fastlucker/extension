@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
@@ -19,7 +20,24 @@ const HideToken = () => {
   const portfolio = usePortfolioControllerState()
 
   const [address, setAddress] = useState('')
+  console.log(portfolio.state.tokenPreferences)
+  const hideToken = useCallback(async (token) => {
+    console.log('hide token')
+    const tokenPreferences = portfolio.state.tokenPreferences
+    // Flip isHidden flag
+    const newTokenPreference = tokenPreferences.find(
+      (tokenPreference) => tokenPreference.address === token.address
+    )
 
+    newTokenPreference.isHidden = !newTokenPreference.isHidden
+    console.log(newTokenPreference)
+
+    await portfolio.updateTokenPreferences(newTokenPreference)
+  }, [])
+
+  // TODO: Why is isHidden not showing up for a token?
+
+  console.log(portfolio.accountPortfolio?.tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
@@ -33,7 +51,15 @@ const HideToken = () => {
       />
       <View>
         {portfolio.accountPortfolio?.tokens
-          .filter((token) => token.amount > 0n && !token.flags.onGasTank)
+          .filter(
+            (token) =>
+              (token.amount > 0n ||
+                portfolio.state.tokenPreferences.find(
+                  ({ address, networkId }) =>
+                    token.address === address && token.networkId === networkId
+                )) &&
+              !token.flags.onGasTank
+          )
           .map((token) => (
             <View
               key={`${token.address}-${token.networkId}`}
@@ -62,12 +88,19 @@ const HideToken = () => {
               </View>
               <View style={flexbox.directionRow}>
                 {token.isHidden ? (
-                  <VisibilityIcon color="#018649" style={[spacings.phTy, { cursor: 'pointer' }]} />
+                  <Pressable onPress={() => hideToken(token)}>
+                    <VisibilityIcon
+                      color="#018649"
+                      style={[spacings.phTy, { cursor: 'pointer' }]}
+                    />
+                  </Pressable>
                 ) : (
-                  <InvisibilityIcon
-                    color="#ea0129"
-                    style={[spacings.phTy, { cursor: 'pointer' }]}
-                  />
+                  <Pressable onPress={() => hideToken(token)}>
+                    <InvisibilityIcon
+                      color="#ea0129"
+                      style={[spacings.phTy, { cursor: 'pointer' }]}
+                    />
+                  </Pressable>
                 )}
                 <DeleteIcon color="#54597a" style={[spacings.phTy, { cursor: 'pointer' }]} />
               </View>
