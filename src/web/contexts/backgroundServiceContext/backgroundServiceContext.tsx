@@ -9,7 +9,7 @@ import {
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
 import eventBus from '@web/extension-services/event/eventBus'
-import PortMessage from '@web/extension-services/message/portMessage'
+import { PortMessage } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
@@ -34,12 +34,12 @@ if (isExtension) {
 
   portMessageChannel.connect(portName)
 
-  portMessageChannel.listen((data: { type: string; method: string; params: any }) => {
-    if (data.type === 'broadcast') {
-      eventBus.emit(data.method, data.params)
+  portMessageChannel.listen(({ messageType, method, params }) => {
+    if (messageType === '> ui') {
+      eventBus.emit(method, params)
     }
-    if (data.type === 'broadcast-error') {
-      eventBus.emit('error', data.params)
+    if (messageType === '> ui-error') {
+      eventBus.emit('error', params)
     }
   })
 
@@ -50,8 +50,9 @@ if (isExtension) {
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
-    portMessageChannel.send('broadcast', {
+    portMessageChannel.send('> background', {
       type: action.type,
+      method: '',
       // TypeScript being unable to guarantee that every member of the Action
       // union has the `params` property (some indeed don't), but this is fine.
       // @ts-ignore

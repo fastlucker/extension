@@ -9,7 +9,6 @@ import { isValidSend } from './isValidSend'
  * Compatible connections:
  * - ❌ Popup <-> Inpage
  * - ❌ Background <-> Inpage
- * - ❌ Background <-> Popup
  * - ❌ Popup <-> Content Script
  * - ❌ Background <-> Content Script
  * - ✅ Content Script <-> Inpage

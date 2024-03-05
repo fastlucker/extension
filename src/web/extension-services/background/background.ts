@@ -33,7 +33,7 @@ import provider from '@web/extension-services/background/provider/provider'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import PortMessage from '@web/extension-services/message/portMessage'
+import { PortMessage } from '@web/extension-services/messengers'
 import {
   getDefaultAccountPreferences,
   getDefaultKeyLabel
@@ -250,8 +250,7 @@ async function init() {
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
         Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-          backgroundState.portMessageUIRefs[key]?.send('broadcast', {
-            type: 'broadcast',
+          backgroundState.portMessageUIRefs[key]?.send('> ui', {
             method: ctrlName,
             params: ctrl
           })
@@ -325,8 +324,7 @@ async function init() {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
             Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-              backgroundState.portMessageUIRefs[key]?.send('broadcast', {
-                type: 'broadcast-error',
+              backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
                 method: ctrlName,
                 params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
               })
@@ -350,8 +348,7 @@ async function init() {
   mainCtrl.onError(() => {
     logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
-        type: 'broadcast-error',
+      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
         method: 'main',
         params: { errors: mainCtrl.emittedErrors, controller: 'main' }
       })
@@ -364,8 +361,7 @@ async function init() {
   })
   walletStateCtrl.onError(() => {
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
-        type: 'broadcast-error',
+      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
         method: 'walletState',
         params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
       })
@@ -378,8 +374,7 @@ async function init() {
   })
   notificationCtrl.onError(() => {
     Object.keys(backgroundState.portMessageUIRefs).forEach((key: string) => {
-      backgroundState.portMessageUIRefs[key]?.send('broadcast', {
-        type: 'broadcast-error',
+      backgroundState.portMessageUIRefs[key]?.send('> ui-error', {
         method: 'notification',
         params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
       })
@@ -387,40 +382,35 @@ async function init() {
   })
 
   // listen for messages from UI
-  browser.runtime.onConnect.addListener(async (port) => {
+  browser.runtime.onConnect.addListener(async (port: chrome.runtime.Port) => {
     if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const id = new Date().getTime().toString()
-      const pm = new PortMessage(port, id)
+      const pm = new PortMessage(port)
       backgroundState.portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
 
-      pm.listen(async (data: Action) => {
-        if (data?.type) {
-          switch (data.type) {
+      pm.listen(async ({ messageType, type, params }) => {
+        if (messageType === '> background' && type) {
+          switch (type) {
             case 'INIT_CONTROLLER_STATE': {
-              if (data.params.controller === ('main' as any)) {
-                pm.send('broadcast', {
-                  type: 'broadcast',
+              if (params.controller === ('main' as any)) {
+                pm.send('> ui', {
                   method: 'main',
                   params: mainCtrl
                 })
-              } else if (data.params.controller === ('notification' as any)) {
-                pm.send('broadcast', {
-                  type: 'broadcast',
+              } else if (params.controller === ('notification' as any)) {
+                pm.send('> ui', {
                   method: 'notification',
                   params: notificationCtrl
                 })
-              } else if (data.params.controller === ('walletState' as any)) {
-                pm.send('broadcast', {
-                  type: 'broadcast',
+              } else if (params.controller === ('walletState' as any)) {
+                pm.send('> ui', {
                   method: 'walletState',
                   params: walletStateCtrl
                 })
               } else {
-                pm.send('broadcast', {
-                  type: 'broadcast',
-                  method: data.params.controller,
-                  params: (mainCtrl as any)[data.params.controller]
+                pm.send('> ui', {
+                  method: params.controller,
+                  params: (mainCtrl as any)[params.controller]
                 })
               }
               break
@@ -453,8 +443,8 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-              const pageSize = data.params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
-              const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
+              const pageSize = params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
+              const keyIterator = new KeyIterator(params.privKeyOrSeed)
               return mainCtrl.accountAdder.init({
                 keyIterator,
                 pageSize,
@@ -462,46 +452,40 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
-              return mainCtrl.settings.addAccountPreferences(data.params)
+              return mainCtrl.settings.addAccountPreferences(params)
             }
             case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
-              return mainCtrl.updateNetworkPreferences(
-                data.params.networkPreferences,
-                data.params.networkId
-              )
+              return mainCtrl.updateNetworkPreferences(params.networkPreferences, params.networkId)
             }
             case 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE': {
-              return mainCtrl.resetNetworkPreference(
-                data.params.preferenceKey,
-                data.params.networkId
-              )
+              return mainCtrl.resetNetworkPreference(params.preferenceKey, params.networkId)
             }
             case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-              return mainCtrl.selectAccount(data.params.accountAddr)
+              return mainCtrl.selectAccount(params.accountAddr)
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
-              return mainCtrl.accountAdder.selectAccount(data.params.account)
+              return mainCtrl.accountAdder.selectAccount(params.account)
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
-              return mainCtrl.accountAdder.deselectAccount(data.params.account)
+              return mainCtrl.accountAdder.deselectAccount(params.account)
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET': {
               return mainCtrl.accountAdder.reset()
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
               return mainCtrl.accountAdder.setPage({
-                ...data.params,
+                ...params,
                 networks,
                 providers: rpcProviders
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
               const readyToAddKeys: ReadyToAddKeys = {
-                internal: data.params.readyToAddKeys.internal,
+                internal: params.readyToAddKeys.internal,
                 external: []
               }
 
-              if (data.params.readyToAddKeys.externalTypeOnly) {
-                const keyType = data.params.readyToAddKeys.externalTypeOnly
+              if (params.readyToAddKeys.externalTypeOnly) {
+                const keyType = params.readyToAddKeys.externalTypeOnly
 
                 const deviceIds: { [key in ExternalKey['type']]: string } = {
                   ledger: ledgerCtrl.deviceId,
@@ -536,19 +520,19 @@ async function init() {
               }
 
               return mainCtrl.accountAdder.addAccounts(
-                data.params.selectedAccounts,
-                data.params.readyToAddAccountPreferences,
+                params.selectedAccounts,
+                params.readyToAddAccountPreferences,
                 readyToAddKeys,
-                data.params.readyToAddKeyPreferences
+                params.readyToAddKeyPreferences
               )
             }
             case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
               const defaultAccountPreferences = getDefaultAccountPreferences(
-                data.params.accounts,
+                params.accounts,
                 mainCtrl.accounts
               )
 
-              const ensOrUdAccountPreferences: AccountPreferences = data.params.accounts.reduce(
+              const ensOrUdAccountPreferences: AccountPreferences = params.accounts.reduce(
                 (acc: AccountPreferences, account) => {
                   if (account.domainName) {
                     acc[account.addr] = {
@@ -565,7 +549,7 @@ async function init() {
 
               // Since these accounts are view-only, directly add them in the
               // MainController, bypassing the AccountAdder flow.
-              await mainCtrl.addAccounts(data.params.accounts)
+              await mainCtrl.addAccounts(params.accounts)
 
               // And manually trigger some of the `onAccountAdderSuccess` steps
               // that are needed for view-only accounts, since the AccountAdder
@@ -576,13 +560,13 @@ async function init() {
                   ...defaultAccountPreferences,
                   ...ensOrUdAccountPreferences
                 }),
-                mainCtrl.selectAccount(data.params.accounts[0].addr)
+                mainCtrl.selectAccount(params.accounts[0].addr)
               ])
             }
             // This flow interacts manually with the AccountAdder controller so that it can
             // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
             case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
-              const seed = data.params.seed
+              const seed = params.seed
               const keyIterator = new KeyIterator(seed)
 
               await mainCtrl.accountAdder.init({
@@ -647,67 +631,64 @@ async function init() {
               )
             }
             case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
-              return mainCtrl.addUserRequest(data.params)
+              return mainCtrl.addUserRequest(params)
             case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-              return mainCtrl.removeUserRequest(data.params.id)
+              return mainCtrl.removeUserRequest(params.id)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-              return mainCtrl.signMessage.init(data.params)
+              return mainCtrl.signMessage.init(params)
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
               return mainCtrl.signMessage.reset()
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
               return mainCtrl.signMessage.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-              return mainCtrl.signMessage.setSigningKey(data.params.key, data.params.type)
+              return mainCtrl.signMessage.setSigningKey(params.key, params.type)
             case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
-              return mainCtrl.broadcastSignedMessage(data.params.signedMessage)
+              return mainCtrl.broadcastSignedMessage(params.signedMessage)
             case 'MAIN_CONTROLLER_ACTIVITY_INIT':
               return mainCtrl.activity.init({
-                filters: data.params.filters
+                filters: params.filters
               })
             case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
-              return mainCtrl.activity.setFilters(data.params.filters)
+              return mainCtrl.activity.setFilters(params.filters)
             case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
-              return mainCtrl.activity.setAccountsOpsPagination(data.params.pagination)
+              return mainCtrl.activity.setAccountsOpsPagination(params.pagination)
             case 'MAIN_CONTROLLER_ACTIVITY_SET_SIGNED_MESSAGES_PAGINATION':
-              return mainCtrl.activity.setSignedMessagesPagination(data.params.pagination)
+              return mainCtrl.activity.setSignedMessagesPagination(params.pagination)
             case 'MAIN_CONTROLLER_ACTIVITY_RESET':
               return mainCtrl.activity.reset()
 
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE':
-              return mainCtrl?.signAccountOp?.update(data.params)
+              return mainCtrl?.signAccountOp?.update(params)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_SIGN': {
               return mainCtrl?.signAccountOp?.sign()
             }
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
-              return mainCtrl.initSignAccOp(data.params.accountAddr, data.params.networkId)
+              return mainCtrl.initSignAccOp(params.accountAddr, params.networkId)
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
               return mainCtrl.destroySignAccOp()
             case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-              return mainCtrl.reestimateAndUpdatePrices(
-                data.params.accountAddr,
-                data.params.networkId
-              )
+              return mainCtrl.reestimateAndUpdatePrices(params.accountAddr, params.networkId)
 
             case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
-              return mainCtrl.transfer.update(data.params)
+              return mainCtrl.transfer.update(params)
             case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
               return mainCtrl.transfer.resetForm()
             case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
               return mainCtrl.transfer.buildUserRequest()
             case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
-              notificationCtrl.resolveNotificationRequest(data.params.data, data.params.id)
+              notificationCtrl.resolveNotificationRequest(params.data, params.id)
               break
             }
             case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-              notificationCtrl.rejectNotificationRequest(data.params.err, data.params.id)
+              notificationCtrl.rejectNotificationRequest(params.err, params.id)
               break
             }
 
             case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
               return notificationCtrl.reopenCurrentNotificationRequest()
             case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
-              return notificationCtrl.openNotificationRequest(data.params.id)
+              return notificationCtrl.openNotificationRequest(params.id)
 
             case 'LEDGER_CONTROLLER_UNLOCK':
               return ledgerCtrl.unlock()
@@ -717,66 +698,60 @@ async function init() {
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return
-              return mainCtrl.updateSelectedAccount(
-                mainCtrl.selectedAccount,
-                data.params?.forceUpdate
-              )
+              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, params?.forceUpdate)
             }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(
-                data.params.secretId,
-                data.params.secret,
-                data.params.extraEntropy,
-                data.params.leaveUnlocked
+                params.secretId,
+                params.secret,
+                params.extraEntropy,
+                params.leaveUnlocked
               )
             case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
-              return mainCtrl.keystore.unlockWithSecret(data.params.secretId, data.params.secret)
+              return mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
             case 'KEYSTORE_CONTROLLER_LOCK':
               return mainCtrl.keystore.lock()
             case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
               return mainCtrl.keystore.resetErrorState()
             case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD':
-              return mainCtrl.keystore.changeKeystorePassword(
-                data.params.newSecret,
-                data.params.secret
-              )
+              return mainCtrl.keystore.changeKeystorePassword(params.newSecret, params.secret)
             case 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY':
               // In the case we change the user's device password through the recovery process,
               // we don't know the old password, which is why we send only the new password.
-              return mainCtrl.keystore.changeKeystorePassword(data.params.newSecret)
+              return mainCtrl.keystore.changeKeystorePassword(params.newSecret)
 
             case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
-              return mainCtrl.emailVault.getEmailVaultInfo(data.params.email)
+              return mainCtrl.emailVault.getEmailVaultInfo(params.email)
             case 'EMAIL_VAULT_CONTROLLER_UPLOAD_KEYSTORE_SECRET':
-              return mainCtrl.emailVault.uploadKeyStoreSecret(data.params.email)
+              return mainCtrl.emailVault.uploadKeyStoreSecret(params.email)
             case 'EMAIL_VAULT_CONTROLLER_HANDLE_MAGIC_LINK_KEY':
-              return mainCtrl.emailVault.handleMagicLinkKey(data.params.email)
+              return mainCtrl.emailVault.handleMagicLinkKey(params.email)
             case 'EMAIL_VAULT_CONTROLLER_CANCEL_CONFIRMATION':
               return mainCtrl.emailVault.cancelEmailConfirmation()
             case 'EMAIL_VAULT_CONTROLLER_RECOVER_KEYSTORE':
-              return mainCtrl.emailVault.recoverKeyStore(data.params.email, data.params.newPass)
+              return mainCtrl.emailVault.recoverKeyStore(params.email, params.newPass)
             case 'EMAIL_VAULT_CONTROLLER_CLEAN_MAGIC_AND_SESSION_KEYS':
               return mainCtrl.emailVault.cleanMagicAndSessionKeys()
             case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
-              return mainCtrl.emailVault.requestKeysSync(data.params.email, data.params.keys)
+              return mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
             case 'SET_IS_DEFAULT_WALLET': {
-              walletStateCtrl.isDefaultWallet = data.params.isDefaultWallet
+              walletStateCtrl.isDefaultWallet = params.isDefaultWallet
               break
             }
             case 'SET_ONBOARDING_STATE': {
-              walletStateCtrl.onboardingState = data.params
+              walletStateCtrl.onboardingState = params
               break
             }
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
-              return permissionService.getConnectedSite(data.params.origin)
+              return permissionService.getConnectedSite(params.origin)
             case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
               return permissionService.getConnectedSites()
             case 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD':
               return null // TODO: Implement in v2
             case 'WALLET_CONTROLLER_SET_STORAGE':
-              return sessionService.broadcastEvent(data.params.key, data.params.value)
+              return sessionService.broadcastEvent(params.key, params.value)
             case 'WALLET_CONTROLLER_GET_CURRENT_SITE': {
-              const { tabId, domain } = data.params
+              const { tabId, domain } = params
               const { origin, name, icon } = sessionService.getSession(`${tabId}-${domain}`) || {}
               if (!origin) return null
 
@@ -793,26 +768,22 @@ async function init() {
               }
             }
             case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
-              sessionService.broadcastEvent('accountsChanged', [], data.params.origin)
-              permissionService.removeConnectedSite(data.params.origin)
+              sessionService.broadcastEvent('accountsChanged', [], params.origin)
+              permissionService.removeConnectedSite(params.origin)
               break
             }
             case 'CHANGE_CURRENT_DAPP_NETWORK': {
-              permissionService.updateConnectSite(
-                data.params.origin,
-                { chainId: data.params.chainId },
-                true
-              )
+              permissionService.updateConnectSite(params.origin, { chainId: params.chainId }, true)
               sessionService.broadcastEvent('chainChanged', {
-                chain: `0x${data.params.chainId.toString(16)}`,
-                networkVersion: `${data.params.chainId}`
+                chain: `0x${params.chainId.toString(16)}`,
+                networkVersion: `${params.chainId}`
               })
               break
             }
 
             default:
               return console.error(
-                `Dispatched ${data?.type} action, but handler in the extension background process not found!`
+                `Dispatched ${type} action, but handler in the extension background process not found!`
               )
           }
         }

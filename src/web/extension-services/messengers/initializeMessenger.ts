@@ -1,5 +1,4 @@
 import { bridgeMessenger } from './internal/bridge'
-import { extensionMessenger } from './internal/extension'
 import { tabMessenger } from './internal/tab'
 import { windowMessenger } from './internal/window'
 import { detectScriptType, ScriptType } from './utils/detectScriptType'
@@ -7,7 +6,6 @@ import { detectScriptType, ScriptType } from './utils/detectScriptType'
 const messengersForConnection = {
   'popup <-> inpage': bridgeMessenger,
   'background <-> inpage': bridgeMessenger,
-  'background <-> popup': extensionMessenger,
   'popup <-> contentScript': tabMessenger,
   'background <-> contentScript': tabMessenger,
   'contentScript <-> inpage': windowMessenger
