@@ -11,6 +11,7 @@ import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -34,11 +35,16 @@ const PrivateKeyImportScreen = () => {
       privateKey: ''
     }
   })
+  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
   const accountAdderCtrlState = useAccountAdderControllerState()
+
+  useEffect(() => {
+    updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
+  }, [updateStepperState])
 
   useEffect(() => {
     if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
