@@ -34,7 +34,8 @@ if (isExtension) {
 
   portMessageChannel.connect(portName)
 
-  portMessageChannel.listen(({ messageType, method, params }) => {
+  // @ts-ignore
+  portMessageChannel.listen((messageType, { method, params }) => {
     if (messageType === '> ui') {
       eventBus.emit(method, params)
     }
@@ -50,14 +51,7 @@ if (isExtension) {
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
-    portMessageChannel.send('> background', {
-      type: action.type,
-      method: '',
-      // TypeScript being unable to guarantee that every member of the Action
-      // union has the `params` property (some indeed don't), but this is fine.
-      // @ts-ignore
-      params: action.params
-    })
+    portMessageChannel.send('> background', action)
   }
 
   dispatchAsync = (action) => {

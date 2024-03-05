@@ -51,7 +51,6 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 import { initializeMessenger } from '../messengers'
-import { Action } from './actions'
 import { WalletStateController } from './controllers/wallet-state'
 import { providerRequestTransport } from './provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from './types'
@@ -388,7 +387,8 @@ async function init() {
       backgroundState.portMessageUIRefs[pm.id] = pm
       setPortfolioFetchInterval()
 
-      pm.listen(async ({ messageType, type, params }) => {
+      // @ts-ignore
+      pm.listen(async (messageType, { type, params }) => {
         if (messageType === '> background' && type) {
           switch (type) {
             case 'INIT_CONTROLLER_STATE': {

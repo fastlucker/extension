@@ -222,10 +222,10 @@ export class EthereumProvider extends EventEmitter {
 
   backgroundMessenger: Messenger
 
-  constructor(backgroundMessenger: Messenger) {
+  constructor() {
     super()
 
-    this.backgroundMessenger = backgroundMessenger
+    this.backgroundMessenger = initializeMessenger({ connect: 'background' })
 
     this.setMaxListeners(100)
     this.initialize()
@@ -538,8 +538,7 @@ declare global {
   }
 }
 
-const backgroundMessenger = initializeMessenger({ connect: 'background' })
-const provider = new EthereumProvider(backgroundMessenger)
+const provider = new EthereumProvider()
 patchProvider(provider)
 let cacheOtherProvider: EthereumProvider | null = null
 const ambireProvider = new Proxy(provider, {

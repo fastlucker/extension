@@ -1,40 +1,50 @@
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { browser } from '@web/constants/browserapi'
+import { Action as ActionType } from '@web/extension-services/background/actions'
+
+type MessageType = '> ui' | '> ui-error' | '> background'
+
+type SendType = <TMessageType extends MessageType>(
+  type: MessageType,
+  message: TMessageType extends '> background' ? ActionType : PortMessageType
+) => void
+
+type ListenCallbackType = <TMessageType extends MessageType>(
+  type: MessageType,
+  message: TMessageType extends '> background' ? ActionType : PortMessageType
+) => Promise<any> | void
 
 export type PortMessageType = {
-  // TODO: add Action types
-  type?: string
   method: string
   params: any
 }
 
 class PortMessage {
-  port: chrome.runtime.Port
+  port?: chrome.runtime.Port
 
   id: string = new Date().getTime().toString()
 
-  constructor(port: chrome.runtime.Port) {
-    this.port = port
+  constructor(port?: chrome.runtime.Port) {
+    if (port) this.port = port
   }
 
   connect = (name?: string) => {
     this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
   }
 
-  listen = (
-    callback: (
-      msg: PortMessageType & { messageType: '> ui' | '> ui-error' | '> background' }
-    ) => void
-  ) => {
+  listen = (callback: ListenCallbackType) => {
     if (!this.port) return
-    this.port.onMessage.addListener((message: string) => {
-      callback(parse(message))
+    this.port.onMessage.addListener((data) => {
+      if (!data.messageType || !data.message) return
+
+      const message = parse(data.message)
+      callback(data.messageType, message)
     })
   }
 
-  send = (type: '> ui' | '> ui-error' | '> background', message: PortMessageType) => {
+  send: SendType = (type, message) => {
     if (!this.port) return
-    this.port.postMessage(stringify({ messageType: type, ...message }))
+    this.port.postMessage({ messageType: type, message: stringify(message) })
   }
 
   dispose = () => {
