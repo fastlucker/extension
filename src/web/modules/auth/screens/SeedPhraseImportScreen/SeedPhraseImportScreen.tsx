@@ -27,6 +27,8 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const arrayWithEmptyString = (length: number) => new Array(length).fill({ value: '' })
@@ -62,6 +64,8 @@ const SeedPhraseImportScreen = () => {
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { dispatch } = useBackgroundService()
+  const accountAdderCtrlState = useAccountAdderControllerState()
   const {
     watch,
     control,
@@ -111,18 +115,20 @@ const SeedPhraseImportScreen = () => {
     return () => unsubscribe()
   }, [watch, setError, clearErrors, t])
 
+  useEffect(() => {
+    if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
+  }, [accountAdderCtrlState.isInitialized, navigate])
+
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ seedFields }) => {
       const formattedSeed = seedFields.map((field) => field.value).join(' ')
 
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'internal',
-          privKeyOrSeed: formattedSeed
-        }
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: { privKeyOrSeed: formattedSeed }
       })
     })()
-  }, [handleSubmit, navigate])
+  }, [dispatch, handleSubmit])
 
   const updateFieldsLength = useCallback(
     (newLength: number) => {
