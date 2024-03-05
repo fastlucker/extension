@@ -11,9 +11,11 @@ import { useTranslation } from '@common/config/localization'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
+
+// TODO: Remove if they are not needed anymore
+// import TransportWebHID from '@ledgerhq/hw-transport-webhid'
+// import { hasConnectedLedgerDevice } from '../../utils/ledger'
 
 type Props = {
   isOpen: boolean
