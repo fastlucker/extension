@@ -507,7 +507,7 @@ async function init() {
 
               if (mainCtrl.accountAdder.type === 'internal') {
                 readyToAddKeys.internal =
-                  mainCtrl.accountAdder.retrievePrivateKeysOfSelectedAccounts()
+                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
               } else {
                 // External keys flow
                 const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
