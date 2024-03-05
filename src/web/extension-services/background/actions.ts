@@ -401,6 +401,5 @@ export type AsyncActionTypes = {
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
-  LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
