@@ -29,11 +29,14 @@ import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
+import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import provider from '@web/extension-services/background/provider/provider'
+import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import permissionService from '@web/extension-services/background/services/permission'
 import sessionService from '@web/extension-services/background/services/session'
+import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import { PortMessenger } from '@web/extension-services/messengers'
+import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
 import {
   getDefaultAccountPreferences,
   getDefaultKeyLabel
@@ -49,11 +52,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import { initializeMessenger } from '../messengers'
-import { WalletStateController } from './controllers/wallet-state'
-import { providerRequestTransport } from './provider/providerRequestTransport'
-import { controllersNestedInMainMapping } from './types'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -100,7 +98,6 @@ async function init() {
       standBy: number
     }
     hasSignAccountOpCtrlInitialized: boolean
-    portMessengers: { [key: string]: PortMessenger }
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
     reestimateInterval?: ReturnType<typeof setInterval>
@@ -118,10 +115,10 @@ async function init() {
       pending: 3000,
       standBy: 300000
     },
-    hasSignAccountOpCtrlInitialized: false,
-    portMessengers: {}
+    hasSignAccountOpCtrlInitialized: false
   }
 
+  const pm = new PortMessenger()
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
@@ -177,7 +174,7 @@ async function init() {
       () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
       // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
-      Object.keys(backgroundState.portMessengers).length ? 60000 : 600000
+      pm.ports.length ? 60000 : 600000
     )
   }
 
@@ -248,12 +245,7 @@ async function init() {
     // Debounce multiple emits in the same tick and only execute one if them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
-        Object.keys(backgroundState.portMessengers).forEach((key: string) => {
-          backgroundState.portMessengers[key]?.send('> ui', {
-            method: ctrlName,
-            params: ctrl
-          })
-        })
+        pm.send('> ui', { method: ctrlName, params: ctrl })
         logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
@@ -322,11 +314,9 @@ async function init() {
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
             logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
-            Object.keys(backgroundState.portMessengers).forEach((key: string) => {
-              backgroundState.portMessengers[key]?.send('> ui-error', {
-                method: ctrlName,
-                params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
-              })
+            pm.send('> ui-error', {
+              method: ctrlName,
+              params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
             })
           }, 'background')
         }
@@ -346,11 +336,9 @@ async function init() {
   }, 'background')
   mainCtrl.onError(() => {
     logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
-    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
-      backgroundState.portMessengers[key]?.send('> ui-error', {
-        method: 'main',
-        params: { errors: mainCtrl.emittedErrors, controller: 'main' }
-      })
+    pm.send('> ui-error', {
+      method: 'main',
+      params: { errors: mainCtrl.emittedErrors, controller: 'main' }
     })
   })
 
@@ -359,11 +347,9 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
   })
   walletStateCtrl.onError(() => {
-    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
-      backgroundState.portMessengers[key]?.send('> ui-error', {
-        method: 'walletState',
-        params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
-      })
+    pm.send('> ui-error', {
+      method: 'walletState',
+      params: { errors: walletStateCtrl.emittedErrors, controller: 'walletState' }
     })
   })
 
@@ -372,19 +358,18 @@ async function init() {
     debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
   })
   notificationCtrl.onError(() => {
-    Object.keys(backgroundState.portMessengers).forEach((key: string) => {
-      backgroundState.portMessengers[key]?.send('> ui-error', {
-        method: 'notification',
-        params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
-      })
+    pm.send('> ui-error', {
+      method: 'notification',
+      params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
     })
   })
 
   // listen for messages from UI
-  browser.runtime.onConnect.addListener(async (port: chrome.runtime.Port) => {
-    if (port.name === 'popup' || port.name === 'notification' || port.name === 'tab') {
-      const pm = new PortMessenger(port)
-      backgroundState.portMessengers[pm.id] = pm
+  browser.runtime.onConnect.addListener(async (port: Port) => {
+    if (['popup', 'tab', 'notification'].includes(port.name)) {
+      // eslint-disable-next-line no-param-reassign
+      port.id = new Date().getTime().toString()
+      pm.addPort(port)
       setPortfolioFetchInterval()
 
       // @ts-ignore
@@ -393,20 +378,11 @@ async function init() {
           switch (type) {
             case 'INIT_CONTROLLER_STATE': {
               if (params.controller === ('main' as any)) {
-                pm.send('> ui', {
-                  method: 'main',
-                  params: mainCtrl
-                })
+                pm.send('> ui', { method: 'main', params: mainCtrl })
               } else if (params.controller === ('notification' as any)) {
-                pm.send('> ui', {
-                  method: 'notification',
-                  params: notificationCtrl
-                })
+                pm.send('> ui', { method: 'notification', params: notificationCtrl })
               } else if (params.controller === ('walletState' as any)) {
-                pm.send('> ui', {
-                  method: 'walletState',
-                  params: walletStateCtrl
-                })
+                pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
               } else {
                 pm.send('> ui', {
                   method: params.controller,
@@ -790,7 +766,8 @@ async function init() {
       })
 
       port.onDisconnect.addListener(() => {
-        delete backgroundState.portMessengers[pm.id]
+        pm.dispose(port.id)
+        pm.removePort(port.id)
         setPortfolioFetchInterval()
 
         if (port.name === 'tab' || port.name === 'notification') {

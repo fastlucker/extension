@@ -12,6 +12,7 @@ import { isValidSend } from '@web/extension-services/messengers/internal/isValid
  *
  * Compatible connections:
  * - ❌ Background <-> Inpage
+ * - ❌ UI <-> Background
  * - ❌ Background <-> Content Script
  * - ✅ Content Script <-> Inpage
  */

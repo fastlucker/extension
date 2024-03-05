@@ -59,13 +59,7 @@ if (isExtension) {
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type))
       return Promise.resolve(undefined)
-    return pm.request({
-      type: action.type,
-      // TypeScript being unable to guarantee that every member of the Action
-      // union has the `params` property (some indeed don't), but this is fine.
-      // @ts-ignore
-      params: action.params
-    })
+    return Promise.resolve(undefined)
   }
 }
 

@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { browser } from '@web/constants/browserapi'
 import { Action as ActionType } from '@web/extension-services/background/actions'
+
+export type Port = chrome.runtime.Port & { id: string }
 
 type MessageType = '> ui' | '> ui-error' | '> background'
 
@@ -23,43 +26,66 @@ export type PortMessageType = {
  * Creates a "port messenger" that can be used for communication between ui <-> background.
  *
  * Compatible connections:
- * - ✅ UI <-> Background
  * - ❌ Background <-> Inpage
+ * - ✅ UI <-> Background
  * - ❌ Background <-> Content Script
  * - ❌ Content Script <-> Inpage
  */
 
-class PortMessenger {
-  port?: chrome.runtime.Port
+export class PortMessenger {
+  ports: Port[] = []
 
   id: string = new Date().getTime().toString()
 
-  constructor(port?: chrome.runtime.Port) {
-    if (port) this.port = port
+  constructor(ports: Port[] = []) {
+    this.ports = ports
+  }
+
+  addPort(port: Port) {
+    this.ports = [...this.ports, port]
+    console.log(this.ports)
+  }
+
+  removePort(portId: string) {
+    this.ports = this.ports.filter((port) => port.id !== portId)
   }
 
   connect = (name?: string) => {
-    this.port = browser.runtime.connect(undefined, name ? { name } : undefined)
+    this.ports[0] = browser.runtime.connect(undefined, name ? { name } : undefined)
   }
 
   listen = (callback: ListenCallbackType) => {
-    if (!this.port) return
-    this.port.onMessage.addListener((data) => {
-      if (!data.messageType || !data.message) return
+    if (!this.ports.length) return
 
-      const message = parse(data.message)
-      callback(data.messageType, message)
+    this.ports.forEach((port) => {
+      port.onMessage.addListener((data) => {
+        if (!data.messageType || !data.message) return
+
+        const message = parse(data.message)
+        callback(data.messageType, message)
+      })
     })
   }
 
   send: SendType = (type, message) => {
-    if (!this.port) return
-    this.port.postMessage({ messageType: type, message: stringify(message) })
+    if (!this.ports.length) return
+
+    this.ports.forEach((port) => {
+      port.postMessage({ messageType: type, message: stringify(message) })
+    })
   }
 
-  dispose = () => {
-    this.port?.disconnect()
+  dispose = (portId: string) => {
+    const port = this.ports.find((p) => p.id === portId)
+    if (port) port.disconnect()
+  }
+
+  disposeAll = () => {
+    if (!this.ports.length) return
+
+    this.ports.forEach((port) => {
+      port.disconnect()
+    })
+    this.ports = []
   }
 }
-
-export default PortMessenger
