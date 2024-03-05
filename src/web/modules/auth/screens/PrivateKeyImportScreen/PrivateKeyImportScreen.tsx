@@ -11,7 +11,6 @@ import TextArea from '@common/components/TextArea'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
@@ -25,7 +24,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
-  const { updateStepperState } = useStepper()
   const {
     control,
     handleSubmit,
@@ -40,15 +38,11 @@ const PrivateKeyImportScreen = () => {
   const { navigate } = useNavigation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const accountAdderControllerState = useAccountAdderControllerState()
+  const accountAdderCtrlState = useAccountAdderControllerState()
 
   useEffect(() => {
-    updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
-  }, [updateStepperState])
-
-  useEffect(() => {
-    if (accountAdderControllerState.isInitialized) navigate(WEB_ROUTES.accountAdder)
-  }, [accountAdderControllerState.isInitialized, navigate])
+    if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
+  }, [accountAdderCtrlState.isInitialized, navigate])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
