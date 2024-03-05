@@ -433,14 +433,12 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-              const keyIterator = new TrezorKeyIterator({
-                walletSDK: trezorCtrl.walletSDK
-              })
-              // TODO: Set page
+              const { walletSDK } = trezorCtrl
               mainCtrl.accountAdder.init({
-                keyIterator,
+                keyIterator: new TrezorKeyIterator({ walletSDK }),
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
               })
+
               return mainCtrl.accountAdder.setPage({
                 page: 1,
                 networks,
