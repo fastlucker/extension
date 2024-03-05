@@ -39,7 +39,6 @@ import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
-import DevicePasswordSettingsScreen from '@web/modules/settings/screens/DevicePasswordSettings'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
@@ -51,6 +50,9 @@ import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 import { getUiType } from '@web/utils/uiType'
+import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
+import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
+import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 
 const stepperProvider = (
   <StepperProvider>
@@ -128,8 +130,16 @@ const MainRoutes = () => {
                   element={<SignedMessageHistorySettingsScreen />}
                 />
                 <Route
-                  path={WEB_ROUTES.devicePassword}
-                  element={<DevicePasswordSettingsScreen />}
+                  path={WEB_ROUTES.devicePasswordSet}
+                  element={<DevicePasswordSetSettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.devicePasswordChange}
+                  element={<DevicePasswordChangeSettingsScreen />}
+                />
+                <Route
+                  path={WEB_ROUTES.devicePasswordRecovery}
+                  element={<DevicePasswordRecoverySettingsScreen />}
                 />
                 <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                 <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />

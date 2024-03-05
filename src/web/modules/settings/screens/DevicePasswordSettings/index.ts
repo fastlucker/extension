@@ -1,3 +1,0 @@
-import DevicePasswordSettingsScreen from './DevicePasswordSettingsScreen'
-
-export default DevicePasswordSettingsScreen

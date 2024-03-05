@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-
 import { EmailVaultState } from '@ambire-common/controllers/emailVault/emailVault'
 import { isEmail } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
@@ -17,12 +16,16 @@ import { View } from 'react-native'
 import Alert from '@common/components/Alert'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
 import Modal from '@common/components/Modal'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 
-const BackupPassword = () => {
+const DevicePasswordRecoverySettingsScreen = () => {
   const ev = useEmailVaultControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
-
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
 
   const {
@@ -37,7 +40,9 @@ const BackupPassword = () => {
     }
   })
 
-  console.log({ ev, keystoreState })
+  useEffect(() => {
+    setCurrentSettingsPage('device-password-recovery')
+  }, [setCurrentSettingsPage])
 
   const email = watch('email')
 
@@ -55,10 +60,36 @@ const BackupPassword = () => {
 
   return (
     <>
-      <View style={flexbox.flex1}>
+      <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
           {t('Device Password Recovery with email')}
         </Text>
+
+        {!keystoreState.hasPasswordSecret && (
+          <Alert
+            type="warning"
+            isTypeLabelHidden
+            style={spacings.mbXl}
+            title={
+              <Text appearance="warningText" weight="semiBold">
+                {t('Set Device Password')}
+              </Text>
+            }
+            text={t(
+              'Before enabling Device Password Recovery via email, you need to first set a password for your device.'
+            )}
+          >
+            <Button
+              style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL, ...spacings.mtXl }}
+              textStyle={{ fontSize: 14 }}
+              type="primary"
+              text={t('Set Device Password')}
+              onPress={() =>
+                navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
+              }
+            />
+          </Alert>
+        )}
 
         {ev.hasKeystoreRecovery && (
           <Alert
@@ -84,7 +115,7 @@ const BackupPassword = () => {
               autoFocus={isWeb}
               isValid={isEmail(value)}
               error={!!errors.email && (t('Please fill in a valid email.') as string)}
-              disabled={ev.hasKeystoreRecovery}
+              disabled={ev.hasKeystoreRecovery || !keystoreState.hasPasswordSecret}
             />
           )}
           name="email"
@@ -137,4 +168,4 @@ const BackupPassword = () => {
   )
 }
 
-export default BackupPassword
+export default React.memo(DevicePasswordRecoverySettingsScreen)

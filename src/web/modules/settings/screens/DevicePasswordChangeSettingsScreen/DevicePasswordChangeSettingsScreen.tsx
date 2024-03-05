@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
-
 import { isValidPassword } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -16,13 +15,15 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
 import useToast from '@common/hooks/useToast'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
-const ChangePassword = () => {
+const DevicePasswordChangeSettingsScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const state = useKeystoreControllerState()
   const [changePasswordReady, setChangePasswordReady] = useState(false)
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
 
   const {
     control,
@@ -41,6 +42,10 @@ const ChangePassword = () => {
       confirmNewPassword: ''
     }
   })
+
+  useEffect(() => {
+    setCurrentSettingsPage('device-password-change')
+  }, [setCurrentSettingsPage])
 
   const newPassword = watch('newPassword', '')
 
@@ -79,7 +84,7 @@ const ChangePassword = () => {
     state.status === 'LOADING' && state.latestMethodCall === 'changeKeystorePassword'
 
   return (
-    <View style={flexbox.flex1}>
+    <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
       <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
         {t('Device Password')}
       </Text>
@@ -184,4 +189,4 @@ const ChangePassword = () => {
   )
 }
 
-export default ChangePassword
+export default React.memo(DevicePasswordChangeSettingsScreen)
