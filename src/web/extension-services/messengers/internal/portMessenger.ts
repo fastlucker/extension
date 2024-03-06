@@ -43,7 +43,6 @@ export class PortMessenger {
 
   addPort(port: Port) {
     this.ports = [...this.ports, port]
-    console.log(this.ports)
   }
 
   removePort(portId: string) {

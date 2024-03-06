@@ -11,6 +11,7 @@ import { nanoid } from 'nanoid'
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
+import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
@@ -18,8 +19,6 @@ import PushEventHandlers from '@web/extension-services/inpage/services/pushEvent
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
 import { initializeMessenger, Messenger } from '@web/extension-services/messengers'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
-
-import { providerRequestTransport } from '../background/provider/providerRequestTransport'
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 

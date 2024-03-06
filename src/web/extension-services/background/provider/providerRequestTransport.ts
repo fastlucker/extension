@@ -82,5 +82,5 @@ export function createTransport<TPayload, TResponse>({
  */
 export const providerRequestTransport = createTransport<ProviderRequestPayload, ProviderResponse>({
   messenger: bridgeMessenger,
-  topic: 'providerRequest'
+  topic: 'ambireProviderRequest'
 })
