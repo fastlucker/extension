@@ -178,11 +178,7 @@ const DappConnectScreen = () => {
             </View>
           }
         >
-          <View
-            style={{
-              paddingHorizontal: 42 // magic number
-            }}
-          >
+          <View style={spacings.phLg}>
             <Label text={t('Only connect with sites you trust.')} type="warning" />
           </View>
         </ExpandableCard>
