@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
@@ -25,12 +25,15 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const [isConnectingToDevice, setIsConnectingToDevice] = useState(false)
 
   useEffect(() => {
     updateStepperState('connect-hardware-wallet', 'hw')
   }, [updateStepperState])
 
   const onPressNext = async () => {
+    setIsConnectingToDevice(true)
+
     // The WebHID API requires a user gesture to open the device selection prompt
     // where users grant permission to the extension to access an HID device.
     // Therefore, force unlocking the Ledger device here.
@@ -39,9 +42,14 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
       await ledgerCtrl.unlock()
       await ledgerCtrl.cleanUp()
     } catch (error: any) {
-      console.error(error)
+      // Clear the flag to allow the user to try again. For all other cases,
+      // the state gets reset automatically, because the on connect success
+      // the flow redirects the user to another route (and this component unmounts).
+      setIsConnectingToDevice(false)
+
       // Fail silently. The error handling feedback for the user comes from the
       // controller instance in the background process.
+      console.error(error)
     }
 
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
@@ -72,7 +80,8 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         <AmbireDevice />
       </View>
       <Button
-        text={t('Next')}
+        text={isConnectingToDevice ? t('Connecting...') : t('Next')}
+        disabled={isConnectingToDevice}
         style={{ width: 264, ...flexbox.alignSelfCenter }}
         onPress={onPressNext}
       />
