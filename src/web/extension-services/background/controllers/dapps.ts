@@ -14,7 +14,6 @@ export class DappsController extends EventEmitter {
     try {
       browser.tabs.onRemoved.addListener((tabId: number) => {
         const sessionKeys = Array.from(this.dappsSessionMap.keys())
-
         // eslint-disable-next-line no-restricted-syntax
         for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
           this.deleteDappSession(key)

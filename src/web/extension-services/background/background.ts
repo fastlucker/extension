@@ -730,34 +730,12 @@ async function init() {
               walletStateCtrl.onboardingState = params
               break
             }
-            case 'WALLET_CONTROLLER_GET_CONNECTED_SITE':
-              return permissionService.getConnectedSite(params.origin)
-            case 'WALLET_CONTROLLER_GET_CONNECTED_SITES':
-              return permissionService.getConnectedSites()
-            case 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD':
-              return null // TODO: Implement in v2
+
             case 'WALLET_CONTROLLER_SET_STORAGE':
               return dappsCtrl.broadcastDappSessionEvent(params.key, params.value)
-            case 'WALLET_CONTROLLER_GET_CURRENT_SITE': {
-              const { tabId, domain } = params
-              const { origin, name, icon } = dappsCtrl.getDappSession(`${tabId}-${domain}`) || {}
-              if (!origin) return null
-
-              const site = permissionService.getSite(origin)
-              if (site) return site
-
-              return {
-                origin,
-                name: name!,
-                icon: icon!,
-                isConnected: false,
-                isSigned: false,
-                isTop: false
-              }
-            }
-            case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
-              dappsCtrl.broadcastDappSessionEvent('accountsChanged', [], params.origin)
+            case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
               permissionService.removeConnectedSite(params.origin)
+              dappsCtrl.broadcastDappSessionEvent('accountsChanged', [], params.origin)
               break
             }
             case 'CHANGE_CURRENT_DAPP_NETWORK': {

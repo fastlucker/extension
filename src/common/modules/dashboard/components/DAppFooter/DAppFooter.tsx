@@ -96,7 +96,7 @@ const DAppFooter = () => {
                   style={spacings.mrSm}
                   onPress={() => {
                     dispatch({
-                      type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE',
+                      type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE',
                       params: { origin: currentDapp.origin }
                     })
                   }}

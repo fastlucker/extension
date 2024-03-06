@@ -15,7 +15,6 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -299,27 +298,12 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
-type WalletControllerGetConnectedSiteAction = {
-  type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
-  params: { origin: string }
-}
-type WalletControllerGetConnectedSitesAction = {
-  type: 'WALLET_CONTROLLER_GET_CONNECTED_SITES'
-}
-type WalletControllerRequestVaultControllerMethodAction = {
-  type: 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD'
-  params: { method: string; props: any }
-}
 type WalletControllerSetStorageAction = {
   type: 'WALLET_CONTROLLER_SET_STORAGE'
   params: { key: string; value: any }
 }
-type WalletControllerGetCurrentSiteAction = {
-  type: 'WALLET_CONTROLLER_GET_CURRENT_SITE'
-  params: { tabId: number; domain: string }
-}
-type WalletControllerRemoveConnectedSiteAction = {
-  type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE'
+type DappsControllerRemoveConnectedSiteAction = {
+  type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
 type NotificationControllerReopenCurrentNotificationRequestAction = {
@@ -400,12 +384,8 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
-  | WalletControllerGetConnectedSiteAction
-  | WalletControllerRequestVaultControllerMethodAction
   | WalletControllerSetStorageAction
-  | WalletControllerGetCurrentSiteAction
-  | WalletControllerRemoveConnectedSiteAction
-  | WalletControllerGetConnectedSitesAction
+  | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
@@ -419,8 +399,6 @@ export type Action =
 export type AsyncActionTypes = {
   // TODO: These all should be migrated to use onUpdate emitted events
   // instead of relying on the return value of the action.
-  WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
-  WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
   LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
   LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
