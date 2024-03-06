@@ -18,7 +18,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -698,16 +698,7 @@ async function init() {
                 'seed'
               )
 
-              const readyToAddKeys = mainCtrl.accountAdder.selectedAccounts.map((acc) => {
-                const privateKey = getPrivateKeyFromSeed(
-                  seed,
-                  acc.index,
-                  // should always be provided, otherwise it would have thrown an error above
-                  mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
-                )
-
-                return { privateKey, dedicatedToOneSA: true }
-              })
+              const readyToAddKeys = mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
               const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.map(
                 ({ accountKeyAddr, slot, index }) => ({
