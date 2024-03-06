@@ -14,7 +14,7 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import { DURATIONS, useMultiHover } from '@web/hooks/useHover'
+import { useMultiHover } from '@web/hooks/useHover'
 
 interface Props {
   routeItem: {
@@ -37,15 +37,14 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   const [bindAccountBtnAnim, accountBtnAnimStyle, isAccountBtnHovered] = useMultiHover({
     values: [
       {
-        key: 'opacity',
+        property: 'opacity',
         from: 0.7,
         to: 1
       },
       {
-        key: 'scaleX',
+        property: 'scaleX',
         from: 1,
-        to: 1.2,
-        duration: DURATIONS.FAST
+        to: 1.2
       }
     ]
   })

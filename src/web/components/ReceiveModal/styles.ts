@@ -2,7 +2,6 @@ import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings, {
   SPACING,
-  SPACING_2XL,
   SPACING_LG,
   SPACING_MD,
   SPACING_MI,
@@ -13,11 +12,9 @@ import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 import { getUiType } from '@web/utils/uiType'
 
 interface Style {
-  modal: ViewStyle
   content: ViewStyle
   qrCodeContainer: ViewStyle
   qrCode: ViewStyle
@@ -33,25 +30,25 @@ const { isTab } = getUiType()
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    modal: {
-      paddingHorizontal: isTab ? SPACING_2XL : SPACING_MD,
-      maxWidth: TAB_CONTENT_WIDTH
-    },
     content: {
       backgroundColor: theme.secondaryBackground,
-      paddingHorizontal: isTab ? SPACING_XL : SPACING_MD,
       paddingTop: isTab ? SPACING_XL : SPACING_MD,
       paddingBottom: isTab ? SPACING : SPACING_TY,
       ...common.borderRadiusPrimary,
       marginBottom: isTab ? SPACING_LG : SPACING,
       width: '100%'
     },
-    qrCodeContainer: { ...flexbox.alignCenter, marginBottom: isTab ? SPACING_XL : SPACING_MD },
+    qrCodeContainer: { ...flexbox.alignCenter, ...spacings.mb },
     qrCode: {
       ...common.borderRadiusPrimary,
       overflow: 'hidden'
     },
-    accountAddress: { marginHorizontal: 'auto', ...spacings.mb },
+    accountAddress: {
+      marginHorizontal: 'auto',
+      ...spacings.mbXl,
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter
+    },
     copyButton: {
       width: 160,
       marginHorizontal: 'auto',
