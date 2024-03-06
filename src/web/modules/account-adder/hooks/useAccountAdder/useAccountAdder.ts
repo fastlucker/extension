@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react'
 
 import { KeyIterator } from '@ambire-common/interfaces/keyIterator'
 import useNavigation from '@common/hooks/useNavigation'
-import useToast from '@common/hooks/useToast'
 import { STEPPER_FLOWS } from '@common/modules/auth/contexts/stepperContext/stepperContext'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -20,8 +19,7 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
-  const { dispatch, dispatchAsync } = useBackgroundService()
-  const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
 
@@ -34,62 +32,14 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
     [dispatch, createTask]
   )
 
-  // TODO: Implement
   useEffect(() => {
     const step: keyof typeof STEPPER_FLOWS = keySubType || 'hw'
 
     updateStepperState(WEB_ROUTES.accountAdder, step)
   }, [keySubType, updateStepperState])
 
-  // TODO: Remove
-  // useEffect(() => {
-  //   if (!mainControllerState.isReady) return
-  //   // if (accountAdderState.isInitialized) return
-
-  //   debugger
-
-  //   const init: any = {
-  //     internal: () => {
-  //       if (!privKeyOrSeed) return
-
-  //       dispatch({
-  //         type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
-  //         params: { privKeyOrSeed, keyTypeInternalSubtype }
-  //       })
-  //     },
-  //     trezor: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
-  //     ledger: async () => {
-  //       // Ensures account adder is initialized with unlocked key iterator
-  //       await createTask(() => dispatchAsync({ type: 'LEDGER_CONTROLLER_UNLOCK' }))
-
-  //       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
-  //     },
-  //     lattice: () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
-  //   }
-
-  //   init[keyType]()
-  // }, [
-  //   createTask,
-  //   dispatch,
-  //   dispatchAsync,
-  //   mainControllerState.isReady,
-  //   privKeyOrSeed,
-  //   keyType,
-  //   keyTypeInternalSubtype
-  // ])
-
-  // TODO: Move to the background
-  // useEffect(() => {
-  //   if (!accountAdderState.isInitialized) return
-
-  //   // TODO: Move this in the background process!
-  //   setPage()
-  // }, [accountAdderState.isInitialized, setPage])
-
   useEffect(() => {
-    return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-    }
+    return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
   }, [dispatch])
 
   // TODO: Implement
