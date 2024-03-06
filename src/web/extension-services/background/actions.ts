@@ -298,10 +298,6 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
-type WalletControllerSetStorageAction = {
-  type: 'WALLET_CONTROLLER_SET_STORAGE'
-  params: { key: string; value: any }
-}
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }

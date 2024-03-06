@@ -731,8 +731,6 @@ async function init() {
               break
             }
 
-            case 'WALLET_CONTROLLER_SET_STORAGE':
-              return dappsCtrl.broadcastDappSessionEvent(params.key, params.value)
             case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
               permissionService.removeConnectedSite(params.origin)
               dappsCtrl.broadcastDappSessionEvent('accountsChanged', [], params.origin)
@@ -840,31 +838,28 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
   })
 }
 
-const INPAGE_ID = 'inpage'
-export async function handleSetupInpage() {
-  const registeredContentScripts = await browser.scripting.getRegisteredContentScripts()
-  const inpageRegisteredContentScript = registeredContentScripts.find((cs) => cs.id === INPAGE_ID)
+/*
+ * This content script is injected programmatically because
+ * MAIN world injection does not work properly via manifest
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=634381
+ */
+const registerInPageContentScript = async () => {
   try {
-    if (!inpageRegisteredContentScript && !navigator.userAgent.toLowerCase().includes('firefox')) {
-      browser.scripting.registerContentScripts([
-        {
-          id: INPAGE_ID,
-          matches: ['file://*/*', 'http://*/*', 'https://*/*'],
-          js: ['inpage.js'],
-          runAt: 'document_start',
-          world: 'MAIN'
-        }
-      ])
-    }
-  } catch (e) {
-    // This will trigger if the service worker restarts and the current tab
-    // is still open and we already injected the content script.
-    // We're logging it and swallowing the error because it's expected
-    console.log('failed to register content scripts', e)
+    await browser.scripting.registerContentScripts([
+      {
+        id: 'inpage',
+        matches: ['file://*/*', 'http://*/*', 'https://*/*'],
+        js: ['inpage.js'],
+        runAt: 'document_start',
+        world: 'MAIN'
+      }
+    ])
+  } catch (err) {
+    console.warn(`Failed to inject EthereumProvider: ${err}`)
   }
 }
 
 // For mv2 the injection is located in the content-script
 if (isManifestV3) {
-  handleSetupInpage()
+  registerInPageContentScript()
 }
