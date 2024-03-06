@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -48,6 +49,7 @@ const SignMessageScreen = () => {
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { currentNotificationRequest } = useNotificationControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -234,6 +236,19 @@ const SignMessageScreen = () => {
     signMessageState.messageToSign
   ])
 
+  useEffect(() => {
+    if (
+      signMessageState.signingKeyType &&
+      signMessageState.signingKeyType !== 'internal' &&
+      signMessageState.status === 'LOADING'
+    ) {
+      openHwModal()
+      return
+    }
+
+    closeHwModal()
+  }, [signMessageState.signingKeyType, signMessageState.status, openHwModal, closeHwModal])
+
   if (!Object.keys(signMessageState).length) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
@@ -349,9 +364,9 @@ const SignMessageScreen = () => {
           ) : (
             <Text>Loading</Text>
           )}
-          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
+          {!!signMessageState.signingKeyType && (
             <HardwareWalletSigningModal
-              isOpen={signMessageState.status === 'LOADING'}
+              modalRef={hwModalRef}
               keyType={signMessageState.signingKeyType}
               onReject={handleReject}
             />

@@ -9,7 +9,7 @@ import { formatCollectiblePrice } from '@common/modules/dashboard/components/Col
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
-import { DURATIONS, useCustomHover } from '@web/hooks/useHover'
+import { useCustomHover } from '@web/hooks/useHover'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
@@ -39,8 +39,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
     values: {
       from: 1,
       to: 1.15
-    },
-    duration: DURATIONS.FAST
+    }
   })
   const renderFallbackImage = error || imageFailed || !data?.image
 

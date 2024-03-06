@@ -5,7 +5,6 @@ import {
   TextInputFocusEventData,
   TextInputProps,
   TextStyle,
-  TouchableOpacity,
   TouchableOpacityProps,
   View,
   ViewStyle
@@ -16,6 +15,7 @@ import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
@@ -64,6 +64,7 @@ const Input = ({
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const { theme, styles } = useTheme(getStyles)
+  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
 
   const handleOnFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     if (disabled) return
@@ -125,7 +126,7 @@ const Input = ({
           </View>
           {childrenBeforeButtons || null}
           {!!hasButton && (
-            <TouchableOpacity
+            <AnimatedPressable
               // The `focusable` prop determines whether a component is user-focusable
               // and appears in the keyboard tab flow. It's missing in the
               // TouchableOpacity props, because it's react-native-web specific, see:
@@ -134,15 +135,16 @@ const Input = ({
               focusable={false}
               onPress={onButtonPress}
               disabled={disabled}
-              style={[styles.button, buttonStyle]}
+              style={[styles.button, buttonStyle, animStyle]}
               {...buttonProps}
+              {...bindAnim}
             >
               {typeof button === 'string' || button instanceof String ? (
                 <Text weight="medium">{button}</Text>
               ) : (
                 button
               )}
-            </TouchableOpacity>
+            </AnimatedPressable>
           )}
         </View>
       </View>

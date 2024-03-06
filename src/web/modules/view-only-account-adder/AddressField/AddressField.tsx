@@ -105,7 +105,7 @@ const AddressField: FC<Props> = ({
             udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}
             onSubmitEditing={disabled ? undefined : handleSubmit}
-            button={accounts.length > 1 ? <DeleteIcon style={spacings.mlTy} /> : null}
+            button={accounts.length > 1 ? <DeleteIcon /> : null}
             onButtonPress={() => remove(index)}
           />
         </View>

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
-import Modal from '@common/components/Modal'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
@@ -65,7 +66,7 @@ const KeyStoreSetupScreen = () => {
         !isWeb && hasBiometricsHardware && deviceSecurityLevel === DEVICE_SECURITY_LEVEL.BIOMETRIC
     }
   })
-  const [keystoreReady, setKeystoreReady] = useState(false)
+  const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
   const password = watch('password', '')
 
   useEffect(() => {
@@ -89,9 +90,9 @@ const KeyStoreSetupScreen = () => {
 
   useEffect(() => {
     if (state.latestMethodCall === 'addSecret' && state.status === 'SUCCESS') {
-      setKeystoreReady(true)
+      openDevicePasswordSetModal()
     }
-  }, [state.latestMethodCall, state.status])
+  }, [openDevicePasswordSetModal, state.latestMethodCall, state.status])
 
   useEffect(() => {
     ;(async () => {
@@ -203,9 +204,12 @@ const KeyStoreSetupScreen = () => {
           </Alert>
         </Panel>
       </TabLayoutWrapperMainContent>
-      <Modal
-        isOpen={keystoreReady}
-        modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
+      <BottomSheet
+        backgroundColor="primaryBackground"
+        id="keystore-device-password-set-modal"
+        sheetRef={devicePasswordSetModalRef}
+        autoWidth
+        style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
           {t('Device Password')}
@@ -248,7 +252,7 @@ const KeyStoreSetupScreen = () => {
             <RightArrowIcon color={colors.titan} />
           </View>
         </Button>
-      </Modal>
+      </BottomSheet>
     </TabLayoutContainer>
   )
 }
