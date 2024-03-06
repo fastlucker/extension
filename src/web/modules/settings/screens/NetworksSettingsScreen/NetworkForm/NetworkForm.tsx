@@ -1,4 +1,4 @@
-import { Contract, getCreate2Address, JsonRpcProvider, keccak256, Wallet } from 'ethers'
+import { getCreate2Address, Interface, JsonRpcProvider, keccak256 } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,8 @@ import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStagi
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AddIcon from '@common/assets/svg/AddIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -18,6 +20,7 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import { getAreDefaultsChanged, handleErrors } from './helpers'
@@ -53,10 +56,10 @@ const NetworkForm = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
+  const { selectedAccount, accounts } = useMainControllerState()
   const { theme } = useTheme()
   const { maxWidthSize } = useWindowSize()
   const [isLoadingRPC, setIsLoadingRPC] = useState(false)
-  const [deploySuccess, setDeploySuccess] = useState('')
   const [deployError, setDeployError] = useState('')
   const [shouldShowDeployBtn, setShouldShowDeployBtn] = useState(false)
   const networkFormValues = watch()
@@ -98,7 +101,6 @@ const NetworkForm = ({
   }, [selectedNetwork?.chainId, selectedNetwork?.name, setError, watch, clearErrors])
 
   useEffect(() => {
-    setShouldShowDeployBtn(false)
     if (!selectedNetwork) return
 
     // run a simulation, take the contract addresses and verify there's no code there
@@ -131,24 +133,39 @@ const NetworkForm = ({
   }
 
   const handleDeploy = async () => {
-    const bytecode = DeployHelper.bin
-    const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
-    const network = selectedNetwork ?? networks.find((net) => net.id === selectedNetwork)
-    if (!network) {
-      setDeployError('Network not supported for contract deploy')
+    // this should not happen...
+    if (!selectedNetwork && !selectedNetworkId) {
+      setDeployError('No network selected. Please select a network and try again')
       setTimeout(() => setDeployError(''), 5000)
       return
     }
 
-    const provider = new JsonRpcProvider(network.rpcUrl)
-    const pk = process.env.DEPLOY_PRIVATE_KEY
-    if (!pk) {
-      setDeployError('DEPLOY_PRIVATE_KEY not set')
+    // we need an account
+    if (!selectedAccount) {
+      setDeployError('No account selected. Please select a basic account and try again')
       setTimeout(() => setDeployError(''), 5000)
       return
     }
-    const wallet = new Wallet(pk, provider)
+
+    // we need a basic account
+    const account = accounts.find((acc) => acc.addr === selectedAccount)
+    if (!account) {
+      setDeployError('No account selected. Please select a basic account and try again')
+      setTimeout(() => setDeployError(''), 5000)
+      return
+    }
+    if (isSmartAccount(account)) {
+      setDeployError(
+        'Deploy cannot be made with a smart account. Please select a basic account and try again'
+      )
+      setTimeout(() => setDeployError(''), 5000)
+      return
+    }
+
+    const network = selectedNetwork ?? networks.find((net) => net.id === selectedNetworkId)!
+    const bytecode = DeployHelper.bin
+    const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
+    const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
     const singletonABI = [
       {
         inputs: [
@@ -161,17 +178,26 @@ const NetworkForm = ({
         type: 'function'
       }
     ]
-    const singletonContract: any = new Contract(singletonAddr, singletonABI, wallet)
-    try {
-      await singletonContract.deploy(bytecode, salt, {
-        gasLimit: 4250000
-      })
-      const helperAddr = getCreate2Address(singletonAddr, salt, keccak256(bytecode))
-      setDeploySuccess(`Successfully deployed on ${helperAddr}`)
-    } catch (e: any) {
-      setDeployError('There was an error with the deploy. Check if you have enough funds available')
-      setTimeout(() => setDeployError(''), 5000)
+    const singletonInterface = new Interface(singletonABI)
+    const txn = {
+      kind: 'call' as const,
+      to: singletonAddr,
+      value: 0n,
+      data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
     }
+
+    const userRequest: UserRequest = {
+      id: new Date().getTime(),
+      networkId: network.id,
+      accountAddr: selectedAccount,
+      forceNonce: null,
+      action: txn
+    }
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+      params: userRequest
+    })
   }
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
@@ -283,13 +309,6 @@ const NetworkForm = ({
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
       </View>
-      {!!deploySuccess && (
-        <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
-          <Text fontSize={12} appearance="successText">
-            {deploySuccess}
-          </Text>
-        </View>
-      )}
       {!!deployError && (
         <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
           <Text fontSize={12} appearance="errorText">
