@@ -11,7 +11,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
-  keyType: KeyIterator['type']
+  keyType?: KeyIterator['type']
   keySubType: KeyIterator['subType']
 }
 
