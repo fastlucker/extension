@@ -55,7 +55,7 @@ const createSession = (key: string, data?: null | SessionProp) => {
 
 const getOrCreateSession = (id: number, origin: string) => {
   if (sessionMap.has(`${id}-${origin}`)) {
-    return getSession(`${id}-${origin}`)
+    return sessionMap.get(`${id}-${origin}`) as Session
   }
 
   return createSession(`${id}-${origin}`, null)

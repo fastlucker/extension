@@ -27,12 +27,12 @@ import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
-import provider from '@web/extension-services/background/provider/provider'
+import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import permissionService from '@web/extension-services/background/services/permission'
-import sessionService from '@web/extension-services/background/services/session'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -149,7 +149,7 @@ async function init() {
     },
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
-      return sessionService.broadcastEvent('accountsChanged', account)
+      return dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
     },
     onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
@@ -160,6 +160,7 @@ async function init() {
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+  const dappsCtrl = new DappsController()
 
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -362,6 +363,16 @@ async function init() {
       params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
     })
   })
+  // Broadcast onUpdate for the notification controller
+  dappsCtrl.onUpdate(() => {
+    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl)
+  })
+  dappsCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'dapps',
+      params: { errors: notificationCtrl.emittedErrors, controller: 'dapps' }
+    })
+  })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
@@ -382,6 +393,8 @@ async function init() {
                 pm.send('> ui', { method: 'notification', params: notificationCtrl })
               } else if (params.controller === ('walletState' as any)) {
                 pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
+              } else if (params.controller === ('dapps' as any)) {
+                pm.send('> ui', { method: 'dapps', params: dappsCtrl })
               } else {
                 pm.send('> ui', {
                   method: params.controller,
@@ -724,10 +737,10 @@ async function init() {
             case 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD':
               return null // TODO: Implement in v2
             case 'WALLET_CONTROLLER_SET_STORAGE':
-              return sessionService.broadcastEvent(params.key, params.value)
+              return dappsCtrl.broadcastDappSessionEvent(params.key, params.value)
             case 'WALLET_CONTROLLER_GET_CURRENT_SITE': {
               const { tabId, domain } = params
-              const { origin, name, icon } = sessionService.getSession(`${tabId}-${domain}`) || {}
+              const { origin, name, icon } = dappsCtrl.getDappSession(`${tabId}-${domain}`) || {}
               if (!origin) return null
 
               const site = permissionService.getSite(origin)
@@ -743,13 +756,13 @@ async function init() {
               }
             }
             case 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE': {
-              sessionService.broadcastEvent('accountsChanged', [], params.origin)
+              dappsCtrl.broadcastDappSessionEvent('accountsChanged', [], params.origin)
               permissionService.removeConnectedSite(params.origin)
               break
             }
             case 'CHANGE_CURRENT_DAPP_NETWORK': {
               permissionService.updateConnectSite(params.origin, { chainId: params.chainId }, true)
-              sessionService.broadcastEvent('chainChanged', {
+              dappsCtrl.broadcastDappSessionEvent('chainChanged', {
                 chain: `0x${params.chainId.toString(16)}`,
                 networkVersion: `${params.chainId}`
               })
@@ -787,18 +800,8 @@ async function init() {
     }
 
     const origin = getOriginFromUrl(meta.sender.url)
-    const session = sessionService.getOrCreateSession(sessionId, origin)
-
-    const req = {
-      data: {
-        method,
-        params
-      },
-      session,
-      origin
-    }
-    // for background push to respective page
-    req.session!.setMessenger(bridgeMessenger)
+    const session = dappsCtrl.getOrCreateDappSession(sessionId, origin)
+    session.setMessenger(bridgeMessenger)
 
     // Temporarily resolves the subscription methods as successful
     // but the rpc block subscription is actually not implemented because it causes app crashes
@@ -807,7 +810,17 @@ async function init() {
     }
 
     try {
-      const res = await provider({ ...req, mainCtrl, notificationCtrl })
+      const res = await handleProviderRequests({
+        data: {
+          method,
+          params
+        },
+        session,
+        origin,
+        mainCtrl,
+        notificationCtrl,
+        dappsCtrl
+      })
       return { id, result: res }
     } catch (error: any) {
       return { id, error: <Error>error }

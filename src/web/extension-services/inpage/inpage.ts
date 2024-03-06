@@ -243,7 +243,10 @@ export class EthereumProvider extends EventEmitter {
         ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content
 
       const name =
-        document.title || ($('head > meta[name="title"]') as HTMLMetaElement)?.content || origin
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        origin
 
       const id = this.requestId++
       providerRequestTransport.send(
@@ -550,13 +553,6 @@ const ambireProvider = new Proxy(provider, {
   }
 })
 
-const requestHasOtherProvider = () => {
-  return provider.requestInternalMethods({
-    method: 'hasOtherProvider',
-    params: []
-  })
-}
-
 const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
@@ -566,9 +562,7 @@ const setAmbireProvider = () => {
         if (val?._isAmbire) {
           return
         }
-        requestHasOtherProvider()
         cacheOtherProvider = val
-        return ambireProvider
       },
       get() {
         // script to determine whether the page is a dapp or not
@@ -597,8 +591,6 @@ const setAmbireProvider = () => {
       }
     })
   } catch (e) {
-    // think that defineProperty failed means there is any other wallet
-    requestHasOtherProvider()
     console.error(e)
     window.ethereum = ambireProvider
   }
@@ -623,7 +615,6 @@ const initProvider = () => {
   let finalProvider: EthereumProvider | null = null
 
   if (window.ethereum && !window.ethereum._isAmbire) {
-    requestHasOtherProvider()
     cacheOtherProvider = window.ethereum
   }
 

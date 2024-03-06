@@ -15,8 +15,9 @@ import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import permissionService from '@web/extension-services/background/services/permission'
-import sessionService, { Session } from '@web/extension-services/background/services/session'
+import { Session } from '@web/extension-services/background/services/session'
 
 interface RequestRes {
   type?: string
@@ -61,8 +62,11 @@ const handleSignMessage = (requestRes: RequestRes) => {
 export class ProviderController {
   mainCtrl: MainController
 
-  constructor(mainCtrl: MainController) {
+  dappsCtrl: DappsController
+
+  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
     this.mainCtrl = mainCtrl
+    this.dappsCtrl = dappsCtrl
   }
 
   getDappNetwork = (origin: string) => {
@@ -103,7 +107,7 @@ export class ProviderController {
     }
 
     const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
-    sessionService.broadcastEvent('accountsChanged', account)
+    this.dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
@@ -257,7 +261,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    sessionService.broadcastEvent(
+    this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -305,7 +309,7 @@ export class ProviderController {
     }
 
     permissionService.updateConnectSite(origin, { chainId }, true)
-    sessionService.broadcastEvent(
+    this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
