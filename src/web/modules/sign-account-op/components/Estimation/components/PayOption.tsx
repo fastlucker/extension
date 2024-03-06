@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
@@ -22,6 +23,7 @@ const PayOption = ({
   token: TokenResult
   isGasTank: boolean
 }) => {
+  const { t } = useTranslation()
   const settingsCtrl = useSettingsControllerState()
   const { maxWidthSize } = useWindowSize()
   const isL = maxWidthSize('l')
@@ -56,7 +58,7 @@ const PayOption = ({
             {label}
           </Text>
           <Text weight="medium" fontSize={10} numberOfLines={1} appearance="secondaryText">
-            ({!isGasTank ? shortenAddress(account.addr, isL ? 23 : 13) : 'Gas Tank'})
+            ({!isGasTank ? shortenAddress(account.addr, isL ? 23 : 13) : t('Gas Tank')})
           </Text>
         </View>
       </View>
@@ -93,7 +95,7 @@ const PayOption = ({
           }}
         >
           <Text fontSize={10} appearance="secondaryText" weight="medium">
-            Fee token
+            {t('Fee token')}
           </Text>
         </View>
       </View>
