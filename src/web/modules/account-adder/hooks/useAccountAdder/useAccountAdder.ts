@@ -23,7 +23,7 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
 
-  const setPage: any = React.useCallback(
+  const setPage = React.useCallback(
     (page = 1) => {
       createTask(() =>
         dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE', params: { page } })
@@ -42,7 +42,6 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
     return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
   }, [dispatch])
 
-  // TODO: Implement
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
       hasAccountsToImport
