@@ -18,11 +18,14 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
 import useToast from '@common/hooks/useToast'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import useNavigation from '@common/hooks/useNavigation'
 
 const DevicePasswordChangeSettingsScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { navigate } = useNavigation()
   const state = useKeystoreControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -44,6 +47,13 @@ const DevicePasswordChangeSettingsScreen = () => {
       confirmNewPassword: ''
     }
   })
+
+  // If Keystore password is not set yet, it is not possible to change it.
+  // Because of this, if the user tries to load Settings -> Change password route,
+  // we will redirect it to the route, where he can set its password for first time.
+  useEffect(() => {
+    if (!state.hasPasswordSecret) navigate(WEB_ROUTES.devicePasswordSet)
+  }, [state.hasPasswordSecret, navigate])
 
   useEffect(() => {
     setCurrentSettingsPage('device-password-change')
