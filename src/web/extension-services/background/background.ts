@@ -423,39 +423,45 @@ async function init() {
               break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-              if (!ledgerCtrl.isUnlocked()) {
-                try {
-                  await ledgerCtrl.unlock()
-                } catch (e: any) {
-                  const message =
-                    e?.message || 'Could not unlock the Ledger device. Please try again.'
-                  const error = { message, level: 'major', error: e }
+              try {
+                // The second onwards, the Ledger device throws "invalid channel".
+                // To overcome this, always make sure to clean up before starting
+                // a new session, if the device is already unlocked.
+                if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
 
-                  return pm.send('broadcast', {
-                    type: 'broadcast-error',
-                    method: 'ledger',
-                    params: {
-                      errors: [error],
-                      controller: 'ledger'
-                    }
-                  })
-                }
+                await ledgerCtrl.unlock()
+
+                const { walletSDK } = ledgerCtrl
+                // Should never happen
+                if (!walletSDK)
+                  throw new Error('Could not establish connection with the ledger device')
+
+                const keyIterator = new LedgerKeyIterator({ walletSDK })
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks,
+                  providers: rpcProviders
+                })
+              } catch (e: any) {
+                const message =
+                  e?.message || 'Could not unlock the Ledger device. Please try again.'
+
+                // TODO: Broadcast on a global level instead
+                const error = { message, level: 'major', error: e }
+                return pm.send('broadcast', {
+                  type: 'broadcast-error',
+                  method: 'ledger',
+                  params: {
+                    errors: [error],
+                    controller: 'ledger'
+                  }
+                })
               }
-
-              const { walletSDK } = ledgerCtrl
-              // Should never happen
-              if (!walletSDK) console.error('Ledger walletSDK is not initialized')
-
-              const keyIterator = new LedgerKeyIterator({ walletSDK })
-              mainCtrl.accountAdder.init({
-                keyIterator,
-                hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
-              })
-              return mainCtrl.accountAdder.setPage({
-                page: 1,
-                networks,
-                providers: rpcProviders
-              })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
               const { walletSDK } = trezorCtrl

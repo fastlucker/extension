@@ -13,9 +13,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-// TODO: Remove if they are not needed anymore
-// import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-// import { hasConnectedLedgerDevice } from '../../utils/ledger'
+import LedgerController from '../../controllers/LedgerController'
 
 type Props = {
   isOpen: boolean
@@ -32,16 +30,18 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
   }, [updateStepperState])
 
   const onPressNext = async () => {
-    // TODO: Probably not needed anymore?
-    // const hasConnectedLedger = await hasConnectedLedgerDevice()
-    // if (!hasConnectedLedger) {
-    //   try {
-    //     const transport = await TransportWebHID.create()
-    //     await transport.close()
-    //   } catch (e) {
-    //     console.error(e)
-    //   }
-    // }
+    // The WebHID API requires a user gesture to open the device selection prompt
+    // where users grant permission to the extension to access an HID device.
+    // Therefore, force unlocking the Ledger device here.
+    try {
+      const ledgerCtrl = await new LedgerController()
+      await ledgerCtrl.unlock()
+      await ledgerCtrl.cleanUp()
+    } catch (error: any) {
+      console.error(error)
+      // Fail silently. The error handling feedback for the user comes from the
+      // controller instance in the background process.
+    }
 
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
