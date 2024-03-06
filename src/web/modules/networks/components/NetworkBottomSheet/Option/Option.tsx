@@ -1,10 +1,11 @@
-import { Pressable, View } from 'react-native'
+import { Animated, View } from 'react-native'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import getStyles from '@web/modules/networks/components/NetworkBottomSheet/styles'
 
 const Option = ({
@@ -17,43 +18,57 @@ const Option = ({
   onPress: () => void
 }) => {
   const { styles, theme } = useTheme(getStyles)
+  const [bindAnim, animStyle] = useMultiHover({
+    values: [
+      {
+        property: 'borderColor',
+        from: `${String(theme.primary)}00`,
+        to: theme.primary
+      },
+      {
+        property: 'left',
+        from: 0,
+        to: 5
+      }
+    ]
+  })
+
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
-      style={({ hovered }: any) => [
+      style={[
         styles.item,
         flexbox.justifySpaceBetween,
         {
           borderWidth: 1,
-          borderColor: hovered ? theme.primary : 'transparent'
+          borderColor: animStyle.borderColor
         }
       ]}
+      {...bindAnim}
     >
-      {({ hovered }: any) => (
-        <>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <View
-              style={{
-                width: 40,
-                height: 40,
-                ...flexbox.center,
-                ...spacings.mrTy
-              }}
-            >
-              {renderIcon}
-            </View>
-            <Text fontSize={16} weight="medium">
-              {text}
-            </Text>
-          </View>
-          <RightArrowIcon
-            style={{
-              transform: [{ translateX: hovered ? 5 : 0 }]
-            }}
-          />
-        </>
-      )}
-    </Pressable>
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            ...flexbox.center,
+            ...spacings.mrTy
+          }}
+        >
+          {renderIcon}
+        </View>
+        <Text fontSize={16} weight="medium">
+          {text}
+        </Text>
+      </View>
+      <Animated.View
+        style={{
+          left: animStyle.left
+        }}
+      >
+        <RightArrowIcon />
+      </Animated.View>
+    </AnimatedPressable>
   )
 }
 

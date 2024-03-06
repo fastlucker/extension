@@ -7,7 +7,6 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   addAccountOptionContainer: ViewStyle
-  addAccountOptionContainerHovered: ViewStyle
   optionIconWrapper: ViewStyle
 }
 
@@ -21,11 +20,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.mbTy,
       ...common.borderRadiusPrimary,
       ...flexbox.alignCenter,
-      borderColor: theme.primaryBackground,
       borderWidth: 1
-    },
-    addAccountOptionContainerHovered: {
-      borderColor: theme.primary
     },
     optionIconWrapper: {
       width: 40,

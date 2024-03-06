@@ -154,7 +154,7 @@ const DAppFooter = () => {
     <View style={styles.footerContainer}>
       <View style={styles.container}>
         {currentDappController('open')}
-        <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
           <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close')}</View>
           <View style={styles.networkSelectorContainer}>
             <Text fontSize={14} style={flexbox.flex1}>

@@ -67,7 +67,11 @@ const AccountsSettingsScreen = () => {
         text="Add account"
         hasBottomSpacing={false}
       />
-      <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+      <BottomSheet
+        id="account-settings-add-account"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
         <AddAccount />
       </BottomSheet>
     </>

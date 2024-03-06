@@ -1,23 +1,18 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import AddIcon from '@common/assets/svg/AddIcon'
-import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import {
   TabLayoutContainer,
   tabLayoutWidths,
@@ -25,19 +20,16 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import Networks from '@web/modules/networks/components/Networks'
 
+import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
 import NetworkBottomSheet from '../components/NetworkBottomSheet'
-import getStyles from './styles'
 
 const NetworksScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const { navigate } = useNavigation()
   const { state } = useRoute()
-  const { styles, theme } = useTheme(getStyles)
-  const portfolioControllerState = usePortfolioControllerState()
+  const { theme } = useTheme()
   const { selectedAccount } = useMainControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkDescriptor['id'] | null>(null)
@@ -85,41 +77,7 @@ const NetworksScreen = () => {
             selectedNetworkId={selectedNetworkId}
             openBlockExplorer={openBlockExplorer}
           />
-          <Pressable
-            onPress={() => {
-              navigate(WEB_ROUTES.dashboard, {
-                state: {
-                  filterByNetworkId: null
-                }
-              })
-            }}
-            style={({ hovered }: any) => [
-              styles.network,
-              styles.noKebabNetwork,
-              !filterByNetworkId || hovered ? styles.highlightedNetwork : {}
-            ]}
-          >
-            <View style={[flexbox.alignCenter, flexbox.directionRow]}>
-              <View
-                style={{
-                  width: 32,
-                  height: 32,
-                  ...flexbox.center
-                }}
-              >
-                {/* @ts-ignore */}
-                <NetworksIcon width={20} height={20} />
-              </View>
-              <Text style={spacings.mlMi} fontSize={16}>
-                {t('All Networks')}
-              </Text>
-            </View>
-            <Text fontSize={!filterByNetworkId ? 20 : 16} weight="semiBold">
-              {`$${formatDecimals(
-                Number(portfolioControllerState.accountPortfolio?.totalAmount || 0)
-              )}` || '$-'}
-            </Text>
-          </Pressable>
+          <AllNetworksOption filterByNetworkId={filterByNetworkId} />
           <Networks
             openBlockExplorer={openBlockExplorer}
             openSettingsBottomSheet={openSettingsBottomSheet}

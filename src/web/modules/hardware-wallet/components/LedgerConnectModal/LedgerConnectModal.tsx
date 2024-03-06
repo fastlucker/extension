@@ -4,8 +4,9 @@ import { View } from 'react-native'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
 import DriveIcon from '@common/assets/svg/DriveIcon'
 import LeftPointerArrowIcon from '@common/assets/svg/LeftPointerArrowIcon'
+import BottomSheet from '@common/components/BottomSheet'
+import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useStepper from '@common/modules/auth/hooks/useStepper'
@@ -16,11 +17,11 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import LedgerController from '../../controllers/LedgerController'
 
 type Props = {
-  isOpen: boolean
-  onClose: () => void
+  modalRef: any
+  handleClose: () => void
 }
 
-const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
+const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
@@ -47,7 +48,14 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
   }
 
   return (
-    <Modal title={t('Connect your HW wallet')} isOpen={isOpen} onClose={onClose}>
+    <BottomSheet
+      id="ledger-connect-modal"
+      sheetRef={modalRef}
+      closeBottomSheet={handleClose}
+      backgroundColor="primaryBackground"
+      autoWidth={false}
+    >
+      <ModalHeader title={t('Connect your HW wallet')} />
       <View style={[flexbox.alignSelfCenter, spacings.mbSm]}>
         <Text weight="regular" style={spacings.mbTy} fontSize={14}>
           {t('1. Plug your Ledger device into your computer')}
@@ -68,7 +76,7 @@ const LedgerConnectModal = ({ isOpen, onClose }: Props) => {
         style={{ width: 264, ...flexbox.alignSelfCenter }}
         onPress={onPressNext}
       />
-    </Modal>
+    </BottomSheet>
   )
 }
 

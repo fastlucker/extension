@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import BackButton from '@common/components/BackButton'
 import Panel from '@common/components/Panel'
@@ -30,7 +31,7 @@ const HardwareWalletSelectorScreen = () => {
   const accountAdderCtrlState = useAccountAdderControllerState()
   const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
-  const [ledgerModalOpened, setLedgerModalOpened] = useState(false)
+  const { ref: ledgerModalRef, open: openLedgerModal, close: closeLedgerModal } = useModalize()
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
@@ -45,17 +46,13 @@ const HardwareWalletSelectorScreen = () => {
     [dispatch]
   )
 
-  const onLedgerPress = useCallback(async () => {
-    setLedgerModalOpened(true)
-  }, [setLedgerModalOpened])
-
   const onGridPlusPress = useCallback(async () => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
   }, [dispatch])
 
   const options = useMemo(
-    () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),
-    [onGridPlusPress, onLedgerPress, onTrezorPress]
+    () => getOptions({ onGridPlusPress, onLedgerPress: openLedgerModal, onTrezorPress }),
+    [onGridPlusPress, onTrezorPress, openLedgerModal]
   )
 
   return (
@@ -84,10 +81,7 @@ const HardwareWalletSelectorScreen = () => {
             ))}
           </View>
         </Panel>
-        <LedgerConnectModal
-          isOpen={ledgerModalOpened}
-          onClose={() => setLedgerModalOpened(false)}
-        />
+        <LedgerConnectModal modalRef={ledgerModalRef} handleClose={closeLedgerModal} />
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )
