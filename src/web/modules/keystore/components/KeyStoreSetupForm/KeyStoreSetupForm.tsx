@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Controller, Control, FormState } from 'react-hook-form'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
+import BottomSheet from '@common/components/BottomSheet'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
-import Modal from '@common/components/Modal'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
@@ -45,6 +46,13 @@ const KeyStoreSetupForm = ({
   formState
 }: Props) => {
   const { t } = useTranslation()
+  const { ref: devicePasswordSetModalRef, open: openDevicePasswordSetModal } = useModalize()
+
+  useEffect(() => {
+    if (isKeystoreReady) {
+      openDevicePasswordSetModal()
+    }
+  }, [isKeystoreReady])
 
   return (
     <>
@@ -114,9 +122,12 @@ const KeyStoreSetupForm = ({
           </Text>
         </Alert>
       </View>
-      <Modal
-        isOpen={isKeystoreReady}
-        modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
+      <BottomSheet
+        backgroundColor="primaryBackground"
+        id="keystore-device-password-set-modal"
+        sheetRef={devicePasswordSetModalRef}
+        autoWidth
+        style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
       >
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
           {t('Device Password')}
@@ -135,7 +146,7 @@ const KeyStoreSetupForm = ({
             <RightArrowIcon color={colors.titan} />
           </View>
         </Button>
-      </Modal>
+      </BottomSheet>
     </>
   )
 }
