@@ -28,7 +28,7 @@ describe('login', () => {
         const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
         await page.goto(createVaultUrl, { waitUntil: 'load' })
 
-        await new Promise((r) => setTimeout(r, 1000))
+        await new Promise((r) => setTimeout(r, 2000))
 
         const pages = await browser.pages()
         // pages[0].close() // blank tab

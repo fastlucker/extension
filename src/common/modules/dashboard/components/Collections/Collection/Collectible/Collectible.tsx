@@ -51,6 +51,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
 
   return (
     <Pressable
+      testID='collectible-picture'
       style={[
         styles.container,
         renderFallbackImage

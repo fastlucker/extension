@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 
 
-import { bootStrap, setAmbKeyStoreForLegacy, clickOnElement, typeText, generateEthereumPrivateKey } from './functions.js';
+import { bootStrap, setAmbKeyStoreForLegacy, clickOnElement, typeText } from './functions.js';
 
 
 describe('login', () => {

@@ -140,7 +140,7 @@ describe('balance', () => {
         });
 
 
-        const colectiblPicture = '[data-testid="colectible-picture"]'
+        const colectiblPicture = '[data-testid="collectible-picture"]'
         /* Click on the first item */
         await page.waitForSelector(colectiblPicture, { visible: true });
         const element = await page.$(colectiblPicture);
@@ -148,7 +148,7 @@ describe('balance', () => {
 
 
         /* Get the text of the modal and verify that the name of the first collectible item is included*/
-        const modalText = await page.$eval('[aria-modal="true"]', el => {
+        const modalText = await page.$eval('[data-testid="rows"]', el => {
             return el.textContent
         });
 

@@ -153,6 +153,23 @@ export async function clickWhenClickable(page, selector) {
         throw new Error(`Element ${selector} is not clickable`);
     }
 }
+
+//----------------------------------------------------------------------------------------------
+export async function clickOnElementByText(page, elementType, buttonText) {
+    await page.evaluate((elementType, buttonText) => {
+        const button = Array.from(document.querySelectorAll(`${elementType}`)).find(element =>
+            element.textContent.trim() === buttonText
+        );
+
+        if (button) {
+            button.click();
+        } else {
+            throw new Error(`Button with text "${buttonText}" not found.`);
+        }
+    }, elementType, buttonText);
+}
+
+
 //----------------------------------------------------------------------------------------------
 export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
     let elementToClick = await page.waitForSelector(triggerTransactionSelector);
@@ -165,7 +182,7 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
     const newPage = await newTarget.page();
 
     /* Click on "Medium" button */
-    await clickOnElement(newPage, 'xpath///div[contains(text(), "Slow:")]')
+    await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
 
     /* Click on "Sign" button */
     await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')

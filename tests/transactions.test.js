@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-import { bootStrap, typeText, clickOnElement, clickWhenClickable, confirmTransaction, typeSeedPhrase } from './functions.js';
+import { bootStrap, typeText, clickOnElement, clickWhenClickable, clickOnElementByText, confirmTransaction, typeSeedPhrase } from './functions.js';
 
 
 describe('transactions', () => {
@@ -153,7 +153,7 @@ describe('transactions', () => {
 
         /* Check the checkbox "Confirm sending to a previously unknown address" */
         await clickOnElement(page, '[data-testid="checkbox"]')
-     
+
         /* Click on "Send" button and cofirm transaction */
         await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="padding-button-Send"]')
     }));
@@ -336,9 +336,9 @@ describe('transactions', () => {
 
         /* Seleck "Watch an address" */
         await clickOnElement(page, '[data-testid="watch-an-address"]')
-        
+
         let viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
-        
+
         await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
         await new Promise((r) => setTimeout(r, 500))
 
@@ -374,4 +374,5 @@ describe('transactions', () => {
             }
         }
     }))
+
 })

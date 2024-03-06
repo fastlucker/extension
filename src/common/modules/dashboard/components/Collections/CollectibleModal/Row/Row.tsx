@@ -9,6 +9,7 @@ const { isTab } = getUiType()
 
 const Row = ({ title, text, noMb }: { title: string; text: string; noMb?: boolean }) => (
   <View
+    testID='rows'
     style={[
       flexbox.directionRow,
       flexbox.alignCenter,
