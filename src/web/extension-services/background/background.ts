@@ -424,7 +424,8 @@ async function init() {
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
               try {
-                // The second onwards, the Ledger device throws "invalid channel".
+                // The second time a connection gets requested onwards,
+                // the Ledger device throws with "invalid channel" error.
                 // To overcome this, always make sure to clean up before starting
                 // a new session, if the device is already unlocked.
                 if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
