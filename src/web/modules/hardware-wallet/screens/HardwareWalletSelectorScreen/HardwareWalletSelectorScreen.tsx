@@ -6,7 +6,6 @@ import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -27,10 +26,9 @@ import getOptions from './options'
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { addToast } = useToast()
   const { updateStepperState } = useStepper()
   const accountAdderCtrlState = useAccountAdderControllerState()
-  const { dispatchAsync, dispatch } = useBackgroundService()
+  const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
   const [ledgerModalOpened, setLedgerModalOpened] = useState(false)
 
@@ -52,14 +50,8 @@ const HardwareWalletSelectorScreen = () => {
   }, [setLedgerModalOpened])
 
   const onGridPlusPress = useCallback(async () => {
-    try {
-      await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
-    } catch (error: any) {
-      addToast(error.message, { type: 'error' })
-    }
-
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
-  }, [addToast, dispatch, dispatchAsync])
+  }, [dispatch])
 
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress, onTrezorPress }),

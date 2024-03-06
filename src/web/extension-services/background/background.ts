@@ -477,17 +477,35 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-              const { sdkSession } = latticeCtrl
-              mainCtrl.accountAdder.init({
-                keyIterator: new LatticeKeyIterator({ sdkSession }),
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-              })
+              try {
+                await latticeCtrl.unlock()
 
-              return mainCtrl.accountAdder.setPage({
-                page: 1,
-                networks,
-                providers: rpcProviders
-              })
+                const { sdkSession } = latticeCtrl
+                mainCtrl.accountAdder.init({
+                  keyIterator: new LatticeKeyIterator({ sdkSession }),
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks,
+                  providers: rpcProviders
+                })
+              } catch (e: any) {
+                const message =
+                  e?.message || 'Could not unlock the GridPlus device. Please try again.'
+
+                // TODO: Broadcast on a global level instead
+                const error = { message, level: 'major', error: e }
+                return pm.send('broadcast', {
+                  type: 'broadcast-error',
+                  method: 'lattice',
+                  params: {
+                    errors: [error],
+                    controller: 'lattice'
+                  }
+                })
+              }
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
@@ -770,9 +788,6 @@ async function init() {
               return notificationCtrl.reopenCurrentNotificationRequest()
             case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
               return notificationCtrl.openNotificationRequest(data.params.id)
-
-            case 'LATTICE_CONTROLLER_UNLOCK':
-              return latticeCtrl.unlock()
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return

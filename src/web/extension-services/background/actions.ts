@@ -1,4 +1,3 @@
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
@@ -12,8 +11,6 @@ import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import { controllersMapping } from './types'
 
@@ -177,9 +174,6 @@ type NotificationControllerResolveRequestAction = {
 type NotificationControllerRejectRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
   params: { err: string; id?: number }
-}
-type LatticeControllerUnlockAction = {
-  type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
@@ -365,7 +359,6 @@ export type Action =
   | MainControllerTransferUpdateAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
-  | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
@@ -401,5 +394,4 @@ export type AsyncActionTypes = {
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
-  LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
