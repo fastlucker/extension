@@ -700,12 +700,13 @@ async function init() {
 
               const readyToAddKeys = mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
-              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, slot, index }) => ({
-                  addr: accountKeyAddr,
-                  type: 'seed',
-                  label: getDefaultKeyLabel('internal', index, slot)
-                })
+              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                ({ accountKeys }) =>
+                  accountKeys.map(({ addr, slot, index }) => ({
+                    addr,
+                    type: 'seed',
+                    label: getDefaultKeyLabel('seed', index, slot)
+                  }))
               )
 
               return mainCtrl.accountAdder.addAccounts(
