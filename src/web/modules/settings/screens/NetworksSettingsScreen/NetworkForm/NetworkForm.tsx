@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
+import { SINGLETON } from '@ambire-common/consts/deploy'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
@@ -101,12 +102,12 @@ const NetworkForm = ({
   }, [selectedNetwork?.chainId, selectedNetwork?.name, setError, watch, clearErrors])
 
   useEffect(() => {
+    setShouldShowDeployBtn(false)
     if (!selectedNetwork) return
 
     // run a simulation, take the contract addresses and verify there's no code there
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
-    const helperAddr = getCreate2Address(singletonAddr, salt, keccak256(DeployHelper.bin))
+    const helperAddr = getCreate2Address(SINGLETON, salt, keccak256(DeployHelper.bin))
     const provider = new JsonRpcProvider(selectedNetwork.rpcUrl)
     provider
       .getCode(helperAddr)
