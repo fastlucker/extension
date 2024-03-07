@@ -53,11 +53,7 @@ const AccountsOnPageList = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(() => {
-    if (subType === 'seed') return true
-
-    return false
-  })
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
