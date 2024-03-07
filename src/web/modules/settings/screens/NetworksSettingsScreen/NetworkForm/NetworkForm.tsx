@@ -103,7 +103,7 @@ const NetworkForm = ({
 
   useEffect(() => {
     setShouldShowDeployBtn(false)
-    if (!selectedNetwork) return
+    if (!selectedNetwork || !selectedNetwork.isSAEnabled) return
 
     // run a simulation, take the contract addresses and verify there's no code there
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
