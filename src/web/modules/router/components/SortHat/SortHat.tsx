@@ -42,10 +42,7 @@ const SortHat = () => {
 
     if (isNotification && notificationState.currentNotificationRequest) {
       if (notificationState.currentNotificationRequest?.screen === 'Unlock') {
-        dispatch({
-          type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
-          params: { data: null }
-        })
+        dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
       }
       if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
         return navigate(ROUTES.dappConnectRequest)
