@@ -184,17 +184,17 @@ const AccountsOnPageList = ({
     return t('Select Accounts To Import')
   }, [keyType, subType, t])
 
-  // Bricked means it's not loading and no accounts on the curren page are derived.
+  // Bricked means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
   // or if something goes wrong with deriving in general.
-  const isAccountAdderBricked = useMemo(
+  const isAccountAdderEmpty = useMemo(
     () => !state.accountsLoading && state.accountsOnPage.length === 0,
     [state.accountsLoading, state.accountsOnPage]
   )
 
   const shouldDisplayHideEmptyAccountsToggle = useMemo(
-    () => subType !== 'private-key' && !isAccountAdderBricked,
-    [subType, isAccountAdderBricked]
+    () => subType !== 'private-key' && !isAccountAdderEmpty,
+    [subType, isAccountAdderEmpty]
   )
 
   return (
@@ -328,7 +328,7 @@ const AccountsOnPageList = ({
             setContentHeight(height)
           }}
         >
-          {isAccountAdderBricked && (
+          {isAccountAdderEmpty && (
             <Text appearance="errorText" style={[spacings.mt, spacings.mbTy]}>
               {t(
                 'The process of retrieving accounts was cancelled or it failed.\n\nPlease go a step back and trigger the account adding process again. If the problem persists, please contact support.'
