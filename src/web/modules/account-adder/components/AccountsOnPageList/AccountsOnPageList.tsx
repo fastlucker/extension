@@ -184,7 +184,7 @@ const AccountsOnPageList = ({
     return t('Select Accounts To Import')
   }, [keyType, subType, t])
 
-  // Bricked means it's not loading and no accounts on the current page are derived.
+  // Empty means it's not loading and no accounts on the current page are derived.
   // Should rarely happen - if the deriving request gets cancelled on the device
   // or if something goes wrong with deriving in general.
   const isAccountAdderEmpty = useMemo(
