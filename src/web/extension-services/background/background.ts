@@ -423,6 +423,8 @@ async function init() {
               break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               try {
                 // The second time a connection gets requested onwards,
                 // the Ledger device throws with "invalid channel" error.
@@ -465,6 +467,8 @@ async function init() {
               }
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               const { walletSDK } = trezorCtrl
               mainCtrl.accountAdder.init({
                 keyIterator: new TrezorKeyIterator({ walletSDK }),
@@ -478,6 +482,8 @@ async function init() {
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               try {
                 await latticeCtrl.unlock()
 
@@ -509,6 +515,8 @@ async function init() {
               }
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               const keyIterator = new KeyIterator(data.params.privKeyOrSeed)
               mainCtrl.accountAdder.init({
                 keyIterator,
@@ -666,6 +674,8 @@ async function init() {
             // This flow interacts manually with the AccountAdder controller so that it can
             // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
             case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               const seed = data.params.seed
               const keyIterator = new KeyIterator(seed)
 
