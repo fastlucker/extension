@@ -1,29 +1,32 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-import Button from '@common/components/Button'
-import Modal from '@common/components/Modal'
-import Text from '@common/components/Text'
-import spacings, { SPACING_3XL } from '@common/styles/spacings'
 
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
+import Text from '@common/components/Text'
+import colors from '@common/styles/colors'
+import spacings, { SPACING_3XL } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import flexbox from '@common/styles/utils/flexbox'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import colors from '@common/styles/colors'
 
 interface Props {
-  isOpen: boolean
+  modalRef: any
   onPress: () => void
 }
 
-const PasswordSetModal: FC<Props> = ({ isOpen, onPress }) => {
+const PasswordSetModal: FC<Props> = ({ modalRef, onPress }) => {
   const { t } = useTranslation()
 
   return (
-    <Modal
-      isOpen={isOpen}
-      modalStyle={{ minWidth: 'unset', paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
+    <BottomSheet
+      backgroundColor="primaryBackground"
+      id="password-set-modal"
+      sheetRef={modalRef}
+      autoWidth
+      style={{ paddingHorizontal: SPACING_3XL * 2, ...spacings.pv4Xl }}
     >
       <Text weight="medium" fontSize={20} style={[text.center, spacings.mbXl]}>
         {t('Device Password')}
@@ -42,7 +45,7 @@ const PasswordSetModal: FC<Props> = ({ isOpen, onPress }) => {
           <RightArrowIcon color={colors.titan} />
         </View>
       </Button>
-    </Modal>
+    </BottomSheet>
   )
 }
 

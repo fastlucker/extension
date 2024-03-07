@@ -83,7 +83,11 @@ const AccountSelectScreen = () => {
           </Button>
         </View>
       </View>
-      <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+      <BottomSheet
+        id="account-select-add-account"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
         <AddAccount />
       </BottomSheet>
     </TabLayoutContainer>

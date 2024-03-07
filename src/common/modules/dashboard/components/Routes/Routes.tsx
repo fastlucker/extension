@@ -13,11 +13,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 import RouteItem from './RouteItem'
 
-const Routes = ({
-  setIsReceiveModalVisible
-}: {
-  setIsReceiveModalVisible: (isOpen: boolean) => void
-}) => {
+const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
   const { t } = useTranslation()
 
   const routeItems = [
@@ -25,7 +21,7 @@ const Routes = ({
     {
       icon: ReceiveIcon,
       label: t('Receive'),
-      onPress: () => setIsReceiveModalVisible(true),
+      onPress: openReceiveModal,
       isExternal: false
     },
     { icon: SwapIcon, label: t('Swap'), route: 'https://app.uniswap.org/swap', isExternal: true },

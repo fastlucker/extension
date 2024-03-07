@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { ColorValue, ViewStyle } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
-import NavIconWrapper from '@common/components/NavIconWrapper'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 interface Props {
   text: string
@@ -20,6 +20,9 @@ const CopyText: React.FC<Props> = ({ text, style, iconColor, iconWidth = 15, ico
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { addToast } = useToast()
+  const [bindAnim, animStyle] = useHover({
+    preset: 'opacityInverted'
+  })
 
   const handleCopyText = () => {
     Clipboard.setStringAsync(text)
@@ -27,9 +30,9 @@ const CopyText: React.FC<Props> = ({ text, style, iconColor, iconWidth = 15, ico
   }
 
   return (
-    <NavIconWrapper onPress={handleCopyText} style={style} hoverBackground="transparent">
+    <AnimatedPressable onPress={handleCopyText} style={[style, animStyle]} {...bindAnim}>
       <CopyIcon color={iconColor || theme.primaryText} width={iconWidth} height={iconHeight} />
-    </NavIconWrapper>
+    </AnimatedPressable>
   )
 }
 

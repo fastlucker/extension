@@ -17,14 +17,11 @@ const getStyles = () =>
   StyleSheet.create<Style>({
     modal: {
       ...spacings.phSm,
-      ...spacings.pvSm,
-      minWidth: isTab ? 420 : 324,
-      height: 'auto',
-      borderRadius: BORDER_RADIUS_PRIMARY
+      ...spacings.pvSm
     },
     image: {
       ...spacings.mbSm,
-      width: '100%',
+      width: COLLECTIBLE_IMAGE_SIZE,
       height: COLLECTIBLE_IMAGE_SIZE,
       borderRadius: BORDER_RADIUS_PRIMARY
     }

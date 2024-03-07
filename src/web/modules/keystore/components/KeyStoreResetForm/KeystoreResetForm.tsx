@@ -1,15 +1,15 @@
-import { isValidPassword } from '@ambire-common/services/validations'
 import { FC } from 'react'
 import { Controller, FieldErrorsImpl } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
+import { isValidPassword } from '@ambire-common/services/validations'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import { isWeb } from '@common/config/env'
-import PasswordSetModal from '@web/components/PasswordSetModal'
-
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
+import PasswordSetModal from '@web/components/PasswordSetModal'
+
 import styles from './styles'
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
       confirmPassword: string
     }>
   >
-  isPasswordChanged: boolean
+  modalRef: any
   handleChangeKeystorePassword: () => void
 }
 
@@ -29,7 +29,7 @@ const KeystoreResetForm: FC<Props> = ({
   password,
   control,
   errors,
-  isPasswordChanged,
+  modalRef,
   handleChangeKeystorePassword
 }) => {
   const { t } = useTranslation()
@@ -78,7 +78,7 @@ const KeystoreResetForm: FC<Props> = ({
         )}
         name="confirmPassword"
       />
-      <PasswordSetModal isOpen={isPasswordChanged} onPress={() => navigate(ROUTES.dashboard)} />
+      <PasswordSetModal modalRef={modalRef} onPress={() => navigate(ROUTES.dashboard)} />
     </>
   )
 }

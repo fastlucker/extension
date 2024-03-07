@@ -1,6 +1,7 @@
 import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Call } from '@ambire-common/libs/accountOp/types'
@@ -48,6 +49,7 @@ const SignAccountOpScreen = () => {
   const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
+  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -60,6 +62,20 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+
+  const isSignLoading =
+    signAccountOpState?.status?.type === SigningStatus.InProgress ||
+    signAccountOpState?.status?.type === SigningStatus.Done ||
+    mainState.broadcastStatus === 'LOADING'
+
+  useEffect(() => {
+    if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
+      openHwModal()
+      return
+    }
+
+    closeHwModal()
+  }, [closeHwModal, isSignLoading, openHwModal, signAccountOpState?.accountOp.signingKeyType])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -270,11 +286,6 @@ const SignAccountOpScreen = () => {
       </View>
     )
   }
-
-  const isSignLoading =
-    signAccountOpState.status?.type === SigningStatus.InProgress ||
-    signAccountOpState.status?.type === SigningStatus.Done ||
-    mainState.broadcastStatus === 'LOADING'
 
   const portfolioStatePending =
     portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
@@ -551,13 +562,11 @@ const SignAccountOpScreen = () => {
               ) : null}
             </ScrollView>
           </View>
-          {signAccountOpState.accountOp.signingKeyType !== 'internal' && (
-            <HardwareWalletSigningModal
-              isOpen={isSignLoading}
-              keyType={signAccountOpState.accountOp.signingKeyType}
-              onReject={handleRejectAccountOp}
-            />
-          )}
+          <HardwareWalletSigningModal
+            modalRef={hwModalRef}
+            keyType={signAccountOpState.accountOp.signingKeyType}
+            onReject={handleRejectAccountOp}
+          />
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

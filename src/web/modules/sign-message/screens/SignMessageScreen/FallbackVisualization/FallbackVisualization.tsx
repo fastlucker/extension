@@ -43,7 +43,8 @@ const FallbackVisualization: FC<{
             Warning:{' '}
           </Text>
           <Text fontSize={16} appearance="warningText">
-            failed to decode the intention of the message.
+            We are not able to decode this message for your convenience, and it's presented in the
+            original format
           </Text>
         </Text>
       </View>
