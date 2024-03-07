@@ -4,7 +4,6 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
-import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -28,7 +27,6 @@ const flow = new PromiseFlow<{
 }>()
 const flowContext = flow
   .use(async (ctx, next) => {
-    // check method
     const {
       data: { method },
       mainCtrl,
