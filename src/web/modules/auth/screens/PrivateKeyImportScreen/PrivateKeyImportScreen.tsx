@@ -47,8 +47,20 @@ const PrivateKeyImportScreen = () => {
   }, [updateStepperState])
 
   useEffect(() => {
-    if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
-  }, [accountAdderCtrlState.isInitialized, navigate])
+    if (
+      accountAdderCtrlState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      accountAdderCtrlState.type === 'internal' &&
+      accountAdderCtrlState.subType === 'private-key'
+    )
+      navigate(WEB_ROUTES.accountAdder)
+  }, [
+    accountAdderCtrlState.isInitialized,
+    accountAdderCtrlState.subType,
+    accountAdderCtrlState.type,
+    navigate
+  ])
 
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {

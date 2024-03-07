@@ -38,8 +38,15 @@ const HardwareWalletSelectorScreen = () => {
   }, [updateStepperState])
 
   useEffect(() => {
-    if (accountAdderCtrlState.isInitialized) navigate(WEB_ROUTES.accountAdder)
-  }, [accountAdderCtrlState.isInitialized, navigate])
+    if (
+      accountAdderCtrlState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      ['ledger', 'trezor', 'lattice'].includes(accountAdderCtrlState.type)
+    ) {
+      navigate(WEB_ROUTES.accountAdder)
+    }
+  }, [accountAdderCtrlState.isInitialized, accountAdderCtrlState.type, navigate])
 
   const onTrezorPress = useCallback(
     () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
