@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -15,7 +15,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
@@ -36,20 +35,11 @@ const AccountAdderScreen = () => {
   const { theme } = useTheme()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
-  const { dispatch } = useBackgroundService()
 
-  const { onImportReady, setPage } = useAccountAdder({
+  const { onImportReady, setPage, handleGoBack } = useAccountAdder({
     keyType: accountAdderState.type,
     keySubType: accountAdderState.subType
   })
-
-  // Resetting the Account Adder controller is enough for navigating the user one step back,
-  // since the `useAccountAdder` listens to the `accountAdderState.isInitialized`
-  // and if it's false, it will navigate the user back.
-  const handleGoBack = useCallback(
-    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' }),
-    [dispatch]
-  )
 
   return (
     <TabLayoutContainer

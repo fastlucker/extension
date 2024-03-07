@@ -32,6 +32,16 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
     if (!accountAdderState.isInitialized) goBack()
   }, [accountAdderState.isInitialized, goBack])
 
+  /**
+   * Resetting the Account Adder controller is enough for navigating the user one step back,
+   * since the `useAccountAdder` listens to the `accountAdderState.isInitialized`
+   * and if it's false, it will navigate the user back.
+   */
+  const handleGoBack = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' }),
+    [dispatch]
+  )
+
   const setPage = React.useCallback(
     (page = 1) => {
       createTask(() =>
@@ -74,7 +84,7 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS' })
   }, [accountAdderState.selectedAccounts, completeStep, dispatch])
 
-  return { setPage, onImportReady }
+  return { setPage, onImportReady, handleGoBack }
 }
 
 export default useAccountAdder
