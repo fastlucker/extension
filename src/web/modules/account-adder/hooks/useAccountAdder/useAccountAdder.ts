@@ -46,15 +46,11 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
     (hasAccountsToImport: boolean = true) => {
       hasAccountsToImport
         ? navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-            state: {
-              accounts: accountAdderState.readyToAddAccounts,
-              keyType,
-              keyTypeInternalSubtype: keySubType
-            }
+            state: { accounts: accountAdderState.readyToAddAccounts }
           })
         : navigate('/', { state: { openOnboardingCompleted: true } })
     },
-    [navigate, accountAdderState, keyType, keySubType]
+    [navigate, accountAdderState]
   )
 
   useEffect(() => {

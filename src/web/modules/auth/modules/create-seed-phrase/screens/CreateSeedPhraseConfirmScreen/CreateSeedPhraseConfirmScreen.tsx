@@ -68,11 +68,7 @@ const CreateSeedPhraseConfirmScreen = () => {
     (hasAccountsToImport: boolean = true) => {
       dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
       navigate(hasAccountsToImport ? WEB_ROUTES.accountPersonalize : '/', {
-        state: {
-          accounts: accountAdderState.readyToAddAccounts,
-          keyType: 'internal',
-          keyTypeInternalSubtype: 'seed'
-        }
+        state: { accounts: accountAdderState.readyToAddAccounts }
       })
     },
     [dispatch, navigate, accountAdderState.readyToAddAccounts]
