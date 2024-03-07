@@ -24,6 +24,7 @@ const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
   return (
     <ExpandableCard
       enableExpand={isTypedMessage}
+      hasArrow={isTypedMessage}
       content={
         <HumanizedVisualization
           data={message.fullVisualization}

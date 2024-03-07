@@ -15,6 +15,7 @@ type Props = {
   expandedContent?: ReactElement
   style?: ViewStyle
   enableExpand?: boolean
+  hasArrow?: boolean
   arrowPosition?: 'left' | 'right'
   children?: ReactElement | ReactElement[]
   contentStyle?: ViewStyle
@@ -23,6 +24,7 @@ type Props = {
 const ExpandableCard = ({
   style,
   enableExpand = true,
+  hasArrow = true,
   arrowPosition = 'left',
   content,
   expandedContent,
@@ -46,15 +48,19 @@ const ExpandableCard = ({
             contentStyle
           ]}
         >
-          {!!enableExpand &&
-            arrowPosition === 'left' &&
-            (isExpanded ? <UpArrowIcon /> : <DownArrowIcon />)}
+          {!!hasArrow && arrowPosition === 'left' && (
+            <View style={{ opacity: enableExpand ? 1 : 0.5 }}>
+              {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
+            </View>
+          )}
           <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
             {!!content && content}
           </View>
-          {!!enableExpand &&
-            arrowPosition === 'right' &&
-            (isExpanded ? <UpArrowIcon /> : <DownArrowIcon />)}
+          {!!hasArrow && arrowPosition === 'right' && (
+            <View style={{ opacity: enableExpand ? 1 : 0.5 }}>
+              {isExpanded ? <UpArrowIcon /> : <DownArrowIcon />}
+            </View>
+          )}
         </View>
         {children}
       </Element>

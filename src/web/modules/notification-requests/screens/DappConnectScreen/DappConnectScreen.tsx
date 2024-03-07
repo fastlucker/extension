@@ -136,6 +136,7 @@ const DappConnectScreen = () => {
         </View>
         <ExpandableCard
           enableExpand={false}
+          hasArrow={false}
           content={
             <View
               style={[
