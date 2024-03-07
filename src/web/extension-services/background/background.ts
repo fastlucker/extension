@@ -705,7 +705,7 @@ async function init() {
                   accountKeys.map(({ addr, slot, index }) => ({
                     addr,
                     type: 'seed',
-                    label: getDefaultKeyLabel('seed', index, slot)
+                    label: getDefaultKeyLabel('internal', index, slot)
                   }))
               )
 
