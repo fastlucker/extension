@@ -33,9 +33,9 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
   }, [accountAdderState.isInitialized, goBack])
 
   /**
-   * Resetting the Account Adder controller is enough for navigating the user one step back,
-   * since the `useAccountAdder` listens to the `accountAdderState.isInitialized`
-   * and if it's false, it will navigate the user back.
+   * Resetting the Account Adder controller is enough for navigating the user
+   * one step back, because the above hook will navigate the user back if the
+   * Account Adder controller gets reset (is not initialized).
    */
   const handleGoBack = useCallback(
     () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' }),
