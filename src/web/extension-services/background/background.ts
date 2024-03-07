@@ -18,7 +18,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
-import { getPrivateKeyFromSeed, KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
+import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
@@ -415,39 +415,109 @@ async function init() {
               break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER': {
-              const keyIterator = new LedgerKeyIterator({
-                walletSDK: ledgerCtrl.walletSDK
-              })
-              return mainCtrl.accountAdder.init({
-                keyIterator,
-                hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
-              })
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+              try {
+                // The second time a connection gets requested onwards,
+                // the Ledger device throws with "invalid channel" error.
+                // To overcome this, always make sure to clean up before starting
+                // a new session, if the device is already unlocked.
+                if (ledgerCtrl.isUnlocked()) await ledgerCtrl.cleanUp()
+
+                await ledgerCtrl.unlock()
+
+                const { walletSDK } = ledgerCtrl
+                // Should never happen
+                if (!walletSDK)
+                  throw new Error('Could not establish connection with the ledger device')
+
+                const keyIterator = new LedgerKeyIterator({ walletSDK })
+                mainCtrl.accountAdder.init({
+                  keyIterator,
+                  hdPathTemplate: BIP44_LEDGER_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks,
+                  providers: rpcProviders
+                })
+              } catch (e: any) {
+                const message =
+                  e?.message || 'Could not unlock the Ledger device. Please try again.'
+
+                // TODO: Broadcast on a global level instead
+                const error = { message, level: 'major', error: e }
+                return pm.send('> ui-error', {
+                  method: 'ledger',
+                  params: {
+                    errors: [error],
+                    controller: 'ledger'
+                  }
+                })
+              }
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR': {
-              const keyIterator = new TrezorKeyIterator({
-                walletSDK: trezorCtrl.walletSDK
-              })
-              return mainCtrl.accountAdder.init({
-                keyIterator,
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+              const { walletSDK } = trezorCtrl
+              mainCtrl.accountAdder.init({
+                keyIterator: new TrezorKeyIterator({ walletSDK }),
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+              })
+
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
-              const keyIterator = new LatticeKeyIterator({
-                sdkSession: latticeCtrl.sdkSession
-              })
-              return mainCtrl.accountAdder.init({
-                keyIterator,
-                hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
-              })
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
+              try {
+                await latticeCtrl.unlock()
+
+                const { sdkSession } = latticeCtrl
+                mainCtrl.accountAdder.init({
+                  keyIterator: new LatticeKeyIterator({ sdkSession }),
+                  hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+                })
+
+                return await mainCtrl.accountAdder.setPage({
+                  page: 1,
+                  networks,
+                  providers: rpcProviders
+                })
+              } catch (e: any) {
+                const message =
+                  e?.message || 'Could not unlock the GridPlus device. Please try again.'
+
+                // TODO: Broadcast on a global level instead
+                const error = { message, level: 'major', error: e }
+                return pm.send('> ui-error', {
+                  method: 'lattice',
+                  params: {
+                    errors: [error],
+                    controller: 'lattice'
+                  }
+                })
+              }
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE': {
-              const pageSize = params.keyTypeInternalSubtype === 'private-key' ? 1 : 5
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
+
               const keyIterator = new KeyIterator(params.privKeyOrSeed)
-              return mainCtrl.accountAdder.init({
+              mainCtrl.accountAdder.init({
                 keyIterator,
-                pageSize,
+                pageSize: keyIterator.subType === 'private-key' ? 1 : 5,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE
+              })
+
+              return mainCtrl.accountAdder.setPage({
+                page: 1,
+                networks,
+                providers: rpcProviders
               })
             }
             case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
@@ -468,8 +538,11 @@ async function init() {
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
               return mainCtrl.accountAdder.deselectAccount(params.account)
             }
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET': {
-              return mainCtrl.accountAdder.reset()
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
+              if (mainCtrl.accountAdder.isInitialized) {
+                mainCtrl.accountAdder.reset()
+              }
+              break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
               return mainCtrl.accountAdder.setPage({
@@ -479,12 +552,16 @@ async function init() {
               })
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
               const readyToAddKeys: ReadyToAddKeys = {
-                internal: params.readyToAddKeys.internal,
+                internal: [],
                 external: []
               }
 
-              if (params.readyToAddKeys.externalTypeOnly) {
-                const keyType = params.readyToAddKeys.externalTypeOnly
+              if (mainCtrl.accountAdder.type === 'internal') {
+                readyToAddKeys.internal =
+                  mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
+              } else {
+                // External keys flow
+                const keyType = mainCtrl.accountAdder.type as ExternalKey['type']
 
                 const deviceIds: { [key in ExternalKey['type']]: string } = {
                   ledger: ledgerCtrl.deviceId,
@@ -518,11 +595,27 @@ async function init() {
                 readyToAddKeys.external = readyToAddExternalKeys
               }
 
+              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                ({ accountKeys }) =>
+                  accountKeys.map(({ addr, slot, index }) => ({
+                    addr,
+                    type: mainCtrl.accountAdder.type,
+                    label: getDefaultKeyLabel(mainCtrl.accountAdder.type, index, slot)
+                  }))
+              )
+
+              const readyToAddAccountPreferences = getDefaultAccountPreferences(
+                mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
+                mainCtrl.accounts,
+                mainCtrl.accountAdder.type,
+                mainCtrl.accountAdder.subType
+              )
+
               return mainCtrl.accountAdder.addAccounts(
-                params.selectedAccounts,
-                params.readyToAddAccountPreferences,
+                mainCtrl.accountAdder.selectedAccounts,
+                readyToAddAccountPreferences,
                 readyToAddKeys,
-                params.readyToAddKeyPreferences
+                readyToAddKeyPreferences
               )
             }
             case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
@@ -565,10 +658,11 @@ async function init() {
             // This flow interacts manually with the AccountAdder controller so that it can
             // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
             case 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT': {
-              const seed = params.seed
-              const keyIterator = new KeyIterator(seed)
+              if (mainCtrl.accountAdder.isInitialized) mainCtrl.accountAdder.reset()
 
-              await mainCtrl.accountAdder.init({
+              const keyIterator = new KeyIterator(params.seed)
+
+              mainCtrl.accountAdder.init({
                 keyIterator,
                 hdPathTemplate: BIP44_STANDARD_DERIVATION_TEMPLATE,
                 pageSize: 1
@@ -600,23 +694,15 @@ async function init() {
                 'seed'
               )
 
-              const readyToAddKeys = mainCtrl.accountAdder.selectedAccounts.map((acc) => {
-                const privateKey = getPrivateKeyFromSeed(
-                  seed,
-                  acc.index,
-                  // should always be provided, otherwise it would have thrown an error above
-                  mainCtrl.accountAdder.hdPathTemplate as HD_PATH_TEMPLATE_TYPE
-                )
+              const readyToAddKeys = mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
-                return { privateKey, dedicatedToOneSA: true }
-              })
-
-              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.map(
-                ({ accountKeyAddr, slot, index }) => ({
-                  addr: accountKeyAddr,
-                  type: 'seed',
-                  label: getDefaultKeyLabel('internal', index, slot)
-                })
+              const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
+                ({ accountKeys }) =>
+                  accountKeys.map(({ addr, slot, index }) => ({
+                    addr,
+                    type: 'seed',
+                    label: getDefaultKeyLabel('internal', index, slot)
+                  }))
               )
 
               return mainCtrl.accountAdder.addAccounts(
@@ -688,12 +774,6 @@ async function init() {
               return notificationCtrl.reopenCurrentNotificationRequest()
             case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
               return notificationCtrl.openNotificationRequest(params.id)
-
-            case 'LEDGER_CONTROLLER_UNLOCK':
-              return ledgerCtrl.unlock()
-
-            case 'LATTICE_CONTROLLER_UNLOCK':
-              return latticeCtrl.unlock()
 
             case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
               if (!mainCtrl.selectedAccount) return

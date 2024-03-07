@@ -5,7 +5,6 @@ import Select, { components, MenuPlacement, OptionProps, SingleValueProps } from
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -148,15 +147,19 @@ const SelectComponent = ({
                 fontSize: 14,
                 cursor: 'pointer',
                 color: theme.primaryText
-              } as any)
+              } as any),
+            menuList: (baseStyles) => ({
+              ...baseStyles,
+              padding: 0
+            })
           }}
           theme={(incomingTheme) => ({
             ...incomingTheme,
             borderRadius: 0,
             colors: {
               ...incomingTheme.colors,
-              primary25: colors.melrose_15,
-              primary: colors.melrose
+              primary25: String(theme.secondaryBackground),
+              primary: String(theme.secondaryBackground)
             }
           })}
           value={value}

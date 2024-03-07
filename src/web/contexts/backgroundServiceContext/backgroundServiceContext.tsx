@@ -13,7 +13,6 @@ import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
-let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
 
 // Facilitate communication between the different parts of the browser extension.
 // Utilizes the PortMessenger class to establish a connection between the popup
@@ -53,14 +52,6 @@ if (isExtension) {
 
     pm.send('> background', action)
   }
-
-  dispatchAsync = (action) => {
-    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
-    // from all opened extension instances, leading to some unpredictable behaviors of the state.
-    if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type))
-      return Promise.resolve(undefined)
-    return Promise.resolve(undefined)
-  }
 }
 
 const BackgroundServiceContext = createContext<BackgroundServiceContextReturnType>(
@@ -89,15 +80,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   }, [addToast])
 
   return (
-    <BackgroundServiceContext.Provider
-      value={useMemo(
-        () => ({
-          dispatch,
-          dispatchAsync
-        }),
-        []
-      )}
-    >
+    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>
       {children}
     </BackgroundServiceContext.Provider>
   )
