@@ -102,7 +102,7 @@ export class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
@@ -114,7 +114,7 @@ export class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
       return []
     }
 
@@ -122,7 +122,7 @@ export class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
       return null
     }
 

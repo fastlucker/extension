@@ -445,6 +445,7 @@ export class EthereumProvider extends EventEmitter {
         throw serializeError(response.error)
       }
 
+      logInfoWithPrefix('[request: success]', data.method, response.result)
       return response.result
     })
   }

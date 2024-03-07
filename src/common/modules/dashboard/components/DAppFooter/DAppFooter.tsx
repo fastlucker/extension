@@ -58,8 +58,8 @@ const DAppFooter = () => {
                   resizeMode="contain"
                   style={styles.icon}
                 />
-                <View style={spacings.mlMi}>
-                  <Text fontSize={12} weight="medium">
+                <View style={[spacings.mlMi, flexbox.flex1]}>
+                  <Text fontSize={12} weight="medium" numberOfLines={1} style={spacings.mrMi}>
                     {currentDapp?.name}
                   </Text>
                   <Text

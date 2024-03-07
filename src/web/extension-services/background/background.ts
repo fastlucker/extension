@@ -91,6 +91,7 @@ async function init() {
   await init()
 
   const backgroundState: {
+    isUnlocked: boolean
     ctrlOnUpdateIsDirtyFlags: { [key: string]: boolean }
     accountStateIntervals: {
       pending: number
@@ -109,6 +110,7 @@ async function init() {
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
       While the flag is truthy and there are new updates coming for that ctrl in the same tick, they will be debounced and only one event will be executed at the end
     */
+    isUnlocked: false,
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
       pending: 3000,
@@ -287,9 +289,18 @@ async function init() {
         const hasOnUpdateInitialized = controller.onUpdateIds.includes('background')
 
         if (!hasOnUpdateInitialized) {
-          controller?.onUpdate(() => {
+          controller?.onUpdate(async () => {
             const res = debounceFrontEndEventUpdatesOnSameTick(ctrlName, controller)
             if (res === 'DEBOUNCED') return
+
+            if (ctrlName === 'keystore') {
+              if (backgroundState.isUnlocked && !controller.isUnlocked) {
+                dappsCtrl.broadcastDappSessionEvent('lock')
+              } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
+                dappsCtrl.broadcastDappSessionEvent('unlock')
+              }
+              backgroundState.isUnlocked = controller.isUnlocked
+            }
 
             if (ctrlName === 'activity') {
               // Start the interval for updating the accounts ops statuses, only if there are broadcasted but not confirmed accounts ops
@@ -732,8 +743,8 @@ async function init() {
             }
 
             case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
+              dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params.origin)
               permissionService.removeConnectedSite(params.origin)
-              dappsCtrl.broadcastDappSessionEvent('accountsChanged', [], params.origin)
               break
             }
             case 'CHANGE_CURRENT_DAPP_NETWORK': {

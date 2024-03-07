@@ -4,6 +4,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -60,16 +61,18 @@ const flowContext = flow
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      // const isUnlock = mainCtrl.keystore.isUnlocked
-      const isUnlock = true
-      if (!isUnlock) {
+      const isUnlock = mainCtrl.keystore.isUnlocked
+      if (!isUnlock && permissionService.hasPermission(origin)) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
         ctx.request.requestedNotificationRequest = true
         lockedOrigins.add(origin)
         try {
-          await notificationCtrl.requestNotificationRequest({ lock: true })
+          await notificationCtrl.requestNotificationRequest({
+            screen: 'Unlock',
+            params: { origin }
+          })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)

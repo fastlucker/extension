@@ -10,6 +10,7 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -23,6 +24,7 @@ const SortHat = () => {
   const notificationState = useNotificationControllerState()
   const mainState = useMainControllerState()
   const { params } = useRoute()
+  const { dispatch } = useBackgroundService()
 
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
@@ -39,6 +41,12 @@ const SortHat = () => {
     }
 
     if (isNotification && notificationState.currentNotificationRequest) {
+      if (notificationState.currentNotificationRequest?.screen === 'Unlock') {
+        dispatch({
+          type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+          params: { data: null }
+        })
+      }
       if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
         return navigate(ROUTES.dappConnectRequest)
       }
@@ -122,6 +130,7 @@ const SortHat = () => {
     notificationState.currentNotificationRequest,
     authStatus,
     navigate,
+    dispatch,
     keystoreState,
     mainState.selectedAccount,
     mainState.userRequests

@@ -7,7 +7,6 @@ import {
 } from '@web/extension-services/messengers/utils/detectScriptType'
 
 const messengersForConnection = {
-  'popup <-> inpage': bridgeMessenger,
   'background <-> inpage': bridgeMessenger,
   'popup <-> contentScript': tabMessenger,
   'background <-> contentScript': tabMessenger,
