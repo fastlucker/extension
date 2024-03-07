@@ -37,7 +37,6 @@ const AccountAdderScreen = () => {
   const accountAdderState = useAccountAdderControllerState()
 
   const { onImportReady, setPage, handleGoBack } = useAccountAdder({
-    keyType: accountAdderState.type,
     keySubType: accountAdderState.subType
   })
 

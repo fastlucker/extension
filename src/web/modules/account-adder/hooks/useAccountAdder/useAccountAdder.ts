@@ -11,11 +11,10 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTaskQueue from '@web/modules/hardware-wallet/hooks/useTaskQueue'
 
 interface Props {
-  keyType?: KeyIterator['type']
   keySubType: KeyIterator['subType']
 }
 
-const useAccountAdder = ({ keyType, keySubType }: Props) => {
+const useAccountAdder = ({ keySubType }: Props) => {
   const { goBack } = useNavigation()
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
