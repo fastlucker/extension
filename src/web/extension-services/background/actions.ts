@@ -76,8 +76,8 @@ type MainControllerAddSeedPhraseAccounts = {
     seed: string
   }
 }
-type MainControllerAccountAdderReset = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+type MainControllerAccountAdderResetIfNeeded = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
@@ -328,7 +328,7 @@ export type Action =
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderReset
+  | MainControllerAccountAdderResetIfNeeded
   | MainControllerSettingsAddAccountPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference

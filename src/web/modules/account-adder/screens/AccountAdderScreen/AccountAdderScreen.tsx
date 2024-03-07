@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -6,7 +6,6 @@ import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
@@ -16,6 +15,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
@@ -32,20 +32,24 @@ export interface Account {
 }
 
 const AccountAdderScreen = () => {
-  const { goBack } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
+  const { dispatch } = useBackgroundService()
 
   const { onImportReady, setPage } = useAccountAdder({
     keyType: accountAdderState.type,
     keySubType: accountAdderState.subType
   })
 
-  useEffect(() => {
-    if (!accountAdderState.isInitialized) goBack()
-  }, [accountAdderState.isInitialized, goBack])
+  // Resetting the Account Adder controller is enough for navigating the user one step back,
+  // since the `useAccountAdder` listens to the `accountAdderState.isInitialized`
+  // and if it's false, it will navigate the user back.
+  const handleGoBack = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' }),
+    [dispatch]
+  )
 
   return (
     <TabLayoutContainer
@@ -58,7 +62,7 @@ const AccountAdderScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton onPress={handleGoBack} />
           <Button
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}

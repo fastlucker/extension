@@ -197,6 +197,10 @@ const AccountsOnPageList = ({
     [subType, isAccountAdderEmpty]
   )
 
+  // Prevents the user from temporarily seeing (flashing) empty (error) states
+  // while being navigated back (resetting the Account Adder state).
+  if (!state.isInitialized) return null
+
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
       <View style={flexbox.flex1} nativeID="account-adder-page-list">

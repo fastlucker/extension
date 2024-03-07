@@ -546,8 +546,11 @@ async function init() {
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_DESELECT_ACCOUNT': {
               return mainCtrl.accountAdder.deselectAccount(data.params.account)
             }
-            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET': {
-              return mainCtrl.accountAdder.reset()
+            case 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED': {
+              if (mainCtrl.accountAdder.isInitialized) {
+                mainCtrl.accountAdder.reset()
+              }
+              break
             }
             case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
               return mainCtrl.accountAdder.setPage({

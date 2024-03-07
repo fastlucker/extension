@@ -16,12 +16,21 @@ interface Props {
 }
 
 const useAccountAdder = ({ keyType, keySubType }: Props) => {
+  const { goBack } = useNavigation()
   const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { createTask } = useTaskQueue()
   const { dispatch } = useBackgroundService()
   const accountAdderState = useAccountAdderControllerState()
   const mainControllerState = useMainControllerState()
+
+  useEffect(() => {
+    return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED' })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (!accountAdderState.isInitialized) goBack()
+  }, [accountAdderState.isInitialized, goBack])
 
   const setPage = React.useCallback(
     (page = 1) => {
@@ -37,10 +46,6 @@ const useAccountAdder = ({ keyType, keySubType }: Props) => {
 
     updateStepperState(WEB_ROUTES.accountAdder, step)
   }, [keySubType, updateStepperState])
-
-  useEffect(() => {
-    return () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET' })
-  }, [dispatch])
 
   const completeStep = useCallback(
     (hasAccountsToImport: boolean = true) => {
