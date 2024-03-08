@@ -51,16 +51,15 @@ export class PortMessenger {
     this.ports[0] = browser.runtime.connect(undefined, name ? { name } : undefined)
   }
 
-  listen = (callback: ListenCallbackType) => {
-    if (!this.ports.length) return
+  addListener(portId: string, callback: ListenCallbackType) {
+    const port = this.ports.find((p) => p.id === portId)
+    if (!port) return
 
-    this.ports.forEach((port) => {
-      port.onMessage.addListener((data) => {
-        if (!data.messageType || !data.message) return
+    port.onMessage.addListener((data) => {
+      if (!data.messageType || !data.message) return
 
-        const message = parse(data.message)
-        callback(data.messageType, message)
-      })
+      const message = parse(data.message)
+      callback(data.messageType, message)
     })
   }
 
@@ -72,12 +71,12 @@ export class PortMessenger {
     })
   }
 
-  dispose = (portId: string) => {
+  dispose(portId: string) {
     const port = this.ports.find((p) => p.id === portId)
     if (port) port.disconnect()
   }
 
-  disposeAll = () => {
+  disposeAll() {
     if (!this.ports.length) return
 
     this.ports.forEach((port) => {

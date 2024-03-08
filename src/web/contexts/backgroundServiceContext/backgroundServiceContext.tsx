@@ -32,9 +32,8 @@ if (isExtension) {
   if (isNotification) portName = 'notification'
 
   pm.connect(portName) // connect to the portMessenger initialized in the background
-
   // @ts-ignore
-  pm.listen((messageType, { method, params }) => {
+  pm.addListener(pm.ports[0].id, (messageType, { method, params }) => {
     if (messageType === '> ui') {
       eventBus.emit(method, params)
     }
