@@ -1,14 +1,9 @@
-import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
-import { Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -16,8 +11,6 @@ import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import { controllersMapping } from './types'
 
@@ -39,10 +32,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: {
-    privKeyOrSeed: string
-    keyTypeInternalSubtype?: 'seed' | 'private-key'
-  }
+  params: { privKeyOrSeed: string }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -71,15 +61,6 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: {
-    selectedAccounts: AccountAdderController['selectedAccounts']
-    readyToAddAccountPreferences: AccountPreferences
-    readyToAddKeys: {
-      internal: ReadyToAddKeys['internal']
-      externalTypeOnly: Key['type']
-    }
-    readyToAddKeyPreferences: KeyPreferences
-  }
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
@@ -95,8 +76,8 @@ type MainControllerAddSeedPhraseAccounts = {
     seed: string
   }
 }
-type MainControllerAccountAdderReset = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+type MainControllerAccountAdderResetIfNeeded = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
@@ -193,12 +174,6 @@ type NotificationControllerResolveRequestAction = {
 type NotificationControllerRejectRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
   params: { err: string; id?: number }
-}
-type LedgerControllerUnlockAction = {
-  type: 'LEDGER_CONTROLLER_UNLOCK'
-}
-type LatticeControllerUnlockAction = {
-  type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
@@ -353,7 +328,7 @@ export type Action =
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderReset
+  | MainControllerAccountAdderResetIfNeeded
   | MainControllerSettingsAddAccountPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
@@ -384,8 +359,6 @@ export type Action =
   | MainControllerTransferUpdateAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
-  | LedgerControllerUnlockAction
-  | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
@@ -421,6 +394,4 @@ export type AsyncActionTypes = {
   // instead of relying on the return value of the action.
   WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
   WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
-  LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
 }
