@@ -9,21 +9,20 @@ import {
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
 import eventBus from '@web/extension-services/event/eventBus'
-import PortMessage from '@web/extension-services/message/portMessage'
+import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
 
 let dispatch: BackgroundServiceContextReturnType['dispatch']
-let dispatchAsync: BackgroundServiceContextReturnType['dispatchAsync']
 
 // Facilitate communication between the different parts of the browser extension.
-// Utilizes the PortMessage class to establish a connection between the popup
+// Utilizes the PortMessenger class to establish a connection between the popup
 // and background pages, and the eventBus to emit and listen for events.
 // This allows the browser extension's UI to send and receive messages to and
 // from the background process (needed for updating the browser extension UI
 // based on the state of the background process and for sending dApps-initiated
 // actions to the background for further processing.
 if (isExtension) {
-  const portMessageChannel = new PortMessage()
+  const pm = new PortMessenger()
 
   const isTab = getUiType().isTab
   const isNotification = getUiType().isNotification
@@ -32,14 +31,15 @@ if (isExtension) {
   if (isTab) portName = 'tab'
   if (isNotification) portName = 'notification'
 
-  portMessageChannel.connect(portName)
+  pm.connect(portName) // connect to the portMessenger initialized in the background
 
-  portMessageChannel.listen((data: { type: string; method: string; params: any }) => {
-    if (data.type === 'broadcast') {
-      eventBus.emit(data.method, data.params)
+  // @ts-ignore
+  pm.listen((messageType, { method, params }) => {
+    if (messageType === '> ui') {
+      eventBus.emit(method, params)
     }
-    if (data.type === 'broadcast-error') {
-      eventBus.emit('error', data.params)
+    if (messageType === '> ui-error') {
+      eventBus.emit('error', params)
     }
   })
 
@@ -50,27 +50,7 @@ if (isExtension) {
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
-    portMessageChannel.send('broadcast', {
-      type: action.type,
-      // TypeScript being unable to guarantee that every member of the Action
-      // union has the `params` property (some indeed don't), but this is fine.
-      // @ts-ignore
-      params: action.params
-    })
-  }
-
-  dispatchAsync = (action) => {
-    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
-    // from all opened extension instances, leading to some unpredictable behaviors of the state.
-    if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type))
-      return Promise.resolve(undefined)
-    return portMessageChannel.request({
-      type: action.type,
-      // TypeScript being unable to guarantee that every member of the Action
-      // union has the `params` property (some indeed don't), but this is fine.
-      // @ts-ignore
-      params: action.params
-    })
+    pm.send('> background', action)
   }
 }
 
@@ -100,15 +80,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   }, [addToast])
 
   return (
-    <BackgroundServiceContext.Provider
-      value={useMemo(
-        () => ({
-          dispatch,
-          dispatchAsync
-        }),
-        []
-      )}
-    >
+    <BackgroundServiceContext.Provider value={useMemo(() => ({ dispatch }), [])}>
       {children}
     </BackgroundServiceContext.Provider>
   )

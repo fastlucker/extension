@@ -24,8 +24,8 @@ import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderC
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
+import { DappsControllerStateProvider } from '@web/contexts/dappsControllerStateContext'
 import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
-import { ExtensionProvider } from '@web/contexts/extensionContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
 import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
@@ -65,28 +65,28 @@ const AppInit = () => {
                               <NotificationControllerStateProvider>
                                 <PortfolioControllerStateProvider>
                                   <EmailVaultControllerStateProvider>
-                                    <ControllersStateLoadedProvider>
-                                      <LoaderProvider>
-                                        <StorageProvider>
-                                          <KeyboardProvider>
-                                            <NetInfoProvider>
-                                              <ConstantsProvider>
-                                                <AuthProvider>
-                                                  <ExtensionProvider>
+                                    <DappsControllerStateProvider>
+                                      <ControllersStateLoadedProvider>
+                                        <LoaderProvider>
+                                          <StorageProvider>
+                                            <KeyboardProvider>
+                                              <NetInfoProvider>
+                                                <ConstantsProvider>
+                                                  <AuthProvider>
                                                     <BiometricsProvider>
                                                       <PrivateModeProvider>
                                                         <AppRouter />
                                                       </PrivateModeProvider>
                                                       <PortalHost name="global" />
                                                     </BiometricsProvider>
-                                                  </ExtensionProvider>
-                                                </AuthProvider>
-                                              </ConstantsProvider>
-                                            </NetInfoProvider>
-                                          </KeyboardProvider>
-                                        </StorageProvider>
-                                      </LoaderProvider>
-                                    </ControllersStateLoadedProvider>
+                                                  </AuthProvider>
+                                                </ConstantsProvider>
+                                              </NetInfoProvider>
+                                            </KeyboardProvider>
+                                          </StorageProvider>
+                                        </LoaderProvider>
+                                      </ControllersStateLoadedProvider>
+                                    </DappsControllerStateProvider>
                                   </EmailVaultControllerStateProvider>
                                 </PortfolioControllerStateProvider>
                               </NotificationControllerStateProvider>
