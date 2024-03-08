@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import 'setimmediate'
 
+import { nanoid } from 'nanoid'
+
 import {
   BIP44_LEDGER_DERIVATION_TEMPLATE,
   BIP44_STANDARD_DERIVATION_TEMPLATE,
@@ -389,7 +391,7 @@ async function init() {
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'notification'].includes(port.name)) {
       // eslint-disable-next-line no-param-reassign
-      port.id = new Date().getTime().toString()
+      port.id = nanoid()
       pm.addPort(port)
       setPortfolioFetchInterval()
 
@@ -935,10 +937,9 @@ const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'ac
     message = 'Your transaction was successfully signed and broadcasted to the network'
   }
 
-  const id = new Date().getTime()
   // service_worker (mv3) - without await the notification doesn't show
   try {
-    await browser.notifications.create(id.toString(), {
+    await browser.notifications.create(nanoid(), {
       type: 'basic',
       iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
       title: 'Successfully signed',

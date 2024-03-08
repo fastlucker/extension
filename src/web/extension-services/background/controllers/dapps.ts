@@ -20,7 +20,7 @@ export class DappsController extends EventEmitter {
         }
       })
     } catch (error) {
-      // silent fail
+      console.error('Failed to register browser.tabs.onRemoved.addListener', error)
     }
   }
 

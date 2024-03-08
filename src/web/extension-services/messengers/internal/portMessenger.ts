@@ -35,8 +35,6 @@ export type PortMessageType = {
 export class PortMessenger {
   ports: Port[] = []
 
-  id: string = new Date().getTime().toString()
-
   constructor(ports: Port[] = []) {
     this.ports = ports
   }
