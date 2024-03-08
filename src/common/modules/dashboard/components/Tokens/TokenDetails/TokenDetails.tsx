@@ -1,4 +1,4 @@
-import { getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -26,6 +26,8 @@ import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -42,6 +44,8 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
 
@@ -71,8 +75,33 @@ const TokenDetails = ({
         id: 'swap',
         text: t('Swap'),
         icon: SwapIcon,
-        onPress: ({ networkId, address }: TokenResult) =>
-          createTab(`https://app.uniswap.org/swap?inputCurrency=${address}&chain=${networkId}`),
+        onPress: async ({ networkId, address }: TokenResult) => {
+          const networkData = networks.find((n) => n.id === networkId)
+
+          if (!networkData) {
+            addToast(t('Network not found'), { type: 'error' })
+            return
+          }
+
+          let inputCurrency = address
+
+          if (address === ZeroAddress) {
+            // Uniswap doesn't select the native token if you pass its address
+            inputCurrency = 'native'
+          }
+
+          // Change the current dapp network to the selected one,
+          // otherwise uniswap will select the token from the current network
+          dispatch({
+            type: 'CHANGE_CURRENT_DAPP_NETWORK',
+            params: {
+              chainId: Number(networkData.chainId),
+              origin: 'https://app.uniswap.org'
+            }
+          })
+
+          await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
+        },
         isDisabled: isGasTank,
         strokeWidth: 1.5
       },
