@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
@@ -9,13 +9,12 @@ import ModalHeader from '@common/components/BottomSheet/ModalHeader'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useStepper from '@common/modules/auth/hooks/useStepper'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { hasConnectedLedgerDevice } from '@web/modules/hardware-wallet/utils/ledger'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+
+import LedgerController from '../../controllers/LedgerController'
 
 type Props = {
   modalRef: any
@@ -23,47 +22,37 @@ type Props = {
 }
 
 const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
-  const { navigate } = useNavigation()
   const { updateStepperState } = useStepper()
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
+  const [isConnectingToDevice, setIsConnectingToDevice] = useState(false)
 
   useEffect(() => {
     updateStepperState('connect-hardware-wallet', 'hw')
   }, [updateStepperState])
 
   const onPressNext = async () => {
-    const supportWebHID = await TransportWebHID.isSupported()
-    const hasConnectedLedger = await hasConnectedLedgerDevice()
+    setIsConnectingToDevice(true)
 
-    if (!supportWebHID) {
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'ledger',
-          isWebHID: false
-        }
-      })
-    } else if (hasConnectedLedger) {
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'ledger',
-          isWebHID: true
-        }
-      })
-    } else {
-      try {
-        const transport = await TransportWebHID.create()
-        await transport.close()
+    // The WebHID API requires a user gesture to open the device selection prompt
+    // where users grant permission to the extension to access an HID device.
+    // Therefore, force unlocking the Ledger device here.
+    try {
+      const ledgerCtrl = await new LedgerController()
+      await ledgerCtrl.unlock()
+      await ledgerCtrl.cleanUp()
+    } catch (error: any) {
+      // Clear the flag to allow the user to try again. For all other cases,
+      // the state gets reset automatically, because the on connect success
+      // the flow redirects the user to another route (and this component unmounts).
+      setIsConnectingToDevice(false)
 
-        navigate(WEB_ROUTES.accountAdder, {
-          state: {
-            keyType: 'ledger',
-            isWebHID: true
-          }
-        })
-      } catch (e) {
-        console.error(e)
-      }
+      // Fail silently. The error handling feedback for the user comes from the
+      // controller instance in the background process.
+      console.error(error)
     }
+
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
 
   return (
@@ -91,7 +80,8 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
         <AmbireDevice />
       </View>
       <Button
-        text={t('Next')}
+        text={isConnectingToDevice ? t('Connecting...') : t('Next')}
+        disabled={isConnectingToDevice}
         style={{ width: 264, ...flexbox.alignSelfCenter }}
         onPress={onPressNext}
       />

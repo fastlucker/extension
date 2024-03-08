@@ -53,7 +53,12 @@ const Recipient: React.FC<Props> = ({
         onChangeText={setAddress}
       />
       <View style={styles.inputBottom}>
-        <Text style={styles.doubleCheckMessage} weight="regular" fontSize={14}>
+        <Text
+          style={styles.doubleCheckMessage}
+          weight="regular"
+          fontSize={12}
+          appearance="secondaryText"
+        >
           {t(
             'Please double-check the recipient address, blockchain transactions are not reversible.'
           )}
