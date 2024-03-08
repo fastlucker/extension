@@ -9,7 +9,7 @@ interface Style {
 }
 
 const styles = StyleSheet.create<Style>({
-  inputContainer: spacings.mb,
+  inputContainer: spacings.mbMi,
   inputBottom: spacings.mlTy,
   doubleCheckMessage: spacings.mbSm
 })
