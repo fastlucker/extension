@@ -101,8 +101,6 @@ const SendForm = ({
 
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
 
-  console.log(options, disableForm)
-
   const handleChangeToken = useCallback(
     (value: string) => {
       const tokenToSelect = tokens.find(
