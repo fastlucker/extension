@@ -1,7 +1,9 @@
 import { isWeb } from '@common/config/env'
 import { isExtension } from '@web/constants/browserapi'
 
-const UI_TYPE = {
+type UiType = 'tab' | 'notification' | 'index'
+
+const UI_TYPE: { [key: string]: UiType } = {
   Tab: 'tab',
   Popup: 'index',
   Notification: 'notification'

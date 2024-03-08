@@ -1,31 +1,9 @@
 // @ts-nocheck
 
-import { EventEmitter } from 'events'
-
 import { browser } from '@web/constants/browserapi'
 
-const tabEvent = new EventEmitter()
-
-try {
-  browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    if (changeInfo.url) {
-      tabEvent.emit('tabUrlChanged', tabId, changeInfo.url)
-    }
-  })
-
-  // window close will trigger this event also
-  browser.tabs.onRemoved.addListener((tabId) => {
-    tabEvent.emit('tabRemove', tabId)
-  })
-} catch (error) {
-  // Silent fail
-}
-
 const createTab = async (url): Promise<number | undefined> => {
-  const tab = await browser.tabs.create({
-    active: true,
-    url
-  })
+  const tab = await browser.tabs.create({ active: true, url })
 
   return tab?.id
 }
@@ -38,10 +16,8 @@ const openIndexPage = (route = ''): Promise<number | undefined> => {
 
 const getCurrentTab = async (): Promise<Tabs.Tab> => {
   try {
-    const tabs = await browser.tabs.query({
-      active: true,
-      currentWindow: true
-    })
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+
     return tabs[0]
   } catch (error) {
     // TODO: add appropriate error handling that will notify the user
@@ -49,11 +25,7 @@ const getCurrentTab = async (): Promise<Tabs.Tab> => {
 }
 
 export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
-  const tab = await browser.tabs.create({
-    active: true,
-    url
-  })
-
+  const tab = await browser.tabs.create({ active: true, url })
   if (needClose) window.close()
 
   return tab
@@ -76,5 +48,3 @@ const openInternalPageInTab = (route?: string, useWebapi = true) => {
 }
 
 export { createTab, openIndexPage, getCurrentWindow, getCurrentTab, openInternalPageInTab }
-
-export default tabEvent
