@@ -36,7 +36,8 @@ const Recipient: React.FC<Props> = ({
   isRecipientHumanizerKnownTokenOrSmartContract,
   isRecipientAddressUnknown,
   validation,
-  isRecipientDomainResolving
+  isRecipientDomainResolving,
+  disabled
 }) => {
   const { t } = useTranslation()
 
@@ -51,6 +52,7 @@ const Recipient: React.FC<Props> = ({
         label="Add Recipient"
         value={address}
         onChangeText={setAddress}
+        disabled={disabled}
       />
       <View style={styles.inputBottom}>
         <Text

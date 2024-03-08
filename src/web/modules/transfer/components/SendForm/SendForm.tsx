@@ -66,12 +66,12 @@ const SendForm = ({
   addressInputState,
   state,
   isAllReady = false,
-  disableForm
+  isSmartAccount = false
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   state: TransferControllerState
+  isSmartAccount: boolean
   isAllReady?: boolean
-  disableForm?: boolean
 }) => {
   const { dispatch } = useBackgroundService()
   const { validation, setFieldValue } = addressInputState
@@ -98,6 +98,10 @@ const SendForm = ({
     tokenSelectDisabled,
     amountSelectDisabled
   } = getSelectProps({ tokens, token, isTopUp })
+
+  const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
+
+  console.log(options, disableForm)
 
   const handleChangeToken = useCallback(
     (value: string) => {
