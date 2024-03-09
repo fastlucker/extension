@@ -19,7 +19,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
-import Modal from '@common/components/Modal'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -57,15 +56,19 @@ const DevicePasswordRecoverySettingsScreen = () => {
   const email = watch('email')
 
   useEffect(() => {
+    // On a first render, `confirmationModalRef.current` is null and `openConfirmationModal` doesn't work.
+    // Because of this, we are adding the modal ref to the deps,
+    // in order to make it working again on initial component render.
     if (
-      ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
-      ev.currentState === EmailVaultState.UploadingSecret
+      confirmationModalRef.current &&
+      (ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
+        ev.currentState === EmailVaultState.UploadingSecret)
     ) {
       openConfirmationModal()
       return
     }
     closeConfirmationModal()
-  }, [closeConfirmationModal, ev.currentState, openConfirmationModal])
+  }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef.current])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(async () => {
