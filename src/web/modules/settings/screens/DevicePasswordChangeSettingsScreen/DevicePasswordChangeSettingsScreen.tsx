@@ -153,7 +153,7 @@ const DevicePasswordChangeSettingsScreen = () => {
               placeholder={t('Repeat new Password')}
               onChangeText={onChange}
               value={value}
-              isValid={!!value && newPassword === value}
+              isValid={!!value && !errors.newPassword && newPassword === value}
               validLabel={t('✅ The new passwords match, you are ready to continue')}
               secureTextEntry
               error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}

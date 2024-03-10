@@ -89,7 +89,7 @@ const KeyStoreSetupForm = ({
               placeholder={t('Repeat Password')}
               onChangeText={onChange}
               value={value}
-              isValid={!!value && password === value}
+              isValid={!!value && !formState.errors.password && password === value}
               validLabel={t('✅ Passwords match, you are ready to continue')}
               secureTextEntry
               error={formState.errors.confirmPassword && (t("Passwords don't match.") as string)}
