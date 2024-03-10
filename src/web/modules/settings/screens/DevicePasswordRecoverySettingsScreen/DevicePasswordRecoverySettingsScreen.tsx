@@ -104,10 +104,11 @@ const DevicePasswordRecoverySettingsScreen = () => {
             )}
           >
             <Button
-              style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL, ...spacings.mtXl }}
+              style={{ alignSelf: 'flex-start', ...spacings.phXl, ...spacings.mt }}
               textStyle={{ fontSize: 14 }}
               type="primary"
               text={t('Set Device Password')}
+              hasBottomSpacing={false}
               onPress={() =>
                 navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
               }
