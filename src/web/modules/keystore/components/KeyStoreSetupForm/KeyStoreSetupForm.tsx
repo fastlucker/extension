@@ -113,14 +113,13 @@ const KeyStoreSetupForm = ({
             </View>
           </Button>
         )}
-        <Alert type="info">
-          <Text fontSize={16} weight="semiBold" appearance="infoText">
-            {t('Password requirements:')}
-          </Text>
-          <Text fontSize={16} appearance="infoText">
-            {t('Your password must be unique and at least 8 characters long.')}
-          </Text>
-        </Alert>
+        <Alert
+          type="info"
+          isTypeLabelHidden
+          title={t('Password requirements:')}
+          titleWeight="semiBold"
+          text={t('Your password must be unique and at least 8 characters long.')}
+        />
       </View>
       <BottomSheet
         backgroundColor="primaryBackground"

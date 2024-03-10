@@ -169,11 +169,8 @@ const DevicePasswordRecoverySettingsScreen = () => {
           type="info"
           isTypeLabelHidden
           style={spacings.mtXl}
-          title={
-            <Text appearance="infoText" weight="semiBold">
-              {t('How it works')}
-            </Text>
-          }
+          title={t('How it works')}
+          titleWeight="semiBold"
           text={t(
             'Email-based keystore recovery is locally enabled, and it does not upload any keys.'
           )}
