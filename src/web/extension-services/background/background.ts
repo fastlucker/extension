@@ -164,7 +164,7 @@ async function init() {
   const notificationCtrl = new NotificationController(mainCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
-  const dappsCtrl = new DappsController()
+  const dappsCtrl = new DappsController(storage)
 
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest

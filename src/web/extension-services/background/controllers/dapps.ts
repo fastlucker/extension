@@ -1,15 +1,32 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Storage } from '@ambire-common/interfaces/storage'
+import dappCatalogList from '@common/constants/dappCatalogList.json'
 import { browser } from '@web/constants/browserapi'
 import permission from '@web/extension-services/background/services/permission'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
 
+type Dapp = {
+  id: string
+  name: string
+  description?: string
+  url: string
+  iconUrl: string
+  favorite: boolean
+}
 export class DappsController extends EventEmitter {
   dappsSessionMap: Map<string, Session>
 
-  constructor() {
+  #_dapps: Dapp[] = []
+
+  #storage: Storage
+
+  #initialLoadPromise: Promise<void>
+
+  constructor(_storage: Storage) {
     super()
 
     this.dappsSessionMap = new Map<string, Session>()
+    this.#storage = _storage
 
     try {
       browser.tabs.onRemoved.addListener((tabId: number) => {
@@ -22,6 +39,35 @@ export class DappsController extends EventEmitter {
     } catch (error) {
       console.error('Failed to register browser.tabs.onRemoved.addListener', error)
     }
+
+    this.#initialLoadPromise = this.#load()
+  }
+
+  get dapps() {
+    return this.#_dapps
+  }
+
+  set dapps(val: Dapp[]) {
+    this.#_dapps = val.sort(
+      (a: Dapp, b: Dapp) =>
+        (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || a.name.localeCompare(b.name)
+    )
+  }
+
+  async #load() {
+    let storedDapps: Dapp[]
+    storedDapps = await this.#storage.get('dapps', [])
+    if (!storedDapps.length) {
+      storedDapps = dappCatalogList.map((dapp) => ({
+        ...dapp,
+        id: `${dapp.name}-${dapp.url}`,
+        favorite: false
+      }))
+      await this.#storage.set('dapps', storedDapps)
+    }
+
+    this.dapps = storedDapps
+    this.emitUpdate()
   }
 
   #createDappSession = (key: string, data: SessionProp | null = null) => {
@@ -72,11 +118,38 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
+  async addDapp(dapp: Dapp) {
+    await this.#initialLoadPromise
+
+    const storedDapp = this.dapps.find(
+      (d) => d.id === dapp.id || (d.name === dapp.name && d.url === dapp.url)
+    )
+    if (storedDapp) return
+    this.dapps = [...this.dapps, dapp]
+    this.emitUpdate()
+  }
+
+  async updateDapp(dapp: Dapp) {
+    await this.#initialLoadPromise
+
+    this.dapps = this.dapps.map((d) => {
+      if (d.id === dapp.id) return { ...d, ...dapp }
+      return d
+    })
+    this.emitUpdate()
+  }
+
+  async removeDapp(dappId: string) {
+    this.dapps = this.dapps.filter((d) => d.id !== dappId)
+    this.emitUpdate()
+  }
+
   toJSON() {
     return {
       ...this,
       ...super.toJSON(),
-      dappsSessionMap: Object.fromEntries(this.dappsSessionMap)
+      dappsSessionMap: Object.fromEntries(this.dappsSessionMap),
+      dapps: this.dapps
     }
   }
 }

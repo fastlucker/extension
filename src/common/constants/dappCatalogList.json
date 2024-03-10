@@ -1,0 +1,224 @@
+[
+  {
+    "url": "https://sigtool.ambire.com/",
+    "name": "SigTool for EVM",
+    "iconUrl": "https://sigtool.ambire.com/logo192.png",
+    "description": "Sign, verify and share ethereum messages"
+  },
+  {
+    "url": "https://app.swappin.gifts/ref/ambire",
+    "name": "swappin.gifts",
+    "iconUrl": "https://app.swappin.gifts/ref/ambire/logo.svg",
+    "description": "swappin.gifts Web3 DApp - convert your crypto assets into real-world goods & services"
+  },
+  {
+    "url": "https://stake.lido.fi/",
+    "name": "Lido Staking Widget",
+    "iconUrl": "https://stake.lido.fi/favicon-192x192.png",
+    "description": "Lido is the liquid staking solution for Ethereum."
+  },
+  {
+    "url": "https://polygon.lido.fi/",
+    "name": "Lido Polygon Staking",
+    "iconUrl": "https://polygon.lido.fi/favicon-194x194.png",
+    "description": "Stake your MATIC and receive stMATIC."
+  },
+  {
+    "url": "https://app.sushi.com/",
+    "name": "SushiSwap",
+    "iconUrl": "https://app.sushi.com/icons/icon-96x96.png",
+    "description": "Swap, earn, stack yields, lend, borrow, leverage all on one decentralized, community driven platform. Welcome home to DeFi."
+  },
+  {
+    "url": "https://app.paraswap.io/",
+    "name": "ParaSwap",
+    "iconUrl": "https://app.paraswap.io/paraswap.svg",
+    "description": "ParaSwap allows dApps and traders to get the best DEX liquidity by aggregating multiple markets and offering the best rates"
+  },
+  {
+    "url": "https://apps.gnosis-safe.io/tx-builder/",
+    "name": "Transaction Builder",
+    "iconUrl": "https://apps.gnosis-safe.io/tx-builder/tx-builder.png",
+    "description": "Build your transaction from scratch (Power users)"
+  },
+  {
+    "url": "https://app.uniswap.org",
+    "name": "Uniswap",
+    "iconUrl": "https://app.uniswap.org/favicon.png",
+    "description": "Uniswap decentralised exchange"
+  },
+  {
+    "url": "https://app.aave.com",
+    "name": "Aave",
+    "iconUrl": "https://dappcatalog.ambire.com/icons/AAVE.png",
+    "description": "Non-custodial liquidity protocol"
+  },
+  {
+    "url": "https://cowswap.exchange/",
+    "name": "CowSwap",
+    "iconUrl": "https://cowswap.exchange/favicon.png",
+    "description": "Save money on token swaps by trading directly with peers and avoiding front-running attacks"
+  },
+  {
+    "url": "https://app.balancer.fi/",
+    "name": "Balancer",
+    "iconUrl": "https://cdn.stamp.fyi/space/balancer.eth?s=160&cb=f07b6ca4e700c150",
+    "description": "Swap tokens and manage your assets on Balancer Protocol"
+  },
+  {
+    "url": "https://app.hop.exchange/",
+    "name": "Hop Protocol",
+    "iconUrl": "https://app.hop.exchange/images/hop_logo.png",
+    "description": "Hop is a scalable rollup-to-rollup general token bridge. It allows users to send tokens from one rollup or sidechain to another almost immediately without having to wait for network challenge periods."
+  },
+  {
+    "url": "https://app.mai.finance/",
+    "name": "QiDao Vaults",
+    "iconUrl": "https://app.mai.finance/images/android-chrome-512x512.png",
+    "description": "Borrow, save, trade without selling your crypto. Trusted by Polygon."
+  },
+  {
+    "url": "https://kwenta.io/market/",
+    "name": "Kwenta",
+    "iconUrl": "https://kwenta.io/images/favicon.svg",
+    "description": "Gain exposure to cryptocurrencies, forex, indices, and commodities on Ethereum with zero slippage."
+  },
+  {
+    "url": "https://app.gmx.io/#/trade",
+    "name": "GMX",
+    "iconUrl": "https://gmx.io/favicon/apple-icon-180x180.png",
+    "description": "GMX is a Decentralized Perpetual Exchange. Trade BTC, ETH, AVAX and other top cryptocurrencies with up to 50x leverage directly from your wallet"
+  },
+  {
+    "url": "https://mean.finance/",
+    "name": "Mean finance",
+    "iconUrl": "https://mean.finance/favicon.ico",
+    "description": "Mean Finance is the state-of-the-art DCA protocol. It enables you to set up actions like 'Swap 10 USDC for WBTC every day, for 30 days'. "
+  },
+  {
+    "url": "https://app.defisaver.com/",
+    "name": "DeFi Saver",
+    "iconUrl": "https://app.defisaver.com//assets/icons/icon-transparent.svg",
+    "description": "The next generation DeFi management dashboard"
+  },
+  {
+    "url": "https://app.ens.domains/",
+    "name": "ENS App",
+    "iconUrl": "https://dappcatalog.ambire.com/icons/ens.png",
+    "description": "Decentralised naming for wallets, websites, & more."
+  },
+  {
+    "url": "https://app.reflexer.finance/",
+    "name": "Reflexer",
+    "iconUrl": "https://app.reflexer.finance/logo512.png",
+    "description": "Volatility dampened synthetic instruments"
+  },
+  {
+    "url": "https://app.stakewise.io/",
+    "name": "StakeWise",
+    "iconUrl": "https://stakewise.io/logo192.png",
+    "description": "Stake your ETH and manage capital flexibly with the principal and yield tokens."
+  },
+  {
+    "url": "https://exolix.com/exchange-ambire-wallet",
+    "name": "Exolix",
+    "iconUrl": "https://exolix.com/favicon/android-chrome-512x512.png",
+    "description": "Best instantly cryptocurrency coin exchange. Lowest fees and best rates for BTC, ETH, ADA, XRP and 400+ more coins. Swap crypto with Exolix exchange platform."
+  },
+  {
+    "url": "https://revoke.cash/address/${accountAddress}?chainId=${chainId}",
+    "name": "Revoke.cash",
+    "iconUrl": "https://revoke.cash/assets/images/android-chrome-512x512.png",
+    "description": "Manage and revoke your token allowances with Revoke.cash"
+  },
+  {
+    "url": "https://app.silo.finance/",
+    "name": "Silo Finance",
+    "iconUrl": "https://app.silo.finance/silo-icon.png",
+    "description": "Enabling lending and borrowing of any asset"
+  },
+  {
+    "url": "https://www.bungee.exchange/",
+    "name": "Bungee Exchange",
+    "iconUrl": "https://www.bungee.exchange/./android-chrome-192x192.png",
+    "description": "Bridge your assets through the best route!"
+  },
+  {
+    "url": "https://sudoswap.xyz/",
+    "name": "> sudo swap",
+    "iconUrl": "https://sudoswap.xyz/assets/img/logo-landing.svg",
+    "description": "The decentralized NFT marketplace"
+  },
+  {
+    "url": "https://snapshot.org/",
+    "name": "Snapshot",
+    "iconUrl": "https://snapshot.org/icon.svg",
+    "description": "Where decisions get made"
+  },
+  {
+    "url": "https://pancakeswap.finance/",
+    "name": "PancakeSwap",
+    "iconUrl": "https://pancakeswap.finance/logo.png",
+    "description": "PancakeSwap decentralized exchange"
+  },
+  {
+    "url": "https://quickswap.exchange",
+    "name": "Quickswap",
+    "iconUrl": "https://pbs.twimg.com/profile_images/1449874094338584578/tf2xgiu7_bigger.jpg",
+    "description": "Quickswap decentralized exchange"
+  },
+  {
+    "url": "https://yearn.finance/",
+    "name": "Yearn Vaults",
+    "iconUrl": "https://cloudflare-ipfs.com/ipfs/Qme9HuPPhgCtgfj1CktvaDKhTesMueGCV2Kui1Sqna3Xs9/logo.svg",
+    "description": "Safe App for interacting with Yearn Vaults"
+  },
+  {
+    "url": "https://app.1inch.io/",
+    "name": "1inch Network",
+    "iconUrl": "https://app.1inch.io/assets/images/1inch_logo_without_text.svg",
+    "description": "The most efficient defi aggregator"
+  },
+  {
+    "url": "https://play.decentraland.org/",
+    "name": "Decentraland",
+    "iconUrl": "https://dappcatalog.ambire.com/icons/decentraland.png",
+    "description": "Create, explore and trade in the first-ever virtual world owned by its users."
+  },
+  {
+    "url": "https://loopring.io/",
+    "name": "Loopring L2",
+    "iconUrl": "https://loopring.io/favicon.ico",
+    "description": "Ethereum’s First zkRollup Layer 2"
+  },
+  {
+    "url": "https://spooky.fi/",
+    "name": "SpookySwap",
+    "iconUrl": "https://spooky.fi/favicon.ico",
+    "description": "Farm BOO with Spooky LP Tokens"
+  },
+  {
+    "url": "https://curve.fi/",
+    "name": "Curve",
+    "iconUrl": "https://dappcatalog.ambire.com/icons/curve.png",
+    "description": "Decentralized exchange liquidity pool designed for extremely efficient stablecoin trading and low-risk income for liquidity providers"
+  },
+  {
+    "url": "https://looksrare.org/",
+    "name": "LooksRare",
+    "iconUrl": "https://pbs.twimg.com/profile_images/1532326779964489728/PRq7gD2P_400x400.jpg",
+    "description": "Buy & Sell NFTs, Get Rewards"
+  },
+  {
+    "url": "https://synapseprotocol.com/",
+    "name": "Synapse Protocol",
+    "iconUrl": "https://synapseprotocol.com/favicon.ico",
+    "description": "Buy & Sell NFTs, Get Rewards"
+  },
+  {
+    "url": "https://dex.guru/",
+    "name": "Dex Guru",
+    "iconUrl": "https://dex.guru/logo-circle.png",
+    "description": "DexGuru gives you unparalleled coverage of on-chain markets integrated into one place and delivered in real-time."
+  }
+]
