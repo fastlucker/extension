@@ -1,0 +1,40 @@
+name: Execute Tests
+
+on:
+  push:
+    branches:
+      - v2
+  pull_request:
+    branches:
+      - v2
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    environment: testing
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Install NPM packages ♾️🕳️
+        run: yarn install
+
+      - name: Puppeteer Tests 🧑‍🔬
+        env:
+          KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
+          KEYSTORE_KEYSTORE_UID: ${{ secrets.KEYSTORE_KEYSTORE_UID }}
+          KEYSTORE_KEYS: ${{ secrets.KEYSTORE_KEYS }}
+          KEYSTORE_SECRETS: ${{ secrets.KEYSTORE_SECRETS }}
+          KEYSTORE_ONBOARDING_STATUS: ${{ secrets.KEYSTORE_ONBOARDING_STATUS }}
+          KEYSTORE_PERMISSION: ${{ secrets.KEYSTORE_PERMISSION }}
+          KEYSTORE_SELECTED_ACCOUNT: ${{ secrets.KEYSTORE_SELECTED_ACCOUNT }}
+          KEYSTORE_TERMSTATE: ${{ secrets.KEYSTORE_TERMSTATE }}
+          KEYSTORE_PREVIOUSHINTS: ${{ secrets.KEYSTORE_PREVIOUSHINTS }}
+        run: yarn run test:e2e:web
