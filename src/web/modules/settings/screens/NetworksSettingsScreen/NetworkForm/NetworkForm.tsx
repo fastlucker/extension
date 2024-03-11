@@ -1,6 +1,6 @@
 import { getCreate2Address, Interface, JsonRpcProvider, keccak256 } from 'ethers'
-import React, { useEffect, useState } from 'react'
-import { Controller, UseFormReturn } from 'react-hook-form'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Controller, useForm, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -17,54 +17,78 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import {
+  getAreDefaultsChanged,
+  handleErrors
+} from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
+import INPUT_FIELDS from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/inputFields'
 
-import { getAreDefaultsChanged, handleErrors } from './helpers'
-import INPUT_FIELDS from './inputFields'
+type NetworkFormType = UseFormReturn<
+  {
+    name: string
+    rpcUrl: string
+    chainId: string | number
+    nativeAssetSymbol: string
+    explorerUrl: string
+  },
+  any
+>
 
 const NetworkForm = ({
   networkForm,
-  selectedNetwork,
-  selectedNetworkId
+  selectedNetworkId = 'custom'
 }: {
-  networkForm: UseFormReturn<
-    {
-      name: string
-      rpcUrl: string
-      chainId: string | number
-      nativeAssetSymbol: string
-      explorerUrl: string
-    },
-    any
-  >
-  selectedNetwork?: NetworkDescriptor
-  selectedNetworkId: NetworkDescriptor['id']
+  networkForm?: NetworkFormType
+  selectedNetworkId?: NetworkDescriptor['id']
 }) => {
   const { t } = useTranslation()
   const {
     watch,
+    setValue,
     setError,
     clearErrors,
     control,
     reset,
     formState: { isValid, errors }
-  } = networkForm
+  } = (networkForm as NetworkFormType) ||
+  useForm({
+    // Mode onChange is required to validate the rpcUrl field, because custom errors are overwritten by errors from the rules.
+    mode: 'onChange',
+    defaultValues: {
+      name: '',
+      rpcUrl: '',
+      chainId: '',
+      nativeAssetSymbol: '',
+      explorerUrl: ''
+    },
+    values: {
+      name: '',
+      rpcUrl: '',
+      chainId: '',
+      nativeAssetSymbol: '',
+      explorerUrl: ''
+    }
+  })
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
   const { selectedAccount, accounts } = useMainControllerState()
   const { theme } = useTheme()
-  const { maxWidthSize } = useWindowSize()
+
   const [isLoadingRPC, setIsLoadingRPC] = useState(false)
   const [deployError, setDeployError] = useState('')
   const [shouldShowDeployBtn, setShouldShowDeployBtn] = useState(false)
   const networkFormValues = watch()
-  const isWidthXl = maxWidthSize('xl')
+
+  const selectedNetwork = useMemo(
+    () => networks.find((network) => network.id === selectedNetworkId),
+    [networks, selectedNetworkId]
+  )
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
 
@@ -119,7 +143,7 @@ const NetworkForm = ({
       .catch(() => null)
   }, [selectedNetwork])
 
-  const handleSave = () => {
+  const handleSubmitButtonPress = () => {
     dispatch({
       type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
       params: {
@@ -195,19 +219,13 @@ const NetworkForm = ({
       action: txn
     }
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-      params: userRequest
-    })
+    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
   }
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
     dispatch({
       type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE',
-      params: {
-        preferenceKey,
-        networkId: selectedNetworkId
-      }
+      params: { preferenceKey, networkId: selectedNetworkId }
     })
     addToast(
       `Reset "${INPUT_FIELDS.find((field) => field.name === preferenceKey)?.label || ''}" for ${
@@ -217,15 +235,13 @@ const NetworkForm = ({
   }
 
   return (
-    <View
-      style={[
-        flexboxStyles.flex1,
-        isWidthXl ? spacings.plXl : spacings.plLg,
-        isWidthXl ? spacings.mlXl : spacings.mlLg,
-        { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
-      ]}
-    >
-      <View style={spacings.mb}>
+    <>
+      {selectedNetworkId === 'custom' && (
+        <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+          {t('Add network')}
+        </Text>
+      )}
+      <View style={selectedNetworkId !== 'custom' && spacings.mb}>
         {INPUT_FIELDS.map((inputField, index) => (
           <Controller
             key={inputField.name}
@@ -252,13 +268,35 @@ const NetworkForm = ({
                   onBlur={onBlur}
                   value={value}
                   disabled={!inputField.editable && selectedNetworkId !== 'custom'}
-                  isValid={!errors[inputField.name as keyof typeof errors] && inputField.editable}
-                  error={
-                    inputField.name === 'rpcUrl' && isLoadingRPC
-                      ? false
-                      : handleErrors(errors[inputField.name as keyof typeof errors])
+                  isValid={
+                    !errors[inputField.name as keyof typeof errors] &&
+                    inputField.editable &&
+                    selectedNetworkId !== 'custom'
                   }
-                  containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mbLg : {}}
+                  error={
+                    (() => {
+                      if (
+                        inputField.name === 'name' &&
+                        selectedNetworkId === 'custom' &&
+                        networks.some((n) => n.name.toLowerCase() === value.toLowerCase())
+                      ) {
+                        return `Network with name: ${value} already added`
+                      }
+
+                      if (
+                        inputField.name === 'chainId' &&
+                        selectedNetworkId === 'custom' &&
+                        networks.some((n) => Number(n.chainId) === Number(value))
+                      ) {
+                        return `Network with chainID: ${value} already exists`
+                      }
+
+                      if (inputField.name === 'rpcUrl' && isLoadingRPC) return false
+
+                      return handleErrors(errors[inputField.name as keyof typeof errors])
+                    })() as any
+                  }
+                  containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mb : {}}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
                   onButtonPress={() =>
@@ -288,24 +326,21 @@ const NetworkForm = ({
         </Pressable>
       </View>
       <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
+        {selectedNetworkId !== 'custom' && (
+          <Button
+            onPress={() => {
+              reset()
+              setValue('rpcUrl', selectedNetwork?.rpcUrl || '')
+            }}
+            text={t('Cancel')}
+            type="secondary"
+            disabled={!areDefaultValuesChanged}
+            style={[spacings.mb0, spacings.mlSm, { width: 120 }]}
+          />
+        )}
         <Button
-          onPress={() => {
-            reset({
-              name: selectedNetwork?.name || '',
-              rpcUrl: selectedNetwork?.rpcUrl || '',
-              chainId: Number(selectedNetwork?.chainId) || '',
-              nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
-              explorerUrl: selectedNetwork?.explorerUrl || ''
-            })
-          }}
-          text={t('Cancel')}
-          type="secondary"
-          disabled={!areDefaultValuesChanged}
-          style={[spacings.mb0, spacings.mlSm, { width: 120 }]}
-        />
-        <Button
-          onPress={handleSave}
-          text={t('Save')}
+          onPress={handleSubmitButtonPress}
+          text={selectedNetworkId === 'custom' ? t('Add') : t('Save')}
           disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC}
           style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
         />
@@ -317,8 +352,8 @@ const NetworkForm = ({
           </Text>
         </View>
       )}
-    </View>
+    </>
   )
 }
 
-export default NetworkForm
+export default React.memo(NetworkForm)

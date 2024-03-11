@@ -1,44 +1,35 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import AddIcon from '@common/assets/svg/AddIcon'
+import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
+import PaddedScrollView from '@common/components/PaddedScrollView'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
+import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import { getAreDefaultsChanged } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
 
 import Network from './Network'
 import NetworkForm from './NetworkForm'
 
-const getAreDefaultsChanged = (values: any, selectedNetwork?: NetworkDescriptor) => {
-  if (!selectedNetwork) {
-    return false
-  }
-
-  return Object.keys(values).some((key) => {
-    if (key === 'chainId') {
-      return values[key] !== Number(selectedNetwork[key])
-    }
-    return key in selectedNetwork && values[key] !== selectedNetwork[key as keyof NetworkDescriptor]
-  })
-}
-
 const NetworksSettingsScreen = () => {
   const { t } = useTranslation()
   const { search: searchParams } = useRoute()
-  const { control, watch } = useForm({
-    defaultValues: {
-      search: ''
-    }
-  })
+  const { control, watch } = useForm({ defaultValues: { search: '' } })
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { maxWidthSize } = useWindowSize()
 
   const search = watch('search')
   const { networks } = useSettingsControllerState()
@@ -51,7 +42,11 @@ const NetworksSettingsScreen = () => {
 
     return networks[0].id
   })
-  const selectedNetwork = networks.find((network) => network.id === selectedNetworkId)
+
+  const selectedNetwork = useMemo(
+    () => networks.find((network) => network.id === selectedNetworkId),
+    [networks, selectedNetworkId]
+  )
 
   const networkForm = useForm({
     // Mode onChange is required to validate the rpcUrl field, because custom errors
@@ -107,9 +102,9 @@ const NetworksSettingsScreen = () => {
       <SettingsPageHeader title="Networks">
         <Search placeholder="Search for network" control={control} />
       </SettingsPageHeader>
-      <View style={[flexboxStyles.directionRow]}>
-        <View style={flexboxStyles.flex1}>
-          <View style={spacings.mbXl}>
+      <View style={[flexbox.directionRow, flexbox.flex1]}>
+        <View style={[flexbox.flex1]}>
+          <View style={spacings.mbLg}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
                 <Network
@@ -125,32 +120,35 @@ const NetworksSettingsScreen = () => {
               </Text>
             )}
           </View>
-          <Pressable
-            disabled
-            style={[
-              flexboxStyles.directionRow,
-              flexboxStyles.alignCenter,
-              spacings.ml,
-              { opacity: 0.6 }
-            ]}
+          <Button
+            type="secondary"
+            text={t('Add New Network')}
+            onPress={openBottomSheet as any}
+            childrenPosition="left"
           >
-            <AddIcon width={16} height={16} color={theme.primary} />
-            <Text
-              weight="regular"
-              style={[spacings.mlSm, { textDecorationLine: 'underline' }]}
-              appearance="primary"
-              fontSize={16}
-            >
-              {t('Add New Network')}
-            </Text>
-          </Pressable>
+            <AddIcon color={theme.primary} style={spacings.mrTy} />
+          </Button>
         </View>
-        <NetworkForm
-          networkForm={networkForm}
-          selectedNetwork={selectedNetwork}
-          selectedNetworkId={selectedNetworkId}
-        />
+
+        <View
+          style={[
+            flexbox.flex1,
+            maxWidthSize('xl') ? spacings.plXl : spacings.plLg,
+            maxWidthSize('xl') ? spacings.mlXl : spacings.mlLg,
+            { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
+          ]}
+        >
+          <NetworkForm networkForm={networkForm} selectedNetworkId={selectedNetworkId} />
+        </View>
       </View>
+      <BottomSheet
+        id="add-new-network"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        style={{ maxWidth: tabLayoutWidths.sm }}
+      >
+        <NetworkForm />
+      </BottomSheet>
     </>
   )
 }
