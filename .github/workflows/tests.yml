@@ -26,6 +26,12 @@ jobs:
       - name: Install NPM packages ♾️🕳️
         run: yarn install
 
+      - name: Git submodules init
+        run: git submodule init
+
+      - name: Git submodules update
+        run: git submodule update
+
       - name: Puppeteer Tests 🧑‍🔬
         env:
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
