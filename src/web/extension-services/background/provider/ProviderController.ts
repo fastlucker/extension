@@ -64,9 +64,15 @@ export class ProviderController {
 
   dappsCtrl: DappsController
 
+  isUnlocked: boolean
+
   constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
     this.mainCtrl = mainCtrl
     this.dappsCtrl = dappsCtrl
+
+    this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
+      ? this.mainCtrl.keystore.isUnlocked
+      : true
   }
 
   getDappNetwork = (origin: string) => {
@@ -102,7 +108,7 @@ export class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
@@ -114,7 +120,7 @@ export class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
 
@@ -122,7 +128,7 @@ export class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin) || !this.mainCtrl.keystore.isUnlocked) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
 
@@ -340,7 +346,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    if (permissionService.getConnectedSite(origin) && this.mainCtrl.keystore.isUnlocked) {
+    if (permissionService.getConnectedSite(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
