@@ -1,4 +1,3 @@
-import { Mnemonic } from 'ethers'
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -35,13 +34,13 @@ const AccountsOnPageList = ({
   state,
   setPage,
   keyType,
-  privKeyOrSeed,
+  subType,
   lookingForLinkedAccounts
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
-  keyType: string
-  privKeyOrSeed?: string
+  keyType: AccountAdderController['type']
+  subType: AccountAdderController['subType']
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
@@ -54,17 +53,7 @@ const AccountsOnPageList = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const keyTypeInternalSubtype = useMemo(() => {
-    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
-
-    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
-  }, [keyType, privKeyOrSeed])
-
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(() => {
-    if (keyTypeInternalSubtype === 'seed') return true
-
-    return false
-  })
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -174,22 +163,39 @@ const AccountsOnPageList = ({
   )
 
   const setTitle = useCallback(() => {
-    if (keyType !== 'internal') {
+    if (keyType && keyType !== 'internal') {
       return t('Import Accounts From {{ hwDeviceName }}', {
         hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
       })
     }
 
-    if (keyTypeInternalSubtype === 'seed') {
+    if (subType === 'seed') {
       return t('Import Accounts from Seed Phrase')
     }
 
-    if (keyTypeInternalSubtype === 'private-key') {
+    if (subType === 'private-key') {
       return t('Import Accounts from Private Key')
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, keyTypeInternalSubtype, t])
+  }, [keyType, subType, t])
+
+  // Empty means it's not loading and no accounts on the current page are derived.
+  // Should rarely happen - if the deriving request gets cancelled on the device
+  // or if something goes wrong with deriving in general.
+  const isAccountAdderEmpty = useMemo(
+    () => !state.accountsLoading && state.accountsOnPage.length === 0,
+    [state.accountsLoading, state.accountsOnPage]
+  )
+
+  const shouldDisplayHideEmptyAccountsToggle = useMemo(
+    () => subType !== 'private-key' && !isAccountAdderEmpty,
+    [subType, isAccountAdderEmpty]
+  )
+
+  // Prevents the user from temporarily seeing (flashing) empty (error) states
+  // while being navigated back (resetting the Account Adder state).
+  if (!state.isInitialized) return null
 
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
@@ -297,7 +303,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {keyTypeInternalSubtype !== 'private-key' && (
+        {shouldDisplayHideEmptyAccountsToggle && (
           <View style={[spacings.mbLg, flexbox.alignStart]}>
             <Toggle
               isOn={hideEmptyAccounts}
@@ -322,6 +328,13 @@ const AccountsOnPageList = ({
             setContentHeight(height)
           }}
         >
+          {isAccountAdderEmpty && (
+            <Text appearance="errorText" style={[spacings.mt, spacings.mbTy]}>
+              {t(
+                'The process of retrieving accounts was cancelled or it failed.\n\nPlease go a step back and trigger the account adding process again. If the problem persists, please contact support.'
+              )}
+            </Text>
+          )}
           {state.accountsLoading ? (
             <View
               style={[

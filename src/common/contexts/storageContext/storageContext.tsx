@@ -37,13 +37,9 @@ const StorageProvider: React.FC = ({ children }: any) => {
 
   const setItem = useCallback(
     (key: string, value: any) => {
-      if (isExtension) {
-        dispatch({ type: 'WALLET_CONTROLLER_SET_STORAGE', params: { key, value } })
-      }
-
       return storageControllerInstance.setItem(key, value)
     },
-    [storageControllerInstance, dispatch]
+    [storageControllerInstance]
   )
 
   const removeItem = useCallback(

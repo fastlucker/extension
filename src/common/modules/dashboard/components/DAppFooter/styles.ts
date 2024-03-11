@@ -38,7 +38,8 @@ const getStyles = (theme: ThemeProps) =>
     },
     currentDApp: {
       ...flexbox.directionRow,
-      ...flexbox.alignCenter
+      ...flexbox.alignCenter,
+      ...flexbox.flex1
     },
     icon: {
       width: 32,
@@ -53,7 +54,8 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phSm,
       ...spacings.pvTy,
       ...flexbox.alignCenter,
-      ...flexbox.justifySpaceBetween
+      ...flexbox.justifySpaceBetween,
+      ...flexbox.flex1
     },
     titleWrapper: {
       backgroundColor: theme.secondaryBackground,

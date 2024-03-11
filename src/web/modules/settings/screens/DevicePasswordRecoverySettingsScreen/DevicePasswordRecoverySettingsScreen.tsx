@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -19,11 +19,16 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 
-const BackupPassword = () => {
+const DevicePasswordRecoverySettingsScreen = () => {
   const ev = useEmailVaultControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const { navigate } = useNavigation()
   const {
     ref: confirmationModalRef,
     open: openConfirmationModal,
@@ -36,28 +41,34 @@ const BackupPassword = () => {
     control,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       email: ev.keystoreRecoveryEmail || '' // it should be string, otherwise it will cause a crash
     }
   })
 
-  console.log({ ev, keystoreState })
+  useEffect(() => {
+    setCurrentSettingsPage('device-password-recovery')
+  }, [setCurrentSettingsPage])
 
   const email = watch('email')
 
   useEffect(() => {
+    // On a first render, `confirmationModalRef.current` is null and `openConfirmationModal` doesn't work.
+    // Because of this, we are adding the modal ref to the deps,
+    // in order to make it working again on initial component render.
     if (
-      ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
-      ev.currentState === EmailVaultState.UploadingSecret
+      confirmationModalRef.current &&
+      (ev.currentState === EmailVaultState.WaitingEmailConfirmation ||
+        ev.currentState === EmailVaultState.UploadingSecret)
     ) {
       openConfirmationModal()
       return
     }
     closeConfirmationModal()
-  }, [closeConfirmationModal, ev.currentState, openConfirmationModal])
+  }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef.current])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(async () => {
@@ -73,10 +84,37 @@ const BackupPassword = () => {
 
   return (
     <>
-      <View style={flexbox.flex1}>
+      <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
         <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
           {t('Device Password Recovery with email')}
         </Text>
+
+        {!keystoreState.hasPasswordSecret && (
+          <Alert
+            type="warning"
+            isTypeLabelHidden
+            style={spacings.mbXl}
+            title={
+              <Text appearance="warningText" weight="semiBold">
+                {t('Set Device Password')}
+              </Text>
+            }
+            text={t(
+              'Before enabling Device Password Recovery via email, you need to first set a password for your device.'
+            )}
+          >
+            <Button
+              style={{ alignSelf: 'flex-start', ...spacings.phXl, ...spacings.mt }}
+              textStyle={{ fontSize: 14 }}
+              type="primary"
+              text={t('Set Device Password')}
+              hasBottomSpacing={false}
+              onPress={() =>
+                navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
+              }
+            />
+          </Alert>
+        )}
 
         {ev.hasKeystoreRecovery && (
           <Alert
@@ -102,7 +140,7 @@ const BackupPassword = () => {
               autoFocus={isWeb}
               isValid={isEmail(value)}
               error={!!errors.email && (t('Please fill in a valid email.') as string)}
-              disabled={ev.hasKeystoreRecovery}
+              disabled={ev.hasKeystoreRecovery || !keystoreState.hasPasswordSecret}
             />
           )}
           name="email"
@@ -114,7 +152,8 @@ const BackupPassword = () => {
             ev.currentState === EmailVaultState.Loading ||
             isSubmitting ||
             !email ||
-            ev.hasKeystoreRecovery
+            ev.hasKeystoreRecovery ||
+            !isValid
           }
           type="primary"
           text={
@@ -131,11 +170,8 @@ const BackupPassword = () => {
           type="info"
           isTypeLabelHidden
           style={spacings.mtXl}
-          title={
-            <Text appearance="infoText" weight="semiBold">
-              {t('How it works')}
-            </Text>
-          }
+          title={t('How it works')}
+          titleWeight="semiBold"
           text={t(
             'Email-based keystore recovery is locally enabled, and it does not upload any keys.'
           )}
@@ -146,6 +182,7 @@ const BackupPassword = () => {
         id="backup-password-confirmation-modal"
         sheetRef={confirmationModalRef}
         style={{ paddingVertical: SPACING_3XL }}
+        autoWidth
       >
         <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
@@ -154,4 +191,4 @@ const BackupPassword = () => {
   )
 }
 
-export default BackupPassword
+export default React.memo(DevicePasswordRecoverySettingsScreen)

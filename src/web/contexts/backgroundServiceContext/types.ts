@@ -1,4 +1,4 @@
-import { Action, AsyncActionTypes } from '@web/extension-services/background/actions'
+import { Action } from '@web/extension-services/background/actions'
 
 export type BackgroundServiceContextReturnType = {
   /**
@@ -7,19 +7,8 @@ export type BackgroundServiceContextReturnType = {
    * It will only work when called from a focused window!
    */
   dispatch: (action: Action) => void
-  /**
-   * Dispatches an action to the extension background service.
-   * Returns a Promise with the result of the action.
-   * The type of the result is derived from the 'AsyncActionTypes' mapping, based on the action type.
-   *    * It will only work when called from a focused window!
-   */
-  dispatchAsync: <T extends keyof AsyncActionTypes>(action: {
-    type: T
-    params?: any
-  }) => Promise<AsyncActionTypes[T]>
 }
 
 export const backgroundServiceContextDefaults: BackgroundServiceContextReturnType = {
-  dispatch: Promise.resolve,
-  dispatchAsync: Promise.resolve
+  dispatch: Promise.resolve
 }

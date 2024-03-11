@@ -44,28 +44,29 @@ const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
         <Text
           fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}
           weight="medium"
-          style={[
-            activeStep === 'finalized' && IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb3Xl : {},
-            IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }
-          ]}
+          style={[IS_MOBILE_UP_BENZIN_BREAKPOINT ? { textAlign: 'center' } : { marginLeft: -8 }]}
         >
           Transaction Progress
         </Text>
       </View>
-      {activeStep === 'in-progress' ? (
-        <View style={styles.estimate}>
+
+      <View style={styles.network}>
+        {activeStep === 'in-progress' ? (
           <Text appearance="secondaryText" fontSize={14}>
             {/* TODO: FIX estimated time */}
             Est time remaining {pendingTime === 30 ? 30 : 5}{' '}
-            {pendingTime === 30 ? 'seconds' : 'minutes'} on
+            {pendingTime === 30 ? 'seconds' : 'minutes'}{' '}
           </Text>
-          {/* @ts-ignore */}
-          <NetworkIcon name={network.id} />
-          <Text appearance="secondaryText" fontSize={14}>
-            {network.name}
-          </Text>
-        </View>
-      ) : null}
+        ) : null}
+        <Text appearance="secondaryText" fontSize={14}>
+          on{' '}
+        </Text>
+        {/* @ts-ignore */}
+        <NetworkIcon name={network.id} />
+        <Text appearance="secondaryText" fontSize={14}>
+          {network.name}
+        </Text>
+      </View>
     </>
   )
 }
