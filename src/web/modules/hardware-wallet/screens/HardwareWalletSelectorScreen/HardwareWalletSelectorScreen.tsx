@@ -7,7 +7,6 @@ import Panel from '@common/components/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -17,6 +16,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -27,9 +27,9 @@ import getOptions from './options'
 const HardwareWalletSelectorScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { addToast } = useToast()
   const { updateStepperState } = useStepper()
-  const { dispatchAsync } = useBackgroundService()
+  const accountAdderCtrlState = useAccountAdderControllerState()
+  const { dispatch } = useBackgroundService()
   const { theme } = useTheme()
   const { ref: ledgerModalRef, open: openLedgerModal, close: closeLedgerModal } = useModalize()
 
@@ -37,27 +37,25 @@ const HardwareWalletSelectorScreen = () => {
     updateStepperState(WEB_ROUTES.hardwareWalletSelect, 'hw')
   }, [updateStepperState])
 
-  const onTrezorPress = useCallback(async () => {
-    try {
-      // No need for a separate request to unlock Trezor, it's done in the background
-      navigate(WEB_ROUTES.accountAdder, {
-        state: { keyType: 'trezor' }
-      })
-    } catch (error: any) {
-      addToast(error.message, { type: 'error' })
+  useEffect(() => {
+    if (
+      accountAdderCtrlState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      ['ledger', 'trezor', 'lattice'].includes(accountAdderCtrlState.type)
+    ) {
+      navigate(WEB_ROUTES.accountAdder)
     }
-  }, [addToast, navigate])
+  }, [accountAdderCtrlState.isInitialized, accountAdderCtrlState.type, navigate])
+
+  const onTrezorPress = useCallback(
+    () => dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_TREZOR' }),
+    [dispatch]
+  )
 
   const onGridPlusPress = useCallback(async () => {
-    try {
-      await dispatchAsync({ type: 'LATTICE_CONTROLLER_UNLOCK' })
-      navigate(WEB_ROUTES.accountAdder, {
-        state: { keyType: 'lattice' }
-      })
-    } catch (error: any) {
-      addToast(error.message, { type: 'error' })
-    }
-  }, [addToast, dispatchAsync, navigate])
+    dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE' })
+  }, [dispatch])
 
   const options = useMemo(
     () => getOptions({ onGridPlusPress, onLedgerPress: openLedgerModal, onTrezorPress }),

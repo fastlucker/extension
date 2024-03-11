@@ -1,14 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Key } from '@ambire-common/interfaces/keystore'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import colors from '@common/styles/colors'
@@ -34,27 +31,14 @@ export interface Account {
 }
 
 const AccountAdderScreen = () => {
-  const { params } = useRoute()
-  const { goBack } = useNavigation()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const mainControllerState = useMainControllerState()
   const accountAdderState = useAccountAdderControllerState()
-  const { keyType, privKeyOrSeed, label } = params as {
-    keyType: Key['type']
-    privKeyOrSeed?: string
-    label?: string
-  }
 
-  const { onImportReady, setPage } = useAccountAdder({
-    keyType,
-    privKeyOrSeed,
-    keyLabel: label
+  const { onImportReady, setPage, handleGoBack } = useAccountAdder({
+    keySubType: accountAdderState.subType
   })
-
-  useEffect(() => {
-    if (!keyType) goBack()
-  }, [keyType, goBack])
 
   return (
     <TabLayoutContainer
@@ -67,7 +51,7 @@ const AccountAdderScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton onPress={handleGoBack} />
           <Button
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
@@ -101,9 +85,9 @@ const AccountAdderScreen = () => {
         <Panel style={{ maxHeight: '100%', ...spacings.ph3Xl }}>
           <AccountsOnPageList
             state={accountAdderState}
-            privKeyOrSeed={privKeyOrSeed}
             setPage={setPage}
-            keyType={keyType}
+            keyType={accountAdderState.type}
+            subType={accountAdderState.subType}
             lookingForLinkedAccounts={accountAdderState.linkedAccountsLoading}
           />
         </Panel>

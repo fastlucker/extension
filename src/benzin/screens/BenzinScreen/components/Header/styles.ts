@@ -6,7 +6,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   logoWrapper: ViewStyle
-  estimate: ViewStyle
+  network: ViewStyle
 }
 
 const getStyles = () =>
@@ -15,11 +15,11 @@ const getStyles = () =>
       ...flexbox.alignCenter,
       ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mbXl : {})
     },
-    estimate: {
+    network: {
       ...flexbox.directionRow,
       ...flexbox.alignCenter,
       ...flexbox.justifyCenter,
-      ...spacings.mbXl
+      ...spacings.mb2Xl
     }
   })
 

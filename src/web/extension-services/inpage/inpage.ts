@@ -11,17 +11,17 @@ import { nanoid } from 'nanoid'
 import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
+import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
-import BroadcastChannelMessage from '@web/extension-services/message/broadcastChannelMessage'
+import { initializeMessenger, Messenger } from '@web/extension-services/messengers'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
 
-declare let ambireChannelName: string
 declare let defaultWallet: DefaultWallet
 let _defaultWallet: DefaultWallet = 'AMBIRE'
 
@@ -211,26 +211,31 @@ export class EthereumProvider extends EventEmitter {
     }
   }
 
+  requestId = 0
+
   private _pushEventHandlers: PushEventHandlers
 
   private _requestPromise = new ReadyPromise(2)
 
   private _dedupePromise = new DedupePromise([])
 
-  private _bcm = new BroadcastChannelMessage(ambireChannelName || 'ambire-inpage')
+  backgroundMessenger: Messenger
 
-  constructor({ maxListeners = 100 } = {}) {
+  constructor() {
     super()
-    this.setMaxListeners(maxListeners)
+
+    this.backgroundMessenger = initializeMessenger({ connect: 'background' })
+
+    this.setMaxListeners(100)
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
+    this.backgroundMessenger.reply('message', this._handleBackgroundMessage)
   }
 
   initialize = async () => {
     document.addEventListener('visibilitychange', this._requestPromiseCheckVisibility)
 
-    this._bcm.connect().on('message', this._handleBackgroundMessage)
     domReadyCall(() => {
       const origin = location.origin
       const icon =
@@ -238,12 +243,20 @@ export class EthereumProvider extends EventEmitter {
         ($('head > meta[itemprop="image"]') as HTMLMetaElement)?.content
 
       const name =
-        document.title || ($('head > meta[name="title"]') as HTMLMetaElement)?.content || origin
+        document.title ||
+        ($('head > meta[name="title"]') as HTMLMetaElement)?.content ||
+        location.hostname ||
+        origin
 
-      this._bcm.request({
-        method: 'tabCheckin',
-        params: { icon, name, origin }
-      })
+      const id = this.requestId++
+      providerRequestTransport.send(
+        {
+          id,
+          method: 'tabCheckin',
+          params: { icon, name, origin }
+        },
+        { id }
+      )
 
       this._requestPromise.check(2)
     })
@@ -343,8 +356,8 @@ export class EthereumProvider extends EventEmitter {
       return
     }
 
-    if (this._pushEventHandlers[event]) {
-      return this._pushEventHandlers[event](data)
+    if ((this._pushEventHandlers as any)[event]) {
+      return (this._pushEventHandlers as any)[event](data)
     }
 
     this.emit(event, data)
@@ -413,20 +426,27 @@ export class EthereumProvider extends EventEmitter {
         logInfoWithPrefix('[request]', data)
       }
 
-      return this._bcm
-        .request(data)
-        .then((res) => {
-          if (data.method !== 'eth_call') {
-            logInfoWithPrefix('[request: success]', data.method, res)
-          }
-          return res
-        })
-        .catch((err) => {
-          if (data.method !== 'eth_call') {
-            logInfoWithPrefix('[request: error]', data.method, serializeError(err))
-          }
-          throw serializeError(err)
-        })
+      const id = this.requestId++
+      const response = await providerRequestTransport.send(
+        {
+          id,
+          method: data.method,
+          params: data.params
+        },
+        { id }
+      )
+
+      if (response.id !== id) return
+      if (response.error) {
+        if (data.method !== 'eth_call') {
+          logInfoWithPrefix('[request: error]', data.method, serializeError(response.error))
+        }
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw serializeError(response.error)
+      }
+
+      logInfoWithPrefix('[request: success]', data.method, response.result)
+      return response.result
     })
   }
 
@@ -534,13 +554,6 @@ const ambireProvider = new Proxy(provider, {
   }
 })
 
-const requestHasOtherProvider = () => {
-  return provider.requestInternalMethods({
-    method: 'hasOtherProvider',
-    params: []
-  })
-}
-
 const setAmbireProvider = () => {
   try {
     Object.defineProperty(window, 'ethereum', {
@@ -550,9 +563,7 @@ const setAmbireProvider = () => {
         if (val?._isAmbire) {
           return
         }
-        requestHasOtherProvider()
         cacheOtherProvider = val
-        return ambireProvider
       },
       get() {
         // script to determine whether the page is a dapp or not
@@ -581,8 +592,6 @@ const setAmbireProvider = () => {
       }
     })
   } catch (e) {
-    // think that defineProperty failed means there is any other wallet
-    requestHasOtherProvider()
     console.error(e)
     window.ethereum = ambireProvider
   }
@@ -607,7 +616,6 @@ const initProvider = () => {
   let finalProvider: EthereumProvider | null = null
 
   if (window.ethereum && !window.ethereum._isAmbire) {
-    requestHasOtherProvider()
     cacheOtherProvider = window.ethereum
   }
 

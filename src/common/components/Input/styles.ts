@@ -86,8 +86,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.plTy
     },
     disabled: {
-      opacity: 0.5,
-      backgroundColor: 'transparent'
+      opacity: 0.6
     },
     tooltipWrapper: {
       position: 'absolute',
