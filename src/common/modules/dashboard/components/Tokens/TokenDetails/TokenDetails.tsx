@@ -1,4 +1,4 @@
-import { getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -26,6 +26,7 @@ import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -42,6 +43,7 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
 
@@ -105,7 +107,22 @@ const TokenDetails = ({
         id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
-        onPress: () => createTab(BRIDGE_URL),
+        onPress: async ({ networkId, address }) => {
+          const networkData = networks.find((network) => network.id === networkId)
+
+          if (networkData) {
+            let formattedAddress = address
+
+            if (address === ZeroAddress) {
+              // Bungee expects the native address to be formatted as 0xeee...eee
+              formattedAddress = `0x${'e'.repeat(40)}`
+            }
+
+            await createTab(
+              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
+            )
+          }
+        },
         isDisabled: isGasTank,
         strokeWidth: 1.5
       },
