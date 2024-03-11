@@ -1,0 +1,3 @@
+import PasswordRecoverySettingsIcon from './PasswordRecoverySettingsIcon'
+
+export default PasswordRecoverySettingsIcon
