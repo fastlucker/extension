@@ -41,9 +41,9 @@ const DevicePasswordRecoverySettingsScreen = () => {
     control,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting, isValid }
   } = useForm({
-    reValidateMode: 'onChange',
+    mode: 'all',
     defaultValues: {
       email: ev.keystoreRecoveryEmail || '' // it should be string, otherwise it will cause a crash
     }
@@ -152,7 +152,8 @@ const DevicePasswordRecoverySettingsScreen = () => {
             ev.currentState === EmailVaultState.Loading ||
             isSubmitting ||
             !email ||
-            ev.hasKeystoreRecovery
+            ev.hasKeystoreRecovery ||
+            !isValid
           }
           type="primary"
           text={
@@ -181,6 +182,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
         id="backup-password-confirmation-modal"
         sheetRef={confirmationModalRef}
         style={{ paddingVertical: SPACING_3XL }}
+        autoWidth
       >
         <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
