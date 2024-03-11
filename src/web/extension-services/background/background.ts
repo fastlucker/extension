@@ -396,7 +396,7 @@ async function init() {
       setPortfolioFetchInterval()
 
       // @ts-ignore
-      pm.listen(async (messageType, { type, params }) => {
+      pm.addListener(port.id, async (messageType, { type, params }) => {
         try {
           if (messageType === '> background' && type) {
             switch (type) {
