@@ -134,7 +134,22 @@ const TokenDetails = ({
         id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
-        onPress: () => createTab(BRIDGE_URL),
+        onPress: async ({ networkId, address }) => {
+          const networkData = networks.find((network) => network.id === networkId)
+
+          if (networkData) {
+            let formattedAddress = address
+
+            if (address === ZeroAddress) {
+              // Bungee expects the native address to be formatted as 0xeee...eee
+              formattedAddress = `0x${'e'.repeat(40)}`
+            }
+
+            await createTab(
+              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
+            )
+          }
+        },
         isDisabled: isGasTank,
         strokeWidth: 1.5
       },
@@ -165,7 +180,18 @@ const TokenDetails = ({
         isDisabled: !hasTokenInfo
       }
     ],
-    [t, isGasTank, isGasTankFeeToken, hasTokenInfo, navigate, token, handleClose, addToast]
+    [
+      t,
+      isGasTank,
+      isGasTankFeeToken,
+      hasTokenInfo,
+      navigate,
+      networks,
+      dispatch,
+      addToast,
+      token,
+      handleClose
+    ]
   )
   useEffect(() => {
     if (!token?.address || !token?.networkId) return
