@@ -14,11 +14,12 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AddIcon from '@common/assets/svg/AddIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
+import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -49,7 +50,6 @@ const NetworkForm = ({
   const { t } = useTranslation()
   const {
     watch,
-    setValue,
     setError,
     clearErrors,
     control,
@@ -97,33 +97,50 @@ const NetworkForm = ({
     // and resetting the form doesn't wait for the validation to finish so we get an error
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
-      if (name !== 'rpcUrl') return
+      if (
+        name === 'name' &&
+        selectedNetworkId === 'custom' &&
+        networks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
+      ) {
+        setError('name', {
+          message: `Network with name: ${value.name} already added`
+        })
+      }
 
-      try {
-        setIsLoadingRPC(true)
-        const rpc = new JsonRpcProvider(value.rpcUrl)
-        const network = await rpc.getNetwork()
-
-        if (network.chainId !== selectedNetwork?.chainId) {
+      if (
+        name === 'chainId' &&
+        selectedNetworkId === 'custom' &&
+        networks.some((n) => Number(n.chainId) === Number(value.chainId))
+      ) {
+        setError('chainId', {
+          message: `Network with chainID: ${value.chainId} already added`
+        })
+      }
+      if (name === 'rpcUrl' || name === 'chainId') {
+        try {
+          setIsLoadingRPC(true)
+          const rpc = new JsonRpcProvider(value.rpcUrl)
+          const network = await rpc.getNetwork()
+          if (value.chainId && Number(network.chainId) !== Number(value.chainId)) {
+            setIsLoadingRPC(false)
+            return setError('rpcUrl', {
+              type: 'custom',
+              message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${value.chainId}`
+            })
+          }
           setIsLoadingRPC(false)
-          setError('rpcUrl', {
-            type: 'custom',
-            message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${selectedNetwork?.chainId}`
-          })
-          return
+          clearErrors('rpcUrl')
+        } catch (error) {
+          setIsLoadingRPC(false)
+          setError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
         }
-        setIsLoadingRPC(false)
-        clearErrors('rpcUrl')
-      } catch {
-        setIsLoadingRPC(false)
-        setError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
       }
     })
 
     return () => {
       subscription?.unsubscribe()
     }
-  }, [selectedNetwork?.chainId, selectedNetwork?.name, setError, watch, clearErrors])
+  }, [selectedNetworkId, networks, selectedNetwork?.name, setError, watch, clearErrors])
 
   useEffect(() => {
     setShouldShowDeployBtn(false)
@@ -144,17 +161,24 @@ const NetworkForm = ({
   }, [selectedNetwork])
 
   const handleSubmitButtonPress = () => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-      params: {
-        networkPreferences: {
-          rpcUrl: networkFormValues.rpcUrl,
-          explorerUrl: networkFormValues.explorerUrl
-        },
-        networkId: selectedNetworkId
-      }
-    })
-    addToast(`${selectedNetwork?.name} settings saved!`)
+    if (selectedNetworkId === 'custom') {
+      dispatch({
+        type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
+        params: networkFormValues as any
+      })
+    } else {
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+        params: {
+          networkPreferences: {
+            rpcUrl: networkFormValues.rpcUrl,
+            explorerUrl: networkFormValues.explorerUrl
+          },
+          networkId: selectedNetworkId
+        }
+      })
+      addToast(`${selectedNetwork?.name} settings saved!`)
+    }
   }
 
   const handleDeploy = async () => {
@@ -262,10 +286,12 @@ const NetworkForm = ({
                   inputField.name as keyof typeof correspondingConstantNetwork
                 ]
 
+              const InputComponent = inputField.name === 'chainId' ? NumberInput : Input
+
               return (
-                <Input
-                  onChange={onChange}
+                <InputComponent
                   onBlur={onBlur}
+                  onChangeText={onChange}
                   value={value}
                   disabled={!inputField.editable && selectedNetworkId !== 'custom'}
                   isValid={
@@ -273,29 +299,10 @@ const NetworkForm = ({
                     inputField.editable &&
                     selectedNetworkId !== 'custom'
                   }
-                  error={
-                    (() => {
-                      if (
-                        inputField.name === 'name' &&
-                        selectedNetworkId === 'custom' &&
-                        networks.some((n) => n.name.toLowerCase() === value.toLowerCase())
-                      ) {
-                        return `Network with name: ${value} already added`
-                      }
-
-                      if (
-                        inputField.name === 'chainId' &&
-                        selectedNetworkId === 'custom' &&
-                        networks.some((n) => Number(n.chainId) === Number(value))
-                      ) {
-                        return `Network with chainID: ${value} already exists`
-                      }
-
-                      if (inputField.name === 'rpcUrl' && isLoadingRPC) return false
-
-                      return handleErrors(errors[inputField.name as keyof typeof errors])
-                    })() as any
-                  }
+                  error={(() => {
+                    if (inputField.name === 'rpcUrl' && isLoadingRPC) return false
+                    return handleErrors(errors[inputField.name as keyof typeof errors])
+                  })()}
                   containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mb : {}}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
@@ -313,8 +320,8 @@ const NetworkForm = ({
           style={{
             marginLeft: 'auto',
             ...spacings.mb,
-            ...flexboxStyles.directionRow,
-            ...flexboxStyles.alignCenter,
+            ...flexbox.directionRow,
+            ...flexbox.alignCenter,
             opacity: shouldShowDeployBtn ? 1 : 0
           }}
           disabled={!shouldShowDeployBtn}
@@ -325,28 +332,39 @@ const NetworkForm = ({
           <AddIcon width={16} height={16} color={theme.secondaryText} />
         </Pressable>
       </View>
-      <View style={[flexboxStyles.directionRow, { marginLeft: 'auto' }]}>
-        {selectedNetworkId !== 'custom' && (
+      {selectedNetworkId === 'custom' ? (
+        <Button
+          onPress={handleSubmitButtonPress}
+          text={t('Add')}
+          disabled={!isValid || !!errors?.rpcUrl || isLoadingRPC}
+          hasBottomSpacing={false}
+          style={{ maxWidth: 120 }}
+          size="large"
+        />
+      ) : (
+        <View style={[flexbox.directionRow, flexbox.flex1]}>
           <Button
-            onPress={() => {
-              reset()
-              setValue('rpcUrl', selectedNetwork?.rpcUrl || '')
-            }}
+            onPress={reset as any}
             text={t('Cancel')}
             type="secondary"
             disabled={!areDefaultValuesChanged}
-            style={[spacings.mb0, spacings.mlSm, { width: 120 }]}
+            hasBottomSpacing={false}
+            style={[flexbox.flex1, spacings.mrMi]}
+            size="large"
           />
-        )}
-        <Button
-          onPress={handleSubmitButtonPress}
-          text={selectedNetworkId === 'custom' ? t('Add') : t('Save')}
-          disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC}
-          style={[spacings.mb0, spacings.mlSm, { width: 200 }]}
-        />
-      </View>
+
+          <Button
+            onPress={handleSubmitButtonPress}
+            text={t('Save')}
+            disabled={!areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC}
+            style={[spacings.mlMi, flexbox.flex1]}
+            hasBottomSpacing={false}
+            size="large"
+          />
+        </View>
+      )}
       {!!deployError && (
-        <View style={[spacings.mtSm, flexboxStyles.alignCenter]}>
+        <View style={[spacings.mtSm, flexbox.alignCenter]}>
           <Text fontSize={12} appearance="errorText">
             {deployError}
           </Text>
@@ -356,4 +374,4 @@ const NetworkForm = ({
   )
 }
 
-export default React.memo(NetworkForm)
+export default NetworkForm

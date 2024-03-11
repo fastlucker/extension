@@ -3,15 +3,17 @@ import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
+import {
+  AccountPreferences,
+  CustomNetwork,
+  NetworkPreference
+} from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import { controllersMapping } from './types'
 
@@ -80,9 +82,14 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerSettingsAddAccountPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
+type SettingsControllerAddAccountPreferences = {
+  type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
+}
+
+type SettingsControllerAddCustomNetwork = {
+  type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK'
+  params: CustomNetwork
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -311,7 +318,8 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
-  | MainControllerSettingsAddAccountPreferences
+  | SettingsControllerAddAccountPreferences
+  | SettingsControllerAddCustomNetwork
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction

@@ -505,8 +505,11 @@ async function init() {
                   providers: rpcProviders
                 })
               }
-              case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
+              case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
+              }
+              case 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK': {
+                return await mainCtrl.settings.addCustomNetwork(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
                 return await mainCtrl.updateNetworkPreferences(
