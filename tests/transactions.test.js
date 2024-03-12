@@ -17,7 +17,7 @@ describe('transactions', () => {
 
     beforeEach(async () => {
         /* Initialize browser and page using bootStrap */
-        const context = await bootStrap({ headless: false, slowMo: 10 });
+        const context = await bootStrap({ headless: true, slowMo: 10 });
         browser = context.browser;
         page = context.page;
         extensionRootUrl = context.extensionRootUrl
@@ -232,7 +232,7 @@ describe('transactions', () => {
         /* Click on "Sign" button */
         await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
 
-        // Wait for the new window to be created and switch to it 
+        // Wait for the new window to be created and switch to it
         const newTarget = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/sign-message`);
         const newPage = await newTarget.page();
         /* Click on "Sign" button */
@@ -244,7 +244,7 @@ describe('transactions', () => {
             return message.textContent
         })
 
-        /* !THIS IS NOT WORKING WITH PUPPETEER. IT CAN'T BE COPIED IN CLIPBOARD. THAT'S WHY copiedAddress 
+        /* !THIS IS NOT WORKING WITH PUPPETEER. IT CAN'T BE COPIED IN CLIPBOARD. THAT'S WHY copiedAddress
         IS TAKEN FROM selectedAccount OBJECT IN LOCAL STORAGE! */
         /* Click on a button that triggers a copy to clipboard. */
         await page.click('.copyButton');
