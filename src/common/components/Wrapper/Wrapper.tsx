@@ -45,7 +45,7 @@ const Wrapper = ({
   type = WRAPPER_TYPES.SCROLL_VIEW,
   keyboardShouldPersistTaps,
   keyboardDismissMode,
-  hasBottomTabNav,
+  hasBottomTabNav: _hasBottomTabNav,
   extraHeight,
   wrapperRef,
   ...rest
@@ -55,7 +55,7 @@ const Wrapper = ({
 
   const horizontalSpacing = isWeb ? spacings.ph0 : spacings.ph
 
-  hasBottomTabNav = isWeb ? false : hasBottomTabNav
+  const hasBottomTabNav = isWeb ? false : _hasBottomTabNav
 
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
