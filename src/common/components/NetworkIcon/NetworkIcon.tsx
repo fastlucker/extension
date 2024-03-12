@@ -1,4 +1,5 @@
 import React from 'react'
+import { View, ViewStyle } from 'react-native'
 
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
 import AndromedaMonochromeIcon from '@common/assets/svg/AndromedaMonochromeIcon'
@@ -26,13 +27,20 @@ import OptimismMonochromeIcon from '@common/assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
+import Text from '@common/components/Text'
 import { NETWORKS } from '@common/constants/networks'
+import useTheme from '@common/hooks/useTheme'
+import flexbox from '@common/styles/utils/flexbox'
+
+import styles from './styles'
 
 export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank' | 'rewards'
 
 type Props = {
   name: NetworkIconNameType
+  size?: number
   type?: 'regular' | 'monochrome'
+  style?: ViewStyle
   [key: string]: any
 }
 
@@ -70,10 +78,29 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.andromeda]: AndromedaMonochromeIcon
 }
 
-const NetworkIcon = ({ name, type = 'regular', ...rest }: Props) => {
+const NetworkIcon = ({ name, size = 32, type = 'regular', style = {}, ...rest }: Props) => {
   const Icon = type === 'monochrome' ? iconsMonochrome[name] : icons[name]
-
-  return Icon ? <Icon {...rest} /> : null
+  const { theme } = useTheme()
+  return Icon ? (
+    <Icon width={size} height={size} style={[styles.icon, style]} {...rest} />
+  ) : (
+    <View
+      style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
+    >
+      <View
+        style={[
+          { width: size * 0.5625, height: size * 0.5625, backgroundColor: theme.primary },
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          styles.icon
+        ]}
+      >
+        <Text weight="medium" fontSize={size * 0.425} color="#fff">
+          {name[0].toUpperCase()}
+        </Text>
+      </View>
+    </View>
+  )
 }
 
 export default React.memo(NetworkIcon)

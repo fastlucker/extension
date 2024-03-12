@@ -22,9 +22,6 @@ const getStyles = (theme: ThemeProps) =>
       borderBottomWidth: 1
     },
     networkIcon: {
-      width: 40,
-      height: 40,
-      ...common.borderRadiusPrimary,
       backgroundColor: theme.tertiaryBackground,
       ...spacings.mlTy
     }

@@ -82,7 +82,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
                 {networkName || t('Unknown network')}
               </Text>
               {networkId && maxWidthSize(800) ? (
-                <NetworkIcon name={networkId} style={styles.networkIcon} />
+                <NetworkIcon name={networkId} style={styles.networkIcon} size={40} />
               ) : null}
             </View>
           )}

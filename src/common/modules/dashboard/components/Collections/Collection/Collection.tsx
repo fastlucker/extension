@@ -76,7 +76,7 @@ const Collection: FC<Props> = ({
             ...(isTab ? spacings.mrTy : spacings.mrMi)
           }}
         >
-          <NetworkIcon width={isTab ? 20 : 16} height={isTab ? 20 : 16} name={networkId} />
+          <NetworkIcon size={isTab ? 20 : 16} name={networkId} />
         </View>
         <Text fontSize={isTab ? 14 : 10} appearance="secondaryText">
           {networkData?.name || 'Unknown Network'}

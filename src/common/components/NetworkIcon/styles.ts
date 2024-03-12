@@ -1,16 +1,12 @@
-import { StyleSheet, TextStyle } from 'react-native'
-
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
-import colors from '@common/styles/colors'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 interface Style {
-  text: TextStyle
+  icon: ViewStyle
 }
 
 const styles = StyleSheet.create<Style>({
-  text: {
-    fontFamily: FONT_FAMILIES.REGULAR,
-    color: colors.chetwode
+  icon: {
+    borderRadius: 50
   }
 })
 
