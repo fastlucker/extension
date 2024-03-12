@@ -262,7 +262,7 @@ const NetworkForm = ({
     <>
       {selectedNetworkId === 'custom' && (
         <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-          {t('Add network')}
+          {t('Add custom network')}
         </Text>
       )}
       <View style={selectedNetworkId !== 'custom' && spacings.mb}>
@@ -303,6 +303,8 @@ const NetworkForm = ({
                     if (inputField.name === 'rpcUrl' && isLoadingRPC) return false
                     return handleErrors(errors[inputField.name as keyof typeof errors])
                   })()}
+                  inputWrapperStyle={{ height: 40 }}
+                  inputStyle={{ height: 40 }}
                   containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mb : {}}
                   label={inputField.label}
                   button={inputField.editable && isChanged ? 'Reset' : ''}
@@ -335,10 +337,10 @@ const NetworkForm = ({
       {selectedNetworkId === 'custom' ? (
         <Button
           onPress={handleSubmitButtonPress}
-          text={t('Add')}
+          text={t('Add network')}
+          style={{ alignSelf: 'flex-start' }}
           disabled={!isValid || !!errors?.rpcUrl || isLoadingRPC}
           hasBottomSpacing={false}
-          style={{ maxWidth: 120 }}
           size="large"
         />
       ) : (
