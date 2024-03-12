@@ -17,10 +17,7 @@ import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import {
-  TabLayoutContainer,
-  tabLayoutWidths
-} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
@@ -48,14 +45,12 @@ const AccountSelectScreen = () => {
     <TabLayoutContainer
       header={<Header withPopupBackButton withAmbireLogo />}
       footer={<BackButton />}
+      width="lg"
       hideFooterInPopup
     >
       <View style={[flexbox.flex1, spacings.pv]} ref={accountsContainerRef}>
-        <View style={styles.container}>
-          <Search control={control} placeholder="Search for account" style={styles.searchBar} />
-        </View>
-
-        <Wrapper contentContainerStyle={styles.container}>
+        <Search control={control} placeholder="Search for account" style={styles.searchBar} />
+        <Wrapper style={styles.container}>
           {accounts.length ? (
             accounts.map((account) => (
               <Account
@@ -77,7 +72,7 @@ const AccountSelectScreen = () => {
             hasBottomSpacing={false}
             onPress={openBottomSheet as any}
             childrenPosition="left"
-            style={{ maxWidth: tabLayoutWidths.lg, ...flexbox.alignSelfCenter, width: '100%' }}
+            style={{ ...flexbox.alignSelfCenter, width: '100%' }}
           >
             <AddIcon color={theme.primary} style={spacings.mrTy} />
           </Button>

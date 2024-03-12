@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
@@ -9,21 +9,21 @@ import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
 import HelpIcon from '@common/assets/svg/HelpIcon'
 import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
-import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
+import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
-import PaddedScrollView from '@common/components/PaddedScrollView'
 import Text from '@common/components/Text'
+import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import getStyles from './styles'
 
 export const SETTINGS_LINKS = [
@@ -129,7 +129,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      <PaddedScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <Wrapper>
         {SETTINGS_LINKS.map((_link, i) => {
           // If the KeyStore device password is not configured yet, redirect to DevicePassword->Set route under the hood,
           // instead of loading DevicePassword->Change route.
@@ -166,7 +166,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
             />
           )
         })}
-      </PaddedScrollView>
+      </Wrapper>
     </View>
   )
 }

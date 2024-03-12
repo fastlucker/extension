@@ -9,9 +9,9 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
-import PaddedScrollView from '@common/components/PaddedScrollView'
 import Panel from '@common/components/Panel'
 import Spinner from '@common/components/Spinner'
+import Wrapper from '@common/components/Wrapper'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -136,14 +136,14 @@ const TransferScreen = () => {
                 !state.isTopUp && spacings.pvXl
               ]}
             >
-              <PaddedScrollView style={[flexbox.flex1]} contentContainerStyle={{ flexGrow: 1 }}>
+              <Wrapper style={[flexbox.flex1]}>
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
                   isSmartAccount={isSmartAccount}
                 />
-              </PaddedScrollView>
+              </Wrapper>
               {!isTopUp && (
                 <>
                   <View
@@ -152,9 +152,9 @@ const TransferScreen = () => {
                       { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
                     ]}
                   />
-                  <PaddedScrollView style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
+                  <Wrapper style={flexbox.flex1}>
                     <AddressBookSection />
-                  </PaddedScrollView>
+                  </Wrapper>
                 </>
               )}
             </View>
