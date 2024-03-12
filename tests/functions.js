@@ -16,7 +16,7 @@ let puppeteerArgs = [
 
 
 export async function bootStrap(options = {}) {
-    const { devtools = false, slowMo = 10, headless = false } = options;
+    const { devtools = false, slowMo = 10, headless = true } = options;
 
     let browser = await puppeteer.launch({
         headless: headless,
@@ -95,7 +95,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 
     /* Click on "Import" private key*/
     await page.$eval(privKeyOrPhraseSelector, button => button.click());
-    
+
     /* type phrase */
     const phrase = 'Password'
     await typeText(page, '[data-testid="enter-pass-field"]', phrase)
@@ -119,7 +119,7 @@ export async function typeText(page, selector, text) {
         await whereToType.press('Backspace');
         await whereToType.type(text, { delay: 10 });
     } catch (error) {
-        throw new Error(`Could not type text: ${text} 
+        throw new Error(`Could not type text: ${text}
         in the selector: ${selector}`)
     }
 }
