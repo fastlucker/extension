@@ -10,8 +10,8 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
-import Wrapper from '@common/components/Wrapper'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -136,14 +136,14 @@ const TransferScreen = () => {
                 !state.isTopUp && spacings.pvXl
               ]}
             >
-              <Wrapper style={[flexbox.flex1]}>
+              <ScrollableWrapper style={[flexbox.flex1]}>
                 <SendForm
                   addressInputState={addressInputState}
                   state={state}
                   isAllReady={accountPortfolio?.isAllReady}
                   isSmartAccount={isSmartAccount}
                 />
-              </Wrapper>
+              </ScrollableWrapper>
               {!isTopUp && (
                 <>
                   <View
@@ -152,9 +152,9 @@ const TransferScreen = () => {
                       { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
                     ]}
                   />
-                  <Wrapper style={flexbox.flex1}>
+                  <ScrollableWrapper style={flexbox.flex1}>
                     <AddressBookSection />
-                  </Wrapper>
+                  </ScrollableWrapper>
                 </>
               )}
             </View>

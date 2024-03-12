@@ -38,7 +38,7 @@ export interface WrapperProps
   extraHeight?: number
 }
 
-const Wrapper = ({
+const ScrollableWrapper = ({
   style = {},
   contentContainerStyle = {},
   children,
@@ -146,4 +146,4 @@ const Wrapper = ({
   )
 }
 
-export default Wrapper
+export default ScrollableWrapper

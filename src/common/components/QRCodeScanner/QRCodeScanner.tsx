@@ -18,8 +18,8 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 
 import Button from '../Button'
+import ScrollableWrapper from '../ScrollableWrapper'
 import Spinner from '../Spinner'
-import Wrapper from '../Wrapper'
 import CameraAnimation from './camera-animation.json'
 import styles from './styles'
 
@@ -101,7 +101,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
   }
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       contentContainerStyle={
         permission === PermissionStatus.GRANTED
           ? [
@@ -187,7 +187,7 @@ const QRCodeScanner = ({ onScan }: Props) => {
           </View>
         </>
       )}
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

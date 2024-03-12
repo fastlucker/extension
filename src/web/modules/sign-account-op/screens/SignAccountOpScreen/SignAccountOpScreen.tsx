@@ -10,9 +10,9 @@ import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portf
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -464,7 +464,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
               </Text>
-              <Wrapper style={styles.transactionsScrollView} scrollEnabled>
+              <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
                 {callsToVisualize.map((call, i) => {
                   return (
                     <TransactionSummary
@@ -476,7 +476,7 @@ const SignAccountOpScreen = () => {
                     />
                   )
                 })}
-              </Wrapper>
+              </ScrollableWrapper>
             </View>
           </View>
           <View
@@ -491,7 +491,7 @@ const SignAccountOpScreen = () => {
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            <Wrapper style={[styles.estimationScrollView]}>
+            <ScrollableWrapper style={[styles.estimationScrollView]}>
               {!!hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
@@ -542,7 +542,7 @@ const SignAccountOpScreen = () => {
                   <Alert type="error" title={signAccountOpState?.errors[0]} />
                 </View>
               ) : null}
-            </Wrapper>
+            </ScrollableWrapper>
           </View>
           <HardwareWalletSigningModal
             modalRef={hwModalRef}

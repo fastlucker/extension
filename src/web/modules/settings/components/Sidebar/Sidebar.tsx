@@ -14,8 +14,8 @@ import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -129,7 +129,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      <Wrapper>
+      <ScrollableWrapper>
         {SETTINGS_LINKS.map((_link, i) => {
           // If the KeyStore device password is not configured yet, redirect to DevicePassword->Set route under the hood,
           // instead of loading DevicePassword->Change route.
@@ -166,7 +166,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
             />
           )
         })}
-      </Wrapper>
+      </ScrollableWrapper>
     </View>
   )
 }

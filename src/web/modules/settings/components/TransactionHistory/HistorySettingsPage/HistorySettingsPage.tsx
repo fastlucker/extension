@@ -15,10 +15,10 @@ import { Avatar } from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Pagination from '@common/components/Pagination'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -213,7 +213,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           </View>
         )}
       </View>
-      <Wrapper
+      <ScrollableWrapper
         style={[spacings.mbXl, flexbox.flex1]}
         {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
           ? { stickyHeaderIndices: [0] }
@@ -226,7 +226,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
             <Spinner />
           </View>
         )}
-      </Wrapper>
+      </ScrollableWrapper>
       <Pagination
         maxPages={Math.ceil(itemsTotal / ITEMS_PER_PAGE)}
         isNextDisabled={goToNextPageDisabled}

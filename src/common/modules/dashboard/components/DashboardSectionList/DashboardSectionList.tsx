@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
 
 import { Banner } from '@ambire-common/interfaces/banner'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
@@ -212,7 +212,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
   )
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       type={WRAPPER_TYPES.SECTION_LIST}
       style={[spacings.ph0, commonWebStyles.contentContainer, !allBanners.length && spacings.mtTy]}
       contentContainerStyle={[

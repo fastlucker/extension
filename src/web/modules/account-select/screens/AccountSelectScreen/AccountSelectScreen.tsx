@@ -7,9 +7,9 @@ import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import useAccounts from '@common/hooks/useAccounts'
 import useElementSize from '@common/hooks/useElementSize'
 import useNavigation from '@common/hooks/useNavigation'
@@ -50,7 +50,7 @@ const AccountSelectScreen = () => {
     >
       <View style={[flexbox.flex1, spacings.pv]} ref={accountsContainerRef}>
         <Search control={control} placeholder="Search for account" style={styles.searchBar} />
-        <Wrapper style={styles.container}>
+        <ScrollableWrapper style={styles.container}>
           {accounts.length ? (
             accounts.map((account) => (
               <Account
@@ -64,7 +64,7 @@ const AccountSelectScreen = () => {
             // @TODO: add a proper label
             <Text>{t('No accounts found')}</Text>
           )}
-        </Wrapper>
+        </ScrollableWrapper>
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
             text={t('Add Account')}
