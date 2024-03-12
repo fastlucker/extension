@@ -10,10 +10,11 @@ import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-import Text from '../Text'
+import Text, { TextWeight } from '../Text'
 
 interface Props {
   title?: string | React.ReactNode
+  titleWeight?: TextWeight
   text?: string
   type?: 'error' | 'warning' | 'success' | 'info'
   style?: ViewStyle
@@ -31,6 +32,7 @@ const ICON_MAP = {
 
 const Alert: FC<Props> = ({
   title,
+  titleWeight,
   text,
   type = 'info',
   style,
@@ -69,13 +71,13 @@ const Alert: FC<Props> = ({
               <Text
                 appearance={`${type}Text`}
                 fontSize={fontSize}
-                weight="semiBold"
+                weight={titleWeight || 'semiBold'}
                 style={{ textTransform: 'capitalize' }}
               >
                 {type}:{' '}
               </Text>
             )}
-            <Text appearance={`${type}Text`} fontSize={fontSize} weight="regular">
+            <Text appearance={`${type}Text`} fontSize={fontSize} weight={titleWeight || 'regular'}>
               {title}
             </Text>
           </Text>
