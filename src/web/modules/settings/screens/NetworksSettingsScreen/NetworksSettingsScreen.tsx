@@ -121,7 +121,7 @@ const NetworksSettingsScreen = () => {
           </View>
           <Button
             type="secondary"
-            text={t('Add New Network')}
+            text={t('Add custom network')}
             onPress={openBottomSheet as any}
             childrenPosition="left"
           >
