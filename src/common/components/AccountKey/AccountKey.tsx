@@ -9,11 +9,13 @@ import LedgerIcon from '@common/assets/svg/LedgerIcon'
 import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
 import TrezorIcon from '@common/assets/svg/TrezorIcon'
 import Badge from '@common/components/Badge'
+import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -40,6 +42,7 @@ const KeyTypeIcon: FC<{ type: Key['type'] }> = ({ type }) => {
 const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported, style }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -52,6 +55,22 @@ const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported,
     } catch {
       addToast('Error copying key address', { type: 'error' })
     }
+  }
+
+  const editKeyLabel = (newLabel: string) => {
+    if (newLabel === label) return
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
+      params: [
+        {
+          addr: address,
+          type: type || 'internal',
+          label: newLabel
+        }
+      ]
+    })
+    addToast('Key label updated', { type: 'success' })
   }
 
   return (
@@ -70,12 +89,9 @@ const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported,
       ]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {!!label && (
-          <Text fontSize={fontSize} weight="medium">
-            {label}
-          </Text>
-        )}
-        <Text fontSize={fontSize} style={label ? spacings.mlTy : spacings.ml0}>
+        {/* Keys that aren't imported can't be labeled */}
+        {isImported && <Editable value={label || ''} onSave={editKeyLabel} />}
+        <Text fontSize={fontSize} style={spacings.mlTy}>
           {label ? `(${shortenAddress(address, 13)})` : address}
         </Text>
         <AnimatedPressable
