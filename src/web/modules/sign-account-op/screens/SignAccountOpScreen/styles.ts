@@ -39,8 +39,7 @@ const getStyles = (theme: ThemeProps) =>
       flex: 1
     },
     transactionsScrollView: {
-      height: '100%',
-      ...spacings.pr
+      height: '100%'
     },
     separatorHorizontal: {
       position: 'absolute',
@@ -79,8 +78,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1
     },
     estimationScrollView: {
-      height: '100%',
-      ...spacings.pr
+      height: '100%'
     },
     estimationHeading: {
       ...spacings.mbLg

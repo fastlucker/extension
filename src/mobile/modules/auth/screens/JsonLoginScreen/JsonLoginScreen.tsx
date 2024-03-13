@@ -2,8 +2,8 @@ import React from 'react'
 import { View } from 'react-native'
 
 import Button from '@common/components/Button'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
-import Wrapper from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import AmbireLogo from '@common/modules/auth/components/AmbireLogo'
@@ -14,7 +14,7 @@ const JsonLoginScreen = () => {
   // const { handleLogin, error, inProgress } = useJsonLogin()
 
   return (
-    <Wrapper contentContainerStyle={spacings.pbLg}>
+    <ScrollableWrapper contentContainerStyle={spacings.pbLg}>
       <AmbireLogo />
       {/* TODO: v2 */}
       {/* <Button
@@ -30,7 +30,7 @@ const JsonLoginScreen = () => {
             </Text>
           </View>
         )} */}
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

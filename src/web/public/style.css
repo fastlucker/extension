@@ -34,15 +34,15 @@ input {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #DDDFF7;
+  background: #DDDFF766;
   border-radius: 13px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6770B354;
+  background: #6770B360;
   border-radius: 13px;
 }

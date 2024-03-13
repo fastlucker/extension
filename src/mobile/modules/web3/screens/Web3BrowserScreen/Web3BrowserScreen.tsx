@@ -4,8 +4,8 @@ import ErrorBoundary from 'react-native-error-boundary'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import Input from '@common/components/Input'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
-import Wrapper from '@common/components/Wrapper'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -63,7 +63,7 @@ const Web3BrowserScreen = () => {
 
   return (
     <ErrorBoundary>
-      <Wrapper style={spacings.ph0} hasBottomTabNav>
+      <ScrollableWrapper style={spacings.ph0} hasBottomTabNav>
         <View
           style={[
             flexbox.directionRow,
@@ -136,7 +136,7 @@ const Web3BrowserScreen = () => {
           containerStyle={styles.container}
           style={styles.webview}
         />
-      </Wrapper>
+      </ScrollableWrapper>
     </ErrorBoundary>
   )
 }

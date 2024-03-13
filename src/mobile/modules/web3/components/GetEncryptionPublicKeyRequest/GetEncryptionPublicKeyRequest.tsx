@@ -3,9 +3,9 @@ import { View } from 'react-native'
 
 import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -43,7 +43,7 @@ const GetEncryptionPublicKeyRequest = ({
   }, [rejectApproval, closeBottomSheet, t])
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       hasBottomTabNav={false}
       contentContainerStyle={spacings.pt0}
       style={isInBottomSheet && spacings.ph0}
@@ -89,7 +89,7 @@ const GetEncryptionPublicKeyRequest = ({
           </Trans>
         </View>
       </Panel>
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 
