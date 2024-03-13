@@ -3,14 +3,13 @@
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
-import { JsonRpcProvider, toBeHex } from 'ethers'
+import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 
 import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
-import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
@@ -98,7 +97,7 @@ export class ProviderController {
     } = req
 
     const networkId = this.getDappNetwork(origin).id
-    const provider: JsonRpcProvider = getProvider(networkId)
+    const provider = this.mainCtrl.settings.providers[networkId]
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()

@@ -11,7 +11,6 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
@@ -230,7 +229,7 @@ async function init() {
   function setReestimateInterval(accountOp: AccountOp) {
     !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
 
-    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
     backgroundState.reestimateInterval = setInterval(async () => {
@@ -444,7 +443,7 @@ async function init() {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks,
+                    networks: mainCtrl.settings.networks,
                     providers: rpcProviders
                   })
                 } catch (e: any) {
@@ -464,7 +463,7 @@ async function init() {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
+                  networks: mainCtrl.settings.networks,
                   providers: rpcProviders
                 })
               }
@@ -482,7 +481,7 @@ async function init() {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks,
+                    networks: mainCtrl.settings.networks,
                     providers: rpcProviders
                   })
                 } catch (e: any) {
@@ -503,7 +502,7 @@ async function init() {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
+                  networks: mainCtrl.settings.networks,
                   providers: rpcProviders
                 })
               }
@@ -540,7 +539,7 @@ async function init() {
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage({
                   ...params,
-                  networks,
+                  networks: mainCtrl.settings.networks,
                   providers: rpcProviders
                 })
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
@@ -663,7 +662,7 @@ async function init() {
 
                 await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
+                  networks: mainCtrl.settings.networks,
                   providers: rpcProviders
                 })
 

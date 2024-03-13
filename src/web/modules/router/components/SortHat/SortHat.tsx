@@ -2,7 +2,6 @@ import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -14,6 +13,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
@@ -25,6 +25,7 @@ const SortHat = () => {
   const mainState = useMainControllerState()
   const { params } = useRoute()
   const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
 
   const loadView = useCallback(async () => {
     if (isNotification && !notificationState.currentNotificationRequest) {
@@ -126,14 +127,16 @@ const SortHat = () => {
     isNotification,
     notificationState.currentNotificationRequest,
     authStatus,
-    navigate,
-    dispatch,
     keystoreState,
     mainState.selectedAccount,
-    mainState.userRequests
+    mainState.userRequests,
+    networks,
+    navigate,
+    dispatch
   ])
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     loadView()
   }, [loadView])
 
