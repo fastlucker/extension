@@ -26,7 +26,6 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...common.shadowPrimary,
       backgroundColor: '#fff',
-      width: 320,
       zIndex: 8,
       overflow: 'hidden'
     },

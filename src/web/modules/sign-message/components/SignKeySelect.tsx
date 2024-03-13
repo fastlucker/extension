@@ -2,12 +2,14 @@ import React from 'react'
 import { Pressable, View } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
+import AccountKey from '@common/components/AccountKey'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { Portal } from '@gorhom/portal'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
@@ -30,6 +32,7 @@ const SigningKeySelect = ({
   const { theme, styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
   const settingsCtrl = useSettingsControllerState()
+  const { keys } = useKeystoreControllerState()
 
   if (!isVisible) return null
 
@@ -48,26 +51,30 @@ const SigningKeySelect = ({
           Select a signing key
         </Text>
         <View>
-          {selectedAccountKeyStoreKeys.map((key, i) => (
-            <Pressable
-              onPress={() => handleChangeSigningKey(key.addr, key.type)}
-              style={({ hovered }: any) => ({
-                ...styles.signer,
-                backgroundColor: hovered ? theme.secondaryBackground : 'transparent',
-                opacity: isSigning ? 0.5 : 1
-              })}
-              disabled={isSigning}
-            >
-              <Text weight="medium" fontSize={18}>
-                {settingsCtrl.keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)
-                  ?.label || `Key ${i + 1}`}
-              </Text>
-              <Text appearance="secondaryText" weight="regular" fontSize={16}>{`${key.addr.slice(
-                0,
-                16
-              )}...${key.addr.slice(-10)}`}</Text>
-            </Pressable>
-          ))}
+          {selectedAccountKeyStoreKeys.map((key, i) => {
+            const { label } =
+              settingsCtrl.keyPreferences.find((x) => x.addr === key.addr && x.type === key.type) ||
+              {}
+            const isImported = keys.some((k) => k.addr === key.addr && k.type === key.type)
+
+            return (
+              <Pressable
+                onPress={() => handleChangeSigningKey(key.addr, key.type)}
+                style={({ hovered }: any) => ({
+                  backgroundColor: hovered ? theme.secondaryBackground : 'transparent'
+                })}
+                disabled={isSigning}
+              >
+                <AccountKey
+                  address={key.addr}
+                  type={key.type}
+                  label={label || `Key ${i + 1}`}
+                  isLast={i === selectedAccountKeyStoreKeys.length - 1}
+                  isImported={isImported}
+                />
+              </Pressable>
+            )
+          })}
           {isSigning && (
             <View style={styles.spinner}>
               <Spinner />
