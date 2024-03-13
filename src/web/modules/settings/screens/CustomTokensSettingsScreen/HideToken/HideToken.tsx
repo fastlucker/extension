@@ -19,15 +19,14 @@ const HideToken = () => {
   const { networks } = useSettingsControllerState()
   const portfolio = usePortfolioControllerState()
 
-  const [address, setAddress] = useState('')
-  console.log(portfolio.state.tokenPreferences)
+  const [searchAddress, setSearchAddress] = useState('')
+
   const hideToken = useCallback(async (token) => {
     console.log('hide token')
     const tokenPreferences = portfolio.state.tokenPreferences
     // Flip isHidden flag
-    const newTokenPreference = tokenPreferences.find(
-      (tokenPreference) => tokenPreference.address === token.address
-    )
+    const newTokenPreference =
+      tokenPreferences.find((tokenPreference) => tokenPreference.address === token.address) || token
 
     newTokenPreference.isHidden = !newTokenPreference.isHidden
     console.log(newTokenPreference)
@@ -35,9 +34,17 @@ const HideToken = () => {
     await portfolio.updateTokenPreferences(newTokenPreference)
   }, [])
 
-  // TODO: Why is isHidden not showing up for a token?
+  const removeToken = useCallback(async (token) => {
+    console.log('remove token')
 
-  console.log(portfolio.accountPortfolio?.tokens)
+    await portfolio.removeTokenPreferences(token.address)
+  }, [])
+
+  const handleSearchChange = useCallback((e) => {
+    setSearchAddress(e.target.value)
+  }, [])
+
+  console.log(portfolio.state.tokenPreferences, portfolio.accountPortfolio?.tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
@@ -45,7 +52,7 @@ const HideToken = () => {
       </Text>
       <Input
         label={t('Token Address or Symbol')}
-        onChange={setAddress}
+        onChange={handleSearchChange}
         placeholder="Input token address or symbol"
         inputWrapperStyle={spacings.mbSm}
       />
@@ -102,7 +109,15 @@ const HideToken = () => {
                     />
                   </Pressable>
                 )}
-                <DeleteIcon color="#54597a" style={[spacings.phTy, { cursor: 'pointer' }]} />
+                {portfolio.state.tokenPreferences.find(
+                  ({ address, networkId }) =>
+                    token.address === address && token.networkId === networkId
+                ) &&
+                  token.amount === 0n && (
+                    <Pressable onPress={() => removeToken(token)}>
+                      <DeleteIcon color="#54597a" style={[spacings.phTy, { cursor: 'pointer' }]} />
+                    </Pressable>
+                  )}
               </View>
             </View>
           ))}

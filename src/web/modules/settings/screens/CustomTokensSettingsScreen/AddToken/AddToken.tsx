@@ -56,8 +56,10 @@ const AddToken = () => {
 
   const handleSetAddress = useCallback(
     (e: any) => {
+      setAddress(e.target.value)
+      if (!isValidAddress(e.target.value)) return
+
       const tokenAddr = getAddress(e.target.value)
-      setAddress(tokenAddr)
 
       if (isValidAddress(getAddress(tokenAddr)) && network) {
         portfolio.updateAdditionalHints([tokenAddr])

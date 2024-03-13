@@ -204,6 +204,7 @@ type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
     forceUpdate?: boolean
+    additionalHints?: any[]
   }
 }
 type PortfolioControllerUpdateTokenPreferences = {
@@ -212,14 +213,15 @@ type PortfolioControllerUpdateTokenPreferences = {
     tokenPreferences: any[]
   }
 }
-type PortfolioControllerUpdateAdditionalHints = {
-  type: 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS'
-  params: {
-    tokenIds: any[]
-  }
-}
 type PortfolioControllerResetAdditionalHints = {
   type: 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS'
+}
+
+type PortfolioControllerCheckToken = {
+  type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
+  params: {
+    token: any
+  }
 }
 type MainControllerSignAccountOpInitAction = {
   params: {
@@ -403,8 +405,8 @@ export type Action =
   | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
-  | PortfolioControllerUpdateAdditionalHints
   | PortfolioControllerResetAdditionalHints
+  | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction

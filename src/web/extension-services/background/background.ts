@@ -737,17 +737,22 @@ async function init() {
               if (!mainCtrl.selectedAccount) return
               return mainCtrl.updateSelectedAccount(
                 mainCtrl.selectedAccount,
-                data.params?.forceUpdate
+                data.params?.forceUpdate,
+                data.params?.additionalHints
               )
             }
             case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-              return mainCtrl.portfolio.updateTokenPreferences(data.params.tokenPreferences)
-            }
-            case 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS': {
-              return mainCtrl.portfolio.updateAdditionalHints(data.params.tokenIds)
+              await mainCtrl.portfolio.updateTokenPreferences(data.params.tokenPreferences)
+              return mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
             }
             case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
               return mainCtrl.portfolio.resetAdditionalHints()
+            }
+            case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
+              return mainCtrl.portfolio.checkTokenStandardEligibility(
+                data.params.token,
+                mainCtrl.selectedAccount
+              )
             }
             case 'KEYSTORE_CONTROLLER_ADD_SECRET':
               return mainCtrl.keystore.addSecret(

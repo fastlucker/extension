@@ -24,6 +24,7 @@ const PortfolioControllerStateContext = createContext<{
   refreshPortfolio: () => void
   updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
   updateTokenPreferences: (token: CustomToken) => void
+  removeTokenPreferences: (tokenAddr: CustomToken['address']) => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -35,7 +36,8 @@ const PortfolioControllerStateContext = createContext<{
   startedLoading: null,
   refreshPortfolio: () => {},
   updateAdditionalHints: () => {},
-  updateTokenPreferences: () => {}
+  updateTokenPreferences: () => {},
+  removeTokenPreferences: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -125,19 +127,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const updateAdditionalHints = useCallback(
     (tokenIds: any[]) => {
       dispatch({
-        type: 'PORTFOLIO_CONTROLLER_UPDATE_ADDITIONAL_HINTS',
-        params: {
-          tokenIds
-        }
-      })
-      dispatch({
         type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
         params: {
-          forceUpdate: true
+          forceUpdate: true,
+          additionalHints: tokenIds
         }
       })
     },
-    [dispatch, state?.tokenPreferences]
+    [dispatch]
   )
 
   const updateTokenPreferences = useCallback(
@@ -179,14 +176,20 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           tokenPreferences: newTokenPreferences
         }
       })
+    },
+    [dispatch, state?.tokenPreferences]
+  )
+
+  const checkToken = useCallback(
+    (token: any) => {
       dispatch({
-        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
+        type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
         params: {
-          forceUpdate: true
+          token
         }
       })
     },
-    [dispatch, state?.tokenPreferences]
+    [dispatch, mainCtrl]
   )
 
   const refreshPortfolio = useCallback(() => {
@@ -209,7 +212,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           startedLoading,
           updateTokenPreferences,
           updateAdditionalHints,
-          removeTokenPreferences
+          removeTokenPreferences,
+          checkToken
         }),
         [
           state,
@@ -218,7 +222,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           refreshPortfolio,
           updateTokenPreferences,
           updateAdditionalHints,
-          removeTokenPreferences
+          removeTokenPreferences,
+          checkToken
         ]
       )}
     >
