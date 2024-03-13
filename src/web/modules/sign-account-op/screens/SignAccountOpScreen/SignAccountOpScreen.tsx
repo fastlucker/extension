@@ -10,6 +10,7 @@ import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portf
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { Trans, useTranslation } from '@common/config/localization'
@@ -555,11 +556,14 @@ const SignAccountOpScreen = () => {
                 </View>
               ) : null}
 
-              {signAccountOpState?.errors.length ? (
-                <View style={styles.errorContainer}>
-                  <Alert type="error" title={signAccountOpState?.errors[0]} />
-                </View>
-              ) : null}
+              {!!signAccountOpState?.errors.length &&
+                (signAccountOpState?.errors[0] !== 'view-only' ? (
+                  <View style={styles.errorContainer}>
+                    <Alert type="error" title={signAccountOpState?.errors[0]} />
+                  </View>
+                ) : (
+                  <NoKeysToSignAlert />
+                ))}
             </ScrollView>
           </View>
           <HardwareWalletSigningModal

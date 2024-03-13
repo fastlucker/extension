@@ -4,12 +4,10 @@ import { View } from 'react-native'
 import CartIcon from '@common/assets/svg/CartIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Button from '@common/components/Button'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 
 import getStyles from './styles'
 
@@ -48,11 +46,6 @@ const Footer = ({
           <CloseIcon color={theme.errorDecorative} />
         </View>
       </Button>
-      {!!isViewOnly && (
-        <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
-          {t("You can't sign transactions with view-only accounts.")}
-        </Text>
-      )}
       <View style={[flexbox.directionRow]}>
         {!isEOA && (
           <Button
