@@ -70,6 +70,7 @@ const AddAccount = () => {
 
       return (
         <AnimatedPressable
+          testID={option.text.toLowerCase().replace(/\s+/g, '-')}
           key={option.text}
           style={[
             styles.addAccountOptionContainer,

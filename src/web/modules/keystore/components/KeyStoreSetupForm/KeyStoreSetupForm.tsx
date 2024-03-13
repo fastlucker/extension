@@ -62,6 +62,7 @@ const KeyStoreSetupForm = ({
           rules={{ validate: isValidPassword }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
+              testID='enter-pass-field'
               onBlur={onBlur}
               placeholder={t('Enter Password')}
               onChangeText={onChange}
@@ -85,6 +86,7 @@ const KeyStoreSetupForm = ({
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              testID='repeat-pass-field'
               onBlur={onBlur}
               placeholder={t('Repeat Password')}
               onChangeText={onChange}
