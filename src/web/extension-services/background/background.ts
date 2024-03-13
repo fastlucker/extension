@@ -296,12 +296,14 @@ async function init() {
             if (res === 'DEBOUNCED') return
 
             if (ctrlName === 'keystore') {
-              if (backgroundState.isUnlocked && !controller.isUnlocked) {
-                dappsCtrl.broadcastDappSessionEvent('lock')
-              } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                dappsCtrl.broadcastDappSessionEvent('unlock')
+              if (controller.isReadyToStoreKeys) {
+                if (backgroundState.isUnlocked && !controller.isUnlocked) {
+                  dappsCtrl.broadcastDappSessionEvent('lock')
+                } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
+                  dappsCtrl.broadcastDappSessionEvent('unlock')
+                }
+                backgroundState.isUnlocked = controller.isUnlocked
               }
-              backgroundState.isUnlocked = controller.isUnlocked
             }
 
             if (ctrlName === 'activity') {

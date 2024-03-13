@@ -5,10 +5,10 @@ import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import { Token, UsePortfolioReturnType } from '@ambire-common-v1/hooks/usePortfolio'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNetwork from '@common/hooks/useNetwork'
 import usePortfolio from '@common/hooks/usePortfolio'
@@ -125,7 +125,7 @@ const WatchTokenRequest = ({
   }, [resolveApproval, closeBottomSheet])
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       hasBottomTabNav={false}
       contentContainerStyle={spacings.pt0}
       style={isInBottomSheet && spacings.ph0}
@@ -227,7 +227,7 @@ const WatchTokenRequest = ({
           </>
         )}
       </Panel>
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

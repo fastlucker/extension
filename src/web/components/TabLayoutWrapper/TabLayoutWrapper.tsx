@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo } from 'react'
 import { ColorValue, View, ViewStyle } from 'react-native'
 
-import Wrapper, { WrapperProps } from '@common/components/Wrapper'
+import ScrollableWrapper, { WrapperProps } from '@common/components/ScrollableWrapper'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { breakpointsByWindowWidth } from '@common/hooks/useWindowSize/breakpoints'
@@ -122,13 +122,13 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
   const { styles } = useTheme(getStyles)
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
       showsVerticalScrollIndicator={false}
       wrapperRef={wrapperRef}
       {...rest}
     >
       {children}
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }

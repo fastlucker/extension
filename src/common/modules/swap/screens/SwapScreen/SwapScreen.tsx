@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
-import Wrapper from '@common/components/Wrapper'
 import useGnosis from '@common/hooks/useGnosis'
 import usePrevious from '@common/hooks/usePrevious'
 import colors from '@common/styles/colors'
@@ -94,7 +94,7 @@ const SwapScreen = () => {
   }, [loading])
 
   return (
-    <Wrapper hasBottomTabNav style={spacings.ph0} scrollEnabled={false}>
+    <ScrollableWrapper hasBottomTabNav style={spacings.ph0} scrollEnabled={false}>
       {/* Note: might not work properly on Android emulator with this URL. */}
       <WebView
         key={hash}
@@ -121,7 +121,7 @@ const SwapScreen = () => {
           handleIncomingMessage(msg)
         }}
       />
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

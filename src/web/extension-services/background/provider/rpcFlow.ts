@@ -59,7 +59,8 @@ const flowContext = flow
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      const isUnlock = mainCtrl.keystore.isUnlocked
+      const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
+
       if (!isUnlock && permissionService.hasPermission(origin)) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
