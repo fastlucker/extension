@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react'
 import { Pressable, View } from 'react-native'
 
 import CheckIcon from '@common/assets/svg/CheckIcon'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -21,8 +22,9 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
   const [textWidth, setTextWidth] = useState(0)
 
   const handleSave = () => {
-    onSave(value)
     setIsEditing(false)
+    if (value === defaultValue) return
+    onSave(value)
   }
 
   return (
@@ -31,33 +33,39 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         flexbox.directionRow,
         flexbox.alignCenter,
         {
-          height: 32
+          height: 36
         }
       ]}
     >
       {isEditing ? (
         <Input
           value={value}
-          containerStyle={{ ...spacings.mb0, width: textWidth }}
+          // Prevents the input from being too small
+          containerStyle={{ ...spacings.mb0, width: textWidth < 80 ? 80 : textWidth }}
           inputWrapperStyle={{
-            height: 32
+            height: 30,
+            backgroundColor: 'transparent'
           }}
           nativeInputStyle={{
-            fontSize: 12
+            fontSize: 16
           }}
           inputStyle={{
             height: 30,
-            ...spacings.phTy
+            ...spacings.ph0
           }}
           onChangeText={setValue}
           onSubmitEditing={handleSave}
           autoFocus
+          borderless
         />
       ) : (
         <Text
           fontSize={16}
           appearance={!value ? 'secondaryText' : 'primaryText'}
           numberOfLines={1}
+          // onLayout returns rounded numbers in react-native-web so there
+          // there will be slight UI jumps when changing the value of isEditing
+          // https://github.com/necolas/react-native-web/issues/2424
           onLayout={(e) => {
             setTextWidth(e.nativeEvent.layout.width)
           }}
@@ -75,7 +83,9 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         }}
         style={[spacings.mlTy]}
       >
-        {isEditing ? <CheckIcon width={16} height={16} /> : <EditPenIcon width={16} height={16} />}
+        {!isEditing && <EditPenIcon width={16} height={16} />}
+        {isEditing && value === defaultValue && <CloseIcon width={16} height={16} />}
+        {isEditing && value !== defaultValue && <CheckIcon width={16} height={16} />}
       </Pressable>
     </View>
   )

@@ -58,8 +58,6 @@ const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported,
   }
 
   const editKeyLabel = (newLabel: string) => {
-    if (newLabel === label) return
-
     dispatch({
       type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
       params: [
