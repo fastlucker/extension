@@ -33,11 +33,11 @@ interface Props {
 const { isPopup } = getUiType()
 
 const KeyTypeIcon: FC<{ type: Key['type'] }> = ({ type }) => {
-  if (type === 'lattice') return <LatticeIcon width={24} height="auto" />
-  if (type === 'trezor') return <TrezorIcon width={24} height="auto" />
-  if (type === 'ledger') return <LedgerIcon width={24} height="auto" />
+  if (type === 'lattice') return <LatticeIcon width={71.4} height={24} />
+  if (type === 'trezor') return <TrezorIcon width={16} height={24} />
+  if (type === 'ledger') return <LedgerIcon width={24} height={24} />
 
-  return <PrivateKeyIcon width={24} height="auto" />
+  return <PrivateKeyIcon width={20.6} height={24} />
 }
 
 const AccountKey: React.FC<Props> = ({
