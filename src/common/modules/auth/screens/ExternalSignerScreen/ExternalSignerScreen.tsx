@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useState } from 'react'
 import { Keyboard, TouchableWithoutFeedback } from 'react-native'
 
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -33,13 +33,13 @@ const ExternalSignerScreen = () => {
         !isWeb && Keyboard.dismiss()
       }}
     >
-      <Wrapper
+      <ScrollableWrapper
         contentContainerStyle={spacings.pbLg}
         type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
         extraHeight={220}
       >
         {/* TODO: v2 */}
-      </Wrapper>
+      </ScrollableWrapper>
     </TouchableWithoutFeedback>
   )
 }
