@@ -1,7 +1,7 @@
 import React from 'react'
 import Svg, { Path, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 interface Props extends SvgProps {
   width?: number
@@ -9,25 +9,20 @@ interface Props extends SvgProps {
   isFilled?: boolean
 }
 
-const StarIcon: React.FC<Props> = ({ width = 18, height = 18, isFilled }) => (
-  <Svg width={width} height={height} viewBox="0 0 18 18">
+const StarIcon: React.FC<Props> = ({ width = 16, height = 16, isFilled, ...rest }) => (
+  <Svg width={width} height={height} viewBox="0 0 16 16" {...rest}>
     <Path
-      id="Icon_material-star-border"
-      data-name="Icon material-star-border"
-      d="M21.947,9.859l-6.812-.587L12.474,3,9.812,9.281,3,9.859,8.173,14.34,6.619,21l5.855-3.534L18.328,21l-1.544-6.66Zm-9.474,5.836L8.912,17.845l.947-4.055L6.714,11.062l4.149-.36,1.611-3.818,1.62,3.827,4.149.36L15.1,13.8l.947,4.055Z"
+      d="M19.842,9.1l-6.055-.522L11.421,3,9.055,8.583,3,9.1,7.6,13.08,6.217,19l5.2-3.141L16.625,19l-1.373-5.92Zm-8.421,5.187L8.255,16.2l.842-3.6L6.3,10.166l3.688-.32,1.432-3.394,1.44,3.4,3.688.32-2.8,2.425.842,3.6Z"
       transform="translate(-3 -3)"
-      fill={colors.titan}
-      opacity="0.1"
+      fill={iconColors.secondary}
     />
     <Path
-      id="Icon_material-star"
-      data-name="Icon material-star"
-      d="M12.474,17.466,18.328,21l-1.554-6.66,5.173-4.481-6.812-.578L12.474,3,9.812,9.281,3,9.859,8.173,14.34,6.619,21Z"
+      d="M11.421,15.859,16.625,19l-1.381-5.92,4.6-3.983-6.055-.514L11.421,3,9.055,8.583,3,9.1,7.6,13.08,6.217,19Z"
       transform="translate(-3 -3)"
-      fill={colors.mustard}
+      fill={iconColors.favorite}
       opacity={isFilled ? '1' : '0'}
     />
   </Svg>
 )
 
-export default StarIcon
+export default React.memo(StarIcon)

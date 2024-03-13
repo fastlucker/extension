@@ -840,6 +840,15 @@ async function init() {
                 })
                 break
               }
+              case 'DAPP_CONTROLLER_ADD_DAPP': {
+                return await dappsCtrl.addDapp(params)
+              }
+              case 'DAPP_CONTROLLER_UPDATE_DAPP': {
+                return await dappsCtrl.updateDapp(params)
+              }
+              case 'DAPP_CONTROLLER_REMOVE_DAPP': {
+                return await dappsCtrl.removeDapp(params)
+              }
 
               default:
                 return console.error(

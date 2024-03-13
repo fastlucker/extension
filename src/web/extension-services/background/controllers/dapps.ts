@@ -5,7 +5,7 @@ import { browser } from '@web/constants/browserapi'
 import permission from '@web/extension-services/background/services/permission'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
 
-type Dapp = {
+export type Dapp = {
   id: string
   name: string
   description?: string
@@ -48,10 +48,10 @@ export class DappsController extends EventEmitter {
   }
 
   set dapps(val: Dapp[]) {
-    this.#_dapps = val.sort(
-      (a: Dapp, b: Dapp) =>
-        (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0) || a.name.localeCompare(b.name)
-    )
+    const updatedDapps = val.sort((a, b) => a.name.localeCompare(b.name))
+    this.#_dapps = updatedDapps
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.#storage.set('dapps', updatedDapps)
   }
 
   async #load() {
@@ -66,7 +66,7 @@ export class DappsController extends EventEmitter {
       await this.#storage.set('dapps', storedDapps)
     }
 
-    this.dapps = storedDapps
+    this.#_dapps = storedDapps
     this.emitUpdate()
   }
 

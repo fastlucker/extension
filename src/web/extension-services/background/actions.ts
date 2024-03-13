@@ -13,6 +13,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
+import { Dapp } from './controllers/dapps'
 import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
@@ -279,6 +280,19 @@ type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
+type DappsControllerAddDappAction = {
+  type: 'DAPP_CONTROLLER_ADD_DAPP'
+  params: Dapp
+}
+type DappsControllerUpdateDappAction = {
+  type: 'DAPP_CONTROLLER_UPDATE_DAPP'
+  params: Dapp
+}
+type DappsControllerRemoveDappAction = {
+  type: 'DAPP_CONTROLLER_REMOVE_DAPP'
+  params: Dapp['id']
+}
+
 type NotificationControllerReopenCurrentNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
 }
@@ -356,6 +370,9 @@ export type Action =
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
   | DappsControllerRemoveConnectedSiteAction
+  | DappsControllerAddDappAction
+  | DappsControllerUpdateDappAction
+  | DappsControllerRemoveDappAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
