@@ -556,14 +556,12 @@ const SignAccountOpScreen = () => {
                 </View>
               ) : null}
 
-              {!!signAccountOpState?.errors.length &&
-                (signAccountOpState?.errors[0] !== 'view-only' ? (
-                  <View style={styles.errorContainer}>
-                    <Alert type="error" title={signAccountOpState?.errors[0]} />
-                  </View>
-                ) : (
-                  <NoKeysToSignAlert />
-                ))}
+              {!!signAccountOpState?.errors.length && !isViewOnly ? (
+                <View style={styles.errorContainer}>
+                  <Alert type="error" title={signAccountOpState?.errors[0]} />
+                </View>
+              ) : null}
+              {isViewOnly && <NoKeysToSignAlert />}
             </ScrollView>
           </View>
           <HardwareWalletSigningModal
