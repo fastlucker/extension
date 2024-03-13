@@ -85,7 +85,12 @@ const NetworkIcon = ({ name, size = 32, type = 'regular', style = {}, ...rest }:
     <Icon width={size} height={size} style={[styles.icon, style]} {...rest} />
   ) : (
     <View
-      style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
+      style={[
+        { width: size, height: size, borderRadius: 50, overflow: 'hidden' },
+        flexbox.alignCenter,
+        flexbox.justifyCenter,
+        style
+      ]}
     >
       <View
         style={[
