@@ -357,6 +357,7 @@ export class NotificationController extends EventEmitter {
           data: data?.params?.data,
           origin: data.params?.session?.origin,
           selectedAccount: this.#mainCtrl.selectedAccount || '',
+          networks: this.#mainCtrl.settings.networks,
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
@@ -373,6 +374,7 @@ export class NotificationController extends EventEmitter {
           data: data?.params?.data,
           origin: data.params?.session?.origin,
           selectedAccount: this.#mainCtrl.selectedAccount || '',
+          networks: this.#mainCtrl.settings.networks,
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
@@ -385,7 +387,7 @@ export class NotificationController extends EventEmitter {
 
       if (isSignAccountOpMethod(data?.params?.method)) {
         const txs = data?.params?.data
-
+        let success = false
         Object.keys(txs).forEach((key) => {
           const request = userNotification.createAccountOpUserRequest({
             id,
@@ -393,10 +395,12 @@ export class NotificationController extends EventEmitter {
             txs,
             origin: data.params?.session?.origin,
             selectedAccount: this.#mainCtrl.selectedAccount || '',
+            networks: this.#mainCtrl.settings.networks,
             onError: (err) => this.rejectNotificationRequest(err),
             onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
           })
           if (request) {
+            success = true
             const accountOpNotificationRequest = {
               ...notificationRequest,
               accountAddr: request.accountAddr,
@@ -410,6 +414,8 @@ export class NotificationController extends EventEmitter {
             this.rejectNotificationRequest('Invalid request data')
           }
         })
+
+        if (!success) return
       }
       this.emitUpdate()
       if (openNewWindow) this.openNotification(notificationRequest.winProps)

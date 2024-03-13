@@ -164,7 +164,7 @@ const NetworkForm = ({
     if (selectedNetworkId === 'custom') {
       dispatch({
         type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
-        params: networkFormValues as any
+        params: { ...networkFormValues, chainId: BigInt(networkFormValues.chainId) }
       })
     } else {
       dispatch({
