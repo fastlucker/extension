@@ -17,7 +17,7 @@ describe('transactions', () => {
 
     beforeEach(async () => {
         /* Initialize browser and page using bootStrap */
-        const context = await bootStrap({ headless: true, slowMo: 10 });
+        const context = await bootStrap({ headless: false, slowMo: 10 });
         browser = context.browser;
         page = context.page;
         extensionRootUrl = context.extensionRootUrl
