@@ -27,6 +27,7 @@ interface Props {
   type?: Key['type']
   label?: string
   style?: ViewStyle
+  enableEditing?: boolean
 }
 
 const { isPopup } = getUiType()
@@ -39,7 +40,15 @@ const KeyTypeIcon: FC<{ type: Key['type'] }> = ({ type }) => {
   return <PrivateKeyIcon width={24} height="auto" />
 }
 
-const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported, style }) => {
+const AccountKey: React.FC<Props> = ({
+  label,
+  address,
+  isLast,
+  type,
+  isImported,
+  style,
+  enableEditing = true
+}) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
@@ -88,7 +97,11 @@ const AccountKey: React.FC<Props> = ({ label, address, isLast, type, isImported,
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {/* Keys that aren't imported can't be labeled */}
-        {isImported && <Editable value={label || ''} onSave={editKeyLabel} />}
+        {isImported && enableEditing ? (
+          <Editable value={label || ''} onSave={editKeyLabel} />
+        ) : (
+          <Text>{label}</Text>
+        )}
         <Text fontSize={fontSize} style={spacings.mlTy}>
           {label ? `(${shortenAddress(address, 13)})` : address}
         </Text>

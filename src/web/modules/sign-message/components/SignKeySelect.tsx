@@ -71,6 +71,7 @@ const SigningKeySelect = ({
                   label={label || `Key ${i + 1}`}
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}
                   isImported={isImported}
+                  enableEditing={false}
                 />
               </Pressable>
             )
