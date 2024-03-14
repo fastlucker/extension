@@ -47,9 +47,9 @@ const WatchTokenRequestScreen = () => {
 
   const tokenTypeEligibility = useMemo(
     () =>
-      (tokenData && portfolio.state.eligibleTokens.erc20[`${tokenData?.address}-${network?.id}`]) ||
+      (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${network?.id}`]) ||
       false,
-    [portfolio.state.eligibleTokens.erc20, tokenData, network?.id]
+    [portfolio.state.validTokens.erc20, tokenData, network?.id]
   )
 
   const handleCancel = useCallback(() => {

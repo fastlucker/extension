@@ -774,12 +774,12 @@ async function init() {
                 if (!mainCtrl.selectedAccount) return
                 return await mainCtrl.updateSelectedAccount(
                   mainCtrl.selectedAccount,
-                  data.params?.forceUpdate,
-                  data.params?.additionalHints
+                  params?.forceUpdate,
+                  params?.additionalHints
                 )
               }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-                await mainCtrl.portfolio.updateTokenPreferences(data.params.tokenPreferences)
+                await mainCtrl.portfolio.updateTokenPreferences(params.tokenPreferences)
                 return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
               }
               case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
@@ -787,8 +787,8 @@ async function init() {
               }
               case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
                 if (!mainCtrl.selectedAccount) return
-                return await mainCtrl.portfolio.checkTokenStandardEligibility(
-                  data.params.token,
+                return await mainCtrl.portfolio.updateTokenValidationByStandard(
+                  params.token,
                   mainCtrl.selectedAccount
                 )
               }
