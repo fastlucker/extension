@@ -19,6 +19,7 @@ interface Props {
   height?: number
   textProps?: TextProps
   minWidth?: number
+  maxLength?: number
 }
 
 const Editable: FC<Props> = ({
@@ -28,7 +29,8 @@ const Editable: FC<Props> = ({
   fontSize = 16,
   height = 30,
   textProps = {},
-  minWidth = 80
+  minWidth = 80,
+  maxLength = 20
 }) => {
   const { theme } = useTheme()
   const [value, setValue] = useState(defaultValue)
@@ -67,6 +69,7 @@ const Editable: FC<Props> = ({
             height,
             ...spacings.ph0
           }}
+          maxLength={maxLength}
           onChangeText={setValue}
           onSubmitEditing={handleSave}
           autoFocus

@@ -124,6 +124,7 @@ const Account = ({
                   appearance: 'secondaryText'
                 }}
                 minWidth={50}
+                maxLength={40}
               />
             )}
           </View>
