@@ -1,34 +1,58 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 // @ts-ignore
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import ManifestImage from '@web/components/ManifestImage'
+import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
+import NetworkDetails from '@web/components/NetworkDetails'
 import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import validateRequestParams from '@web/modules/notification-requests/screens/AddChainScreen/validateRequestParams'
 
-// Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
+import getStyles from './styles'
+
 const AddChainScreen = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-
+  const { currentNotificationRequest } = useNotificationControllerState()
+  const [areParamsValid, setAreParamsValid] = useState<boolean>(false)
+  const { maxWidthSize } = useWindowSize()
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])
+
+  useEffect(() => {
+    setAreParamsValid(
+      validateRequestParams(
+        currentNotificationRequest?.params?.method,
+        currentNotificationRequest?.params?.data?.[0]
+      )
+    )
+  }, [currentNotificationRequest?.params?.data, currentNotificationRequest?.params?.method])
+
+  console.log(currentNotificationRequest)
 
   return (
     <TabLayoutContainer
@@ -47,14 +71,120 @@ const AddChainScreen = () => {
               <CloseIcon color={theme.errorDecorative} />
             </View>
           </Button>
+          <Button
+            text={false ? t('Adding network...') : t('Add network')}
+            disabled={areParamsValid}
+            type="primary"
+            size="large"
+            hasBottomSpacing={false}
+            onPress={() => {}}
+          />
         </>
       }
     >
-      <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-          <Text fontSize={30}>Add Chain Screen</Text>
-          <Text fontSize={20}>(coming soon)</Text>
+      <TabLayoutWrapperMainContent
+        style={spacings.mbLg}
+        contentContainerStyle={[spacings.pvXl, { flexGrow: 1 }]}
+      >
+        <Text weight="medium" fontSize={20}>
+          {t('Add new network')}
+        </Text>
+
+        <View style={styles.dappInfoContainer}>
+          <View style={spacings.mbSm}>
+            <ManifestImage
+              uri={currentNotificationRequest?.params?.session?.icon}
+              size={50}
+              fallback={() => <ManifestFallbackIcon />}
+            />
+          </View>
+          <View style={styles.dappInfoContent}>
+            <View style={[flexbox.flex1, spacings.phLg]}>
+              <Trans
+                values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}
+              >
+                <Text style={text.center}>
+                  <Text fontSize={20} appearance="secondaryText">
+                    {t('Allow ')}
+                  </Text>
+                  <Text fontSize={20} weight="semiBold">
+                    {'{{name}} '}
+                  </Text>
+                  <Text fontSize={20} appearance="secondaryText">
+                    {t('to add a network')}
+                  </Text>
+                </Text>
+              </Trans>
+            </View>
+          </View>
         </View>
+        {!!areParamsValid && (
+          <View style={[flexbox.directionRow]}>
+            <View style={flexbox.flex1}>
+              <NetworkDetails
+                name={currentNotificationRequest?.params?.data?.[0]?.chainName}
+                iconUrl={
+                  currentNotificationRequest?.params?.data?.[0]?.iconUrls?.filter(
+                    (iconUrl: string) => !iconUrl.includes('.svg')
+                  )?.[0]
+                }
+                chainId={
+                  currentNotificationRequest?.params?.data?.[0]?.chainId
+                    ? Number(currentNotificationRequest?.params?.data?.[0]?.chainId).toString()
+                    : 'Invalid Chain ID'
+                }
+                rpcUrl={currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0]}
+                nativeAssetSymbol={
+                  currentNotificationRequest?.params?.data?.[0]?.nativeCurrency?.symbol
+                }
+                explorerUrl={currentNotificationRequest?.params?.data?.[0]?.blockExplorerUrls?.[0]}
+              />
+            </View>
+            <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
+            <View style={flexbox.flex1}>
+              <View style={spacings.mb}>
+                <Text fontSize={16} weight="semiBold" appearance="secondaryText">
+                  {t('Ambire Wallet does not verify custom networks.')}
+                </Text>
+                <Text>
+                  <Text fontSize={14} appearance="secondaryText">
+                    {t('Learn about ')}
+                  </Text>
+                  <Text
+                    underline
+                    fontSize={14}
+                    color={theme.primaryLight}
+                    onPress={() =>
+                      openInTab('https://help.ambire.com/hc/en-us/articles/13079237341596', false)
+                    }
+                  >
+                    {t('scams and networks security risks')}
+                  </Text>
+                  <Text fontSize={14} appearance="secondaryText">
+                    {t('.')}
+                  </Text>
+                </Text>
+              </View>
+              <NetworkAvailableFeatures
+                rpcUrl={currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0]}
+                chainId={currentNotificationRequest?.params?.data?.[0]?.chainId}
+              />
+            </View>
+          </View>
+        )}
+        {!areParamsValid && (
+          <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+            <Alert
+              title={t('Invalid Request Params')}
+              text={t(
+                `${
+                  currentNotificationRequest?.params?.session?.name || 'The dApp'
+                } provided invalid params for adding a new network.`
+              )}
+              type="error"
+            />
+          </View>
+        )}
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
   )
