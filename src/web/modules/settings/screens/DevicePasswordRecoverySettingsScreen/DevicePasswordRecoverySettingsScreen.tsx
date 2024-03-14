@@ -22,6 +22,8 @@ import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmatio
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
+import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import text from '@common/styles/utils/text'
 
 const DevicePasswordRecoverySettingsScreen = () => {
   const ev = useEmailVaultControllerState()
@@ -34,6 +36,8 @@ const DevicePasswordRecoverySettingsScreen = () => {
     open: openConfirmationModal,
     close: closeConfirmationModal
   } = useModalize()
+
+  const { ref: successModalRef, open: openSuccessModal, close: closeSuccessModal } = useModalize()
 
   const { dispatch } = useBackgroundService()
 
@@ -69,6 +73,12 @@ const DevicePasswordRecoverySettingsScreen = () => {
     }
     closeConfirmationModal()
   }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef.current])
+
+  useEffect(() => {
+    if (ev.latestMethodCall === 'uploadKeyStoreSecret' && ev.latestMethodStatus === 'DONE') {
+      openSuccessModal()
+    }
+  }, [openSuccessModal, ev.latestMethodCall, ev.latestMethodStatus])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(async () => {
@@ -186,6 +196,26 @@ const DevicePasswordRecoverySettingsScreen = () => {
       >
         <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
+      </BottomSheet>
+      <BottomSheet
+        id="backup-password-success-modal"
+        backgroundColor="primaryBackground"
+        sheetRef={successModalRef}
+        autoWidth
+      >
+        <ModalHeader title={t('Device Password Recovery')} />
+        <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
+        <Text fontSize={16} style={[spacings.mbLg, text.center]}>
+          {t('Your Device Password Recovery was successfully enabled!')}
+        </Text>
+        <Button
+          text={t('Got it')}
+          hasBottomSpacing={false}
+          style={{ minWidth: 232 }}
+          onPress={() => {
+            closeSuccessModal()
+          }}
+        />
       </BottomSheet>
     </>
   )
