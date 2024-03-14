@@ -39,7 +39,10 @@ const Editable: FC<Props> = ({
 
   const handleSave = () => {
     setIsEditing(false)
-    if (value === defaultValue) return
+    if (value === defaultValue || !value) {
+      setValue(defaultValue)
+      return
+    }
     onSave(value)
   }
 
@@ -110,14 +113,14 @@ const Editable: FC<Props> = ({
                 height={fontSize}
               />
             )}
-            {isEditing && value === defaultValue && (
+            {((isEditing && value === defaultValue) || !value) && (
               <CloseIcon
                 width={fontSize}
                 height={fontSize}
                 color={hovered ? theme.primaryText : theme.secondaryText}
               />
             )}
-            {isEditing && value !== defaultValue && (
+            {isEditing && value !== defaultValue && !!value && (
               <View style={{ opacity: hovered ? 0.9 : 1 }}>
                 <CheckIcon width={fontSize} height={fontSize} />
               </View>
