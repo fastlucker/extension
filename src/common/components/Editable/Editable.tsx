@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -29,6 +30,7 @@ const Editable: FC<Props> = ({
   textProps = {},
   minWidth = 80
 }) => {
+  const { theme } = useTheme()
   const [value, setValue] = useState(defaultValue)
   const [isEditing, setIsEditing] = useState(false)
   const [textWidth, setTextWidth] = useState(0)
@@ -96,9 +98,29 @@ const Editable: FC<Props> = ({
         }}
         style={[spacings.mlTy]}
       >
-        {!isEditing && <EditPenIcon width={fontSize} height={fontSize} />}
-        {isEditing && value === defaultValue && <CloseIcon width={fontSize} height={fontSize} />}
-        {isEditing && value !== defaultValue && <CheckIcon width={fontSize} height={fontSize} />}
+        {({ hovered }: any) => (
+          <>
+            {!isEditing && (
+              <EditPenIcon
+                color={hovered ? theme.primaryText : theme.secondaryText}
+                width={fontSize}
+                height={fontSize}
+              />
+            )}
+            {isEditing && value === defaultValue && (
+              <CloseIcon
+                width={fontSize}
+                height={fontSize}
+                color={hovered ? theme.primaryText : theme.secondaryText}
+              />
+            )}
+            {isEditing && value !== defaultValue && (
+              <View style={{ opacity: hovered ? 0.9 : 1 }}>
+                <CheckIcon width={fontSize} height={fontSize} />
+              </View>
+            )}
+          </>
+        )}
       </Pressable>
     </View>
   )
