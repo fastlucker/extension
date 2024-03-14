@@ -15,10 +15,10 @@ import Badge from '@common/components/Badge'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Pagination from '@common/components/Pagination'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -313,7 +313,7 @@ const AccountsOnPageList = ({
             />
           </View>
         )}
-        <Wrapper
+        <ScrollableWrapper
           style={shouldEnablePagination && spacings.mbLg}
           contentContainerStyle={{
             flexGrow: 1,
@@ -359,7 +359,7 @@ const AccountsOnPageList = ({
               )
             })
           )}
-        </Wrapper>
+        </ScrollableWrapper>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
             style={[

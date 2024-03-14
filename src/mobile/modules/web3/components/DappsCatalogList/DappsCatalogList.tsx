@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -117,7 +117,7 @@ const DappsCatalogList = () => {
   }
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       hasBottomTabNav
       type={WRAPPER_TYPES.FLAT_LIST}
       style={spacings.mbTy}
