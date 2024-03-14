@@ -4,19 +4,35 @@ import { Pressable, View } from 'react-native'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import Input from '../Input'
-import Text from '../Text'
+import Text, { Props as TextProps } from '../Text'
 
 interface Props {
   value: string
   fallbackValue?: string
   onSave: (value: string) => void
+  fontSize?: number
+  height?: number
+  textProps?: TextProps
+  minWidth?: number
+  maxLength?: number
 }
 
-const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled', onSave }) => {
+const Editable: FC<Props> = ({
+  value: defaultValue,
+  fallbackValue = 'Not labeled',
+  onSave,
+  fontSize = 16,
+  height = 30,
+  textProps = {},
+  minWidth = 80,
+  maxLength = 20
+}) => {
+  const { theme } = useTheme()
   const [value, setValue] = useState(defaultValue)
   const [isEditing, setIsEditing] = useState(false)
   const [textWidth, setTextWidth] = useState(0)
@@ -33,7 +49,7 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         flexbox.directionRow,
         flexbox.alignCenter,
         {
-          height: 36
+          height
         }
       ]}
     >
@@ -41,18 +57,19 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         <Input
           value={value}
           // Prevents the input from being too small
-          containerStyle={{ ...spacings.mb0, width: textWidth < 80 ? 80 : textWidth }}
+          containerStyle={{ ...spacings.mb0, width: textWidth < minWidth ? minWidth : textWidth }}
           inputWrapperStyle={{
-            height: 30,
+            height,
             backgroundColor: 'transparent'
           }}
           nativeInputStyle={{
-            fontSize: 16
+            fontSize
           }}
           inputStyle={{
-            height: 30,
+            height,
             ...spacings.ph0
           }}
+          maxLength={maxLength}
           onChangeText={setValue}
           onSubmitEditing={handleSave}
           autoFocus
@@ -60,7 +77,7 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         />
       ) : (
         <Text
-          fontSize={16}
+          fontSize={fontSize}
           appearance={!value ? 'secondaryText' : 'primaryText'}
           numberOfLines={1}
           // onLayout returns rounded numbers in react-native-web so there
@@ -69,6 +86,7 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
           onLayout={(e) => {
             setTextWidth(e.nativeEvent.layout.width)
           }}
+          {...textProps}
         >
           {value || fallbackValue}
         </Text>
@@ -83,9 +101,29 @@ const Editable: FC<Props> = ({ value: defaultValue, fallbackValue = 'Not labeled
         }}
         style={[spacings.mlTy]}
       >
-        {!isEditing && <EditPenIcon width={16} height={16} />}
-        {isEditing && value === defaultValue && <CloseIcon width={16} height={16} />}
-        {isEditing && value !== defaultValue && <CheckIcon width={16} height={16} />}
+        {({ hovered }: any) => (
+          <>
+            {!isEditing && (
+              <EditPenIcon
+                color={hovered ? theme.primaryText : theme.secondaryText}
+                width={fontSize}
+                height={fontSize}
+              />
+            )}
+            {isEditing && value === defaultValue && (
+              <CloseIcon
+                width={fontSize}
+                height={fontSize}
+                color={hovered ? theme.primaryText : theme.secondaryText}
+              />
+            )}
+            {isEditing && value !== defaultValue && (
+              <View style={{ opacity: hovered ? 0.9 : 1 }}>
+                <CheckIcon width={fontSize} height={fontSize} />
+              </View>
+            )}
+          </>
+        )}
       </Pressable>
     </View>
   )
