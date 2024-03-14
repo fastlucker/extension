@@ -4,6 +4,7 @@ import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -50,9 +51,10 @@ const standardOptions = {
 
 interface Props {
   onOpenExplorer?: () => void
+  settingsNetworks?: NetworkDescriptor[]
 }
 
-const useBenzin = ({ onOpenExplorer }: Props = {}) => {
+const useBenzin = ({ onOpenExplorer, settingsNetworks }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
 
@@ -61,7 +63,8 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const userOpHash = params.get('userOpHash') ?? null
   const isRenderedInternally = typeof params.get('isInternal') === 'string'
   const networkId = params.get('networkId')
-  const network = networks.find((n) => n.id === networkId)
+  const useNetworks = settingsNetworks ?? networks
+  const network = useNetworks.find((n) => n.id === networkId)
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 

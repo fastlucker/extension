@@ -19,6 +19,11 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
 
+  if (!state?.network) {
+    // @TODO
+    return <Text>Loading...</Text>
+  }
+
   if (!state?.network || (!state?.txnId && !state?.userOpHash)) {
     // @TODO
     return <Text>Error loading transaction</Text>
