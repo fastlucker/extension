@@ -4,16 +4,15 @@ import { View, ViewStyle } from 'react-native'
 
 import { Banner } from '@ambire-common/interfaces/banner'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { engine } from '@web/constants/browserapi'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
@@ -36,8 +35,6 @@ const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0, display: 'no
 const { isPopup } = getUiType()
 
 const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPreferences }: Props) => {
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
   const { theme } = useTheme()
   const route = useRoute()
   const { t } = useTranslation()
@@ -106,8 +103,6 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
         }),
     [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
-
-  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
 
   const SECTIONS_DATA = useMemo(
     () => [
@@ -220,14 +215,12 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
   )
 
   return (
-    <Wrapper
+    <ScrollableWrapper
       type={WRAPPER_TYPES.SECTION_LIST}
       style={[spacings.ph0, commonWebStyles.contentContainer, !allBanners.length && spacings.mtTy]}
       contentContainerStyle={[
-        spacings.ph0,
         isPopup && spacings.phSm,
         allBanners.length ? spacings.ptTy : spacings.pt0,
-        hasScroll && engine !== 'gecko' && spacings.prMi,
         { flexGrow: 1 }
       ]}
       sections={SECTIONS_DATA}
@@ -235,12 +228,6 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
       renderItem={({ section: { renderItem } }: any) => renderItem}
       renderSectionHeader={({ section: { header } }) => header || null}
       stickySectionHeadersEnabled
-      onLayout={(e) => {
-        setContainerHeight(e.nativeEvent.layout.height)
-      }}
-      onContentSizeChange={(_, height) => {
-        setContentHeight(height)
-      }}
     />
   )
 }

@@ -1,4 +1,4 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -8,6 +8,7 @@ import flexbox from '@common/styles/utils/flexbox'
 interface Style {
   container: ViewStyle
   networkIcon: ViewStyle
+  label: TextStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -28,6 +29,10 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.primaryBackground,
       borderColor: theme.secondaryBorder,
       borderWidth: 1
+    },
+    label: {
+      fontSize: 12,
+      textTransform: 'none'
     }
   })
 

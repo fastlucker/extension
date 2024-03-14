@@ -4,10 +4,10 @@ import { StyleSheet, View } from 'react-native'
 import { DappManifestData } from '@ambire-common-v1/hooks/useDapps'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -47,7 +47,7 @@ const PermissionRequest = ({
   }
 
   return (
-    <Wrapper hasBottomTabNav={false} style={isInBottomSheet && spacings.ph0}>
+    <ScrollableWrapper hasBottomTabNav={false} style={isInBottomSheet && spacings.ph0}>
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <DappIcon iconUrl={selectedDapp.iconUrl} />
@@ -80,7 +80,7 @@ const PermissionRequest = ({
           text={isAuthorizing ? t('Authorizing...') : t('Authorize')}
         />
       </Panel>
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

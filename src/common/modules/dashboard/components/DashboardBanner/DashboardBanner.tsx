@@ -76,7 +76,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
       }
 
       if (action.actionName === 'backup-keystore-secret') {
-        navigate(ROUTES.devicePassword)
+        navigate(ROUTES.devicePasswordRecovery)
       }
     },
     [dispatch, addToast, navigate, type]
@@ -112,7 +112,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
               style={[spacings.mlTy, spacings.ph, isReject && { borderWidth: 0 }, { minWidth: 80 }]}
               hasBottomSpacing={false}
               onPress={() => handleActionPress(action)}
-              type={isReject ? 'ghost' : type}
+              type={isReject ? 'ghost' : 'primary'}
             />
           )
         })}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
@@ -6,32 +6,41 @@ import { isWeb } from '@common/config/env'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import { HEADER_HEIGHT } from '@common/modules/header/components/Header/styles'
+import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import { Portal } from '@gorhom/portal'
+import useIsScrollable from '@web/hooks/useIsScrollable'
+import { getUiType } from '@web/utils/uiType'
 
 import Backdrop from './Backdrop'
 import getStyles from './styles'
 
 interface Props {
-  id?: string
+  id: string
   sheetRef: React.RefObject<Modalize>
-  closeBottomSheet: (dest?: 'alwaysOpen' | 'default' | undefined) => void
+  closeBottomSheet?: (dest?: 'alwaysOpen' | 'default' | undefined) => void
   onBackdropPress?: () => void
   onClosed?: () => void
   children?: React.ReactNode
   // Preferences
+  type?: 'modal' | 'bottom-sheet'
   adjustToContentHeight?: boolean
   style?: ViewStyle
   containerInnerWrapperStyles?: ViewStyle
   flatListProps?: ModalizeProps['flatListProps']
   scrollViewProps?: ModalizeProps['scrollViewProps']
+  backgroundColor?: 'primaryBackground' | 'secondaryBackground'
+  autoWidth?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
 
+const { isPopup } = getUiType()
+
 const BottomSheet: React.FC<Props> = ({
-  // Useful for debugging and generally knowing which bottom sheet is triggered
-  // eslint-disable-next-line
+  // Unique identifier for the bottom sheet
   id,
+  type: _type,
   sheetRef,
   children,
   closeBottomSheet = () => {},
@@ -41,12 +50,18 @@ const BottomSheet: React.FC<Props> = ({
   onClosed,
   onBackdropPress,
   flatListProps,
-  scrollViewProps
+  scrollViewProps,
+  backgroundColor = 'secondaryBackground',
+  autoWidth = false
 }) => {
+  const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
+  const isModal = type === 'modal'
+  const { styles, theme } = useTheme(getStyles)
   const [isOpen, setIsOpen] = useState(false)
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
-  const { styles } = useTheme(getStyles)
+  const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
+
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
       setTimeout(() => {
@@ -75,6 +90,13 @@ const BottomSheet: React.FC<Props> = ({
     return () => backHandler.remove()
   }, [closeBottomSheet, isOpen])
 
+  const modalTopOffset = useMemo(() => {
+    if (isPopup && isModal) return 0
+    if (isWeb) return HEADER_HEIGHT - 20
+
+    return HEADER_HEIGHT + 10
+  }, [isModal])
+
   return (
     <Portal hostName="global">
       {!!isBackdropVisible && (
@@ -88,14 +110,34 @@ const BottomSheet: React.FC<Props> = ({
         />
       )}
       <Modalize
+        // The key is used to force the re-render of the component when there is an opened
+        // bottom sheet and the user navigates to a route that also has a bottom sheet. Without
+        // this key or without a unique key, the bottom sheet will not close when navigating
+        key={id}
         ref={sheetRef}
-        modalStyle={[styles.bottomSheet, style]}
-        rootStyle={styles.root}
-        handleStyle={styles.dragger}
+        contentRef={scrollViewRef}
+        modalStyle={[
+          styles.bottomSheet,
+          isModal
+            ? { ...styles.modal, ...(autoWidth ? { maxWidth: 'unset', width: 'auto' } : {}) }
+            : {},
+          { backgroundColor: theme[backgroundColor] },
+          isPopup && isModal ? { height: '100%' } : {},
+          style
+        ]}
+        rootStyle={[styles.root, isPopup && isModal ? spacings.phSm : {}]}
+        handleStyle={[
+          styles.dragger,
+          isModal
+            ? {
+                display: 'none'
+              }
+            : {}
+        ]}
         handlePosition="inside"
         useNativeDriver={!isWeb}
         avoidKeyboardLikeIOS
-        modalTopOffset={isWeb ? HEADER_HEIGHT - 20 : HEADER_HEIGHT + 10}
+        modalTopOffset={modalTopOffset}
         threshold={90}
         adjustToContentHeight={adjustToContentHeight}
         disableScrollIfPossible={false}
@@ -115,7 +157,6 @@ const BottomSheet: React.FC<Props> = ({
               flatListProps: {
                 bounces: false,
                 keyboardShouldPersistTaps: 'handled',
-                contentContainerStyle: styles.containerInnerWrapper,
                 ...(flatListProps || {})
               }
             }
@@ -126,6 +167,7 @@ const BottomSheet: React.FC<Props> = ({
         closeAnimationConfig={{
           timing: { duration: ANIMATION_DURATION, delay: 0 }
         }}
+        onLayout={checkIsScrollable}
         onOpen={() => {
           setIsOpen(true)
           setIsBackdropVisible(true)
@@ -134,7 +176,13 @@ const BottomSheet: React.FC<Props> = ({
         onClosed={() => !!onClosed && onClosed()}
       >
         {!flatListProps && (
-          <View style={[styles.containerInnerWrapper, containerInnerWrapperStyles]}>
+          <View
+            style={[
+              isScrollable ? spacings.prTy : {},
+              common.fullWidth,
+              containerInnerWrapperStyles
+            ]}
+          >
             {children}
           </View>
         )}

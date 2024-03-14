@@ -11,6 +11,8 @@ interface KeyIteratorProps {
  * Serves for retrieving a range of addresses/keys from a Trezor hardware wallet
  */
 class TrezorKeyIterator implements KeyIteratorInterface {
+  type = 'trezor'
+
   walletSDK: KeyIteratorProps['walletSDK']
 
   constructor({ walletSDK }: KeyIteratorProps) {

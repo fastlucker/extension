@@ -1,0 +1,3 @@
+import DevicePasswordRecoverySettingsScreen from './DevicePasswordRecoverySettingsScreen'
+
+export default DevicePasswordRecoverySettingsScreen

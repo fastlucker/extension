@@ -8,11 +8,11 @@ import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import Option from './Option/Option'
@@ -24,19 +24,25 @@ interface Props {
   selectedNetworkId: NetworkDescriptor['id'] | null
   openBlockExplorer: (url?: string) => void
 }
+
 const NetworkBottomSheet = ({
   sheetRef,
   closeBottomSheet,
   selectedNetworkId,
   openBlockExplorer
 }: Props) => {
+  const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
   const { networks } = useSettingsControllerState()
   const networkData = networks.find((network) => network.id === selectedNetworkId)
 
   return (
-    <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+    <BottomSheet
+      id="dashboard-networks-network"
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+    >
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
         {/* @ts-ignore */}
         <NetworkIcon width={32} height={32} name={selectedNetworkId} />
@@ -47,13 +53,11 @@ const NetworkBottomSheet = ({
       <Option
         renderIcon={<SettingsIcon width={27} height={27} color={theme.secondaryText} />}
         text="Go to Network Settings"
-        onPress={async () => {
+        onPress={() => {
           try {
-            await openInternalPageInTab(
-              `${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`
-            )
+            navigate(`${WEB_ROUTES.networksSettings}?networkId=${selectedNetworkId}`)
           } catch {
-            addToast('Failed to open network settings in a new tab.', { type: 'error' })
+            addToast('Failed to open network settings.', { type: 'error' })
           }
         }}
       />

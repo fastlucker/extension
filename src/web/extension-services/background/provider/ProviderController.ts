@@ -15,8 +15,9 @@ import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import permissionService from '@web/extension-services/background/services/permission'
-import sessionService, { Session } from '@web/extension-services/background/services/session'
+import { Session } from '@web/extension-services/background/services/session'
 
 interface RequestRes {
   type?: string
@@ -61,8 +62,17 @@ const handleSignMessage = (requestRes: RequestRes) => {
 export class ProviderController {
   mainCtrl: MainController
 
-  constructor(mainCtrl: MainController) {
+  dappsCtrl: DappsController
+
+  isUnlocked: boolean
+
+  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
     this.mainCtrl = mainCtrl
+    this.dappsCtrl = dappsCtrl
+
+    this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
+      ? this.mainCtrl.keystore.isUnlocked
+      : true
   }
 
   getDappNetwork = (origin: string) => {
@@ -98,19 +108,19 @@ export class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
     const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
-    sessionService.broadcastEvent('accountsChanged', account)
+    this.dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
 
@@ -118,7 +128,7 @@ export class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }: any) => {
-    if (!permissionService.hasPermission(origin)) {
+    if (!permissionService.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
 
@@ -257,7 +267,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    sessionService.broadcastEvent(
+    this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -305,7 +315,7 @@ export class ProviderController {
     }
 
     permissionService.updateConnectSite(origin, { chainId }, true)
-    sessionService.broadcastEvent(
+    this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -336,7 +346,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }) => {
     const result: Web3WalletPermission[] = []
-    if (permissionService.getConnectedSite(origin) && this.mainCtrl.keystore.isUnlocked) {
+    if (permissionService.getConnectedSite(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

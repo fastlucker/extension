@@ -2,7 +2,6 @@ import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
-import AddIcon from '@common/assets/svg/AddIcon'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -33,11 +32,6 @@ const ConfirmAddress = ({
     !!isRecipientAddressUnknown &&
     addressValidationMsg !== 'Invalid address.' ? (
     <View>
-      <Checkbox
-        value={isRecipientAddressUnknownAgreed}
-        onValueChange={onRecipientAddressUnknownCheckboxClick}
-        label={t('Confirm sending to a previously unknown address')}
-      />
       <TouchableOpacity
         onPress={onAddToAddressBook}
         // @TODO: implement address book
@@ -48,6 +42,13 @@ const ConfirmAddress = ({
           {t('+ Add it to the address book')}
         </Text>
       </TouchableOpacity>
+      {!!isRecipientAddressUnknown && (
+        <Checkbox
+          value={isRecipientAddressUnknownAgreed}
+          onValueChange={onRecipientAddressUnknownCheckboxClick}
+          label={t('Confirm sending to a previously unknown address')}
+        />
+      )}
     </View>
   ) : null
 }

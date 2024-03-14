@@ -210,15 +210,17 @@ export class NotificationController extends EventEmitter {
           data?.hash &&
           data?.networkId
         ) {
+          const params = {
+            method: BENZIN_NOTIFICATION_DATA.method,
+            networkId: notificationRequest.networkId,
+            txnId: null,
+            userOpHash: null
+          }
+          data?.isUserOp ? (params.userOpHash = data.hash) : (params.txnId = data.hash)
           this.requestNotificationRequest(
             {
               screen: BENZIN_NOTIFICATION_DATA.screen,
-              params: {
-                method: BENZIN_NOTIFICATION_DATA.method,
-                networkId: notificationRequest.networkId,
-                txnId: data.hash,
-                isUserOp: !!data?.isUserOp
-              },
+              params,
               resolve: () => {},
               reject: () => {}
             },

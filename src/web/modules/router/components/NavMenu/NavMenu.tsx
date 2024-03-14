@@ -25,6 +25,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 import { SETTINGS_LINKS } from '@web/modules/settings/components/Sidebar/Sidebar'
@@ -35,7 +36,7 @@ import getStyles from './styles'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
 const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://discord.gg/QQb4xc4ksJ'
+const DISCORD_URL = 'https://www.ambire.com/discord'
 
 const SOCIAL = [
   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },
@@ -50,6 +51,7 @@ const NavMenu = () => {
   const { navigate } = useNavigation()
   const { styles, theme } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
+  const { hasPasswordSecret } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const walletState = useWalletStateController()
 
@@ -92,17 +94,19 @@ const NavMenu = () => {
               </Text>
             </View>
             <View style={[headerStyles.sideContainer, { width: 130 }]}>
-              <Button
-                text="Lock Ambire"
-                type="secondary"
-                size="small"
-                hasBottomSpacing={false}
-                childrenPosition="left"
-                style={{ minHeight: 32 }}
-                onPress={handleLockAmbire}
-              >
-                <LockFilledIcon style={spacings.mrTy} color={theme.primary} />
-              </Button>
+              {hasPasswordSecret && (
+                <Button
+                  text="Lock Ambire"
+                  type="secondary"
+                  size="small"
+                  hasBottomSpacing={false}
+                  childrenPosition="left"
+                  style={{ minHeight: 32 }}
+                  onPress={handleLockAmbire}
+                >
+                  <LockFilledIcon style={spacings.mrTy} color={theme.primary} />
+                </Button>
+              )}
             </View>
           </View>
         </Header>

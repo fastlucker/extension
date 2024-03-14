@@ -20,10 +20,11 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
-  const { updateStepperState } = useStepper()
   const {
     control,
     handleSubmit,
@@ -34,28 +35,45 @@ const PrivateKeyImportScreen = () => {
       privateKey: ''
     }
   })
+  const { updateStepperState } = useStepper()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { dispatch } = useBackgroundService()
+  const accountAdderCtrlState = useAccountAdderControllerState()
 
   useEffect(() => {
     updateStepperState(WEB_ROUTES.importPrivateKey, 'private-key')
   }, [updateStepperState])
 
+  useEffect(() => {
+    if (
+      accountAdderCtrlState.isInitialized &&
+      // The AccountAdder could have been already initialized with the same or a
+      // different type. Navigate immediately only if the types match.
+      accountAdderCtrlState.type === 'internal' &&
+      accountAdderCtrlState.subType === 'private-key'
+    )
+      navigate(WEB_ROUTES.accountAdder)
+  }, [
+    accountAdderCtrlState.isInitialized,
+    accountAdderCtrlState.subType,
+    accountAdderCtrlState.type,
+    navigate
+  ])
+
   const handleFormSubmit = useCallback(async () => {
     await handleSubmit(({ privateKey }) => {
-      let formattedPrivateKey = privateKey.trim()
+      const trimmedPrivateKey = privateKey.trim()
+      const noPrefixPrivateKey =
+        trimmedPrivateKey.slice(0, 2) === '0x' ? trimmedPrivateKey.slice(2) : trimmedPrivateKey
 
-      formattedPrivateKey = privateKey.slice(0, 2) === '0x' ? privateKey.slice(2) : privateKey
-
-      navigate(WEB_ROUTES.accountAdder, {
-        state: {
-          keyType: 'internal',
-          privKeyOrSeed: formattedPrivateKey
-        }
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE',
+        params: { privKeyOrSeed: noPrefixPrivateKey }
       })
     })()
-  }, [handleSubmit, navigate])
+  }, [dispatch, handleSubmit])
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()

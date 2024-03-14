@@ -122,6 +122,7 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
   return (
     <View {...rest}>
       <BottomSheet
+        id="token-details"
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
         onClosed={handleTokenDetailsClose}

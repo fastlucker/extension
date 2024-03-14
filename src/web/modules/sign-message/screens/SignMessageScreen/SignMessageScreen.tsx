@@ -2,10 +2,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
@@ -48,6 +50,7 @@ const SignMessageScreen = () => {
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
+  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { currentNotificationRequest } = useNotificationControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -234,6 +237,19 @@ const SignMessageScreen = () => {
     signMessageState.messageToSign
   ])
 
+  useEffect(() => {
+    if (
+      signMessageState.signingKeyType &&
+      signMessageState.signingKeyType !== 'internal' &&
+      signMessageState.status === 'LOADING'
+    ) {
+      openHwModal()
+      return
+    }
+
+    closeHwModal()
+  }, [signMessageState.signingKeyType, signMessageState.status, openHwModal, closeHwModal])
+
   if (!Object.keys(signMessageState).length) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
@@ -297,10 +313,8 @@ const SignMessageScreen = () => {
             </View>
           </Button>
 
-          {isScrollToBottomForced && !isViewOnly ? (
-            <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
-              {t('Please read the message before signing.')}
-            </Text>
+          {isScrollToBottomForced && !isViewOnly && shouldShowFallback ? (
+            <Alert type="error" text={t('Please, read the entire message before signing it.')} />
           ) : null}
           {isViewOnly ? (
             <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
@@ -349,9 +363,9 @@ const SignMessageScreen = () => {
           ) : (
             <Text>Loading</Text>
           )}
-          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
+          {!!signMessageState.signingKeyType && (
             <HardwareWalletSigningModal
-              isOpen={signMessageState.status === 'LOADING'}
+              modalRef={hwModalRef}
               keyType={signMessageState.signingKeyType}
               onReject={handleReject}
             />
