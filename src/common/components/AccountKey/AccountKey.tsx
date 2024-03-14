@@ -98,7 +98,7 @@ const AccountKey: React.FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {/* Keys that aren't imported can't be labeled */}
         {isImported && enableEditing ? (
-          <Editable value={label || ''} onSave={editKeyLabel} />
+          <Editable value={label || ''} onSave={editKeyLabel} maxLength={40} />
         ) : (
           <Text>{label}</Text>
         )}
