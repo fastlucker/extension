@@ -75,7 +75,7 @@ const DevicePasswordRecoverySettingsScreen = () => {
   }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef.current])
 
   useEffect(() => {
-    if (ev.latestMethodCall === 'uploadKeyStoreSecret' && ev.latestMethodStatus === 'DONE') {
+    if (ev.latestMethodCall === 'uploadKeyStoreSecret' && ev.latestMethodStatus === 'SUCCESS') {
       openSuccessModal()
     }
   }, [openSuccessModal, ev.latestMethodCall, ev.latestMethodStatus])
