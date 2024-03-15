@@ -92,7 +92,7 @@ const Account = ({
           </View>
           <View>
             <View style={flexboxStyles.directionRow}>
-              <Text fontSize={isTab ? 16 : 14} weight="regular">
+              <Text selectable fontSize={isTab ? 16 : 14} weight="regular">
                 {maxAccountAddrLength ? shortenAddress(addr, maxAccountAddrLength) : addr}
               </Text>
 
