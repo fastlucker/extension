@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-// @ts-ignore
+import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
@@ -25,6 +25,7 @@ import {
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import validateRequestParams from '@web/modules/notification-requests/screens/AddChainScreen/validateRequestParams'
 
 import getStyles from './styles'
@@ -36,12 +37,35 @@ const AddChainScreen = () => {
   const { currentNotificationRequest } = useNotificationControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
+  const { status, latestMethodCall } = useSettingsControllerState()
+
+  const networkDetails: CustomNetwork | undefined = useMemo(() => {
+    if (!areParamsValid || !currentNotificationRequest?.params?.data) return undefined
+
+    return {
+      name: currentNotificationRequest?.params?.data?.[0]?.chainName,
+      rpcUrl: currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0],
+      chainId: BigInt(currentNotificationRequest?.params?.data?.[0]?.chainId),
+      nativeAssetSymbol: currentNotificationRequest?.params?.data?.[0]?.nativeCurrency?.symbol,
+      explorerUrl: currentNotificationRequest?.params?.data?.[0]?.blockExplorerUrls?.[0],
+      iconUrls: currentNotificationRequest?.params?.data?.[0]?.iconUrls
+    } as CustomNetwork
+  }, [areParamsValid, currentNotificationRequest?.params?.data])
+
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])
+
+  const handleAddNetworkButtonPress = useCallback(() => {
+    if (!networkDetails) return
+    dispatch({
+      type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
+      params: networkDetails
+    })
+  }, [dispatch, networkDetails])
 
   useEffect(() => {
     setAreParamsValid(
@@ -52,7 +76,14 @@ const AddChainScreen = () => {
     )
   }, [currentNotificationRequest?.params?.data, currentNotificationRequest?.params?.method])
 
-  console.log(currentNotificationRequest)
+  useEffect(() => {
+    if (latestMethodCall === 'addCustomNetwork' && status === 'SUCCESS') {
+      dispatch({
+        type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+        params: { data: null }
+      })
+    }
+  }, [dispatch, latestMethodCall, status])
 
   return (
     <TabLayoutContainer
@@ -72,12 +103,18 @@ const AddChainScreen = () => {
             </View>
           </Button>
           <Button
-            text={false ? t('Adding network...') : t('Add network')}
-            disabled={areParamsValid}
+            text={
+              latestMethodCall === 'addCustomNetwork' && status === 'LOADING'
+                ? t('Adding network...')
+                : t('Add network')
+            }
+            disabled={
+              !areParamsValid || (latestMethodCall === 'addCustomNetwork' && status === 'LOADING')
+            }
             type="primary"
             size="large"
             hasBottomSpacing={false}
-            onPress={() => {}}
+            onPress={handleAddNetworkButtonPress}
           />
         </>
       }
@@ -118,26 +155,18 @@ const AddChainScreen = () => {
             </View>
           </View>
         </View>
-        {!!areParamsValid && (
+        {!!areParamsValid && !!networkDetails && (
           <View style={[flexbox.directionRow]}>
             <View style={flexbox.flex1}>
               <NetworkDetails
                 name={currentNotificationRequest?.params?.data?.[0]?.chainName}
                 iconUrl={
-                  currentNotificationRequest?.params?.data?.[0]?.iconUrls?.filter(
-                    (iconUrl: string) => !iconUrl.includes('.svg')
-                  )?.[0]
+                  networkDetails?.iconUrls?.filter((url: string) => !url.includes('.svg'))?.[0]
                 }
-                chainId={
-                  currentNotificationRequest?.params?.data?.[0]?.chainId
-                    ? Number(currentNotificationRequest?.params?.data?.[0]?.chainId).toString()
-                    : 'Invalid Chain ID'
-                }
-                rpcUrl={currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0]}
-                nativeAssetSymbol={
-                  currentNotificationRequest?.params?.data?.[0]?.nativeCurrency?.symbol
-                }
-                explorerUrl={currentNotificationRequest?.params?.data?.[0]?.blockExplorerUrls?.[0]}
+                chainId={Number(networkDetails.chainId).toString()}
+                rpcUrl={networkDetails.rpcUrl}
+                nativeAssetSymbol={networkDetails.nativeAssetSymbol}
+                explorerUrl={networkDetails.explorerUrl}
               />
             </View>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
@@ -166,13 +195,13 @@ const AddChainScreen = () => {
                 </Text>
               </View>
               <NetworkAvailableFeatures
-                rpcUrl={currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0]}
-                chainId={currentNotificationRequest?.params?.data?.[0]?.chainId}
+                rpcUrl={networkDetails.rpcUrl}
+                chainId={Number(networkDetails.chainId).toString()}
               />
             </View>
           </View>
         )}
-        {!areParamsValid && (
+        {(!areParamsValid || !networkDetails) && (
           <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
             <Alert
               title={t('Invalid Request Params')}

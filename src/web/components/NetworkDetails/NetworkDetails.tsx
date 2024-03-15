@@ -18,7 +18,7 @@ import getStyles from './styles'
 
 type Props = {
   name: string
-  iconUrl: string
+  iconUrl?: string
   rpcUrl: string
   chainId: string
   explorerUrl: string
@@ -60,7 +60,7 @@ const NetworkDetails = ({
           </Text>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {title === 'Network Name' && (
-              <View style={spacings.mrTy}>
+              <View style={spacings.mrMi}>
                 <ManifestImage
                   uri={iconUrl || ''}
                   size={32}
