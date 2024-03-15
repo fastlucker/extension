@@ -452,7 +452,7 @@ const useSteps = ({
     pendingTime,
     userOpStatusData,
     txnId: userOpStatusData.txnId ?? txnId,
-    from: txn?.from || userOp?.sender || txnReceipt.from
+    from: userOp?.sender || txn?.from || txnReceipt.from
   }
 }
 
