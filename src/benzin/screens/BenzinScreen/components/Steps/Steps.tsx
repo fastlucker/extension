@@ -31,7 +31,7 @@ const Steps: FC<Props> = ({
   handleOpenExplorer,
   stepsState
 }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls } = stepsState
+  const { nativePrice, blockData, finalizedStatus, cost, calls, from } = stepsState
 
   const stepRows: any = [
     {
@@ -43,6 +43,13 @@ const Steps: FC<Props> = ({
       value: getFee(cost, network, nativePrice, finalizedStatus)
     }
   ]
+
+  if (from) {
+    stepRows.push({
+      label: 'From',
+      value: from
+    })
+  }
 
   if (txnId) {
     stepRows.push({
