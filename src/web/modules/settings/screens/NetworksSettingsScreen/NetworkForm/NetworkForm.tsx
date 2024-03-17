@@ -4,7 +4,7 @@ import { Controller, useForm, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
-import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
+// import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
 import { SINGLETON } from '@ambire-common/consts/deploy'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -28,6 +28,8 @@ import {
   handleErrors
 } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
 import INPUT_FIELDS from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/inputFields'
+
+import { deployContractsBytecode } from './oldDeployParams'
 
 type NetworkFormType = UseFormReturn<
   {
@@ -148,7 +150,14 @@ const NetworkForm = ({
 
     // run a simulation, take the contract addresses and verify there's no code there
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const helperAddr = getCreate2Address(SINGLETON, salt, keccak256(DeployHelper.bin))
+    // MAJOR TODO<BOBBY>:
+    // Currently, we support the old smart accounts that do not have the latest
+    // ambire contracts code. To have the same contracts accross networks, we
+    // need to deploy not the latest, but a cached version of our contracts.
+    // Once the final version of the contracts comes, we have to fix this
+    // const bytecode = DeployHelper.bin
+    const bytecode = deployContractsBytecode
+    const helperAddr = getCreate2Address(SINGLETON, salt, keccak256(bytecode))
     const provider = new JsonRpcProvider(selectedNetwork.rpcUrl)
     provider
       .getCode(helperAddr)
@@ -212,7 +221,13 @@ const NetworkForm = ({
     }
 
     const network = selectedNetwork ?? networks.find((net) => net.id === selectedNetworkId)!
-    const bytecode = DeployHelper.bin
+    // MAJOR TODO<BOBBY>:
+    // Currently, we support the old smart accounts that do not have the latest
+    // ambire contracts code. To have the same contracts accross networks, we
+    // need to deploy not the latest, but a cached version of our contracts.
+    // Once the final version of the contracts comes, we have to fix this
+    // const bytecode = DeployHelper.bin
+    const bytecode = deployContractsBytecode
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
     const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
     const singletonABI = [
