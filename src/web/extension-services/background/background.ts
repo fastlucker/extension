@@ -509,6 +509,9 @@ async function init() {
               case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
               }
+              case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
+                return mainCtrl.settings.setNetworkToAddOrUpdate(params)
+              }
               case 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK': {
                 return await mainCtrl.settings.addCustomNetwork(params)
               }

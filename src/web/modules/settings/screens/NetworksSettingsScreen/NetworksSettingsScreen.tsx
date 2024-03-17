@@ -7,6 +7,7 @@ import { useModalize } from 'react-native-modalize'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
@@ -98,12 +99,11 @@ const NetworksSettingsScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="Networks">
-        <Search placeholder="Search for network" control={control} />
-      </SettingsPageHeader>
+      <SettingsPageHeader title="Networks" />
       <View style={[flexbox.directionRow, flexbox.flex1]}>
         <View style={[flexbox.flex1]}>
-          <View style={spacings.mbLg}>
+          <Search placeholder="Search for network" control={control} />
+          <ScrollableWrapper style={spacings.mbLg}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
                 <Network
@@ -118,7 +118,7 @@ const NetworksSettingsScreen = () => {
                 {t('No networks found. Try searching for a different network.')}
               </Text>
             )}
-          </View>
+          </ScrollableWrapper>
           <Button
             type="secondary"
             text={t('Add custom network')}

@@ -3,7 +3,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
+import { getFeatures } from '@ambire-common/libs/settings/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
@@ -37,7 +39,8 @@ const AddChainScreen = () => {
   const { currentNotificationRequest } = useNotificationControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
-  const { status, latestMethodCall } = useSettingsControllerState()
+  const { status, latestMethodCall, networkToAddOrUpdate } = useSettingsControllerState()
+  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, false))
 
   const networkDetails: CustomNetwork | undefined = useMemo(() => {
     if (!areParamsValid || !currentNotificationRequest?.params?.data) return undefined
@@ -51,6 +54,23 @@ const AddChainScreen = () => {
       iconUrls: currentNotificationRequest?.params?.data?.[0]?.iconUrls
     } as CustomNetwork
   }, [areParamsValid, currentNotificationRequest?.params?.data])
+
+  useEffect(() => {
+    if (networkDetails) {
+      dispatch({
+        type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+        params: {
+          chianId: networkDetails.chainId,
+          rpcUrl: networkDetails.rpcUrl
+        }
+      })
+    }
+  }, [dispatch, networkDetails])
+
+  useEffect(() => {
+    const featuresRes = getFeatures(networkToAddOrUpdate?.info, false)
+    setFeatures(featuresRes)
+  }, [networkToAddOrUpdate?.info])
 
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
@@ -109,7 +129,11 @@ const AddChainScreen = () => {
                 : t('Add network')
             }
             disabled={
-              !areParamsValid || (latestMethodCall === 'addCustomNetwork' && status === 'LOADING')
+              !areParamsValid ||
+              (latestMethodCall === 'addCustomNetwork' && status === 'LOADING') ||
+              (features &&
+                (features.some((f) => f.level === 'loading') ||
+                  !!features.filter((f) => f.id === 'flagged')[0]))
             }
             type="primary"
             size="large"
@@ -194,10 +218,7 @@ const AddChainScreen = () => {
                   </Text>
                 </Text>
               </View>
-              <NetworkAvailableFeatures
-                rpcUrl={networkDetails.rpcUrl}
-                chainId={Number(networkDetails.chainId).toString()}
-              />
+              <NetworkAvailableFeatures features={features} />
             </View>
           </View>
         )}
