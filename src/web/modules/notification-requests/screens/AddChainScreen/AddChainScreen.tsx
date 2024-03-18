@@ -60,7 +60,7 @@ const AddChainScreen = () => {
       dispatch({
         type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
         params: {
-          chianId: networkDetails.chainId,
+          chainId: networkDetails.chainId,
           rpcUrl: networkDetails.rpcUrl
         }
       })
