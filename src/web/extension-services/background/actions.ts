@@ -95,6 +95,10 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   }
 }
 
+type SettingsControllerResetNetworkToAddOrUpdate = {
+  type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE'
+}
+
 type SettingsControllerAddCustomNetwork = {
   type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK'
   params: CustomNetwork
@@ -328,6 +332,7 @@ export type Action =
   | MainControllerAccountAdderResetIfNeeded
   | SettingsControllerAddAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
+  | SettingsControllerResetNetworkToAddOrUpdate
   | SettingsControllerAddCustomNetwork
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference

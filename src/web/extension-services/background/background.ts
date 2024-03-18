@@ -512,6 +512,9 @@ async function init() {
               case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
                 return mainCtrl.settings.setNetworkToAddOrUpdate(params)
               }
+              case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
+                return mainCtrl.settings.setNetworkToAddOrUpdate(null)
+              }
               case 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK': {
                 return await mainCtrl.settings.addCustomNetwork(params)
               }
