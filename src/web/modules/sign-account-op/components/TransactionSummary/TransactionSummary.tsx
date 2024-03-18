@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { formatUnits } from 'ethers'
+import { formatUnits, getAddress } from 'ethers'
 import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
@@ -10,6 +10,7 @@ import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
@@ -18,6 +19,7 @@ import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import getStyles from './styles'
@@ -87,6 +89,7 @@ const TransactionSummary = ({
   const { t } = useTranslation()
 
   const { dispatch } = useBackgroundService()
+  const { domains, loadingAddresses } = useDomainsControllerState()
   const { styles } = useTheme(getStyles)
   const [bindExplorerIconAnim, explorerIconAnimStyle] = useHover({
     preset: 'opacityInverted'
@@ -220,7 +223,24 @@ const TransactionSummary = ({
               )
             }
 
-            if (item.type === 'address')
+            if (item.type === 'address') {
+              let address = item.address ? getAddress(item.address) : ''
+              const isLoading = loadingAddresses.includes(address)
+
+              if (isLoading)
+                return (
+                  <Spinner
+                    style={{
+                      width: 16,
+                      height: 16
+                    }}
+                  />
+                )
+
+              if (address && domains[address]) {
+                address = domains[address].ens || domains[address].ud || address
+              }
+
               return (
                 <Fragment key={Number(item.id) || i}>
                   <Text
@@ -230,7 +250,7 @@ const TransactionSummary = ({
                     style={{ maxWidth: '100%' }}
                     selectable
                   >
-                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
+                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : address} `}
                   </Text>
                   {!!item.address && !!explorerUrl && (
                     <AnimatedPressable
@@ -247,6 +267,7 @@ const TransactionSummary = ({
                   )}
                 </Fragment>
               )
+            }
 
             if (item.type === 'nft') {
               return (
