@@ -14,7 +14,6 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { NetworkInfo, NetworkInfoLoading } from '@ambire-common/libs/settings/settings'
 
 import { controllersMapping } from './types'
 
@@ -91,7 +90,7 @@ type SettingsControllerAddAccountPreferences = {
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
-    chianId: NetworkDescriptor['chainId']
+    chainId: NetworkDescriptor['chainId']
     rpcUrl: NetworkDescriptor['rpcUrl']
   }
 }
