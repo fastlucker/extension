@@ -32,8 +32,8 @@ export async function bootStrap(options = {}) {
     const extensionTarget = targets.find(target => target.url().includes('chrome-extension'));
     const partialExtensionUrl = extensionTarget.url() || '';
     const [, , extractedExtensionId] = partialExtensionUrl.split('/');
-    extensionId = extractedExtensionId;
-    extensionRootUrl = `chrome-extension://${extensionId}`;
+    const extensionId = extractedExtensionId;
+    const extensionRootUrl = `chrome-extension://${extensionId}`;
 
 
     return {
@@ -49,25 +49,27 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     await new Promise((r) => setTimeout(r, 1000));
     const buttonNext = '[data-testid="padding-button-Next"]'
 
+    await page.waitForSelector(buttonNext);
 
-    let attempts = 0;
-    let element = null;
 
-    while (attempts < 5) {
-        element = await page.$(buttonNext)
-        if (element) {
-            break;
-        } else {
-            console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
-            await new Promise((r) => setTimeout(r, 1000));
-
-            await page.reload();
-            attempts++;
-        }
-    }
-    if (!element) {
-        console.log('Welcome to Ambire screen not displayed after 5 attempts.');
-    }
+    // let attempts = 0;
+    // let element = null;
+    //
+    // while (attempts < 5) {
+    //     element = await page.$(buttonNext)
+    //     if (element) {
+    //         break;
+    //     } else {
+    //         console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
+    //         await new Promise((r) => setTimeout(r, 1000));
+    //
+    //         await page.reload();
+    //         attempts++;
+    //     }
+    // }
+    // if (!element) {
+    //     console.log('Welcome to Ambire screen not displayed after 5 attempts.');
+    // }
 
     /* Click on "Next" button several times to finish the onboarding */
     await page.$eval(buttonNext, button => button.click());
@@ -95,7 +97,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 
     /* Click on "Import" private key*/
     await page.$eval(privKeyOrPhraseSelector, button => button.click());
-    
+
     /* type phrase */
     const phrase = 'Password'
     await typeText(page, '[data-testid="enter-pass-field"]', phrase)
@@ -119,7 +121,7 @@ export async function typeText(page, selector, text) {
         await whereToType.press('Backspace');
         await whereToType.type(text, { delay: 10 });
     } catch (error) {
-        throw new Error(`Could not type text: ${text} 
+        throw new Error(`Could not type text: ${text}
         in the selector: ${selector}`)
     }
 }
@@ -244,4 +246,6 @@ export async function typeSeedPhrase(page, seedPhrase) {
     await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
     /* Click on "Unlock button" */
     await clickOnElement(page, '[data-testid="padding-button-Unlock"]')
+
+    await page.waitForSelector('[data-testid="full-balance"]');
 }

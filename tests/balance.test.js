@@ -7,97 +7,61 @@ describe('balance', () => {
     let browser;
     let page;
     let extensionRootUrl;
-    let extensionId;
-    let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
 
     beforeEach(async () => {
         /* Initialize browser and page using bootStrap */
         const context = await bootStrap({ headless: false, slowMo: 10 });
         browser = context.browser;
-        page = context.page;
         extensionRootUrl = context.extensionRootUrl
-        extensionId = context.extensionId
-        extensionTarget = context.extensionTarget
-
-        page = (await browser.pages())[0];
-        let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/keystore-unlock`
-        await page.goto(createVaultUrl, { waitUntil: 'load' })
-
-        parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS)
-        parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID)
-        parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS)
-        parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS)
-        envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS)
-        envPermission = (process.env.KEYSTORE_PERMISSION)
-        envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT)
-        envTermState = (process.env.KEYSTORE_TERMSTATE)
-        parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
-
-        const executionContext = await page.mainFrame().executionContext()
-        const backgroundPage = await extensionTarget.page(); // Access the background page
-
-        /*  interact with chrome.storage.local in the context of the extension's background page */
-        await backgroundPage.evaluate(
-            (
-                parsedKeystoreAccounts,
-                parsedKeystoreUID,
-                parsedKeystoreKeys,
-                parsedKeystoreSecrets,
-                envOnboardingStatus,
-                envPermission,
-                envSelectedAccount,
-                envTermState,
-                parsedPreviousHints
-            ) => {
-                chrome.storage.local.set({
-                    accounts: parsedKeystoreAccounts,
-                    keyStoreUid: parsedKeystoreUID,
-                    keystoreKeys: parsedKeystoreKeys,
-                    keystoreSecrets: parsedKeystoreSecrets,
-                    onboardingStatus: envOnboardingStatus,
-                    permission: envPermission,
-                    selectedAccount: envSelectedAccount,
-                    termsState: envTermState,
-                    previousHints: parsedPreviousHints
-                });
-            },
-            parsedKeystoreAccounts,
-            parsedKeystoreUID,
-            parsedKeystoreKeys,
-            parsedKeystoreSecrets,
-            envOnboardingStatus,
-            envPermission,
-            envSelectedAccount,
-            envTermState,
-            parsedPreviousHints
-        );
-
-
-        await new Promise((r) => setTimeout(r, 2000));
-
-        let pages = await browser.pages()
-        pages[0].close() // blank tab
-        pages[1].close() // tab always opened after extension installation
-
-        await new Promise((r) => setTimeout(r, 2000));
-
-        /*Open the page again to load the browser local storage */
         page = await browser.newPage();
-
 
         // Navigate to a specific URL if necessary
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
-        await new Promise((r) => setTimeout(r, 2000));
 
-        pages = await browser.pages()
-        // pages[0].close()
-        pages[1].close()
-
+        // Please note the following:
+        // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
+        // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
         await page.evaluate(() => {
-            location.reload(true)
+            let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
+            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS)
+            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID)
+            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS)
+            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS)
+            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS)
+            envPermission = (process.env.KEYSTORE_PERMISSION)
+            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT)
+            envTermState = (process.env.KEYSTORE_TERMSTATE)
+            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
+            chrome.storage.local.set({
+                accounts: parsedKeystoreAccounts,
+                keyStoreUid: parsedKeystoreUID,
+                keystoreKeys: parsedKeystoreKeys,
+                keystoreSecrets: parsedKeystoreSecrets,
+                onboardingStatus: envOnboardingStatus,
+                permission: envPermission,
+                selectedAccount: envSelectedAccount,
+                termsState: envTermState,
+                previousHints: parsedPreviousHints
+            });
         })
-        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
 
+        // Please note the following:
+        // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
+        // 2. But at the same time, the extension onboarding page is also shown automatically.
+        // 3. During these page transitions (new tabs being opened), we should wait a bit and avoid switching between or closing tabs because the extension background process is being initialized, and it will only initialize if the current tab is visible.
+        // If it's not visible (when we are transitioning), the initialization fails.
+        // Later, we will check how we can deal with this better.
+        await new Promise((r) => {
+            setTimeout(r, 1000)
+        })
+
+        // Please note that:
+        // 1. We are no longer closing any tabs.
+        // 2. Instead, we simply switch back to our tab under testing.
+        await page.bringToFront();
+        await page.reload();
+
+        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
     })
 
     afterEach(async () => {
