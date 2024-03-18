@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-import { bootStrap, typeSeedPhrase, clickOnElement } from './functions.js';
+import { bootstrap, typeSeedPhrase, clickOnElement } from './functions.js';
 
 describe('balance', () => {
     let browser;
@@ -8,8 +8,8 @@ describe('balance', () => {
     let extensionRootUrl;
 
     beforeEach(async () => {
-        /* Initialize browser and page using bootStrap */
-        const context = await bootStrap({ headless: false, slowMo: 10 });
+        /* Initialize browser and page using bootstrap */
+        const context = await bootstrap({ headless: false, slowMo: 10 });
         browser = context.browser;
         extensionRootUrl = context.extensionRootUrl
         page = await browser.newPage();

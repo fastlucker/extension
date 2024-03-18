@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 
 
-import { bootStrap, setAmbKeyStoreForLegacy, generateEthereumPrivateKey, clickOnElement, typeText } from './functions.js';
+import { bootstrap, setAmbKeyStoreForLegacy, generateEthereumPrivateKey, clickOnElement, typeText } from './functions.js';
 
 
 describe('login', () => {
@@ -17,7 +17,7 @@ describe('login', () => {
             slowMo: 30,
         };
 
-        const context = await bootStrap(page, browser, options)
+        const context = await bootstrap(page, browser, options)
         browser = context.browser
         extensionRootUrl = context.extensionRootUrl
         const extensionId = context.extensionId

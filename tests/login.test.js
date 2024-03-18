@@ -19,7 +19,7 @@ describe('login', () => {
             slowMo: 30,
         };
 
-        const context = await bootStrap(page, browser, options)
+        const context = await bootstrap(page, browser, options)
         browser = context.browser
         extensionRootUrl = context.extensionRootUrl
         extensionId = context.extensionId

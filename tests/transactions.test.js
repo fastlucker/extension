@@ -62,7 +62,7 @@ describe('transactions', () => {
     });
 
     //--------------------------------------------------------------------------------------------------------------
-    it('Make valid transaction', (async () => {
+    it.only('Make valid transaction', (async () => {
 
         await new Promise((r) => setTimeout(r, 2000))
 
@@ -164,7 +164,7 @@ describe('transactions', () => {
 
 
     //--------------------------------------------------------------------------------------------------------------
-    it('Send sign message ', (async () => {
+    it.only('Send sign message ', (async () => {
 
         /* Allow permissions for read and write in clipboard */
         context = browser.defaultBrowserContext();
@@ -178,6 +178,15 @@ describe('transactions', () => {
         /* Select 'MetaMask' */
         await page.click('>>>[class^="name"]')
 
+        // Wait for the new window to be created and switch to it
+        const newTarget2 = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`);
+        const newPage2 = await newTarget2.page();
+
+
+
+        /* Click on 'Connect' button */
+        await clickOnElement(newPage2, '[data-testid="padding-button-Connect"]')
+// return true
         /* Type message in the 'Message' field */
         let textMessage = 'text message'
         await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
@@ -303,7 +312,7 @@ describe('transactions', () => {
         await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
         /* Click on "Account"  */
-        await clickWhenClickable(page, '[data-testid="padding-button-Save-and-Continue"]')
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
 
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
