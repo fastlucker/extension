@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { randomBytes } from 'ethers'
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
@@ -89,7 +89,7 @@ const Steps: FC<Props> = ({
             calls.map((call, i) => {
               return (
                 <TransactionSummary
-                  key={call.data + ethers.randomBytes(6)}
+                  key={call.data + randomBytes(6)}
                   style={i !== calls.length! - 1 ? spacings.mbSm : {}}
                   call={call}
                   networkId={network!.id}
