@@ -12,8 +12,12 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   network: NetworkDescriptor
-  selectedNetworkId: NetworkDescriptor['id']
-  handleSelectNetwork: (networkId: NetworkDescriptor['id']) => void
+  selectedNetworkId?: NetworkDescriptor['id']
+  handleSelectNetwork: (
+    networkId: NetworkDescriptor['id'],
+    rpcUrl: NetworkDescriptor['rpcUrl'],
+    chainId: NetworkDescriptor['chainId']
+  ) => void
 }
 
 const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId }) => {
@@ -30,7 +34,7 @@ const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId })
   return (
     <AnimatedPressable
       key={network.id}
-      onPress={() => handleSelectNetwork(network.id)}
+      onPress={() => handleSelectNetwork(network.id, network.rpcUrl, network.chainId)}
       style={[
         flexbox.directionRow,
         flexbox.alignCenter,

@@ -3,6 +3,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -39,9 +40,17 @@ const NetworkDetails = ({
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
 
+  const isEmpty = useMemo(
+    () => [name, rpcUrl, chainId].some((p) => p === '-'),
+    [chainId, name, rpcUrl]
+  )
+
   const shouldDisplayEditButton = useMemo(
-    () => pathname?.includes(ROUTES.networksSettings),
-    [pathname]
+    () =>
+      pathname?.includes(ROUTES.networksSettings) &&
+      !isEmpty &&
+      !predefinedNetworks.filter((n) => n.id === name.toLowerCase()).length,
+    [pathname, name, isEmpty]
   )
 
   const renderInfoItem = useCallback(
@@ -59,12 +68,12 @@ const NetworkDetails = ({
             {title}
           </Text>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            {title === 'Network Name' && (
+            {title === 'Network Name' && value !== '-' && (
               <View style={spacings.mrMi}>
                 <ManifestImage
                   uri={iconUrl || ''}
                   size={32}
-                  fallback={() => <NetworkIcon size={32} name={name as any} />}
+                  fallback={() => <NetworkIcon size={32} name={name.toLowerCase() as any} />}
                 />
               </View>
             )}

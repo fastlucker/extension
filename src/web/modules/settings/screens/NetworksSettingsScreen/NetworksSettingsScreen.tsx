@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
+import { getFeatures } from '@ambire-common/libs/settings/settings'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -15,7 +17,11 @@ import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
+import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
+import NetworkDetails from '@web/components/NetworkDetails'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -29,10 +35,12 @@ const NetworksSettingsScreen = () => {
   const { search: searchParams } = useRoute()
   const { control, watch } = useForm({ defaultValues: { search: '' } })
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
+  const { dispatch } = useBackgroundService()
   const { maxWidthSize } = useWindowSize()
+  const { networks, networkToAddOrUpdate } = useSettingsControllerState()
 
   const search = watch('search')
-  const { networks } = useSettingsControllerState()
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
 
@@ -40,13 +48,20 @@ const NetworksSettingsScreen = () => {
       return parsedSearchParams.get('networkId') as string
     }
 
-    return networks[0].id
+    return undefined
   })
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
     [networks, selectedNetworkId]
   )
+
+  useEffect(() => {
+    if (networkToAddOrUpdate?.info) {
+      const featuresRes = getFeatures(networkToAddOrUpdate?.info)
+      setFeatures(featuresRes)
+    }
+  }, [networkToAddOrUpdate?.info])
 
   const networkForm = useForm({
     // Mode onChange is required to validate the rpcUrl field, because custom errors
@@ -83,7 +98,11 @@ const NetworksSettingsScreen = () => {
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
 
-  const handleSelectNetwork = (id: string) => {
+  const handleSelectNetwork = (
+    id: NetworkDescriptor['id'],
+    rpcUrl: NetworkDescriptor['rpcUrl'],
+    chainId: NetworkDescriptor['chainId']
+  ) => {
     if (areDefaultValuesChanged) {
       // Temporary solution
       const isSure = window.confirm(
@@ -95,15 +114,22 @@ const NetworksSettingsScreen = () => {
       if (!isSure) return
     }
     setSelectedNetworkId(id)
+    dispatch({
+      type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+      params: {
+        chainId,
+        rpcUrl
+      }
+    })
   }
 
   return (
     <>
       <SettingsPageHeader title="Networks" />
       <View style={[flexbox.directionRow, flexbox.flex1]}>
-        <View style={[flexbox.flex1]}>
-          <Search placeholder="Search for network" control={control} />
-          <ScrollableWrapper style={spacings.mbLg}>
+        <View style={[{ flex: 1 }]}>
+          <Search placeholder="Search for network" control={control} containerStyle={spacings.mb} />
+          <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
                 <Network
@@ -114,30 +140,51 @@ const NetworksSettingsScreen = () => {
                 />
               ))
             ) : (
-              <Text weight="regular" style={spacings.mlSm}>
-                {t('No networks found. Try searching for a different network.')}
-              </Text>
+              <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+                <Text weight="regular" fontSize={14} style={[text.center]}>
+                  {t('No networks found.')}
+                </Text>
+                <Text weight="regular" fontSize={14} style={[text.center]}>
+                  {t('Try searching for a different network.')}
+                </Text>
+              </View>
             )}
           </ScrollableWrapper>
-          <Button
-            type="secondary"
-            text={t('Add custom network')}
-            onPress={openBottomSheet as any}
-            childrenPosition="left"
-          >
-            <AddIcon color={theme.primary} style={spacings.mrTy} />
-          </Button>
+          <View style={spacings.pt}>
+            <Button
+              type="secondary"
+              text={t('Add custom network')}
+              onPress={openBottomSheet as any}
+              childrenPosition="left"
+            >
+              <AddIcon color={theme.primary} style={spacings.mrTy} />
+            </Button>
+          </View>
         </View>
 
         <View
           style={[
-            flexbox.flex1,
-            maxWidthSize('xl') ? spacings.plXl : spacings.plLg,
-            maxWidthSize('xl') ? spacings.mlXl : spacings.mlLg,
+            { flex: 2 },
+            maxWidthSize('xl') ? spacings.pl3Xl : spacings.plXl,
+            maxWidthSize('xl') ? spacings.ml3Xl : spacings.mlXl,
             { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
           ]}
         >
-          <NetworkForm networkForm={networkForm} selectedNetworkId={selectedNetworkId} />
+          <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={spacings.mbXl}>
+              <NetworkDetails
+                name={selectedNetwork?.name || '-'}
+                iconUrl=""
+                chainId={
+                  selectedNetwork?.chainId ? Number(selectedNetwork.chainId).toString() : '-'
+                }
+                rpcUrl={selectedNetwork?.rpcUrl || '-'}
+                nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
+                explorerUrl={selectedNetwork?.explorerUrl || '-'}
+              />
+            </View>
+            {!!selectedNetwork && <NetworkAvailableFeatures features={features} />}
+          </ScrollableWrapper>
         </View>
       </View>
       <BottomSheet

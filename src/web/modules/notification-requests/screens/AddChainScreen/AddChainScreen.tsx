@@ -68,7 +68,7 @@ const AddChainScreen = () => {
   }, [dispatch, networkDetails])
 
   useEffect(() => {
-    const featuresRes = getFeatures(networkToAddOrUpdate?.info, false)
+    const featuresRes = getFeatures(networkToAddOrUpdate?.info)
     setFeatures(featuresRes)
   }, [networkToAddOrUpdate?.info])
 

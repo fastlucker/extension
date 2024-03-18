@@ -29,7 +29,7 @@ const NetworkAvailableFeatures = ({ features, onDeployContractsPress }: Props) =
   const { pathname } = useRoute()
 
   return (
-    <View style={spacings.pbLg}>
+    <View style={[spacings.pbLg, spacings.pr]}>
       <Text fontSize={18} weight="medium" style={spacings.mbMd}>
         {t('Available features')}
       </Text>
@@ -49,7 +49,8 @@ const NetworkAvailableFeatures = ({ features, onDeployContractsPress }: Props) =
                     fontSize={14}
                     weight="medium"
                     appearance="secondaryText"
-                    style={spacings.mrTy}
+                    style={{ ...spacings.mrTy, overflow: 'visible' }}
+                    numberOfLines={2}
                   >
                     {feature.title}
                     {pathname?.includes(ROUTES.networksSettings) &&
@@ -70,12 +71,19 @@ const NetworkAvailableFeatures = ({ features, onDeployContractsPress }: Props) =
                           </Text>
                         </>
                       )}
+                    {!!feature.msg && (
+                      <View style={{ width: 1 }}>
+                        <View style={{ position: 'absolute', top: -11.5, left: 8 }}>
+                          <InformationIcon
+                            width={14}
+                            height={14}
+                            data-tooltip-id="feature-message-tooltip"
+                            data-tooltip-content={feature.msg}
+                          />
+                        </View>
+                      </View>
+                    )}
                   </Text>
-                  {!!feature.msg && (
-                    <a data-tooltip-id="feature-message-tooltip" data-tooltip-content={feature.msg}>
-                      <InformationIcon width={14} height={14} />
-                    </a>
-                  )}
                 </View>
               </View>
             )
