@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react/jsx-no-useless-fragment */
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6,9 +7,11 @@ import { View } from 'react-native'
 import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import ErrorFilledIcon from '@common/assets/svg/ErrorFilledIcon'
+import InformationIcon from '@common/assets/svg/InformationIcon'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -41,35 +44,43 @@ const NetworkAvailableFeatures = ({ features, onDeployContractsPress }: Props) =
                   {feature.level === 'warning' && <WarningFilledIcon width={14} height={14} />}
                   {feature.level === 'danger' && <ErrorFilledIcon width={14} height={14} />}
                 </View>
-                <Text
-                  fontSize={14}
-                  style={flexbox.flex1}
-                  weight="medium"
-                  appearance="secondaryText"
-                >
-                  {feature.title}
-                  {pathname?.includes(ROUTES.networksSettings) &&
-                    feature.id === 'saSupport' &&
-                    feature.level === 'warning' && (
-                      <>
-                        {'  '}
-                        <Text
-                          weight="medium"
-                          underline
-                          fontSize={14}
-                          color={theme.primary}
-                          onPress={() => {
-                            !!onDeployContractsPress && onDeployContractsPress()
-                          }}
-                        >
-                          {t('Deploy Contracts')}
-                        </Text>
-                      </>
-                    )}
-                </Text>
+                <View style={[flexbox.directionRow, flexbox.flex1, flexbox.alignCenter]}>
+                  <Text
+                    fontSize={14}
+                    weight="medium"
+                    appearance="secondaryText"
+                    style={spacings.mrTy}
+                  >
+                    {feature.title}
+                    {pathname?.includes(ROUTES.networksSettings) &&
+                      feature.id === 'saSupport' &&
+                      feature.level === 'warning' && (
+                        <>
+                          {'  '}
+                          <Text
+                            weight="medium"
+                            underline
+                            fontSize={14}
+                            color={theme.primary}
+                            onPress={() => {
+                              !!onDeployContractsPress && onDeployContractsPress()
+                            }}
+                          >
+                            {t('Deploy Contracts')}
+                          </Text>
+                        </>
+                      )}
+                  </Text>
+                  {!!feature.msg && (
+                    <a data-tooltip-id="feature-message-tooltip" data-tooltip-content={feature.msg}>
+                      <InformationIcon width={14} height={14} />
+                    </a>
+                  )}
+                </View>
               </View>
             )
           })}
+        <Tooltip id="feature-message-tooltip" />
       </View>
     </View>
   )
