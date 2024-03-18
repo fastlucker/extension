@@ -43,7 +43,7 @@ const MessageSummary = ({ message, networkId, explorerUrl, kind }: Props) => {
           >
             Raw message:
           </Text>
-          <Text appearance="secondaryText" fontSize={14} weight="regular">
+          <Text selectable appearance="secondaryText" fontSize={14} weight="regular">
             {JSON.stringify(message.content, null, 4)}
           </Text>
         </ScrollView>

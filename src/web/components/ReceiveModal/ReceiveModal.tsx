@@ -93,7 +93,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
           onPress={handleCopyAddress}
           {...bindAnim}
         >
-          <Text numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
+          <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
             {selectedAccount}
           </Text>
           <CopyIcon style={spacings.mlTy} />

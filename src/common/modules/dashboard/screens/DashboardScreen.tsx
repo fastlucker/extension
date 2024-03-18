@@ -121,6 +121,7 @@ const DashboardScreen = () => {
                           style={{ lineHeight: 34 }}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('$')}
                           {formatDecimals(totalPortfolioAmount).split('.')[0]}
@@ -130,6 +131,7 @@ const DashboardScreen = () => {
                           shouldScale={false}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('.')}
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}

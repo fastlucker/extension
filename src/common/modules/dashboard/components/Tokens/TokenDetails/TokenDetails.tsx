@@ -257,7 +257,7 @@ const TokenDetails = ({
           <View style={styles.tokenSymbolAndNetwork}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
               <Text>
-                <Text fontSize={20} weight="semiBold" style={spacings.mrSm}>
+                <Text selectable fontSize={20} weight="semiBold" style={spacings.mrSm}>
                   {symbol}
                 </Text>
                 <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
@@ -272,13 +272,25 @@ const TokenDetails = ({
             </View>
           </View>
           <View style={styles.balance}>
-            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" numberOfLines={1}>
+            <Text
+              selectable
+              style={spacings.mrMi}
+              fontSize={16}
+              weight="number_bold"
+              numberOfLines={1}
+            >
               {balanceFormatted} {symbol}
             </Text>
-            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
+            <Text
+              selectable
+              style={spacings.mrMi}
+              fontSize={16}
+              weight="number_bold"
+              appearance="infoText"
+            >
               ≈ {balanceUSDFormatted}
             </Text>
-            <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+            <Text selectable fontSize={16} weight="number_regular" appearance="secondaryText">
               (1 ${symbol} ≈ {priceUSDFormatted})
             </Text>
           </View>
