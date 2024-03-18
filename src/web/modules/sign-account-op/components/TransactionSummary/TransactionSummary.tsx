@@ -166,21 +166,23 @@ const TransactionSummary = ({
                       appearance="primaryText"
                       style={{ maxWidth: '100%' }}
                     >
-                      {` ${
+                      {
                         // permit2 uniswap requested amount
                         item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
                         // uint256 amount
-                        item.amount === ethers.MaxUint256
-                          ? 'unlimited '
-                          : formatDecimals(
-                              Number(
-                                formatUnits(
-                                  item.amount || '0x0',
-                                  item?.humanizerMeta?.token?.decimals || 18
-                                )
+                        item.amount === ethers.MaxUint256 ? (
+                          <Text appearance="warningText">unlimited </Text>
+                        ) : (
+                          formatDecimals(
+                            Number(
+                              formatUnits(
+                                item.amount || '0x0',
+                                item?.humanizerMeta?.token?.decimals || 1
                               )
                             )
-                      }`}
+                          )
+                        )
+                      }
                     </Text>
                   ) : null}
 
