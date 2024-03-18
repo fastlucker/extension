@@ -40,7 +40,7 @@ const AddChainScreen = () => {
   const [areParamsValid, setAreParamsValid] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const { status, latestMethodCall, networkToAddOrUpdate } = useSettingsControllerState()
-  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined, false))
+  const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
 
   const networkDetails: CustomNetwork | undefined = useMemo(() => {
     if (!areParamsValid || !currentNotificationRequest?.params?.data) return undefined
@@ -68,7 +68,7 @@ const AddChainScreen = () => {
   }, [dispatch, networkDetails])
 
   useEffect(() => {
-    const featuresRes = getFeatures(networkToAddOrUpdate?.info, false)
+    const featuresRes = getFeatures(networkToAddOrUpdate?.info)
     setFeatures(featuresRes)
   }, [networkToAddOrUpdate?.info])
 

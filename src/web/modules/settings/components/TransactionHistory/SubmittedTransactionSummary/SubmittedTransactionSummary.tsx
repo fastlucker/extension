@@ -3,6 +3,7 @@ import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
@@ -119,6 +120,13 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     }&networkId=${networkId}${
       submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
     }`
+
+    // if the network is a custom one, benzina will not work
+    // so we open the block explorer
+    const isCustomNetwork = !predefinedNetworks.find((net) => net.id === network.id)
+    if (isCustomNetwork) {
+      link = `${network.explorerUrl}/tx/${submittedAccountOp.txnId}`
+    }
 
     // in the rare case of a bug where we've failed to find the txnId
     // for an userOpHash, the userOpHash and the txnId will be the same.
