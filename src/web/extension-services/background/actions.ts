@@ -275,6 +275,15 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
+type DomainsControllerSaveResolvedReverseLookupAction = {
+  type: 'DOMAINS_SAVE_RESOLVED_REVERSE_LOOKUP'
+  params: {
+    address: string
+    name: string
+    type: 'ens' | 'ud'
+  }
+}
+
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
@@ -355,6 +364,7 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
