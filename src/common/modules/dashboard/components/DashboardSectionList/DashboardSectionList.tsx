@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
 
+import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Banner } from '@ambire-common/interfaces/banner'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
@@ -84,6 +85,14 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId }: Props) =>
   const tokens = useMemo(
     () =>
       accountPortfolio?.tokens
+        .filter((token) => {
+          const isPinned = !!PINNED_TOKENS.find((pinnedToken) => {
+            return (
+              pinnedToken.networkId === token.networkId && pinnedToken.address === token.address
+            )
+          })
+          return token.amount > 0 || isPinned
+        })
         .filter((token) => {
           if (!filterByNetworkId) return true
           if (filterByNetworkId === 'rewards') return token.flags.rewardsType
