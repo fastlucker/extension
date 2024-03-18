@@ -2,9 +2,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
@@ -14,6 +16,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
+import NetworkForm from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm'
 
 import getStyles from './styles'
 
@@ -24,7 +27,6 @@ type Props = {
   chainId: string
   explorerUrl: string
   nativeAssetSymbol: string
-  handleEditButtonPress?: () => void
 }
 
 const NetworkDetails = ({
@@ -33,12 +35,12 @@ const NetworkDetails = ({
   rpcUrl,
   chainId,
   explorerUrl,
-  nativeAssetSymbol,
-  handleEditButtonPress
+  nativeAssetSymbol
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const isEmpty = useMemo(
     () => [name, rpcUrl, chainId].some((p) => p === '-'),
@@ -46,11 +48,8 @@ const NetworkDetails = ({
   )
 
   const shouldDisplayEditButton = useMemo(
-    () =>
-      pathname?.includes(ROUTES.networksSettings) &&
-      !isEmpty &&
-      !predefinedNetworks.filter((n) => n.id === name.toLowerCase()).length,
-    [pathname, name, isEmpty]
+    () => pathname?.includes(ROUTES.networksSettings) && !isEmpty,
+    [pathname, isEmpty]
   )
 
   const renderInfoItem = useCallback(
@@ -91,41 +90,50 @@ const NetworkDetails = ({
   )
 
   return (
-    <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm]}>
-      <View
-        style={[
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          shouldDisplayEditButton ? spacings.mbLg : spacings.mbMd
-        ]}
+    <>
+      <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm]}>
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            shouldDisplayEditButton ? spacings.mbLg : spacings.mbMd
+          ]}
+        >
+          <Text fontSize={18} weight="medium" style={flexbox.flex1}>
+            {t('Network details')}
+          </Text>
+          {!!shouldDisplayEditButton && (
+            <Button
+              style={{ maxHeight: 32 }}
+              text={t('Edit')}
+              type="secondary"
+              onPress={openBottomSheet as any}
+              hasBottomSpacing={false}
+            >
+              <View style={spacings.plTy}>
+                <EditPenIcon width={12} height={12} color={theme.primary} />
+              </View>
+            </Button>
+          )}
+        </View>
+        <View style={flexbox.flex1}>
+          {renderInfoItem(t('Network Name'), name)}
+          {renderInfoItem(t('RPC URL'), rpcUrl)}
+          {renderInfoItem(t('Chain ID'), chainId)}
+          {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
+          {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
+        </View>
+      </View>
+      <BottomSheet
+        id="edit-network-bottom-sheet"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        backgroundColor="primaryBackground"
+        style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <Text fontSize={18} weight="medium" style={flexbox.flex1}>
-          {t('Network details')}
-        </Text>
-        {!!shouldDisplayEditButton && (
-          <Button
-            style={{ maxHeight: 32 }}
-            text={t('Edit')}
-            type="secondary"
-            onPress={() => {
-              !!handleEditButtonPress && handleEditButtonPress()
-            }}
-            hasBottomSpacing={false}
-          >
-            <View style={spacings.plTy}>
-              <EditPenIcon width={12} height={12} color={theme.primary} />
-            </View>
-          </Button>
-        )}
-      </View>
-      <View style={flexbox.flex1}>
-        {renderInfoItem(t('Network Name'), name)}
-        {renderInfoItem(t('RPC URL'), rpcUrl)}
-        {renderInfoItem(t('Chain ID'), chainId)}
-        {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
-        {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
-      </View>
-    </View>
+        <NetworkForm selectedNetworkId={name.toLowerCase()} />
+      </BottomSheet>
+    </>
   )
 }
 
