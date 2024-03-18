@@ -183,7 +183,9 @@ const NetworksSettingsScreen = () => {
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
               />
             </View>
-            {!!selectedNetwork && <NetworkAvailableFeatures features={features} />}
+            {!!selectedNetworkId && (
+              <NetworkAvailableFeatures features={features} networkId={selectedNetworkId} />
+            )}
           </ScrollableWrapper>
         </View>
       </View>

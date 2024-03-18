@@ -1,35 +1,26 @@
-import { getCreate2Address, Interface, JsonRpcProvider, keccak256 } from 'ethers'
+import { JsonRpcProvider } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm, UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
-// import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelperStaging.json'
-import { SINGLETON } from '@ambire-common/consts/deploy'
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
-import { UserRequest } from '@ambire-common/interfaces/userRequest'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
-import AddIcon from '@common/assets/svg/AddIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
-import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import {
   getAreDefaultsChanged,
   handleErrors
 } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
 import INPUT_FIELDS from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/inputFields'
-
-import { deployContractsBytecode } from './oldDeployParams'
 
 type NetworkFormType = UseFormReturn<
   {
@@ -79,12 +70,9 @@ const NetworkForm = ({
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
-  const { selectedAccount, accounts } = useMainControllerState()
-  const { theme } = useTheme()
 
   const [isLoadingRPC, setIsLoadingRPC] = useState(false)
-  const [deployError, setDeployError] = useState('')
-  const [shouldShowDeployBtn, setShouldShowDeployBtn] = useState(false)
+
   const networkFormValues = watch()
 
   const selectedNetwork = useMemo(
@@ -144,31 +132,6 @@ const NetworkForm = ({
     }
   }, [selectedNetworkId, networks, selectedNetwork?.name, setError, watch, clearErrors])
 
-  useEffect(() => {
-    setShouldShowDeployBtn(false)
-    if (!selectedNetwork || !selectedNetwork.isSAEnabled) return
-
-    // run a simulation, take the contract addresses and verify there's no code there
-    const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    // MAJOR TODO<BOBBY>:
-    // Currently, we support the old smart accounts that do not have the latest
-    // ambire contracts code. To have the same contracts accross networks, we
-    // need to deploy not the latest, but a cached version of our contracts.
-    // Once the final version of the contracts comes, we have to fix this
-    // const bytecode = DeployHelper.bin
-    const bytecode = deployContractsBytecode
-    const helperAddr = getCreate2Address(SINGLETON, salt, keccak256(bytecode))
-    const provider = new JsonRpcProvider(selectedNetwork.rpcUrl)
-    provider
-      .getCode(helperAddr)
-      .then((code) => {
-        if (code === '0x') {
-          setShouldShowDeployBtn(true)
-        }
-      })
-      .catch(() => null)
-  }, [selectedNetwork])
-
   const handleSubmitButtonPress = () => {
     if (selectedNetworkId === 'custom') {
       dispatch({
@@ -188,77 +151,6 @@ const NetworkForm = ({
       })
       addToast(`${selectedNetwork?.name} settings saved!`)
     }
-  }
-
-  const handleDeploy = async () => {
-    // this should not happen...
-    if (!selectedNetwork && !selectedNetworkId) {
-      setDeployError('No network selected. Please select a network and try again')
-      setTimeout(() => setDeployError(''), 5000)
-      return
-    }
-
-    // we need an account
-    if (!selectedAccount) {
-      setDeployError('No account selected. Please select a basic account and try again')
-      setTimeout(() => setDeployError(''), 5000)
-      return
-    }
-
-    // we need a basic account
-    const account = accounts.find((acc) => acc.addr === selectedAccount)
-    if (!account) {
-      setDeployError('No account selected. Please select a basic account and try again')
-      setTimeout(() => setDeployError(''), 5000)
-      return
-    }
-    if (isSmartAccount(account)) {
-      setDeployError(
-        'Deploy cannot be made with a smart account. Please select a basic account and try again'
-      )
-      setTimeout(() => setDeployError(''), 5000)
-      return
-    }
-
-    const network = selectedNetwork ?? networks.find((net) => net.id === selectedNetworkId)!
-    // MAJOR TODO<BOBBY>:
-    // Currently, we support the old smart accounts that do not have the latest
-    // ambire contracts code. To have the same contracts accross networks, we
-    // need to deploy not the latest, but a cached version of our contracts.
-    // Once the final version of the contracts comes, we have to fix this
-    // const bytecode = DeployHelper.bin
-    const bytecode = deployContractsBytecode
-    const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
-    const singletonABI = [
-      {
-        inputs: [
-          { internalType: 'bytes', name: '_initCode', type: 'bytes' },
-          { internalType: 'bytes32', name: '_salt', type: 'bytes32' }
-        ],
-        name: 'deploy',
-        outputs: [{ internalType: 'address payable', name: 'createdContract', type: 'address' }],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      }
-    ]
-    const singletonInterface = new Interface(singletonABI)
-    const txn = {
-      kind: 'call' as const,
-      to: singletonAddr,
-      value: 0n,
-      data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
-    }
-
-    const userRequest: UserRequest = {
-      id: new Date().getTime(),
-      networkId: network.id,
-      accountAddr: selectedAccount,
-      forceNonce: null,
-      action: txn
-    }
-
-    dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
   }
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
@@ -331,23 +223,6 @@ const NetworkForm = ({
             }}
           />
         ))}
-
-        <Pressable
-          onPress={handleDeploy}
-          style={{
-            marginLeft: 'auto',
-            ...spacings.mb,
-            ...flexbox.directionRow,
-            ...flexbox.alignCenter,
-            opacity: shouldShowDeployBtn ? 1 : 0
-          }}
-          disabled={!shouldShowDeployBtn}
-        >
-          <Text weight="medium" appearance="secondaryText" fontSize={14} style={spacings.mrTy}>
-            Deploy Contracts
-          </Text>
-          <AddIcon width={16} height={16} color={theme.secondaryText} />
-        </Pressable>
       </View>
       {selectedNetworkId === 'custom' ? (
         <Button
@@ -378,13 +253,6 @@ const NetworkForm = ({
             hasBottomSpacing={false}
             size="large"
           />
-        </View>
-      )}
-      {!!deployError && (
-        <View style={[spacings.mtSm, flexbox.alignCenter]}>
-          <Text fontSize={12} appearance="errorText">
-            {deployError}
-          </Text>
         </View>
       )}
     </>

@@ -218,7 +218,12 @@ const AddChainScreen = () => {
                   </Text>
                 </Text>
               </View>
-              <NetworkAvailableFeatures features={features} />
+              {!!networkDetails && (
+                <NetworkAvailableFeatures
+                  features={features}
+                  networkId={networkDetails.name.toLowerCase()}
+                />
+              )}
             </View>
           </View>
         )}
