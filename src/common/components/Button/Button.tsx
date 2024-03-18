@@ -29,7 +29,6 @@ export interface Props extends PressableProps {
   textStyle?: any
   textUnderline?: boolean
   accentColor?: ColorValue
-  initialBackground?: ColorValue
   hasBottomSpacing?: boolean
   containerStyle?: PressableProps['style']
   disabledStyle?: ViewStyle
@@ -42,7 +41,6 @@ const Button = ({
   type = 'primary',
   size = 'regular',
   accentColor,
-  initialBackground: _initialBackground,
   text,
   style = {},
   textStyle = {},
@@ -56,9 +54,6 @@ const Button = ({
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
-  // In order to animate the button background color we have to set the
-  // initial background color value.
-  const initialBackground = _initialBackground || theme.primaryBackground
 
   const buttonColors: {
     [key in ButtonTypes]: AnimationValues[]
@@ -66,33 +61,39 @@ const Button = ({
     () => ({
       primary: [
         {
-          key: 'backgroundColor',
+          property: 'backgroundColor',
           from: theme.primary,
           to: theme.primaryLight
         }
       ],
       secondary: [
         {
-          key: 'backgroundColor',
-          from: initialBackground,
+          property: 'backgroundColor',
+          from: `${String(theme.secondaryBackground)}00`,
           to: theme.secondaryBackground
         }
       ],
-      danger: [{ key: 'backgroundColor', from: initialBackground, to: theme.errorBackground }],
+      danger: [
+        {
+          property: 'backgroundColor',
+          from: `${String(theme.errorBackground)}00`,
+          to: theme.errorBackground
+        }
+      ],
       outline: [],
-      ghost: [],
+      ghost: [
+        {
+          property: 'opacity',
+          from: 1,
+          to: 0.7
+        }
+      ],
       error: [],
       warning: [],
       info: [],
       success: []
     }),
-    [
-      initialBackground,
-      theme.errorBackground,
-      theme.primary,
-      theme.primaryLight,
-      theme.secondaryBackground
-    ]
+    [theme.errorBackground, theme.primary, theme.primaryLight, theme.secondaryBackground]
   )
 
   const [bind, animatedStyle] = useMultiHover({

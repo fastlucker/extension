@@ -78,15 +78,15 @@ const getStyles = (theme: ThemeProps) =>
     },
     button: {
       ...flexbox.justifyCenter,
-      ...spacings.phTy
+      ...spacings.mlTy,
+      ...spacings.mr
     },
     leftIcon: {
       ...flexbox.justifyCenter,
       ...spacings.plTy
     },
     disabled: {
-      opacity: 0.5,
-      backgroundColor: 'transparent'
+      opacity: 0.6
     },
     tooltipWrapper: {
       position: 'absolute',

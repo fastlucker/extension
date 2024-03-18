@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next'
 import useConstants, { UseConstantsReturnType } from '@ambire-common-v1/hooks/useConstants'
 import Satellite from '@common/assets/svg/Satellite'
 import Button from '@common/components/Button'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import CONFIG from '@common/config/env'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -22,10 +22,11 @@ const ConstantsContext = createContext<{
 
 const ConstantsProvider: React.FC = ({ children }) => {
   const { t } = useTranslation()
-  const { constants, isLoading, retryFetch, hasError }: UseConstantsReturnType['constants'] = useConstants({
-    fetch,
-    endpoint: CONFIG.CONSTANTS_ENDPOINT
-  })
+  const { constants, isLoading, retryFetch, hasError }: UseConstantsReturnType['constants'] =
+    useConstants({
+      fetch,
+      endpoint: CONFIG.CONSTANTS_ENDPOINT
+    })
   const [isRetrying, setIsRetrying] = useState<boolean>(false)
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const ConstantsProvider: React.FC = ({ children }) => {
 
   const ErrorView = useMemo(
     () => (
-      <Wrapper contentContainerStyle={flexboxStyles.center}>
+      <ScrollableWrapper contentContainerStyle={flexboxStyles.center}>
         <Satellite style={spacings.mbLg} />
         <Title style={textStyles.center}>{t("Can't connect to our server")}</Title>
         <Text style={[spacings.mb, spacings.mhTy, textStyles.center]}>
@@ -54,7 +55,7 @@ const ConstantsProvider: React.FC = ({ children }) => {
           disabled={isRetrying}
           onPress={retry}
         />
-      </Wrapper>
+      </ScrollableWrapper>
     ),
     [t, isRetrying, retry]
   )
@@ -66,9 +67,9 @@ const ConstantsProvider: React.FC = ({ children }) => {
     // In the web extension context - a (custom) loading view is needed,
     // because there is no splash screen present there. So keep it.
     const LoadingView = (
-      <Wrapper contentContainerStyle={flexboxStyles.center}>
+      <ScrollableWrapper contentContainerStyle={flexboxStyles.center}>
         <Spinner />
-      </Wrapper>
+      </ScrollableWrapper>
     )
 
     if (isLoading) {

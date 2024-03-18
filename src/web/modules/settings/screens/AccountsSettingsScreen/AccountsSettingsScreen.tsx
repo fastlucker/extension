@@ -54,7 +54,6 @@ const AccountsSettingsScreen = () => {
         {accounts.map((account) => (
           <Account
             onSelect={onSelectAccount}
-            isCopyVisible={false}
             key={account.addr}
             account={account}
             maxAccountAddrLength={shortenAccountAddr()}
@@ -67,7 +66,11 @@ const AccountsSettingsScreen = () => {
         text="Add account"
         hasBottomSpacing={false}
       />
-      <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+      <BottomSheet
+        id="account-settings-add-account"
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
         <AddAccount />
       </BottomSheet>
     </>

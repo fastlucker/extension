@@ -7,7 +7,7 @@ import useTheme from '@common/hooks/useTheme'
 import styles, { TEXT_SCALE } from './styles'
 
 type TextTypes = 'regular' | 'small' | 'caption' | 'info'
-type TextWeight =
+export type TextWeight =
   | 'light'
   | 'regular'
   | 'medium'

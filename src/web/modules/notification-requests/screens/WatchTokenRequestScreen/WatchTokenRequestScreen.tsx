@@ -5,10 +5,10 @@ import { Token, UsePortfolioReturnType } from '@ambire-common-v1/hooks/usePortfo
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import useNetwork from '@common/hooks/useNetwork'
 import usePortfolio from '@common/hooks/usePortfolio'
@@ -105,7 +105,7 @@ const WatchTokenRequestScreen = () => {
   )
 
   return (
-    <Wrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
+    <ScrollableWrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
       <Panel>
         <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
           <ManifestImage
@@ -220,7 +220,7 @@ const WatchTokenRequestScreen = () => {
           </>
         )}
       </Panel>
-    </Wrapper>
+    </ScrollableWrapper>
   )
 }
 

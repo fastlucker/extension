@@ -370,7 +370,7 @@ export class ConnectButtonReplacementController {
       Array.from(node.childNodes).forEach((childNode: any) => {
         if (childNode.nodeType === Node.TEXT_NODE) {
           const text = childNode.nodeValue
-          if (text.trim().includes('Available Wallets')) {
+          if (text.trim().toLowerCase().includes('Available Wallets'.toLowerCase())) {
             isBlockNativeModal = true
           }
 
@@ -417,9 +417,12 @@ export class ConnectButtonReplacementController {
             // For some reason the onboard-v2 lib renders wallet icons async and we should
             // wait for the MM icon to be rendered in order to find it and replace it with our own icon
             if (onboardElement || isBlockNativeModal) {
-              setTimeout(() => {
-                lookForIcon()
-              }, 400)
+              setTimeout(
+                () => {
+                  lookForIcon()
+                },
+                isBlockNativeModal ? 1000 : 400
+              )
             } else {
               lookForIcon()
             }

@@ -43,7 +43,8 @@ const FallbackVisualization: FC<{
             Warning:{' '}
           </Text>
           <Text fontSize={16} appearance="warningText">
-            failed to decode the intention of the message.
+            We are not able to decode this message for your convenience, and it&apos;s presented in
+            the original format
           </Text>
         </Text>
       </View>
@@ -62,7 +63,13 @@ const FallbackVisualization: FC<{
         <Text weight="regular" fontSize={14} appearance="secondaryText" style={spacings.mb}>
           Raw Message:
         </Text>
-        <Text weight="regular" fontSize={14} appearance="secondaryText" style={spacings.mb}>
+        <Text
+          selectable
+          weight="regular"
+          fontSize={14}
+          appearance="secondaryText"
+          style={spacings.mb}
+        >
           {content.kind === 'typedMessage'
             ? JSON.stringify(content.message, null, 4)
             : getMessageAsText(content.message) || t('(Empty message)')}

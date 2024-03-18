@@ -5,8 +5,8 @@ import { Keyboard, TouchableOpacity, TouchableWithoutFeedback, View } from 'reac
 import { isValidPassword } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useDisableNavigatingBack from '@common/hooks/useDisableNavigatingBack'
@@ -19,7 +19,6 @@ import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
 
@@ -82,7 +81,7 @@ const KeyStoreUnlockScreen = () => {
     >
       <>
         <Header withAmbireLogo />
-        <Wrapper
+        <ScrollableWrapper
           contentContainerStyle={[spacings.pbLg, flexboxStyles.alignCenter]}
           type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
           extraHeight={220}
@@ -146,7 +145,7 @@ const KeyStoreUnlockScreen = () => {
               </View>
             </View>
           </View>
-        </Wrapper>
+        </ScrollableWrapper>
       </>
     </TouchableWithoutFeedback>
   )

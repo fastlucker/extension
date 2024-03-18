@@ -27,13 +27,13 @@ const flow = new PromiseFlow<{
 }>()
 const flowContext = flow
   .use(async (ctx, next) => {
-    // check method
     const {
       data: { method },
-      mainCtrl
+      mainCtrl,
+      dappsCtrl
     } = ctx.request
     ctx.mapMethod = underline2Camelcase(method)
-    const providerCtrl = new ProviderController(mainCtrl)
+    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!(providerCtrl as any)[ctx.mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
         return providerCtrl.ethRpc(ctx.request)
@@ -53,21 +53,25 @@ const flowContext = flow
       request: {
         session: { origin },
         mainCtrl,
+        dappsCtrl,
         notificationCtrl
       }
     } = ctx
-    const providerCtrl = new ProviderController(mainCtrl)
+    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      // const isUnlock = mainCtrl.keystore.isUnlocked
-      const isUnlock = true
-      if (!isUnlock) {
+      const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
+
+      if (!isUnlock && permissionService.hasPermission(origin)) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
         ctx.request.requestedNotificationRequest = true
         lockedOrigins.add(origin)
         try {
-          await notificationCtrl.requestNotificationRequest({ lock: true })
+          await notificationCtrl.requestNotificationRequest({
+            screen: 'Unlock',
+            params: { origin }
+          })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -84,11 +88,12 @@ const flowContext = flow
       request: {
         session: { origin, name, icon },
         mainCtrl,
+        dappsCtrl,
         notificationCtrl
       },
       mapMethod
     } = ctx
-    const providerCtrl = new ProviderController(mainCtrl)
+    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       if (!permissionService.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
@@ -119,11 +124,12 @@ const flowContext = flow
         data: { method },
         session: { origin, name, icon },
         mainCtrl,
+        dappsCtrl,
         notificationCtrl
       },
       mapMethod
     } = ctx
-    const providerCtrl = new ProviderController(mainCtrl)
+    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(ctx.request))) {
@@ -148,7 +154,7 @@ const flowContext = flow
     return next()
   })
   .use(async (ctx) => {
-    const providerCtrl = new ProviderController(ctx.request.mainCtrl)
+    const providerCtrl = new ProviderController(ctx.request.mainCtrl, ctx.request.dappsCtrl)
     const { requestRes, mapMethod, request } = ctx
 
     // process request

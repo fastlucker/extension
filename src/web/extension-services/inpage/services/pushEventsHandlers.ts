@@ -31,6 +31,7 @@ class PushEventHandlers {
 
   lock = () => {
     this.provider._isUnlocked = false
+    this._emit('accountsChanged', [])
   }
 
   disconnect = () => {

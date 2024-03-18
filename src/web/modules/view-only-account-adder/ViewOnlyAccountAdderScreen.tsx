@@ -1,7 +1,7 @@
-import { ethers } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 
 import { AddressState } from '@ambire-common/interfaces/domains'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
@@ -22,6 +22,7 @@ import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
@@ -59,6 +60,9 @@ const ViewOnlyScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
+  const [bindAnim, animStyle] = useHover({
+    preset: 'opacityInverted'
+  })
   const {
     control,
     watch,
@@ -119,7 +123,7 @@ const ViewOnlyScreen = () => {
       }
 
       return {
-        addr: ethers.getAddress(address),
+        addr: getAddress(address),
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation,
@@ -131,7 +135,7 @@ const ViewOnlyScreen = () => {
     try {
       const accountsToAdd = await Promise.all(accountsToAddPromises)
 
-      return await dispatch({
+      return dispatch({
         type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
         params: { accounts: accountsToAdd }
       })
@@ -227,15 +231,16 @@ const ViewOnlyScreen = () => {
             />
           ))}
           <View>
-            <Pressable
+            <AnimatedPressable
               disabled={isSubmitting}
               onPress={() => append({ ...DEFAULT_ADDRESS_FIELD_VALUE })}
-              style={spacings.ptTy}
+              style={[spacings.ptTy, animStyle]}
+              {...bindAnim}
             >
               <Text fontSize={14} underline>
                 {t('+ Add one more address')}
               </Text>
-            </Pressable>
+            </AnimatedPressable>
           </View>
         </Panel>
       </TabLayoutWrapperMainContent>

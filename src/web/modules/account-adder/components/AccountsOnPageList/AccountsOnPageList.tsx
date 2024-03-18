@@ -1,26 +1,25 @@
-import { Mnemonic } from 'ethers'
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Dimensions, ScrollView, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import AccountAdderController, {
+import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import {
+  Account as AccountInterface,
   AccountOnPage,
   ImportStatus
-} from '@ambire-common/controllers/accountAdder/accountAdder'
-import { Account as AccountInterface } from '@ambire-common/interfaces/account'
+} from '@ambire-common/interfaces/account'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Pagination from '@common/components/Pagination'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
-import Wrapper from '@common/components/Wrapper'
 import { useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -35,32 +34,26 @@ const AccountsOnPageList = ({
   state,
   setPage,
   keyType,
-  privKeyOrSeed,
+  subType,
   lookingForLinkedAccounts
 }: {
   state: AccountAdderController
   setPage: (page: number) => void
-  keyType: string
-  privKeyOrSeed?: string
+  keyType: AccountAdderController['type']
+  subType: AccountAdderController['subType']
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const { theme } = useTheme()
   const [containerHeight, setContainerHeight] = useState(0)
   const [contentHeight, setContentHeight] = useState(0)
   const [modalContainerHeight, setModalContainerHeight] = useState(0)
   const [modalContentHeight, setModalContentHeight] = useState(0)
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(false)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const keyTypeInternalSubtype = useMemo(() => {
-    if (keyType !== 'internal' || !privKeyOrSeed) return undefined
-
-    return Mnemonic.isValidMnemonic(privKeyOrSeed) ? 'seed' : 'private-key'
-  }, [keyType, privKeyOrSeed])
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -170,22 +163,39 @@ const AccountsOnPageList = ({
   )
 
   const setTitle = useCallback(() => {
-    if (keyType !== 'internal') {
+    if (keyType && keyType !== 'internal') {
       return t('Import Accounts From {{ hwDeviceName }}', {
         hwDeviceName: HARDWARE_WALLET_DEVICE_NAMES[keyType]
       })
     }
 
-    if (keyTypeInternalSubtype === 'seed') {
+    if (subType === 'seed') {
       return t('Import Accounts from Seed Phrase')
     }
 
-    if (keyTypeInternalSubtype === 'private-key') {
+    if (subType === 'private-key') {
       return t('Import Accounts from Private Key')
     }
 
     return t('Select Accounts To Import')
-  }, [keyType, keyTypeInternalSubtype, t])
+  }, [keyType, subType, t])
+
+  // Empty means it's not loading and no accounts on the current page are derived.
+  // Should rarely happen - if the deriving request gets cancelled on the device
+  // or if something goes wrong with deriving in general.
+  const isAccountAdderEmpty = useMemo(
+    () => !state.accountsLoading && state.accountsOnPage.length === 0,
+    [state.accountsLoading, state.accountsOnPage]
+  )
+
+  const shouldDisplayHideEmptyAccountsToggle = useMemo(
+    () => subType !== 'private-key' && !isAccountAdderEmpty,
+    [subType, isAccountAdderEmpty]
+  )
+
+  // Prevents the user from temporarily seeing (flashing) empty (error) states
+  // while being navigated back (resetting the Account Adder state).
+  if (!state.isInitialized) return null
 
   return (
     <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
@@ -243,13 +253,15 @@ const AccountsOnPageList = ({
         )}
 
         <BottomSheet
+          id="linked-accounts"
           sheetRef={sheetRef}
           closeBottomSheet={closeBottomSheet}
           scrollViewProps={{
             scrollEnabled: false
           }}
+          backgroundColor="primaryBackground"
           containerInnerWrapperStyles={{ maxHeight: Dimensions.get('window').height * 0.65 }}
-          style={{ maxWidth: tabLayoutWidths.lg, backgroundColor: theme.primaryBackground }}
+          style={{ maxWidth: tabLayoutWidths.lg }}
         >
           <Text style={spacings.mbMd} weight="medium" fontSize={20}>
             {t('Add Linked Accounts')}
@@ -291,7 +303,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {keyTypeInternalSubtype !== 'private-key' && (
+        {shouldDisplayHideEmptyAccountsToggle && (
           <View style={[spacings.mbLg, flexbox.alignStart]}>
             <Toggle
               isOn={hideEmptyAccounts}
@@ -301,7 +313,7 @@ const AccountsOnPageList = ({
             />
           </View>
         )}
-        <Wrapper
+        <ScrollableWrapper
           style={shouldEnablePagination && spacings.mbLg}
           contentContainerStyle={{
             flexGrow: 1,
@@ -316,6 +328,13 @@ const AccountsOnPageList = ({
             setContentHeight(height)
           }}
         >
+          {isAccountAdderEmpty && (
+            <Text appearance="errorText" style={[spacings.mt, spacings.mbTy]}>
+              {t(
+                'The process of retrieving accounts was cancelled or it failed.\n\nPlease go a step back and trigger the account adding process again. If the problem persists, please contact support.'
+              )}
+            </Text>
+          )}
           {state.accountsLoading ? (
             <View
               style={[
@@ -340,7 +359,7 @@ const AccountsOnPageList = ({
               )
             })
           )}
-        </Wrapper>
+        </ScrollableWrapper>
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
           <View
             style={[

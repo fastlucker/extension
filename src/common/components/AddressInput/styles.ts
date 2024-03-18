@@ -18,7 +18,11 @@ const getStyles = (theme: ThemeProps) =>
     label: {
       ...spacings.mbMi
     },
-    domainIcons: flexbox.directionRow,
+    domainIcons: {
+      ...flexbox.directionRow,
+      ...flexbox.alignCenter,
+      ...spacings.mlTy
+    },
     plTy: spacings.plTy,
     button: getInputStyles(theme).button
   })

@@ -1,23 +1,15 @@
-import AccountAdderController, {
-  ReadyToAddKeys
-} from '@ambire-common/controllers/accountAdder/accountAdder'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import { WalletController } from '@mobile/modules/web3/services/webview-background/wallet'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -41,10 +33,7 @@ type MainControllerAccountAdderInitLatticeAction = {
 }
 type MainControllerAccountAdderInitPrivateKeyOrSeedPhraseAction = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_PRIVATE_KEY_OR_SEED_PHRASE'
-  params: {
-    privKeyOrSeed: string
-    keyTypeInternalSubtype?: 'seed' | 'private-key'
-  }
+  params: { privKeyOrSeed: string }
 }
 type MainControllerSelectAccountAction = {
   type: 'MAIN_CONTROLLER_SELECT_ACCOUNT'
@@ -73,15 +62,6 @@ type MainControllerAccountAdderSetPageAction = {
 }
 type MainControllerAccountAdderAddAccounts = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS'
-  params: {
-    selectedAccounts: AccountAdderController['selectedAccounts']
-    readyToAddAccountPreferences: AccountPreferences
-    readyToAddKeys: {
-      internal: ReadyToAddKeys['internal']
-      externalTypeOnly: Key['type']
-    }
-    readyToAddKeyPreferences: KeyPreferences
-  }
 }
 type MainControllerAddAccounts = {
   type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS'
@@ -97,8 +77,8 @@ type MainControllerAddSeedPhraseAccounts = {
     seed: string
   }
 }
-type MainControllerAccountAdderReset = {
-  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET'
+type MainControllerAccountAdderResetIfNeeded = {
+  type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
@@ -195,12 +175,6 @@ type NotificationControllerResolveRequestAction = {
 type NotificationControllerRejectRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
   params: { err: string; id?: number }
-}
-type LedgerControllerUnlockAction = {
-  type: 'LEDGER_CONTROLLER_UNLOCK'
-}
-type LatticeControllerUnlockAction = {
-  type: 'LATTICE_CONTROLLER_UNLOCK'
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
@@ -301,27 +275,8 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
-type WalletControllerGetConnectedSiteAction = {
-  type: 'WALLET_CONTROLLER_GET_CONNECTED_SITE'
-  params: { origin: string }
-}
-type WalletControllerGetConnectedSitesAction = {
-  type: 'WALLET_CONTROLLER_GET_CONNECTED_SITES'
-}
-type WalletControllerRequestVaultControllerMethodAction = {
-  type: 'WALLET_CONTROLLER_REQUEST_VAULT_CONTROLLER_METHOD'
-  params: { method: string; props: any }
-}
-type WalletControllerSetStorageAction = {
-  type: 'WALLET_CONTROLLER_SET_STORAGE'
-  params: { key: string; value: any }
-}
-type WalletControllerGetCurrentSiteAction = {
-  type: 'WALLET_CONTROLLER_GET_CURRENT_SITE'
-  params: { tabId: number; domain: string }
-}
-type WalletControllerRemoveConnectedSiteAction = {
-  type: 'WALLET_CONTROLLER_REMOVE_CONNECTED_SITE'
+type DappsControllerRemoveConnectedSiteAction = {
+  type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
 }
 type NotificationControllerReopenCurrentNotificationRequestAction = {
@@ -355,7 +310,7 @@ export type Action =
   | MainControllerSelectAccountAction
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
-  | MainControllerAccountAdderReset
+  | MainControllerAccountAdderResetIfNeeded
   | MainControllerSettingsAddAccountPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
@@ -386,8 +341,6 @@ export type Action =
   | MainControllerTransferUpdateAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
-  | LedgerControllerUnlockAction
-  | LatticeControllerUnlockAction
   | MainControllerUpdateSelectedAccount
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
@@ -402,27 +355,9 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
-  | WalletControllerGetConnectedSiteAction
-  | WalletControllerRequestVaultControllerMethodAction
-  | WalletControllerSetStorageAction
-  | WalletControllerGetCurrentSiteAction
-  | WalletControllerRemoveConnectedSiteAction
-  | WalletControllerGetConnectedSitesAction
+  | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
-
-/**
- * These actions types are the one called by `dispatchAsync`. They are meant
- * to return results, in contrast to `dispatch` which does not return.
- */
-export type AsyncActionTypes = {
-  // TODO: These all should be migrated to use onUpdate emitted events
-  // instead of relying on the return value of the action.
-  WALLET_CONTROLLER_GET_CURRENT_SITE: ReturnType<WalletController['getCurrentSite']>
-  WALLET_CONTROLLER_GET_CONNECTED_SITES: ReturnType<WalletController['getConnectedSites']>
-  LEDGER_CONTROLLER_UNLOCK: ReturnType<LedgerController['unlock']>
-  LATTICE_CONTROLLER_UNLOCK: ReturnType<LatticeController['unlock']>
-}

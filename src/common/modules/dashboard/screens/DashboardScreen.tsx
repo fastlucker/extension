@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
@@ -36,10 +37,13 @@ const DashboardScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
+  const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
-  const [isReceiveModalVisible, setIsReceiveModalVisible] = useState(false)
+  const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
+    preset: 'opacity'
+  })
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
     width: 0,
     height: 0
@@ -78,7 +82,7 @@ const DashboardScreen = () => {
 
   return (
     <>
-      <ReceiveModal isOpen={isReceiveModalVisible} setIsOpen={setIsReceiveModalVisible} />
+      <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
       <View style={styles.container}>
         <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
           <View style={[styles.contentContainer]}>
@@ -110,13 +114,14 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text style={spacings.mbTy}>
+                      <Text style={spacings.mbTy} selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
                           style={{ lineHeight: 34 }}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('$')}
                           {formatDecimals(totalPortfolioAmount).split('.')[0]}
@@ -126,6 +131,7 @@ const DashboardScreen = () => {
                           shouldScale={false}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('.')}
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
@@ -136,9 +142,13 @@ const DashboardScreen = () => {
                         {!accountPortfolio?.isAllReady ? (
                           <Spinner style={{ width: 16, height: 16 }} />
                         ) : (
-                          <Pressable onPress={refreshPortfolio}>
+                          <AnimatedPressable
+                            style={refreshButtonAnimStyle}
+                            onPress={refreshPortfolio}
+                            {...bindRefreshButtonAnim}
+                          >
                             <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </Pressable>
+                          </AnimatedPressable>
                         )}
                       </View>
                     </View>
@@ -172,7 +182,7 @@ const DashboardScreen = () => {
                       />
                     </AnimatedPressable>
                   </View>
-                  <Routes setIsReceiveModalVisible={setIsReceiveModalVisible} />
+                  <Routes openReceiveModal={openReceiveModal} />
                 </View>
               </View>
             </View>

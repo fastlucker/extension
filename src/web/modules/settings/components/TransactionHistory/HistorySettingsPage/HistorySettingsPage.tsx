@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState
 } from 'react'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -15,6 +15,7 @@ import { Avatar } from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Pagination from '@common/components/Pagination'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -66,8 +67,6 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()
   const [page, setPage] = useState(1)
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
   const { t } = useTranslation()
   const { maxWidthSize } = useWindowSize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -173,8 +172,6 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     [networks]
   )
 
-  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
-
   const goToNextPageDisabled = useMemo(() => {
     return ITEMS_PER_PAGE * page - itemsTotal >= 0
   }, [itemsTotal, page])
@@ -200,7 +197,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           />
         )}
       </View>
-      <View style={[hasScroll && { paddingRight: 20 }, spacings.mbTy]}>
+      <View style={[spacings.mbTy]}>
         {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
           <View style={[flexbox.directionRow, flexbox.flex1, spacings.phSm]}>
             <View style={flexbox.flex1}>
@@ -216,18 +213,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           </View>
         )}
       </View>
-      <ScrollView
+      <ScrollableWrapper
         style={[spacings.mbXl, flexbox.flex1]}
-        contentContainerStyle={{
-          flexGrow: 1,
-          ...spacings?.[hasScroll ? 'prSm' : 'pr0']
-        }}
-        onLayout={(e) => {
-          setContainerHeight(e.nativeEvent.layout.height)
-        }}
-        onContentSizeChange={(_, height) => {
-          setContentHeight(height)
-        }}
         {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
           ? { stickyHeaderIndices: [0] }
           : {})}
@@ -239,7 +226,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
             <Spinner />
           </View>
         )}
-      </ScrollView>
+      </ScrollableWrapper>
       <Pagination
         maxPages={Math.ceil(itemsTotal / ITEMS_PER_PAGE)}
         isNextDisabled={goToNextPageDisabled}

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollView, View } from 'react-native'
+import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
@@ -11,15 +11,17 @@ import HelpIcon from '@common/assets/svg/HelpIcon'
 import KeyStoreSettingsIcon from '@common/assets/svg/KeyStoreSettingsIcon'
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
+import PasswordRecoverySettingsIcon from '@common/assets/svg/PasswordRecoverySettingsIcon'
 import SignedMessageIcon from '@common/assets/svg/SignedMessageIcon'
 import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
-import PaddedScrollView from '@common/components/PaddedScrollView'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SettingsLink from '@web/modules/settings/components/SettingsLink'
 
 import getStyles from './styles'
@@ -50,10 +52,16 @@ export const SETTINGS_LINKS = [
     path: ROUTES.signedMessages
   },
   {
-    key: 'device-password',
+    key: 'device-password-change',
     Icon: React.memo(KeyStoreSettingsIcon),
     label: 'Device Password',
-    path: ROUTES.devicePassword
+    path: ROUTES.devicePasswordChange
+  },
+  {
+    key: 'device-password-recovery',
+    Icon: React.memo(PasswordRecoverySettingsIcon),
+    label: 'Password Recovery',
+    path: ROUTES.devicePasswordRecovery
   },
   {
     key: 'email-vault',
@@ -94,6 +102,7 @@ const OTHER_LINKS = [
 ]
 
 const Sidebar = ({ activeLink }: { activeLink?: string }) => {
+  const keystoreState = useKeystoreControllerState()
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -120,8 +129,14 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">
         {t('Settings')}
       </Text>
-      <PaddedScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {SETTINGS_LINKS.map((link, i) => {
+      <ScrollableWrapper>
+        {SETTINGS_LINKS.map((_link, i) => {
+          // If the KeyStore device password is not configured yet, redirect to DevicePassword->Set route under the hood,
+          // instead of loading DevicePassword->Change route.
+          const link =
+            !keystoreState.hasPasswordSecret && _link.key === 'device-password-change'
+              ? { ..._link, key: 'device-password-set', path: ROUTES.devicePasswordSet }
+              : _link
           const isActive = activeLink === link.key
 
           return (
@@ -151,7 +166,7 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
             />
           )
         })}
-      </PaddedScrollView>
+      </ScrollableWrapper>
     </View>
   )
 }

@@ -18,7 +18,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useExtension from '@web/hooks/useExtension'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
@@ -34,10 +34,10 @@ const DAppFooter = () => {
   const { networks } = useSettingsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { site, disconnectDapp } = useExtension()
+  const { currentDapp } = useDappsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [network, setNetwork] = useState<NetworkDescriptor>(
-    networks.filter((n) => Number(n.chainId) === site?.chainId)[0] ||
+    networks.filter((n) => Number(n.chainId) === currentDapp?.chainId)[0] ||
       networks.filter((n) => n.id === 'ethereum')[0]
   )
 
@@ -51,19 +51,25 @@ const DAppFooter = () => {
             </Text>
           </View>
           <View style={styles.border}>
-            {site ? (
+            {currentDapp ? (
               <View style={styles.currentDApp}>
-                <Image source={{ uri: site?.icon }} resizeMode="contain" style={styles.icon} />
-                <View style={spacings.mlMi}>
-                  <Text fontSize={12} weight="regular">
-                    {site?.origin}
+                <Image
+                  source={{ uri: currentDapp?.icon }}
+                  resizeMode="contain"
+                  style={styles.icon}
+                />
+                <View style={[spacings.mlMi, flexbox.flex1]}>
+                  <Text fontSize={12} weight="medium" numberOfLines={1} style={spacings.mrMi}>
+                    {currentDapp?.name}
                   </Text>
                   <Text
                     weight="regular"
-                    color={site?.isConnected ? theme.successText : theme.errorText}
+                    color={currentDapp?.isConnected ? theme.successText : theme.errorText}
                     fontSize={10}
                   >
-                    {site?.isConnected ? t(`Connected on ${network.name}`) : t('Not connected')}
+                    {currentDapp?.isConnected
+                      ? t(`Connected on ${network.name}`)
+                      : t('Not connected')}
                   </Text>
                 </View>
               </View>
@@ -81,7 +87,7 @@ const DAppFooter = () => {
               </View>
             )}
             <View style={flexbox.directionRow}>
-              {site?.isConnected && (
+              {currentDapp?.isConnected && (
                 <Button
                   type="danger"
                   size="small"
@@ -89,9 +95,10 @@ const DAppFooter = () => {
                   text={t('Disconnect')}
                   style={spacings.mrSm}
                   onPress={() => {
-                    if (!site?.origin || !site?.isConnected) return
-
-                    disconnectDapp(site?.origin)
+                    dispatch({
+                      type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE',
+                      params: { origin: currentDapp.origin }
+                    })
                   }}
                 >
                   <View style={spacings.plTy}>
@@ -104,7 +111,7 @@ const DAppFooter = () => {
                 size="small"
                 hasBottomSpacing={false}
                 text={t('Settings')}
-                disabled={!site?.isConnected}
+                disabled={!currentDapp?.isConnected}
                 onPress={() => {
                   settingsButtonType === 'open' && openBottomSheet()
                   settingsButtonType === 'close' && closeBottomSheet()
@@ -120,24 +127,24 @@ const DAppFooter = () => {
         </View>
       )
     },
-    [site, network?.name, styles, theme, disconnectDapp, openBottomSheet, closeBottomSheet, t]
+    [currentDapp, network?.name, styles, theme, openBottomSheet, closeBottomSheet, dispatch, t]
   )
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
-      if (site?.origin) {
+      if (currentDapp?.origin) {
         const newNetwork = networks.filter((net) => net.id === networkOption.value)[0]
         setNetwork(newNetwork)
         dispatch({
           type: 'CHANGE_CURRENT_DAPP_NETWORK',
           params: {
             chainId: Number(newNetwork.chainId),
-            origin: site.origin
+            origin: currentDapp.origin
           }
         })
       }
     },
-    [networks, site?.origin, dispatch]
+    [networks, currentDapp?.origin, dispatch]
   )
 
   const networksOptions: NetworkOption[] = useMemo(
@@ -154,7 +161,7 @@ const DAppFooter = () => {
     <View style={styles.footerContainer}>
       <View style={styles.container}>
         {currentDappController('open')}
-        <BottomSheet sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
           <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close')}</View>
           <View style={styles.networkSelectorContainer}>
             <Text fontSize={14} style={flexbox.flex1}>

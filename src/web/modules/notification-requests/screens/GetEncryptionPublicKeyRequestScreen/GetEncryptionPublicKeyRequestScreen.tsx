@@ -4,9 +4,9 @@ import { View } from 'react-native'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import Wrapper from '@common/components/Wrapper'
 import { Trans, useTranslation } from '@common/config/localization'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
@@ -34,7 +34,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   return (
     <>
       <HeaderAccountAndNetworkInfo />
-      <Wrapper hasBottomTabNav={false}>
+      <ScrollableWrapper hasBottomTabNav={false}>
         <Panel>
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage
@@ -74,7 +74,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
             </View>
           </View>
         </Panel>
-      </Wrapper>
+      </ScrollableWrapper>
     </>
   )
 }

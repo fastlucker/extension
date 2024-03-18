@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Keyboard, Pressable, TouchableOpacity, View } from 'react-native'
+import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -17,6 +17,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
+import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import BottomSheet from '../BottomSheet'
@@ -43,17 +44,15 @@ const AddressInput: React.FC<Props> = ({
   isRecipientDomainResolving,
   label,
   validation,
-  button,
-  buttonProps = {},
-  onButtonPress,
-  buttonStyle = {},
   containerStyle = {},
+  placeholder,
   ...rest
 }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { styles } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
 
   const { message, isError } = validation
 
@@ -92,80 +91,59 @@ const AddressInput: React.FC<Props> = ({
         </Text>
       )}
       <Input
-        button={
-          <View style={styles.domainIcons}>
-            <UnstoppableDomainIcon isActive={!!udAddress} />
-            <View style={styles.plTy}>
-              <EnsIcon isActive={!!ensAddress} />
-            </View>
-            {!isWeb && (
-              <TouchableOpacity style={styles.plTy} onPress={handleOnButtonPress}>
-                <ScanIcon isFilled={false} />
-              </TouchableOpacity>
-            )}
-            {!!button && (
-              <TouchableOpacity
-                // The `focusable` prop determines whether a component is user-focusable
-                // and appears in the keyboard tab flow. It's missing in the
-                // TouchableOpacity props, because it's react-native-web specific, see:
-                // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
-                // @ts-ignore-next-line
-                focusable={false}
-                onPress={onButtonPress}
-                style={[styles.button, buttonStyle]}
-                {...buttonProps}
-              >
-                {typeof button === 'string' || button instanceof String ? (
-                  <Text weight="medium">{button}</Text>
-                ) : (
-                  button
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-        }
         onChangeText={onChangeText}
         // Purposefully spread props here, so that we don't override AddressInput's props
         {...rest}
-        buttonProps={{
-          activeOpacity: 1
-        }}
         containerStyle={containerStyle}
-        onButtonPress={() => null}
         validLabel={!isError ? message : ''}
         error={isError ? message : ''}
         isValid={!isError}
+        placeholder={placeholder || t('Address / ENS / UD')}
         childrenBeforeButtons={
-          (ensAddress || udAddress) && !isRecipientDomainResolving ? (
-            <Pressable
-              style={[flexbox.alignCenter, flexbox.directionRow]}
-              onPress={handleCopyResolvedAddress}
-            >
-              <Text style={flexbox.flex1} numberOfLines={1}>
-                <Text
-                  style={{
-                    flex: 1
-                  }}
-                  fontSize={12}
-                  appearance="secondaryText"
-                  numberOfLines={1}
-                  ellipsizeMode="head"
-                >
-                  ({shortenAddress(ensAddress || udAddress, 18)})
+          <>
+            {(ensAddress || udAddress) && !isRecipientDomainResolving ? (
+              <AnimatedPressable
+                style={[flexbox.alignCenter, flexbox.directionRow, animStyle]}
+                onPress={handleCopyResolvedAddress}
+                {...bindAnim}
+              >
+                <Text style={flexbox.flex1} numberOfLines={1}>
+                  <Text
+                    style={{
+                      flex: 1
+                    }}
+                    fontSize={12}
+                    appearance="secondaryText"
+                    numberOfLines={1}
+                    ellipsizeMode="head"
+                  >
+                    ({shortenAddress(ensAddress || udAddress, 18)})
+                  </Text>
                 </Text>
-              </Text>
-              <CopyIcon
-                width={16}
-                height={16}
-                style={[
-                  spacings.mlMi,
-                  {
-                    minWidth: 16
-                  }
-                ]}
-              />
-            </Pressable>
-          ) : null
+                <CopyIcon
+                  width={16}
+                  height={16}
+                  style={[
+                    spacings.mlMi,
+                    {
+                      minWidth: 16
+                    }
+                  ]}
+                />
+              </AnimatedPressable>
+            ) : null}
+            <View style={[styles.domainIcons, rest.button ? spacings.prTy : spacings.pr]}>
+              <UnstoppableDomainIcon isActive={!!udAddress} />
+              <View style={styles.plTy}>
+                <EnsIcon isActive={!!ensAddress} />
+              </View>
+            </View>
+            {!isWeb && (
+              <TouchableOpacity style={spacings.prTy} onPress={handleOnButtonPress}>
+                <ScanIcon isFilled={false} />
+              </TouchableOpacity>
+            )}
+          </>
         }
       />
       {!isWeb && (

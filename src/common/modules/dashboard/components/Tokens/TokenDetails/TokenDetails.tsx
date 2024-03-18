@@ -1,8 +1,7 @@
-import { getAddress } from 'ethers'
-import * as Clipboard from 'expo-clipboard'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
@@ -26,11 +25,12 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import CopyIcon from '@web/assets/svg/CopyIcon'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import shortenAddress from '@web/utils/shortenAddress'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import TokenDetailsButton from './Button'
+import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
 
 const TokenDetails = ({
@@ -44,6 +44,8 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { dispatch } = useBackgroundService()
+  const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
 
@@ -73,8 +75,33 @@ const TokenDetails = ({
         id: 'swap',
         text: t('Swap'),
         icon: SwapIcon,
-        onPress: ({ networkId, address }: TokenResult) =>
-          createTab(`https://app.uniswap.org/swap?inputCurrency=${address}&chain=${networkId}`),
+        onPress: async ({ networkId, address }: TokenResult) => {
+          const networkData = networks.find((n) => n.id === networkId)
+
+          if (!networkData) {
+            addToast(t('Network not found'), { type: 'error' })
+            return
+          }
+
+          let inputCurrency = address
+
+          if (address === ZeroAddress) {
+            // Uniswap doesn't select the native token if you pass its address
+            inputCurrency = 'native'
+          }
+
+          // Change the current dapp network to the selected one,
+          // otherwise uniswap will select the token from the current network
+          dispatch({
+            type: 'CHANGE_CURRENT_DAPP_NETWORK',
+            params: {
+              chainId: Number(networkData.chainId),
+              origin: 'https://app.uniswap.org'
+            }
+          })
+
+          await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
+        },
         isDisabled: isGasTank,
         strokeWidth: 1.5
       },
@@ -107,7 +134,22 @@ const TokenDetails = ({
         id: 'bridge',
         text: t('Bridge'),
         icon: BridgeIcon,
-        onPress: () => createTab(BRIDGE_URL),
+        onPress: async ({ networkId, address }) => {
+          const networkData = networks.find((network) => network.id === networkId)
+
+          if (networkData) {
+            let formattedAddress = address
+
+            if (address === ZeroAddress) {
+              // Bungee expects the native address to be formatted as 0xeee...eee
+              formattedAddress = `0x${'e'.repeat(40)}`
+            }
+
+            await createTab(
+              `${BRIDGE_URL}?fromChainId=${networkData?.chainId}&fromTokenAddress=${formattedAddress}`
+            )
+          }
+        },
         isDisabled: isGasTank,
         strokeWidth: 1.5
       },
@@ -138,7 +180,18 @@ const TokenDetails = ({
         isDisabled: !hasTokenInfo
       }
     ],
-    [t, isGasTank, isGasTankFeeToken, hasTokenInfo, navigate, token, handleClose, addToast]
+    [
+      t,
+      isGasTank,
+      isGasTankFeeToken,
+      hasTokenInfo,
+      navigate,
+      networks,
+      dispatch,
+      addToast,
+      token,
+      handleClose
+    ]
   )
   useEffect(() => {
     if (!token?.address || !token?.networkId) return
@@ -204,7 +257,7 @@ const TokenDetails = ({
           <View style={styles.tokenSymbolAndNetwork}>
             <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
               <Text>
-                <Text fontSize={20} weight="semiBold" style={spacings.mrSm}>
+                <Text selectable fontSize={20} weight="semiBold" style={spacings.mrSm}>
                   {symbol}
                 </Text>
                 <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
@@ -214,39 +267,30 @@ const TokenDetails = ({
                 <Text fontSize={16}>
                   {!onGasTank && !isRewards && !isVesting && networkData?.name}
                 </Text>{' '}
-                {address !== `0x${'0'.repeat(40)}` ? (
-                  <>
-                    {' '}
-                    <Text fontSize={16} weight="number_regular" appearance="secondaryText">
-                      ({shortenAddress(address, isRewards || isVesting ? 10 : 13)})
-                    </Text>
-                    <TouchableOpacity
-                      style={spacings.mlMi}
-                      onPress={() => {
-                        Clipboard.setStringAsync(address).catch(() => null)
-                        addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
-                      }}
-                    >
-                      <CopyIcon
-                        width={16}
-                        height={16}
-                        color={iconColors.secondary}
-                        strokeWidth="1.5"
-                      />
-                    </TouchableOpacity>
-                  </>
-                ) : null}
+                <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
           </View>
           <View style={styles.balance}>
-            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" numberOfLines={1}>
+            <Text
+              selectable
+              style={spacings.mrMi}
+              fontSize={16}
+              weight="number_bold"
+              numberOfLines={1}
+            >
               {balanceFormatted} {symbol}
             </Text>
-            <Text style={spacings.mrMi} fontSize={16} weight="number_bold" appearance="infoText">
+            <Text
+              selectable
+              style={spacings.mrMi}
+              fontSize={16}
+              weight="number_bold"
+              appearance="infoText"
+            >
               ≈ {balanceUSDFormatted}
             </Text>
-            <Text fontSize={16} weight="number_regular" appearance="secondaryText">
+            <Text selectable fontSize={16} weight="number_regular" appearance="secondaryText">
               (1 ${symbol} ≈ {priceUSDFormatted})
             </Text>
           </View>
