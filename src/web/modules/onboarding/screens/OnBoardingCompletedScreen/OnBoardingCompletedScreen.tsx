@@ -26,6 +26,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
 
 import ConfettiAnimation from '../../components/ConfettiAnimation'
@@ -65,6 +66,8 @@ const OnBoardingCompletedScreen = () => {
       setIsOnBoarded(onBoarded)
     })()
   }, [navigate])
+
+  useOnEnterKeyPress({ action: () => navigate(ROUTES.dashboard), disabled: !isOnBoarded })
 
   const renderMissedRewards = useCallback(() => {
     return (

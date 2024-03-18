@@ -22,6 +22,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
@@ -74,6 +75,11 @@ const PrivateKeyImportScreen = () => {
       })
     })()
   }, [dispatch, handleSubmit])
+
+  useOnEnterKeyPress({
+    action: handleFormSubmit,
+    disabled: !isValid
+  })
 
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()

@@ -13,6 +13,7 @@ import useStepper from '@common/modules/auth/hooks/useStepper'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 
 import LedgerController from '../../controllers/LedgerController'
 
@@ -54,6 +55,8 @@ const LedgerConnectModal = ({ modalRef, handleClose }: Props) => {
 
     dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LEDGER' })
   }
+
+  useOnEnterKeyPress({ action: onPressNext, disabled: isConnectingToDevice })
 
   return (
     <BottomSheet
