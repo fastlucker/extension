@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-import { bootStrap, typeText, clickOnElement, typeSeedPhrase } from './functions.js';
+import { bootstrap, typeText, clickOnElement, typeSeedPhrase } from './functions.js';
 
 
 describe('balance', () => {
@@ -11,8 +11,8 @@ describe('balance', () => {
     let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
 
     beforeEach(async () => {
-        /* Initialize browser and page using bootStrap */
-        const context = await bootStrap({ headless: false, slowMo: 10 });
+        /* Initialize browser and page using bootstrap */
+        const context = await bootstrap({ headless: false, slowMo: 10 });
         browser = context.browser;
         page = context.page;
         extensionRootUrl = context.extensionRootUrl
@@ -103,6 +103,23 @@ describe('balance', () => {
     afterEach(async () => {
         await browser.close();
     });
+    //--------------------------------------------------------------------------------------------------------------
+    it('check the balance in account ', (async () => {
+
+        await page.waitForSelector('[data-testid="full-balance"]')
+        /* Get the available balance */
+        const availableAmmount = await page.evaluate(() => {
+            const balance = document.querySelector('[data-testid="full-balance"]')
+            return balance.innerText
+        })
+
+        let availableAmmountNum = availableAmmount.replace(/\n/g, "");
+        availableAmmountNum = availableAmmountNum.split('$')[1]
+        console.log(availableAmmountNum)
+        /* Verify that the balance is bigger than 0 */
+        expect(parseFloat(availableAmmountNum)).toBeGreaterThan(10);
+    }));
+
 
     //--------------------------------------------------------------------------------------------------------------
     it('check if networks Ethereum, USDC and Polygon exist in the account  ', (async () => {
@@ -148,7 +165,7 @@ describe('balance', () => {
 
 
         /* Get the text of the modal and verify that the name of the first collectible item is included*/
-        const modalText = await page.$eval('[data-testid="rows"]', el => {
+        const modalText = await page.$eval('[data-testid="collectible-row"]', el => {
             return el.textContent
         });
 

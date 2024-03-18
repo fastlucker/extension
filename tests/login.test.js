@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 
 
-import { bootStrap, setAmbKeyStoreForLegacy, clickOnElement, typeText } from './functions.js';
+import { bootstrap, setAmbKeyStoreForLegacy,finishStoriesAndSelectAccount, clickOnElement, typeText } from './functions.js';
 
 
 describe('login', () => {
@@ -18,7 +18,7 @@ describe('login', () => {
             slowMo: 30,
         };
 
-        const context = await bootStrap(page, browser, options)
+        const context = await bootstrap(page, browser, options)
         // page = context.page
         // pages = context.pages
         browser = context.browser
@@ -40,54 +40,22 @@ describe('login', () => {
         browser.close();
     })
 
+
     const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]';
 
 
     //------------------------------------------------------------------------------------------------------
-    it('login into legacy account with phrase', (async () => {
+    it('Create basic account with private key', (async () => {
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
+        await page.waitForSelector('[data-testid="enter-seed-phrase-field"]');
 
-        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
+        await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
 
-        await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
-
-        let passphraseWords = process.env.PHRASE_LEGACY_ACCOUNT;
-        let wordArray = passphraseWords.split(' ');
-
-        for (let i = 0; i < wordArray.length; i++) {
-            const wordToType = wordArray[i];
-
-            // Type the word into the input field using page.type
-            const inputSelector = `[placeholder="Word ${i + 1}"]`;
-            await page.type(inputSelector, wordToType);
-        }
-
-        /* Click on Import button. */
-        await clickOnElement(page, '[data-testid="padding-button-Import"]')
-
-        await page.waitForXPath('//div[contains(text(), "Import Accounts from Seed Phrase")]');
-
-        await new Promise((r) => setTimeout(r, 2000))
-        await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
-
-        await new Promise((r) => setTimeout(r, 2000))
-        await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
-        /* Select one Legacy and one Smart account and keep the addresses of the accounts */
-        await page.waitForSelector('[data-testid="checkbox"]')
-        /* Select one Legacy account and one Smart account */
-        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', element => {
-            element[0].click()
-            return element[0].textContent
-        })
-        let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
-            element[1].click()
-            return element[1].textContent
-        })
-
-        /* Click on Import Accounts button*/
-        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
+        /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
+        await finishStoriesAndSelectAccount(page)
 
         /* Click on "Save and Continue" button*/
-        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]');
 
         await page.waitForFunction(() => {
             return window.location.href.includes('/onboarding-completed');
@@ -96,8 +64,45 @@ describe('login', () => {
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
         /* Verify that selected accounts exist on the page */
-        const selectedLegacyAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
-        expect(selectedLegacyAccount).toContain(firstSelectedLegacyAccount);
+        const selectedBasicAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
+        expect(selectedBasicAccount).toContain(firstSelectedBasicAccount);
+
+        const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
+        expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
+    }));
+
+    //------------------------------------------------------------------------------------------------------
+    it('login into basic account with phrase', (async () => {
+
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
+        
+        let passphraseWords = process.env.PHRASE_LEGACY_ACCOUNT;
+        let wordArray = passphraseWords.split(' ');
+
+        await page.waitForSelector('[placeholder="Word 1"]');
+        for (let i = 0; i < wordArray.length; i++) {
+            const wordToType = wordArray[i];
+
+            // Type the word into the input field using page.type
+            const inputSelector = `[placeholder="Word ${i + 1}"]`;
+            await page.type(inputSelector, wordToType);
+        }
+
+        /* This function will complete the onboarsding stories and will select and retrieve first basic and first smarts account */
+        await finishStoriesAndSelectAccount(page)
+
+        /* Click on "Save and Continue" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]');
+
+        await page.waitForFunction(() => {
+            return window.location.href.includes('/onboarding-completed');
+        }, { timeout: 60000 });
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
+
+        /* Verify that selected accounts exist on the page */
+        const selectedBasicAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
+        expect(selectedBasicAccount).toContain(firstSelectedBasicAccount);
 
         const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
         expect(selectedSmartAccount).toContain(firstSelectedSmartAccount);
@@ -138,8 +143,6 @@ describe('login', () => {
         await page.$eval(enterSeedPhraseField, (el) => (el.value = ''));
         console.log('Test 1 passed for privateKey: 0000000000000000000000000000000000000000000000000000000000000000');
 
-
-
         await typeTextAndCheckValidity('', 'Test 2');
         await page.$eval(enterSeedPhraseField, (el) => (el.value = ''));
         console.log('Test 2 passed for privateKey: Empty');
@@ -158,7 +161,7 @@ describe('login', () => {
     it('(-) Login into legacy account with invalid phrase', async () => {
         await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]');
 
-        await page.waitForXPath('//div[contains(text(), "Enter your Seed Phrase")]');
+        await page.waitForSelector('[placeholder="Word 1"]');
 
         /* This function types words in the passphrase fields and checks if the button is disabled. */
         async function typeWordsAndCheckButton(passphraseWords) {
@@ -229,42 +232,19 @@ describe('login', () => {
     it('change selected account name', (async () => {
         await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
 
-        await page.waitForXPath('//div[contains(text(), "Import your Private Key")]');
+        await page.waitForSelector('[data-testid="enter-seed-phrase-field"]');
 
         await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
 
-        /* Click on Import button. */
-        await clickOnElement(page, '[data-testid="padding-button-Import"]')
+        /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
+        await finishStoriesAndSelectAccount(page)
 
-        await page.waitForXPath('//div[contains(text(), "Import Accounts from Private Key")]');
-
-        await new Promise((r) => setTimeout(r, 2000))
-        await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
-
-        await new Promise((r) => setTimeout(r, 2000))
-        await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
-        /* Select one Legacy and one Smart account and keep the addresses of the accounts */
-        await page.waitForSelector('[data-testid="checkbox"]')
-        /* Select one Legacy account and one Smart account */
-        let firstSelectedLegacyAccount = await page.$$eval('[data-testid="add-account"]', element => {
-            element[0].click()
-            return element[0].textContent
-        })
-
-        let firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
-            element[1].click()
-            return element[1].textContent
-        })
-
-        /* Click on Import Accounts button*/
-        await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
-
-        await page.waitForSelector(`xpath///div[contains(text(), "Personalize your accounts")]`);
+        await page.waitForSelector('[data-testid="pen-icon-edit-name"]');
 
         let accountName1 = 'Test-Account-1'
         let accountName2 = 'Test-Account-2'
 
-        const editAccountNameFields = await page.$$('[data-testid="penIcon-edit-name"]');
+        const editAccountNameFields = await page.$$('[data-testid="pen-icon-edit-name"]');
 
         await editAccountNameFields[0].click();
         await new Promise(r => setTimeout(r, 500))
@@ -287,11 +267,73 @@ describe('login', () => {
 
 
         /* Verify that selected accounts exist on the page */
-        const selectedLegacyAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
-        expect(selectedLegacyAccount).toContain(accountName1);
+        const selectedBasicAccount = await page.$$eval('[data-testid="account"]', el => el[0].innerText);
+        expect(selectedBasicAccount).toContain(accountName1);
 
         const selectedSmartAccount = await page.$$eval('[data-testid="account"]', el => el[1].innerText);
         expect(selectedSmartAccount).toContain(accountName2);
-
     }));
+    //--------------------------------------------------------------------------------------------------------------
+    it('Add View-only account', (async () => {
+
+        await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]');
+        await page.waitForSelector('[data-testid="enter-seed-phrase-field"]');
+
+        await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_LEGACY_ACCOUNT)
+
+        /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
+        await finishStoriesAndSelectAccount(page)
+
+        /* Click on "Save and Continue" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]');
+
+        await page.waitForFunction(() => {
+            return window.location.href.includes('/onboarding-completed');
+        }, { timeout: 60000 });
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
+
+        /* Click on "+ Add Account"  */
+        await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
+
+        /* Seleck "Watch an address" */
+        await clickOnElement(page, '[data-testid="watch-an-address"]')
+
+        let viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
+
+        await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+        await new Promise((r) => setTimeout(r, 500))
+
+        /* Click on "Import View-Only Accounts" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
+
+        /* Click on "Account"  */
+        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
+
+        /* Find the element containing the specified address */
+        const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`);
+
+        if (addressElement.length > 0) {
+            /* Get the parent element of the element with the specified address */
+            const parentElement = await addressElement[0].$x('..');
+
+            if (parentElement.length > 0) {
+                /* Get the text content of the parent element and all elements within it */
+                const parentTextContent = await page.evaluate(element => {
+                    const elements = element.querySelectorAll('*');
+                    return Array.from(elements, el => el.textContent).join('\n');
+                }, parentElement[0]);
+
+                /* Verify that somewhere in the content there is the text 'View-only' */
+                const containsViewOnly = parentTextContent.includes('View-only');
+
+                if (containsViewOnly) {
+                } else {
+                    throw new Error('The content does not contain the text "View-only".');
+                }
+            }
+        }
+    }))
 });

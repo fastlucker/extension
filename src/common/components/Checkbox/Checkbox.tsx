@@ -17,7 +17,6 @@ interface Props {
   style?: ViewProps['style']
   uncheckedBorderColor?: ColorValue
   isDisabled?: boolean
-  TestId?: string
 }
 
 const Checkbox = ({

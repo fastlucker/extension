@@ -110,7 +110,7 @@ const AccountPersonalizeCard = ({
                       >
                         {value}
                       </Text>
-                      <Pressable  testID='penIcon-edit-name' onPress={() => setEditNameEnabled(true)}>
+                      <Pressable  testID='pen-icon-edit-name' onPress={() => setEditNameEnabled(true)}>
                         {({ hovered }: any) => (
                           <EditPenIcon
                             width={14}

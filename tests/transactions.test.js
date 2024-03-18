@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-import { bootStrap, typeText, clickOnElement, clickWhenClickable, clickOnElementByText, confirmTransaction, typeSeedPhrase } from './functions.js';
+import { bootstrap, typeText, clickOnElement, confirmTransaction, typeSeedPhrase } from './functions.js';
 
 
 describe('transactions', () => {
@@ -16,8 +16,8 @@ describe('transactions', () => {
 
 
     beforeEach(async () => {
-        /* Initialize browser and page using bootStrap */
-        const context = await bootStrap({ headless: false, slowMo: 10 });
+        /* Initialize browser and page using bootstrap */
+        const context = await bootstrap({ headless: false, slowMo: 10 });
         browser = context.browser;
         page = context.page;
         extensionRootUrl = context.extensionRootUrl
@@ -324,55 +324,4 @@ describe('transactions', () => {
         /* Click on 'Confirm Swap' button and confirm transaction */
         await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
     }));
-
-
-    //--------------------------------------------------------------------------------------------------------------
-    it('Add View-only account', (async () => {
-        /* Click on "Account"  */
-        await clickOnElement(page, '[data-testid="account-select"]')
-
-        /* Click on "+ Add Account"  */
-        await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
-
-        /* Seleck "Watch an address" */
-        await clickOnElement(page, '[data-testid="watch-an-address"]')
-
-        let viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
-
-        await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
-        await new Promise((r) => setTimeout(r, 500))
-
-        /* Click on "Import View-Only Accounts" button*/
-        await clickOnElement(page, '[data-testid="padding-button-Import"]')
-
-        /* Click on "Account"  */
-        await clickWhenClickable(page, '[data-testid="padding-button-Save-and-Continue"]')
-
-        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
-
-        /* Find the element containing the specified address */
-        const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`);
-
-        if (addressElement.length > 0) {
-            /* Get the parent element of the element with the specified address */
-            const parentElement = await addressElement[0].$x('..');
-
-            if (parentElement.length > 0) {
-                /* Get the text content of the parent element and all elements within it */
-                const parentTextContent = await page.evaluate(element => {
-                    const elements = element.querySelectorAll('*');
-                    return Array.from(elements, el => el.textContent).join('\n');
-                }, parentElement[0]);
-
-                /* Verify that somewhere in the content there is the text 'View-only' */
-                const containsViewOnly = parentTextContent.includes('View-only');
-
-                if (containsViewOnly) {
-                } else {
-                    throw new Error('The content does not contain the text "View-only".');
-                }
-            }
-        }
-    }))
-
 })

@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 
 
-let puppeteerArgs = [
+const puppeteerArgs = [
     `--disable-extensions-except=${__dirname}/../webkit-prod/`,
     `--load-extension=${__dirname}/webkit-prod/`,
     '--disable-features=DialMediaRouteProvider',
@@ -15,7 +15,7 @@ let puppeteerArgs = [
 ];
 
 
-export async function bootStrap(options = {}) {
+export async function bootstrap(options = {}) {
     const { devtools = false, slowMo = 10, headless = false } = options;
 
     let browser = await puppeteer.launch({
@@ -47,8 +47,8 @@ export async function bootStrap(options = {}) {
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     await new Promise((r) => setTimeout(r, 1000));
-    const buttonNext = '[data-testid="padding-button-Next"]'
-
+    
+    const buttonNext = '[data-testid="stories-button-next"]'
 
     let attempts = 0;
     let element = null;
@@ -72,7 +72,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     /* Click on "Next" button several times to finish the onboarding */
     await page.$eval(buttonNext, button => button.click());
 
-    await page.waitForXPath('//div[contains(text(),"Previous")]')
+    await page.waitForSelector('[data-testid="stories-button-previous"]')
 
     await page.$eval(buttonNext, button => button.click());
     await page.$eval(buttonNext, button => button.click());
@@ -82,7 +82,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     /* check the checkbox "I agree ..."*/
     await page.$eval('[data-testid="checkbox"]', button => button.click());
     /* Click on "Got it" */
-    await page.$eval('[data-testid="padding-button-Got-it"]', button => button.click());
+    await page.$eval(buttonNext, button => button.click());
 
     await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]');
 
@@ -111,6 +111,40 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 }
 
 //----------------------------------------------------------------------------------------------
+export async function finishStoriesAndSelectAccount(page) {
+    /* Click on Import button. */
+    await clickOnElement(page, '[data-testid="padding-button-Import"]')
+    
+    await new Promise((r) => setTimeout(r, 2000))
+    await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
+
+    await new Promise((r) => setTimeout(r, 2000))
+    await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+    /* Select one Legacy and one Smart account and keep the addresses of the accounts */
+    await page.waitForSelector('[data-testid="checkbox"]')
+
+    /* Select one Legacy account and one Smart account */
+    firstSelectedBasicAccount = await page.$$eval('[data-testid="add-account"]', element => {
+        element[0].click()
+        return element[0].textContent
+    });
+    firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', element => {
+        element[1].click()
+        return element[1].textContent
+    });
+
+    /* Click on Import Accounts button*/
+    await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]');
+
+    return {
+        firstSelectedBasicAccount,
+        firstSelectedSmartAccount
+    };
+}
+
+
+
+//----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
     try {
         await page.waitForSelector(selector);
@@ -132,43 +166,6 @@ export async function clickOnElement(page, selector) {
         throw new Error(`Could not click on selector: ${selector}`)
     }
 }
-
-//----------------------------------------------------------------------------------------------
-export async function clickWhenClickable(page, selector) {
-
-    let isClickable = false;
-    // Check every 500ms if the button is clickable for up to 4 seconds
-    for (let i = 0; i < 8; i++) {
-        isClickable = await page.evaluate(selector => {
-            const element = document.querySelector(selector);
-            return element && !element.disabled;
-        }, selector);
-        if (isClickable) break;
-        await page.waitForTimeout(500); // Wait for 500ms before checking again
-    }
-    if (isClickable) {
-        await page.click(selector);
-    }
-    else {
-        throw new Error(`Element ${selector} is not clickable`);
-    }
-}
-
-//----------------------------------------------------------------------------------------------
-export async function clickOnElementByText(page, elementType, buttonText) {
-    await page.evaluate((elementType, buttonText) => {
-        const button = Array.from(document.querySelectorAll(`${elementType}`)).find(element =>
-            element.textContent.trim() === buttonText
-        );
-
-        if (button) {
-            button.click();
-        } else {
-            throw new Error(`Button with text "${buttonText}" not found.`);
-        }
-    }, elementType, buttonText);
-}
-
 
 //----------------------------------------------------------------------------------------------
 export async function confirmTransaction(page, extensionRootUrl, browser, triggerTransactionSelector) {
@@ -203,20 +200,6 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
     expect(doesFailedExist).toBe(false); // This will fail the test if 'Failed' exists
 }
 
-
-//----------------------------------------------------------------------------------------------
-export async function generateEthereumPrivateKey() {
-    try {
-        let key = '0x';
-        const characters = '0123456789abcdef';
-        for (let i = 0; i < 64; i++) {
-            key += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return key;
-    } catch (error) {
-        throw new Error(`Can't generate ethereum private key`)
-    }
-}
 //----------------------------------------------------------------------------------------------
 export async function typeSeedPhrase(page, seedPhrase) {
     await new Promise((r) => setTimeout(r, 2000));
