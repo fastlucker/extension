@@ -55,7 +55,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
       <View style={spacings.mrTy}>
         <TokenIcon width={20} height={20} networkId={networkId} address={token.address} />
       </View>
-      <Text fontSize={16} weight="medium" color={amountToSendTextColor}>
+      <Text selectable fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatDecimals(
           Number(formatUnits(token.amountToSend, token.decimals || 18))
         )}`}

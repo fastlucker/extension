@@ -1,7 +1,7 @@
 import React from 'react'
 import { Keyboard, TouchableWithoutFeedback } from 'react-native'
 
-import Wrapper, { WRAPPER_TYPES } from '@common/components/Wrapper'
+import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import { isWeb } from '@common/config/env'
 import spacings from '@common/styles/spacings'
 
@@ -18,13 +18,13 @@ const EmailLoginScreen = () => {
         !isWeb && Keyboard.dismiss()
       }}
     >
-      <Wrapper
+      <ScrollableWrapper
         contentContainerStyle={spacings.pbLg}
         type={WRAPPER_TYPES.KEYBOARD_AWARE_SCROLL_VIEW}
         extraHeight={220}
       >
         {/* TODO: v2 */}
-      </Wrapper>
+      </ScrollableWrapper>
     </TouchableWithoutFeedback>
   )
 }

@@ -10,6 +10,7 @@ import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portf
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { Trans, useTranslation } from '@common/config/localization'
@@ -55,8 +56,6 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
-  const [estimationContainerHeight, setEstimationContainerHeight] = useState(0)
-  const [estimationContentHeight, setEstimationContentHeight] = useState(0)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -263,11 +262,6 @@ const SignAccountOpScreen = () => {
     [pendingTokens]
   )
 
-  const hasScrollEstimationContainer = useMemo(
-    () => estimationContentHeight > estimationContainerHeight,
-    [estimationContainerHeight, estimationContentHeight]
-  )
-
   if (mainState.signAccOpInitError) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -470,7 +464,7 @@ const SignAccountOpScreen = () => {
               <Text fontSize={20} weight="medium" style={spacings.mbLg}>
                 {t('Waiting Transactions')}
               </Text>
-              <ScrollView style={styles.transactionsScrollView} scrollEnabled>
+              <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
                 {callsToVisualize.map((call, i) => {
                   return (
                     <TransactionSummary
@@ -482,7 +476,7 @@ const SignAccountOpScreen = () => {
                     />
                   )
                 })}
-              </ScrollView>
+              </ScrollableWrapper>
             </View>
           </View>
           <View
@@ -497,19 +491,7 @@ const SignAccountOpScreen = () => {
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
             </Text>
-            <ScrollView
-              style={[
-                styles.estimationScrollView,
-                hasScrollEstimationContainer ? spacings.pr : spacings.pr0
-              ]}
-              contentContainerStyle={{ flexGrow: 1 }}
-              onLayout={(e) => {
-                setEstimationContainerHeight(e.nativeEvent.layout.height)
-              }}
-              onContentSizeChange={(_, height) => {
-                setEstimationContentHeight(height)
-              }}
-            >
+            <ScrollableWrapper style={[styles.estimationScrollView]}>
               {!!hasEstimation && !estimationFailed && (
                 <Estimation
                   mainState={mainState}
@@ -560,7 +542,7 @@ const SignAccountOpScreen = () => {
                   <Alert type="error" title={signAccountOpState?.errors[0]} />
                 </View>
               ) : null}
-            </ScrollView>
+            </ScrollableWrapper>
           </View>
           <HardwareWalletSigningModal
             modalRef={hwModalRef}
