@@ -8,96 +8,52 @@ describe('transactions', () => {
     let browser;
     let page;
     let extensionRootUrl;
-    let extensionId;
-    let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
 
     let recipientField = '[data-testid="recepient-address-field"]';
     let amountField = '[data-testid="amount-field"]'
-
 
     beforeEach(async () => {
         /* Initialize browser and page using bootstrap */
         const context = await bootstrap({ headless: false, slowMo: 10 });
         browser = context.browser;
-        page = context.page;
         extensionRootUrl = context.extensionRootUrl
-        extensionId = context.extensionId
-        extensionTarget = context.extensionTarget
-
-        page = (await browser.pages())[0];
-        let createVaultUrl = `chrome-extension://${extensionId}/tab.html#/keystore-unlock`
-        await page.goto(createVaultUrl, { waitUntil: 'load' })
-
-        parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
-        parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
-        parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
-        parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
-        envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
-        envPermission = (process.env.KEYSTORE_PERMISSION_1)
-        envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
-        envTermState = (process.env.KEYSTORE_TERMSTATE_1)
-        parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
-
-        const executionContext = await page.mainFrame().executionContext()
-        const backgroundPage = await extensionTarget.page(); // Access the background page
-
-        /*  interact with chrome.storage.local in the context of the extension's background page */
-        await backgroundPage.evaluate(
-            (
-                parsedKeystoreAccounts,
-                parsedKeystoreUID,
-                parsedKeystoreKeys,
-                parsedKeystoreSecrets,
-                envOnboardingStatus,
-                envPermission,
-                envSelectedAccount,
-                envTermState,
-                parsedPreviousHints
-            ) => {
-                chrome.storage.local.set({
-                    accounts: parsedKeystoreAccounts,
-                    keyStoreUid: parsedKeystoreUID,
-                    keystoreKeys: parsedKeystoreKeys,
-                    keystoreSecrets: parsedKeystoreSecrets,
-                    onboardingStatus: envOnboardingStatus,
-                    permission: envPermission,
-                    selectedAccount: envSelectedAccount,
-                    termsState: envTermState,
-                    previousHints: parsedPreviousHints
-                });
-            },
-            parsedKeystoreAccounts,
-            parsedKeystoreUID,
-            parsedKeystoreKeys,
-            parsedKeystoreSecrets,
-            envOnboardingStatus,
-            envPermission,
-            envSelectedAccount,
-            envTermState,
-            parsedPreviousHints
-        );
-
-        await new Promise((r) => setTimeout(r, 2000));
-
-        let pages = await browser.pages()
-        pages[0].close() // blank tab
-        pages[1].close() // tab always opened after extension installation
-
-        await new Promise((r) => setTimeout(r, 2000));
-        /*Open the page again to load the browser local storage */
         page = await browser.newPage();
 
         // Navigate to a specific URL if necessary
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
-        await new Promise((r) => setTimeout(r, 2000));
 
-        pages = await browser.pages()
-        // pages[0].close()
-        pages[1].close()
-
+        /*  interact with chrome.storage.local in the context of the extension's background page */
         await page.evaluate(() => {
-            location.reload(true)
+            let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
+            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
+            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
+            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
+            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
+            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
+            envPermission = (process.env.KEYSTORE_PERMISSION_1)
+            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
+            envTermState = (process.env.KEYSTORE_TERMSTATE_1)
+            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
+            chrome.storage.local.set({
+                accounts: parsedKeystoreAccounts,
+                keyStoreUid: parsedKeystoreUID,
+                keystoreKeys: parsedKeystoreKeys,
+                keystoreSecrets: parsedKeystoreSecrets,
+                onboardingStatus: envOnboardingStatus,
+                permission: envPermission,
+                selectedAccount: envSelectedAccount,
+                termsState: envTermState,
+                previousHints: parsedPreviousHints
+            });
         })
+
+        await new Promise((r) => {
+            setTimeout(r, 1000)
+        })
+
+        await page.bringToFront();
+        await page.reload();
+
         await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
@@ -161,9 +117,6 @@ describe('transactions', () => {
 
     //--------------------------------------------------------------------------------------------------------------
     it('(-) Send matics greater than the available balance ', (async () => {
-
-        await new Promise((r) => setTimeout(r, 2000))
-
         await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load', })
 
         await page.waitForSelector('[data-testid="max-available-ammount"]')
@@ -249,7 +202,7 @@ describe('transactions', () => {
         /* Click on a button that triggers a copy to clipboard. */
         await page.click('.copyButton');
 
-        let copiedAddress = envSelectedAccount
+        let copiedAddress = process.env.KEYSTORE_SELECTED_ACCOUNT_1
         /* Click on "Verify" tab */
         await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
         /* Fill copied address in the Signer field */
@@ -324,4 +277,59 @@ describe('transactions', () => {
         /* Click on 'Confirm Swap' button and confirm transaction */
         await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
     }));
+
+
+    //--------------------------------------------------------------------------------------------------------------
+    it('Add View-only account', (async () => {
+        /* Click on "Account"  */
+        await clickOnElement(page, '[data-testid="account-select"]')
+
+        /* Click on "+ Add Account"  */
+        await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
+
+        /* Seleck "Watch an address" */
+        // await clickOnElement(page, '[data-testid="watch-an-address"]')
+        // TODO: the above testid is missing and not attached to any React component.
+        // When we fix it, then we can remove the above Promise and selector
+        await new Promise((r) => setTimeout(r, 500))
+        clickOnElement(page, 'xpath///div[contains(text(), "Watch an address")]')
+
+        let viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
+
+        await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+        await new Promise((r) => setTimeout(r, 500))
+
+        /* Click on "Import View-Only Accounts" button*/
+        await clickOnElement(page, '[data-testid="padding-button-Import"]')
+
+        /* Click on "Account"  */
+        await clickWhenClickable(page, '[data-testid="padding-button-Save-and-Continue"]')
+
+        await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
+
+        /* Find the element containing the specified address */
+        const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`);
+
+        if (addressElement.length > 0) {
+            /* Get the parent element of the element with the specified address */
+            const parentElement = await addressElement[0].$x('..');
+
+            if (parentElement.length > 0) {
+                /* Get the text content of the parent element and all elements within it */
+                const parentTextContent = await page.evaluate(element => {
+                    const elements = element.querySelectorAll('*');
+                    return Array.from(elements, el => el.textContent).join('\n');
+                }, parentElement[0]);
+
+                /* Verify that somewhere in the content there is the text 'View-only' */
+                const containsViewOnly = parentTextContent.includes('View-only');
+
+                if (containsViewOnly) {
+                } else {
+                    throw new Error('The content does not contain the text "View-only".');
+                }
+            }
+        }
+    }))
+
 })

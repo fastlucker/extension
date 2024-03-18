@@ -10,6 +10,7 @@ describe('login', () => {
     let page;
     let extensionRootUrl;
     let options;
+    let extensionId;
 
     beforeEach(async () => {
 
@@ -18,22 +19,19 @@ describe('login', () => {
             slowMo: 30,
         };
 
-        const context = await bootstrap(page, browser, options)
-        // page = context.page
-        // pages = context.pages
+        const context = await bootStrap(page, browser, options)
         browser = context.browser
         extensionRootUrl = context.extensionRootUrl
         extensionId = context.extensionId
 
-        page = (await browser.pages())[0];
-        const createVaultUrl = `chrome-extension://${extensionId}/tab.html#/get-started`
-        await page.goto(createVaultUrl, { waitUntil: 'load' })
-
-        await new Promise((r) => setTimeout(r, 2000))
-
-        const pages = await browser.pages()
-        // pages[0].close() // blank tab
-        pages[1].close() // tab always opened after extension installation
+        page = await browser.newPage()
+        const getStartedPage = `chrome-extension://${extensionId}/tab.html#/`
+        await page.goto(getStartedPage, { waitUntil: 'load' })
+        await new Promise((r) => {
+            setTimeout(r, 1000)
+        })
+        await page.bringToFront();
+        await page.reload();
     })
 
     afterEach(async () => {
@@ -219,7 +217,7 @@ describe('login', () => {
             const wordToType = wordArray[i];
             const inputSelector = `[placeholder="Word ${i + 1}"]`;
             await page.click(inputSelector, { clickCount: 3 }); // Select all content
-            await page.keyboard.press('Backspace'); // Delete the selected content          
+            await page.keyboard.press('Backspace'); // Delete the selected content
         }
 
         passphraseWords = 'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'

@@ -26,7 +26,7 @@ import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { rpcProviders } from '@common/services/providers'
-import { RELAYER_URL } from '@env'
+import { RELAYER_URL, ENVIRONMENT } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
@@ -83,6 +83,12 @@ async function init() {
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  if (ENVIRONMENT === 'testing') {
+    await new Promise((r) => {
+      setTimeout(r, 1000)
+    })
+  }
+
   if (isManifestV3) {
     saveTimestamp()
     // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
