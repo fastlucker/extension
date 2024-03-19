@@ -104,6 +104,11 @@ type SettingsControllerAddCustomNetwork = {
   params: CustomNetwork
 }
 
+type SettingsControllerRemoveCustomNetwork = {
+  type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK'
+  params: NetworkDescriptor['id']
+}
+
 type MainControllerUpdateNetworkPreferences = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
@@ -334,6 +339,7 @@ export type Action =
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | SettingsControllerAddCustomNetwork
+  | SettingsControllerRemoveCustomNetwork
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
