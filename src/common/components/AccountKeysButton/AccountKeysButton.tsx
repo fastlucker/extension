@@ -1,6 +1,7 @@
 import React from 'react'
 import { useModalize } from 'react-native-modalize'
 
+import MultiKeysIcon from '@common/assets/svg/MultiKeysIcon'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import SingleKeyIcon from '@common/assets/svg/SingleKeyIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
@@ -37,7 +38,7 @@ const AccountKeysButton = () => {
       >
         {importedAccountKeys.length === 0 && <NoKeysIcon />}
         {importedAccountKeys.length === 1 && <SingleKeyIcon />}
-        {importedAccountKeys.length > 1 && <NoKeysIcon />}
+        {importedAccountKeys.length > 1 && <MultiKeysIcon />}
       </AnimatedPressable>
       <AccountKeysBottomSheet
         sheetRef={sheetRef}
