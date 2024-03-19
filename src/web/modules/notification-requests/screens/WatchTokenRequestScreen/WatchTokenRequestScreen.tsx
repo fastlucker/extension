@@ -86,7 +86,7 @@ const WatchTokenRequestScreen = () => {
   )
 
   const handleTokenType = async (networkId: NetworkId) => {
-    await portfolio.checkToken({ ...tokenData, networkId })
+    await portfolio.checkToken({ address: tokenData?.address, networkId })
   }
 
   const handleTokenIsInPortfolio = async () => {

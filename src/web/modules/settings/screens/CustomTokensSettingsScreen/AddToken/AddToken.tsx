@@ -1,9 +1,12 @@
-import { getAddress } from 'ethers'
-import React, { useCallback, useMemo, useState } from 'react'
+import { getAddress, ZeroAddress } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { isValidAddress } from '@ambire-common/services/address'
+import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Input from '@common/components/Input'
@@ -16,6 +19,8 @@ import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { storage } from '@web/extension-services/background/webapi/storage'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
@@ -25,17 +30,40 @@ type NetworkOption = {
   icon: JSX.Element
 }
 
+const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010' // Polygon MATIC token address
+
 const AddToken = () => {
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
   const { addToast } = useToast()
+  const portfolio = usePortfolioControllerState()
+  const mainCtrl = useMainControllerState()
 
+  const selectedAccount = mainCtrl.selectedAccount || ''
   const [network, setNetwork] = useState<NetworkDescriptor>(
     networks.filter((n) => n.id === 'ethereum')[0]
   )
-  const portfolio = usePortfolioControllerState()
+  // const [address, setAddress] = useState('')
+  const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
 
-  const [address, setAddress] = useState('')
+  const isControllerLoading =
+    network?.id && portfolio.state.latest[selectedAccount][network?.id]?.isLoading
+
+  const {
+    control,
+    watch,
+    setError,
+    reset,
+    formState: { errors, isSubmitting, isValid }
+  } = useForm({
+    mode: 'all',
+    defaultValues: {
+      address: ''
+    }
+  })
+  const address = watch('address', '')
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
@@ -54,43 +82,78 @@ const AddToken = () => {
     [t, networks]
   )
 
-  const handleSetAddress = useCallback(
-    (e: any) => {
-      setAddress(e.target.value)
-      if (!isValidAddress(e.target.value)) return
-
-      const tokenAddr = getAddress(e.target.value)
-
-      if (isValidAddress(getAddress(tokenAddr)) && network) {
-        portfolio.updateAdditionalHints([tokenAddr])
-      }
-    },
-    [network, portfolio]
+  const tokenTypeEligibility = useMemo(
+    () => null || (address && portfolio.state.validTokens.erc20[`${address}-${network?.id}`]),
+    [portfolio, address, network]
   )
-  const portfolioFoundToken = portfolio.accountPortfolio?.tokens?.find(
-    (token) => token.address === address
+
+  const tokenInPreferences = useMemo(
+    () =>
+      isValidAddress(address) &&
+      portfolio.state.tokenPreferences?.find(
+        (token: CustomToken) =>
+          token.address === getAddress(address) && token.networkId === network?.id
+      ),
+    [portfolio.state.tokenPreferences, address, network]
   )
+
+  const portfolioFoundToken = useMemo(
+    () =>
+      (isValidAddress(address) &&
+        portfolio.accountPortfolio?.tokens?.find(
+          (token) => token.address === getAddress(address) && token.networkId === network?.id
+        )) ||
+      tokenInPreferences,
+    [portfolio, tokenInPreferences, address, network]
+  )
+
+  const handleTokenIsInPortfolio = async () => {
+    const previousHints = await storage.get('previousHints', {})
+    const isTokenInHints =
+      previousHints?.[`${network?.id}:${address}`]?.erc20s.find(
+        (addrs: any) => addrs === address
+      ) || false
+    const isNative =
+      address === ZeroAddress || (network?.id === 'polygon' && address === polygonMaticTokenAddress)
+
+    return isTokenInHints || tokenInPreferences || isNative
+  }
 
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
-
-    await portfolio.updateTokenPreferences({
-      address,
-      networkId: network.id,
-      standard: 'ERC20',
-      decimals: portfolioFoundToken?.decimals,
-      name: portfolioFoundToken?.name
-    })
-
+    await portfolio.updateTokenPreferences({ ...portfolioFoundToken, networkId: network.id })
+    reset({ address: '' })
     addToast(`Added token ${address} on ${network.name} to your portfolio`)
-  }, [
-    address,
-    network,
-    portfolio,
-    addToast,
-    portfolioFoundToken?.decimals,
-    portfolioFoundToken?.name
-  ])
+  }, [address, network, portfolio, addToast, portfolioFoundToken, reset])
+
+  const handleTokenType = async () => {
+    await portfolio.checkToken({ address, networkId: network.id })
+  }
+
+  useEffect(() => {
+    const handleEffect = async () => {
+      if (address && !isValidAddress(address))
+        setError('address', { message: t('Invalid address') })
+
+      if (address && network && !tokenTypeEligibility && isValidAddress(address)) {
+        await handleTokenType()
+      }
+
+      if (tokenTypeEligibility) {
+        // Check if token is already in portfolio
+        const isTokenInHints = await handleTokenIsInPortfolio()
+        if (isTokenInHints) {
+          setIsLoading(false)
+          setShowAlreadyInPortfolioMessage(true)
+        } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
+          setAdditionalHintRequested(true)
+          portfolio.updateAdditionalHints([getAddress(address)])
+        }
+      }
+    }
+
+    handleEffect()
+  }, [address, network, tokenTypeEligibility, isAdditionalHintRequested])
 
   return (
     <View style={flexbox.flex1}>
@@ -104,14 +167,22 @@ const AddToken = () => {
         label={t('Choose Network')}
         style={spacings.mbMd}
       />
-      <Input
-        onChange={handleSetAddress}
-        label={t('Token Address')}
-        placeholder={t('0x...')}
-        value={address}
-        containerStyle={spacings.mbSm}
+      <Controller
+        control={control}
+        name="address"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            onBlur={onBlur}
+            onChangeText={onChange}
+            label={t('Token Address')}
+            placeholder={t('0x...')}
+            value={value}
+            containerStyle={spacings.mbSm}
+            error={errors.address && errors.address.message}
+          />
+        )}
       />
-      {portfolioFoundToken ? (
+      {(portfolioFoundToken && (
         <View
           style={[
             flexbox.directionRow,
@@ -142,15 +213,41 @@ const AddToken = () => {
             ) : null}
           </View>
         </View>
-      ) : null}
+      )) ||
+        null}
+      {(address &&
+        !portfolioFoundToken &&
+        !showAlreadyInPortfolioMessage &&
+        isAdditionalHintRequested &&
+        !isControllerLoading && (
+          <Alert
+            type="error"
+            isTypeLabelHidden
+            title={t('This address does not match any token')}
+            style={spacings.mbXl}
+          />
+        )) ||
+        null}
+      {showAlreadyInPortfolioMessage && (
+        <Alert
+          type="warning"
+          isTypeLabelHidden
+          title={t('This token is already handled in your wallet')}
+          style={spacings.mbXl}
+        />
+      )}
       <Button
-        disabled={!isValidAddress(address) || !network}
+        disabled={
+          showAlreadyInPortfolioMessage ||
+          !isValidAddress(address) ||
+          (!network && portfolioFoundToken) ||
+          isSubmitting
+        }
         text={t('Add Token')}
         hasBottomSpacing={false}
         style={{ maxWidth: 196 }}
         onPress={() => {
           handleAddToken()
-          setAddress('')
         }}
       />
     </View>

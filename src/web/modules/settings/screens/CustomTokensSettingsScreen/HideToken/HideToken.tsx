@@ -35,7 +35,7 @@ const HideToken = () => {
   }, [])
 
   const removeToken = useCallback(async (token) => {
-    console.log('remove token')
+    console.log('remove token', token)
 
     await portfolio.removeTokenPreferences(token.address)
   }, [])
@@ -44,7 +44,6 @@ const HideToken = () => {
     setSearchAddress(e.target.value)
   }, [])
 
-  console.log(portfolio.state.tokenPreferences, portfolio.accountPortfolio?.tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">

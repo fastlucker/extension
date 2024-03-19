@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
@@ -17,6 +18,7 @@ export interface AccountPortfolio {
   totalAmount: number
   isAllReady: boolean
 }
+
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
@@ -25,6 +27,7 @@ const PortfolioControllerStateContext = createContext<{
   updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (tokenAddr: CustomToken['address']) => void
+  checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -37,7 +40,8 @@ const PortfolioControllerStateContext = createContext<{
   refreshPortfolio: () => {},
   updateAdditionalHints: () => {},
   updateTokenPreferences: () => {},
-  removeTokenPreferences: () => {}
+  removeTokenPreferences: () => {},
+  checkToken: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -169,7 +173,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const tokenIsNotInPreferences = tokenPreferences.find(({ address }) => address === tokenAddr)
       if (!tokenIsNotInPreferences) return
       const newTokenPreferences = tokenPreferences.filter(({ address }) => address === !tokenAddr)
-
+      console.log(state?.tokenPreferences, tokenIsNotInPreferences, newTokenPreferences)
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
         params: {
@@ -189,7 +193,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         }
       })
     },
-    [dispatch, mainCtrl]
+    [dispatch]
   )
 
   const refreshPortfolio = useCallback(() => {
