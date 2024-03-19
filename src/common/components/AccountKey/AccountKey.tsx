@@ -1,5 +1,6 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -49,6 +50,7 @@ const AccountKey: React.FC<Props> = ({
   style,
   enableEditing = true
 }) => {
+  const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
@@ -60,9 +62,9 @@ const AccountKey: React.FC<Props> = ({
   const handleCopy = async () => {
     try {
       await Clipboard.setStringAsync(address)
-      addToast('Key address copied to clipboard', { type: 'success' })
+      addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
-      addToast('Error copying key address', { type: 'error' })
+      addToast(t('Error copying key address'), { type: 'error' })
     }
   }
 
@@ -77,7 +79,7 @@ const AccountKey: React.FC<Props> = ({
         }
       ]
     })
-    addToast('Key label updated', { type: 'success' })
+    addToast(t('Key label updated'), { type: 'success' })
   }
 
   return (
@@ -114,7 +116,7 @@ const AccountKey: React.FC<Props> = ({
         </AnimatedPressable>
       </View>
       <View style={spacings.mlXl}>
-        {!isImported && <Badge type="warning" text="Not imported" />}
+        {!isImported && <Badge type="warning" text={t('Not imported')} />}
         {isImported && type && <KeyTypeIcon type={type} />}
       </View>
     </View>

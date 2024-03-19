@@ -48,7 +48,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
 
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-      <Title text="Account keys" />
+      <Title text={t('Account keys')} />
       <View
         style={[
           {
@@ -78,7 +78,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           )
         })}
       </View>
-      <Title text="Import keys" />
+      <Title text={t('Import keys')} />
       {addAccountOptions.map((option) => (
         <Option key={option.text} text={option.text} icon={option.icon} onPress={option.onPress} />
       ))}
