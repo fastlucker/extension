@@ -54,7 +54,6 @@ const AccountsSettingsScreen = () => {
         {accounts.map((account) => (
           <Account
             onSelect={onSelectAccount}
-            isCopyVisible={false}
             key={account.addr}
             account={account}
             maxAccountAddrLength={shortenAccountAddr()}

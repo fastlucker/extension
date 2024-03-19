@@ -10,6 +10,7 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -18,7 +19,6 @@ import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import text from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -316,11 +316,6 @@ const SignMessageScreen = () => {
           {isScrollToBottomForced && !isViewOnly && shouldShowFallback ? (
             <Alert type="error" text={t('Please, read the entire message before signing it.')} />
           ) : null}
-          {isViewOnly ? (
-            <Text appearance="errorText" weight="medium" style={[text.center, spacings.ph]}>
-              {t("You can't sign messages with view-only accounts.")}
-            </Text>
-          ) : null}
           <Button
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
             disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
@@ -362,6 +357,17 @@ const SignMessageScreen = () => {
             />
           ) : (
             <Text>Loading</Text>
+          )}
+          {isViewOnly && (
+            <View
+              style={{
+                ...flexbox.alignSelfCenter,
+                marginTop: 'auto',
+                maxWidth: 600
+              }}
+            >
+              <NoKeysToSignAlert />
+            </View>
           )}
           {!!signMessageState.signingKeyType && (
             <HardwareWalletSigningModal

@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { randomBytes } from 'ethers'
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
@@ -31,7 +31,7 @@ const Steps: FC<Props> = ({
   handleOpenExplorer,
   stepsState
 }) => {
-  const { nativePrice, blockData, finalizedStatus, cost, calls } = stepsState
+  const { nativePrice, blockData, finalizedStatus, cost, calls, from } = stepsState
 
   const stepRows: any = [
     {
@@ -43,6 +43,13 @@ const Steps: FC<Props> = ({
       value: getFee(cost, network, nativePrice, finalizedStatus)
     }
   ]
+
+  if (from) {
+    stepRows.push({
+      label: 'From',
+      value: from
+    })
+  }
 
   if (txnId) {
     stepRows.push({
@@ -82,7 +89,7 @@ const Steps: FC<Props> = ({
             calls.map((call, i) => {
               return (
                 <TransactionSummary
-                  key={call.data + ethers.randomBytes(6)}
+                  key={call.data + randomBytes(6)}
                   style={i !== calls.length! - 1 ? spacings.mbSm : {}}
                   call={call}
                   networkId={network!.id}

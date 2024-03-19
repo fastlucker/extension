@@ -64,7 +64,7 @@ const SignedMessageSummary = ({ signedMessage, style }: Props) => {
           >
             {t('Raw message')}:
           </Text>
-          <Text appearance="secondaryText" fontSize={14} weight="regular">
+          <Text selectable appearance="secondaryText" fontSize={14} weight="regular">
             {JSON.stringify(signedMessage.content, null, 4)}
           </Text>
         </ScrollView>

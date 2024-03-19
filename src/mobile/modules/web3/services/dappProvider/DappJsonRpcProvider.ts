@@ -2,11 +2,11 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 // @ts-nocheck
 
+import { JsonRpcProvider } from 'ethers'
 import { _fetchData, toUtf8Bytes, toUtf8String } from 'ethers/lib/utils'
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { deepCopy, shallowCopy } from '@ethersproject/properties'
-import { JsonRpcProvider } from '@ethersproject/providers'
 
 function getResult(payload: {
   error?: { code?: number; data?: any; message?: string }

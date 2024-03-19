@@ -510,6 +510,9 @@ async function init() {
               case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
               }
+              case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
+                return await mainCtrl.settings.addKeyPreferences(params)
+              }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
                 return await mainCtrl.updateNetworkPreferences(
                   params.networkPreferences,

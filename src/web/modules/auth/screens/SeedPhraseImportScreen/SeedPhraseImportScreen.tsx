@@ -19,7 +19,7 @@ import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -229,7 +229,7 @@ const SeedPhraseImportScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
             accessibilityRole="button"
             text={t('Import')}
