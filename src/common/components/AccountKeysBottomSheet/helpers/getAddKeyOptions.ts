@@ -3,6 +3,10 @@ import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
 import SeedPhraseIcon from '@common/assets/svg/SeedPhraseIcon'
 import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
+import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
+import { getUiType } from '@web/utils/uiType'
+
+const { isNotification } = getUiType()
 
 const getAddKeyOptions = ({
   navigate,
@@ -11,18 +15,26 @@ const getAddKeyOptions = ({
   navigate: ReturnType<typeof useNavigation>['navigate']
   t: (str: string) => string
 }) => {
+  const navigateWrapped = (route: string) => {
+    if (isNotification) {
+      openInternalPageInTab(route)
+      return
+    }
+    navigate(route)
+  }
+
   return [
     {
       key: 'hw',
       text: t('Connect a Hardware Wallet'),
       icon: HWIcon,
-      onPress: () => navigate(ROUTES.hardwareWalletSelect)
+      onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect)
     },
     {
       key: 'private-key',
       text: t('Private Key'),
       icon: PrivateKeyIcon,
-      onPress: () => navigate(ROUTES.importPrivateKey),
+      onPress: () => navigateWrapped(ROUTES.importPrivateKey),
       iconProps: {
         width: 36,
         height: 36
@@ -32,7 +44,7 @@ const getAddKeyOptions = ({
       key: 'seed-phrase',
       text: t('Seed Phrase'),
       icon: SeedPhraseIcon,
-      onPress: () => navigate(ROUTES.importSeedPhrase),
+      onPress: () => navigateWrapped(ROUTES.importSeedPhrase),
       iconProps: {
         width: 36,
         height: 36
