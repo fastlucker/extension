@@ -1,4 +1,4 @@
-import { formatUnits, ethers } from 'ethers'
+import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
@@ -34,34 +34,27 @@ const HumanizedVisualization: FC<{
   const [bindOpenIconAnim, openIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
-
   return (
     <View style={styles.headerContent}>
       {data.map((item) => {
         if (!item) return null
 
         if (item.type === 'token') {
+          const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
+          const isMaxUint256 = item.amount === MaxUint256
           return (
             <>
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text fontSize={16} weight="medium">
-                  {
-                    // permit2 uniswap requested amount
-                    item.amount.toString(16).toLowerCase() === 'f'.repeat(40) ||
-                    // uint256 amount
-                    item.amount === ethers.MaxUint256 ? (
-                      <Text appearance="warningText">unlimited </Text>
-                    ) : (
-                      formatDecimals(
-                        Number(
-                          formatUnits(
-                            item.amount || '0x0',
-                            item?.humanizerMeta?.token?.decimals || 1
-                          )
-                        )
+                  {isUnlimitedByPermit2 || isMaxUint256 ? (
+                    <Text appearance="warningText">unlimited </Text>
+                  ) : (
+                    formatDecimals(
+                      Number(
+                        formatUnits(item.amount || '0x0', item?.humanizerMeta?.token?.decimals || 1)
                       )
                     )
-                  }
+                  )}
                 </Text>
               ) : null}
 
