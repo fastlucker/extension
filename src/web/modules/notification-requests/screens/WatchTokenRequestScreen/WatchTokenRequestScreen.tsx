@@ -1,13 +1,15 @@
-import { getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import networks from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
@@ -25,6 +27,8 @@ import useNotificationControllerState from '@web/hooks/useNotificationController
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
+const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010' // Polygon MATIC token address
+
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -32,24 +36,26 @@ const WatchTokenRequestScreen = () => {
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
   const mainCtrl = useMainControllerState()
-  const { providers } = useSettingsControllerState()
-
+  const { networks } = useSettingsControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
 
-  // TODO: Handle if user has the token already
-  // TODO: Add standard and handle different types
-  const tokenStandard = state?.currentNotificationRequest?.params?.data?.type
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
-  const network = networks.find((n) => n.explorerUrl === origin)
-  const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState(false)
-  // const [tokenTypeEligibility, setTokenTypeEligibility] = useState(false)
+  const network =
+    networks.find((n) => n.explorerUrl === origin) ||
+    networks.find((n) => n.id === tokenData?.networkId)
+  const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [tokenNetwork, setTokenNetwork] = useState(network)
+  const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
+
+  const isControllerLoading = portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading
 
   const tokenTypeEligibility = useMemo(
     () =>
-      (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${network?.id}`]) ||
-      false,
-    [portfolio.state.validTokens.erc20, tokenData, network?.id]
+      null ||
+      (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`]),
+    [portfolio, tokenData, tokenNetwork]
   )
 
   const handleCancel = useCallback(() => {
@@ -64,47 +70,98 @@ const WatchTokenRequestScreen = () => {
     () =>
       tokenData &&
       portfolio.state.tokenPreferences?.find(
-        ({ address }) => address === getAddress(tokenData?.address)
+        (t) => t.address === getAddress(tokenData?.address && t.networkId === tokenNetwork?.id)
       ),
-    []
+    [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
   )
+
   const portfolioFoundToken = useMemo(
     () =>
       (tokenData &&
         portfolio.accountPortfolio?.tokens?.find(
-          ({ address }) => address === getAddress(tokenData?.address)
+          (t) => t.address === getAddress(tokenData?.address && t.networkId === tokenNetwork?.id)
         )) ||
-      (tokenData &&
-        portfolio.state.tokenPreferences?.find(
-          ({ address }) => address === getAddress(tokenData?.address)
-        )),
-    []
+      tokenInPreferences,
+    [portfolio, tokenInPreferences, tokenData, tokenNetwork]
   )
 
-  console.log(portfolio)
+  const handleTokenType = async (networkId: NetworkId) => {
+    await portfolio.checkToken({ ...tokenData, networkId })
+  }
 
-  useEffect(() => {
-    const handleToken = async () => {
-      // const previousHints = await storage.get('previousHints')
-      // console.log('previousHints', previousHints)
-      await portfolio.checkToken({ ...tokenData, networkId: network.id })
-    }
-    if (!tokenData) return
-    const address = getAddress(tokenData.address)
-    // 1. step check if token is in portfolio
-    if (portfolioFoundToken) setShowAlreadyInPortfolioMessage(true)
-    if (!tokenTypeEligibility) handleToken()
-    // 2. call checkTokenEligibility
+  const handleTokenIsInPortfolio = async () => {
+    const previousHints = await storage.get('previousHints', {})
+    const isTokenInHints =
+      previousHints?.[`${tokenNetwork?.id}:${tokenData?.address}`]?.erc20s.find(
+        (addrs: any) => addrs === tokenData?.address
+      ) || false
+    const isNative =
+      tokenData?.address === ZeroAddress ||
+      (tokenNetwork?.id === 'polygon' && tokenData?.address === polygonMaticTokenAddress)
 
-    if (tokenTypeEligibility) {
-      console.log(portfolioFoundToken, tokenTypeEligibility)
-      if (!portfolioFoundToken) {
-        portfolio.updateAdditionalHints([address])
+    return isTokenInHints || tokenInPreferences || isNative
+  }
+
+  const selectNetwork = async () => {
+    if (!network && !tokenNetwork?.id) {
+      const validTokenNetworks = networks.filter(
+        (_network) => portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`]
+      )
+
+      if (validTokenNetworks.length > 0) {
+        const newTokenNetwork = validTokenNetworks.find(
+          (_network) => _network.id !== tokenNetwork?.id
+        )
+        if (newTokenNetwork) {
+          setTokenNetwork(newTokenNetwork)
+        }
       } else {
-        // setShowAlreadyInPortfolioMessage(true)
+        await Promise.all(networks.map((_network) => handleTokenType(_network.id)))
       }
     }
-  }, [tokenData, selectedAccount, tokenTypeEligibility])
+  }
+
+  useEffect(() => {
+    const handleEffect = async () => {
+      await selectNetwork()
+
+      if (tokenNetwork) {
+        // Check if token is eligible to add in portfolio
+        if (tokenData && !tokenTypeEligibility) {
+          await handleTokenType(tokenNetwork?.id)
+        }
+
+        if (tokenTypeEligibility) {
+          // Check if token is already in portfolio
+          const isTokenInHints = await handleTokenIsInPortfolio()
+          if (isTokenInHints) {
+            setIsLoading(false)
+            setShowAlreadyInPortfolioMessage(true)
+          } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
+            setAdditionalHintRequested(true)
+            portfolio.updateAdditionalHints([getAddress(tokenData?.address)])
+          }
+        }
+      }
+    }
+
+    handleEffect().catch((e) => setIsLoading(false))
+
+    if (tokenTypeEligibility === false || !!portfolioFoundToken) {
+      setIsLoading(false)
+    }
+  }, [
+    network,
+    tokenData,
+    tokenNetwork,
+    networks,
+    selectedAccount,
+    tokenTypeEligibility,
+    portfolioFoundToken,
+    setIsLoading,
+    tokenInPreferences,
+    portfolio.state.validTokens
+  ])
 
   const handleAddToken = useCallback(async () => {
     const token = {
@@ -113,7 +170,7 @@ const WatchTokenRequestScreen = () => {
       symbol: tokenData?.symbol,
       decimals: tokenData?.decimals,
       standard: state?.currentNotificationRequest?.params?.data?.type,
-      networkId: network?.id
+      networkId: tokenNetwork?.id
     }
 
     await portfolio.updateTokenPreferences(token)
@@ -121,15 +178,39 @@ const WatchTokenRequestScreen = () => {
       type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: { data: null }
     })
-  }, [dispatch, state, tokenData, network, portfolio])
+  }, [dispatch, state, tokenData, tokenNetwork, portfolio])
 
-  const tokenDetails =
-    portfolioFoundToken && portfolioFoundToken?.rewardsType && getTokenDetails(portfolioFoundToken)
-  console.log(portfolioFoundToken, tokenTypeEligibility)
+  const tokenDetails = useMemo(
+    () => portfolioFoundToken && portfolioFoundToken?.flags && getTokenDetails(portfolioFoundToken),
+    [portfolioFoundToken]
+  )
+
+  if (
+    !portfolioFoundToken &&
+    !showAlreadyInPortfolioMessage &&
+    isAdditionalHintRequested &&
+    !isControllerLoading
+  ) {
+    return <Alert type="warning" title={t('Token not found in portfolio.')} />
+  }
+
+  if (isLoading || tokenTypeEligibility === undefined) {
+    return (
+      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
+
   return (
     <TabLayoutContainer
       width="full"
-      header={<HeaderAccountAndNetworkInfo networkName={network?.name} networkId={network?.id} />}
+      header={
+        <HeaderAccountAndNetworkInfo
+          networkName={tokenNetwork?.name}
+          networkId={tokenNetwork?.id}
+        />
+      }
       footer={
         <>
           <Button
@@ -143,29 +224,27 @@ const WatchTokenRequestScreen = () => {
               <CloseIcon color={theme.errorDecorative} />
             </View>
           </Button>
-          {!showAlreadyInPortfolioMessage && tokenTypeEligibility && (
-            <Button
-              style={spacings.phLg}
-              hasBottomSpacing={false}
-              onPress={handleAddToken}
-              // TODO: Loading and disabled states
-              // disabled={isAddingToken}
-              text={t('Add token')}
-            />
-          )}
+
+          <Button
+            style={spacings.phLg}
+            hasBottomSpacing={false}
+            onPress={handleAddToken}
+            disabled={isLoading || showAlreadyInPortfolioMessage || !tokenTypeEligibility}
+            text={t('Add token')}
+          />
         </>
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
         {!tokenTypeEligibility ? (
-          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
-            {t('This token type is not supported.')}
-          </Text>
+          <Alert type="error" title={t('This token type is not supported.')} />
         ) : (
           <>
             {showAlreadyInPortfolioMessage ? (
               <Text weight="medium" fontSize={20} style={spacings.mbLg}>
-                {t('This token is already in your portfolio.')}
+                {tokenInPreferences
+                  ? t('This token is already in your preferences.')
+                  : t('This token is already in your portfolio.')}
               </Text>
             ) : (
               <>
@@ -214,7 +293,10 @@ const WatchTokenRequestScreen = () => {
                 weight="medium"
                 style={[
                   spacings.mbMd,
-                  { textAlign: 'right', flex: portfolioFoundToken?.priceIn?.length ? 0.7 : 0.12 }
+                  {
+                    textAlign: 'right',
+                    flex: portfolioFoundToken?.priceIn?.length ? 0.7 : 0.12
+                  }
                 ]}
                 appearance="secondaryText"
               >
@@ -229,6 +311,7 @@ const WatchTokenRequestScreen = () => {
                 flexbox.justifySpaceBetween,
                 spacings.phTy,
                 spacings.pvTy,
+                spacings.mbTy,
                 !portfolioFoundToken || !portfolioFoundToken?.priceIn?.length
                   ? {
                       borderWidth: 1,
@@ -243,7 +326,7 @@ const WatchTokenRequestScreen = () => {
                   <TokenIcon
                     withContainer
                     uri={tokenData?.image}
-                    networkId={network?.id}
+                    networkId={tokenNetwork?.id}
                     containerHeight={40}
                     containerWidth={40}
                     width={28}
@@ -254,9 +337,9 @@ const WatchTokenRequestScreen = () => {
                       {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
                     </Text>
 
-                    {network && (
+                    {tokenNetwork && (
                       <Text fontSize={12}>
-                        {t('on')} {network.name}
+                        {t('on')} {tokenNetwork.name}
                       </Text>
                     )}
                   </View>
@@ -265,7 +348,7 @@ const WatchTokenRequestScreen = () => {
 
               <View style={{ flex: 0.7 }}>
                 <Text fontSize={16} style={{ textAlign: 'left' }}>
-                  {tokenDetails?.priceUSDFormatted || '0.00'}
+                  {tokenDetails?.priceUSDFormatted || '-'}
                 </Text>
               </View>
 
@@ -277,7 +360,7 @@ const WatchTokenRequestScreen = () => {
               >
                 <View style={[flexbox.directionRow, flexbox.alignEnd]}>
                   <Text weight="number_bold" fontSize={16} style={flexbox.justifyEnd}>
-                    {tokenDetails?.balanceUSDFormatted || '0.00'}
+                    {tokenDetails?.balanceUSDFormatted || '-'}
                   </Text>
                 </View>
               </View>
@@ -287,6 +370,10 @@ const WatchTokenRequestScreen = () => {
                 </View>
               ) : null}
             </View>
+
+            {!portfolioFoundToken?.priceIn?.length ? (
+              <Alert type="warning" title={t('This token is not listed in coingecko.')} />
+            ) : null}
           </>
         )}
       </TabLayoutWrapperMainContent>
