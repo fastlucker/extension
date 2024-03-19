@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { JsonRpcProvider, toBeHex, WebSocketProvider } from 'ethers'
+import { JsonRpcProvider, Network, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import forIn from 'lodash/forIn'
 import isUndefined from 'lodash/isUndefined'
@@ -301,12 +301,13 @@ export class EthereumProvider extends EventEmitter {
                 })
 
             // Acts as a mechanism to check if the provider credentials work
-            // eslint-disable-next-line no-await-in-loop
-            await Promise.race([
+            const networkResponse = await Promise.race([
               this.dAppOwnProviders[network.id]?.getNetwork(),
               // Timeouts after 3 secs because sometimes the provider call hangs with no response
               delayPromise(3000)
             ])
+            if (!(networkResponse instanceof Network))
+              throw new Error("Failed to retrieve the network via dapp's own provider.")
             logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
           } catch (e) {
             this.dAppOwnProviders[network.id] = null

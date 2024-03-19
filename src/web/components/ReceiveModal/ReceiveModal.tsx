@@ -84,11 +84,11 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
         </View>
         <View style={spacings.mbXl}>
           <AnimatedPressable
-            style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
+            style={[styles.accountAddress, isViewOnly ? spacings.mb : spacings.mb0, animStyle]}
             onPress={handleCopyAddress}
             {...bindAnim}
           >
-            <Text numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
+            <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
               {selectedAccount}
             </Text>
             <CopyIcon style={spacings.mlTy} />
@@ -104,6 +104,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             />
           ) : null}
         </View>
+
         <View style={styles.supportedNetworksContainer}>
           <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
             {t('Following networks supported on this address:')}

@@ -45,6 +45,7 @@ const AddressInput: React.FC<Props> = ({
   label,
   validation,
   containerStyle = {},
+  placeholder,
   ...rest
 }) => {
   const { t } = useTranslation()
@@ -97,6 +98,7 @@ const AddressInput: React.FC<Props> = ({
         validLabel={!isError ? message : ''}
         error={isError ? message : ''}
         isValid={!isError}
+        placeholder={placeholder || t('Address / ENS / UD')}
         childrenBeforeButtons={
           <>
             {(ensAddress || udAddress) && !isRecipientDomainResolving ? (

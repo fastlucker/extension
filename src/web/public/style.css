@@ -29,6 +29,10 @@ body {
   flex: 1;
 }
 
+div {
+  user-select: none;
+}
+
 input {
   outline: none;
 }

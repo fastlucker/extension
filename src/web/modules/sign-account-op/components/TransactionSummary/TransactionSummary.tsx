@@ -131,6 +131,7 @@ const TransactionSummary = ({
           appearance="secondaryText"
           weight="regular"
           style={{ maxWidth: '100%' }}
+          selectable
         >
           {` ${call.to} `}
         </Text>
@@ -142,7 +143,7 @@ const TransactionSummary = ({
         >
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
+        <Text selectable fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
@@ -227,6 +228,7 @@ const TransactionSummary = ({
                     weight="medium"
                     appearance="primaryText"
                     style={{ maxWidth: '100%' }}
+                    selectable
                   >
                     {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
@@ -350,19 +352,19 @@ const TransactionSummary = ({
             paddingVertical: SPACING_TY * sizeMultiplier[size]
           }}
         >
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Interacting with (to): ')}
             </Text>
             {call.to}
           </Text>
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Value to be sent (value): ')}
             </Text>
             {formatUnits(call.value || '0x0', 18)}
           </Text>
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Data: ')}
             </Text>
