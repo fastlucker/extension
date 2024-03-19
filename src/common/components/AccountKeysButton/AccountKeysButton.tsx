@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
 import MultiKeysIcon from '@common/assets/svg/MultiKeysIcon'
@@ -52,4 +52,4 @@ const AccountKeysButton = () => {
   )
 }
 
-export default AccountKeysButton
+export default memo(AccountKeysButton)
