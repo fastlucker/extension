@@ -19,4 +19,4 @@ const NoKeysIcon: FC<SvgProps> = ({ width = 20, height = 21, color = '#fff' }) =
   )
 }
 
-export default NoKeysIcon
+export default React.memo(NoKeysIcon)

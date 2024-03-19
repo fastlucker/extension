@@ -47,4 +47,4 @@ const ViewModeIcon: React.FC<SvgProps> = ({
   </Svg>
 )
 
-export default ViewModeIcon
+export default React.memo(ViewModeIcon)

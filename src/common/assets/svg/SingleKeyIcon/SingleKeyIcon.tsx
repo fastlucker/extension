@@ -13,4 +13,4 @@ const SingleKeyIcon: FC<SvgProps> = ({ width = 17.41, height = 17.41 }) => {
   )
 }
 
-export default SingleKeyIcon
+export default React.memo(SingleKeyIcon)

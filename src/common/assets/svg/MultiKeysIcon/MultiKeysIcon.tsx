@@ -16,4 +16,4 @@ const MultiKeysIcon: FC<SvgProps> = ({ width = 22.5, height = 24.5 }) => {
   )
 }
 
-export default MultiKeysIcon
+export default React.memo(MultiKeysIcon)
