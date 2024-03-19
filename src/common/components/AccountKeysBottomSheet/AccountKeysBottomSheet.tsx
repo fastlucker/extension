@@ -12,7 +12,8 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import { getAddAccountOptions } from '@web/modules/account-select/components/AddAccount'
+
+import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
 interface Props {
   sheetRef: any
@@ -40,10 +41,9 @@ const AccountKeysBottomSheet: FC<Props> = ({
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const addAccountOptions = getAddAccountOptions({
+  const addAccountOptions = getAddKeyOptions({
     navigate,
-    t,
-    hiddenOptions: ['view-only']
+    t
   })
 
   return (
@@ -80,7 +80,13 @@ const AccountKeysBottomSheet: FC<Props> = ({
       </View>
       <Title text={t('Import keys')} />
       {addAccountOptions.map((option) => (
-        <Option key={option.text} text={option.text} icon={option.icon} onPress={option.onPress} />
+        <Option
+          key={option.text}
+          text={option.text}
+          icon={option.icon}
+          onPress={option.onPress}
+          iconProps={option?.iconProps}
+        />
       ))}
     </BottomSheet>
   )

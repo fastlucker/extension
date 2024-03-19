@@ -11,12 +11,10 @@ const { isNotification } = getUiType()
 
 const getAddAccountOptions = ({
   navigate,
-  t,
-  hiddenOptions = []
+  t
 }: {
   navigate: ReturnType<typeof useNavigation>['navigate']
   t: (str: string) => string
-  hiddenOptions?: ('hw' | 'hot-wallet' | 'create-wallet' | 'view-only')[]
 }) => {
   const navigateWrapped = (route: string) => {
     if (isNotification) {
@@ -52,7 +50,7 @@ const getAddAccountOptions = ({
       icon: ViewModeIcon,
       onPress: () => navigateWrapped(ROUTES.viewOnlyAccountAdder)
     }
-  ].filter((option) => !hiddenOptions.includes(option.key as any))
+  ]
 }
 
 export { getAddAccountOptions }

@@ -1,4 +1,5 @@
 import { View } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Text from '@common/components/Text'
@@ -15,9 +16,10 @@ interface Props {
   icon: React.FC<any>
   onPress: () => void
   hasLargerBottomSpace?: boolean
+  iconProps?: SvgProps
 }
 
-const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text }: Props) => {
+const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text, iconProps = {} }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'borderColor',
@@ -35,7 +37,7 @@ const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text }: Props) => {
       {...bindAnim}
     >
       <View style={styles.iconWrapper}>
-        <Icon color={isHovered ? theme.primary : iconColors.primary} />
+        <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
       </View>
       <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
         {text}
