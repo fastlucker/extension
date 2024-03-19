@@ -43,6 +43,7 @@ export interface StepsData {
   pendingTime: number
   userOpStatusData: { status: null | string; txnId: null | string }
   txnId: string | null
+  from: string | null
 }
 
 // if the transaction hash is found, we make the top url the real txn id
@@ -450,7 +451,8 @@ const useSteps = ({
     calls,
     pendingTime,
     userOpStatusData,
-    txnId: userOpStatusData.txnId ?? txnId
+    txnId: userOpStatusData.txnId ?? txnId,
+    from: userOp?.sender || txn?.from || txnReceipt.from
   }
 }
 

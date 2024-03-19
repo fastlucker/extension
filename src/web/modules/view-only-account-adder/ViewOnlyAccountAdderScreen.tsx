@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -123,7 +123,7 @@ const ViewOnlyScreen = () => {
       }
 
       return {
-        addr: ethers.getAddress(address),
+        addr: getAddress(address),
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation,

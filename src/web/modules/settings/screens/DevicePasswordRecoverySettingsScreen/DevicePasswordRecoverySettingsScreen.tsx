@@ -17,10 +17,12 @@ import useNavigation from '@common/hooks/useNavigation'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
+import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 const DevicePasswordRecoverySettingsScreen = () => {
@@ -34,6 +36,8 @@ const DevicePasswordRecoverySettingsScreen = () => {
     open: openConfirmationModal,
     close: closeConfirmationModal
   } = useModalize()
+
+  const { ref: successModalRef, open: openSuccessModal, close: closeSuccessModal } = useModalize()
 
   const { dispatch } = useBackgroundService()
 
@@ -69,6 +73,12 @@ const DevicePasswordRecoverySettingsScreen = () => {
     }
     closeConfirmationModal()
   }, [closeConfirmationModal, ev.currentState, openConfirmationModal, confirmationModalRef.current])
+
+  useEffect(() => {
+    if (ev.latestMethodCall === 'uploadKeyStoreSecret' && ev.latestMethodStatus === 'SUCCESS') {
+      openSuccessModal()
+    }
+  }, [openSuccessModal, ev.latestMethodCall, ev.latestMethodStatus])
 
   const handleFormSubmit = useCallback(() => {
     handleSubmit(async () => {
@@ -180,6 +190,26 @@ const DevicePasswordRecoverySettingsScreen = () => {
       >
         <ModalHeader title={t('Email Confirmation Required')} />
         <EmailConfirmation email={email} handleCancelLoginAttempt={handleCancelLoginAttempt} />
+      </BottomSheet>
+      <BottomSheet
+        id="backup-password-success-modal"
+        backgroundColor="primaryBackground"
+        sheetRef={successModalRef}
+        autoWidth
+      >
+        <ModalHeader title={t('Device Password Recovery')} />
+        <KeyStoreLogo style={[flexbox.alignSelfCenter, spacings.mbXl]} />
+        <Text fontSize={16} style={[spacings.mbLg, text.center]}>
+          {t('Your Device Password Recovery was successfully enabled!')}
+        </Text>
+        <Button
+          text={t('Got it')}
+          hasBottomSpacing={false}
+          style={{ minWidth: 232 }}
+          onPress={() => {
+            closeSuccessModal()
+          }}
+        />
       </BottomSheet>
     </>
   )

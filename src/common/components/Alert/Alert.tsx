@@ -79,6 +79,7 @@ const Alert: FC<Props> = ({
           <Text style={text ? spacings.mbTy : {}}>
             {!isTypeLabelHidden && (
               <Text
+                selectable
                 appearance={`${type}Text`}
                 fontSize={fontSize}
                 weight={titleWeight || 'semiBold'}
@@ -87,13 +88,18 @@ const Alert: FC<Props> = ({
                 {type}:{' '}
               </Text>
             )}
-            <Text appearance={`${type}Text`} fontSize={fontSize} weight={titleWeight || 'regular'}>
+            <Text
+              selectable
+              appearance={`${type}Text`}
+              fontSize={fontSize}
+              weight={titleWeight || 'regular'}
+            >
               {title}
             </Text>
           </Text>
         )}
         {!!text && (
-          <Text fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
+          <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
             {text}
           </Text>
         )}

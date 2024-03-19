@@ -1,4 +1,4 @@
-import { ethers, TransactionReceipt, TransactionResponse } from 'ethers'
+import { TransactionReceipt, TransactionResponse, ZeroAddress } from 'ethers'
 
 import {
   deployAndExecuteInterface,
@@ -210,7 +210,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
     return getExecuteBatchCalls(txn.data)
   }
 
-  return [transformToAccOpCall([txn.to ? txn.to : ethers.ZeroAddress, txn.value, txn.data])]
+  return [transformToAccOpCall([txn.to ? txn.to : ZeroAddress, txn.value, txn.data])]
 }
 
 export const getSender = (txn: TransactionResponse, receipt: TransactionReceipt) => {
