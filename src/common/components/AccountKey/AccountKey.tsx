@@ -98,21 +98,25 @@ const AccountKey: React.FC<Props> = ({
       ]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        {/* Keys that aren't imported can't be labeled */}
-        {isImported && enableEditing ? (
-          <Editable
-            textProps={{
-              weight: 'semiBold'
-            }}
-            fontSize={fontSize}
-            value={label || ''}
-            onSave={editKeyLabel}
-            maxLength={40}
-          />
-        ) : (
-          <Text fontSize={fontSize}>{label}</Text>
-        )}
-        <Text fontSize={fontSize} style={label ? spacings.mlTy : {}}>
+        <View style={isPopup ? { maxWidth: 350 } : {}}>
+          {/* Keys that aren't imported can't be labeled */}
+          {isImported && enableEditing ? (
+            <Editable
+              textProps={{
+                weight: 'semiBold'
+              }}
+              fontSize={fontSize}
+              value={label || ''}
+              onSave={editKeyLabel}
+              maxLength={40}
+            />
+          ) : (
+            <Text weight="semiBold" fontSize={fontSize} numberOfLines={1}>
+              {label}
+            </Text>
+          )}
+        </View>
+        <Text fontSize={fontSize} style={label || isImported ? spacings.mlTy : {}}>
           {label ? `(${shortenAddress(address, 13)})` : address}
         </Text>
         <AnimatedPressable
@@ -123,7 +127,7 @@ const AccountKey: React.FC<Props> = ({
           <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
         </AnimatedPressable>
       </View>
-      <View style={spacings.mlXl}>
+      <View style={isPopup ? spacings.ml : spacings.mlXl}>
         {!isImported && <Badge type="warning" text={t('Not imported')} />}
         {isImported && type && <KeyTypeIcon type={type} />}
       </View>
