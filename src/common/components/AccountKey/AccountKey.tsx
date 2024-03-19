@@ -100,19 +100,27 @@ const AccountKey: React.FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         {/* Keys that aren't imported can't be labeled */}
         {isImported && enableEditing ? (
-          <Editable value={label || ''} onSave={editKeyLabel} maxLength={40} />
+          <Editable
+            textProps={{
+              weight: 'semiBold'
+            }}
+            fontSize={fontSize}
+            value={label || ''}
+            onSave={editKeyLabel}
+            maxLength={40}
+          />
         ) : (
-          <Text>{label}</Text>
+          <Text fontSize={fontSize}>{label}</Text>
         )}
         <Text fontSize={fontSize} style={spacings.mlTy}>
           {label ? `(${shortenAddress(address, 13)})` : address}
         </Text>
         <AnimatedPressable
-          style={[spacings.mlSm, copyIconAnimStyle]}
+          style={[spacings.mlTy, copyIconAnimStyle]}
           onPress={handleCopy}
           {...bindCopyIconAnim}
         >
-          <CopyIcon color={theme.secondaryText} />
+          <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
         </AnimatedPressable>
       </View>
       <View style={spacings.mlXl}>
