@@ -519,7 +519,7 @@ async function init() {
                 return await mainCtrl.settings.addCustomNetwork(params)
               }
               case 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
-                return mainCtrl.settings.removeCustomNetwork(params)
+                return await mainCtrl.settings.removeCustomNetwork(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
                 return await mainCtrl.updateNetworkPreferences(
