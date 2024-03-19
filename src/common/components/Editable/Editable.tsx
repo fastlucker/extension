@@ -113,7 +113,7 @@ const Editable: FC<Props> = ({
                 height={fontSize}
               />
             )}
-            {((isEditing && value === defaultValue) || !value) && (
+            {isEditing && (value === defaultValue || !value) && (
               <CloseIcon
                 width={fontSize}
                 height={fontSize}
