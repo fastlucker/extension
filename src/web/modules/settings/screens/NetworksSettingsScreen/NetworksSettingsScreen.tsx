@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -13,12 +13,14 @@ import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -32,7 +34,8 @@ const NetworksSettingsScreen = () => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
   const { networks } = useSettingsControllerState()
-
+  const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
   const search = watch('search')
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
@@ -54,6 +57,31 @@ const NetworksSettingsScreen = () => {
   useEffect(() => {
     setCurrentSettingsPage('networks')
   }, [setCurrentSettingsPage])
+
+  const onRemoveCustomNetwork = useCallback(
+    (chainId: string | number) => {
+      const network = networks.find((n) => Number(n.chainId) === Number(chainId))
+      if (network) {
+        // eslint-disable-next-line no-alert
+        const isSure = window.confirm(
+          t(
+            `Are you sure you want to remove ${network.name} from networks? Upon removal, any tokens associated with this network will no longer be visible in your wallet.`
+          )
+        )
+
+        if (!isSure) return
+
+        dispatch({
+          type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK',
+          params: network.id
+        })
+        setSelectedNetworkId(undefined)
+      } else {
+        addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
+      }
+    },
+    [networks, dispatch, addToast, t]
+  )
 
   const filteredNetworkBySearch = networks.filter((network) =>
     network.name.toLowerCase().includes(search.toLowerCase())
@@ -94,6 +122,7 @@ const NetworksSettingsScreen = () => {
           <View style={spacings.pt}>
             <Button
               type="secondary"
+              size="small"
               text={t('Add custom network')}
               onPress={openBottomSheet as any}
               hasBottomSpacing={false}
@@ -123,6 +152,7 @@ const NetworksSettingsScreen = () => {
                 rpcUrl={selectedNetwork?.rpcUrl || '-'}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
+                handleRemoveNetwork={onRemoveCustomNetwork}
               />
             </View>
             {!!selectedNetwork && selectedNetworkId && (
@@ -141,7 +171,7 @@ const NetworksSettingsScreen = () => {
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm />
+        <NetworkForm onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )

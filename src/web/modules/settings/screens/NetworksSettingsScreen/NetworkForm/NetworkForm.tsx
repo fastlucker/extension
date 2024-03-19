@@ -1,13 +1,14 @@
 import { JsonRpcProvider } from 'ethers'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { NetworkPreference } from '@ambire-common/interfaces/settings'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
+import { isValidURL } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -30,20 +31,28 @@ import INPUT_FIELDS from '@web/modules/settings/screens/NetworksSettingsScreen/N
 import getStyles from './styles'
 
 const NetworkForm = ({
-  selectedNetworkId = 'custom'
+  selectedNetworkId = 'add-custom-network',
+  onSaved
 }: {
   selectedNetworkId?: NetworkDescriptor['id']
+  onSaved: () => void
 }) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
-  const [isLoadingRPC, setIsLoadingRPC] = useState(false)
+  const [isValidatingRPC, setValidatingRPC] = useState(false)
   const { theme, styles } = useTheme(getStyles)
   const { networkToAddOrUpdate } = useSettingsControllerState()
+
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
     [networks, selectedNetworkId]
+  )
+
+  const isPredefinedNetwork = useMemo(
+    () => selectedNetwork && predefinedNetworks.some((n) => n.id === selectedNetwork.id),
+    [selectedNetwork]
   )
 
   const {
@@ -54,8 +63,7 @@ const NetworkForm = ({
     reset,
     formState: { isValid, errors }
   } = useForm({
-    // Mode onChange is required to validate the rpcUrl field, because custom errors are overwritten by errors from the rules.
-    mode: 'onChange',
+    mode: 'onSubmit',
     defaultValues: {
       name: '',
       rpcUrl: '',
@@ -82,58 +90,144 @@ const NetworkForm = ({
     })
   }, [dispatch])
 
+  const validateRpcUrlAndRecalculateFeaturesIfNeeded = useCallback(
+    async (rpcUrl?: string, chainId?: string | number) => {
+      setValidatingRPC(true)
+      dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
+      if (!rpcUrl) return
+
+      if (!isValidURL(rpcUrl)) {
+        setValidatingRPC(false)
+        setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
+        return
+      }
+
+      if (!chainId) {
+        setValidatingRPC(false)
+        return
+      }
+
+      try {
+        const rpc = new JsonRpcProvider(rpcUrl)
+        const network = await rpc.getNetwork()
+        rpc.destroy()
+
+        if (Number(network.chainId) !== Number(chainId) && selectedNetwork && rpcUrl) {
+          setValidatingRPC(false)
+          setError('rpcUrl', {
+            type: 'custom-error',
+            message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${chainId}`
+          })
+          return
+        }
+
+        if (
+          rpcUrl !== selectedNetwork?.rpcUrl ||
+          Number(chainId) !== Number(selectedNetwork?.chainId)
+        ) {
+          dispatch({
+            type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+            params: { rpcUrl, chainId: BigInt(chainId) }
+          })
+        }
+        setValidatingRPC(false)
+        clearErrors('rpcUrl')
+      } catch (error) {
+        setValidatingRPC(false)
+        setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
+      }
+    },
+    [selectedNetwork, clearErrors, setError, dispatch]
+  )
+
   useEffect(() => {
     // We can't just validate using a custom validate rule, because getNetwork is async
     // and resetting the form doesn't wait for the validation to finish so we get an error
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
-      if (
-        name === 'name' &&
-        selectedNetworkId === 'custom' &&
-        networks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
-      ) {
-        setError('name', {
-          message: `Network with name: ${value.name} already added`
+      if (name && !value[name]) {
+        setError(name, {
+          type: 'custom-error',
+          message: 'Field is required'
         })
+        return
       }
 
-      if (
-        name === 'chainId' &&
-        selectedNetworkId === 'custom' &&
-        networks.some((n) => Number(n.chainId) === Number(value.chainId))
-      ) {
-        setError('chainId', {
-          message: `Network with chainID: ${value.chainId} already added`
-        })
-      }
-      if (name === 'rpcUrl' || name === 'chainId') {
-        try {
-          setIsLoadingRPC(true)
-          const rpc = new JsonRpcProvider(value.rpcUrl)
-          const network = await rpc.getNetwork()
-          if (value.chainId && Number(network.chainId) !== Number(value.chainId)) {
-            setIsLoadingRPC(false)
-            return setError('rpcUrl', {
-              type: 'custom',
-              message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${value.chainId}`
-            })
-          }
-          setIsLoadingRPC(false)
-          clearErrors('rpcUrl')
-        } catch (error) {
-          setIsLoadingRPC(false)
-          setError('rpcUrl', { type: 'custom', message: 'Invalid RPC URL' })
+      if (name === 'name') {
+        if (
+          selectedNetworkId === 'add-custom-network' &&
+          networks.some((n) => n.name.toLowerCase() === value.name?.toLowerCase())
+        ) {
+          setError('name', {
+            type: 'custom-error',
+            message: `Network with name: ${value.name} already added`
+          })
+          return
         }
+        clearErrors('name')
+      }
+
+      if (name === 'chainId') {
+        if (
+          selectedNetworkId === 'add-custom-network' &&
+          networks.some((n) => Number(n.chainId) === Number(value.chainId))
+        ) {
+          setError('chainId', {
+            type: 'custom-error',
+            message: `Network with chainID: ${value.chainId} already added`
+          })
+          return
+        }
+        clearErrors('chainId')
+      }
+
+      if (name === 'rpcUrl' || name === 'chainId') {
+        await validateRpcUrlAndRecalculateFeaturesIfNeeded(value.rpcUrl, value.chainId)
+      }
+
+      if (name === 'explorerUrl') {
+        if (!value.explorerUrl) {
+          setError('explorerUrl', {
+            type: 'custom-error',
+            message: 'URL cannot be empty'
+          })
+          return
+        }
+
+        try {
+          const url = new URL(value.explorerUrl)
+          if (url.protocol !== 'https:') {
+            setError('explorerUrl', {
+              type: 'custom-error',
+              message: 'URL must start with https://'
+            })
+            return
+          }
+        } catch {
+          setError('explorerUrl', {
+            type: 'custom-error',
+            message: 'Invalid URL'
+          })
+          return
+        }
+        clearErrors('explorerUrl')
       }
     })
 
     return () => {
       subscription?.unsubscribe()
     }
-  }, [selectedNetworkId, networks, selectedNetwork?.name, setError, watch, clearErrors])
+  }, [
+    selectedNetworkId,
+    networks,
+    validateRpcUrlAndRecalculateFeaturesIfNeeded,
+    clearErrors,
+    setError,
+    watch
+  ])
 
   const handleSubmitButtonPress = () => {
-    if (selectedNetworkId === 'custom') {
+    if (selectedNetworkId === 'add-custom-network') {
       dispatch({
         type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
         params: { ...networkFormValues, chainId: BigInt(networkFormValues.chainId) }
@@ -151,6 +245,7 @@ const NetworkForm = ({
       })
       addToast(`${selectedNetwork?.name} settings saved!`)
     }
+    !!onSaved && onSaved()
   }
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
@@ -168,12 +263,12 @@ const NetworkForm = ({
   return (
     <>
       <View style={styles.modalHeader}>
-        {selectedNetworkId === 'custom' && (
-          <Text fontSize={20} weight="medium" style={spacings.mbLg}>
+        {selectedNetworkId === 'add-custom-network' && (
+          <Text fontSize={20} weight="medium">
             {t('Add custom network')}
           </Text>
         )}
-        {selectedNetworkId !== 'custom' && !!selectedNetwork && (
+        {selectedNetworkId !== 'add-custom-network' && !!selectedNetwork && (
           <>
             <NetworkIcon name={selectedNetwork.id as any} style={styles.networkIcon} size={40} />
             <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
@@ -193,9 +288,8 @@ const NetworkForm = ({
                 key={inputField.name}
                 name={inputField.name as any}
                 control={control}
-                rules={inputField?.rules}
                 render={({ field: { onBlur, onChange, value } }) => {
-                  const correspondingConstantNetwork = constantNetworks.find(
+                  const correspondingConstantNetwork = predefinedNetworks.find(
                     (network) => network.id === selectedNetworkId
                   )
                   const correspondingNetwork = networks.find(
@@ -215,21 +309,23 @@ const NetworkForm = ({
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
-                      disabled={!inputField.editable && selectedNetworkId !== 'custom'}
+                      disabled={!inputField.editable && selectedNetworkId !== 'add-custom-network'}
                       isValid={
                         !errors[inputField.name as keyof typeof errors] &&
                         inputField.editable &&
-                        selectedNetworkId !== 'custom'
+                        selectedNetworkId !== 'add-custom-network'
                       }
                       error={(() => {
-                        if (inputField.name === 'rpcUrl' && isLoadingRPC) return false
+                        if (inputField.name === 'rpcUrl' && isValidatingRPC) return false
                         return handleErrors(errors[inputField.name as keyof typeof errors])
                       })()}
                       inputWrapperStyle={{ height: 40 }}
                       inputStyle={{ height: 40 }}
                       containerStyle={index + 1 !== INPUT_FIELDS.length ? spacings.mb : {}}
                       label={inputField.label}
-                      button={inputField.editable && isChanged ? 'Reset' : ''}
+                      button={
+                        inputField.editable && isChanged && isPredefinedNetwork ? 'Reset' : ''
+                      }
                       onButtonPress={() =>
                         handleResetNetworkField(inputField.name as keyof NetworkPreference)
                       }
@@ -252,42 +348,49 @@ const NetworkForm = ({
             <View style={flexbox.flex1}>
               <NetworkAvailableFeatures
                 networkId={selectedNetwork?.id}
-                features={selectedNetwork?.features}
+                features={
+                  networkToAddOrUpdate?.info
+                    ? getFeatures(networkToAddOrUpdate?.info)
+                    : errors.rpcUrl || errors.chainId
+                    ? getFeatures(undefined)
+                    : selectedNetwork?.features || getFeatures(undefined)
+                }
               />
             </View>
-            {selectedNetworkId === 'custom' ? (
-              <Button
-                onPress={handleSubmitButtonPress}
-                text={t('Add network')}
-                style={{ alignSelf: 'flex-start' }}
-                disabled={!isValid || !!errors?.rpcUrl || isLoadingRPC}
-                hasBottomSpacing={false}
-                size="large"
-              />
-            ) : (
-              <View style={[flexbox.directionRow]}>
-                <Button
-                  onPress={reset as any}
-                  text={t('Cancel')}
-                  type="secondary"
-                  disabled={!areDefaultValuesChanged}
-                  hasBottomSpacing={false}
-                  style={[flexbox.flex1, spacings.mrMi]}
-                  size="large"
-                />
-
+            <View style={flexbox.alignEnd}>
+              {selectedNetworkId === 'add-custom-network' ? (
                 <Button
                   onPress={handleSubmitButtonPress}
-                  text={t('Save')}
-                  disabled={
-                    !areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isLoadingRPC
-                  }
-                  style={[spacings.mlMi, flexbox.flex1]}
+                  text={t('Add network')}
+                  disabled={!isValid || !!errors?.rpcUrl || isValidatingRPC}
                   hasBottomSpacing={false}
                   size="large"
                 />
-              </View>
-            )}
+              ) : (
+                <View style={[flexbox.directionRow]}>
+                  <Button
+                    onPress={reset as any}
+                    text={t('Cancel')}
+                    type="secondary"
+                    disabled={!areDefaultValuesChanged}
+                    hasBottomSpacing={false}
+                    style={[flexbox.flex1, spacings.mr, { width: 160 }]}
+                    size="large"
+                  />
+
+                  <Button
+                    onPress={handleSubmitButtonPress}
+                    text={t('Save')}
+                    disabled={
+                      !areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isValidatingRPC
+                    }
+                    style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
+                    hasBottomSpacing={false}
+                    size="large"
+                  />
+                </View>
+              )}
+            </View>
           </ScrollableWrapper>
         </View>
       </View>
@@ -295,4 +398,4 @@ const NetworkForm = ({
   )
 }
 
-export default NetworkForm
+export default React.memo(NetworkForm)

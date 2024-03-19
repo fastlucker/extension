@@ -28,7 +28,7 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { deployContractsBytecode } from './oldDeployParams'
 
 type Props = {
-  networkId: NetworkDescriptor['id']
+  networkId?: NetworkDescriptor['id']
   features: NetworkFeature[] | undefined
 }
 
@@ -125,6 +125,7 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
                   >
                     {feature.title}
                     {pathname?.includes(ROUTES.networksSettings) &&
+                      !!selectedNetwork &&
                       feature.id === 'saSupport' &&
                       feature.level === 'warning' && (
                         <>

@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
+import CloseIcon from '@common/assets/svg/CloseIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -27,6 +28,7 @@ type Props = {
   chainId: string
   explorerUrl: string
   nativeAssetSymbol: string
+  handleRemoveNetwork?: (chainId: string | number) => void
 }
 
 const NetworkDetails = ({
@@ -35,7 +37,8 @@ const NetworkDetails = ({
   rpcUrl,
   chainId,
   explorerUrl,
-  nativeAssetSymbol
+  nativeAssetSymbol,
+  handleRemoveNetwork
 }: Props) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -50,6 +53,15 @@ const NetworkDetails = ({
   const shouldDisplayEditButton = useMemo(
     () => pathname?.includes(ROUTES.networksSettings) && !isEmpty,
     [pathname, isEmpty]
+  )
+
+  const shouldDisplayRemoveButton = useMemo(
+    () =>
+      pathname?.includes(ROUTES.networksSettings) &&
+      !isEmpty &&
+      !predefinedNetworks.find((n) => Number(n.chainId) === Number(chainId)) &&
+      handleRemoveNetwork,
+    [pathname, chainId, isEmpty, handleRemoveNetwork]
   )
 
   const renderInfoItem = useCallback(
@@ -104,7 +116,7 @@ const NetworkDetails = ({
           </Text>
           {!!shouldDisplayEditButton && (
             <Button
-              style={{ maxHeight: 32 }}
+              style={[{ maxHeight: 32 }, !!shouldDisplayRemoveButton && spacings.mrTy]}
               text={t('Edit')}
               type="secondary"
               onPress={openBottomSheet as any}
@@ -112,6 +124,21 @@ const NetworkDetails = ({
             >
               <View style={spacings.plTy}>
                 <EditPenIcon width={12} height={12} color={theme.primary} />
+              </View>
+            </Button>
+          )}
+          {!!shouldDisplayRemoveButton && (
+            <Button
+              style={{ maxHeight: 32 }}
+              text={t('Remove')}
+              type="danger"
+              onPress={() => {
+                !!handleRemoveNetwork && handleRemoveNetwork(chainId)
+              }}
+              hasBottomSpacing={false}
+            >
+              <View style={spacings.plTy}>
+                <CloseIcon width={12} height={12} color={theme.errorDecorative} />
               </View>
             </Button>
           )}
@@ -131,7 +158,7 @@ const NetworkDetails = ({
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm selectedNetworkId={name.toLowerCase()} />
+        <NetworkForm selectedNetworkId={name.toLowerCase()} onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )
