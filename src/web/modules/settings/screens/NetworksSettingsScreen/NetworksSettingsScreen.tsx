@@ -94,6 +94,7 @@ const NetworksSettingsScreen = () => {
           <View style={spacings.pt}>
             <Button
               type="secondary"
+              size="small"
               text={t('Add custom network')}
               onPress={openBottomSheet as any}
               hasBottomSpacing={false}
@@ -141,7 +142,7 @@ const NetworksSettingsScreen = () => {
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm />
+        <NetworkForm onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )

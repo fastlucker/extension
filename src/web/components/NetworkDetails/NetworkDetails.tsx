@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -131,7 +130,7 @@ const NetworkDetails = ({
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm selectedNetworkId={name.toLowerCase()} />
+        <NetworkForm selectedNetworkId={name.toLowerCase()} onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )
