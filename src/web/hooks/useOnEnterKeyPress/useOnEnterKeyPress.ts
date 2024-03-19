@@ -6,17 +6,17 @@ interface Props {
 }
 
 const useOnEnterKeyPress = ({ action, disabled }: Props) => {
-  // Move to next story on enter key press
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         if (disabled) return
         action()
       }
     }
 
-    window.addEventListener('keypress', handleKeyPress)
-    return () => window.removeEventListener('keypress', handleKeyPress)
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [disabled, action])
 }
 
