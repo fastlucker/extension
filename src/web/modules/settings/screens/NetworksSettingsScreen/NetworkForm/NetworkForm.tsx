@@ -15,6 +15,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import NumberInput from '@common/components/NumberInput'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
@@ -61,7 +62,8 @@ const NetworkForm = ({
     clearErrors,
     control,
     reset,
-    formState: { isValid, errors }
+    handleSubmit,
+    formState: { errors }
   } = useForm({
     mode: 'onSubmit',
     defaultValues: {
@@ -83,6 +85,16 @@ const NetworkForm = ({
   const networkFormValues = watch()
 
   const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
+
+  const features = useMemo(
+    () =>
+      networkToAddOrUpdate?.info
+        ? getFeatures(networkToAddOrUpdate?.info)
+        : errors.rpcUrl || errors.chainId
+        ? getFeatures(undefined)
+        : selectedNetwork?.features || getFeatures(undefined),
+    [errors.chainId, errors.rpcUrl, networkToAddOrUpdate?.info, selectedNetwork?.features]
+  )
 
   useEffect(() => {
     dispatch({
@@ -227,25 +239,49 @@ const NetworkForm = ({
   ])
 
   const handleSubmitButtonPress = () => {
-    if (selectedNetworkId === 'add-custom-network') {
-      dispatch({
-        type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
-        params: { ...networkFormValues, chainId: BigInt(networkFormValues.chainId) }
-      })
-    } else {
-      dispatch({
-        type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-        params: {
-          networkPreferences: {
-            rpcUrl: networkFormValues.rpcUrl,
-            explorerUrl: networkFormValues.explorerUrl
-          },
-          networkId: selectedNetworkId
-        }
-      })
-      addToast(`${selectedNetwork?.name} settings saved!`)
-    }
-    !!onSaved && onSaved()
+    // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
+    handleSubmit(async (fields: any) => {
+      if (selectedNetworkId === 'add-custom-network') {
+        const emptyFields = Object.keys(fields).filter((key) => !fields[key].length)
+        emptyFields.forEach((k) => {
+          setError(k as any, {
+            type: 'custom-error',
+            message: 'Field is required'
+          })
+        })
+        if (emptyFields.length) return
+
+        dispatch({
+          type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
+          params: { ...networkFormValues, chainId: BigInt(networkFormValues.chainId) }
+        })
+      } else {
+        const emptyFields = Object.keys(fields)
+          .filter((key) => !fields[key].length)
+          .filter((k) => INPUT_FIELDS.find((f) => f.name === k)!.editable)
+
+        emptyFields.forEach((k) => {
+          setError(k as any, {
+            type: 'custom-error',
+            message: 'Field is required'
+          })
+        })
+
+        if (emptyFields.length) return
+        dispatch({
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+          params: {
+            networkPreferences: {
+              rpcUrl: networkFormValues.rpcUrl,
+              explorerUrl: networkFormValues.explorerUrl
+            },
+            networkId: selectedNetworkId
+          }
+        })
+        addToast(`${selectedNetwork?.name} settings saved!`)
+      }
+      !!onSaved && onSaved()
+    })()
   }
 
   const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
@@ -310,6 +346,17 @@ const NetworkForm = ({
                       onChangeText={onChange}
                       value={value}
                       disabled={!inputField.editable && selectedNetworkId !== 'add-custom-network'}
+                      allowHex
+                      tooltip={
+                        inputField.name === 'chainId'
+                          ? {
+                              id: inputField.name,
+                              content: t(
+                                "The chain ID is a unique network identifier used to validate the provided RPC URL. You can input a decimal or '0x'-prefixed hexadecimal number."
+                              )
+                            }
+                          : undefined
+                      }
                       isValid={
                         !errors[inputField.name as keyof typeof errors] &&
                         inputField.editable &&
@@ -346,23 +393,19 @@ const NetworkForm = ({
         >
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             <View style={flexbox.flex1}>
-              <NetworkAvailableFeatures
-                networkId={selectedNetwork?.id}
-                features={
-                  networkToAddOrUpdate?.info
-                    ? getFeatures(networkToAddOrUpdate?.info)
-                    : errors.rpcUrl || errors.chainId
-                    ? getFeatures(undefined)
-                    : selectedNetwork?.features || getFeatures(undefined)
-                }
-              />
+              <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
             </View>
             <View style={flexbox.alignEnd}>
               {selectedNetworkId === 'add-custom-network' ? (
                 <Button
                   onPress={handleSubmitButtonPress}
                   text={t('Add network')}
-                  disabled={!isValid || !!errors?.rpcUrl || isValidatingRPC}
+                  disabled={
+                    !!Object.keys(errors).length ||
+                    isValidatingRPC ||
+                    features.some((f) => f.level === 'loading') ||
+                    !!features.filter((f) => f.id === 'flagged')[0]
+                  }
                   hasBottomSpacing={false}
                   size="large"
                 />
@@ -382,7 +425,7 @@ const NetworkForm = ({
                     onPress={handleSubmitButtonPress}
                     text={t('Save')}
                     disabled={
-                      !areDefaultValuesChanged || !isValid || !!errors?.rpcUrl || isValidatingRPC
+                      !areDefaultValuesChanged || !!Object.keys(errors).length || isValidatingRPC
                     }
                     style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
                     hasBottomSpacing={false}
@@ -394,6 +437,7 @@ const NetworkForm = ({
           </ScrollableWrapper>
         </View>
       </View>
+      <Tooltip id="chainId" />
     </>
   )
 }

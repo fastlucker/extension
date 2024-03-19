@@ -1,8 +1,5 @@
 import React from 'react'
 
-import Text from '@common/components/Text'
-import spacings from '@common/styles/spacings'
-
 import Input from '../Input'
 import { InputProps } from '../Input/Input'
 
@@ -10,19 +7,11 @@ interface Props extends InputProps {
   buttonText?: string
   onButtonPress?: () => any
   precision?: any
-  label?: string
-  labelComponent?: Element
   disabled?: boolean
+  allowHex?: boolean
 }
 
-const NumberInput = ({
-  onChangeText,
-  precision,
-  label,
-  labelComponent,
-  disabled,
-  ...rest
-}: Props) => {
+const NumberInput = ({ onChangeText, precision, disabled, allowHex, ...rest }: Props) => {
   const onInputValue = (value: string) => {
     try {
       if (!onChangeText) return
@@ -32,28 +21,25 @@ const NumberInput = ({
       const afterDecimals = value?.split('.')[1]
       if (afterDecimals && afterDecimals.length > precision) return
 
-      const isIntOrFloat = /^[0-9]+\.{0,1}[0-9]*$/g.test(value)
-      isIntOrFloat && onChangeText(value)
+      const isValid = allowHex
+        ? /^[0-9]+\.{0,1}[0-9]*$/g.test(value.trim()) ||
+          value.startsWith('0x') ||
+          (value.startsWith('0x') && /^[0-9a-fA-F]+$/.test(value.trim()))
+        : /^[0-9]+\.{0,1}[0-9]*$/g.test(value.trim())
+
+      isValid && onChangeText(value.trim())
       // eslint-disable-next-line no-empty
     } catch (error) {}
   }
   return (
-    <>
-      {!!label && (
-        <Text weight="regular" appearance="secondaryText" fontSize={14} style={[spacings.mbMi]}>
-          {label}
-        </Text>
-      )}
-      {!!labelComponent && labelComponent}
-      <Input
-        keyboardType="numeric"
-        autoCapitalize="none"
-        disabled={disabled}
-        autoCorrect={false}
-        onChangeText={onInputValue}
-        {...rest}
-      />
-    </>
+    <Input
+      keyboardType="numeric"
+      autoCapitalize="none"
+      disabled={disabled}
+      autoCorrect={false}
+      onChangeText={onInputValue}
+      {...rest}
+    />
   )
 }
 

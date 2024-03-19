@@ -126,6 +126,7 @@ const NetworksSettingsScreen = () => {
               text={t('Add custom network')}
               onPress={openBottomSheet as any}
               hasBottomSpacing={false}
+              style={{ height: 48 }}
               childrenPosition="left"
             >
               <AddIcon color={theme.primary} style={spacings.mrTy} />

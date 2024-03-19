@@ -43,7 +43,7 @@ const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId })
       {...bindAnim}
     >
       <NetworkIcon name={network.id as NetworkIconNameType} />
-      <Text fontSize={16} weight="regular" style={spacings.mlMi}>
+      <Text fontSize={16} weight="regular" style={spacings.mlMi} numberOfLines={1}>
         {network.name}
       </Text>
     </AnimatedPressable>
