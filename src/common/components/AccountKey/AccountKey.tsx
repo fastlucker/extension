@@ -112,7 +112,7 @@ const AccountKey: React.FC<Props> = ({
         ) : (
           <Text fontSize={fontSize}>{label}</Text>
         )}
-        <Text fontSize={fontSize} style={spacings.mlTy}>
+        <Text fontSize={fontSize} style={label ? spacings.mlTy : {}}>
           {label ? `(${shortenAddress(address, 13)})` : address}
         </Text>
         <AnimatedPressable
