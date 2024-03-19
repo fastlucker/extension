@@ -64,7 +64,7 @@ const AccountKey: React.FC<Props> = ({
       await Clipboard.setStringAsync(address)
       addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
-      addToast(t('Error copying key address'), { type: 'error' })
+      addToast(t('Could not copy the key address to the clipboard'), { type: 'error' })
     }
   }
 
