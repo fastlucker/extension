@@ -13,17 +13,17 @@ import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import { ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import EmailConfirmation from '@web/modules/keystore/components/EmailConfirmation'
-import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import useNavigation from '@common/hooks/useNavigation'
-import { ROUTES } from '@common/modules/router/constants/common'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import text from '@common/styles/utils/text'
+import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 const DevicePasswordRecoverySettingsScreen = () => {
   const ev = useEmailVaultControllerState()
@@ -112,18 +112,12 @@ const DevicePasswordRecoverySettingsScreen = () => {
             text={t(
               'Before enabling Device Password Recovery via email, you need to first set a password for your device.'
             )}
-          >
-            <Button
-              style={{ alignSelf: 'flex-start', ...spacings.phXl, ...spacings.mt }}
-              textStyle={{ fontSize: 14 }}
-              type="primary"
-              text={t('Set Device Password')}
-              hasBottomSpacing={false}
-              onPress={() =>
+            buttonProps={{
+              text: t('Set Device Password'),
+              onPress: () =>
                 navigate(ROUTES.devicePasswordSet, { state: { flow: 'password-recovery' } })
-              }
-            />
-          </Alert>
+            }}
+          />
         )}
 
         {ev.hasKeystoreRecovery && (
