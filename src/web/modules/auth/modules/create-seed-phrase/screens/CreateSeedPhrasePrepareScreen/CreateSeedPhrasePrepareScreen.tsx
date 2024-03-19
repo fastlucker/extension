@@ -27,6 +27,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -60,9 +61,23 @@ const CreateSeedPhrasePrepareScreen = () => {
   const seed = Wallet.createRandom().mnemonic?.phrase || null
   const panelPaddingStyle = getPanelPaddings(maxWidthSize)
 
+  const handleSubmit = () => {
+    if (!seed) {
+      addToast('Failed to generate seed phrase', { type: 'error' })
+      return
+    }
+    navigate(WEB_ROUTES.createSeedPhraseWrite, {
+      state: {
+        seed: seed.split(' ')
+      }
+    })
+  }
+
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
+
+  useOnEnterKeyPress({ action: handleSubmit, disabled: !allCheckboxesChecked })
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {
@@ -98,17 +113,7 @@ const CreateSeedPhrasePrepareScreen = () => {
             text={t('Review Seed Phrase')}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
-            onPress={() => {
-              if (!seed) {
-                addToast('Failed to generate seed phrase', { type: 'error' })
-                return
-              }
-              navigate(WEB_ROUTES.createSeedPhraseWrite, {
-                state: {
-                  seed: seed.split(' ')
-                }
-              })
-            }}
+            onPress={handleSubmit}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />

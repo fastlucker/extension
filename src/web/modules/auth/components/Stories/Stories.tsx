@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 import LeftArrowIcon from '@common/assets/svg/LeftArrowIcon'
@@ -13,6 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 
 // @ts-ignore
 import Story6 from './images/story-6.png'
@@ -220,13 +221,18 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
     }
   }
 
-  const moveToNextStory = () => {
+  const moveToNextStory = useCallback(() => {
     if (currentStory !== STORIES_DATA.length - 1) {
       setCurrentStory((p) => p + 1)
     } else {
       !!onComplete && onComplete()
     }
-  }
+  }, [currentStory, onComplete, STORIES_DATA.length])
+
+  useOnEnterKeyPress({
+    action: moveToNextStory,
+    disabled: currentStory === STORIES_DATA.length - 1 && !agreedWithTerms
+  })
 
   const handleBulletPress = (bulletIndex: number) => {
     if (bulletIndex !== currentStory) setCurrentStory(bulletIndex)

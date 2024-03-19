@@ -21,6 +21,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -55,9 +56,21 @@ const CreateSeedPhraseWriteScreen = () => {
   const { navigate } = useNavigation()
   const { theme } = useTheme()
 
+  const handleSubmit = () => {
+    navigate(WEB_ROUTES.createSeedPhraseConfirm, {
+      state: {
+        // Try to use the same confirmation words if the user navigates back
+        confirmationWords: confirmationWords || generateConfirmationWords(seed),
+        seed
+      }
+    })
+  }
+
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
+
+  useOnEnterKeyPress({ action: handleSubmit })
 
   return (
     <TabLayoutContainer
@@ -83,15 +96,7 @@ const CreateSeedPhraseWriteScreen = () => {
             text={t('Continue')}
             size="large"
             hasBottomSpacing={false}
-            onPress={() => {
-              navigate(WEB_ROUTES.createSeedPhraseConfirm, {
-                state: {
-                  // Try to use the same confirmation words if the user navigates back
-                  confirmationWords: confirmationWords || generateConfirmationWords(seed),
-                  seed
-                }
-              })
-            }}
+            onPress={handleSubmit}
           >
             <View style={spacings.pl}>
               <RightArrowIcon color={colors.titan} />
