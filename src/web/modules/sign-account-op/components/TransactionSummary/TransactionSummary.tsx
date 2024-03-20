@@ -223,6 +223,7 @@ const TransactionSummary = ({
             if (item.type === 'address' && item.address) {
               return (
                 <Address
+                  fontSize={textSize}
                   address={item.address}
                   highestPriorityAlias={item?.humanizerMeta?.name}
                   explorerNetworkId={networkId}
