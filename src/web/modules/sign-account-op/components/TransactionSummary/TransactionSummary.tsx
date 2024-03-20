@@ -1,16 +1,15 @@
 /* eslint-disable react/no-array-index-key */
-import { formatUnits, getAddress } from 'ethers'
+import { formatUnits } from 'ethers'
 import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
-import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import OpenIcon from '@common/assets/svg/OpenIcon'
+import Address from '@common/components/Address'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
@@ -19,7 +18,6 @@ import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 import getStyles from './styles'
@@ -89,7 +87,6 @@ const TransactionSummary = ({
   const { t } = useTranslation()
 
   const { dispatch } = useBackgroundService()
-  const { domains, loadingAddresses } = useDomainsControllerState()
   const { styles } = useTheme(getStyles)
   const [bindExplorerIconAnim, explorerIconAnimStyle] = useHover({
     preset: 'opacityInverted'
@@ -223,49 +220,13 @@ const TransactionSummary = ({
               )
             }
 
-            if (item.type === 'address') {
-              let address = item.address ? getAddress(item.address) : ''
-              const isLoading = loadingAddresses.includes(address)
-
-              if (isLoading)
-                return (
-                  <Spinner
-                    style={{
-                      width: 16,
-                      height: 16
-                    }}
-                  />
-                )
-
-              if (address && domains[address]) {
-                address = domains[address].ens || domains[address].ud || address
-              }
-
+            if (item.type === 'address' && item.address) {
               return (
-                <Fragment key={Number(item.id) || i}>
-                  <Text
-                    fontSize={textSize}
-                    weight="medium"
-                    appearance="primaryText"
-                    style={{ maxWidth: '100%' }}
-                    selectable
-                  >
-                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : address} `}
-                  </Text>
-                  {!!item.address && !!explorerUrl && (
-                    <AnimatedPressable
-                      disabled={!explorerUrl}
-                      onPress={() => {
-                        Linking.openURL(`${explorerUrl}/address/${item.address}`)
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={explorerIconAnimStyle}
-                      {...bindExplorerIconAnim}
-                    >
-                      <OpenIcon width={14} height={14} strokeWidth="2" />
-                    </AnimatedPressable>
-                  )}
-                </Fragment>
+                <Address
+                  address={item.address}
+                  highestPriorityAlias={item?.humanizerMeta?.name}
+                  explorerNetworkId={networkId}
+                />
               )
             }
 
