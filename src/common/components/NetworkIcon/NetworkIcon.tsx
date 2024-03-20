@@ -87,7 +87,17 @@ const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...r
     return networks.find((n) => n.id === name)
   }, [name, networks])
 
-  const iconScale = useMemo(() => (size < 28 ? 0.8 : 0.6), [size])
+  const iconUrls = useMemo(
+    () => [
+      ...((network as CustomNetwork)?.iconUrls || []),
+      `https://icons.llamao.fi/icons/chains/rsz_${(name || '').split(/\s+/)[0].toLowerCase()}.jpg`,
+      `https://icons.llamao.fi/icons/chains/rsz_${network?.nativeAssetSymbol?.toLowerCase()}.jpg`,
+      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/32/${name.toLowerCase()}.png`
+    ],
+    [name, network]
+  )
+
+  const iconScale = useMemo(() => (size < 28 ? 1 : 0.6), [size])
 
   if (name.startsWith('bnb')) {
     // eslint-disable-next-line no-param-reassign
@@ -95,31 +105,28 @@ const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...r
   }
   const Icon = type === 'monochrome' ? iconsMonochrome[name] : icons[name]
   const { theme } = useTheme()
-  const DefaultIcon = () =>
-    Icon ? (
-      <Icon width={size} height={size} {...rest} />
-    ) : (
+  const DefaultIcon = () => (
+    <View
+      style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
+    >
       <View
-        style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
+        style={[
+          {
+            width: size * iconScale,
+            height: size * iconScale,
+            backgroundColor: theme.primary,
+            borderRadius: 50
+          },
+          flexbox.alignCenter,
+          flexbox.justifyCenter
+        ]}
       >
-        <View
-          style={[
-            {
-              width: size * iconScale,
-              height: size * iconScale,
-              backgroundColor: theme.primary,
-              borderRadius: 50
-            },
-            flexbox.alignCenter,
-            flexbox.justifyCenter
-          ]}
-        >
-          <Text weight="medium" fontSize={size * 0.4} color="#fff">
-            {name[0].toUpperCase()}
-          </Text>
-        </View>
+        <Text weight="medium" fontSize={size * 0.4} color="#fff">
+          {name[0].toUpperCase()}
+        </Text>
       </View>
-    )
+    </View>
+  )
 
   return (
     <View
@@ -136,13 +143,17 @@ const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...r
         style
       ]}
     >
-      <ManifestImage
-        uris={uris || (network as CustomNetwork)?.iconUrls || []}
-        size={size}
-        iconScale={iconScale}
-        isRound
-        fallback={() => DefaultIcon()}
-      />
+      {Icon ? (
+        <Icon width={size} height={size} {...rest} />
+      ) : (
+        <ManifestImage
+          uris={uris || iconUrls}
+          size={size}
+          iconScale={iconScale}
+          isRound
+          fallback={() => DefaultIcon()}
+        />
+      )}
     </View>
   )
 }

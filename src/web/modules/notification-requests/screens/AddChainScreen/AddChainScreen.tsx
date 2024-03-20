@@ -57,13 +57,7 @@ const AddChainScreen = () => {
         chainId: BigInt(data.chainId),
         nativeAssetSymbol,
         explorerUrl: data.blockExplorerUrls?.[0],
-        iconUrls: [
-          ...(data.iconUrls || []),
-          `https://icons.llamao.fi/icons/chains/rsz_${(name || '')
-            .split(/\s+/)[0]
-            .toLowerCase()}.jpg`,
-          `https://icons.llamao.fi/icons/chains/rsz_${nativeAssetSymbol?.toLowerCase()}.jpg`
-        ]
+        iconUrls: data.iconUrls || []
       } as CustomNetwork
     } catch (error) {
       console.error(error)
