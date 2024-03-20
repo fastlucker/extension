@@ -5,6 +5,7 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
+import { nanoid } from 'nanoid'
 
 import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
@@ -13,6 +14,7 @@ import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
+import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -242,13 +244,14 @@ export class ProviderController {
     data: {
       params: [chainParams]
     },
-    session: { origin }
+    session: { origin, name }
   }: {
     data: {
       params: any[]
     }
     session: {
       origin: string
+      name: string
     }
     requestRes?: {
       chain: any
@@ -266,6 +269,16 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
+    permissionService.updateConnectSite(origin, { chainId }, true)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await browser.notifications.create(nanoid(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title: 'Network added',
+        message: `Network switched to ${network.name} for ${name || origin}.`
+      })
+    })()
     this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
@@ -301,7 +314,7 @@ export class ProviderController {
     data: {
       params: [chainParams]
     },
-    session: { origin }
+    session: { origin, name }
   }: any) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
@@ -314,6 +327,15 @@ export class ProviderController {
     }
 
     permissionService.updateConnectSite(origin, { chainId }, true)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await browser.notifications.create(nanoid(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title: 'Successfully switched network',
+        message: `Network switched to ${network.name} for ${name || origin}.`
+      })
+    })()
     this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
