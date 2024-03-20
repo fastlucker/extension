@@ -599,9 +599,7 @@ async function init() {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  mainCtrl.accountAdder.type,
-                  mainCtrl.accountAdder.subType
+                  mainCtrl.accounts
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
@@ -683,9 +681,7 @@ async function init() {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  'internal',
-                  'seed'
+                  mainCtrl.accounts
                 )
 
                 const readyToAddKeys =
