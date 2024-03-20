@@ -1,7 +1,8 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC, useCallback } from 'react'
-import { Pressable, View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -13,9 +14,11 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
+import { getUiType } from '@web/utils/uiType'
 
 import Option from './BaseAddressOption'
 
@@ -24,11 +27,14 @@ interface Props extends TextProps {
   explorerNetworkId?: NetworkDescriptor['id']
 }
 
+const { isNotification } = getUiType()
+
 const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...rest }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
-  const { networks } = useSettingsControllerState()
-  const network = networks.find((n) => n.id === explorerNetworkId)
+  // benzin.ambire.com doesn't have access to controllers
+  const { networks = constantNetworks } = useSettingsControllerState()
+  const network = networks?.find((n) => n.id === explorerNetworkId)
 
   const handleCopyAddress = useCallback(async () => {
     try {
@@ -40,6 +46,18 @@ const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...re
       })
     }
   }, [addToast, rawAddress])
+
+  const handleOpenExplorer = useCallback(() => {
+    if (!network) return
+
+    // openInTab doesn't work in benzin.ambire.com
+    if (!isExtension) {
+      Linking.openURL(`${network?.explorerUrl}/address/${rawAddress}`)
+    }
+    // Close the notification window if this address is opened in one, otherwise
+    // the user will have to minimize it to see the explorer.
+    openInTab(`${network?.explorerUrl}/address/${rawAddress}`, isNotification)
+  }, [])
 
   return (
     <View style={[flexbox.alignCenter, flexbox.directionRow]}>
@@ -68,7 +86,7 @@ const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...re
           <Option
             title="View in Explorer"
             renderIcon={() => <OpenIcon color={theme.secondaryText} width={14} height={14} />}
-            onPress={() => openInTab(`${network.explorerUrl}/address/${rawAddress}`)}
+            onPress={handleOpenExplorer}
           />
         )}
         {/* @TODO: Uncomment when we have the feature
