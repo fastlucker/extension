@@ -43,20 +43,36 @@ const AddChainScreen = () => {
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
 
   const networkDetails: CustomNetwork | undefined = useMemo(() => {
-    if (!areParamsValid || !currentNotificationRequest?.params?.data) return undefined
+    const data = currentNotificationRequest?.params?.data?.[0]
+    if (!areParamsValid || !data) return undefined
+    if (!data.rpcUrls) return
+    const rpcUrls = data.rpcUrls.filter((url: string) => url.startsWith('http'))
+    const name = data.chainName
+    const nativeAssetSymbol = data.nativeCurrency?.symbol
 
-    return {
-      name: currentNotificationRequest?.params?.data?.[0]?.chainName,
-      rpcUrl: currentNotificationRequest?.params?.data?.[0]?.rpcUrls?.[0],
-      chainId: BigInt(currentNotificationRequest?.params?.data?.[0]?.chainId),
-      nativeAssetSymbol: currentNotificationRequest?.params?.data?.[0]?.nativeCurrency?.symbol,
-      explorerUrl: currentNotificationRequest?.params?.data?.[0]?.blockExplorerUrls?.[0],
-      iconUrls: currentNotificationRequest?.params?.data?.[0]?.iconUrls
-    } as CustomNetwork
+    try {
+      return {
+        name,
+        rpcUrl: rpcUrls[0],
+        chainId: BigInt(data.chainId),
+        nativeAssetSymbol,
+        explorerUrl: data.blockExplorerUrls?.[0],
+        iconUrls: [
+          ...(data.iconUrls || []),
+          `https://icons.llamao.fi/icons/chains/rsz_${(name || '')
+            .split(/\s+/)[0]
+            .toLowerCase()}.jpg`,
+          `https://icons.llamao.fi/icons/chains/rsz_${nativeAssetSymbol?.toLowerCase()}.jpg`
+        ]
+      } as CustomNetwork
+    } catch (error) {
+      console.error(error)
+      return undefined
+    }
   }, [areParamsValid, currentNotificationRequest?.params?.data])
 
   useEffect(() => {
-    if (networkDetails) {
+    if (networkDetails && networkDetails.rpcUrl) {
       dispatch({
         type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
         params: {
@@ -184,9 +200,7 @@ const AddChainScreen = () => {
             <View style={flexbox.flex1}>
               <NetworkDetails
                 name={currentNotificationRequest?.params?.data?.[0]?.chainName}
-                iconUrl={
-                  networkDetails?.iconUrls?.filter((url: string) => !url.includes('.svg'))?.[0]
-                }
+                iconUrls={networkDetails?.iconUrls || []}
                 chainId={Number(networkDetails.chainId).toString()}
                 rpcUrl={networkDetails.rpcUrl}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}

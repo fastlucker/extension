@@ -146,7 +146,6 @@ const NetworksSettingsScreen = () => {
             <View style={spacings.mbXl}>
               <NetworkDetails
                 name={selectedNetwork?.name || '-'}
-                iconUrl=""
                 chainId={
                   selectedNetwork?.chainId ? Number(selectedNetwork.chainId).toString() : '-'
                 }

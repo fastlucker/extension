@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
 import AndromedaMonochromeIcon from '@common/assets/svg/AndromedaMonochromeIcon'
 import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
@@ -31,13 +32,14 @@ import Text from '@common/components/Text'
 import { NETWORKS } from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
-
-import styles from './styles'
+import ManifestImage from '@web/components/ManifestImage'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank' | 'rewards'
 
 type Props = {
   name: NetworkIconNameType
+  uris?: string[]
   size?: number
   type?: 'regular' | 'monochrome'
   style?: ViewStyle
@@ -78,32 +80,69 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.andromeda]: AndromedaMonochromeIcon
 }
 
-const NetworkIcon = ({ name, size = 32, type = 'regular', style = {}, ...rest }: Props) => {
+const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...rest }: Props) => {
+  const { networks } = useSettingsControllerState()
+
+  const network = useMemo(() => {
+    return networks.find((n) => n.id === name)
+  }, [name, networks])
+
+  const iconScale = useMemo(() => (size < 28 ? 0.8 : 0.6), [size])
+
+  if (name.startsWith('bnb')) {
+    // eslint-disable-next-line no-param-reassign
+    name = 'binance-smart-chain'
+  }
   const Icon = type === 'monochrome' ? iconsMonochrome[name] : icons[name]
   const { theme } = useTheme()
-  return Icon ? (
-    <Icon width={size} height={size} style={[styles.icon, style]} {...rest} />
-  ) : (
+  const DefaultIcon = () =>
+    Icon ? (
+      <Icon width={size} height={size} {...rest} />
+    ) : (
+      <View
+        style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
+      >
+        <View
+          style={[
+            {
+              width: size * iconScale,
+              height: size * iconScale,
+              backgroundColor: theme.primary,
+              borderRadius: 50
+            },
+            flexbox.alignCenter,
+            flexbox.justifyCenter
+          ]}
+        >
+          <Text weight="medium" fontSize={size * 0.4} color="#fff">
+            {name[0].toUpperCase()}
+          </Text>
+        </View>
+      </View>
+    )
+
+  return (
     <View
       style={[
-        { width: size, height: size, borderRadius: 50, overflow: 'hidden' },
         flexbox.alignCenter,
         flexbox.justifyCenter,
+        {
+          width: size,
+          height: size,
+          borderRadius: 50,
+          overflow: 'hidden',
+          backgroundColor: theme.tertiaryBackground
+        },
         style
       ]}
     >
-      <View
-        style={[
-          { width: size * 0.5625, height: size * 0.5625, backgroundColor: theme.primary },
-          flexbox.alignCenter,
-          flexbox.justifyCenter,
-          styles.icon
-        ]}
-      >
-        <Text weight="medium" fontSize={size * 0.425} color="#fff">
-          {name[0].toUpperCase()}
-        </Text>
-      </View>
+      <ManifestImage
+        uris={uris || (network as CustomNetwork)?.iconUrls || []}
+        size={size}
+        iconScale={iconScale}
+        isRound
+        fallback={() => DefaultIcon()}
+      />
     </View>
   )
 }

@@ -250,7 +250,7 @@ export class NotificationController extends EventEmitter {
   }
 
   // eslint-disable-next-line default-param-last
-  rejectNotificationRequest = (err: string = 'Request rejected', requestId?: number) => {
+  rejectNotificationRequest = async (err: string = 'Request rejected', requestId?: number) => {
     let notificationRequest = this.currentNotificationRequest
 
     if (requestId) {

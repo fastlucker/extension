@@ -108,6 +108,15 @@ const NetworkForm = ({
       dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
       if (!rpcUrl) return
 
+      if (!rpcUrl.startsWith('http')) {
+        setValidatingRPC(false)
+        setError('rpcUrl', {
+          type: 'custom-error',
+          message: 'RPC URLs must include the correct HTTP/HTTPS prefix'
+        })
+        return
+      }
+
       if (!isValidURL(rpcUrl)) {
         setValidatingRPC(false)
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })

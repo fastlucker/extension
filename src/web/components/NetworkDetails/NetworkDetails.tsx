@@ -16,14 +16,13 @@ import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import ManifestImage from '@web/components/ManifestImage'
 import NetworkForm from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm'
 
 import getStyles from './styles'
 
 type Props = {
   name: string
-  iconUrl?: string
+  iconUrls?: string[]
   rpcUrl: string
   chainId: string
   explorerUrl: string
@@ -33,7 +32,7 @@ type Props = {
 
 const NetworkDetails = ({
   name,
-  iconUrl,
+  iconUrls = [],
   rpcUrl,
   chainId,
   explorerUrl,
@@ -81,10 +80,10 @@ const NetworkDetails = ({
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             {title === 'Network Name' && value !== '-' && (
               <View style={spacings.mrMi}>
-                <ManifestImage
-                  uri={iconUrl || ''}
+                <NetworkIcon
                   size={32}
-                  fallback={() => <NetworkIcon size={32} name={name.toLowerCase() as any} />}
+                  uris={iconUrls.length ? iconUrls : undefined}
+                  name={name.toLowerCase() as any}
                 />
               </View>
             )}
@@ -98,7 +97,7 @@ const NetworkDetails = ({
         </View>
       )
     },
-    [name, iconUrl]
+    [name, iconUrls]
   )
 
   return (
