@@ -1,10 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Interface } from 'ethers'
+import { Interface, JsonRpcProvider } from 'ethers'
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
 import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
@@ -37,14 +38,41 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
   const { theme } = useTheme()
   const { pathname } = useRoute()
   const { selectedAccount, accounts } = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { networks, providers } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const [checkedDeploy, setCheckedDeploy] = useState<boolean>(false)
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === networkId),
     [networks, networkId]
   )
+
+  useEffect(() => {
+    if (!selectedNetwork || selectedNetwork.areContractsDeployed || checkedDeploy) return
+
+    setCheckedDeploy(true)
+    const provider = new JsonRpcProvider(selectedNetwork.rpcUrl)
+    provider
+      .getCode(AMBIRE_ACCOUNT_FACTORY)
+      .then((factoryCode: string) => {
+        if (factoryCode !== '0x') {
+          dispatch({
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+            params: {
+              networkPreferences: {
+                areContractsDeployed: true
+              },
+              networkId: selectedNetwork.id
+            }
+          })
+        }
+        provider.destroy()
+      })
+      .catch(() => {
+        provider.destroy()
+      })
+  }, [dispatch, selectedNetwork, providers, checkedDeploy])
 
   const handleDeploy = async () => {
     if (!selectedNetwork) return // this should not happen...
@@ -67,7 +95,6 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
     // const bytecode = DeployHelper.bin
     const bytecode = deployContractsBytecode
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const singletonAddr = '0xce0042B868300000d44A59004Da54A005ffdcf9f'
     const singletonABI = [
       {
         inputs: [
@@ -83,7 +110,7 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
     const singletonInterface = new Interface(singletonABI)
     const txn = {
       kind: 'call' as const,
-      to: singletonAddr,
+      to: SINGLETON,
       value: 0n,
       data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
     }
