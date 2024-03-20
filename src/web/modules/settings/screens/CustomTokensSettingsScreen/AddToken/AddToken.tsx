@@ -13,13 +13,13 @@ import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Select from '@common/components/Select'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -43,9 +43,9 @@ const AddToken = () => {
   const [network, setNetwork] = useState<NetworkDescriptor>(
     networks.filter((n) => n.id === 'ethereum')[0]
   )
-  // const [address, setAddress] = useState('')
+
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
 
   const isControllerLoading =
@@ -56,7 +56,7 @@ const AddToken = () => {
     watch,
     setError,
     reset,
-    formState: { errors, isSubmitting, isValid }
+    formState: { errors, isSubmitting }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -108,11 +108,18 @@ const AddToken = () => {
   )
 
   const handleTokenIsInPortfolio = async () => {
-    const previousHints = await storage.get('previousHints', {})
+    // TODO: Check if token is in hints, once the changes on portfolio controller are ready
+    // const previousHints = await storage.get('previousHints', {})
+    // const isTokenInHints =
+    //   previousHints?.[`${network?.id}:${selectedAccount}`]?.erc20s.find(
+    //     (addrs: any) => getAddress(addrs) === getAddress(address)
+    //   ) || false
+
     const isTokenInHints =
-      previousHints?.[`${network?.id}:${address}`]?.erc20s.find(
-        (addrs: any) => addrs === address
-      ) || false
+      tokenInPreferences ||
+      portfolio.accountPortfolio?.tokens.find(
+        (_t) => _t.address === address && _t.networkId === network.id && _t.amount > 0n
+      )
     const isNative =
       address === ZeroAddress || (network?.id === 'polygon' && address === polygonMaticTokenAddress)
 
@@ -121,8 +128,13 @@ const AddToken = () => {
 
   const handleAddToken = useCallback(async () => {
     if (!isValidAddress(address) || !network) return
-    await portfolio.updateTokenPreferences({ ...portfolioFoundToken, networkId: network.id })
+    await portfolio.updateTokenPreferences({
+      ...portfolioFoundToken,
+      networkId: network.id,
+      standard: 'ERC20'
+    })
     reset({ address: '' })
+    setAdditionalHintRequested(false)
     addToast(`Added token ${address} on ${network.name} to your portfolio`)
   }, [address, network, portfolio, addToast, portfolioFoundToken, reset])
 
@@ -132,28 +144,42 @@ const AddToken = () => {
 
   useEffect(() => {
     const handleEffect = async () => {
-      if (address && !isValidAddress(address))
+      if (address && !isValidAddress(address)) {
         setError('address', { message: t('Invalid address') })
+      }
 
       if (address && network && !tokenTypeEligibility && isValidAddress(address)) {
+        setIsLoading(true)
         await handleTokenType()
       }
 
       if (tokenTypeEligibility) {
+        setIsLoading(true)
+
         // Check if token is already in portfolio
         const isTokenInHints = await handleTokenIsInPortfolio()
         if (isTokenInHints) {
           setIsLoading(false)
           setShowAlreadyInPortfolioMessage(true)
         } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
-          setAdditionalHintRequested(true)
           portfolio.updateAdditionalHints([getAddress(address)])
+          setAdditionalHintRequested(true)
         }
       }
     }
 
-    handleEffect()
-  }, [address, network, tokenTypeEligibility, isAdditionalHintRequested])
+    handleEffect().catch(() => setIsLoading(false))
+
+    if (tokenTypeEligibility === false || !!portfolioFoundToken) {
+      setIsLoading(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t, address, network, tokenTypeEligibility, portfolioFoundToken, isAdditionalHintRequested])
+
+  useEffect(() => {
+    setShowAlreadyInPortfolioMessage(null) // Reset the state when address changes
+    setAdditionalHintRequested(false)
+  }, [address])
 
   return (
     <View style={flexbox.flex1}>
@@ -215,30 +241,43 @@ const AddToken = () => {
         </View>
       )) ||
         null}
-      {(address &&
-        !portfolioFoundToken &&
+      {(address && tokenTypeEligibility === false && (
+        <Alert
+          type="error"
+          isTypeLabelHidden
+          title={t('This token type is not supported.')}
+          style={spacings.mbXl}
+        />
+      )) ||
+        null}
+
+      {/* TODO: This shows up whem isControllerLoading= false but portfolioFoundToken is not returned */}
+      {/* {!portfolioFoundToken &&
         !showAlreadyInPortfolioMessage &&
         isAdditionalHintRequested &&
         !isControllerLoading && (
-          <Alert
-            type="error"
-            isTypeLabelHidden
-            title={t('This address does not match any token')}
-            style={spacings.mbXl}
-          />
-        )) ||
-        null}
-      {showAlreadyInPortfolioMessage && (
+          <Alert type="warning" isTypeLabelHidden title={t('Token not found in portfolio.')} />
+        )} */}
+      {(address && showAlreadyInPortfolioMessage && (
         <Alert
           type="warning"
           isTypeLabelHidden
           title={t('This token is already handled in your wallet')}
           style={spacings.mbXl}
         />
+      )) ||
+        null}
+
+      {isLoading && isControllerLoading && (
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mbTy]}>
+          <Spinner style={{ width: 18, height: 18 }} />
+        </View>
       )}
+
       <Button
         disabled={
           showAlreadyInPortfolioMessage ||
+          !tokenTypeEligibility ||
           !isValidAddress(address) ||
           (!network && portfolioFoundToken) ||
           isSubmitting

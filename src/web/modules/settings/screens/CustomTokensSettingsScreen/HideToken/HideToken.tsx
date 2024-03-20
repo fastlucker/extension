@@ -1,72 +1,155 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { Pressable, View, ViewStyle } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { Pressable, View } from 'react-native'
 
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Input from '@common/components/Input'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const HideToken = () => {
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
   const portfolio = usePortfolioControllerState()
+  const [isLoading, setIsLoading] = useState<any>({})
+  const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>(
+    portfolio.state.tokenPreferences
+  )
 
-  const [searchAddress, setSearchAddress] = useState('')
+  const hideToken = useCallback(
+    async (token: CustomToken) => {
+      const tokenPreferences = portfolio.state.tokenPreferences
 
-  const hideToken = useCallback(async (token) => {
-    console.log('hide token')
-    const tokenPreferences = portfolio.state.tokenPreferences
-    // Flip isHidden flag
-    const newTokenPreference =
-      tokenPreferences.find((tokenPreference) => tokenPreference.address === token.address) || token
+      // Flip isHidden flag
+      let tokenIsInPreferences = tokenPreferences.find(
+        (tokenPreference) => tokenPreference.address === token.address
+      )
+      if (!tokenIsInPreferences) {
+        tokenIsInPreferences = { ...token, isHidden: true }
+      } else {
+        tokenIsInPreferences = { ...token, isHidden: !token.isHidden }
+      }
 
-    newTokenPreference.isHidden = !newTokenPreference.isHidden
-    console.log(newTokenPreference)
+      let newTokenPreferences = []
 
-    await portfolio.updateTokenPreferences(newTokenPreference)
-  }, [])
+      if (!tokenIsInPreferences) {
+        newTokenPreferences.push(token)
+      } else {
+        const updatedTokenPreferences = tokenPreferences.map((_t: any) => {
+          if (_t.address === token.address && _t.networkId === token.networkId) {
+            return token
+          }
+          return _t
+        })
+        newTokenPreferences = updatedTokenPreferences
+      }
 
-  const removeToken = useCallback(async (token) => {
-    console.log('remove token', token)
+      seTokenPreferencesCopy(newTokenPreferences)
+      setIsLoading({ [`${token.address}-${token.networkId}`]: true })
 
-    await portfolio.removeTokenPreferences(token.address)
-  }, [])
+      await portfolio.updateTokenPreferences(tokenIsInPreferences)
+    },
+    [portfolio]
+  )
 
-  const handleSearchChange = useCallback((e) => {
-    setSearchAddress(e.target.value)
-  }, [])
+  const removeToken = useCallback(
+    async (token: CustomToken) => {
+      await portfolio.removeTokenPreferences(token)
+    },
+    [portfolio]
+  )
+
+  const { control, watch, setValue } = useForm({
+    mode: 'all',
+    defaultValues: {
+      search: ''
+    }
+  })
+
+  const searchValue = watch('search')
+
+  useEffect(() => {
+    setValue('search', '')
+  }, [setValue])
+
+  useEffect(() => {
+    // Check for differences between the tokenPreferencesCopy and the tokenPreferences
+    // If there are differences, update the tokenPreferencesCopy
+    // Set the loading state of the token which is updated to false
+    const differences = portfolio.state.tokenPreferences.filter(
+      (tokenPreference) =>
+        !tokenPreferencesCopy.some(
+          (copy) =>
+            copy.address === tokenPreference.address &&
+            copy.networkId === tokenPreference.networkId &&
+            copy.isHidden === tokenPreference.isHidden
+        )
+    )
+
+    if (differences.length > 0) {
+      seTokenPreferencesCopy(portfolio.state.tokenPreferences)
+      setIsLoading((prevState) => {
+        const updatedLoadingState = { ...prevState }
+        differences.forEach((tokenPreference) => {
+          updatedLoadingState[`${tokenPreference.address}-${tokenPreference.networkId}`] = false
+        })
+        return updatedLoadingState
+      })
+    }
+  }, [portfolio.state.tokenPreferences, tokenPreferencesCopy])
+
+  const tokens = useMemo(
+    () =>
+      portfolio.accountPortfolio?.tokens
+        .filter(
+          (token) =>
+            (token.amount > 0n ||
+              portfolio.state.tokenPreferences.find(
+                ({ address, networkId }) =>
+                  token.address === address && token.networkId === networkId
+              )) &&
+            !token.flags.onGasTank
+        )
+        .filter((token) => {
+          if (!searchValue) return true
+
+          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+
+          return doesAddressMatch || doesSymbolMatch
+        }),
+    [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
+  )
 
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
         {t('Hide Token')}
       </Text>
-      <Input
-        label={t('Token Address or Symbol')}
-        onChange={handleSearchChange}
-        placeholder="Input token address or symbol"
-        inputWrapperStyle={spacings.mbSm}
+      <Controller
+        name="search"
+        control={control}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label={t('Token Address or Symbol')}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            value={value}
+            placeholder="Input token address or symbol"
+          />
+        )}
       />
       <View>
-        {portfolio.accountPortfolio?.tokens
-          .filter(
-            (token) =>
-              (token.amount > 0n ||
-                portfolio.state.tokenPreferences.find(
-                  ({ address, networkId }) =>
-                    token.address === address && token.networkId === networkId
-                )) &&
-              !token.flags.onGasTank
-          )
-          .map((token) => (
+        {(tokens &&
+          tokens.length &&
+          tokens.map((token) => (
             <View
               key={`${token.address}-${token.networkId}`}
               style={[
@@ -93,6 +176,9 @@ const HideToken = () => {
                 </Text>
               </View>
               <View style={flexbox.directionRow}>
+                {isLoading[`${token.address}-${token.networkId}`] && (
+                  <Spinner style={{ width: 18, height: 18 }} />
+                )}
                 {token.isHidden ? (
                   <Pressable onPress={() => hideToken(token)}>
                     <VisibilityIcon
@@ -119,7 +205,8 @@ const HideToken = () => {
                   )}
               </View>
             </View>
-          ))}
+          ))) ||
+          null}
       </View>
     </View>
   )

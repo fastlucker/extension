@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
@@ -26,7 +27,7 @@ const PortfolioControllerStateContext = createContext<{
   refreshPortfolio: () => void
   updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
   updateTokenPreferences: (token: CustomToken) => void
-  removeTokenPreferences: (tokenAddr: CustomToken['address']) => void
+  removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
 }>({
   accountPortfolio: {
@@ -129,7 +130,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [])
 
   const updateAdditionalHints = useCallback(
-    (tokenIds: any[]) => {
+    (tokenIds: string[]) => {
       dispatch({
         type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
         params: {
@@ -142,25 +143,32 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const updateTokenPreferences = useCallback(
-    async (token: any) => {
-      const tokenPreferences = state?.tokenPreferences
-      const tokenIsNotInPreferences = !tokenPreferences.find(
-        ({ address }) => address === token.address
-      )
-      if (tokenIsNotInPreferences) {
+    async (token: CustomToken) => {
+      let tokenPreferences = state?.tokenPreferences
+      const tokenIsNotInPreferences =
+        tokenPreferences.find(
+          (_token) =>
+            getAddress(_token.address) === getAddress(token.address) &&
+            token.networkId === _token?.networkId
+        ) || false
+
+      if (!tokenIsNotInPreferences) {
         tokenPreferences.push(token)
       } else {
-        tokenPreferences.map((t: any) => {
-          if (t.address === token.address) {
-            t = token
+        const updatedTokenPreferences = tokenPreferences.map((t: any) => {
+          if (t.address === token.address && t.networkId === token.networkId) {
+            return token
           }
           return t
         })
+        tokenPreferences = updatedTokenPreferences
       }
+
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
         params: {
-          tokenPreferences
+          tokenPreferences,
+          forceUpdate: true
         }
       })
     },
@@ -168,12 +176,21 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const removeTokenPreferences = useCallback(
-    (tokenAddr: any) => {
+    (token: CustomToken) => {
       const tokenPreferences = state?.tokenPreferences
-      const tokenIsNotInPreferences = tokenPreferences.find(({ address }) => address === tokenAddr)
+
+      const tokenIsNotInPreferences =
+        tokenPreferences.find(
+          (_token) =>
+            getAddress(_token.address) === getAddress(token.address) &&
+            _token.networkId === token.networkId
+        ) || false
       if (!tokenIsNotInPreferences) return
-      const newTokenPreferences = tokenPreferences.filter(({ address }) => address === !tokenAddr)
-      console.log(state?.tokenPreferences, tokenIsNotInPreferences, newTokenPreferences)
+      const newTokenPreferences = tokenPreferences.filter(
+        (_token) =>
+          getAddress(_token.address) !== getAddress(token.address) ||
+          _token.networkId !== token.networkId
+      )
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
         params: {
@@ -185,7 +202,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   const checkToken = useCallback(
-    (token: any) => {
+    (token: { networkId: NetworkId; address: string }) => {
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
         params: {

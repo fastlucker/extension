@@ -783,7 +783,10 @@ async function init() {
               }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
                 await mainCtrl.portfolio.updateTokenPreferences(params.tokenPreferences)
-                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
+                return await mainCtrl.updateSelectedAccount(
+                  mainCtrl.selectedAccount,
+                  params?.forceUpdate
+                )
               }
               case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
                 return mainCtrl.portfolio.resetAdditionalHints()

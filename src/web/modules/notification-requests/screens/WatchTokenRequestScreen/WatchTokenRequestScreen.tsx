@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -20,7 +21,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { storage } from '@web/extension-services/background/webapi/storage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -49,7 +49,9 @@ const WatchTokenRequestScreen = () => {
   const [tokenNetwork, setTokenNetwork] = useState(network)
   const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
 
-  const isControllerLoading = portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading
+  const isControllerLoading =
+    (tokenNetwork?.id && portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading) ||
+    false
 
   const tokenTypeEligibility = useMemo(
     () =>
@@ -70,7 +72,8 @@ const WatchTokenRequestScreen = () => {
     () =>
       tokenData &&
       portfolio.state.tokenPreferences?.find(
-        (t) => t.address === getAddress(tokenData?.address && t.networkId === tokenNetwork?.id)
+        (token) =>
+          token.address === getAddress(tokenData?.address) && token.networkId === tokenNetwork?.id
       ),
     [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
   )
@@ -79,7 +82,8 @@ const WatchTokenRequestScreen = () => {
     () =>
       (tokenData &&
         portfolio.accountPortfolio?.tokens?.find(
-          (t) => t.address === getAddress(tokenData?.address && t.networkId === tokenNetwork?.id)
+          (token) =>
+            token.address === getAddress(tokenData?.address) && token.networkId === tokenNetwork?.id
         )) ||
       tokenInPreferences,
     [portfolio, tokenInPreferences, tokenData, tokenNetwork]
@@ -90,11 +94,19 @@ const WatchTokenRequestScreen = () => {
   }
 
   const handleTokenIsInPortfolio = async () => {
-    const previousHints = await storage.get('previousHints', {})
+    // TODO: Check if token is in hints, once the changes on portfolio controller are ready
+    // const previousHints = await storage.get('previousHints', {})
+    // const isTokenInHints =
+    //   previousHints?.[`${tokenNetwork?.id}:${selectedAccount}`]?.erc20s.find(
+    //     (addrs: any) => getAddress(addrs) === getAddress(tokenData?.address)
+    //   ) || false
+
     const isTokenInHints =
-      previousHints?.[`${tokenNetwork?.id}:${tokenData?.address}`]?.erc20s.find(
-        (addrs: any) => addrs === tokenData?.address
-      ) || false
+      tokenInPreferences ||
+      portfolio.accountPortfolio?.tokens.find(
+        (_t) => _t.address === tokenData?.address && _t.networkId === network?.id && _t.amount > 0n
+      )
+
     const isNative =
       tokenData?.address === ZeroAddress ||
       (tokenNetwork?.id === 'polygon' && tokenData?.address === polygonMaticTokenAddress)
@@ -107,6 +119,12 @@ const WatchTokenRequestScreen = () => {
       const validTokenNetworks = networks.filter(
         (_network) => portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`]
       )
+
+      const allNetworksNotValid = validTokenNetworks.length === 0
+
+      if (allNetworksNotValid) {
+        setIsLoading(false)
+      }
 
       if (validTokenNetworks.length > 0) {
         const newTokenNetwork = validTokenNetworks.find(
@@ -145,11 +163,13 @@ const WatchTokenRequestScreen = () => {
       }
     }
 
-    handleEffect().catch((e) => setIsLoading(false))
+    handleEffect().catch(() => setIsLoading(false))
 
     if (tokenTypeEligibility === false || !!portfolioFoundToken) {
       setIsLoading(false)
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     network,
     tokenData,
@@ -160,16 +180,18 @@ const WatchTokenRequestScreen = () => {
     portfolioFoundToken,
     setIsLoading,
     tokenInPreferences,
-    portfolio.state.validTokens
+    portfolio.state.validTokens,
+    isControllerLoading
   ])
 
   const handleAddToken = useCallback(async () => {
-    const token = {
+    if (!tokenNetwork?.id) return
+    const token: CustomToken = {
       address: getAddress(tokenData.address),
       name: tokenData?.name,
       symbol: tokenData?.symbol,
       decimals: tokenData?.decimals,
-      standard: state?.currentNotificationRequest?.params?.data?.type,
+      standard: 'ERC20',
       networkId: tokenNetwork?.id
     }
 
@@ -178,28 +200,15 @@ const WatchTokenRequestScreen = () => {
       type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
       params: { data: null }
     })
-  }, [dispatch, state, tokenData, tokenNetwork, portfolio])
+  }, [dispatch, tokenData, tokenNetwork, portfolio])
 
   const tokenDetails = useMemo(
     () => portfolioFoundToken && portfolioFoundToken?.flags && getTokenDetails(portfolioFoundToken),
     [portfolioFoundToken]
   )
 
-  if (
-    !portfolioFoundToken &&
-    !showAlreadyInPortfolioMessage &&
-    isAdditionalHintRequested &&
-    !isControllerLoading
-  ) {
-    return <Alert type="warning" title={t('Token not found in portfolio.')} />
-  }
-
-  if (isLoading || tokenTypeEligibility === undefined) {
-    return (
-      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Spinner />
-      </View>
-    )
+  if (isLoading && tokenTypeEligibility === undefined) {
+    return <Spinner />
   }
 
   return (
@@ -348,7 +357,13 @@ const WatchTokenRequestScreen = () => {
 
               <View style={{ flex: 0.7 }}>
                 <Text fontSize={16} style={{ textAlign: 'left' }}>
-                  {tokenDetails?.priceUSDFormatted || '-'}
+                  {isLoading ? (
+                    <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+                      <Spinner style={{ width: 18, height: 18 }} />
+                    </View>
+                  ) : (
+                    tokenDetails?.priceUSDFormatted
+                  )}
                 </Text>
               </View>
 

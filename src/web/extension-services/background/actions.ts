@@ -196,6 +196,7 @@ type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
     tokenPreferences: any[]
+    forceUpdate?: boolean
   }
 }
 type PortfolioControllerResetAdditionalHints = {
