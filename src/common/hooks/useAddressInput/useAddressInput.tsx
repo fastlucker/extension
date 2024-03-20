@@ -83,7 +83,7 @@ const useAddressInput = ({
 
           if (udAddress) {
             dispatch({
-              type: 'DOMAINS_SAVE_RESOLVED_REVERSE_LOOKUP',
+              type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
               params: {
                 address: udAddress,
                 name: debouncedAddress,
@@ -104,7 +104,7 @@ const useAddressInput = ({
 
           if (ensAddress) {
             dispatch({
-              type: 'DOMAINS_SAVE_RESOLVED_REVERSE_LOOKUP',
+              type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
               params: {
                 address: ensAddress,
                 name: debouncedAddress,
