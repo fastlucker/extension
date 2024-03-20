@@ -41,29 +41,45 @@ const AddChainScreen = () => {
   const { maxWidthSize } = useWindowSize()
   const { status, latestMethodCall, networkToAddOrUpdate } = useSettingsControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
+  const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
+
+  const requestData = useMemo(
+    () => currentNotificationRequest?.params?.data?.[0],
+    [currentNotificationRequest?.params?.data]
+  )
+
+  const rpcUrls: string[] = useMemo(() => {
+    if (!requestData || !requestData?.rpcUrls) return []
+
+    return requestData.rpcUrls.filter((url: string) => url.startsWith('http'))
+  }, [requestData])
+
+  const selectedRpcUrl = useMemo(() => {
+    if (!requestData) return undefined
+
+    return rpcUrls[rpcUrlIndex]
+  }, [requestData, rpcUrls, rpcUrlIndex])
 
   const networkDetails: CustomNetwork | undefined = useMemo(() => {
-    const data = currentNotificationRequest?.params?.data?.[0]
-    if (!areParamsValid || !data) return undefined
-    if (!data.rpcUrls) return
-    const rpcUrls = data.rpcUrls.filter((url: string) => url.startsWith('http'))
-    const name = data.chainName
-    const nativeAssetSymbol = data.nativeCurrency?.symbol
+    if (!areParamsValid || !requestData) return undefined
+    if (!requestData.rpcUrls) return
+    const name = requestData.chainName
+    const nativeAssetSymbol = requestData.nativeCurrency?.symbol
 
     try {
       return {
         name,
-        rpcUrl: rpcUrls[0],
-        chainId: BigInt(data.chainId),
+        rpcUrl: selectedRpcUrl,
+        chainId: BigInt(requestData.chainId),
         nativeAssetSymbol,
-        explorerUrl: data.blockExplorerUrls?.[0],
-        iconUrls: data.iconUrls || []
+        explorerUrl: requestData.blockExplorerUrls?.[0],
+        iconUrls: requestData.iconUrls || []
       } as CustomNetwork
     } catch (error) {
       console.error(error)
       return undefined
     }
-  }, [areParamsValid, currentNotificationRequest?.params?.data])
+  }, [areParamsValid, selectedRpcUrl, requestData])
 
   useEffect(() => {
     if (networkDetails && networkDetails.rpcUrl) {
@@ -114,6 +130,10 @@ const AddChainScreen = () => {
       })
     }
   }, [dispatch, latestMethodCall, status])
+
+  const handleRetryWithDifferentRpcUrl = useCallback(() => {
+    setRpcUrlIndex((prev) => prev + 1)
+  }, [])
 
   return (
     <TabLayoutContainer
@@ -230,6 +250,8 @@ const AddChainScreen = () => {
                 <NetworkAvailableFeatures
                   features={features}
                   networkId={networkDetails.name.toLowerCase()}
+                  withRetryButton={!!rpcUrls.length && rpcUrlIndex < rpcUrls.length - 1}
+                  handleRetry={handleRetryWithDifferentRpcUrl}
                 />
               )}
             </View>

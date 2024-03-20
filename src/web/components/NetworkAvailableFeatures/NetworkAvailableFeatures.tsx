@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Interface, JsonRpcProvider } from 'ethers'
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -13,6 +13,7 @@ import CheckIcon from '@common/assets/svg/CheckIcon'
 import ErrorFilledIcon from '@common/assets/svg/ErrorFilledIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
+import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -22,6 +23,7 @@ import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -31,9 +33,11 @@ import { deployContractsBytecode } from './oldDeployParams'
 type Props = {
   networkId?: NetworkDescriptor['id']
   features: NetworkFeature[] | undefined
+  withRetryButton?: boolean
+  handleRetry?: () => void
 }
 
-const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
+const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handleRetry }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { pathname } = useRoute()
@@ -74,7 +78,7 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
       })
   }, [dispatch, selectedNetwork, providers, checkedDeploy])
 
-  const handleDeploy = async () => {
+  const handleDeploy = useCallback(async () => {
     if (!selectedNetwork) return // this should not happen...
 
     const account = accounts.filter((acc) => acc.addr === selectedAccount)[0]
@@ -124,7 +128,12 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
     }
 
     dispatch({ type: 'MAIN_CONTROLLER_ADD_USER_REQUEST', params: userRequest })
-  }
+  }, [accounts, addToast, dispatch, selectedAccount, selectedNetwork])
+
+  const shouldRenderRetryButton = useMemo(
+    () => !!features && !!features.find((f) => f.id === 'flagged') && withRetryButton,
+    [features, withRetryButton]
+  )
 
   return (
     <View style={[spacings.pbLg, spacings.pr]}>
@@ -185,6 +194,23 @@ const NetworkAvailableFeatures = ({ networkId, features }: Props) => {
               </View>
             )
           })}
+        {!!shouldRenderRetryButton && (
+          <View style={[spacings.pvMd, spacings.phLg, flexbox.alignCenter]}>
+            <Text style={[text.center, spacings.mbSm]} fontSize={14}>
+              {t(
+                "You can retry retrieving the network's available features\nusing a different RPC URL."
+              )}
+            </Text>
+            <Button
+              size="small"
+              text={t('Retry')}
+              style={{ maxHeight: 32 }}
+              onPress={() => {
+                !!handleRetry && handleRetry()
+              }}
+            />
+          </View>
+        )}
         <Tooltip id="feature-message-tooltip" />
       </View>
     </View>
