@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 
 import { SignedMessage } from '@ambire-common/controllers/activity/activity'
@@ -19,7 +19,6 @@ const SignedMessageHistory: FC<{
   page?: number
   account: Account
 }> = ({ page, account }) => {
-  const { t } = useTranslation()
   const { accountPreferences } = useSettingsControllerState()
   const activityState = useActivityControllerState()
 
@@ -28,20 +27,24 @@ const SignedMessageHistory: FC<{
       <View
         style={[StyleSheet.absoluteFill, flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}
       >
-        <Text style={text.center}>
-          <Text fontSize={16}>{t('No signed messages history for\n')}</Text>
-          <Text fontSize={16} weight="medium">
-            {`${accountPreferences?.[account.addr]?.label} (${shortenAddress(account.addr, 10)})`}
+        <Trans>
+          <Text style={text.center}>
+            <Text fontSize={16}>{'No signed messages history for\n'}</Text>
+            <Text fontSize={16} weight="medium">
+              {`${accountPreferences?.[account.addr]?.label} (${shortenAddress(account.addr, 10)})`}
+            </Text>
+            {page > 1 ? (
+              <>
+                <Text>{' on page: '}</Text>
+                <Text fontSize={16} weight="medium">
+                  {page}
+                </Text>
+              </>
+            ) : (
+              ''
+            )}
           </Text>
-          {page > 1 && (
-            <>
-              <Text>{` ${t('on page')}: `}</Text>
-              <Text fontSize={16} weight="medium">
-                {page}
-              </Text>
-            </>
-          )}
-        </Text>
+        </Trans>
       </View>
     )
   }
