@@ -23,15 +23,15 @@ describe('balance', () => {
         // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
         await page.evaluate(() => {
             let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
-            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS)
-            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID)
-            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS)
-            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS)
-            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS)
-            envPermission = (process.env.KEYSTORE_PERMISSION)
-            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT)
-            envTermState = (process.env.KEYSTORE_TERMSTATE)
-            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS)
+            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
+            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
+            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
+            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
+            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
+            envPermission = (process.env.KEYSTORE_PERMISSION_1)
+            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
+            envTermState = (process.env.KEYSTORE_TERMSTATE_1)
+            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
             chrome.storage.local.set({
                 accounts: parsedKeystoreAccounts,
                 keyStoreUid: parsedKeystoreUID,
@@ -61,7 +61,7 @@ describe('balance', () => {
         await page.bringToFront();
         await page.reload();
 
-        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE)
+        await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
     afterEach(async () => {

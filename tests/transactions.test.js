@@ -62,8 +62,7 @@ describe('transactions', () => {
     });
 
     //--------------------------------------------------------------------------------------------------------------
-    it.only('Make valid transaction', (async () => {
-
+    it('Make valid transaction', (async () => {
         await new Promise((r) => setTimeout(r, 2000))
 
         await page.waitForSelector('[data-testid="full-balance"]')
@@ -164,7 +163,7 @@ describe('transactions', () => {
 
 
     //--------------------------------------------------------------------------------------------------------------
-    it.only('Send sign message ', (async () => {
+    it('Send sign message ', (async () => {
 
         /* Allow permissions for read and write in clipboard */
         context = browser.defaultBrowserContext();
@@ -186,7 +185,6 @@ describe('transactions', () => {
 
         /* Click on 'Connect' button */
         await clickOnElement(newPage2, '[data-testid="padding-button-Connect"]')
-// return true
         /* Type message in the 'Message' field */
         let textMessage = 'text message'
         await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
