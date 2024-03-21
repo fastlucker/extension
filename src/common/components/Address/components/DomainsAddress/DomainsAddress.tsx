@@ -28,7 +28,7 @@ const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
     })
   }, [address, addressInDomains, dispatch, isLoading])
 
-  if (isLoading || !domains[address])
+  if (isLoading || !addressInDomains)
     return (
       <Spinner
         style={{
