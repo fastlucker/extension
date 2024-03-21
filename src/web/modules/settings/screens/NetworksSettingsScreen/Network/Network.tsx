@@ -16,7 +16,7 @@ interface Props {
   handleSelectNetwork: (networkId: NetworkDescriptor['id']) => void
 }
 
-const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId }) => {
+const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -50,4 +50,4 @@ const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId })
   )
 }
 
-export default Network
+export default React.memo(Network)

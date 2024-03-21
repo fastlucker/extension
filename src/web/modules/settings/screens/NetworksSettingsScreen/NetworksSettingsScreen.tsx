@@ -36,13 +36,14 @@ const NetworksSettingsScreen = () => {
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
+  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const { theme } = useTheme()
+
   const search = watch('search')
+
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
-
-    if (parsedSearchParams.has('networkId')) {
-      return parsedSearchParams.get('networkId') as string
-    }
+    if (parsedSearchParams.has('networkId')) return parsedSearchParams.get('networkId') as string
 
     return undefined
   })
@@ -51,8 +52,6 @@ const NetworksSettingsScreen = () => {
     () => networks.find((network) => network.id === selectedNetworkId),
     [networks, selectedNetworkId]
   )
-
-  const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
 
   useEffect(() => {
     setCurrentSettingsPage('networks')
@@ -71,10 +70,7 @@ const NetworksSettingsScreen = () => {
 
         if (!isSure) return
 
-        dispatch({
-          type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK',
-          params: network.id
-        })
+        dispatch({ type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK', params: network.id })
         setSelectedNetworkId(undefined)
       } else {
         addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
@@ -83,14 +79,14 @@ const NetworksSettingsScreen = () => {
     [networks, dispatch, addToast, t]
   )
 
-  const filteredNetworkBySearch = networks.filter((network) =>
-    network.name.toLowerCase().includes(search.toLowerCase())
+  const filteredNetworkBySearch = useMemo(
+    () => networks.filter((network) => network.name.toLowerCase().includes(search.toLowerCase())),
+    [networks, search]
   )
-  const { theme } = useTheme()
 
-  const handleSelectNetwork = (id: NetworkDescriptor['id']) => {
+  const handleSelectNetwork = useCallback((id: NetworkDescriptor['id']) => {
     setSelectedNetworkId(id)
-  }
+  }, [])
 
   return (
     <>
@@ -155,7 +151,7 @@ const NetworksSettingsScreen = () => {
                 handleRemoveNetwork={onRemoveCustomNetwork}
               />
             </View>
-            {!!selectedNetwork && selectedNetworkId && (
+            {!!selectedNetwork && !!selectedNetworkId && (
               <NetworkAvailableFeatures
                 features={selectedNetwork.features}
                 networkId={selectedNetworkId}
