@@ -4,7 +4,6 @@ import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -12,6 +11,7 @@ import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 function produceMemoryStore(): Storage {
   const storage = new Map()
@@ -51,13 +51,12 @@ const standardOptions = {
 
 interface Props {
   onOpenExplorer?: () => void
-  settingsNetworks?: NetworkDescriptor[]
 }
 
-const useBenzin = ({ onOpenExplorer, settingsNetworks }: Props = {}) => {
+const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-
+  const { networks: settingsNetworks } = useSettingsControllerState()
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId') ?? null
   const userOpHash = params.get('userOpHash') ?? null

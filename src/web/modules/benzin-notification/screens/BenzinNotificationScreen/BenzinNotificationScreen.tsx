@@ -9,12 +9,10 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const BenzinNotificationScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { settings } = useMainControllerState()
 
   const closeNotification = useCallback(() => {
     dispatch({
@@ -25,10 +23,7 @@ const BenzinNotificationScreen = () => {
     })
   }, [dispatch])
 
-  const state = useBenzin({
-    onOpenExplorer: closeNotification,
-    settingsNetworks: settings.networks
-  })
+  const state = useBenzin({ onOpenExplorer: closeNotification })
 
   return (
     <TabLayoutContainer

@@ -85,7 +85,7 @@ const Steps: FC<Props> = ({
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
         >
-          {calls &&
+          {!!calls &&
             calls.map((call, i) => {
               return (
                 <TransactionSummary
@@ -105,7 +105,7 @@ const Steps: FC<Props> = ({
                 />
               )
             })}
-          {calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
+          {!!calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
             <Text appearance="errorText" fontSize={14}>
               Could not decode calldata
             </Text>
@@ -134,4 +134,4 @@ const Steps: FC<Props> = ({
   )
 }
 
-export default Steps
+export default React.memo(Steps)

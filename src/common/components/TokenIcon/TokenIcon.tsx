@@ -33,13 +33,14 @@ const TokenIcon: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
   const [uri, setUri] = useState('')
-  const portfolioController = usePortfolioControllerState()
+  const { state } = usePortfolioControllerState()
 
   useEffect(() => {
-    const tokenIcons = portfolioController.state.tokenIcons
-    const iconId = getIconId(networkId, address)
-    if (tokenIcons[iconId]) setUri(tokenIcons[iconId])
-  }, [portfolioController.state.tokenIcons, networkId, address])
+    if (state.tokenIcons && !uri) {
+      const iconId = getIconId(networkId, address)
+      !!iconId && setUri(state.tokenIcons[iconId])
+    }
+  }, [state.tokenIcons, uri, networkId, address])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
