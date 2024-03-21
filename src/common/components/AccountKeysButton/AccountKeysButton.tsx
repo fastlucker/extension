@@ -1,6 +1,7 @@
 import React, { memo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import MultiKeysIcon from '@common/assets/svg/MultiKeysIcon'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import SingleKeyIcon from '@common/assets/svg/SingleKeyIcon'
@@ -26,8 +27,12 @@ const AccountKeysButton = () => {
       to: `${String(theme.secondaryBackground)}50`
     }
   })
-  const { associatedKeys = [] } = accounts.find(({ addr }) => addr === selectedAccount) || {}
+  const account = accounts.find(({ addr }) => addr === selectedAccount)
+  const associatedKeys = account?.associatedKeys || []
   const importedAccountKeys = keys.filter(({ addr }) => associatedKeys.includes(addr))
+
+  // TODO: Error?
+  if (!account) return null
 
   return (
     <>
@@ -42,9 +47,9 @@ const AccountKeysButton = () => {
       </AnimatedPressable>
       <AccountKeysBottomSheet
         sheetRef={sheetRef}
+        isSmartAccount={isSmartAccount(account)}
         associatedKeys={associatedKeys}
         keyPreferences={keyPreferences}
-        keys={keys}
         importedAccountKeys={importedAccountKeys}
         closeBottomSheet={closeBottomSheet}
       />

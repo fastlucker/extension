@@ -20,12 +20,12 @@ interface Props {
   sheetRef: any
   associatedKeys: string[]
   keyPreferences: KeyPreferences
-  keys: Key[]
   importedAccountKeys: Key[]
   closeBottomSheet: () => void
+  isSmartAccount: boolean
 }
 
-type AccountKey = {
+type AccountKeyType = {
   isImported: boolean
   addr: Key['addr']
   type?: Key['type']
@@ -42,24 +42,20 @@ const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
   associatedKeys,
   keyPreferences,
-  keys,
   importedAccountKeys,
-  closeBottomSheet
+  closeBottomSheet,
+  isSmartAccount
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const addAccountOptions = getAddKeyOptions({
-    navigate,
-    t
-  })
 
   const notImportedAccountKeys = associatedKeys.filter(
     (keyAddr) =>
       !importedAccountKeys.some(({ addr }) => addr.toLowerCase() === keyAddr.toLowerCase())
   )
 
-  const accountKeys: AccountKey[] = [
+  const accountKeys: AccountKeyType[] = [
     ...importedAccountKeys
       .map((key) => ({
         isImported: true,
@@ -89,6 +85,24 @@ const AccountKeysBottomSheet: FC<Props> = ({
       addr: keyAddr
     }))
   ]
+
+  // Since Basic accounts have only 1 key, if the internal key is imported,
+  // we should not show the option to import another key with a private key or
+  // seed phrase, since it is irrelevant for this case.
+  const isBasicAccWithImportedOneInternalKey =
+    !isSmartAccount &&
+    importedAccountKeys.length > 1 &&
+    importedAccountKeys.some((key) => key.type === 'internal')
+
+  const addAccountOptions = getAddKeyOptions({
+    navigate,
+    t
+  }).filter((o) => {
+    return !(
+      isBasicAccWithImportedOneInternalKey &&
+      (o.key === 'private-key' || o.key === 'seed-phrase')
+    )
+  })
 
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
