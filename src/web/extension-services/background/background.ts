@@ -589,11 +589,16 @@ async function init() {
                 }
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
                       type: mainCtrl.accountAdder.type,
-                      label: getDefaultKeyLabel(mainCtrl.accountAdder.type, index, slot)
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 
@@ -688,11 +693,16 @@ async function init() {
                   mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
                       type: 'seed',
-                      label: getDefaultKeyLabel('internal', index, slot)
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 

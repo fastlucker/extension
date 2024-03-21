@@ -1,8 +1,6 @@
 import { Account } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
-import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 // TODO: temp disabled (will use only blockies with no option to customize the pfp)
 // import {
@@ -30,11 +28,10 @@ export const getDefaultAccountLabel = (account: Account, prevAccounts: Account[]
 //   )
 // }
 
-export const getDefaultKeyLabel = (keyType: Key['type'], index: number, slot: number) => {
-  const prefix = isDerivedForSmartAccountKeyOnly(index) ? 'Ambire Key' : 'Basic Key'
-  const from = keyType === 'internal' ? 'Private Key' : HARDWARE_WALLET_DEVICE_NAMES[keyType]
+export const getDefaultKeyLabel = (prevKeys: Key[], i: number) => {
+  const number = prevKeys.length + i + 1
 
-  return `${prefix} (${from}) from slot ${slot}`
+  return `Key ${number}`
 }
 
 export const getDefaultAccountPreferences = (newAccounts: Account[], prevAccounts: Account[]) => {
