@@ -12,6 +12,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { DEFAULT_KEY_LABEL_PATTERN } from '@web/modules/account-personalize/libs/defaults'
 
 import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
@@ -59,12 +60,30 @@ const AccountKeysBottomSheet: FC<Props> = ({
   )
 
   const accountKeys: AccountKey[] = [
-    ...importedAccountKeys.map((key) => ({
-      isImported: true,
-      addr: key.addr,
-      type: key.type,
-      label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label
-    })),
+    ...importedAccountKeys
+      .map((key) => ({
+        isImported: true,
+        addr: key.addr,
+        type: key.type,
+        label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label
+      }))
+      .sort((a, b) => {
+        const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
+        const matchB = b.label?.match(DEFAULT_KEY_LABEL_PATTERN)
+
+        if (matchA && matchB) {
+          return +matchA[1] - +matchB[1]
+        }
+        if (matchA) {
+          return -1
+        }
+        if (matchB) {
+          return 1
+        }
+
+        // fallback to alphabetical comparison
+        return (a.label || '').localeCompare(b.label || '')
+      }),
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
       addr: keyAddr
