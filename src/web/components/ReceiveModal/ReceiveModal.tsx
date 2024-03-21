@@ -82,9 +82,9 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             </Text>
           )}
         </View>
-        <View style={spacings.mbXl}>
+        <View style={isPopup ? spacings.mb : spacings.mbXl}>
           <AnimatedPressable
-            style={[styles.accountAddress, isViewOnly ? spacings.mb : spacings.mb0, animStyle]}
+            style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
             onPress={handleCopyAddress}
             {...bindAnim}
           >
