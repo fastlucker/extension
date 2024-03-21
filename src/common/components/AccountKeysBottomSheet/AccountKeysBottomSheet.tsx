@@ -116,7 +116,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           )
         })}
       </View>
-      <Title text={t('Import keys')} />
+      <Title text={t('Import more keys')} />
       {addAccountOptions.map((option) => (
         <Option
           key={option.text}
