@@ -14,7 +14,7 @@ import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { ExternalKey, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -592,7 +592,7 @@ async function init() {
                   ({ account, accountKeys }) =>
                     accountKeys.map(({ addr }, i: number) => ({
                       addr,
-                      type: mainCtrl.accountAdder.type,
+                      type: mainCtrl.accountAdder.type as Key['type'],
                       label: getDefaultKeyLabel(
                         mainCtrl.keystore.keys.filter((key) =>
                           account.associatedKeys.includes(key.addr)
