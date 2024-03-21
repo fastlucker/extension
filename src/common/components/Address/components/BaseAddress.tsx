@@ -23,41 +23,47 @@ import { getUiType } from '@web/utils/uiType'
 import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
-  rawAddress: string
+  address: string
   explorerNetworkId?: NetworkDescriptor['id']
 }
 
 const { isNotification } = getUiType()
 
-const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...rest }) => {
+const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
-  // benzin.ambire.com doesn't have access to controllers
+  // Standalone Benzin doesn't have access to controllers
   const { networks = constantNetworks } = useSettingsControllerState()
   const network = networks?.find((n) => n.id === explorerNetworkId)
 
   const handleCopyAddress = useCallback(async () => {
     try {
-      await Clipboard.setStringAsync(rawAddress)
+      await Clipboard.setStringAsync(address)
       addToast('Address copied to clipboard')
     } catch {
       addToast('Failed to copy address', {
         type: 'error'
       })
     }
-  }, [addToast, rawAddress])
+  }, [addToast, address])
 
-  const handleOpenExplorer = useCallback(() => {
+  const handleOpenExplorer = useCallback(async () => {
     if (!network) return
 
-    // openInTab doesn't work in benzin.ambire.com
-    if (!isExtension) {
-      Linking.openURL(`${network?.explorerUrl}/address/${rawAddress}`)
+    try {
+      // openInTab doesn't work in benzin.ambire.com
+      if (!isExtension) {
+        await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
+      }
+      // Close the notification window if this address is opened in one, otherwise
+      // the user will have to minimize it to see the explorer.
+      await openInTab(`${network?.explorerUrl}/address/${address}`, isNotification)
+    } catch {
+      addToast('Failed to open explorer', {
+        type: 'error'
+      })
     }
-    // Close the notification window if this address is opened in one, otherwise
-    // the user will have to minimize it to see the explorer.
-    openInTab(`${network?.explorerUrl}/address/${rawAddress}`, isNotification)
-  }, [])
+  }, [addToast, address, network])
 
   return (
     <View style={[flexbox.alignCenter, flexbox.directionRow]}>
@@ -66,16 +72,17 @@ const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...re
       </Text>
       <Pressable style={spacings.mlMi}>
         <InfoIcon
-          data-tooltip-id={`address-${rawAddress}`}
+          data-tooltip-id={`address-${address}`}
           color={theme.secondaryText}
           width={14}
           height={14}
         />
       </Pressable>
       <Tooltip
-        id={`address-${rawAddress}`}
+        id={`address-${address}`}
         style={{
-          padding: 0
+          padding: 0,
+          overflow: 'hidden'
         }}
         clickable
         noArrow
@@ -97,7 +104,7 @@ const BaseAddress: FC<Props> = ({ children, rawAddress, explorerNetworkId, ...re
         /> */}
         <Option
           title="Copy Address"
-          text={shortenAddress(rawAddress, 15)}
+          text={shortenAddress(address, 15)}
           renderIcon={() => <CopyIcon color={theme.secondaryText} width={16} height={16} />}
           onPress={handleCopyAddress}
         />

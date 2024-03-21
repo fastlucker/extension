@@ -41,7 +41,7 @@ const DomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
     )
 
   return (
-    <BaseAddress rawAddress={checksummedAddress} {...rest}>
+    <BaseAddress address={checksummedAddress} {...rest}>
       {addressInDomains?.ens || addressInDomains?.ud || checksummedAddress}
     </BaseAddress>
   )
