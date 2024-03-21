@@ -69,15 +69,12 @@ const NetworkDetails = ({
         <View
           style={[flexbox.directionRow, flexbox.alignCenter, !!withBottomSpacing && spacings.mb]}
         >
-          <Text
-            fontSize={14}
-            appearance="tertiaryText"
-            style={[flexbox.flex1, spacings.mr]}
-            numberOfLines={1}
-          >
+          <Text fontSize={14} appearance="tertiaryText" style={[spacings.mr]} numberOfLines={1}>
             {title}
           </Text>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+          <View
+            style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1, flexbox.justifyEnd]}
+          >
             {title === 'Network Name' && value !== '-' && (
               <View style={spacings.mrMi}>
                 <NetworkIcon
@@ -90,6 +87,7 @@ const NetworkDetails = ({
             <Text
               fontSize={14}
               appearance={value === 'Invalid Chain ID' ? 'errorText' : 'primaryText'}
+              numberOfLines={1}
             >
               {value}
             </Text>
