@@ -5,7 +5,7 @@ import { Props as TextProps } from '@common/components/Text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 
-import BaseAddress from './BaseAddress'
+import BaseAddress from '../BaseAddress'
 
 interface Props extends TextProps {
   address: string

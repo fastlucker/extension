@@ -6,8 +6,7 @@ import { isExtension } from '@web/constants/browserapi'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import BaseAddress from './components/BaseAddress'
-import BenzinDomainsAddress from './components/BenzinDomainsAddress'
-import DomainsAddress from './components/DomainsAddress'
+import { BenzinDomainsAddress, DomainsAddress } from './components/DomainsAddress'
 
 interface Props extends TextProps {
   address: string

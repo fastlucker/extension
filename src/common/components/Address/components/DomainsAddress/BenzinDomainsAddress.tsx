@@ -8,7 +8,7 @@ import { reverseLookupUD } from '@ambire-common/services/unstoppableDomains'
 import Spinner from '@common/components/Spinner'
 import { Props as TextProps } from '@common/components/Text'
 
-import BaseAddress from './BaseAddress'
+import BaseAddress from '../BaseAddress'
 
 interface Props extends TextProps {
   address: string
