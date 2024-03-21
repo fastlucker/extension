@@ -91,7 +91,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
   // seed phrase, since it is irrelevant for this case.
   const isBasicAccWithImportedOneInternalKey =
     !isSmartAccount &&
-    importedAccountKeys.length > 1 &&
+    importedAccountKeys.length >= 1 &&
     importedAccountKeys.some((key) => key.type === 'internal')
 
   const addAccountOptions = getAddKeyOptions({
