@@ -86,7 +86,7 @@ const AccountKey: React.FC<Props> = ({
     <View
       style={[
         spacings.phSm,
-        spacings.pvTy,
+        isImported ? spacings.pvTy : spacings.pvSm,
         flexbox.directionRow,
         flexbox.justifySpaceBetween,
         flexbox.alignCenter,
