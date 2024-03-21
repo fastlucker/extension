@@ -54,7 +54,8 @@ const AccountKeysBottomSheet: FC<Props> = ({
   })
 
   const notImportedAccountKeys = associatedKeys.filter(
-    (keyAddr) => !importedAccountKeys.some(({ addr }) => addr === keyAddr)
+    (keyAddr) =>
+      !importedAccountKeys.some(({ addr }) => addr.toLowerCase() === keyAddr.toLowerCase())
   )
 
   const accountKeys: AccountKey[] = [
