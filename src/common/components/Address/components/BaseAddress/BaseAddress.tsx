@@ -1,5 +1,6 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
@@ -30,6 +31,7 @@ interface Props extends TextProps {
 const { isNotification } = getUiType()
 
 const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
+  const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   // Standalone Benzin doesn't have access to controllers
@@ -39,13 +41,13 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
   const handleCopyAddress = useCallback(async () => {
     try {
       await Clipboard.setStringAsync(address)
-      addToast('Address copied to clipboard')
+      addToast(t('Address copied to clipboard'))
     } catch {
-      addToast('Failed to copy address', {
+      addToast(t('Failed to copy address'), {
         type: 'error'
       })
     }
-  }, [addToast, address])
+  }, [addToast, address, t])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
@@ -59,11 +61,11 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       // the user will have to minimize it to see the explorer.
       await openInTab(`${network?.explorerUrl}/address/${address}`, isNotification)
     } catch {
-      addToast('Failed to open explorer', {
+      addToast(t('Failed to open explorer'), {
         type: 'error'
       })
     }
-  }, [addToast, address, network])
+  }, [addToast, address, network, t])
 
   return (
     <View style={[flexbox.alignCenter, flexbox.directionRow]}>
@@ -91,19 +93,19 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       >
         {network?.explorerUrl && (
           <Option
-            title="View in Explorer"
+            title={t('View in Explorer')}
             renderIcon={() => <OpenIcon color={theme.secondaryText} width={14} height={14} />}
             onPress={handleOpenExplorer}
           />
         )}
         {/* @TODO: Uncomment when we have the feature
         <Option
-          title="Add to Address Book"
+          title={t('Add to Address Book')}
           renderIcon={() => <AddressBookIcon color={theme.secondaryText} width={18} height={18} />}
           onPress={() => {}}
         /> */}
         <Option
-          title="Copy Address"
+          title={t('Copy Address')}
           text={shortenAddress(address, 15)}
           renderIcon={() => <CopyIcon color={theme.secondaryText} width={16} height={16} />}
           onPress={handleCopyAddress}
