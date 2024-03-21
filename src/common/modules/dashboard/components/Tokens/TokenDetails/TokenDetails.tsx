@@ -1,11 +1,9 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
-import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
-import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
@@ -52,13 +50,7 @@ const TokenDetails = ({
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
   const isGasTank = token?.flags.onGasTank
-  const isGasTankFeeToken = token
-    ? gasTankFeeTokens.find(
-        (gsToken: { address: string; networkId: NetworkId }) =>
-          getAddress(gsToken.address) === getAddress(token.address) &&
-          gsToken.networkId === token.networkId
-      )
-    : false
+  const isGasTankFeeToken = token?.flags.canTopUpGasTank
 
   const actions = useMemo(
     () => [
