@@ -1,4 +1,5 @@
-import { getAddress, JsonRpcProvider } from 'ethers'
+/* eslint-disable no-console */
+import { JsonRpcProvider } from 'ethers'
 import React, { FC, useEffect, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -13,7 +14,7 @@ interface Props extends TextProps {
   address: string
 }
 
-const BenzinDomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
+const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [resolvedDomain, setResolvedDomain] = useState<{
     ens: string | null
@@ -22,8 +23,6 @@ const BenzinDomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
     ens: null,
     ud: null
   })
-  const checksummedAddress = getAddress(_address)
-
   useEffect(() => {
     const rpcUrl = networks.find(({ id }) => id === 'ethereum')?.rpcUrl
 
@@ -37,13 +36,13 @@ const BenzinDomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
       let ud = null
 
       try {
-        ens = await reverseLookupEns(checksummedAddress, ethereumProvider, fetch)
+        ens = await reverseLookupEns(address, ethereumProvider, fetch)
       } catch (e) {
         console.error('ENS reverse lookup unexpected error', e)
       }
 
       try {
-        ud = await reverseLookupUD(checksummedAddress)
+        ud = await reverseLookupUD(address)
       } catch (e: any) {
         if (!e?.message?.includes('Only absolute URLs are supported')) {
           console.error('UD reverse lookup unexpected error', e)
@@ -57,12 +56,13 @@ const BenzinDomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
       setIsLoading(false)
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     resolveDomain()
 
     return () => {
       ethereumProvider.destroy()
     }
-  }, [checksummedAddress])
+  }, [address])
 
   if (isLoading)
     return (
@@ -75,8 +75,8 @@ const BenzinDomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
     )
 
   return (
-    <BaseAddress address={checksummedAddress} {...rest}>
-      {resolvedDomain.ens || resolvedDomain.ud || checksummedAddress}
+    <BaseAddress address={address} {...rest}>
+      {resolvedDomain.ens || resolvedDomain.ud || address}
     </BaseAddress>
   )
 }

@@ -11,33 +11,27 @@ import DomainsAddress from './components/DomainsAddress'
 
 interface Props extends TextProps {
   address: string
+  // example of highestPriorityAlias: a name coming from the humanizer's metadata
   highestPriorityAlias?: string
   explorerNetworkId?: string
 }
 
-const Address: FC<Props> = ({ address: _address, highestPriorityAlias, ...rest }) => {
+const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const { accountPreferences } = useSettingsControllerState()
-  const checksummedAddress = getAddress(_address)
+  const checksummedAddress = getAddress(address)
   const { label: accountInWalletLabel } = accountPreferences?.[checksummedAddress] || {}
 
-  // For example, a name coming from the humanizer's metadata
-  if (highestPriorityAlias)
+  // highestPriorityAlias and account labels are of higher priority than domains
+  if (highestPriorityAlias || accountInWalletLabel)
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias}
+        {highestPriorityAlias || accountInWalletLabel}
       </BaseAddress>
     )
 
-  if (accountInWalletLabel)
-    return (
-      <BaseAddress address={checksummedAddress} {...rest}>
-        {accountInWalletLabel}
-      </BaseAddress>
-    )
+  if (!isExtension) return <BenzinDomainsAddress address={checksummedAddress} {...rest} />
 
-  if (!isExtension) return <BenzinDomainsAddress address={_address} {...rest} />
-
-  return <DomainsAddress address={_address} {...rest} />
+  return <DomainsAddress address={checksummedAddress} {...rest} />
 }
 
 export default Address

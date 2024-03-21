@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, { FC, useEffect } from 'react'
 
 import Spinner from '@common/components/Spinner'
@@ -12,23 +11,22 @@ interface Props extends TextProps {
   address: string
 }
 
-const DomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
+const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
   const { dispatch } = useBackgroundService()
   const { domains, loadingAddresses } = useDomainsControllerState()
-  const checksummedAddress = getAddress(_address)
-  const isLoading = loadingAddresses.includes(checksummedAddress)
-  const addressInDomains = domains[checksummedAddress]
+  const isLoading = loadingAddresses.includes(address)
+  const addressInDomains = domains[address]
 
   useEffect(() => {
-    if (!checksummedAddress || addressInDomains || isLoading) return
+    if (!address || addressInDomains || isLoading) return
 
     dispatch({
       type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP',
       params: {
-        address: checksummedAddress
+        address
       }
     })
-  }, [checksummedAddress, addressInDomains, dispatch, isLoading])
+  }, [address, addressInDomains, dispatch, isLoading])
 
   if (isLoading)
     return (
@@ -41,8 +39,8 @@ const DomainsAddress: FC<Props> = ({ address: _address, ...rest }) => {
     )
 
   return (
-    <BaseAddress address={checksummedAddress} {...rest}>
-      {addressInDomains?.ens || addressInDomains?.ud || checksummedAddress}
+    <BaseAddress address={address} {...rest}>
+      {addressInDomains?.ens || addressInDomains?.ud || address}
     </BaseAddress>
   )
 }
