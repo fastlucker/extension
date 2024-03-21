@@ -521,6 +521,9 @@ async function init() {
               case 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
                 return await mainCtrl.settings.removeCustomNetwork(params)
               }
+              case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
+                return await mainCtrl.settings.addKeyPreferences(params)
+              }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
                 return await mainCtrl.updateNetworkPreferences(
                   params.networkPreferences,

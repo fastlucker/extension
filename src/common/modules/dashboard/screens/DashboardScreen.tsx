@@ -114,13 +114,14 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text style={spacings.mbTy}>
+                      <Text style={spacings.mbTy} selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
                           style={{ lineHeight: 34 }}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('$')}
                           {formatDecimals(totalPortfolioAmount).split('.')[0]}
@@ -130,6 +131,7 @@ const DashboardScreen = () => {
                           shouldScale={false}
                           weight="number_bold"
                           color={theme.primaryBackground}
+                          selectable
                         >
                           {t('.')}
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}

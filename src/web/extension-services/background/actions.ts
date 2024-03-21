@@ -6,6 +6,7 @@ import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkD
 import {
   AccountPreferences,
   CustomNetwork,
+  KeyPreferences,
   NetworkPreference
 } from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
@@ -107,6 +108,10 @@ type SettingsControllerAddCustomNetwork = {
 type SettingsControllerRemoveCustomNetwork = {
   type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK'
   params: NetworkDescriptor['id']
+}
+type MainControllerSettingsAddKeyPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
+  params: KeyPreferences
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -340,6 +345,7 @@ export type Action =
   | SettingsControllerResetNetworkToAddOrUpdate
   | SettingsControllerAddCustomNetwork
   | SettingsControllerRemoveCustomNetwork
+  | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import { formatUnits } from 'ethers'
+import { MaxUint256, formatUnits } from 'ethers'
 import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
 
@@ -131,6 +131,7 @@ const TransactionSummary = ({
           appearance="secondaryText"
           weight="regular"
           style={{ maxWidth: '100%' }}
+          selectable
         >
           {` ${call.to} `}
         </Text>
@@ -142,7 +143,7 @@ const TransactionSummary = ({
         >
           {t(' Value to be sent (value): ')}
         </Text>
-        <Text fontSize={textSize} appearance="secondaryText" weight="regular">
+        <Text selectable fontSize={textSize} appearance="secondaryText" weight="regular">
           {` ${formatUnits(call.value || '0x0', 18)} `}
         </Text>
       </View>
@@ -167,6 +168,9 @@ const TransactionSummary = ({
             if (!item || item.isHidden) return null
 
             if (item.type === 'token') {
+              const isUnlimitedByPermit2 =
+                item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
+              const isMaxUint256 = item.amount === MaxUint256
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
@@ -176,14 +180,18 @@ const TransactionSummary = ({
                       appearance="primaryText"
                       style={{ maxWidth: '100%' }}
                     >
-                      {` ${formatDecimals(
-                        Number(
-                          formatUnits(
-                            item.amount || '0x0',
-                            item?.humanizerMeta?.token?.decimals || 18
+                      {isUnlimitedByPermit2 || isMaxUint256 ? (
+                        <Text appearance="warningText">unlimited </Text>
+                      ) : (
+                        formatDecimals(
+                          Number(
+                            formatUnits(
+                              item.amount || '0x0',
+                              item?.humanizerMeta?.token?.decimals || 1
+                            )
                           )
                         )
-                      )} `}
+                      )}
                     </Text>
                   ) : null}
 
@@ -227,6 +235,7 @@ const TransactionSummary = ({
                     weight="medium"
                     appearance="primaryText"
                     style={{ maxWidth: '100%' }}
+                    selectable
                   >
                     {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
                   </Text>
@@ -350,19 +359,19 @@ const TransactionSummary = ({
             paddingVertical: SPACING_TY * sizeMultiplier[size]
           }}
         >
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Interacting with (to): ')}
             </Text>
             {call.to}
           </Text>
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Value to be sent (value): ')}
             </Text>
             {formatUnits(call.value || '0x0', 18)}
           </Text>
-          <Text fontSize={12} style={styles.bodyText}>
+          <Text selectable fontSize={12} style={styles.bodyText}>
             <Text fontSize={12} style={styles.bodyText} weight="regular">
               {t('Data: ')}
             </Text>

@@ -61,6 +61,8 @@ const useAddressInput = ({
     const trimmedAddress = debouncedAddress.trim()
     const domainRegex = /^[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,})$/
     const canBeEnsOrUd = domainRegex.test(trimmedAddress)
+    let ensAddress = ''
+    let udAddress = ''
 
     if (!trimmedAddress || !canBeEnsOrUd) {
       setAddressState({
@@ -77,44 +79,37 @@ const useAddressInput = ({
     Promise.all([
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
-          if (fieldValueRef.current !== debouncedAddress) return
-          setAddressState({
-            udAddress: newUDAddress
-          })
+          udAddress = newUDAddress
         })
         .catch(() => {
-          setAddressState({
-            udAddress: ''
-          })
+          udAddress = ''
           addToast('Something went wrong while resolving Unstoppable domainsⓇ domain.', {
             type: 'error'
           })
         }),
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
-          if (fieldValueRef.current !== debouncedAddress) return
-          setAddressState({
-            ensAddress: newEnsAddress
-          })
+          ensAddress = newEnsAddress
         })
         .catch(() => {
-          setAddressState({
-            ensAddress: ''
-          })
+          ensAddress = ''
           addToast('Something went wrong while resolving Ethereum Name ServicesⓇ domain.', {
             type: 'error'
           })
         })
     ])
       .catch(() => {
-        setAddressState({
-          ensAddress: '',
-          udAddress: ''
-        })
+        ensAddress = ''
+        udAddress = ''
         addToast('Something went wrong while resolving domain.', { type: 'error' })
       })
       .finally(() => {
+        // The promises may resolve after the component is unmounted.
+        if (fieldValueRef.current !== debouncedAddress) return
+
         setAddressState({
+          ensAddress,
+          udAddress,
           isDomainResolving: false
         })
         handleRevalidate && handleRevalidate()

@@ -1,10 +1,12 @@
 import React, { FC } from 'react'
 import { View, ViewStyle } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
+import Button, { Props as ButtonProps } from '@common/components/Button'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
@@ -21,6 +23,8 @@ interface Props {
   children?: React.ReactNode
   size?: 'sm' | 'md'
   isTypeLabelHidden?: boolean
+  buttonProps?: ButtonProps
+  customIcon?: React.FC<SvgProps>
 }
 
 const ICON_MAP = {
@@ -38,7 +42,9 @@ const Alert: FC<Props> = ({
   style,
   children,
   size = 'md',
-  isTypeLabelHidden = false
+  isTypeLabelHidden = false,
+  buttonProps,
+  customIcon: CustomIcon
 }) => {
   const Icon = ICON_MAP[type]
   const { theme } = useTheme()
@@ -61,7 +67,11 @@ const Alert: FC<Props> = ({
       ]}
     >
       <View style={[!isSmall && spacings.mr, !!isSmall && spacings.mrTy]}>
-        <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+        {CustomIcon ? (
+          <CustomIcon />
+        ) : (
+          <Icon width={20} height={20} color={theme[`${type}Decorative`]} />
+        )}
       </View>
 
       <View style={flexbox.flex1}>
@@ -69,6 +79,7 @@ const Alert: FC<Props> = ({
           <Text style={text ? spacings.mbTy : {}}>
             {!isTypeLabelHidden && (
               <Text
+                selectable
                 appearance={`${type}Text`}
                 fontSize={fontSize}
                 weight={titleWeight || 'semiBold'}
@@ -77,15 +88,34 @@ const Alert: FC<Props> = ({
                 {type}:{' '}
               </Text>
             )}
-            <Text appearance={`${type}Text`} fontSize={fontSize} weight={titleWeight || 'regular'}>
+            <Text
+              selectable
+              appearance={`${type}Text`}
+              fontSize={fontSize}
+              weight={titleWeight || 'regular'}
+            >
               {title}
             </Text>
           </Text>
         )}
         {!!text && (
-          <Text fontSize={fontSize} weight="regular" appearance={`${type}Text`}>
+          <Text selectable fontSize={fontSize - 2} weight="regular" appearance={`${type}Text`}>
             {text}
           </Text>
+        )}
+        {buttonProps && (
+          <Button
+            style={{
+              alignSelf: 'flex-end',
+              ...spacings.mtTy
+            }}
+            textStyle={{ fontSize: 12 }}
+            size="small"
+            type="primary"
+            hasBottomSpacing={false}
+            text={buttonProps.text}
+            onPress={buttonProps.onPress}
+          />
         )}
         {children}
       </View>

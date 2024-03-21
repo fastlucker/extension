@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import { Controller, UseFormSetValue, UseFormTrigger, UseFormWatch } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
@@ -40,7 +39,6 @@ const AddressField: FC<Props> = ({
 }) => {
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
-  const { t } = useTranslation()
   const mainControllerState = useMainControllerState()
 
   const setAddressState = useCallback(
@@ -95,7 +93,6 @@ const AddressField: FC<Props> = ({
             validation={validation}
             containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
             onBlur={onBlur}
-            placeholder={t('Enter an address')}
             onChangeText={onChange}
             value={value.fieldValue}
             autoFocus

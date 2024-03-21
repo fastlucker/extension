@@ -45,7 +45,6 @@ const getStyles = (theme: ThemeProps) =>
     },
     accountAddress: {
       marginHorizontal: 'auto',
-      ...spacings.mbXl,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
     },

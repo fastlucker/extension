@@ -43,6 +43,7 @@ export interface InputProps extends TextInputProps {
     content: string
   }
   childrenBeforeButtons?: React.ReactNode
+  borderless?: boolean
 }
 
 const Input = ({
@@ -66,6 +67,7 @@ const Input = ({
   leftIcon,
   childrenBeforeButtons,
   tooltip,
+  borderless,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -89,7 +91,8 @@ const Input = ({
     styles.borderWrapper,
     !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
-    isValid && isFocused && { borderColor: theme.successBackground }
+    isValid && isFocused && { borderColor: theme.successBackground },
+    borderless && { borderColor: 'transparent', borderWidth: 0 }
   ]
 
   const inputWrapperStyles = [
@@ -102,6 +105,7 @@ const Input = ({
     isFocused && { borderColor: theme.primary },
     isValid && !isFocused && { borderColor: theme.successDecorative },
     disabled && styles.disabled,
+    borderless && { borderColor: 'transparent', borderWidth: 0 },
     inputWrapperStyle
   ]
 

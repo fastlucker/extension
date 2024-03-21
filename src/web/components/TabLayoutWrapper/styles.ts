@@ -17,6 +17,7 @@ const getStyles = (theme: ThemeProps) =>
       height: '100%',
       ...spacings.pbLg,
       ...spacings.ph0,
+      ...spacings.pt,
       ...flexbox.flex1
     },
     informationCircle: {
