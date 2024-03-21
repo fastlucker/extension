@@ -31,8 +31,8 @@ const AccountKeysButton = () => {
   const associatedKeys = account?.associatedKeys || []
   const importedAccountKeys = keys.filter(({ addr }) => associatedKeys.includes(addr))
 
-  // TODO: Error?
-  if (!account) return null
+  // should never happen (selected account details are always present)
+  if (!account) null
 
   return (
     <>

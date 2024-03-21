@@ -24,7 +24,7 @@ const NoKeysToSignAlert = () => {
   const associatedKeys = account?.associatedKeys || []
   const importedAccountKeys = keys.filter(({ addr }) => associatedKeys.includes(addr))
 
-  // TODO: Error?
+  // should never happen (selected account details are always present)
   if (!account) return null
 
   return (
