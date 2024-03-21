@@ -60,7 +60,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
-          <Text appearance="secondaryText" weight="medium" fontSize={fontSize}>
+          <Text appearance="secondaryText" weight="medium" fontSize={fontSize} numberOfLines={1}>
             {selectedAccountLabel}{' '}
           </Text>
           <Text appearance="primaryText" weight="medium" fontSize={fontSize}>
@@ -78,7 +78,12 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
               <Text appearance="secondaryText" weight="regular" fontSize={fontSize}>
                 {t('on')}{' '}
               </Text>
-              <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
+              <Text
+                appearance="secondaryText"
+                weight="regular"
+                style={spacings.mrMi}
+                fontSize={fontSize}
+              >
                 {networkName || t('Unknown network')}
               </Text>
               {networkId && maxWidthSize(800) ? (
@@ -87,7 +92,11 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             </View>
           )}
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && <AmbireLogoHorizontal />}
+        {!!withAmbireLogo && maxWidthSize(700) && (
+          <View style={spacings.pl}>
+            <AmbireLogoHorizontal />
+          </View>
+        )}
       </View>
     </Header>
   )
