@@ -7,7 +7,6 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   modalHeader: ViewStyle
-  networkIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -19,10 +18,6 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phXl,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
-    },
-    networkIcon: {
-      backgroundColor: theme.tertiaryBackground,
-      ...spacings.mrTy
     }
   })
 

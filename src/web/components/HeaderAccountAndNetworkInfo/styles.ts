@@ -6,7 +6,6 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  networkIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -19,10 +18,6 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderBottomColor: theme.secondaryBorder,
       borderBottomWidth: 1
-    },
-    networkIcon: {
-      backgroundColor: theme.tertiaryBackground,
-      ...spacings.mlTy
     }
   })
 
