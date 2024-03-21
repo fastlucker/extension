@@ -67,15 +67,9 @@ const AccountKeysBottomSheet: FC<Props> = ({
         const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
         const matchB = b.label?.match(DEFAULT_KEY_LABEL_PATTERN)
 
-        if (matchA && matchB) {
-          return +matchA[1] - +matchB[1]
-        }
-        if (matchA) {
-          return -1
-        }
-        if (matchB) {
-          return 1
-        }
+        if (matchA && matchB) return +matchA[1] - +matchB[1]
+        if (matchA) return -1
+        if (matchB) return 1
 
         // fallback to alphabetical comparison
         return (a.label || '').localeCompare(b.label || '')
