@@ -48,6 +48,20 @@ const AddChainScreen = () => {
     [currentNotificationRequest?.params?.data]
   )
 
+  const requestMethod = useMemo(
+    () => currentNotificationRequest?.params?.method,
+    [currentNotificationRequest?.params?.method]
+  )
+
+  const requestSession = useMemo(
+    () => currentNotificationRequest?.params?.session,
+    [currentNotificationRequest?.params?.session]
+  )
+
+  useEffect(() => {
+    setAreParamsValid(validateRequestParams(requestMethod, requestData))
+  }, [requestMethod, requestData])
+
   const rpcUrls: string[] = useMemo(() => {
     if (!requestData || !requestData?.rpcUrls) return []
 
@@ -85,18 +99,20 @@ const AddChainScreen = () => {
     if (networkDetails && networkDetails.rpcUrl) {
       dispatch({
         type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-        params: {
-          chainId: networkDetails.chainId,
-          rpcUrl: networkDetails.rpcUrl
-        }
+        params: { chainId: networkDetails.chainId, rpcUrl: networkDetails.rpcUrl }
       })
     }
   }, [dispatch, networkDetails])
 
   useEffect(() => {
-    const featuresRes = getFeatures(networkToAddOrUpdate?.info)
-    setFeatures(featuresRes)
+    setFeatures(getFeatures(networkToAddOrUpdate?.info))
   }, [networkToAddOrUpdate?.info])
+
+  useEffect(() => {
+    if (latestMethodCall === 'addCustomNetwork' && status === 'SUCCESS') {
+      dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
+    }
+  }, [dispatch, latestMethodCall, status])
 
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
@@ -112,24 +128,6 @@ const AddChainScreen = () => {
       params: networkDetails
     })
   }, [dispatch, networkDetails])
-
-  useEffect(() => {
-    setAreParamsValid(
-      validateRequestParams(
-        currentNotificationRequest?.params?.method,
-        currentNotificationRequest?.params?.data?.[0]
-      )
-    )
-  }, [currentNotificationRequest?.params?.data, currentNotificationRequest?.params?.method])
-
-  useEffect(() => {
-    if (latestMethodCall === 'addCustomNetwork' && status === 'SUCCESS') {
-      dispatch({
-        type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
-        params: { data: null }
-      })
-    }
-  }, [dispatch, latestMethodCall, status])
 
   const handleRetryWithDifferentRpcUrl = useCallback(() => {
     setRpcUrlIndex((prev) => prev + 1)
@@ -184,16 +182,14 @@ const AddChainScreen = () => {
         <View style={styles.dappInfoContainer}>
           <View style={spacings.mbSm}>
             <ManifestImage
-              uri={currentNotificationRequest?.params?.session?.icon}
+              uri={requestSession?.icon}
               size={50}
               fallback={() => <ManifestFallbackIcon />}
             />
           </View>
           <View style={styles.dappInfoContent}>
             <View style={[flexbox.flex1, spacings.phLg]}>
-              <Trans
-                values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}
-              >
+              <Trans values={{ name: requestSession?.name || 'The dApp' }}>
                 <Text style={text.center}>
                   <Text fontSize={20} appearance="secondaryText">
                     {t('Allow ')}
