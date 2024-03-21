@@ -21,7 +21,6 @@ const Tooltip = ({ style, ...rest }: ITooltip) => {
           backgroundColor: theme.tertiaryBackground as any,
           color: theme.secondaryText as any,
           borderRadius: BORDER_RADIUS_PRIMARY,
-          overflow: 'hidden',
           ...style
         }}
         opacity={1}
