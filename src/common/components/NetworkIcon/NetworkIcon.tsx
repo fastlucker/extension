@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
 import AndromedaMonochromeIcon from '@common/assets/svg/AndromedaMonochromeIcon'
@@ -47,6 +48,7 @@ type Props = {
   style?: ViewStyle
   withTooltip?: boolean
   [key: string]: any
+  benzinNetwork?: NetworkDescriptor
 }
 
 const icons: { [key: string]: any } = {
@@ -90,13 +92,14 @@ const NetworkIcon = ({
   type = 'regular',
   withTooltip = true,
   style = {},
+  benzinNetwork,
   ...rest
 }: Props) => {
   const { networks } = useSettingsControllerState()
 
   const network = useMemo(() => {
-    return networks.find((n) => n.id === name)
-  }, [name, networks])
+    return benzinNetwork ?? networks.find((n) => n.id === name)
+  }, [name, networks, benzinNetwork])
 
   const iconUrls = useMemo(
     () => [

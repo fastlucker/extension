@@ -1,5 +1,6 @@
+import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -69,12 +70,17 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
 
   if ((!txnId && !userOpHash) || !network) return null
 
+  const provider = useMemo(() => {
+    return new JsonRpcProvider(network.rpcUrl)
+  }, [network])
+
   const stepsState = useSteps({
     txnId,
     userOpHash,
     network,
     standardOptions,
-    setActiveStep
+    setActiveStep,
+    provider
   })
 
   const handleCopyText = useCallback(async () => {

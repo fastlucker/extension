@@ -1,4 +1,11 @@
-import { AbiCoder, Block, ethers, TransactionReceipt, TransactionResponse } from 'ethers'
+import {
+  AbiCoder,
+  Block,
+  ethers,
+  JsonRpcProvider,
+  TransactionReceipt,
+  TransactionResponse
+} from 'ethers'
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
@@ -32,6 +39,7 @@ interface Props {
     parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
+  provider: JsonRpcProvider
 }
 
 export interface StepsData {
@@ -68,7 +76,8 @@ const useSteps = ({
   userOpHash,
   network,
   standardOptions,
-  setActiveStep
+  setActiveStep,
+  provider
 }: Props): StepsData => {
   const [nativePrice, setNativePrice] = useState<number>(0)
   const [txn, setTxn] = useState<null | TransactionResponse>(null)
@@ -148,10 +157,9 @@ const useSteps = ({
 
   // find the transaction
   useEffect(() => {
-    if (!network || txn || (!txnId && !userOpStatusData.txnId)) return
+    if (txn || (!txnId && !userOpStatusData.txnId)) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getTransaction(finalTxnId!)
       .then((fetchedTxn: null | TransactionResponse) => {
@@ -172,12 +180,11 @@ const useSteps = ({
         setTxn(fetchedTxn)
       })
       .catch(() => null)
-  }, [txnId, network, userOpStatusData, txn, refetchTxnCounter, setActiveStep])
+  }, [txnId, userOpStatusData, txn, refetchTxnCounter, setActiveStep, provider])
 
   useEffect(() => {
-    if (!network || txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId)) return
+    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId)) return
 
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
       .getTransactionReceipt(finalTxnId!)
@@ -230,26 +237,24 @@ const useSteps = ({
       .catch(() => null)
   }, [
     txnId,
-    network,
     txnReceipt,
     txn,
     refetchReceiptCounter,
     setActiveStep,
     userOpHash,
-    userOpStatusData.txnId
+    userOpStatusData.txnId,
+    provider
   ])
 
   // check for error reason
   useEffect(() => {
     if (
-      !network ||
       !txn ||
       (finalizedStatus && finalizedStatus.status !== 'failed') ||
       (finalizedStatus && finalizedStatus.reason)
     )
       return
 
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .call({
         to: txn.to,
@@ -281,13 +286,12 @@ const useSteps = ({
               : error.message
         })
       })
-  }, [network, txn, finalizedStatus])
+  }, [provider, txn, finalizedStatus])
 
   // calculate pending time
   useEffect(() => {
-    if (!network || !txn || txnReceipt.blockNumber) return
+    if (!txn || txnReceipt.blockNumber) return
 
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getBlock('latest', true)
       .then((latestBlockData) => {
@@ -311,20 +315,19 @@ const useSteps = ({
         }
       })
       .catch(() => null)
-  }, [txn, txnReceipt, network])
+  }, [txn, txnReceipt, provider, network.feeOptions.is1559])
 
   // get block
   useEffect(() => {
-    if (!network || !txnReceipt.blockNumber || blockData !== null) return
+    if (!txnReceipt.blockNumber || blockData !== null) return
 
-    const provider = new ethers.JsonRpcProvider(network.rpcUrl)
     provider
       .getBlock(Number(txnReceipt.blockNumber))
       .then((fetchedBlockData) => {
         setBlockData(fetchedBlockData)
       })
       .catch(() => null)
-  }, [network, txnReceipt, blockData])
+  }, [provider, txnReceipt, blockData])
 
   useEffect(() => {
     if (!network) return
