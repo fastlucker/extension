@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import { Controller, Control, FormState } from 'react-hook-form'
+import { Control, Controller, FormState } from 'react-hook-form'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isValidPassword } from '@ambire-common/services/validations'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
-import Button from '@common/components/Button'
 import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
@@ -17,6 +17,8 @@ import colors from '@common/styles/colors'
 import spacings, { SPACING_3XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
+
 import KeyStoreLogo from '../KeyStoreLogo'
 
 type FormFields = {
@@ -53,6 +55,8 @@ const KeyStoreSetupForm = ({
       openDevicePasswordSetModal()
     }
   }, [isKeystoreReady])
+
+  useOnEnterKeyPress({ action: onContinue })
 
   return (
     <>
