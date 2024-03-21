@@ -24,6 +24,13 @@ interface Props {
   closeBottomSheet: () => void
 }
 
+type AccountKey = {
+  isImported: boolean
+  addr: Key['addr']
+  type?: Key['type']
+  label?: string
+}
+
 const Title = ({ text }: { text: string }) => (
   <Text fontSize={18} weight="medium" style={spacings.mbSm}>
     {text}
@@ -46,6 +53,23 @@ const AccountKeysBottomSheet: FC<Props> = ({
     t
   })
 
+  const notImportedAccountKeys = associatedKeys.filter(
+    (keyAddr) => !importedAccountKeys.some(({ addr }) => addr === keyAddr)
+  )
+
+  const accountKeys: AccountKey[] = [
+    ...importedAccountKeys.map((key) => ({
+      isImported: true,
+      addr: key.addr,
+      type: key.type,
+      label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label
+    })),
+    ...notImportedAccountKeys.map((keyAddr) => ({
+      isImported: false,
+      addr: keyAddr
+    }))
+  ]
+
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <Title text={t('Account keys')} />
@@ -59,20 +83,14 @@ const AccountKeysBottomSheet: FC<Props> = ({
           }
         ]}
       >
-        {associatedKeys.map((key, index) => {
-          const { type } = keys.find(({ addr }) => addr === key) || {}
-          const { label } = keyPreferences.find((x) => x.addr === key && x.type === type) || {}
-          const isImported = !!importedAccountKeys.find(
-            ({ addr, type: keyType }) => addr === key && keyType === type
-          )
-
+        {accountKeys.map(({ type, addr, label, isImported }, index) => {
           return (
             <AccountKey
-              key={key}
+              key={addr + type}
               label={label}
-              address={key}
+              address={addr}
               type={type}
-              isLast={index === associatedKeys.length - 1}
+              isLast={index === accountKeys.length - 1}
               isImported={isImported}
             />
           )
