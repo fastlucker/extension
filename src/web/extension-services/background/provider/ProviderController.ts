@@ -7,7 +7,6 @@ import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
-import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
@@ -165,8 +164,11 @@ export class ProviderController {
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(options.session.origin)
-      const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
-      const accountState = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount!][network.id]
+      const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+      const accountState =
+        this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
+      if (!accountState) return requestRes?.hash
+
       const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
@@ -175,6 +177,8 @@ export class ProviderController {
       }
 
       // delay just for better UX
+      // when the notification window is closed and the user views the dapp, we wait for the user
+      // to see the actual update in the dapp's UI once the request is resolved.
       await delayPromise(400)
       return hash
     }
