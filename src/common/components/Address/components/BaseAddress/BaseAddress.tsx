@@ -51,7 +51,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
     if (!network) return
 
     try {
-      // openInTab doesn't work in benzin.ambire.com
+      // openInTab doesn't work in Standalone Benzin
       if (!isExtension) {
         await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
       }
