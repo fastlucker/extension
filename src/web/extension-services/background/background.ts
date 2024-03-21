@@ -444,7 +444,7 @@ async function init() {
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
                     networks: mainCtrl.settings.networks,
-                    providers: rpcProviders
+                    providers: mainCtrl.settings.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -464,7 +464,7 @@ async function init() {
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
                   networks: mainCtrl.settings.networks,
-                  providers: rpcProviders
+                  providers: mainCtrl.settings.providers
                 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -482,7 +482,7 @@ async function init() {
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
                     networks: mainCtrl.settings.networks,
-                    providers: rpcProviders
+                    providers: mainCtrl.settings.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -503,7 +503,7 @@ async function init() {
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
                   networks: mainCtrl.settings.networks,
-                  providers: rpcProviders
+                  providers: mainCtrl.settings.providers
                 })
               }
               case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
@@ -549,7 +549,7 @@ async function init() {
                 return await mainCtrl.accountAdder.setPage({
                   ...params,
                   networks: mainCtrl.settings.networks,
-                  providers: rpcProviders
+                  providers: mainCtrl.settings.providers
                 })
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
@@ -672,7 +672,7 @@ async function init() {
                 await mainCtrl.accountAdder.setPage({
                   page: 1,
                   networks: mainCtrl.settings.networks,
-                  providers: rpcProviders
+                  providers: mainCtrl.settings.providers
                 })
 
                 const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(

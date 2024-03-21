@@ -10,6 +10,7 @@ import Checkbox from '@common/components/Checkbox'
 import Label from '@common/components/Label'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -151,19 +152,22 @@ const Account = ({
                 </Text>
                 {account.usedOnNetworks.slice(0, 7).map((n, index: number, arr: string | any[]) => {
                   return (
-                    <View
-                      style={[
-                        styles.networkIcon,
-                        { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
-                      ]}
-                      key={n.id}
-                    >
-                      <NetworkIcon
-                        style={{ backgroundColor: theme.primaryBackground }}
-                        name={n.id as any}
-                        size={18}
-                      />
-                    </View>
+                    <a data-tooltip-id={n.name} data-tooltip-content={n.name}>
+                      <View
+                        style={[
+                          styles.networkIcon,
+                          { marginLeft: index ? -5 : 0, zIndex: arr.length - index }
+                        ]}
+                        key={n.id}
+                      >
+                        <NetworkIcon
+                          style={{ backgroundColor: theme.primaryBackground }}
+                          name={n.id as any}
+                          size={18}
+                        />
+                        <Tooltip id={n.name} />
+                      </View>
+                    </a>
                   )
                 })}
               </View>
