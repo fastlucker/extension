@@ -29,8 +29,10 @@ import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { NETWORKS } from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
+import { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -43,6 +45,7 @@ type Props = {
   size?: number
   type?: 'regular' | 'monochrome'
   style?: ViewStyle
+  withTooltip?: boolean
   [key: string]: any
 }
 
@@ -80,7 +83,15 @@ const iconsMonochrome: { [key: string]: any } = {
   [NETWORKS.andromeda]: AndromedaMonochromeIcon
 }
 
-const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...rest }: Props) => {
+const NetworkIcon = ({
+  name,
+  uris,
+  size = 32,
+  type = 'regular',
+  withTooltip = true,
+  style = {},
+  ...rest
+}: Props) => {
   const { networks } = useSettingsControllerState()
 
   const network = useMemo(() => {
@@ -129,32 +140,47 @@ const NetworkIcon = ({ name, uris, size = 32, type = 'regular', style = {}, ...r
   )
 
   return (
-    <View
-      style={[
-        flexbox.alignCenter,
-        flexbox.justifyCenter,
-        {
-          width: size,
-          height: size,
-          borderRadius: 50,
-          overflow: 'hidden',
-          backgroundColor: theme.tertiaryBackground
-        },
-        style
-      ]}
-    >
-      {Icon ? (
-        <Icon width={size} height={size} {...rest} />
-      ) : (
-        <ManifestImage
-          uris={uris || iconUrls}
-          size={size}
-          iconScale={iconScale}
-          isRound
-          fallback={() => DefaultIcon()}
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+    <a data-tooltip-id={name.toLowerCase()} data-tooltip-content={network?.name}>
+      <View
+        style={[
+          flexbox.alignCenter,
+          flexbox.justifyCenter,
+          {
+            width: size,
+            height: size,
+            borderRadius: 50,
+            overflow: 'hidden',
+            backgroundColor: theme.tertiaryBackground
+          },
+          style
+        ]}
+      >
+        {Icon ? (
+          <Icon width={size} height={size} {...rest} />
+        ) : (
+          <ManifestImage
+            uris={uris || iconUrls}
+            size={size}
+            iconScale={iconScale}
+            isRound
+            fallback={() => DefaultIcon()}
+          />
+        )}
+      </View>
+      {!!network && withTooltip && (
+        <Tooltip
+          id={name.toLowerCase()}
+          style={{
+            paddingRight: SPACING_TY,
+            paddingLeft: SPACING_TY,
+            paddingTop: SPACING_MI,
+            paddingBottom: SPACING_MI,
+            fontSize: 12
+          }}
         />
       )}
-    </View>
+    </a>
   )
 }
 
