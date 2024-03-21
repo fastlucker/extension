@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -80,6 +80,27 @@ const DashboardScreen = () => {
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
+  const opacity = useRef(new Animated.Value(0.3)).current
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 350,
+          useNativeDriver: true,
+          delay: 0
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.8,
+          duration: 350,
+          useNativeDriver: true,
+          delay: 0
+        })
+      ])
+    ).start()
+  }, [])
+
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
@@ -114,29 +135,36 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text style={spacings.mbTy} selectable>
-                        <Text
-                          fontSize={32}
-                          shouldScale={false}
-                          style={{ lineHeight: 34 }}
-                          weight="number_bold"
-                          color={theme.primaryBackground}
-                          selectable
-                        >
-                          {t('$')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[0]}
+                      <Animated.View
+                        style={{
+                          flexDirection: 'row',
+                          opacity: !accountPortfolio?.isAllReady ? opacity : 1
+                        }}
+                      >
+                        <Text style={spacings.mbTy} selectable>
+                          <Text
+                            fontSize={32}
+                            shouldScale={false}
+                            style={{ lineHeight: 34 }}
+                            weight="number_bold"
+                            color={theme.primaryBackground}
+                            selectable
+                          >
+                            {t('$')}
+                            {formatDecimals(totalPortfolioAmount).split('.')[0]}
+                          </Text>
+                          <Text
+                            fontSize={20}
+                            shouldScale={false}
+                            weight="number_bold"
+                            color={theme.primaryBackground}
+                            selectable
+                          >
+                            {t('.')}
+                            {formatDecimals(totalPortfolioAmount).split('.')[1]}
+                          </Text>
                         </Text>
-                        <Text
-                          fontSize={20}
-                          shouldScale={false}
-                          weight="number_bold"
-                          color={theme.primaryBackground}
-                          selectable
-                        >
-                          {t('.')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[1]}
-                        </Text>
-                      </Text>
+                      </Animated.View>
 
                       <View style={spacings.mlTy}>
                         {!accountPortfolio?.isAllReady ? (
@@ -152,6 +180,7 @@ const DashboardScreen = () => {
                         )}
                       </View>
                     </View>
+
                     <AnimatedPressable
                       style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
                       onPress={() => {
