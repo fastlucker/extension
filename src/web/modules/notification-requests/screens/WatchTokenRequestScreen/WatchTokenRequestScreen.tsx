@@ -117,12 +117,15 @@ const WatchTokenRequestScreen = () => {
   const selectNetwork = async () => {
     if (!network && !tokenNetwork?.id) {
       const validTokenNetworks = networks.filter(
-        (_network) => portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`]
+        (_network) =>
+          portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
+          `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
+      )
+      const allNetworksChecked = networks.every(
+        (_network) => `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
       )
 
-      const allNetworksNotValid = validTokenNetworks.length === 0
-
-      if (allNetworksNotValid) {
+      if (allNetworksChecked) {
         setIsLoading(false)
       }
 
@@ -208,7 +211,11 @@ const WatchTokenRequestScreen = () => {
   )
 
   if (isLoading && tokenTypeEligibility === undefined) {
-    return <Spinner />
+    return (
+      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
   }
 
   return (
