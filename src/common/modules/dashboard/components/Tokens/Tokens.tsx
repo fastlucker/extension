@@ -4,6 +4,7 @@ import { View, ViewProps } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -22,6 +23,7 @@ interface Props extends ViewProps {
   tokens: TokenResult[]
   searchValue: string
   isLoading: boolean
+  tokenPreferences: CustomToken[]
 }
 
 const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
@@ -39,18 +41,17 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
 
   // Filter out tokens which are not in
   // tokenPreferences and pinned
-  const hasNonZeroToken = tokens
+  const hasNonZeroTokensOrPreferences = tokens
     .filter(
       ({ address, amount }) =>
         !PINNED_TOKENS.find((token) => token.address === address && token.amount > 0n) &&
-        !tokenPreferences.find((token) => token.address === address) &&
+        !tokenPreferences.find((token: CustomToken) => token.address === address) &&
         amount > 0n
     )
     .some((token) => token.amount > 0n)
 
   const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
 
-  // TODO Bring back the pinned tokens and add isHidden filter
   const sortedTokens = useMemo(
     () =>
       tokens
@@ -60,7 +61,7 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
             tokenPreferences.find(
               ({ address, networkId }) => token.address === address && token.networkId === networkId
             ) ||
-            (!hasNonZeroToken &&
+            (!hasNonZeroTokensOrPreferences &&
               PINNED_TOKENS.find(
                 ({ address, networkId }) =>
                   token.address === address && token.networkId === networkId
@@ -97,7 +98,7 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
 
           return 0
         }),
-    [tokens]
+    [tokens, hasNonZeroTokensOrPreferences, tokenPreferences]
   )
 
   const handleSelectToken = useCallback(
@@ -165,7 +166,7 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
       {/* TODO: implementation of add custom token will be in sprint 4 */}
       <Button
         type="secondary"
-        text="+ Add Custom"
+        text={t('+ Add Custom')}
         onPress={() => navigate(WEB_ROUTES.customTokens)}
       />
     </View>

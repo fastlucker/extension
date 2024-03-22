@@ -1,15 +1,17 @@
 import React, { useContext, useEffect } from 'react'
 import { View } from 'react-native'
 
+import useTheme from '@common/hooks/useTheme'
 import flexbox from '@common/styles/utils/flexbox'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 
 import AddToken from './AddToken'
 import HideToken from './HideToken'
-import styles from './styles'
+import getStyles from './styles'
 
 const CustomTokensSettingsScreen = () => {
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
+  const { styles } = useTheme(getStyles)
 
   useEffect(() => {
     setCurrentSettingsPage('custom-tokens')
