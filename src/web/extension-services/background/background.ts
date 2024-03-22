@@ -817,6 +817,10 @@ async function init() {
                 return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
               case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
                 return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+              case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
+                return await mainCtrl.domains.reverseLookup(params.address)
+              case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
+                return mainCtrl.domains.saveResolvedReverseLookup(params)
               case 'SET_IS_DEFAULT_WALLET': {
                 walletStateCtrl.isDefaultWallet = params.isDefaultWallet
                 break
