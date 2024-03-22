@@ -3,12 +3,11 @@ import Svg, { Circle, G, Path, SvgProps } from 'react-native-svg'
 
 import { iconColors } from '@common/styles/themeConfig'
 
-interface Props extends SvgProps {
-  width?: number
-  height?: number
-}
-
-const ViewModeIcon: React.FC<Props> = ({ width = 39, height = 25, color = iconColors.primary }) => (
+const ViewModeIcon: React.FC<SvgProps> = ({
+  width = 39,
+  height = 25,
+  color = iconColors.primary
+}) => (
   <Svg width={width} height={height} viewBox="0 0 38.554 25.256">
     <G transform="translate(0.75 0.75)">
       <Path
@@ -48,4 +47,4 @@ const ViewModeIcon: React.FC<Props> = ({ width = 39, height = 25, color = iconCo
   </Svg>
 )
 
-export default ViewModeIcon
+export default React.memo(ViewModeIcon)

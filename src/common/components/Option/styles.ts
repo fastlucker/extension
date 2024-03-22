@@ -6,13 +6,13 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  addAccountOptionContainer: ViewStyle
-  optionIconWrapper: ViewStyle
+  container: ViewStyle
+  iconWrapper: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    addAccountOptionContainer: {
+    container: {
       ...flexbox.directionRow,
       ...spacings.phTy,
       ...spacings.pvTy,
@@ -22,7 +22,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       borderWidth: 1
     },
-    optionIconWrapper: {
+    iconWrapper: {
       width: 40,
       height: 40,
       ...flexbox.alignCenter,

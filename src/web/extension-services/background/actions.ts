@@ -3,7 +3,11 @@ import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { AccountPreferences, NetworkPreference } from '@ambire-common/interfaces/settings'
+import {
+  AccountPreferences,
+  KeyPreferences,
+  NetworkPreference
+} from '@ambire-common/interfaces/settings'
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -84,6 +88,11 @@ type MainControllerAccountAdderResetIfNeeded = {
 type MainControllerSettingsAddAccountPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
+}
+
+type MainControllerSettingsAddKeyPreferences = {
+  type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
+  params: KeyPreferences
 }
 
 type MainControllerUpdateNetworkPreferences = {
@@ -276,6 +285,20 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
+type DomainsControllerReverseLookupAction = {
+  type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP'
+  params: { address: string }
+}
+
+type DomainsControllerSaveResolvedReverseLookupAction = {
+  type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP'
+  params: {
+    address: string
+    name: string
+    type: 'ens' | 'ud'
+  }
+}
+
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
@@ -326,6 +349,7 @@ export type Action =
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
   | MainControllerSettingsAddAccountPreferences
+  | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
   | MainControllerAccountAdderSetPageAction
@@ -369,6 +393,8 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | DomainsControllerReverseLookupAction
+  | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction

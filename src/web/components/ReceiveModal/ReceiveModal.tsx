@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
+import { getIsViewOnly } from '@ambire-common/utils/accounts'
 import CopyIcon from '@common/assets/svg/CopyIcon'
+import Alert from '@common/components/Alert'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader/ModalHeader'
@@ -15,6 +17,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -33,14 +36,15 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     accounts,
     settings: { networks }
   } = useMainControllerState()
+  const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
-  const selectedAccountData = accounts.find(({ addr }) => addr === selectedAccount)
-  const isViewOnly = selectedAccountData?.associatedKeys?.length === 0
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
+  const selectedAccountData = accounts.find(({ addr }) => addr === selectedAccount)
+  const isViewOnly = getIsViewOnly(keys, selectedAccountData?.associatedKeys || [])
 
   const handleCopyAddress = () => {
     if (!selectedAccount) return
@@ -60,16 +64,6 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     >
       <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
-        {isViewOnly ? (
-          <Text
-            style={[spacings.mb, { marginHorizontal: 'auto' }]}
-            appearance="errorText"
-            fontSize={16}
-            weight="medium"
-          >
-            {t('Warning: Selected account is view only.')}
-          </Text>
-        ) : null}
         <View style={styles.qrCodeContainer}>
           {!!selectedAccount && !qrCodeError && (
             <View style={styles.qrCode}>
@@ -88,16 +82,29 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             </Text>
           )}
         </View>
-        <AnimatedPressable
-          style={[styles.accountAddress, animStyle]}
-          onPress={handleCopyAddress}
-          {...bindAnim}
-        >
-          <Text numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
-            {selectedAccount}
-          </Text>
-          <CopyIcon style={spacings.mlTy} />
-        </AnimatedPressable>
+        <View style={isPopup ? spacings.mb : spacings.mbXl}>
+          <AnimatedPressable
+            style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
+            onPress={handleCopyAddress}
+            {...bindAnim}
+          >
+            <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
+              {selectedAccount}
+            </Text>
+            <CopyIcon style={spacings.mlTy} />
+          </AnimatedPressable>
+          {isViewOnly ? (
+            <Alert
+              style={{
+                maxWidth: 400,
+                marginHorizontal: 'auto'
+              }}
+              type="warning"
+              title={t('Selected account is view only.')}
+            />
+          ) : null}
+        </View>
+
         <View style={styles.supportedNetworksContainer}>
           <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
             {t('Following networks supported on this address:')}

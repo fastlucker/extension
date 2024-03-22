@@ -7,6 +7,7 @@ import AddIcon from '@common/assets/svg/AddIcon'
 import BackButton from '@common/components/BackButton'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
+import CopyText from '@common/components/CopyText'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
@@ -58,6 +59,19 @@ const AccountSelectScreen = () => {
                 key={account.addr}
                 account={account}
                 maxAccountAddrLength={shortenAccountAddr()}
+                withSettings={false}
+                renderRightChildren={() => (
+                  <CopyText
+                    text={account.addr}
+                    iconColor={theme.secondaryText}
+                    iconWidth={20}
+                    iconHeight={20}
+                    style={{
+                      backgroundColor: 'transparent',
+                      borderColor: 'transparent'
+                    }}
+                  />
+                )}
               />
             ))
           ) : (

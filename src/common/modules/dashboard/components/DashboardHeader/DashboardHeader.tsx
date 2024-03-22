@@ -8,6 +8,7 @@ import CopyIcon from '@common/assets/svg/CopyIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import ViewOnlyIconFilled from '@common/assets/svg/ViewOnlyIconFilled'
+import AccountKeysButton from '@common/components/AccountKeysButton'
 import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
@@ -137,6 +138,7 @@ const DashboardHeader = () => {
                 >
                   {selectedAccLabel}
                 </Text>
+                <AccountKeysButton />
               </View>
               <Animated.View style={accountBtnAnimStyle}>
                 <RightArrowIcon
