@@ -506,6 +506,12 @@ async function init() {
                   providers: mainCtrl.settings.providers
                 })
               }
+              case 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK': {
+                return await mainCtrl.addCustomNetwork(params)
+              }
+              case 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
+                return await mainCtrl.removeCustomNetwork(params)
+              }
               case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
               }
@@ -514,12 +520,6 @@ async function init() {
               }
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
                 return mainCtrl.settings.setNetworkToAddOrUpdate(null)
-              }
-              case 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK': {
-                return await mainCtrl.settings.addCustomNetwork(params)
-              }
-              case 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
-                return await mainCtrl.settings.removeCustomNetwork(params)
               }
               case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
                 return await mainCtrl.settings.addKeyPreferences(params)

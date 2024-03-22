@@ -70,7 +70,7 @@ const NetworksSettingsScreen = () => {
 
         if (!isSure) return
 
-        dispatch({ type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK', params: network.id })
+        dispatch({ type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK', params: network.id })
         setSelectedNetworkId(undefined)
       } else {
         addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
