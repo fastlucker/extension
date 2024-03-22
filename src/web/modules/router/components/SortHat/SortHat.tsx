@@ -2,6 +2,7 @@ import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -105,6 +106,16 @@ const SortHat = () => {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
       if (notificationState.currentNotificationRequest?.screen === 'Benzin') {
+        // if userOpHash and custom network, close the window
+        // as jiffyscan may not support the network
+        const isCustomNetwork = !predefinedNetworks.find(
+          (net) => net.id === notificationState.currentNotificationRequest!.params.networkId
+        )
+        if (notificationState.currentNotificationRequest?.params?.userOpHash && isCustomNetwork) {
+          window.close()
+          return
+        }
+
         let link = `${ROUTES.benzin}?networkId=${notificationState.currentNotificationRequest.params.networkId}&isInternal`
 
         if (notificationState.currentNotificationRequest?.params?.txnId) {
