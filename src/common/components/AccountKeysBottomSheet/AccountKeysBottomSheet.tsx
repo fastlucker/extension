@@ -6,6 +6,7 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import AccountKey from '@common/components/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
+import Label from '@common/components/Label'
 import Option from '@common/components/Option'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
@@ -31,12 +32,6 @@ type AccountKeyType = {
   type?: Key['type']
   label?: string
 }
-
-const Title = ({ text }: { text: string }) => (
-  <Text fontSize={18} weight="medium" style={spacings.mbSm}>
-    {text}
-  </Text>
-)
 
 const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
@@ -100,7 +95,9 @@ const AccountKeysBottomSheet: FC<Props> = ({
 
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-      <Title text={t('Account keys')} />
+      <Text fontSize={18} weight="medium" style={spacings.mbSm}>
+        {t('Account keys')}
+      </Text>
       <View
         style={[
           {
@@ -124,7 +121,24 @@ const AccountKeysBottomSheet: FC<Props> = ({
           )
         })}
       </View>
-      <Title text={t('Import more keys')} />
+      <Text fontSize={18} weight="medium" style={spacings.mbMi}>
+        {isSmartAccount ? t('Add more keys') : t('Add key from more sources')}
+      </Text>
+      <Label
+        isTypeLabelHidden
+        size="sm"
+        text={
+          isSmartAccount
+            ? t(
+                'Re-import this account to add more keys or to use the same key from multiple sources. A key with the same address could originate from either a private key, seed or a hardware wallet.'
+              )
+            : t(
+                'Basic accounts have one key, sourced from a private key, seed, or a hardware wallet. Re-import the account from a different source to use its key from multiple sources.'
+              )
+        }
+        customTextStyle={{ textTransform: 'none' }}
+        type="info"
+      />
       {addAccountOptions.map((option) => (
         <Option
           key={option.text}
