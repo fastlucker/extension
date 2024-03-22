@@ -14,7 +14,7 @@ import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { ExternalKey, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -589,19 +589,22 @@ async function init() {
                 }
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
-                      type: mainCtrl.accountAdder.type,
-                      label: getDefaultKeyLabel(mainCtrl.accountAdder.type, index, slot)
+                      type: mainCtrl.accountAdder.type as Key['type'],
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  mainCtrl.accountAdder.type,
-                  mainCtrl.accountAdder.subType
+                  mainCtrl.accounts
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
@@ -683,20 +686,23 @@ async function init() {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  'internal',
-                  'seed'
+                  mainCtrl.accounts
                 )
 
                 const readyToAddKeys =
                   mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
                       type: 'seed',
-                      label: getDefaultKeyLabel('internal', index, slot)
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 

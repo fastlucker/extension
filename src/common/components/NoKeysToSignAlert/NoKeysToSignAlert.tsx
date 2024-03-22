@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
@@ -19,8 +20,12 @@ const NoKeysToSignAlert = () => {
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { associatedKeys = [] } = accounts.find(({ addr }) => addr === selectedAccount) || {}
+  const account = accounts.find(({ addr }) => addr === selectedAccount)
+  const associatedKeys = account?.associatedKeys || []
   const importedAccountKeys = keys.filter(({ addr }) => associatedKeys.includes(addr))
+
+  // should never happen (selected account details are always present)
+  if (!account) return null
 
   return (
     <>
@@ -41,10 +46,10 @@ const NoKeysToSignAlert = () => {
         />
       </View>
       <AccountKeysBottomSheet
+        isSmartAccount={isSmartAccount(account)}
         sheetRef={sheetRef}
         associatedKeys={associatedKeys}
         keyPreferences={keyPreferences}
-        keys={keys}
         importedAccountKeys={importedAccountKeys}
         closeBottomSheet={closeBottomSheet}
       />
