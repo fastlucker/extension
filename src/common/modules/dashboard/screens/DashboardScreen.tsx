@@ -7,6 +7,7 @@ import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -83,23 +84,25 @@ const DashboardScreen = () => {
   const opacity = useRef(new Animated.Value(0.3)).current
 
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 0.3,
-          duration: 350,
-          useNativeDriver: true,
-          delay: 0
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.8,
-          duration: 350,
-          useNativeDriver: true,
-          delay: 0
-        })
-      ])
-    ).start()
-  }, [])
+    if (!accountPortfolio?.isAllReady) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(opacity, {
+            toValue: 0.3,
+            duration: 350,
+            useNativeDriver: !isWeb,
+            delay: 0
+          }),
+          Animated.timing(opacity, {
+            toValue: 0.8,
+            duration: 350,
+            useNativeDriver: !isWeb,
+            delay: 0
+          })
+        ])
+      ).start()
+    }
+  }, [accountPortfolio?.isAllReady, opacity])
 
   return (
     <>
@@ -136,10 +139,10 @@ const DashboardScreen = () => {
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       <Animated.View
-                        style={{
-                          flexDirection: 'row',
-                          opacity: !accountPortfolio?.isAllReady ? opacity : 1
-                        }}
+                        style={[
+                          flexbox.directionRow,
+                          { opacity: !accountPortfolio?.isAllReady ? opacity : 1 }
+                        ]}
                       >
                         <Text style={spacings.mbTy} selectable>
                           <Text
