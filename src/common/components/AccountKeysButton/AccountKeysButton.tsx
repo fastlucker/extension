@@ -1,6 +1,7 @@
 import React, { memo } from 'react'
 import { useModalize } from 'react-native-modalize'
 
+import { Account } from '@ambire-common/interfaces/account'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import MultiKeysIcon from '@common/assets/svg/MultiKeysIcon'
 import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
@@ -47,7 +48,8 @@ const AccountKeysButton = () => {
       </AnimatedPressable>
       <AccountKeysBottomSheet
         sheetRef={sheetRef}
-        isSmartAccount={isSmartAccount(account)}
+        // Cast to Account to resolve TS warn, the ref enhances Account, so it's safe
+        isSmartAccount={isSmartAccount(account as Account)}
         associatedKeys={associatedKeys}
         keyPreferences={keyPreferences}
         importedAccountKeys={importedAccountKeys}
