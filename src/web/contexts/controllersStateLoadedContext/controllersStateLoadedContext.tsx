@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -34,6 +35,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const settingsState = useSettingsControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
+  const addressBookState = useAddressBookControllerState()
 
   useEffect(() => {
     // Safeguard against a potential race condition where one of the controller
@@ -61,7 +63,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       Object.keys(settingsState).length &&
       Object.keys(emailVaultState).length &&
       emailVaultState.isReady &&
-      Object.keys(dappsState).length
+      Object.keys(dappsState).length &&
+      Object.keys(addressBookState).length
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -80,7 +83,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     settingsState,
     areControllerStatesLoaded,
     emailVaultState,
-    dappsState
+    dappsState,
+    addressBookState
   ])
 
   return (
