@@ -124,7 +124,7 @@ const AddChainScreen = () => {
   const handleAddNetworkButtonPress = useCallback(() => {
     if (!networkDetails) return
     dispatch({
-      type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK',
+      type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
       params: networkDetails
     })
   }, [dispatch, networkDetails])

@@ -83,6 +83,16 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
+type MainControllerAddCustomNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
+  params: CustomNetwork
+}
+
+type MainControllerRemoveCustomNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
+  params: NetworkDescriptor['id']
+}
+
 type SettingsControllerAddAccountPreferences = {
   type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
@@ -100,15 +110,6 @@ type SettingsControllerResetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE'
 }
 
-type SettingsControllerAddCustomNetwork = {
-  type: 'SETTINGS_CONTROLLER_ADD_CUSTOM_NETWORK'
-  params: CustomNetwork
-}
-
-type SettingsControllerRemoveCustomNetwork = {
-  type: 'SETTINGS_CONTROLLER_REMOVE_CUSTOM_NETWORK'
-  params: NetworkDescriptor['id']
-}
 type MainControllerSettingsAddKeyPreferences = {
   type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES'
   params: KeyPreferences
@@ -343,8 +344,8 @@ export type Action =
   | SettingsControllerAddAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
-  | SettingsControllerAddCustomNetwork
-  | SettingsControllerRemoveCustomNetwork
+  | MainControllerAddCustomNetwork
+  | MainControllerRemoveCustomNetwork
   | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
