@@ -152,9 +152,7 @@ const TransferScreen = () => {
                       { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
                     ]}
                   />
-                  <ScrollableWrapper style={flexbox.flex1}>
-                    <AddressBookSection />
-                  </ScrollableWrapper>
+                  <AddressBookSection />
                 </>
               )}
             </View>
