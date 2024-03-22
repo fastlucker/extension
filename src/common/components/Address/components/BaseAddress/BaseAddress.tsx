@@ -73,12 +73,14 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
         {children}
       </Text>
       <Pressable style={spacings.mlMi}>
-        <InfoIcon
-          data-tooltip-id={`address-${address}`}
-          color={theme.secondaryText}
-          width={14}
-          height={14}
-        />
+        {({ hovered }: any) => (
+          <InfoIcon
+            data-tooltip-id={`address-${address}`}
+            color={hovered ? theme.primaryText : theme.secondaryText}
+            width={14}
+            height={14}
+          />
+        )}
       </Pressable>
       <Tooltip
         id={`address-${address}`}
@@ -88,7 +90,6 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
         }}
         clickable
         noArrow
-        openOnClick
         place="bottom-end"
       >
         {network?.explorerUrl && (
