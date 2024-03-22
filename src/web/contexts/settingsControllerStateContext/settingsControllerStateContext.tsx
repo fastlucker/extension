@@ -14,7 +14,7 @@ const SettingsControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    if (mainState.isReady && !Object.keys(state).length) {
+    if (!Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
         params: { controller: 'settings' }
