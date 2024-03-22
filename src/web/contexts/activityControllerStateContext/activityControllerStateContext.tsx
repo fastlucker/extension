@@ -14,8 +14,11 @@ const ActivityControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    if (!Object.keys(state).length) {
-      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: 'activity' } })
+    if (mainState.isReady && !Object.keys(state).length) {
+      dispatch({
+        type: 'INIT_CONTROLLER_STATE',
+        params: { controller: 'activity' }
+      })
     }
   }, [dispatch, mainState.isReady, state])
 
