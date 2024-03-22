@@ -2,6 +2,7 @@ import * as Clipboard from 'expo-clipboard'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -21,6 +22,8 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
+import AccountKeyDetailsBottomSheet from '../AccountKeyDetailsBottomSheet'
+
 interface Props {
   address: string
   isLast: boolean
@@ -28,6 +31,7 @@ interface Props {
   type?: Key['type']
   label?: string
   style?: ViewStyle
+  meta?: Key['meta']
   enableEditing?: boolean
 }
 
@@ -46,6 +50,7 @@ const AccountKey: React.FC<Props> = ({
   address,
   isLast,
   type,
+  meta,
   isImported,
   style,
   enableEditing = true
@@ -54,6 +59,7 @@ const AccountKey: React.FC<Props> = ({
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -132,7 +138,19 @@ const AccountKey: React.FC<Props> = ({
           <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
         </AnimatedPressable>
       </View>
-      {!isImported && (
+      {isImported ? (
+        <>
+          {/* TODO: Use an arrow button instead */}
+          <Text onPress={openBottomSheet}>Details</Text>
+          <AccountKeyDetailsBottomSheet
+            sheetRef={sheetRef}
+            closeBottomSheet={closeBottomSheet}
+            meta={meta}
+            type={type}
+            // TODO: Pass the key details
+          />
+        </>
+      ) : (
         <View style={isPopup ? spacings.ml : spacings.mlXl}>
           <Badge type="warning" text={t('Not imported')} />
         </View>

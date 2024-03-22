@@ -30,6 +30,7 @@ type AccountKeyType = {
   isImported: boolean
   addr: Key['addr']
   type?: Key['type']
+  meta?: Key['meta']
   label?: string
 }
 
@@ -56,7 +57,8 @@ const AccountKeysBottomSheet: FC<Props> = ({
         isImported: true,
         addr: key.addr,
         type: key.type,
-        label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label
+        label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label,
+        meta: key.meta
       }))
       .sort((a, b) => {
         const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
@@ -108,7 +110,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
           }
         ]}
       >
-        {accountKeys.map(({ type, addr, label, isImported }, index) => {
+        {accountKeys.map(({ type, addr, label, isImported, meta }, index) => {
           return (
             <AccountKey
               key={addr + type}
@@ -117,6 +119,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
               type={type}
               isLast={index === accountKeys.length - 1}
               isImported={isImported}
+              meta={meta}
             />
           )
         })}
