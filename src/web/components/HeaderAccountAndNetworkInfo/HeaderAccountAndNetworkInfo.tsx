@@ -61,7 +61,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
           <Text appearance="secondaryText" weight="medium" fontSize={fontSize} numberOfLines={1}>
             {selectedAccountLabel}{' '}
           </Text>
-          <Text appearance="primaryText" weight="medium" fontSize={fontSize}>
+          <Text selectable appearance="primaryText" weight="medium" fontSize={fontSize}>
             ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
             {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
             {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}

@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
+import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
@@ -34,6 +35,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const settingsState = useSettingsControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
+  const domainsControllerState = useDomainsControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -76,6 +78,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     [emailVaultState]
   )
   const hasDappsState: boolean = useMemo(() => !!Object.keys(dappsState).length, [dappsState])
+  const hasDomainsState: boolean = useMemo(
+    () => !!Object.keys(domainsControllerState).length,
+    [domainsControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -96,7 +102,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasActivityState &&
       hasSettingsState &&
       hasEmailVaultState &&
-      hasDappsState
+      hasDappsState &&
+      hasDomainsState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -115,7 +122,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasSettingsState,
     hasEmailVaultState,
     hasDappsState,
-    areControllerStatesLoaded
+    areControllerStatesLoaded,
+    hasDomainsState
   ])
 
   return (
