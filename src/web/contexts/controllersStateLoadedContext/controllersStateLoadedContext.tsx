@@ -4,6 +4,7 @@ import useAccountAdderControllerState from '@web/hooks/useAccountAdderController
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
+import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
@@ -36,35 +37,80 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
+  const domainsControllerState = useDomainsControllerState()
+
+  const hasMainState: boolean = useMemo(
+    () => !!Object.keys(mainState).length && !!mainState?.isReady,
+    [mainState]
+  )
+  const hasWalletState: boolean = useMemo(
+    () => !!Object.keys(walletState).length && !!walletState?.isReady,
+    [walletState]
+  )
+  const hasAccountAdderState: boolean = useMemo(
+    () => !!Object.keys(accountAdderState).length,
+    [accountAdderState]
+  )
+  const hasKeystoreState: boolean = useMemo(
+    () => !!Object.keys(keystoreState).length,
+    [keystoreState]
+  )
+  const hasSignMessageState: boolean = useMemo(
+    () => !!Object.keys(signMessageState).length,
+    [signMessageState]
+  )
+  const hasNotificationState: boolean = useMemo(
+    () => !!Object.keys(notificationState).length,
+    [notificationState]
+  )
+  const hasPortfolioState: boolean = useMemo(
+    () => !!Object.keys(portfolioState).length,
+    [portfolioState]
+  )
+  const hasActivityState: boolean = useMemo(
+    () => !!Object.keys(activityState).length,
+    [activityState]
+  )
+  const hasSettingsState: boolean = useMemo(
+    () => !!Object.keys(settingsState).length,
+    [settingsState]
+  )
+  const hasEmailVaultState: boolean = useMemo(
+    () => !!Object.keys(emailVaultState).length && !!emailVaultState?.isReady,
+    [emailVaultState]
+  )
+  const hasDappsState: boolean = useMemo(() => !!Object.keys(dappsState).length, [dappsState])
+  const hasDomainsState: boolean = useMemo(
+    () => !!Object.keys(domainsControllerState).length,
+    [domainsControllerState]
+  )
+  const hasAddressBookState: boolean = useMemo(
+    () => !!Object.keys(addressBookState).length,
+    [addressBookState]
+  )
 
   useEffect(() => {
+    if (areControllerStatesLoaded) return
     // Safeguard against a potential race condition where one of the controller
     // states might not update properly and the `areControllerStatesLoaded`
     // might get stuck in `false` state forever. If the timeout gets reached,
     // the app displays feedback to the user (via the
     // `isStatesLoadingTakingTooLong` flag).
     const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
-
-    // Initially we set all controller states to empty object
-    // if the states of all controllers are not an empty object
-    // state data has been returned from the background service
-    // so we update the areControllerStatesLoaded to true
     if (
-      Object.keys(mainState).length &&
-      mainState?.isReady &&
-      Object.keys(walletState).length &&
-      walletState?.isReady &&
-      Object.keys(accountAdderState).length &&
-      Object.keys(keystoreState).length &&
-      Object.keys(signMessageState).length &&
-      Object.keys(notificationState).length &&
-      Object.keys(portfolioState).length &&
-      Object.keys(activityState).length &&
-      Object.keys(settingsState).length &&
-      Object.keys(emailVaultState).length &&
-      emailVaultState.isReady &&
-      Object.keys(dappsState).length &&
-      Object.keys(addressBookState).length
+      hasMainState &&
+      hasWalletState &&
+      hasAccountAdderState &&
+      hasKeystoreState &&
+      hasSignMessageState &&
+      hasNotificationState &&
+      hasPortfolioState &&
+      hasActivityState &&
+      hasSettingsState &&
+      hasEmailVaultState &&
+      hasDappsState &&
+      hasDomainsState &&
+      hasAddressBookState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -72,19 +118,20 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
 
     return () => clearTimeout(timeout)
   }, [
-    mainState,
-    walletState,
-    accountAdderState,
-    keystoreState,
-    signMessageState,
-    notificationState,
-    portfolioState,
-    activityState,
-    settingsState,
+    hasMainState,
+    hasWalletState,
+    hasAccountAdderState,
+    hasKeystoreState,
+    hasSignMessageState,
+    hasNotificationState,
+    hasPortfolioState,
+    hasActivityState,
+    hasSettingsState,
+    hasEmailVaultState,
+    hasDappsState,
     areControllerStatesLoaded,
-    emailVaultState,
-    dappsState,
-    addressBookState
+    hasDomainsState,
+    hasAddressBookState
   ])
 
   return (

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
@@ -12,6 +13,7 @@ import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 
 import styles from './styles'
@@ -34,11 +36,13 @@ const getTokenAddressAndNetworkFromId = (id: string) => {
 const getSelectProps = ({
   tokens,
   token,
-  isTopUp
+  isTopUp,
+  networks
 }: {
   tokens: TokenResult[]
   token: string
   isTopUp: boolean
+  networks: NetworkDescriptor[]
 }) => {
   let options: any = []
   let value = null
@@ -49,7 +53,7 @@ const getSelectProps = ({
     value = NO_TOKENS_ITEMS[0]
     options = NO_TOKENS_ITEMS
   } else {
-    options = mapTokenOptions(tokens)
+    options = mapTokenOptions(tokens, networks)
     value = options.find((item: any) => item.value === token) || options[0]
     tokenSelectDisabled = isTopUp
     amountSelectDisabled = false
@@ -91,13 +95,14 @@ const SendForm = ({
   } = state
 
   const { t } = useTranslation()
+  const { networks } = useSettingsControllerState()
   const token = `${selectedToken?.address}-${selectedToken?.networkId}`
   const {
     value: tokenSelectValue,
     options,
     tokenSelectDisabled,
     amountSelectDisabled
-  } = getSelectProps({ tokens, token, isTopUp })
+  } = getSelectProps({ tokens, token, isTopUp, networks })
 
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
 

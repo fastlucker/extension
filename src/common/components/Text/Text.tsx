@@ -21,6 +21,7 @@ export type TextAppearance =
   | 'primary'
   | 'primaryText'
   | 'secondaryText'
+  | 'tertiaryText'
   | 'successText'
   | 'warningText'
   | 'errorText'
@@ -74,6 +75,7 @@ const Text: React.FC<Props> = ({
     primary: theme.primary,
     primaryText: theme.primaryText,
     secondaryText: theme.secondaryText,
+    tertiaryText: theme.tertiaryText,
     successText: theme.successText,
     warningText: theme.warningText,
     errorText: theme.errorText,

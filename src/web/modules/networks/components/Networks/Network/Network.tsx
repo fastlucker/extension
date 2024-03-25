@@ -95,7 +95,7 @@ const Network: FC<Props> = ({
     >
       <View style={[flexbox.alignCenter, flexbox.directionRow]}>
         {/* @ts-ignore */}
-        <NetworkIcon width={32} height={32} name={networkId} />
+        <NetworkIcon size={32} name={networkId} />
         <Text style={spacings.mlMi} fontSize={16}>
           {networkName}
         </Text>

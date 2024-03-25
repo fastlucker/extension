@@ -5,10 +5,10 @@ import { View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
-import LatticeIcon from '@common/assets/svg/LatticeIcon'
-import LedgerIcon from '@common/assets/svg/LedgerIcon'
-import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
-import TrezorIcon from '@common/assets/svg/TrezorIcon'
+import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
+import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
+import PrivateKeyMiniIcon from '@common/assets/svg/PrivateKeyMiniIcon'
+import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
@@ -34,11 +34,11 @@ interface Props {
 const { isPopup } = getUiType()
 
 const KeyTypeIcon: FC<{ type: Key['type'] }> = memo(({ type }) => {
-  if (type === 'lattice') return <LatticeIcon width={71.4} height={24} />
-  if (type === 'trezor') return <TrezorIcon width={16} height={24} />
-  if (type === 'ledger') return <LedgerIcon width={24} height={24} />
+  if (type === 'lattice') return <LatticeMiniIcon width={24} height={24} />
+  if (type === 'trezor') return <TrezorMiniIcon width={24} height={24} />
+  if (type === 'ledger') return <LedgerMiniIcon width={24} height={24} />
 
-  return <PrivateKeyIcon width={20.6} height={24} />
+  return <PrivateKeyMiniIcon width={24} height={24} />
 })
 
 const AccountKey: React.FC<Props> = ({
@@ -85,8 +85,8 @@ const AccountKey: React.FC<Props> = ({
   return (
     <View
       style={[
-        spacings.ph,
-        spacings.pvSm,
+        spacings.phSm,
+        isImported ? spacings.pvTy : spacings.pvSm,
         flexbox.directionRow,
         flexbox.justifySpaceBetween,
         flexbox.alignCenter,
@@ -98,6 +98,11 @@ const AccountKey: React.FC<Props> = ({
       ]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        {isImported && (
+          <View style={spacings.mrTy}>
+            <KeyTypeIcon type={type || 'internal'} />
+          </View>
+        )}
         <View style={isPopup ? { maxWidth: 350 } : {}}>
           {/* Keys that aren't imported can't be labeled */}
           {isImported && enableEditing ? (
@@ -127,10 +132,11 @@ const AccountKey: React.FC<Props> = ({
           <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
         </AnimatedPressable>
       </View>
-      <View style={isPopup ? spacings.ml : spacings.mlXl}>
-        {!isImported && <Badge type="warning" text={t('Not imported')} />}
-        {isImported && type && <KeyTypeIcon type={type} />}
-      </View>
+      {!isImported && (
+        <View style={isPopup ? spacings.ml : spacings.mlXl}>
+          <Badge type="warning" text={t('Not imported')} />
+        </View>
+      )}
     </View>
   )
 }

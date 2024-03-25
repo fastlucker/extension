@@ -33,6 +33,10 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#54597A'
   },
+  tertiaryText: {
+    [THEME_TYPES.DARK]: colors.greenHaze,
+    [THEME_TYPES.LIGHT]: '#767DAD'
+  },
   primaryBorder: {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#767DAD'
