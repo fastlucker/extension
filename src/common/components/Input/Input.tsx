@@ -10,6 +10,7 @@ import {
   ViewStyle
 } from 'react-native'
 
+import InformationIcon from '@common/assets/svg/InformationIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
@@ -37,6 +38,10 @@ export interface InputProps extends TextInputProps {
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
+  tooltip?: {
+    id: string
+    content: string
+  }
   childrenBeforeButtons?: React.ReactNode
   borderless?: boolean
 }
@@ -61,6 +66,7 @@ const Input = ({
   infoTextStyle,
   leftIcon,
   childrenBeforeButtons,
+  tooltip,
   borderless,
   ...rest
 }: InputProps) => {
@@ -110,6 +116,18 @@ const Input = ({
       {!!label && (
         <Text appearance="secondaryText" fontSize={14} weight="regular" style={styles.label}>
           {label}
+          {!!tooltip && (
+            <View style={{ width: 1 }}>
+              <View style={{ position: 'absolute', top: -11.5, left: 8 }}>
+                <InformationIcon
+                  width={14}
+                  height={14}
+                  data-tooltip-id={tooltip.id}
+                  data-tooltip-content={tooltip.content}
+                />
+              </View>
+            </View>
+          )}
         </Text>
       )}
       <View style={borderWrapperStyles}>

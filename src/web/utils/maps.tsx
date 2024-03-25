@@ -1,12 +1,12 @@
 import React from 'react'
 import { View } from 'react-native'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
-import networks from '@common/constants/networks'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 
-const mapTokenOptions = (values: TokenResult[]) =>
+const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
   values.map((value) => ({
     value: `${value.address}-${value.networkId}`,
     label: (

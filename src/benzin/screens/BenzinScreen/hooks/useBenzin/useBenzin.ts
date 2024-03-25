@@ -1,5 +1,6 @@
+import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -11,6 +12,7 @@ import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 function produceMemoryStore(): Storage {
   const storage = new Map()
@@ -55,24 +57,30 @@ interface Props {
 const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-
+  const { networks: settingsNetworks } = useSettingsControllerState()
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId') ?? null
   const userOpHash = params.get('userOpHash') ?? null
   const isRenderedInternally = typeof params.get('isInternal') === 'string'
   const networkId = params.get('networkId')
-  const network = networks.find((n) => n.id === networkId)
+  const useNetworks = settingsNetworks ?? networks
+  const network = useNetworks.find((n) => n.id === networkId)
 
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
   if ((!txnId && !userOpHash) || !network) return null
+
+  const provider = useMemo(() => {
+    return new JsonRpcProvider(network.rpcUrl)
+  }, [network])
 
   const stepsState = useSteps({
     txnId,
     userOpHash,
     network,
     standardOptions,
-    setActiveStep
+    setActiveStep,
+    provider
   })
 
   const handleCopyText = useCallback(async () => {

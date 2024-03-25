@@ -21,7 +21,6 @@ import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import { tabLayoutWidths } from '../TabLayoutWrapper'
-import getStyles from './styles'
 
 interface Props {
   networkName?: string
@@ -34,7 +33,6 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   withAmbireLogo = true
 }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
@@ -60,7 +58,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
-          <Text appearance="secondaryText" weight="medium" fontSize={fontSize}>
+          <Text appearance="secondaryText" weight="medium" fontSize={fontSize} numberOfLines={1}>
             {selectedAccountLabel}{' '}
           </Text>
           <Text selectable appearance="primaryText" weight="medium" fontSize={fontSize}>
@@ -78,16 +76,25 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
               <Text appearance="secondaryText" weight="regular" fontSize={fontSize}>
                 {t('on')}{' '}
               </Text>
-              <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
+              <Text
+                appearance="secondaryText"
+                weight="regular"
+                style={spacings.mrMi}
+                fontSize={fontSize}
+              >
                 {networkName || t('Unknown network')}
               </Text>
               {networkId && maxWidthSize(800) ? (
-                <NetworkIcon name={networkId} style={styles.networkIcon} />
+                <NetworkIcon name={networkId} withTooltip={false} size={40} />
               ) : null}
             </View>
           )}
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && <AmbireLogoHorizontal />}
+        {!!withAmbireLogo && maxWidthSize(700) && (
+          <View style={spacings.pl}>
+            <AmbireLogoHorizontal />
+          </View>
+        )}
       </View>
     </Header>
   )
