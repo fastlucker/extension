@@ -36,7 +36,7 @@ const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
       let ud = null
 
       try {
-        ens = await reverseLookupEns(address, ethereumProvider, fetch)
+        ens = await reverseLookupEns(address, ethereumProvider)
       } catch (e) {
         console.error('ENS reverse lookup unexpected error', e)
       }
