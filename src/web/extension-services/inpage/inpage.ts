@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { JsonRpcProvider } from 'ethers'
 import { EventEmitter } from 'events'
 import { nanoid } from 'nanoid'
 
@@ -36,6 +35,7 @@ let forwardRpcRequestId = 0
 const dappRpcUrls: string[] = []
 const configuredUrls: string[] = []
 
+// Get all potential RPC URLs
 ;(function () {
   const originalFetch = window.fetch
   window.fetch = async function (...args) {
@@ -210,11 +210,8 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  dappProviders: {
-    [key: string]: {
-      provider: JsonRpcProvider
-      url: string
-    } | null
+  dappProviderUrls: {
+    [key: string]: string
   } = {}
 
   isAmbire = true
@@ -391,20 +388,20 @@ export class EthereumProvider extends EventEmitter {
     }
 
     this._requestPromiseCheckVisibility()
+
+    // we store in the provider state the valid RPC URLs of the connected dapp to use them for forwarding
     ;(async () => {
       // eslint-disable-next-line no-restricted-syntax
-      for (const url of dappRpcUrls) {
-        const providers = Object.values(this.dappProviders)
-        if (!providers.find((p) => p?.url === url) && !configuredUrls.includes(url)) {
+      for (const url of dappRpcUrls.filter((u) => !u.startsWith('wss'))) {
+        if (
+          !Object.values(this.dappProviderUrls).find((u) => u === url) &&
+          !configuredUrls.includes(url)
+        ) {
+          // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
           try {
-            const newProvider = new JsonRpcProvider(url)
             // eslint-disable-next-line no-await-in-loop
-            const network = await newProvider.getNetwork()
-            const networkId = `0x${network.chainId.toString(16)}`
-            this.dappProviders[networkId] = {
-              provider: newProvider,
-              url
-            }
+            const chainId = await forwardRpcRequests(url, 'eth_chainId', [])
+            if (chainId) this.dappProviderUrls[chainId] = url
           } catch (error) {
             // silent fail
           }
@@ -418,34 +415,31 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const numberOfDappProviders = Object.keys(this.dappProviders).length
+        const numberOfDappProviders = Object.keys(this.dappProviderUrls).length
         if (numberOfDappProviders) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
           }
 
-          const provider =
-            this.dappProviders[this.chainId as string] || Object.values(this.dappProviders)[0]
-          console.log('dAppProvider', provider)
-          if (provider)
+          const providerUrl =
+            this.dappProviderUrls[this.chainId as string] || Object.values(this.dappProviderUrls)[0]
+          if (providerUrl)
             try {
               const result = await Promise.race([
-                forwardRpcRequests(provider.url, data.method, data.params),
+                forwardRpcRequests(providerUrl, data.method, data.params),
                 // Timeouts after 3 secs because sometimes the provider call hangs with no response
                 delayPromise(3000)
               ])
 
-              if (data.method !== 'eth_call') {
+              if (data.method !== 'eth_call')
                 logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
-              }
 
               // Otherwise, if no result comes, do not return, fallback to our provider.
               if (result) return result
             } catch (err) {
-              //  Do not throw on error because there is fallback to our provider.
-              if (data.method !== 'eth_call') {
+              // We disregard any errors here since we'll handle the request with our provider regardless of the error
+              if (data.method !== 'eth_call')
                 logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
-              }
             }
         }
       }
