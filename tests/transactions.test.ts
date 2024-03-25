@@ -45,6 +45,10 @@ describe('transactions', () => {
                 termsState,
                 previousHints
             });
+
+            // Force a reload of the extension in order to restart the background
+            // script with the new state from the storage
+            chrome.runtime.reload()
         }, {
             accounts: stringify(parse(process.env.KEYSTORE_ACCOUNTS_1)),
             keyStoreUid: process.env.KEYSTORE_KEYSTORE_UID_1,
@@ -56,6 +60,11 @@ describe('transactions', () => {
             termsState: process.env.KEYSTORE_TERMSTATE_1,
             previousHints: process.env.KEYSTORE_PREVIOUSHINTS_1
           })
+
+        // By reloading the extension, the `chrome.runtime.reload()` command
+        // closes all extension pages. So re-open the page after the reload.
+        page = await browser.newPage();
+        await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
 
         await new Promise((r) => {
             setTimeout(r, 1000)
@@ -86,7 +95,6 @@ describe('transactions', () => {
         availableAmmountNum = availableAmmountNum.split('$')[1]
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
-
 
         /* Click on "Send" button */
         await clickOnElement(page, '[data-testid="dashboard-button-send"]')
