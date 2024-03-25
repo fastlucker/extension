@@ -821,6 +821,24 @@ async function init() {
                 mainCtrl.addressBook.accountsInWalletContacts = params.accountsInWalletContacts
                 break
               }
+              case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
+                return mainCtrl.addressBook.addContact(params.name, params.address)
+              }
+              case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
+                const { address, newName } = params
+
+                if (
+                  mainCtrl.accounts.find(({ addr }) => addr.toLowerCase() === address.toLowerCase())
+                ) {
+                  return await mainCtrl.settings.addAccountPreferences({
+                    [address]: { ...mainCtrl.settings.accountPreferences[address], label: newName }
+                  })
+                }
+
+                return mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
+              }
+              case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
+                return mainCtrl.addressBook.removeManuallyAddedContact(params.address)
               case 'SET_IS_DEFAULT_WALLET': {
                 walletStateCtrl.isDefaultWallet = params.isDefaultWallet
                 break

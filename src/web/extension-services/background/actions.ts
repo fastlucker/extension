@@ -303,6 +303,26 @@ type AddressBookControllerSetAccountsInWalletContactsAction = {
     accountsInWalletContacts: Contacts
   }
 }
+type AddressBookControllerAddContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
+  params: {
+    address: string
+    name: string
+  }
+}
+type AddressBookControllerRenameContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT'
+  params: {
+    address: string
+    newName: string
+  }
+}
+type AddressBookControllerRemoveContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT'
+  params: {
+    address: string
+  }
+}
 
 type ChangeCurrentDappNetworkAction = {
   type: 'CHANGE_CURRENT_DAPP_NETWORK'
@@ -378,6 +398,9 @@ export type Action =
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | AddressBookControllerSetAccountsInWalletContactsAction
+  | AddressBookControllerAddContact
+  | AddressBookControllerRenameContact
+  | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
