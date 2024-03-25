@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -6,8 +6,8 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -81,29 +81,6 @@ const DashboardScreen = () => {
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
-  const opacity = useRef(new Animated.Value(0.3)).current
-
-  useEffect(() => {
-    if (!accountPortfolio?.isAllReady) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(opacity, {
-            toValue: 0.3,
-            duration: 350,
-            useNativeDriver: !isWeb,
-            delay: 0
-          }),
-          Animated.timing(opacity, {
-            toValue: 0.8,
-            duration: 350,
-            useNativeDriver: !isWeb,
-            delay: 0
-          })
-        ])
-      ).start()
-    }
-  }, [accountPortfolio?.isAllReady, opacity])
-
   return (
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
@@ -166,13 +143,21 @@ const DashboardScreen = () => {
                             </Text>
                           </Text>
                           <View style={spacings.mlTy}>
-                            <AnimatedPressable
-                              style={refreshButtonAnimStyle}
-                              onPress={refreshPortfolio}
-                              {...bindRefreshButtonAnim}
-                            >
-                              <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                            </AnimatedPressable>
+                            {!accountPortfolio?.isAllReady ? (
+                              <Spinner style={{ width: 16, height: 16 }} />
+                            ) : (
+                              <AnimatedPressable
+                                style={refreshButtonAnimStyle}
+                                onPress={refreshPortfolio}
+                                {...bindRefreshButtonAnim}
+                              >
+                                <RefreshIcon
+                                  color={theme.primaryBackground}
+                                  width={16}
+                                  height={16}
+                                />
+                              </AnimatedPressable>
+                            )}
                           </View>
                         </>
                       )}
