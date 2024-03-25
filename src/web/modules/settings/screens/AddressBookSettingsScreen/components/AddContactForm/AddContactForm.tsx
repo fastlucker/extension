@@ -11,7 +11,6 @@ import spacings from '@common/styles/spacings'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import Section from '../Section'
 
@@ -20,7 +19,6 @@ const AddContactForm = () => {
   const { dispatch } = useBackgroundService()
   const { contacts } = useAddressBookControllerState()
   const { accounts } = useMainControllerState()
-  const { accountPreferences } = useSettingsControllerState()
   const {
     control,
     watch,
@@ -44,21 +42,6 @@ const AddContactForm = () => {
 
   const name = watch('name')
   const addressState = watch('addressState')
-
-  const allLabels = useMemo(() => {
-    const contactLabels = contacts.map((contact) => contact.name)
-    const accountLabels = accounts.reduce((acc, account) => {
-      const { label } = accountPreferences[account.addr]
-
-      if (label) {
-        acc.push(label)
-      }
-
-      return acc
-    }, [] as string[])
-
-    return [...contactLabels, ...accountLabels]
-  }, [accountPreferences, accounts, contacts])
 
   const setAddressState = useCallback(
     (newState: AddressStateOptional) => {
@@ -127,13 +110,7 @@ const AddContactForm = () => {
         control={control}
         rules={{
           required: true,
-          maxLength: 32,
-          validate: (value) => {
-            if (allLabels.includes(value)) {
-              return t('This label is already in use')
-            }
-            return undefined
-          }
+          maxLength: 32
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
