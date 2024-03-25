@@ -4,30 +4,18 @@ import { View, ViewStyle } from 'react-native'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
-import AndromedaMonochromeIcon from '@common/assets/svg/AndromedaMonochromeIcon'
 import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
-import ArbitrumMonochromeIcon from '@common/assets/svg/ArbitrumMonochromeIcon'
 import AvalancheLogo from '@common/assets/svg/AvalancheLogo'
-import AvalancheMonochromeIcon from '@common/assets/svg/AvalancheMonochromeIcon'
 import BinanceLogo from '@common/assets/svg/BinanceLogo'
-import BinanceMonochromeIcon from '@common/assets/svg/BinanceMonochromeIcon'
 import EthereumLogo from '@common/assets/svg/EthereumLogo'
-import EthereumMonochromeIcon from '@common/assets/svg/EthereumMonochromeIcon'
 import FantomLogo from '@common/assets/svg/FantomLogo'
-import FantomMonochromeIcon from '@common/assets/svg/FantomMonochromeIcon'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import GnosisLogo from '@common/assets/svg/GnosisLogo'
-import GnosisMonochromeIcon from '@common/assets/svg/GnosisMonochromeIcon'
 import KCCKuCoinLogo from '@common/assets/svg/KCCKuCoinLogo'
-import KCCKuCoinMonochromeIcon from '@common/assets/svg/KCCKuCoinMonochromeIcon'
 import MoonbeamLogo from '@common/assets/svg/MoonbeamLogo'
-import MoonbeamMonochromeIcon from '@common/assets/svg/MoonbeamMonochromeIcon'
 import MoonriverLogo from '@common/assets/svg/MoonriverLogo'
-import MoonriverMonochromeIcon from '@common/assets/svg/MoonriverMonochromeIcon'
 import OptimismLogo from '@common/assets/svg/OptimismLogo'
-import OptimismMonochromeIcon from '@common/assets/svg/OptimismMonochromeIcon'
 import PolygonLogo from '@common/assets/svg/PolygonLogo'
-import PolygonMonochromeIcon from '@common/assets/svg/PolygonMonochromeIcon'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -44,7 +32,7 @@ type Props = {
   name: NetworkIconNameType
   uris?: string[]
   size?: number
-  type?: 'regular' | 'monochrome'
+  scale?: number
   style?: ViewStyle
   withTooltip?: boolean
   [key: string]: any
@@ -69,27 +57,11 @@ const icons: { [key: string]: any } = {
   rewards: RewardsIcon
 }
 
-const iconsMonochrome: { [key: string]: any } = {
-  [NETWORKS.ethereum]: EthereumMonochromeIcon,
-  [NETWORKS.rinkeby]: EthereumMonochromeIcon,
-  [NETWORKS.polygon]: PolygonMonochromeIcon,
-  [NETWORKS.avalanche]: AvalancheMonochromeIcon,
-  [NETWORKS['binance-smart-chain']]: BinanceMonochromeIcon,
-  [NETWORKS.fantom]: FantomMonochromeIcon,
-  [NETWORKS.moonbeam]: MoonbeamMonochromeIcon,
-  [NETWORKS.moonriver]: MoonriverMonochromeIcon,
-  [NETWORKS.arbitrum]: ArbitrumMonochromeIcon,
-  [NETWORKS.optimism]: OptimismMonochromeIcon,
-  [NETWORKS.gnosis]: GnosisMonochromeIcon,
-  [NETWORKS.kucoin]: KCCKuCoinMonochromeIcon,
-  [NETWORKS.andromeda]: AndromedaMonochromeIcon
-}
-
 const NetworkIcon = ({
   name,
   uris,
   size = 32,
-  type = 'regular',
+  scale,
   withTooltip = true,
   style = {},
   benzinNetwork,
@@ -111,14 +83,15 @@ const NetworkIcon = ({
     [name, network]
   )
 
-  const iconScale = useMemo(() => (size < 28 ? 1 : 0.6), [size])
+  const iconScale = useMemo(() => scale || (size < 28 ? 1 : 0.6), [size, scale])
 
   if (name.startsWith('bnb')) {
     // eslint-disable-next-line no-param-reassign
     name = 'binance-smart-chain'
   }
-  const Icon = type === 'monochrome' ? iconsMonochrome[name] : icons[name]
   const { theme } = useTheme()
+  const Icon = icons[name]
+
   const DefaultIcon = () => (
     <View
       style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
@@ -143,15 +116,21 @@ const NetworkIcon = ({
   )
 
   return (
-    // eslint-disable-next-line jsx-a11y/anchor-is-valid
-    <a data-tooltip-id={name.toLowerCase()} data-tooltip-content={network?.name}>
+    <>
       <View
+        // @ts-ignore
+        dataSet={{
+          tooltipId: `${name.toLowerCase()}`,
+          tooltipContent: `${network?.name}`
+        }}
         style={[
           flexbox.alignCenter,
           flexbox.justifyCenter,
-          {
+          !Icon && {
             width: size,
-            height: size,
+            height: size
+          },
+          {
             borderRadius: 50,
             overflow: 'hidden',
             backgroundColor: theme.tertiaryBackground
@@ -183,7 +162,7 @@ const NetworkIcon = ({
           }}
         />
       )}
-    </a>
+    </>
   )
 }
 
