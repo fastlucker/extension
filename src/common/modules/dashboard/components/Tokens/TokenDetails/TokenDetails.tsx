@@ -18,6 +18,7 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
+import { isWeb } from '@common/config/env'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -30,11 +31,13 @@ import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
 
+const { isPopup } = getUiType()
 const TokenDetails = ({
   token,
   handleClose,
@@ -64,7 +67,7 @@ const TokenDetails = ({
           gsToken.networkId === token.networkId
       )
     : false
-  console.log('token', token)
+
   const actions = useMemo(
     () => [
       {
@@ -296,6 +299,16 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
+            {!onGasTank && (
+              <View style={[flexbox.alignSelfEnd]}>
+                <Toggle
+                  isOn={isHidden}
+                  onToggle={handleHideToken}
+                  label={isHidden ? t('Show Token') : t('Hide Token')}
+                  toggleProps={{ marginRight: 8 }}
+                />
+              </View>
+            )}
           </View>
           <View style={styles.balance}>
             <Text
@@ -334,13 +347,8 @@ const TokenDetails = ({
             </View>
           )}
         </View>
-
-        {!onGasTank && (
-          <View style={[flexbox.alignSelfEnd]}>
-            <Toggle isOn={isHidden} onToggle={handleHideToken} label={t('Hide Token')} />
-          </View>
-        )}
       </View>
+
       <View style={styles.actionsContainer}>
         {actions.map((action) => (
           <TokenDetailsButton
