@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 
 import { bootstrap, typeText, clickOnElement, confirmTransaction, typeSeedPhrase } from './functions.js';
-import { parse, stringify } from '../src/ambire-common/src/libs/richJson/richJson'
 
 describe('transactions', () => {
 
@@ -50,10 +49,10 @@ describe('transactions', () => {
             // script with the new state from the storage
             chrome.runtime.reload()
         }, {
-            accounts: stringify(parse(process.env.KEYSTORE_ACCOUNTS_1)),
+            accounts: process.env.KEYSTORE_ACCOUNTS_1,
             keyStoreUid: process.env.KEYSTORE_KEYSTORE_UID_1,
-            keystoreKeys: stringify(parse(process.env.KEYSTORE_KEYS_1)),
-            keystoreSecrets: stringify(parse(process.env.KEYSTORE_SECRETS_1)),
+            keystoreKeys: process.env.KEYSTORE_KEYS_1,
+            keystoreSecrets: process.env.KEYSTORE_SECRETS_1,
             onboardingStatus: process.env.KEYSTORE_ONBOARDING_STATUS_1,
             permission: process.env.KEYSTORE_PERMISSION_1,
             selectedAccount: process.env.KEYSTORE_SELECTED_ACCOUNT_1,
