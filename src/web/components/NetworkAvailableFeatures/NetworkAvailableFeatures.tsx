@@ -76,6 +76,10 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       .catch(() => {
         provider.destroy()
       })
+
+    return () => {
+      provider.destroy()
+    }
   }, [dispatch, selectedNetwork, providers, checkedDeploy])
 
   const handleDeploy = useCallback(async () => {
@@ -183,8 +187,10 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
                           <InformationIcon
                             width={14}
                             height={14}
-                            data-tooltip-id="feature-message-tooltip"
-                            data-tooltip-content={feature.msg}
+                            dataSet={{
+                              tooltipId: 'feature-message-tooltip',
+                              tooltipContent: feature.msg
+                            }}
                           />
                         </View>
                       </View>

@@ -26,10 +26,10 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-export type NetworkIconNameType = keyof typeof NETWORKS | 'gasTank' | 'rewards'
+export type NetworkIconIdType = NetworkDescriptor['id'] | 'gasTank' | 'rewards'
 
 type Props = {
-  name: NetworkIconNameType
+  id: NetworkIconIdType
   uris?: string[]
   size?: number
   scale?: number
@@ -58,7 +58,7 @@ const icons: { [key: string]: any } = {
 }
 
 const NetworkIcon = ({
-  name,
+  id,
   uris,
   size = 32,
   scale,
@@ -69,29 +69,33 @@ const NetworkIcon = ({
 }: Props) => {
   const { networks } = useSettingsControllerState()
 
+  const networkId = useMemo(() => {
+    if (id.startsWith('bnb')) {
+      return 'binance-smart-chain'
+    }
+
+    return id.toLowerCase()
+  }, [id])
+
   const network = useMemo(() => {
-    return benzinNetwork ?? networks.find((n) => n.id === name)
-  }, [name, networks, benzinNetwork])
+    return benzinNetwork ?? networks.find((n) => n.id === networkId)
+  }, [networkId, networks, benzinNetwork])
 
   const iconUrls = useMemo(
     () => [
       ...((network as CustomNetwork)?.iconUrls || []),
-      `https://icons.llamao.fi/icons/chains/rsz_${(name || '').split(/\s+/)[0].toLowerCase()}.jpg`,
+      `https://icons.llamao.fi/icons/chains/rsz_${networkId.split(/\s+/)[0].toLowerCase()}.jpg`,
       `https://icons.llamao.fi/icons/chains/rsz_${network?.nativeAssetSymbol?.toLowerCase()}.jpg`,
-      `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${name.toLowerCase()}.png`,
-      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/64/${name.toLowerCase()}.png`
+      `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${networkId.toLowerCase()}.png`,
+      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/64/${networkId.toLowerCase()}.png`
     ],
-    [name, network]
+    [networkId, network]
   )
 
   const iconScale = useMemo(() => scale || (size < 28 ? 0.8 : 0.6), [size, scale])
 
-  if (name.startsWith('bnb')) {
-    // eslint-disable-next-line no-param-reassign
-    name = 'binance-smart-chain'
-  }
   const { theme } = useTheme()
-  const Icon = icons[name]
+  const Icon = icons[networkId]
 
   const renderDefaultIcon = useCallback(
     () => (
@@ -111,12 +115,12 @@ const NetworkIcon = ({
           ]}
         >
           <Text weight="medium" fontSize={size * 0.4} color="#fff">
-            {name[0].toUpperCase()}
+            {networkId[0].toUpperCase()}
           </Text>
         </View>
       </View>
     ),
-    [iconScale, name, size, style, theme]
+    [iconScale, networkId, size, style, theme]
   )
 
   return (
@@ -124,7 +128,7 @@ const NetworkIcon = ({
       <View
         // @ts-ignore
         dataSet={{
-          tooltipId: `${name.toLowerCase()}`,
+          tooltipId: `${networkId}`,
           tooltipContent: `${network?.name}`
         }}
         style={[
@@ -156,7 +160,7 @@ const NetworkIcon = ({
       </View>
       {!!network && withTooltip && (
         <Tooltip
-          id={name.toLowerCase()}
+          id={networkId}
           style={{
             paddingRight: SPACING_TY,
             paddingLeft: SPACING_TY,
