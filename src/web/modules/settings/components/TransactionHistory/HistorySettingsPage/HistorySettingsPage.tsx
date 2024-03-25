@@ -13,7 +13,6 @@ import { Account } from '@ambire-common/interfaces/account'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Avatar } from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
@@ -107,7 +106,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon name={n.id as NetworkIconNameType} />
+        icon: <NetworkIcon id={n.id} />
       })),
     [networks]
   )
