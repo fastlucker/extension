@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -92,27 +92,30 @@ const NetworkIcon = ({
   const { theme } = useTheme()
   const Icon = icons[name]
 
-  const DefaultIcon = () => (
-    <View
-      style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
-    >
+  const renderDefaultIcon = useCallback(
+    () => (
       <View
-        style={[
-          {
-            width: size * iconScale,
-            height: size * iconScale,
-            backgroundColor: theme.primary,
-            borderRadius: 50
-          },
-          flexbox.alignCenter,
-          flexbox.justifyCenter
-        ]}
+        style={[{ width: size, height: size }, flexbox.alignCenter, flexbox.justifyCenter, style]}
       >
-        <Text weight="medium" fontSize={size * 0.4} color="#fff">
-          {name[0].toUpperCase()}
-        </Text>
+        <View
+          style={[
+            {
+              width: size * iconScale,
+              height: size * iconScale,
+              backgroundColor: theme.primary,
+              borderRadius: 50
+            },
+            flexbox.alignCenter,
+            flexbox.justifyCenter
+          ]}
+        >
+          <Text weight="medium" fontSize={size * 0.4} color="#fff">
+            {name[0].toUpperCase()}
+          </Text>
+        </View>
       </View>
-    </View>
+    ),
+    [iconScale, name, size, style, theme]
   )
 
   return (
@@ -146,7 +149,7 @@ const NetworkIcon = ({
             size={size}
             iconScale={iconScale}
             isRound
-            fallback={() => DefaultIcon()}
+            fallback={() => renderDefaultIcon()}
           />
         )}
       </View>
