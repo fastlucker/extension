@@ -116,7 +116,7 @@ const Token = ({
         ) : null}
       </View>
 
-      {!portfolioFoundToken?.priceIn?.length ? (
+      {!portfolioFoundToken?.priceIn?.length && !isLoading ? (
         <Alert type="warning" title={t('This token is not listed in Coingecko.')} />
       ) : null}
     </>
