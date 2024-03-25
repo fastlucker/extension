@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 
 import { bootstrap, typeText, clickOnElement, confirmTransaction, typeSeedPhrase } from './functions.js';
-
+import { parse, stringify } from '../src/ambire-common/src/libs/richJson/richJson'
 
 describe('transactions', () => {
 
@@ -23,29 +23,39 @@ describe('transactions', () => {
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
 
         /*  interact with chrome.storage.local in the context of the extension's background page */
-        await page.evaluate(() => {
-            let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
-            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
-            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
-            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
-            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
-            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
-            envPermission = (process.env.KEYSTORE_PERMISSION_1)
-            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
-            envTermState = (process.env.KEYSTORE_TERMSTATE_1)
-            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
+        await page.evaluate(({
+            accounts,
+            keyStoreUid,
+            keystoreKeys,
+            keystoreSecrets,
+            onboardingStatus,
+            permission,
+            selectedAccount,
+            termsState,
+            previousHints
+        }) => {
             chrome.storage.local.set({
-                accounts: parsedKeystoreAccounts,
-                keyStoreUid: parsedKeystoreUID,
-                keystoreKeys: parsedKeystoreKeys,
-                keystoreSecrets: parsedKeystoreSecrets,
-                onboardingStatus: envOnboardingStatus,
-                permission: envPermission,
-                selectedAccount: envSelectedAccount,
-                termsState: envTermState,
-                previousHints: parsedPreviousHints
+                accounts,
+                keyStoreUid,
+                keystoreKeys,
+                keystoreSecrets,
+                onboardingStatus,
+                permission,
+                selectedAccount,
+                termsState,
+                previousHints
             });
-        })
+        }, {
+            accounts: stringify(parse(process.env.KEYSTORE_ACCOUNTS_1)),
+            keyStoreUid: process.env.KEYSTORE_KEYSTORE_UID_1,
+            keystoreKeys: stringify(parse(process.env.KEYSTORE_KEYS_1)),
+            keystoreSecrets: stringify(parse(process.env.KEYSTORE_SECRETS_1)),
+            onboardingStatus: process.env.KEYSTORE_ONBOARDING_STATUS_1,
+            permission: process.env.KEYSTORE_PERMISSION_1,
+            selectedAccount: process.env.KEYSTORE_SELECTED_ACCOUNT_1,
+            termsState: process.env.KEYSTORE_TERMSTATE_1,
+            previousHints: process.env.KEYSTORE_PREVIOUSHINTS_1
+          })
 
         await new Promise((r) => {
             setTimeout(r, 1000)
