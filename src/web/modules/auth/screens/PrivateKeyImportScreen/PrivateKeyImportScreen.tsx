@@ -13,7 +13,7 @@ import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useStepper from '@common/modules/auth/hooks/useStepper'
 import Header from '@common/modules/header/components/Header'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import {
@@ -22,6 +22,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
@@ -75,6 +76,11 @@ const PrivateKeyImportScreen = () => {
     })()
   }, [dispatch, handleSubmit])
 
+  useOnEnterKeyPress({
+    action: handleFormSubmit,
+    disabled: !isValid
+  })
+
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
 
@@ -98,7 +104,7 @@ const PrivateKeyImportScreen = () => {
       }
       footer={
         <>
-          <BackButton />
+          <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
             size="large"
             text={t('Import')}

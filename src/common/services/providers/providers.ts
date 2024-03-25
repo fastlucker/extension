@@ -12,8 +12,6 @@ const setProvider = (_id: NetworkDescriptor['id']) => {
   const url = network?.rpcUrl
   if (!network) return null
 
-  const { id: name } = network as NetworkDescriptor
-
   if (url?.startsWith('wss:')) {
     return new WebSocketProvider(url)
   }

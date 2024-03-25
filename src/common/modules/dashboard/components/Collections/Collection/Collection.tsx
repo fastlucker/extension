@@ -1,7 +1,6 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
 import { Collectible as CollectibleInterface } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
@@ -11,6 +10,7 @@ import { SelectedCollectible } from '@common/modules/dashboard/components/Collec
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collectible from './Collectible'
@@ -53,8 +53,12 @@ const Collection: FC<Props> = ({
   priceIn,
   openCollectibleModal
 }) => {
-  const networkData = networks.find(({ id }) => networkId === id)
   const { theme, styles } = useTheme(getStyles)
+  const settingsState = useSettingsControllerState()
+
+  const networkData = useMemo(() => {
+    return settingsState.networks.find(({ id }) => networkId === id)
+  }, [networkId, settingsState.networks])
 
   return (
     <View style={styles.container}>
@@ -76,7 +80,7 @@ const Collection: FC<Props> = ({
             ...(isTab ? spacings.mrTy : spacings.mrMi)
           }}
         >
-          <NetworkIcon width={isTab ? 20 : 16} height={isTab ? 20 : 16} name={networkId} />
+          <NetworkIcon size={isTab ? 20 : 16} name={networkId} />
         </View>
         <Text fontSize={isTab ? 14 : 10} appearance="secondaryText">
           {networkData?.name || 'Unknown Network'}

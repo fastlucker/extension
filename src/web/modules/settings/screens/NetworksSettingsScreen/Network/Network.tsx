@@ -12,11 +12,11 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   network: NetworkDescriptor
-  selectedNetworkId: NetworkDescriptor['id']
+  selectedNetworkId?: NetworkDescriptor['id']
   handleSelectNetwork: (networkId: NetworkDescriptor['id']) => void
 }
 
-const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId }) => {
+const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -43,11 +43,11 @@ const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId })
       {...bindAnim}
     >
       <NetworkIcon name={network.id as NetworkIconNameType} />
-      <Text fontSize={16} weight="regular" style={spacings.mlMi}>
+      <Text fontSize={16} weight="regular" style={spacings.mlMi} numberOfLines={1}>
         {network.name}
       </Text>
     </AnimatedPressable>
   )
 }
 
-export default Network
+export default React.memo(Network)

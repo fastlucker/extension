@@ -1,3 +1,5 @@
+import './backdrop-style.css'
+
 import { BlurView } from 'expo-blur'
 import React, { useEffect } from 'react'
 import { Animated, Easing, StyleSheet, TouchableOpacity } from 'react-native'
@@ -52,6 +54,7 @@ const Backdrop = ({ isBottomSheetVisible, isVisible, onPress }: Props) => {
           })
         }
       ]}
+      nativeID="modalBackdrop"
       pointerEvents={isVisible ? 'auto' : 'none'}
     >
       <TouchableOpacity style={flexboxStyles.flex1} activeOpacity={1} onPress={onPress}>

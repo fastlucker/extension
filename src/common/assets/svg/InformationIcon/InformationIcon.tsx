@@ -6,9 +6,10 @@ import colors from '@common/styles/colors'
 const InformationIcon: React.FC<any> = ({
   color = colors.martinique_65,
   width = 14.999,
-  height = 15
+  height = 15,
+  ...rest
 }) => (
-  <Svg width={width} height={height} viewBox="0 0 14.999 15">
+  <Svg width={width} height={height} viewBox="0 0 14.999 15" {...rest}>
     <G transform="translate(-1001.549 -1609.504)">
       <G transform="translate(1018.049 1626.004) rotate(180)">
         <Path

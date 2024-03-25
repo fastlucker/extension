@@ -1,13 +1,13 @@
 /* eslint-disable react/no-array-index-key */
-import { formatUnits } from 'ethers'
+import { MaxUint256, formatUnits } from 'ethers'
 import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
-import { Linking, TouchableOpacity, View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import OpenIcon from '@common/assets/svg/OpenIcon'
+import Address from '@common/components/Address'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
@@ -168,6 +168,9 @@ const TransactionSummary = ({
             if (!item || item.isHidden) return null
 
             if (item.type === 'token') {
+              const isUnlimitedByPermit2 =
+                item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
+              const isMaxUint256 = item.amount === MaxUint256
               return (
                 <Fragment key={Number(item.id) || i}>
                   {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
@@ -177,14 +180,18 @@ const TransactionSummary = ({
                       appearance="primaryText"
                       style={{ maxWidth: '100%' }}
                     >
-                      {` ${formatDecimals(
-                        Number(
-                          formatUnits(
-                            item.amount || '0x0',
-                            item?.humanizerMeta?.token?.decimals || 18
+                      {isUnlimitedByPermit2 || isMaxUint256 ? (
+                        <Text appearance="warningText">unlimited </Text>
+                      ) : (
+                        formatDecimals(
+                          Number(
+                            formatUnits(
+                              item.amount || '0x0',
+                              item?.humanizerMeta?.token?.decimals || 1
+                            )
                           )
                         )
-                      )} `}
+                      )}
                     </Text>
                   ) : null}
 
@@ -220,33 +227,16 @@ const TransactionSummary = ({
               )
             }
 
-            if (item.type === 'address')
+            if (item.type === 'address' && item.address) {
               return (
-                <Fragment key={Number(item.id) || i}>
-                  <Text
-                    fontSize={textSize}
-                    weight="medium"
-                    appearance="primaryText"
-                    style={{ maxWidth: '100%' }}
-                    selectable
-                  >
-                    {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
-                  </Text>
-                  {!!item.address && !!explorerUrl && (
-                    <AnimatedPressable
-                      disabled={!explorerUrl}
-                      onPress={() => {
-                        Linking.openURL(`${explorerUrl}/address/${item.address}`)
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      style={explorerIconAnimStyle}
-                      {...bindExplorerIconAnim}
-                    >
-                      <OpenIcon width={14} height={14} strokeWidth="2" />
-                    </AnimatedPressable>
-                  )}
-                </Fragment>
+                <Address
+                  fontSize={textSize}
+                  address={item.address}
+                  highestPriorityAlias={item?.humanizerMeta?.name}
+                  explorerNetworkId={networkId}
+                />
               )
+            }
 
             if (item.type === 'nft') {
               return (

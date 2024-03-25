@@ -1,7 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Dimensions, ScrollView, View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -46,10 +46,6 @@ const AccountsOnPageList = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
-  const [containerHeight, setContainerHeight] = useState(0)
-  const [contentHeight, setContentHeight] = useState(0)
-  const [modalContainerHeight, setModalContainerHeight] = useState(0)
-  const [modalContentHeight, setModalContentHeight] = useState(0)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
@@ -107,13 +103,7 @@ const AccountsOnPageList = ({
     ).length
   }, [linkedAccounts, state.selectedAccounts])
 
-  const hasScroll = useMemo(() => contentHeight > containerHeight, [contentHeight, containerHeight])
   const shouldEnablePagination = useMemo(() => Object.keys(slots).length >= 5, [slots])
-
-  const hasModalScroll = useMemo(
-    () => modalContentHeight > modalContainerHeight,
-    [modalContentHeight, modalContainerHeight]
-  )
 
   const getAccounts = useCallback(
     ({
@@ -279,23 +269,13 @@ const AccountsOnPageList = ({
             title={t('Do not add linked accounts you are not aware of!')}
           />
 
-          <ScrollView
-            onLayout={(e) => {
-              setModalContainerHeight(e.nativeEvent.layout.height)
-            }}
-            onContentSizeChange={(_, height) => {
-              setModalContentHeight(height)
-            }}
-            contentContainerStyle={{
-              ...spacings?.[hasModalScroll ? 'prSm' : 'pr0']
-            }}
-          >
+          <ScrollableWrapper>
             {getAccounts({
               accounts: linkedAccounts,
               shouldCheckForLastAccountInTheList: true,
               byType: ['linked']
             })}
-          </ScrollView>
+          </ScrollableWrapper>
           <View
             style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd, spacings.ptXl]}
           >
@@ -316,16 +296,7 @@ const AccountsOnPageList = ({
         <ScrollableWrapper
           style={shouldEnablePagination && spacings.mbLg}
           contentContainerStyle={{
-            flexGrow: 1,
-            ...spacings.pt0,
-            ...spacings.pl0,
-            ...spacings?.[hasScroll ? 'prSm' : 'pr0']
-          }}
-          onLayout={(e) => {
-            setContainerHeight(e.nativeEvent.layout.height)
-          }}
-          onContentSizeChange={(_, height) => {
-            setContentHeight(height)
+            flexGrow: 1
           }}
         >
           {isAccountAdderEmpty && (

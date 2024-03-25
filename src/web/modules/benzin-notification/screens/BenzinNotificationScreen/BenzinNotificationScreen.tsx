@@ -23,9 +23,7 @@ const BenzinNotificationScreen = () => {
     })
   }, [dispatch])
 
-  const state = useBenzin({
-    onOpenExplorer: closeNotification
-  })
+  const state = useBenzin({ onOpenExplorer: closeNotification })
 
   return (
     <TabLayoutContainer

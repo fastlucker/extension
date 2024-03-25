@@ -1,6 +1,6 @@
 import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -10,6 +10,7 @@ import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portf
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
@@ -391,10 +392,9 @@ const SignAccountOpScreen = () => {
                           {t('Tokens out')}
                         </Text>
                       </View>
-                      <ScrollView
+                      <ScrollableWrapper
                         style={styles.simulationScrollView}
                         contentContainerStyle={{ flexGrow: 1 }}
-                        scrollEnabled
                       >
                         {pendingSendTokens.map((token, i) => {
                           return (
@@ -406,7 +406,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                   {!!pendingReceiveTokens.length && (
@@ -416,7 +416,10 @@ const SignAccountOpScreen = () => {
                           {t('Tokens in')}
                         </Text>
                       </View>
-                      <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                      <ScrollableWrapper
+                        style={styles.simulationScrollView}
+                        contentContainerStyle={{ flexGrow: 1 }}
+                      >
                         {pendingReceiveTokens.map((token, i) => {
                           return (
                             <PendingTokenSummary
@@ -427,7 +430,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                 </View>
@@ -479,14 +482,7 @@ const SignAccountOpScreen = () => {
               </ScrollableWrapper>
             </View>
           </View>
-          <View
-            style={[
-              styles.separator,
-              maxWidthSize('xl')
-                ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
-                : { ...spacings.mrXl, ...spacings.ml }
-            ]}
-          />
+          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={styles.estimationContainer}>
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
@@ -537,11 +533,12 @@ const SignAccountOpScreen = () => {
                 </View>
               ) : null}
 
-              {signAccountOpState?.errors.length ? (
+              {!!signAccountOpState?.errors.length && !isViewOnly ? (
                 <View style={styles.errorContainer}>
                   <Alert type="error" title={signAccountOpState?.errors[0]} />
                 </View>
               ) : null}
+              {isViewOnly && <NoKeysToSignAlert />}
             </ScrollableWrapper>
           </View>
           <HardwareWalletSigningModal
