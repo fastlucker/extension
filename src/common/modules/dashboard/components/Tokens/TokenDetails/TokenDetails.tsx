@@ -16,6 +16,7 @@ import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -48,6 +49,7 @@ const TokenDetails = ({
   const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
+  const [isHidden, setIsHidden] = useState(token?.isHidden || false)
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -221,6 +223,15 @@ const TokenDetails = ({
       })
   }, [addToast, t, token?.address, token?.networkId])
 
+  const handleHideToken = () => {
+    setIsHidden(!isHidden)
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      params: {
+        token: { ...token, isHidden: !isHidden }
+      }
+    })
+  }
   if (!token) return null
 
   const {
@@ -307,6 +318,10 @@ const TokenDetails = ({
               </Text>
             </View>
           )}
+        </View>
+
+        <View style={[flexbox.alignSelfEnd]}>
+          <Toggle isOn={isHidden} onToggle={handleHideToken} label={t('Hide Token')} />
         </View>
       </View>
       <View style={styles.actionsContainer}>
