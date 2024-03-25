@@ -10,6 +10,7 @@ import Input from '@common/components/Input'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -17,6 +18,8 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 
 const HideToken = () => {
   const { t } = useTranslation()
+  const { theme } = useTheme()
+
   const portfolio = usePortfolioControllerState()
   const [isLoading, setIsLoading] = useState<any>({})
   const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>(
@@ -124,10 +127,26 @@ const HideToken = () => {
           const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
 
           return doesAddressMatch || doesSymbolMatch
+        })
+        .sort((a, b) => {
+          const aFromPreferences = portfolio.state.tokenPreferences.some(
+            ({ address, networkId, standard }) =>
+              a.address === address && a.networkId === networkId && standard === 'ERC20'
+          )
+          const bFromPreferences = portfolio.state.tokenPreferences.some(
+            ({ address, networkId, standard }) =>
+              b.address === address && b.networkId === networkId && standard === 'ERC20'
+          )
+          if (aFromPreferences && !bFromPreferences) {
+            return -1
+          }
+          if (!aFromPreferences && bFromPreferences) {
+            return 1
+          }
+          return 0
         }),
     [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
   )
-
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
@@ -179,30 +198,33 @@ const HideToken = () => {
                 {isLoading[`${token.address}-${token.networkId}`] && (
                   <Spinner style={{ width: 18, height: 18 }} />
                 )}
-                {token.isHidden ? (
-                  <Pressable onPress={() => hideToken(token)}>
-                    <VisibilityIcon
-                      color="#018649"
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
-                  </Pressable>
-                ) : (
-                  <Pressable onPress={() => hideToken(token)}>
-                    <InvisibilityIcon
-                      color="#ea0129"
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
-                  </Pressable>
-                )}
                 {portfolio.state.tokenPreferences.find(
                   ({ address, networkId }) =>
                     token.address === address && token.networkId === networkId
                 ) &&
                   token.amount === 0n && (
                     <Pressable onPress={() => removeToken(token)}>
-                      <DeleteIcon color="#54597a" style={[spacings.phTy, { cursor: 'pointer' }]} />
+                      <DeleteIcon
+                        color={theme.secondaryText}
+                        style={[spacings.phTy, { cursor: 'pointer' }]}
+                      />
                     </Pressable>
                   )}
+                {token.isHidden ? (
+                  <Pressable onPress={() => hideToken(token)}>
+                    <VisibilityIcon
+                      color={theme.successDecorative}
+                      style={[spacings.phTy, { cursor: 'pointer' }]}
+                    />
+                  </Pressable>
+                ) : (
+                  <Pressable onPress={() => hideToken(token)}>
+                    <InvisibilityIcon
+                      color={theme.errorDecorative}
+                      style={[spacings.phTy, { cursor: 'pointer' }]}
+                    />
+                  </Pressable>
+                )}
               </View>
             </View>
           ))) ||
