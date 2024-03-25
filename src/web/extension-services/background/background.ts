@@ -848,7 +848,10 @@ async function init() {
                   mainCtrl.accounts.find(({ addr }) => addr.toLowerCase() === address.toLowerCase())
                 ) {
                   return await mainCtrl.settings.addAccountPreferences({
-                    [address]: { ...mainCtrl.settings.accountPreferences[address], label: newName }
+                    [address]: {
+                      ...mainCtrl.settings.accountPreferences[address],
+                      label: newName.trim()
+                    }
                   })
                 }
 
