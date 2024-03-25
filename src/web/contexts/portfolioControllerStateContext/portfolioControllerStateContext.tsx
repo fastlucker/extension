@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
@@ -144,61 +143,26 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const updateTokenPreferences = useCallback(
     async (token: CustomToken) => {
-      let tokenPreferences = state?.tokenPreferences
-      const tokenIsNotInPreferences =
-        tokenPreferences.find(
-          (_token) =>
-            getAddress(_token.address) === getAddress(token.address) &&
-            token.networkId === _token?.networkId
-        ) || false
-
-      if (!tokenIsNotInPreferences) {
-        tokenPreferences.push(token)
-      } else {
-        const updatedTokenPreferences = tokenPreferences.map((t: any) => {
-          if (t.address === token.address && t.networkId === token.networkId) {
-            return token
-          }
-          return t
-        })
-        tokenPreferences = updatedTokenPreferences
-      }
-
       dispatch({
         type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
         params: {
-          tokenPreferences,
-          forceUpdate: true
+          token
         }
       })
     },
-    [dispatch, state?.tokenPreferences]
+    [dispatch]
   )
 
   const removeTokenPreferences = useCallback(
     (token: CustomToken) => {
-      const tokenPreferences = state?.tokenPreferences
-
-      const tokenIsNotInPreferences =
-        tokenPreferences.find(
-          (_token) =>
-            getAddress(_token.address) === getAddress(token.address) &&
-            _token.networkId === token.networkId
-        ) || false
-      if (!tokenIsNotInPreferences) return
-      const newTokenPreferences = tokenPreferences.filter(
-        (_token) =>
-          getAddress(_token.address) !== getAddress(token.address) ||
-          _token.networkId !== token.networkId
-      )
       dispatch({
-        type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+        type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES',
         params: {
-          tokenPreferences: newTokenPreferences
+          token
         }
       })
     },
-    [dispatch, state?.tokenPreferences]
+    [dispatch]
   )
 
   const checkToken = useCallback(

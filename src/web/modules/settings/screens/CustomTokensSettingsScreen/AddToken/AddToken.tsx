@@ -27,8 +27,7 @@ import {
   getTokenEligibility,
   getTokenFromPortfolio,
   getTokenFromPreferences,
-  handleTokenIsInPortfolio,
-  selectNetwork
+  handleTokenIsInPortfolio
 } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
 
 type NetworkOption = {
@@ -96,7 +95,6 @@ const AddToken = () => {
     () => getTokenFromPreferences({ address }, network, portfolio.state.tokenPreferences),
     [portfolio.state.tokenPreferences, address, network]
   )
-
   const portfolioFoundToken = useMemo(
     () =>
       getTokenFromPortfolio({ address }, network, portfolio?.accountPortfolio, tokenInPreferences),
@@ -193,75 +191,67 @@ const AddToken = () => {
           />
         )}
       />
-      {portfolioFoundToken ? (
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.justifySpaceBetween,
-            flexbox.alignCenter,
-            spacings.mbXl,
-            spacings.phTy,
-            spacings.pvTy
-          ]}
-        >
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <TokenIcon
-              containerHeight={32}
-              containerWidth={32}
-              width={22}
-              height={22}
-              withContainer
-              networkId={network.id}
-              address={address}
-            />
-            <Text fontSize={16} style={spacings.mlTy} weight="semiBold">
-              {portfolioFoundToken?.symbol}
-            </Text>
+      <View style={[spacings.mbXl]}>
+        {portfolioFoundToken ? (
+          <View
+            style={[
+              flexbox.directionRow,
+              flexbox.justifySpaceBetween,
+              flexbox.alignCenter,
+              spacings.phTy,
+              spacings.pvTy
+            ]}
+          >
+            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <TokenIcon
+                containerHeight={32}
+                containerWidth={32}
+                width={22}
+                height={22}
+                withContainer
+                networkId={network.id}
+                address={address}
+              />
+              <Text fontSize={16} style={spacings.mlTy} weight="semiBold">
+                {portfolioFoundToken?.symbol}
+              </Text>
+            </View>
+            <View style={flexbox.directionRow}>
+              {portfolioFoundToken?.priceIn?.length ? (
+                <CoingeckoConfirmedBadge
+                  text="Confirmed"
+                  address={address}
+                  networkId={network?.id}
+                />
+              ) : null}
+            </View>
           </View>
-          <View style={flexbox.directionRow}>
-            {portfolioFoundToken?.priceIn?.length ? (
-              <CoingeckoConfirmedBadge text="Confirmed" address={address} networkId={network?.id} />
-            ) : null}
+        ) : null}
+        {address && tokenTypeEligibility === false ? (
+          <Alert type="error" isTypeLabelHidden title={t('This token type is not supported.')} />
+        ) : null}
+
+        {address && showAlreadyInPortfolioMessage ? (
+          <Alert
+            type="warning"
+            isTypeLabelHidden
+            title={t('This token is already handled in your wallet')}
+          />
+        ) : null}
+
+        {isLoading && isControllerLoading && !portfolioFoundToken ? (
+          <View style={[flexbox.alignCenter, flexbox.justifyCenter, { height: 48 }]}>
+            <Spinner style={{ width: 18, height: 18 }} />
           </View>
-        </View>
-      ) : null}
-      {address && tokenTypeEligibility === false ? (
-        <Alert
-          type="error"
-          isTypeLabelHidden
-          title={t('This token type is not supported.')}
-          style={spacings.mbXl}
-        />
-      ) : null}
-
-      {/* TODO: This shows up whem isControllerLoading= false but portfolioFoundToken is not returned */}
-      {/* {!portfolioFoundToken &&
-        !showAlreadyInPortfolioMessage &&
-        isAdditionalHintRequested &&
-        !isControllerLoading && (
-          <Alert type="warning" isTypeLabelHidden title={t('Token not found in portfolio.')} />
-        )} */}
-      {address && showAlreadyInPortfolioMessage ? (
-        <Alert
-          type="warning"
-          isTypeLabelHidden
-          title={t('This token is already handled in your wallet')}
-          style={spacings.mbXl}
-        />
-      ) : null}
-
-      {isLoading && isControllerLoading ? (
-        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.mbTy]}>
-          <Spinner style={{ width: 18, height: 18 }} />
-        </View>
-      ) : null}
-
+        ) : null}
+      </View>
       <Button
         disabled={
           showAlreadyInPortfolioMessage ||
           !tokenTypeEligibility ||
           !isValidAddress(address) ||
-          (!network && portfolioFoundToken) ||
+          !network ||
+          !portfolioFoundToken ||
           isSubmitting
         }
         text={t('Add Token')}

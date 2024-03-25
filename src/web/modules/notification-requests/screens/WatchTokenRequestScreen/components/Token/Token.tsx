@@ -39,7 +39,6 @@ const Token = ({
     [portfolioFoundToken]
   )
 
-  const { image, symbol } = tokenData
   if (!tokenNetwork?.id) return
 
   return (
@@ -64,7 +63,7 @@ const Token = ({
           <View style={[flexbox.directionRow]}>
             <TokenIcon
               withContainer
-              uri={image}
+              uri={tokenData?.image}
               networkId={tokenNetwork?.id}
               containerHeight={40}
               containerWidth={40}
@@ -73,7 +72,7 @@ const Token = ({
             />
             <View style={spacings.ml}>
               <Text weight="number_bold" fontSize={16}>
-                {tokenDetails?.balance || '0.00'} {symbol}
+                {tokenDetails?.balance || '0.00'} {tokenData?.symbol}
               </Text>
 
               {tokenNetwork && (

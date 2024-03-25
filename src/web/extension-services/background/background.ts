@@ -782,18 +782,57 @@ async function init() {
                 )
               }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
-                await mainCtrl.portfolio.updateTokenPreferences(params.tokenPreferences)
-                return await mainCtrl.updateSelectedAccount(
-                  mainCtrl.selectedAccount,
-                  params?.forceUpdate
+                let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
+                const tokenIsNotInPreferences =
+                  (tokenPreferences?.length &&
+                    tokenPreferences.find(
+                      (_token) =>
+                        _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                        params.token.networkId === _token?.networkId
+                    )) ||
+                  false
+
+                if (!tokenIsNotInPreferences) {
+                  tokenPreferences.push(params.token)
+                } else {
+                  const updatedTokenPreferences = tokenPreferences.map((t: any) => {
+                    if (
+                      t.address === params.token.address &&
+                      t.networkId === params.token.networkId
+                    ) {
+                      return params.token
+                    }
+                    return t
+                  })
+                  tokenPreferences = updatedTokenPreferences
+                }
+                await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
+                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
+              }
+              case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
+                const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
+
+                const tokenIsNotInPreferences =
+                  tokenPreferences.find(
+                    (_token) =>
+                      _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                      _token.networkId === params.token.networkId
+                  ) || false
+                if (!tokenIsNotInPreferences) return
+                const newTokenPreferences = tokenPreferences.filter(
+                  (_token) =>
+                    _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
+                    _token.networkId !== params.token.networkId
                 )
+                await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
+                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
               }
               case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
                 return mainCtrl.portfolio.resetAdditionalHints()
               }
               case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
                 if (!mainCtrl.selectedAccount) return
-                return await mainCtrl.portfolio.updateTokenValidationByStandard(
+                return mainCtrl.portfolio.updateTokenValidationByStandard(
                   params.token,
                   mainCtrl.selectedAccount
                 )

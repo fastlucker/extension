@@ -44,8 +44,12 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
   const hasNonZeroTokensOrPreferences = tokens
     .filter(
       ({ address, amount }) =>
-        !PINNED_TOKENS.find((token) => token.address === address && token.amount > 0n) &&
-        !tokenPreferences.find((token: CustomToken) => token.address === address) &&
+        !PINNED_TOKENS.find(
+          (token) => token.address.toLowerCase() === address.toLowerCase() && token.amount > 0n
+        ) &&
+        !tokenPreferences.find(
+          (token: CustomToken) => token.address.toLowerCase() === address.toLowerCase()
+        ) &&
         amount > 0n
     )
     .some((token) => token.amount > 0n)
@@ -59,12 +63,15 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
           (token) =>
             token.amount > 0n ||
             tokenPreferences.find(
-              ({ address, networkId }) => token.address === address && token.networkId === networkId
+              ({ address, networkId }) =>
+                token.address.toLowerCase() === address.toLowerCase() &&
+                token.networkId === networkId
             ) ||
             (!hasNonZeroTokensOrPreferences &&
               PINNED_TOKENS.find(
                 ({ address, networkId }) =>
-                  token.address === address && token.networkId === networkId
+                  token.address.toLowerCase() === address.toLowerCase() &&
+                  token.networkId === networkId
               ))
         )
         .filter((token) => !token.isHidden)

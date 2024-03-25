@@ -14,6 +14,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
@@ -189,14 +190,19 @@ type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
     forceUpdate?: boolean
-    additionalHints?: any[]
+    additionalHints?: TokenResult['address'][]
   }
 }
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
-    tokenPreferences: any[]
-    forceUpdate?: boolean
+    token: CustomToken
+  }
+}
+type PortfolioControllerRemoveTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
+  params: {
+    token: CustomToken
   }
 }
 type PortfolioControllerResetAdditionalHints = {
@@ -371,6 +377,7 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerRemoveTokenPreferences
   | PortfolioControllerResetAdditionalHints
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction

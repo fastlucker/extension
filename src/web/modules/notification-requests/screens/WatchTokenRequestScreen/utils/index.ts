@@ -50,8 +50,8 @@ const getTokenEligibility = (
   portfolio: any,
   tokenNetwork: NetworkDescriptor | undefined
 ) =>
-  (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`]) ||
-  false
+  null ||
+  (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
