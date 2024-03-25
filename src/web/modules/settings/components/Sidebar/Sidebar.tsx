@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsIcon from '@common/assets/svg/AccountsIcon'
+import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import BugIcon from '@common/assets/svg/BugIcon'
 import CustomTokensIcon from '@common/assets/svg/CustomTokensIcon'
 import EmailVaultIcon from '@common/assets/svg/EmailVaultIcon'
@@ -76,6 +77,12 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(CustomTokensIcon),
     label: 'Custom Tokens',
     path: '/settings/custom-tokens'
+  },
+  {
+    key: 'address-book',
+    Icon: React.memo(AddressBookIcon),
+    label: 'Address Book',
+    path: ROUTES.addressBook
   }
 ]
 

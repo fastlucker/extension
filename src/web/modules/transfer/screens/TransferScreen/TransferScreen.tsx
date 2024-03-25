@@ -15,9 +15,8 @@ import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import { ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -29,7 +28,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
-import AddressBookSection from '@web/modules/transfer/components/AddressBookSection'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
 import getStyles from './styles'
@@ -45,7 +43,6 @@ const TransferScreen = () => {
   const { selectedAccount, accounts } = useMainControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
-  const { maxWidthSize } = useWindowSize()
   const setAddressState = useCallback(
     (newAddressState: AddressStateOptional) => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -87,7 +84,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width={isTopUp ? 'sm' : 'xl'}
+      width="sm"
       header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
@@ -144,17 +141,6 @@ const TransferScreen = () => {
                   isSmartAccount={isSmartAccount}
                 />
               </ScrollableWrapper>
-              {!isTopUp && (
-                <>
-                  <View
-                    style={[
-                      styles.separator,
-                      { marginHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL }
-                    ]}
-                  />
-                  <AddressBookSection />
-                </>
-              )}
             </View>
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
