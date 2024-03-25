@@ -78,12 +78,13 @@ const NetworkIcon = ({
       ...((network as CustomNetwork)?.iconUrls || []),
       `https://icons.llamao.fi/icons/chains/rsz_${(name || '').split(/\s+/)[0].toLowerCase()}.jpg`,
       `https://icons.llamao.fi/icons/chains/rsz_${network?.nativeAssetSymbol?.toLowerCase()}.jpg`,
-      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/32/${name.toLowerCase()}.png`
+      `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${name.toLowerCase()}.png`,
+      `https://github.com/ErikThiart/cryptocurrency-icons/tree/master/64/${name.toLowerCase()}.png`
     ],
     [name, network]
   )
 
-  const iconScale = useMemo(() => scale || (size < 28 ? 1 : 0.6), [size, scale])
+  const iconScale = useMemo(() => scale || (size < 28 ? 0.8 : 0.6), [size, scale])
 
   if (name.startsWith('bnb')) {
     // eslint-disable-next-line no-param-reassign
