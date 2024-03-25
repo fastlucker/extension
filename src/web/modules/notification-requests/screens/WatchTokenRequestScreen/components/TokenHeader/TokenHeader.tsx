@@ -2,14 +2,14 @@ import React from 'react'
 import { View } from 'react-native'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const TokenHeader = (portfolioFoundToken: TokenResult) => {
+const TokenHeader = ({ portfolioFoundToken }: CustomToken | TokenResult) => {
   const { t } = useTranslation()
-  const { priceIn } = portfolioFoundToken
 
   return (
     <View style={[flexbox.directionRow, flexbox.justifySpaceBetween]}>
@@ -37,7 +37,7 @@ const TokenHeader = (portfolioFoundToken: TokenResult) => {
           spacings.mbMd,
           {
             textAlign: 'right',
-            flex: priceIn?.length ? 0.7 : 0.12
+            flex: portfolioFoundToken?.priceIn?.length ? 0.7 : 0.12
           }
         ]}
         appearance="secondaryText"
@@ -45,7 +45,7 @@ const TokenHeader = (portfolioFoundToken: TokenResult) => {
         {t('USD Value')}
       </Text>
 
-      <View style={{ flex: priceIn?.length ? 0.5 : 0 }} />
+      <View style={{ flex: portfolioFoundToken?.priceIn?.length ? 0.5 : 0 }} />
     </View>
   )
 }

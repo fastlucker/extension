@@ -129,13 +129,25 @@ const HideToken = () => {
           return doesAddressMatch || doesSymbolMatch
         })
         .sort((a, b) => {
+          // Sort by isHidden (true comes first)
+          if (a.isHidden && !b.isHidden) {
+            return -1
+          }
+          if (!a.isHidden && b.isHidden) {
+            return 1
+          }
+
           const aFromPreferences = portfolio.state.tokenPreferences.some(
             ({ address, networkId, standard }) =>
-              a.address === address && a.networkId === networkId && standard === 'ERC20'
+              a.address.toLowerCase() === address.toLowerCase() &&
+              a.networkId === networkId &&
+              standard === 'ERC20'
           )
           const bFromPreferences = portfolio.state.tokenPreferences.some(
             ({ address, networkId, standard }) =>
-              b.address === address && b.networkId === networkId && standard === 'ERC20'
+              b.address.toLowerCase() === address.toLowerCase() &&
+              b.networkId === networkId &&
+              standard === 'ERC20'
           )
           if (aFromPreferences && !bFromPreferences) {
             return -1
@@ -143,10 +155,13 @@ const HideToken = () => {
           if (!aFromPreferences && bFromPreferences) {
             return 1
           }
+
           return 0
         }),
     [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
   )
+
+  console.log(portfolio.state.tokenPreferences, 'tokenPreferences', 'tokens', tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
@@ -199,18 +214,23 @@ const HideToken = () => {
                   <Spinner style={{ width: 18, height: 18 }} />
                 )}
                 {portfolio.state.tokenPreferences.find(
+                  ({ address, networkId, standard }) =>
+                    token.address.toLowerCase() === address.toLowerCase() &&
+                    token.networkId === networkId &&
+                    standard === 'ERC20'
+                ) && (
+                  <Pressable onPress={() => removeToken(token)}>
+                    <DeleteIcon
+                      color={theme.secondaryText}
+                      style={[spacings.phTy, { cursor: 'pointer' }]}
+                    />
+                  </Pressable>
+                )}
+                {portfolio.state.tokenPreferences.find(
                   ({ address, networkId }) =>
-                    token.address === address && token.networkId === networkId
-                ) &&
-                  token.amount === 0n && (
-                    <Pressable onPress={() => removeToken(token)}>
-                      <DeleteIcon
-                        color={theme.secondaryText}
-                        style={[spacings.phTy, { cursor: 'pointer' }]}
-                      />
-                    </Pressable>
-                  )}
-                {token.isHidden ? (
+                    token.address.toLowerCase() === address.toLowerCase() &&
+                    token.networkId === networkId
+                )?.isHidden ? (
                   <Pressable onPress={() => hideToken(token)}>
                     <VisibilityIcon
                       color={theme.successDecorative}

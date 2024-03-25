@@ -135,7 +135,11 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
         closeBottomSheet={closeBottomSheet}
         onClosed={handleTokenDetailsClose}
       >
-        <TokenDetails token={selectedToken} handleClose={closeBottomSheet} />
+        <TokenDetails
+          tokenPreferences={tokenPreferences}
+          token={selectedToken}
+          handleClose={closeBottomSheet}
+        />
       </BottomSheet>
 
       <View style={[spacings.mb]}>

@@ -7,6 +7,7 @@ import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
@@ -36,10 +37,12 @@ import getStyles from './styles'
 
 const TokenDetails = ({
   token,
-  handleClose
+  handleClose,
+  tokenPreferences
 }: {
   token: TokenResult | null
   handleClose: () => void
+  tokenPreferences: CustomToken[]
 }) => {
   const { styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
@@ -61,7 +64,7 @@ const TokenDetails = ({
           gsToken.networkId === token.networkId
       )
     : false
-
+  console.log('token', token)
   const actions = useMemo(
     () => [
       {
@@ -224,11 +227,23 @@ const TokenDetails = ({
   }, [addToast, t, token?.address, token?.networkId])
 
   const handleHideToken = () => {
+    if (!token) return
     setIsHidden(!isHidden)
+    const tokenInPreferences =
+      tokenPreferences?.length &&
+      tokenPreferences.find(
+        (_token) =>
+          token.address.toLowerCase() === _token.address.toLowerCase() &&
+          token.networkId === _token.networkId
+      )
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
-        token: { ...token, isHidden: !isHidden }
+        token: {
+          ...token,
+          isHidden: !isHidden,
+          ...{ standard: tokenInPreferences?.standard }
+        }
       }
     })
   }
@@ -320,9 +335,11 @@ const TokenDetails = ({
           )}
         </View>
 
-        <View style={[flexbox.alignSelfEnd]}>
-          <Toggle isOn={isHidden} onToggle={handleHideToken} label={t('Hide Token')} />
-        </View>
+        {!onGasTank && (
+          <View style={[flexbox.alignSelfEnd]}>
+            <Toggle isOn={isHidden} onToggle={handleHideToken} label={t('Hide Token')} />
+          </View>
+        )}
       </View>
       <View style={styles.actionsContainer}>
         {actions.map((action) => (
