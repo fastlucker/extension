@@ -11,10 +11,9 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { networks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { ExternalKey, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -230,7 +229,7 @@ async function init() {
   function setReestimateInterval(accountOp: AccountOp) {
     !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
 
-    const currentNetwork = networks.find((network) => network.id === accountOp.networkId)!
+    const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
     backgroundState.reestimateInterval = setInterval(async () => {
@@ -444,8 +443,8 @@ async function init() {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks,
-                    providers: rpcProviders
+                    networks: mainCtrl.settings.networks,
+                    providers: mainCtrl.settings.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -464,8 +463,8 @@ async function init() {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
-                  providers: rpcProviders
+                  networks: mainCtrl.settings.networks,
+                  providers: mainCtrl.settings.providers
                 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -482,8 +481,8 @@ async function init() {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks,
-                    providers: rpcProviders
+                    networks: mainCtrl.settings.networks,
+                    providers: mainCtrl.settings.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -503,12 +502,24 @@ async function init() {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
-                  providers: rpcProviders
+                  networks: mainCtrl.settings.networks,
+                  providers: mainCtrl.settings.providers
                 })
               }
-              case 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES': {
+              case 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK': {
+                return await mainCtrl.addCustomNetwork(params)
+              }
+              case 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
+                return await mainCtrl.removeCustomNetwork(params)
+              }
+              case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
+              }
+              case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
+                return mainCtrl.settings.setNetworkToAddOrUpdate(params)
+              }
+              case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
+                return mainCtrl.settings.setNetworkToAddOrUpdate(null)
               }
               case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
                 return await mainCtrl.settings.addKeyPreferences(params)
@@ -540,8 +551,8 @@ async function init() {
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage({
                   ...params,
-                  networks,
-                  providers: rpcProviders
+                  networks: mainCtrl.settings.networks,
+                  providers: mainCtrl.settings.providers
                 })
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
@@ -589,19 +600,22 @@ async function init() {
                 }
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
-                      type: mainCtrl.accountAdder.type,
-                      label: getDefaultKeyLabel(mainCtrl.accountAdder.type, index, slot)
+                      type: mainCtrl.accountAdder.type as Key['type'],
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  mainCtrl.accountAdder.type,
-                  mainCtrl.accountAdder.subType
+                  mainCtrl.accounts
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
@@ -663,8 +677,8 @@ async function init() {
 
                 await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks,
-                  providers: rpcProviders
+                  networks: mainCtrl.settings.networks,
+                  providers: mainCtrl.settings.providers
                 })
 
                 const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
@@ -683,20 +697,23 @@ async function init() {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts,
-                  'internal',
-                  'seed'
+                  mainCtrl.accounts
                 )
 
                 const readyToAddKeys =
                   mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
                 const readyToAddKeyPreferences = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                  ({ accountKeys }) =>
-                    accountKeys.map(({ addr, slot, index }) => ({
+                  ({ account, accountKeys }) =>
+                    accountKeys.map(({ addr }, i: number) => ({
                       addr,
                       type: 'seed',
-                      label: getDefaultKeyLabel('internal', index, slot)
+                      label: getDefaultKeyLabel(
+                        mainCtrl.keystore.keys.filter((key) =>
+                          account.associatedKeys.includes(key.addr)
+                        ),
+                        i
+                      )
                     }))
                 )
 
@@ -817,6 +834,10 @@ async function init() {
                 return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
               case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
                 return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+              case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
+                return await mainCtrl.domains.reverseLookup(params.address)
+              case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
+                return mainCtrl.domains.saveResolvedReverseLookup(params)
               case 'SET_IS_DEFAULT_WALLET': {
                 walletStateCtrl.isDefaultWallet = params.isDefaultWallet
                 break

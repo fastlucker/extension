@@ -1,6 +1,6 @@
 import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -392,10 +392,9 @@ const SignAccountOpScreen = () => {
                           {t('Tokens out')}
                         </Text>
                       </View>
-                      <ScrollView
+                      <ScrollableWrapper
                         style={styles.simulationScrollView}
                         contentContainerStyle={{ flexGrow: 1 }}
-                        scrollEnabled
                       >
                         {pendingSendTokens.map((token, i) => {
                           return (
@@ -407,7 +406,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                   {!!pendingReceiveTokens.length && (
@@ -417,7 +416,10 @@ const SignAccountOpScreen = () => {
                           {t('Tokens in')}
                         </Text>
                       </View>
-                      <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                      <ScrollableWrapper
+                        style={styles.simulationScrollView}
+                        contentContainerStyle={{ flexGrow: 1 }}
+                      >
                         {pendingReceiveTokens.map((token, i) => {
                           return (
                             <PendingTokenSummary
@@ -428,7 +430,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                 </View>
@@ -480,14 +482,7 @@ const SignAccountOpScreen = () => {
               </ScrollableWrapper>
             </View>
           </View>
-          <View
-            style={[
-              styles.separator,
-              maxWidthSize('xl')
-                ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
-                : { ...spacings.mrXl, ...spacings.ml }
-            ]}
-          />
+          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={styles.estimationContainer}>
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}

@@ -2,12 +2,10 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
-  networkIcon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -20,13 +18,6 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderBottomColor: theme.secondaryBorder,
       borderBottomWidth: 1
-    },
-    networkIcon: {
-      width: 40,
-      height: 40,
-      ...common.borderRadiusPrimary,
-      backgroundColor: theme.tertiaryBackground,
-      ...spacings.mlTy
     }
   })
 

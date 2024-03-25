@@ -3,7 +3,7 @@ import { MutableRefObject } from 'react'
 import { WindowSizeProps } from './types'
 
 // TODO:
-const useWindowSize = (ref: MutableRefObject<HTMLElement | null>): WindowSizeProps => {
+const useElementSize = (ref: MutableRefObject<HTMLElement | null>): WindowSizeProps => {
   // TODO: impl for mobile
   const maxElementWidthSize = (size: number) => {
     return false
@@ -22,4 +22,4 @@ const useWindowSize = (ref: MutableRefObject<HTMLElement | null>): WindowSizePro
   }
 }
 
-export default useWindowSize
+export default useElementSize

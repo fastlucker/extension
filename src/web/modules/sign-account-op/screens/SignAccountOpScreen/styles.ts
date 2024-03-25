@@ -49,11 +49,9 @@ const getStyles = (theme: ThemeProps) =>
     },
     simulationSection: {
       ...spacings.mbXl,
-      maxHeight: '50%',
-      ...spacings.mr
+      maxHeight: '50%'
     },
     simulationScrollView: {
-      ...spacings.pr,
       ...spacings.phSm,
       ...spacings.pvSm
     },

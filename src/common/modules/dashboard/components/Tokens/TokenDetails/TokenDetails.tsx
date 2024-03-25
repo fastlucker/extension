@@ -158,9 +158,15 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!hasTokenInfo || !token) return
+          if (!hasTokenInfo || !token || !networks.length) return
 
-          const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+          const networkData = networks.find((n) => n.id === token?.networkId)
+          if (!networkData) {
+            addToast(t('Network not found'), { type: 'error' })
+            return
+          }
+
+          const coingeckoId = geckoIdMapper(token?.address, networkData)
 
           try {
             await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
@@ -186,11 +192,16 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId) return
+    if (!token?.address || !token?.networkId || !networks.length) return
 
     setIsTokenInfoLoading(true)
 
-    const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+    const networkData = networks.find((n) => n.id === token?.networkId)
+    if (!networkData) {
+      addToast(t('Network not found'), { type: 'error' })
+      return
+    }
+    const coingeckoId = geckoIdMapper(token?.address, networkData)
 
     const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
 
@@ -211,7 +222,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId])
+  }, [addToast, t, token?.address, token?.networkId, networks])
 
   if (!token) return null
 

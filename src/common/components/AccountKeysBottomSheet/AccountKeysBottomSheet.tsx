@@ -6,12 +6,14 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import AccountKey from '@common/components/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
+import Label from '@common/components/Label'
 import Option from '@common/components/Option'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import { DEFAULT_KEY_LABEL_PATTERN } from '@web/modules/account-personalize/libs/defaults'
 
 import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
@@ -19,36 +21,83 @@ interface Props {
   sheetRef: any
   associatedKeys: string[]
   keyPreferences: KeyPreferences
-  keys: Key[]
   importedAccountKeys: Key[]
   closeBottomSheet: () => void
+  isSmartAccount: boolean
 }
 
-const Title = ({ text }: { text: string }) => (
-  <Text fontSize={18} weight="medium" style={spacings.mbSm}>
-    {text}
-  </Text>
-)
+type AccountKeyType = {
+  isImported: boolean
+  addr: Key['addr']
+  type?: Key['type']
+  label?: string
+}
 
 const AccountKeysBottomSheet: FC<Props> = ({
   sheetRef,
   associatedKeys,
   keyPreferences,
-  keys,
   importedAccountKeys,
-  closeBottomSheet
+  closeBottomSheet,
+  isSmartAccount
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+
+  const notImportedAccountKeys = associatedKeys.filter(
+    (keyAddr) =>
+      !importedAccountKeys.some(({ addr }) => addr.toLowerCase() === keyAddr.toLowerCase())
+  )
+
+  const accountKeys: AccountKeyType[] = [
+    ...importedAccountKeys
+      .map((key) => ({
+        isImported: true,
+        addr: key.addr,
+        type: key.type,
+        label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label
+      }))
+      .sort((a, b) => {
+        const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
+        const matchB = b.label?.match(DEFAULT_KEY_LABEL_PATTERN)
+
+        if (matchA && matchB) return +matchA[1] - +matchB[1]
+        if (matchA) return -1
+        if (matchB) return 1
+
+        // fallback to alphabetical comparison
+        return (a.label || '').localeCompare(b.label || '')
+      }),
+    ...notImportedAccountKeys.map((keyAddr) => ({
+      isImported: false,
+      addr: keyAddr
+    }))
+  ]
+
+  // Since Basic accounts have only 1 key, if the internal key is imported,
+  // we should not show the option to import another key with a private key or
+  // seed phrase, since it is irrelevant for this case.
+  const isBasicAccWithImportedOneInternalKey =
+    !isSmartAccount &&
+    importedAccountKeys.length >= 1 &&
+    importedAccountKeys.some((key) => key.type === 'internal')
+
   const addAccountOptions = getAddKeyOptions({
     navigate,
     t
+  }).filter((o) => {
+    return !(
+      isBasicAccWithImportedOneInternalKey &&
+      (o.key === 'private-key' || o.key === 'seed-phrase')
+    )
   })
 
   return (
     <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-      <Title text={t('Account keys')} />
+      <Text fontSize={18} weight="medium" style={spacings.mbSm}>
+        {t('Account keys')}
+      </Text>
       <View
         style={[
           {
@@ -59,26 +108,37 @@ const AccountKeysBottomSheet: FC<Props> = ({
           }
         ]}
       >
-        {associatedKeys.map((key, index) => {
-          const { type } = keys.find(({ addr }) => addr === key) || {}
-          const { label } = keyPreferences.find((x) => x.addr === key && x.type === type) || {}
-          const isImported = !!importedAccountKeys.find(
-            ({ addr, type: keyType }) => addr === key && keyType === type
-          )
-
+        {accountKeys.map(({ type, addr, label, isImported }, index) => {
           return (
             <AccountKey
-              key={key}
+              key={addr + type}
               label={label}
-              address={key}
+              address={addr}
               type={type}
-              isLast={index === associatedKeys.length - 1}
+              isLast={index === accountKeys.length - 1}
               isImported={isImported}
             />
           )
         })}
       </View>
-      <Title text={t('Import keys')} />
+      <Text fontSize={18} weight="medium" style={spacings.mbMi}>
+        {isSmartAccount ? t('Add more keys') : t('Add key from more sources')}
+      </Text>
+      <Label
+        isTypeLabelHidden
+        size="sm"
+        text={
+          isSmartAccount
+            ? t(
+                'Re-import this account to add more keys or to use the same key from multiple sources. A key with the same address could originate from either a private key, seed or a hardware wallet.'
+              )
+            : t(
+                'Basic accounts have one key, sourced from a private key, seed, or a hardware wallet. Re-import the account from a different source to use its key from multiple sources.'
+              )
+        }
+        customTextStyle={{ textTransform: 'none' }}
+        type="info"
+      />
       {addAccountOptions.map((option) => (
         <Option
           key={option.text}

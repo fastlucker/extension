@@ -1,10 +1,9 @@
 import { getBigInt } from 'ethers'
 
-import { networks } from '@ambire-common/consts/networks'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { parse } from '@ambire-common/libs/richJson/richJson'
-
-import permission from '../services/permission'
+import permission from '@web/extension-services/background/services/permission'
 
 class UserNotification {
   createSignMessageUserRequest({
@@ -12,6 +11,7 @@ class UserNotification {
     data,
     origin,
     selectedAccount,
+    networks,
     onError,
     onSuccess
   }: {
@@ -19,6 +19,7 @@ class UserNotification {
     data: any
     origin: string
     selectedAccount: string
+    networks: NetworkDescriptor[]
     onError: (msg: string) => void
     onSuccess: (data: any, id: number) => void
   }) {
@@ -61,6 +62,7 @@ class UserNotification {
     data,
     origin,
     selectedAccount,
+    networks,
     onError,
     onSuccess
   }: {
@@ -68,6 +70,7 @@ class UserNotification {
     data: any
     origin: string
     selectedAccount: string
+    networks: NetworkDescriptor[]
     onError: (msg: string) => void
     onSuccess: (data: any, id: number) => void
   }) {
@@ -135,6 +138,7 @@ class UserNotification {
     txs,
     selectedAccount,
     origin: dappOrigin,
+    networks,
     onError
   }: {
     id: number
@@ -142,6 +146,7 @@ class UserNotification {
     txs: any
     origin: string
     selectedAccount: string
+    networks: NetworkDescriptor[]
     onError: (msg: string) => void
     onSuccess: (data: any, id: number) => void
   }) {
