@@ -15,8 +15,8 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import shortenAddress from '@web/utils/shortenAddress'
 
+import Address from './AddressBookContactAddress'
 import ManageContact from './ManageContact'
 
 interface Props {
@@ -94,7 +94,7 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
               weight: 'medium'
             }}
             height={20}
-            minWidth={100}
+            minWidth={80}
             maxLength={32}
             value={name}
             onSave={onSave}
@@ -115,14 +115,10 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
                   <Text fontSize={12} weight="semiBold" appearance="primary">
                     {ens || ud}
                   </Text>
-                  <Text fontSize={12} style={spacings.mlMi} appearance="secondaryText">
-                    ({shortenAddress(address, 13)})
-                  </Text>
+                  <Address maxLength={13} address={address} style={spacings.mlMi} />
                 </View>
               ) : (
-                <Text fontSize={12} appearance="secondaryText">
-                  {shortenAddress(address, 48)}
-                </Text>
+                <Address maxLength={32} address={address} hideParentheses />
               )}
             </View>
           )}
