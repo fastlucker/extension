@@ -28,12 +28,12 @@ interface Props {
 
 const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress }) => {
   const ContainerElement = onPress ? AnimatedPressable : View
-  const { ens, ud, isLoading } = useReverseLookup({ address })
 
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { ens, ud, isLoading } = useReverseLookup({ address })
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
