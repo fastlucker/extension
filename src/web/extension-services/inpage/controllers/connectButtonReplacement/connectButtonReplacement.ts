@@ -467,7 +467,7 @@ export class ConnectButtonReplacementController {
         ['walletconnect', 'wallet connect'],
         ['coinbasewallet', 'coinbase wallet', 'coinbase'],
         ['trustwallet', 'trust wallet'],
-        ['connect wallet', 'available wallets', 'connect a wallet']
+        ['connect wallet', 'available wallets', 'connect a wallet', 'connect your wallet']
       ],
       undefined,
       this.#shadowRoots
