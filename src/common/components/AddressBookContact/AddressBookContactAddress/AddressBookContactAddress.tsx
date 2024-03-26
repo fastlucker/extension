@@ -1,5 +1,6 @@
 import * as Clipboard from 'expo-clipboard'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import Text from '@common/components/Text'
@@ -21,6 +22,7 @@ const AddressBookContactAddress = ({
   style?: any
   hideParentheses?: boolean
 }) => {
+  const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useHover({
@@ -30,9 +32,9 @@ const AddressBookContactAddress = ({
   const handleCopy = async () => {
     try {
       await Clipboard.setStringAsync(address)
-      addToast('AddressBookContactAddress copied to clipboard')
+      addToast(t('Address copied to clipboard'))
     } catch {
-      addToast('Failed to copy address')
+      addToast(t('Failed to copy address'))
     }
   }
 
