@@ -466,7 +466,8 @@ export class ConnectButtonReplacementController {
         ['okx wallet'],
         ['walletconnect', 'wallet connect'],
         ['coinbasewallet', 'coinbase wallet', 'coinbase'],
-        ['trustwallet', 'trust wallet']
+        ['trustwallet', 'trust wallet'],
+        ['connect wallet', 'available wallets', 'connect a wallet']
       ],
       undefined,
       this.#shadowRoots
@@ -513,15 +514,35 @@ export class ConnectButtonReplacementController {
       const trustWalletOccurrences = wordsOccurrencesResult.filter((res) =>
         res.words.includes('trustwallet')
       )[0]
+
+      const connectOccurrences = wordsOccurrencesResult.filter((res) =>
+        res.words.includes('connect wallet')
+      )[0]
+
       const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
+      const hasConnectInPage = connectOccurrences.count !== 0
       if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
 
       if (
+        this.doesWebpageReadOurProvider &&
         !(
           hasWalletConnectInPage ||
           hasCoinbaseWalletInPage ||
           hasTrustWalletInPage ||
           hasOKXWalletInPage
+        )
+      ) {
+        return
+      }
+
+      if (
+        !this.doesWebpageReadOurProvider &&
+        !(
+          hasConnectInPage &&
+          ((hasWalletConnectInPage && hasCoinbaseWalletInPage) ||
+            (hasCoinbaseWalletInPage && hasTrustWalletInPage) ||
+            (hasTrustWalletInPage && hasWalletConnectInPage) ||
+            hasOKXWalletInPage)
         )
       ) {
         return
