@@ -187,7 +187,10 @@ const AddToken = () => {
             value={value}
             inputStyle={spacings.mbSm}
             containerStyle={
-              !portfolioFoundToken && !isLoading && tokenTypeEligibility === undefined
+              !isAdditionalHintRequested &&
+              !portfolioFoundToken &&
+              !isLoading &&
+              tokenTypeEligibility === undefined
                 ? { marginBottom: SPACING_SM + SPACING_2XL }
                 : spacings.mbSm
             }
@@ -249,7 +252,7 @@ const AddToken = () => {
           />
         ) : null}
 
-        {isLoading || (isControllerLoading && !portfolioFoundToken) ? (
+        {isLoading || (isAdditionalHintRequested && isControllerLoading && !portfolioFoundToken) ? (
           <View style={[flexbox.alignCenter, flexbox.justifyCenter, { height: 48 }]}>
             <Spinner style={{ width: 18, height: 18 }} />
           </View>

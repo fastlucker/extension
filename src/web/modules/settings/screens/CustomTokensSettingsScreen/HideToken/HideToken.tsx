@@ -22,9 +22,7 @@ const HideToken = () => {
 
   const portfolio = usePortfolioControllerState()
   const [isLoading, setIsLoading] = useState<any>({})
-  const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>(
-    portfolio.state.tokenPreferences
-  )
+  const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>([])
 
   const hideToken = useCallback(
     async (token: CustomToken) => {
@@ -129,14 +127,6 @@ const HideToken = () => {
           return doesAddressMatch || doesSymbolMatch
         })
         .sort((a, b) => {
-          // Sort by isHidden (true comes first)
-          if (a.isHidden && !b.isHidden) {
-            return -1
-          }
-          if (!a.isHidden && b.isHidden) {
-            return 1
-          }
-
           const aFromPreferences = portfolio.state.tokenPreferences.some(
             ({ address, networkId, standard }) =>
               a.address.toLowerCase() === address.toLowerCase() &&
