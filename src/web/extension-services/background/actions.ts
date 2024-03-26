@@ -196,23 +196,20 @@ type MainControllerUpdateSelectedAccount = {
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
-    token: CustomToken
+    token: CustomToken | TokenResult
   }
 }
 type PortfolioControllerRemoveTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
   params: {
-    token: CustomToken
+    token: CustomToken | TokenResult
   }
-}
-type PortfolioControllerResetAdditionalHints = {
-  type: 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS'
 }
 
 type PortfolioControllerCheckToken = {
   type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
   params: {
-    token: any
+    token: { address: TokenResult['address']; networkId: NetworkId }
   }
 }
 type MainControllerSignAccountOpInitAction = {

@@ -164,7 +164,7 @@ const HideToken = () => {
             onChangeText={onChange}
             onBlur={onBlur}
             value={value}
-            placeholder="Input token address or symbol"
+            placeholder={t('Input token address or symbol')}
           />
         )}
       />

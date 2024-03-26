@@ -1,18 +1,19 @@
 import { ZeroAddress } from 'ethers'
 
+import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
-import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen'
+import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
 
-const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010' // Polygon MATIC token address
+const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010'
 
 const selectNetwork = async (
   network: NetworkDescriptor | undefined,
   tokenNetwork: NetworkDescriptor | undefined,
   tokenData: TokenData,
   networks: NetworkDescriptor[],
-  portfolio: any,
+  portfolio: { state: PortfolioController },
   setIsLoading: (isLoading: boolean) => void,
   setTokenNetwork: (network: NetworkDescriptor) => void,
   handleTokenType: (networkId: string) => void
@@ -47,7 +48,7 @@ const selectNetwork = async (
 
 const getTokenEligibility = (
   tokenData: { address: string } | CustomToken,
-  portfolio: any,
+  portfolio: { state: PortfolioController },
   tokenNetwork: NetworkDescriptor | undefined
 ) =>
   null ||

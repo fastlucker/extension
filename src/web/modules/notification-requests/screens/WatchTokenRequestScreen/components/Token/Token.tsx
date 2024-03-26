@@ -39,7 +39,7 @@ const Token = ({
     [portfolioFoundToken]
   )
 
-  if (!tokenNetwork?.id) return
+  if (!tokenNetwork?.id) return null
 
   return (
     <>

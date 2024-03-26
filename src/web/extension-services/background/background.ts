@@ -797,7 +797,7 @@ async function init() {
                 } else {
                   const updatedTokenPreferences = tokenPreferences.map((t: any) => {
                     if (
-                      t.address === params.token.address &&
+                      t.address.toLowerCase() === params.token.address.toLowerCase() &&
                       t.networkId === params.token.networkId
                     ) {
                       return params.token
@@ -827,12 +827,9 @@ async function init() {
                 await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
                 return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
               }
-              case 'PORTFOLIO_CONTROLLER_RESET_ADDITIONAL_HINTS': {
-                return mainCtrl.portfolio.resetAdditionalHints()
-              }
               case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
                 if (!mainCtrl.selectedAccount) return
-                return mainCtrl.portfolio.updateTokenValidationByStandard(
+                return await mainCtrl.portfolio.updateTokenValidationByStandard(
                   params.token,
                   mainCtrl.selectedAccount
                 )

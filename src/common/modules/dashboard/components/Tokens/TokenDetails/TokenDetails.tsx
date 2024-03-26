@@ -18,7 +18,6 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
-import { isWeb } from '@common/config/env'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -31,13 +30,11 @@ import flexbox from '@common/styles/utils/flexbox'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { getUiType } from '@web/utils/uiType'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
 
-const { isPopup } = getUiType()
 const TokenDetails = ({
   token,
   handleClose,
@@ -55,7 +52,7 @@ const TokenDetails = ({
   const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
-  const [isHidden, setIsHidden] = useState(token?.isHidden || false)
+  const [isHidden, setIsHidden] = useState(!!token?.isHidden)
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -231,7 +228,7 @@ const TokenDetails = ({
 
   const handleHideToken = () => {
     if (!token) return
-    setIsHidden(!isHidden)
+    setIsHidden((prev) => !prev)
     const tokenInPreferences =
       tokenPreferences?.length &&
       tokenPreferences.find(
@@ -239,14 +236,18 @@ const TokenDetails = ({
           token.address.toLowerCase() === _token.address.toLowerCase() &&
           token.networkId === _token.networkId
       )
+
+    const newToken = {
+      ...token,
+      isHidden: !token.isHidden,
+      ...(tokenInPreferences && 'standard' in tokenInPreferences
+        ? { standard: tokenInPreferences.standard }
+        : {})
+    }
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
-        token: {
-          ...token,
-          isHidden: !isHidden,
-          ...{ standard: tokenInPreferences?.standard }
-        }
+        token: newToken
       }
     })
   }
@@ -305,7 +306,7 @@ const TokenDetails = ({
                   isOn={isHidden}
                   onToggle={handleHideToken}
                   label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleProps={{ marginRight: 8 }}
+                  toggleProps={spacings.mrTy}
                 />
               </View>
             )}
