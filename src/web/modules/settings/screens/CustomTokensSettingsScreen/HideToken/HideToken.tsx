@@ -161,7 +161,6 @@ const HideToken = () => {
     [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
   )
 
-  console.log(portfolio.state.tokenPreferences, 'tokenPreferences', 'tokens', tokens)
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">

@@ -1,10 +1,9 @@
-import { getAddress, ZeroAddress } from 'ethers'
+import { getAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { isValidAddress } from '@ambire-common/services/address'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -18,7 +17,7 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -186,7 +185,12 @@ const AddToken = () => {
             label={t('Token Address')}
             placeholder={t('0x...')}
             value={value}
-            containerStyle={spacings.mbSm}
+            inputStyle={spacings.mbSm}
+            containerStyle={
+              !portfolioFoundToken && !isLoading && tokenTypeEligibility === undefined
+                ? { marginBottom: SPACING_SM + SPACING_2XL }
+                : spacings.mbSm
+            }
             error={errors.address && errors.address.message}
           />
         )}
@@ -228,7 +232,12 @@ const AddToken = () => {
           </View>
         ) : null}
         {address && tokenTypeEligibility === false ? (
-          <Alert type="error" isTypeLabelHidden title={t('This token type is not supported.')} />
+          <Alert
+            type="error"
+            isTypeLabelHidden
+            title={t('This token type is not supported.')}
+            style={[spacings.phSm, spacings.pvSm]}
+          />
         ) : null}
 
         {address && showAlreadyInPortfolioMessage ? (
@@ -236,10 +245,11 @@ const AddToken = () => {
             type="warning"
             isTypeLabelHidden
             title={t('This token is already handled in your wallet')}
+            style={[spacings.phSm, spacings.pvSm]}
           />
         ) : null}
 
-        {isLoading && isControllerLoading && !portfolioFoundToken ? (
+        {isLoading || (isControllerLoading && !portfolioFoundToken) ? (
           <View style={[flexbox.alignCenter, flexbox.justifyCenter, { height: 48 }]}>
             <Spinner style={{ width: 18, height: 18 }} />
           </View>
