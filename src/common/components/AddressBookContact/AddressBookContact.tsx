@@ -124,7 +124,7 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
           )}
         </View>
       </View>
-      {isWalletAccount ? <ManageContact address={address} name={name} /> : null}
+      {!isWalletAccount ? <ManageContact address={address} name={name} /> : null}
     </ContainerElement>
   )
 }
