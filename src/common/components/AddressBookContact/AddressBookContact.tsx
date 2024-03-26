@@ -10,7 +10,7 @@ import Text from '@common/components/Text'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_MI } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -28,7 +28,7 @@ interface Props {
 
 const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress }) => {
   const ContainerElement = onPress ? AnimatedPressable : View
-  const { ens, ud } = useReverseLookup({ address })
+  const { ens, ud, isLoading } = useReverseLookup({ address })
 
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -73,9 +73,9 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
             <View
               style={{
                 position: 'absolute',
-                left: -4,
-                top: -4,
-                padding: 2,
+                left: -SPACING_MI,
+                top: -SPACING_MI,
+                padding: SPACING_MI / 2,
                 backgroundColor: theme.primaryBackground,
                 zIndex: 2,
                 borderRadius: 50
@@ -99,19 +99,32 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
             value={name}
             onSave={onSave}
           />
-          {ens || ud ? (
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={12} weight="semiBold" appearance="primary">
-                {ens || ud}
-              </Text>
-              <Text fontSize={12} style={spacings.mlMi} appearance="secondaryText">
-                ({shortenAddress(address, 13)})
-              </Text>
-            </View>
+          {isLoading ? (
+            <View
+              style={{
+                ...common.borderRadiusPrimary,
+                backgroundColor: theme.secondaryBackground,
+                width: 200,
+                height: 20
+              }}
+            />
           ) : (
-            <Text fontSize={12} appearance="secondaryText">
-              {shortenAddress(address, 32)}
-            </Text>
+            <View style={{ height: 20 }}>
+              {ens || ud ? (
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <Text fontSize={12} weight="semiBold" appearance="primary">
+                    {ens || ud}
+                  </Text>
+                  <Text fontSize={12} style={spacings.mlMi} appearance="secondaryText">
+                    ({shortenAddress(address, 13)})
+                  </Text>
+                </View>
+              ) : (
+                <Text fontSize={12} appearance="secondaryText">
+                  {shortenAddress(address, 48)}
+                </Text>
+              )}
+            </View>
           )}
         </View>
       </View>
