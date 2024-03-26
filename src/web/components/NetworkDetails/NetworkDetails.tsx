@@ -80,7 +80,7 @@ const NetworkDetails = ({
                 <NetworkIcon
                   size={32}
                   uris={iconUrls.length ? iconUrls : undefined}
-                  name={name.toLowerCase() as any}
+                  id={name.toLowerCase() as any}
                 />
               </View>
             )}
