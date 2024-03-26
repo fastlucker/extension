@@ -74,7 +74,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
           onPress={removeContact}
           {...bindRemoveBtnAnim}
         >
-          <Text fontSize={12}>Delete Address</Text>
+          <Text fontSize={12}>{t('Delete Address')}</Text>
         </AnimatedPressable>
       </Tooltip>
     </>
