@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import { useEffect } from 'react'
 
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -8,21 +9,22 @@ interface Props {
 }
 
 const useReverseLookup = ({ address }: Props) => {
+  const checksummedAddress = getAddress(address)
   const { dispatch } = useBackgroundService()
   const { domains, loadingAddresses } = useDomainsControllerState()
-  const isLoading = loadingAddresses.includes(address)
-  const addressInDomains = domains[address]
+  const isLoading = loadingAddresses.includes(checksummedAddress)
+  const addressInDomains = domains[checksummedAddress]
 
   useEffect(() => {
-    if (!address || addressInDomains || isLoading) return
+    if (!checksummedAddress || addressInDomains || isLoading) return
 
     dispatch({
       type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP',
       params: {
-        address
+        address: checksummedAddress
       }
     })
-  }, [address, addressInDomains, dispatch, isLoading])
+  }, [checksummedAddress, addressInDomains, dispatch, isLoading])
 
   return {
     isLoading: isLoading || !addressInDomains,
