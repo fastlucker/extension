@@ -16,15 +16,13 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 interface Props {
   address: string
   name: string
-  isWalletAccount: boolean
 }
 
-const ManageContact: FC<Props> = ({ address, name, isWalletAccount }) => {
+const ManageContact: FC<Props> = ({ address, name }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-
   const [bindRemoveBtnAnim, removeBtnAnimStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -42,26 +40,25 @@ const ManageContact: FC<Props> = ({ address, name, isWalletAccount }) => {
     })
     addToast(t(`Successfully deleted ${name} from your address book.`))
   }
+
   return (
     <>
-      {!isWalletAccount && (
-        <Pressable
-          style={[
-            spacings.mlSm,
-            flexbox.center,
-            {
-              width: 32,
-              height: 32
-            }
-          ]}
-          // @ts-ignore
-          dataSet={{
-            tooltipId: `${address}`
-          }}
-        >
-          <KebabMenuIcon color={theme.secondaryText} height={16} />
-        </Pressable>
-      )}
+      <Pressable
+        style={[
+          spacings.mlSm,
+          flexbox.center,
+          {
+            width: 32,
+            height: 32
+          }
+        ]}
+        // @ts-ignore
+        dataSet={{
+          tooltipId: `${address}`
+        }}
+      >
+        <KebabMenuIcon color={theme.secondaryText} height={16} />
+      </Pressable>
       <Tooltip
         id={address}
         style={{
