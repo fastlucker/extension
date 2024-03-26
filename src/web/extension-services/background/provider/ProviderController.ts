@@ -2,7 +2,8 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
-import { ethErrors } from 'eth-rpc-errors'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
@@ -309,8 +310,14 @@ export class ProviderController {
       const network = mainCtrl.settings.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
-      if (!network || !connected) return false
+      if (!connected) return false
 
+      if (!network) {
+        throw new EthereumProviderError(
+          4902,
+          'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
+        )
+      }
       return true
     }
   ])
