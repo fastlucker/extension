@@ -7,7 +7,6 @@ import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
 import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Input from '@common/components/Input'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -199,9 +198,6 @@ const HideToken = () => {
                 </Text>
               </View>
               <View style={flexbox.directionRow}>
-                {isLoading[`${token.address}-${token.networkId}`] && (
-                  <Spinner style={{ width: 18, height: 18 }} />
-                )}
                 {portfolio.state.tokenPreferences.find(
                   ({ address, networkId, standard }) =>
                     token.address.toLowerCase() === address.toLowerCase() &&
@@ -220,14 +216,20 @@ const HideToken = () => {
                     token.address.toLowerCase() === address.toLowerCase() &&
                     token.networkId === networkId
                 )?.isHidden ? (
-                  <Pressable onPress={() => hideToken(token)}>
+                  <Pressable
+                    disabled={isLoading[`${token.address}-${token.networkId}`]}
+                    onPress={() => hideToken(token)}
+                  >
                     <VisibilityIcon
                       color={theme.successDecorative}
                       style={[spacings.phTy, { cursor: 'pointer' }]}
                     />
                   </Pressable>
                 ) : (
-                  <Pressable onPress={() => hideToken(token)}>
+                  <Pressable
+                    disabled={isLoading[`${token.address}-${token.networkId}`]}
+                    onPress={() => hideToken(token)}
+                  >
                     <InvisibilityIcon
                       color={theme.errorDecorative}
                       style={[spacings.phTy, { cursor: 'pointer' }]}
