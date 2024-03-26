@@ -64,11 +64,11 @@ const AddContactForm = () => {
   const customValidation = useMemo(() => {
     const address = addressState.ensAddress || addressState.udAddress || addressState.fieldValue
 
-    if (accounts.some((account) => account.addr === address)) {
+    if (accounts.some((account) => account.addr.toLowerCase() === address.toLowerCase())) {
       return t('This address is already in your account list')
     }
 
-    if (contacts.some((contact) => contact.address === address)) {
+    if (contacts.some((contact) => contact.address.toLowerCase() === address.toLowerCase())) {
       return t('This address is already in your address book')
     }
 
