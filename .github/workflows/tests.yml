@@ -40,7 +40,7 @@ jobs:
         run: git submodule update
 
       - name: Puppeteer Tests 🧑‍🔬
-        uses: mujo-code/puppeteer-headful@16.6.0
+        uses: mujo-code/puppeteer-headful@16.3.0
         env:
           CI: "true"
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
