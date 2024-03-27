@@ -7,18 +7,20 @@ import useTheme from '@common/hooks/useTheme'
 interface Props {
   width: number
   height: number
+  borderRadius: number
   style?: ViewStyle
 }
+const ANIMATION_DURATION: number = 1000
 
-const SkeletonLoader = ({ width, height, style }: Props) => {
+const sharedAnimationConfig = {
+  duration: ANIMATION_DURATION,
+  useNativeDriver: !isWeb
+}
+const SkeletonLoader = ({ width, height, borderRadius, style }: Props) => {
   const pulseAnim = useRef(new Animated.Value(0)).current
   const { theme } = useTheme()
 
   useEffect(() => {
-    const sharedAnimationConfig = {
-      duration: 1000,
-      useNativeDriver: !isWeb
-    }
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -38,7 +40,7 @@ const SkeletonLoader = ({ width, height, style }: Props) => {
       // cleanup
       pulseAnim.stopAnimation()
     }
-  }, [])
+  }, [pulseAnim])
 
   const opacityAnim = pulseAnim.interpolate({
     inputRange: [0, 1],
@@ -52,7 +54,7 @@ const SkeletonLoader = ({ width, height, style }: Props) => {
           width,
           height,
           backgroundColor: theme.secondaryBackground,
-          borderRadius: 8
+          borderRadius
         },
         { opacity: opacityAnim },
         style

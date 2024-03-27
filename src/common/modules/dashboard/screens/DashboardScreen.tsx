@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Animated, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -116,7 +116,7 @@ const DashboardScreen = () => {
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       {!accountPortfolio?.isAllReady && totalPortfolioAmount === 0 ? (
-                        <SkeletonLoader width={200} height={42} />
+                        <SkeletonLoader width={200} height={42} borderRadius={8} />
                       ) : (
                         <>
                           <Text style={spacings.mbTy} selectable>
