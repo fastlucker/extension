@@ -57,6 +57,9 @@ describe('balance', () => {
         await page.bringToFront();
         await page.reload();
 
+        console.log(process.env.ENVIRONMENT)
+        console.log((await page.content()).toString(), await page.getTitle())
+
         await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
