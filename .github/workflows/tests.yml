@@ -48,6 +48,11 @@ jobs:
       - name: Puppeteer Tests 🧑‍🔬
         env:
           ENVIRONMENT: 'testing'
+          RELAYER_URL: ${{ secrets.RELAYER_URL }}
+          CONSTANTS_ENDPOINT: ${{ secrets.CONSTANTS_ENDPOINT }}
+          VELCRO_API_ENDPOINT: ${{ secrets.VELCRO_API_ENDPOINT }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
           KEYSTORE_KEYSTORE_UID: ${{ secrets.KEYSTORE_KEYSTORE_UID }}
           KEYSTORE_KEYS: ${{ secrets.KEYSTORE_KEYS }}

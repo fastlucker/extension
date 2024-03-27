@@ -250,7 +250,7 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
 //----------------------------------------------------------------------------------------------
 export async function typeSeedPhrase(page, seedPhrase) {
     await new Promise((r) => setTimeout(r, 2000));
-    console.log(process.env.ENVIRONMENT)
+    console.log(process.env.ENVIRONMENT, seedPhrase)
     console.log(await page.$eval('*', el => el.innerText))
     await page.waitForSelector('[data-testid="passphrase-field"]')
 
