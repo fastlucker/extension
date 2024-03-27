@@ -11,7 +11,8 @@ let puppeteerArgs = [
     '--clipboard-read: prompt',
 
     // '--detectOpenHandles',
-    // '--start-maximized'
+    // '--start-maximized',
+    '--no-sandbox','--disable-setuid-sandbox','--font-render-hinting=none'
 ];
 
 
@@ -24,6 +25,7 @@ export async function bootstrap(options = {}) {
         args: puppeteerArgs,
         defaultViewport: null,
         slowMo: slowMo,
+        executablePath: process.env.PUPPETEER_EXEC_PATH ? process.env.PUPPETEER_EXEC_PATH : ''
     });
 
 
@@ -155,7 +157,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 export async function finishStoriesAndSelectAccount(page) {
     /* Click on Import button. */
     await clickOnElement(page, '[data-testid="padding-button-Import"]')
-    
+
     await new Promise((r) => setTimeout(r, 2000))
     await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
 

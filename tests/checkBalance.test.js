@@ -41,7 +41,7 @@ describe('balance', () => {
                 previousHints: parsedPreviousHints
             });
         })
-    
+
         // Please note the following:
         // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
         // 2. But at the same time, the extension onboarding page is also shown automatically.
@@ -56,13 +56,13 @@ describe('balance', () => {
         // 2. Instead, we simply switch back to our tab under testing.
         await page.bringToFront();
         await page.reload();
-    
+
         await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
     })
 
-    // afterEach(async () => {
-    //     await browser.close();
-    // });
+    afterEach(async () => {
+        await browser.close();
+    });
 
     it('check the balance in account ', (async () => {
 

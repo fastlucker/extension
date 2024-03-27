@@ -29,6 +29,8 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Install NPM packages ♾️🕳️
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
         run: yarn install
 
       - name: Git submodules init
@@ -38,7 +40,9 @@ jobs:
         run: git submodule update
 
       - name: Puppeteer Tests 🧑‍🔬
+        uses: mujo-code/puppeteer-headful@16.6.0
         env:
+          CI: "true"
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
           KEYSTORE_KEYSTORE_UID: ${{ secrets.KEYSTORE_KEYSTORE_UID }}
           KEYSTORE_KEYS: ${{ secrets.KEYSTORE_KEYS }}
@@ -48,4 +52,5 @@ jobs:
           KEYSTORE_SELECTED_ACCOUNT: ${{ secrets.KEYSTORE_SELECTED_ACCOUNT }}
           KEYSTORE_TERMSTATE: ${{ secrets.KEYSTORE_TERMSTATE }}
           KEYSTORE_PREVIOUSHINTS: ${{ secrets.KEYSTORE_PREVIOUSHINTS }}
-        run: yarn run test:e2e:web
+        with:
+          args: yarn run test:e2e:web
