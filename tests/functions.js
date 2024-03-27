@@ -25,7 +25,6 @@ export async function bootstrap(options = {}) {
         args: puppeteerArgs,
         defaultViewport: null,
         slowMo: slowMo,
-        executablePath: process.env.PUPPETEER_EXEC_PATH ? process.env.PUPPETEER_EXEC_PATH : '',
         env: {
             DISPLAY: ":99.0"
         }
@@ -248,27 +247,27 @@ export async function confirmTransaction(page, extensionRootUrl, browser, trigge
 
 //----------------------------------------------------------------------------------------------
 export async function typeSeedPhrase(page, seedPhrase) {
-    await new Promise((r) => setTimeout(r, 2000));
+    await page.waitForSelector('[data-testid="passphrase-field"]')
 
-    /* This loop check if Passphrase field exist on the page if not the page will be reloaded */
-    let attempts = 0;
-    let element = null;
-
-    while (attempts < 5) {
-        element = await page.$('[data-testid="passphrase-field"]');
-        if (element) {
-            break;
-        } else {
-            console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
-            await new Promise((r) => setTimeout(r, 1000));
-
-            await page.reload();
-            attempts++;
-        }
-    }
-    if (!element) {
-        console.log('Passphrase field not found after 5 attempts.');
-    }
+    // /* This loop check if Passphrase field exist on the page if not the page will be reloaded */
+    // let attempts = 0;
+    // let element = null;
+    //
+    // while (attempts < 5) {
+    //     element = await page.$('[data-testid="passphrase-field"]');
+    //     if (element) {
+    //         break;
+    //     } else {
+    //         console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`);
+    //         await new Promise((r) => setTimeout(r, 1000));
+    //
+    //         await page.reload();
+    //         attempts++;
+    //     }
+    // }
+    // if (!element) {
+    //     console.log('Passphrase field not found after 5 attempts.');
+    // }
     /*Type keystore password */
     await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
     /* Click on "Unlock button" */
