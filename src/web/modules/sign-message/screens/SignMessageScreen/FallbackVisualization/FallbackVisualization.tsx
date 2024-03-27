@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeScrollEvent, ScrollView, View } from 'react-native'
 
@@ -79,4 +79,4 @@ const FallbackVisualization: FC<{
   )
 }
 
-export default FallbackVisualization
+export default memo(FallbackVisualization)

@@ -13,13 +13,11 @@ interface Style {
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     container: {
-      ...flexbox.directionRow,
       ...spacings.phTy,
       ...spacings.pvTy,
-      backgroundColor: theme.primaryBackground,
       ...spacings.mbTy,
       ...common.borderRadiusPrimary,
-      ...flexbox.alignCenter,
+      backgroundColor: theme.primaryBackground,
       borderWidth: 1
     },
     iconWrapper: {

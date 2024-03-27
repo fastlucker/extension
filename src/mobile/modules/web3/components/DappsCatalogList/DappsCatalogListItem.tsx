@@ -114,7 +114,7 @@ const DappCatalogListItem: React.FC<Props> = ({
                 ]}
                 key={n}
               >
-                <NetworkIcon name={n as any} size={22} />
+                <NetworkIcon id={n} size={22} />
               </View>
             )
           })}

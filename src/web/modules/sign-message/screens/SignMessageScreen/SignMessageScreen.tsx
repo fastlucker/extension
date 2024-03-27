@@ -9,7 +9,7 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -296,7 +296,7 @@ const SignMessageScreen = () => {
       header={
         <HeaderAccountAndNetworkInfo
           networkName={networkData?.name}
-          networkId={networkData?.id as NetworkIconNameType}
+          networkId={networkData?.id as NetworkIconIdType}
         />
       }
       footer={

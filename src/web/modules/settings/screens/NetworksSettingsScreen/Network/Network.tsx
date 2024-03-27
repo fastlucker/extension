@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -42,7 +41,7 @@ const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork })
       ]}
       {...bindAnim}
     >
-      <NetworkIcon name={network.id as NetworkIconNameType} />
+      <NetworkIcon id={network.id} />
       <Text fontSize={16} weight="regular" style={spacings.mlMi} numberOfLines={1}>
         {network.name}
       </Text>

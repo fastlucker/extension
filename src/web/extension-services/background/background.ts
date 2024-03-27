@@ -935,7 +935,7 @@ async function init() {
       })
       return { id, result: res }
     } catch (error: any) {
-      return { id, error: <Error>error }
+      return { id, error }
     }
   })
 })()
