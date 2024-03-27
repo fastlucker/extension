@@ -1,4 +1,4 @@
-import { ethErrors } from 'eth-rpc-errors'
+import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EthereumProviderError } from 'eth-rpc-errors/dist/classes'
 import Events from 'events'
 
@@ -141,7 +141,7 @@ class NotificationService extends Events {
           resolve(d)
         },
         reject(error) {
-          reject(error)
+          reject(serializeError(error))
         }
       }
 

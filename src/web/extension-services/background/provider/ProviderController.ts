@@ -316,7 +316,7 @@ export class ProviderController {
         throw new EthereumProviderError(
           4902,
           'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
-        )
+        ).serialize()
       }
       return true
     }
