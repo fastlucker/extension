@@ -32,26 +32,32 @@ const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
 })
 
 let forwardRpcRequestId = 0
-const dappRpcUrls: string[] = []
-const configuredUrls: string[] = []
+const foundDappRpcUrls: string[] = []
+const configuredDappRpcUrls: string[] = []
 
-// Get all potential RPC URLs
 ;(function () {
   const originalFetch = window.fetch
   window.fetch = async function (...args) {
     const [resource, config] = args
     if (config && config?.body) {
       const { body } = config
-      if (
-        body instanceof Uint8Array ||
-        body instanceof Uint16Array ||
-        body instanceof Uint32Array
-      ) {
-        if (!dappRpcUrls.includes(resource as string)) {
-          dappRpcUrls.push(resource as string)
+      // if the dapp uses ethers the body of the requests to the RPC will be Uint8Array
+      if (body instanceof Uint8Array) {
+        if (!foundDappRpcUrls.includes(resource as string))
+          foundDappRpcUrls.push(resource as string) // store potential RPC URL
+      } else {
+        try {
+          const bodyObj: any = JSON.parse(body as any)
+          if (bodyObj.jsonrpc) {
+            if (!foundDappRpcUrls.includes(resource as string))
+              foundDappRpcUrls.push(resource as string) // store the potential RPC URL
+          }
+        } catch (error) {
+          // silent fail
         }
       }
     }
+
     return originalFetch(resource as string, config)
   }
 })()
@@ -389,26 +395,27 @@ export class EthereumProvider extends EventEmitter {
 
     this._requestPromiseCheckVisibility()
 
-    // we store in the provider state the valid RPC URLs of the connected dapp to use them for forwarding
+    // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
     ;(async () => {
       // eslint-disable-next-line no-restricted-syntax
-      for (const url of dappRpcUrls.filter((u) => !u.startsWith('wss'))) {
+      for (const url of foundDappRpcUrls.filter((u) => !u.startsWith('wss'))) {
         if (
           !Object.values(this.dappProviderUrls).find((u) => u === url) &&
-          !configuredUrls.includes(url)
+          !configuredDappRpcUrls.includes(url)
         ) {
-          // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
           try {
+            // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
             // eslint-disable-next-line no-await-in-loop
             const chainId = await forwardRpcRequests(url, 'eth_chainId', [])
             if (chainId) this.dappProviderUrls[chainId] = url
           } catch (error) {
             // silent fail
           }
-          configuredUrls.push(url)
+          configuredDappRpcUrls.push(url)
         }
       }
     })()
+    console.log(this.dappProviderUrls)
 
     return this._requestPromise.call(async () => {
       if (
