@@ -415,7 +415,6 @@ export class EthereumProvider extends EventEmitter {
         }
       }
     })()
-    console.log(this.dappProviderUrls)
 
     return this._requestPromise.call(async () => {
       if (
