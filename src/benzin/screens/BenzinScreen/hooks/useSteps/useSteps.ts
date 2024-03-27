@@ -2,7 +2,6 @@ import {
   AbiCoder,
   Block,
   ethers,
-  FallbackProvider,
   JsonRpcProvider,
   TransactionReceipt,
   TransactionResponse
@@ -40,7 +39,7 @@ interface Props {
     parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
-  provider: JsonRpcProvider | FallbackProvider
+  provider: JsonRpcProvider
 }
 
 export interface StepsData {
