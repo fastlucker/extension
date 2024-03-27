@@ -145,7 +145,7 @@ const NetworksSettingsScreen = () => {
                 chainId={
                   selectedNetwork?.chainId ? Number(selectedNetwork.chainId).toString() : '-'
                 }
-                rpcUrl={selectedNetwork?.rpcUrl || '-'}
+                rpcUrls={selectedNetwork?.rpcUrls || ['-']}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
                 handleRemoveNetwork={onRemoveCustomNetwork}

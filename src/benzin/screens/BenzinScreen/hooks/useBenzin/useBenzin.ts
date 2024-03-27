@@ -1,4 +1,3 @@
-import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
 import { useCallback, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
@@ -8,6 +7,7 @@ import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
@@ -71,7 +71,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   if ((!txnId && !userOpHash) || !network) return null
 
   const provider = useMemo(() => {
-    return new JsonRpcProvider(network.rpcUrl)
+    return getRpcProvider(network.rpcUrls, network.chainId)
   }, [network])
 
   const stepsState = useSteps({

@@ -23,7 +23,7 @@ import getStyles from './styles'
 type Props = {
   name: string
   iconUrls?: string[]
-  rpcUrl: string
+  rpcUrls: string[]
   chainId: string
   explorerUrl: string
   nativeAssetSymbol: string
@@ -33,7 +33,7 @@ type Props = {
 const NetworkDetails = ({
   name,
   iconUrls = [],
-  rpcUrl,
+  rpcUrls,
   chainId,
   explorerUrl,
   nativeAssetSymbol,
@@ -45,8 +45,8 @@ const NetworkDetails = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   const isEmpty = useMemo(
-    () => [name, rpcUrl, chainId].some((p) => p === '-'),
-    [chainId, name, rpcUrl]
+    () => [name, rpcUrls[0], chainId].some((p) => p === '-'),
+    [chainId, name, rpcUrls]
   )
 
   const shouldDisplayEditButton = useMemo(
@@ -142,7 +142,8 @@ const NetworkDetails = ({
         </View>
         <View style={flexbox.flex1}>
           {renderInfoItem(t('Network Name'), name)}
-          {renderInfoItem(t('RPC URL'), rpcUrl)}
+          {/* TODO: show all urls */}
+          {renderInfoItem(t('RPC URL'), rpcUrls[0])}
           {renderInfoItem(t('Chain ID'), chainId)}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}

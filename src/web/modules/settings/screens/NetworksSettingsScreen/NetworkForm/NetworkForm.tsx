@@ -75,7 +75,7 @@ const NetworkForm = ({
     },
     values: {
       name: selectedNetwork?.name || '',
-      rpcUrl: selectedNetwork?.rpcUrl || '',
+      rpcUrl: selectedNetwork?.rpcUrls[0] || '',
       chainId: Number(selectedNetwork?.chainId) || '',
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
       explorerUrl: selectedNetwork?.explorerUrl || ''

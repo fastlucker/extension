@@ -68,12 +68,6 @@ const AddChainScreen = () => {
     return requestData.rpcUrls.filter((url: string) => url.startsWith('http'))
   }, [requestData])
 
-  const selectedRpcUrl = useMemo(() => {
-    if (!requestData) return undefined
-
-    return rpcUrls[rpcUrlIndex]
-  }, [requestData, rpcUrls, rpcUrlIndex])
-
   const networkDetails: CustomNetwork | undefined = useMemo(() => {
     if (!areParamsValid || !requestData) return undefined
     if (!requestData.rpcUrls) return
@@ -83,7 +77,7 @@ const AddChainScreen = () => {
     try {
       return {
         name,
-        rpcUrl: selectedRpcUrl,
+        rpcUrls,
         chainId: BigInt(requestData.chainId),
         nativeAssetSymbol,
         explorerUrl: requestData.blockExplorerUrls?.[0],
@@ -93,13 +87,13 @@ const AddChainScreen = () => {
       console.error(error)
       return undefined
     }
-  }, [areParamsValid, selectedRpcUrl, requestData])
+  }, [areParamsValid, rpcUrls, requestData])
 
   useEffect(() => {
-    if (networkDetails && networkDetails.rpcUrl) {
+    if (networkDetails && networkDetails.rpcUrls) {
       dispatch({
         type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-        params: { chainId: networkDetails.chainId, rpcUrl: networkDetails.rpcUrl }
+        params: { chainId: networkDetails.chainId, rpcUrls: networkDetails.rpcUrls }
       })
     }
   }, [dispatch, networkDetails])
@@ -212,7 +206,7 @@ const AddChainScreen = () => {
                 name={currentNotificationRequest?.params?.data?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
                 chainId={Number(networkDetails.chainId).toString()}
-                rpcUrl={networkDetails.rpcUrl}
+                rpcUrls={networkDetails.rpcUrls}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
                 explorerUrl={networkDetails.explorerUrl}
               />
