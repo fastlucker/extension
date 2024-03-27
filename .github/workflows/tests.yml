@@ -47,6 +47,7 @@ jobs:
 
       - name: Puppeteer Tests 🧑‍🔬
         env:
+          ENVIRONMENT: 'testing'
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
           KEYSTORE_KEYSTORE_UID: ${{ secrets.KEYSTORE_KEYSTORE_UID }}
           KEYSTORE_KEYS: ${{ secrets.KEYSTORE_KEYS }}
@@ -56,6 +57,9 @@ jobs:
           KEYSTORE_SELECTED_ACCOUNT: ${{ secrets.KEYSTORE_SELECTED_ACCOUNT }}
           KEYSTORE_TERMSTATE: ${{ secrets.KEYSTORE_TERMSTATE }}
           KEYSTORE_PREVIOUSHINTS: ${{ secrets.KEYSTORE_PREVIOUSHINTS }}
+          KEYSTORE_PASS_PHRASE: ${{ secrets.KEYSTORE_PASS_PHRASE }}
+          PRIVATE_KEY_LEGACY_ACCOUNT: ${{ secrets.PRIVATE_KEY_LEGACY_ACCOUNT }}
+          PHRASE_LEGACY_ACCOUNT: ${{ secrets.PHRASE_LEGACY_ACCOUNT }}
           KEYSTORE_ACCOUNTS_1: ${{ secrets.KEYSTORE_ACCOUNTS_1 }}
           KEYSTORE_KEYSTORE_UID_1: ${{ secrets.KEYSTORE_KEYSTORE_UID_1 }}
           KEYSTORE_KEYS_1: ${{ secrets.KEYSTORE_KEYS_1 }}
@@ -64,5 +68,6 @@ jobs:
           KEYSTORE_PERMISSION_1: ${{ secrets.KEYSTORE_PERMISSION_1 }}
           KEYSTORE_SELECTED_ACCOUNT_1: ${{ secrets.KEYSTORE_SELECTED_ACCOUNT_1 }}
           KEYSTORE_TERMSTATE_1: ${{ secrets.KEYSTORE_TERMSTATE_1 }}
-          KEYSTORE_PREVIOUSHINTS_1: ${{ secrets.KEYSTORE_PREVIOUSHINTS_1 }}
+          KEYSTORE_PASS_PHRASE_1: ${{ secrets.KEYSTORE_PASS_PHRASE_1 }}
+
         run: yarn run test:e2e:web
