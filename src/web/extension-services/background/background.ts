@@ -834,12 +834,11 @@ async function init() {
                 return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
               case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
                 return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
-              case 'ADDRESS_BOOK_CONTROLLER_SET_ACCOUNTS_IN_WALLET_CONTACTS': {
-                mainCtrl.addressBook.accountsInWalletContacts = params.accountsInWalletContacts
-                break
+              case 'ADDRESS_BOOK_CONTROLLER_UPDATE': {
+                return mainCtrl.addressBook.update(params)
               }
               case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
-                return mainCtrl.addressBook.addContact(params.name, params.address)
+                return await mainCtrl.addressBook.addContact(params.name, params.address)
               }
               case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
                 const { address, newName } = params
@@ -855,10 +854,10 @@ async function init() {
                   })
                 }
 
-                return mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
+                return await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
               }
               case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
-                return mainCtrl.addressBook.removeManuallyAddedContact(params.address)
+                return await mainCtrl.addressBook.removeManuallyAddedContact(params.address)
               case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
                 return await mainCtrl.domains.reverseLookup(params.address)
               case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':

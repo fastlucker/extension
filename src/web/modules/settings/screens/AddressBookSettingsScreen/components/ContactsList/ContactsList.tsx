@@ -22,7 +22,7 @@ const ContactsList = () => {
           {contacts.length > 0 ? (
             contacts.map((contact) => (
               <AddressBookContact
-                key={contact.name}
+                key={contact.address}
                 name={contact.name}
                 address={contact.address}
                 isWalletAccount={contact?.isWalletAccount}

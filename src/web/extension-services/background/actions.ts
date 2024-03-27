@@ -333,9 +333,9 @@ type NotificationControllerOpenNotificationRequestAction = {
 }
 
 type AddressBookControllerSetAccountsInWalletContactsAction = {
-  type: 'ADDRESS_BOOK_CONTROLLER_SET_ACCOUNTS_IN_WALLET_CONTACTS'
+  type: 'ADDRESS_BOOK_CONTROLLER_UPDATE'
   params: {
-    accountsInWalletContacts: Contacts
+    selectedAccount: Account['addr']
   }
 }
 type AddressBookControllerAddContact = {
