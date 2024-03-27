@@ -1,32 +1,27 @@
-/* eslint-disable react/no-array-index-key */
-import { MaxUint256, formatUnits } from 'ethers'
-import React, { Fragment, ReactNode, useCallback, useEffect, useState } from 'react'
+import { formatUnits } from 'ethers'
+import React, { ReactNode, useCallback } from 'react'
 import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import Address from '@common/components/Address'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
-import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
+import FallbackVisualization from './FallbackVisualization'
+import HumanizedVisualization from './HumanizedVisualization'
 import getStyles from './styles'
 
 interface Props {
   style: ViewStyle
   call: IrCall
   networkId: NetworkDescriptor['id']
-  explorerUrl: NetworkDescriptor['explorerUrl']
   rightIcon?: ReactNode
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
@@ -39,45 +34,10 @@ const sizeMultiplier = {
   lg: 1
 }
 
-const DeadlineVisualization = ({ deadline, textSize }: { deadline: bigint; textSize: number }) => {
-  const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
-  const remainingTime = deadline - BigInt(Date.now())
-  const minute: bigint = 60000n
-
-  useEffect(() => {
-    let updateAfter = Number(minute)
-
-    // more then 10mints
-    if (remainingTime > 10n * minute) updateAfter = Number(remainingTime - 10n * minute)
-    // if 0< and <10 minutes
-    if (remainingTime > 0 && remainingTime < 10n * minute)
-      updateAfter = Number(remainingTime % minute)
-    // if just expired
-    if (remainingTime < 0 && remainingTime > -2n * minute)
-      updateAfter = Number(2n * minute + remainingTime)
-    // if long expired
-    if (remainingTime < -2n * minute) updateAfter = Number(10n * minute)
-
-    // this triggeres use effect after 'updateAfter' milliseconds by updating the text
-    const timeoutId = setTimeout(() => {
-      setDeadlineText(getDeadlineText(deadline))
-    }, updateAfter)
-
-    return () => clearTimeout(timeoutId)
-  }, [deadlineText, deadline, minute, remainingTime])
-
-  return (
-    <Text fontSize={textSize} weight="medium" appearance="warningText">
-      {`(${deadlineText})`}
-    </Text>
-  )
-}
-
 const TransactionSummary = ({
   style,
   call,
   networkId,
-  explorerUrl,
   rightIcon,
   onRightIconPress,
   size = 'lg',
@@ -85,12 +45,9 @@ const TransactionSummary = ({
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
-
   const { dispatch } = useBackgroundService()
   const { styles } = useTheme(getStyles)
-  const [bindExplorerIconAnim, explorerIconAnimStyle] = useHover({
-    preset: 'opacityInverted'
-  })
+
   const [bindDeleteIconAnim, deleteIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -105,202 +62,6 @@ const TransactionSummary = ({
     })
   }, [call.fromUserRequestId, dispatch])
 
-  const fallbackVisualization = useCallback(() => {
-    return (
-      <View
-        style={[
-          flexbox.flex1,
-          flexbox.directionRow,
-          flexbox.alignCenter,
-          flexbox.wrap,
-          {
-            paddingHorizontal: SPACING_SM * sizeMultiplier[size]
-          }
-        ]}
-      >
-        <Text
-          fontSize={textSize}
-          appearance="successText"
-          weight="semiBold"
-          style={{ maxWidth: '100%' }}
-        >
-          {t(' Interacting with (to): ')}
-        </Text>
-        <Text
-          fontSize={textSize}
-          appearance="secondaryText"
-          weight="regular"
-          style={{ maxWidth: '100%' }}
-          selectable
-        >
-          {` ${call.to} `}
-        </Text>
-        <Text
-          fontSize={textSize}
-          appearance="successText"
-          weight="semiBold"
-          style={{ maxWidth: '100%' }}
-        >
-          {t(' Value to be sent (value): ')}
-        </Text>
-        <Text selectable fontSize={textSize} appearance="secondaryText" weight="regular">
-          {` ${formatUnits(call.value || '0x0', 18)} `}
-        </Text>
-      </View>
-    )
-  }, [call, t, textSize, size])
-
-  const humanizedVisualization = useCallback(
-    (dataToVisualize: IrCall['fullVisualization'] = []) => {
-      return (
-        <View
-          style={[
-            flexbox.flex1,
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            flexbox.wrap,
-            {
-              marginHorizontal: SPACING_SM * sizeMultiplier[size]
-            }
-          ]}
-        >
-          {dataToVisualize.map((item, i) => {
-            if (!item || item.isHidden) return null
-
-            if (item.type === 'token') {
-              const isUnlimitedByPermit2 =
-                item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
-              const isMaxUint256 = item.amount === MaxUint256
-              return (
-                <Fragment key={Number(item.id) || i}>
-                  {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text
-                      fontSize={textSize}
-                      weight="medium"
-                      appearance="primaryText"
-                      style={{ maxWidth: '100%' }}
-                    >
-                      {isUnlimitedByPermit2 || isMaxUint256 ? (
-                        <Text appearance="warningText">unlimited </Text>
-                      ) : (
-                        formatDecimals(
-                          Number(
-                            formatUnits(
-                              item.amount || '0x0',
-                              item?.humanizerMeta?.token?.decimals || 1
-                            )
-                          )
-                        )
-                      )}
-                    </Text>
-                  ) : null}
-
-                  {item.address ? (
-                    <TokenIcon
-                      width={24 * sizeMultiplier[size]}
-                      height={24 * sizeMultiplier[size]}
-                      networkId={networkId}
-                      address={item.address}
-                    />
-                  ) : null}
-                  {item?.humanizerMeta?.token ? (
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {` ${item?.humanizerMeta?.token?.symbol || ''} `}
-                    </Text>
-                  ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                    <Text
-                      fontSize={textSize}
-                      weight="medium"
-                      appearance="primaryText"
-                      style={{ maxWidth: '100%' }}
-                    >
-                      {t(' units of unknown token ')}
-                    </Text>
-                  ) : (
-                    // there are cases where the humanizer would return token with amount = 0
-                    // still, not having humanizerMeta.token is bad
-                    <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                      {t('unknown token ')}
-                    </Text>
-                  )}
-                </Fragment>
-              )
-            }
-
-            if (item.type === 'address' && item.address) {
-              return (
-                <Address
-                  fontSize={textSize}
-                  address={item.address}
-                  highestPriorityAlias={item?.humanizerMeta?.name}
-                  explorerNetworkId={networkId}
-                />
-              )
-            }
-
-            if (item.type === 'nft') {
-              return (
-                <Text
-                  key={Number(item.id) || i}
-                  fontSize={textSize}
-                  weight="medium"
-                  appearance="primaryText"
-                  style={{ maxWidth: '100%' }}
-                >
-                  {` ${item?.humanizerMeta?.name || item.address} `}
-                </Text>
-              )
-            }
-
-            if (item.type === 'deadline' && !isHistory)
-              return (
-                <DeadlineVisualization
-                  key={Number(item.id) || i}
-                  deadline={item.amount!}
-                  textSize={textSize}
-                />
-              )
-            if (item.content) {
-              return (
-                <Text
-                  key={Number(item.id) || i}
-                  style={{ maxWidth: '100%' }}
-                  fontSize={textSize}
-                  weight={
-                    item.type === 'label'
-                      ? 'regular'
-                      : item.type === 'action'
-                      ? 'semiBold'
-                      : 'medium'
-                  }
-                  appearance={
-                    item.type === 'label'
-                      ? 'secondaryText'
-                      : item.type === 'action'
-                      ? 'successText'
-                      : 'primaryText'
-                  }
-                >{` ${item.content} `}</Text>
-              )
-            }
-
-            return null
-          })}
-        </View>
-      )
-    },
-    [
-      size,
-      textSize,
-      explorerUrl,
-      explorerIconAnimStyle,
-      bindExplorerIconAnim,
-      isHistory,
-      networkId,
-      t
-    ]
-  )
-
   return (
     <ExpandableCard
       style={{
@@ -312,9 +73,21 @@ const TransactionSummary = ({
       }}
       content={
         <>
-          {call.fullVisualization
-            ? humanizedVisualization(call.fullVisualization)
-            : fallbackVisualization()}
+          {call.fullVisualization ? (
+            <HumanizedVisualization
+              data={call.fullVisualization}
+              sizeMultiplierSize={sizeMultiplier[size]}
+              textSize={textSize}
+              networkId={networkId}
+              isHistory={isHistory}
+            />
+          ) : (
+            <FallbackVisualization
+              call={call}
+              sizeMultiplierSize={sizeMultiplier[size]}
+              textSize={textSize}
+            />
+          )}
           {!!rightIcon && (
             <TouchableOpacity
               onPress={onRightIconPress}
