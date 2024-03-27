@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextStyle, View } from 'react-native'
+import { TextStyle, View, ViewStyle } from 'react-native'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -19,6 +19,7 @@ type Props = {
   isTypeLabelHidden?: boolean
   size?: 'sm' | 'md' | 'lg'
   customTextStyle?: TextStyle
+  style?: ViewStyle
 }
 
 const sizeMultiplier = {
@@ -34,7 +35,8 @@ const Label = ({
   hasRightSpacing = true,
   isTypeLabelHidden = false,
   size = 'lg',
-  customTextStyle = {}
+  customTextStyle = {},
+  style = {}
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
 
@@ -50,7 +52,8 @@ const Label = ({
       style={[
         styles.container,
         !!hasBottomSpacing && spacings.mbTy,
-        !!hasRightSpacing && spacings.mrTy
+        !!hasRightSpacing && spacings.mrTy,
+        style
       ]}
     >
       <View style={spacings.mrTy}>
