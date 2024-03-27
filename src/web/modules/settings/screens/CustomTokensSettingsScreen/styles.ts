@@ -1,5 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
+import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 
 interface Style {
@@ -12,7 +13,7 @@ const getStyles = (theme: ThemeProps) =>
       width: 1,
       height: '100%',
       backgroundColor: theme.secondaryBorder,
-      marginHorizontal: 40
+      ...spacings.mhXl
     }
   })
 
