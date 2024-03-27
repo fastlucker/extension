@@ -139,6 +139,17 @@ const AccountKeysBottomSheet: FC<Props> = ({
         customTextStyle={{ textTransform: 'none' }}
         type="info"
       />
+      {isBasicAccWithImportedOneInternalKey && (
+        <Label
+          isTypeLabelHidden
+          size="sm"
+          text={t(
+            "Although importing a key from a hardware wallet to this Basic account is possible - it's discouraged due to account's private key already being imported. Remember, the primary purpose of hardware wallets is to serve as cold storage, keeping your keys securely offline."
+          )}
+          customTextStyle={{ textTransform: 'none' }}
+          type="warning"
+        />
+      )}
       {addAccountOptions.map((option) => (
         <Option
           key={option.text}
