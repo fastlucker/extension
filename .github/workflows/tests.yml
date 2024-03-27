@@ -40,7 +40,7 @@ jobs:
         run: git submodule update
 
       - name: Puppeteer Tests 🧑‍🔬
-        uses: mujo-code/puppeteer-headful@16.3.0
+        uses: mujo-code/puppeteer-headful@16.6.0
         env:
           CI: "true"
           KEYSTORE_ACCOUNTS: ${{ secrets.KEYSTORE_ACCOUNTS }}
@@ -53,4 +53,4 @@ jobs:
           KEYSTORE_TERMSTATE: ${{ secrets.KEYSTORE_TERMSTATE }}
           KEYSTORE_PREVIOUSHINTS: ${{ secrets.KEYSTORE_PREVIOUSHINTS }}
         with:
-          args: yarn run test:e2e:web
+          args: nvm use && yarn run test:e2e:web
