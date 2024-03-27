@@ -1,5 +1,5 @@
 import { formatUnits, MaxUint256 } from 'ethers'
-import React, { FC, Fragment } from 'react'
+import React, { FC, Fragment, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -30,6 +30,8 @@ const HumanizedVisualization: FC<Props> = ({
   isHistory
 }) => {
   const { t } = useTranslation()
+
+  console.count('humanized rerender')
 
   return (
     <View
@@ -157,4 +159,4 @@ const HumanizedVisualization: FC<Props> = ({
   )
 }
 
-export default HumanizedVisualization
+export default memo(HumanizedVisualization)

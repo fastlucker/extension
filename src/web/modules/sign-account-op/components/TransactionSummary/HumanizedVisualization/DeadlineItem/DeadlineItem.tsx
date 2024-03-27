@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, memo, useEffect, useState } from 'react'
 
 import { getDeadlineText } from '@ambire-common/libs/humanizer/utils'
 import Text from '@common/components/Text'
@@ -42,4 +42,4 @@ const DeadlineItem: FC<Props> = ({ deadline, textSize }) => {
   )
 }
 
-export default DeadlineItem
+export default memo(DeadlineItem)
