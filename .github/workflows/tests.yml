@@ -40,7 +40,7 @@ jobs:
         run: git submodule update
 
       - name: Puppeteer Xvfb
-        run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1
+        run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
 
       - name: Puppeteer DISPLAY
         run: export DISPLAY=:99.0
