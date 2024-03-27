@@ -25,7 +25,10 @@ export async function bootstrap(options = {}) {
         args: puppeteerArgs,
         defaultViewport: null,
         slowMo: slowMo,
-        executablePath: process.env.PUPPETEER_EXEC_PATH ? process.env.PUPPETEER_EXEC_PATH : ''
+        executablePath: process.env.PUPPETEER_EXEC_PATH ? process.env.PUPPETEER_EXEC_PATH : '',
+        env: {
+            DISPLAY: ":99.0"
+        }
     });
 
 
