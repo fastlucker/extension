@@ -15,32 +15,33 @@ describe('balance', () => {
         page = newPage;
     })
     
-    
 
-    // afterEach(async () => {
-    //     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds before closing
-    //     await browser.close();
-    // });
-    
+    afterEach(async () => {
+        await browser.close();
+    });
 
     //--------------------------------------------------------------------------------------------------------------
     it.only('check the balance in account ', (async () => {
+        
+        console.log('The test starts----->>>>>');
 
-        console.log('The test starts----->>>>>')
-
-        await page.waitForSelector('[data-testid="full-balance"]')
+        await page.waitForSelector('[data-testid="full-balance"]');
+        
         /* Get the available balance */
         const availableAmmount = await page.evaluate(() => {
-            const balance = document.querySelector('[data-testid="full-balance"]')
-            return balance.innerText
-        })
-        console.log(' 2 The test starts----->>>>>')
-        let availableAmmountNum = availableAmmount.replace(/\n/g, "");
-        availableAmmountNum = availableAmmountNum.split('$')[1]
-        /* Verify that the balance is bigger than  0*/
-        expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0);
-        console.log(' 3The test starts----->>>>>')
+            const balance = document.querySelector('[data-testid="full-balance"]');
+            return balance.innerText;
+        });
         
+        let availableAmmountNum = availableAmmount.replace(/\n/g, "");
+        availableAmmountNum = availableAmmountNum.split('$')[1];
+        
+        console.log('Balance: ' + availableAmmountNum);
+        
+        /* Verify that the balance is bigger than 0 */
+        expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0);
+        
+        console.log('The test ends----->>>>>');
     }));
 
 

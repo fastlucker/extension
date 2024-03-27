@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 
-import { bootstrap, typeText, clickOnElement, confirmTransaction, typeSeedPhrase } from './functions.js';
+import { bootstrap, typeText, clickOnElement, clickWhenClickable, clickOnElementByText, confirmTransaction, typeSeedPhrase } from './functions.js';
+
 
 describe('transactions', () => {
 
@@ -12,7 +13,7 @@ describe('transactions', () => {
     let amountField = '[data-testid="amount-field"]'
 
     beforeEach(async () => {
-        /* Initialize browser and page using bootstrap */
+        /* Initialize browser and page using bootStrap */
         const context = await bootstrap({ headless: false, slowMo: 10 });
         browser = context.browser;
         extensionRootUrl = context.extensionRootUrl
@@ -22,48 +23,29 @@ describe('transactions', () => {
         await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
 
         /*  interact with chrome.storage.local in the context of the extension's background page */
-        await page.evaluate(({
-            accounts,
-            keyStoreUid,
-            keystoreKeys,
-            keystoreSecrets,
-            onboardingStatus,
-            permission,
-            selectedAccount,
-            termsState,
-            previousHints
-        }) => {
+        await page.evaluate(() => {
+            let parsedKeystoreAccounts, parsedKeystoreUID, parsedKeystoreKeys, parsedKeystoreSecrets, envOnboardingStatus, envPermission, envSelectedAccount, envTermState, parsedPreviousHints;
+            parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
+            parsedKeystoreUID = (process.env.KEYSTORE_KEYSTORE_UID_1)
+            parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
+            parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
+            envOnboardingStatus = (process.env.KEYSTORE_ONBOARDING_STATUS_1)
+            envPermission = (process.env.KEYSTORE_PERMISSION_1)
+            envSelectedAccount = (process.env.KEYSTORE_SELECTED_ACCOUNT_1)
+            envTermState = (process.env.KEYSTORE_TERMSTATE_1)
+            parsedPreviousHints = (process.env.KEYSTORE_PREVIOUSHINTS_1)
             chrome.storage.local.set({
-                accounts,
-                keyStoreUid,
-                keystoreKeys,
-                keystoreSecrets,
-                onboardingStatus,
-                permission,
-                selectedAccount,
-                termsState,
-                previousHints
+                accounts: parsedKeystoreAccounts,
+                keyStoreUid: parsedKeystoreUID,
+                keystoreKeys: parsedKeystoreKeys,
+                keystoreSecrets: parsedKeystoreSecrets,
+                onboardingStatus: envOnboardingStatus,
+                permission: envPermission,
+                selectedAccount: envSelectedAccount,
+                termsState: envTermState,
+                previousHints: parsedPreviousHints
             });
-
-            // Force a reload of the extension in order to restart the background
-            // script with the new state from the storage
-            chrome.runtime.reload()
-        }, {
-            accounts: process.env.KEYSTORE_ACCOUNTS_1,
-            keyStoreUid: process.env.KEYSTORE_KEYSTORE_UID_1,
-            keystoreKeys: process.env.KEYSTORE_KEYS_1,
-            keystoreSecrets: process.env.KEYSTORE_SECRETS_1,
-            onboardingStatus: process.env.KEYSTORE_ONBOARDING_STATUS_1,
-            permission: process.env.KEYSTORE_PERMISSION_1,
-            selectedAccount: process.env.KEYSTORE_SELECTED_ACCOUNT_1,
-            termsState: process.env.KEYSTORE_TERMSTATE_1,
-            previousHints: process.env.KEYSTORE_PREVIOUSHINTS_1
-          })
-
-        // By reloading the extension, the `chrome.runtime.reload()` command
-        // closes all extension pages. So re-open the page after the reload.
-        page = await browser.newPage();
-        await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' });
+        })
 
         await new Promise((r) => {
             setTimeout(r, 1000)
@@ -81,6 +63,7 @@ describe('transactions', () => {
 
     //--------------------------------------------------------------------------------------------------------------
     it('Make valid transaction', (async () => {
+
         await new Promise((r) => setTimeout(r, 2000))
 
         await page.waitForSelector('[data-testid="full-balance"]')
@@ -94,6 +77,7 @@ describe('transactions', () => {
         availableAmmountNum = availableAmmountNum.split('$')[1]
         /* Verify that the balance is bigger than 0 */
         expect(parseFloat(availableAmmountNum) > 0).toBeTruthy();
+
 
         /* Click on "Send" button */
         await clickOnElement(page, '[data-testid="dashboard-button-send"]')
@@ -194,14 +178,6 @@ describe('transactions', () => {
         /* Select 'MetaMask' */
         await page.click('>>>[class^="name"]')
 
-        // Wait for the new window to be created and switch to it
-        const newTarget2 = await browser.waitForTarget(target => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`);
-        const newPage2 = await newTarget2.page();
-
-
-
-        /* Click on 'Connect' button */
-        await clickOnElement(newPage2, '[data-testid="padding-button-Connect"]')
         /* Type message in the 'Message' field */
         let textMessage = 'text message'
         await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
@@ -327,7 +303,7 @@ describe('transactions', () => {
         await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
         /* Click on "Account"  */
-        await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]')
+        await clickWhenClickable(page, '[data-testid="padding-button-Save-and-Continue"]')
 
         await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' });
 
