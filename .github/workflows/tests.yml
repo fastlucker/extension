@@ -39,13 +39,11 @@ jobs:
       - name: Git submodules update
         run: git submodule update
 
-      - name: Puppeteer add headfull support
-        shell: bash
-        run: |
-          # Startup Xvfb
-          Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1
-          # Export some variables
-          export DISPLAY=:99.0
+      - name: Puppeteer Xvfb
+        run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1
+
+      - name: Puppeteer DISPLAY
+        run: export DISPLAY=:99.0
 
       - name: Puppeteer Tests 🧑‍🔬
         env:
