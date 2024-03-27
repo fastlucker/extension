@@ -2,18 +2,19 @@
 /* eslint-disable no-await-in-loop */
 import 'reflect-metadata'
 
-import { ethErrors } from 'eth-rpc-errors'
-import { JsonRpcProvider, toBeHex } from 'ethers'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
+import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
+import { nanoid } from 'nanoid'
 
-import { networks as commonNetworks } from '@ambire-common/consts/networks'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
-import { getProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
+import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -98,7 +99,7 @@ export class ProviderController {
     } = req
 
     const networkId = this.getDappNetwork(origin).id
-    const provider: JsonRpcProvider = getProvider(networkId)
+    const provider = this.mainCtrl.settings.providers[networkId]
 
     if (!permissionService.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
@@ -164,8 +165,11 @@ export class ProviderController {
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(options.session.origin)
-      const network = commonNetworks.filter((net) => net.id === dappNetwork.id)[0]
-      const accountState = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount!][network.id]
+      const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+      const accountState =
+        this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
+      if (!accountState) return requestRes?.hash
+
       const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
@@ -174,6 +178,8 @@ export class ProviderController {
       }
 
       // delay just for better UX
+      // when the notification window is closed and the user views the dapp, we wait for the user
+      // to see the actual update in the dapp's UI once the request is resolved.
       await delayPromise(400)
       return hash
     }
@@ -243,13 +249,14 @@ export class ProviderController {
     data: {
       params: [chainParams]
     },
-    session: { origin }
+    session: { origin, name }
   }: {
     data: {
       params: any[]
     }
     session: {
       origin: string
+      name: string
     }
     requestRes?: {
       chain: any
@@ -267,6 +274,16 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
+    permissionService.updateConnectSite(origin, { chainId }, true)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await browser.notifications.create(nanoid(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title: 'Network added',
+        message: `Network switched to ${network.name} for ${name || origin}.`
+      })
+    })()
     this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {
@@ -293,8 +310,14 @@ export class ProviderController {
       const network = mainCtrl.settings.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
-      if (!network || !connected) return false
+      if (!connected) return false
 
+      if (!network) {
+        throw new EthereumProviderError(
+          4902,
+          'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
+        ).serialize()
+      }
       return true
     }
   ])
@@ -302,7 +325,7 @@ export class ProviderController {
     data: {
       params: [chainParams]
     },
-    session: { origin }
+    session: { origin, name }
   }: any) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
@@ -315,6 +338,15 @@ export class ProviderController {
     }
 
     permissionService.updateConnectSite(origin, { chainId }, true)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await browser.notifications.create(nanoid(), {
+        type: 'basic',
+        iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
+        title: 'Successfully switched network',
+        message: `Network switched to ${network.name} for ${name || origin}.`
+      })
+    })()
     this.dappsCtrl.broadcastDappSessionEvent(
       'chainChanged',
       {

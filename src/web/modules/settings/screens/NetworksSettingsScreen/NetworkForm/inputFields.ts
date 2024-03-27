@@ -2,54 +2,27 @@ const INPUT_FIELDS = [
   {
     name: 'name',
     label: 'Network Name',
-    editable: false,
-    rules: {
-      required: 'Field is required',
-      minLength: 1
-    }
+    editable: false
   },
   {
     name: 'rpcUrl',
     label: 'RPC URL',
-    editable: true,
-    rules: {
-      required: 'Field is required'
-    }
+    editable: true
   },
   {
     name: 'chainId',
     label: 'Chain ID',
-    editable: false,
-    rules: {
-      required: 'Field is required'
-    }
+    editable: false
   },
   {
     name: 'nativeAssetSymbol',
     label: 'Currency Symbol',
-    editable: false,
-    rules: {
-      required: 'Field is required'
-    }
+    editable: false
   },
   {
     name: 'explorerUrl',
     label: 'Block Explorer URL',
-    editable: true,
-    rules: {
-      required: 'Field is required',
-      validate: (value: string) => {
-        if (!value) return 'URL cannot be empty'
-
-        try {
-          const url = new URL(value)
-
-          return url.protocol === 'https:' ? undefined : 'URL must start with https://'
-        } catch {
-          return 'Invalid URL'
-        }
-      }
-    }
+    editable: true
   }
 ]
 

@@ -80,6 +80,17 @@ const useAddressInput = ({
       resolveUDomain(trimmedAddress)
         .then((newUDAddress: string) => {
           udAddress = newUDAddress
+
+          if (udAddress) {
+            dispatch({
+              type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+              params: {
+                address: udAddress,
+                name: debouncedAddress,
+                type: 'ud'
+              }
+            })
+          }
         })
         .catch(() => {
           udAddress = ''
@@ -90,6 +101,17 @@ const useAddressInput = ({
       resolveENSDomain(trimmedAddress)
         .then((newEnsAddress: string) => {
           ensAddress = newEnsAddress
+
+          if (ensAddress) {
+            dispatch({
+              type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+              params: {
+                address: ensAddress,
+                name: debouncedAddress,
+                type: 'ens'
+              }
+            })
+          }
         })
         .catch(() => {
           ensAddress = ''

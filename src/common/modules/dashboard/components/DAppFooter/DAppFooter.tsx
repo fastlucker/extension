@@ -11,7 +11,6 @@ import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -152,7 +151,7 @@ const DAppFooter = () => {
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon name={n.id as NetworkIconNameType} />
+        icon: <NetworkIcon id={n.id} />
       })),
     [networks]
   )

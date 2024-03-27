@@ -35,7 +35,11 @@ const SettingsRoutesProvider = () => {
   const [currentSettingsPage, setCurrentSettingsPage] = useState<string | undefined>()
 
   const withScrollView = useMemo(() => {
-    return !(pathname?.includes(ROUTES.signedMessages) || pathname?.includes(ROUTES.transactions))
+    return !(
+      pathname?.includes(ROUTES.signedMessages) ||
+      pathname?.includes(ROUTES.transactions) ||
+      pathname?.includes(ROUTES.networksSettings)
+    )
   }, [pathname])
 
   const wrapperProps = withScrollView ? { contentContainerStyle: panelPaddings } : {}

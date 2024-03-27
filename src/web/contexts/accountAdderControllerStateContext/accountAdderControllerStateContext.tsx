@@ -16,11 +16,8 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    if (mainState.isReady && !Object.keys(state).length) {
-      dispatch({
-        type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'accountAdder' }
-      })
+    if (!Object.keys(state).length) {
+      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: 'accountAdder' } })
     }
   }, [dispatch, mainState.isReady, state])
 

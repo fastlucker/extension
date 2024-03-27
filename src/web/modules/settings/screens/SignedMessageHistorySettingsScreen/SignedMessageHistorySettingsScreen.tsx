@@ -33,13 +33,15 @@ const SignedMessageHistory: FC<{
             <Text fontSize={16} weight="medium">
               {`${accountPreferences?.[account.addr]?.label} (${shortenAddress(account.addr, 10)})`}
             </Text>
-            {page > 1 && (
+            {page > 1 ? (
               <>
                 <Text>{' on page: '}</Text>
                 <Text fontSize={16} weight="medium">
                   {page}
                 </Text>
               </>
+            ) : (
+              ''
             )}
           </Text>
         </Trans>

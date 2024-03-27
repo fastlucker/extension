@@ -6,7 +6,7 @@ import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
@@ -21,11 +21,10 @@ import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 import { tabLayoutWidths } from '../TabLayoutWrapper'
-import getStyles from './styles'
 
 interface Props {
   networkName?: string
-  networkId?: NetworkIconNameType
+  networkId?: NetworkIconIdType
   withAmbireLogo?: boolean
 }
 const HeaderAccountAndNetworkInfo: FC<Props> = ({
@@ -34,7 +33,6 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   withAmbireLogo = true
 }) => {
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
@@ -60,10 +58,10 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
-          <Text appearance="secondaryText" weight="medium" fontSize={fontSize}>
+          <Text appearance="secondaryText" weight="medium" fontSize={fontSize} numberOfLines={1}>
             {selectedAccountLabel}{' '}
           </Text>
-          <Text appearance="primaryText" weight="medium" fontSize={fontSize}>
+          <Text selectable appearance="primaryText" weight="medium" fontSize={fontSize}>
             ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
             {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
             {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}
@@ -78,16 +76,25 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
               <Text appearance="secondaryText" weight="regular" fontSize={fontSize}>
                 {t('on')}{' '}
               </Text>
-              <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
+              <Text
+                appearance="secondaryText"
+                weight="regular"
+                style={spacings.mrMi}
+                fontSize={fontSize}
+              >
                 {networkName || t('Unknown network')}
               </Text>
               {networkId && maxWidthSize(800) ? (
-                <NetworkIcon name={networkId} style={styles.networkIcon} />
+                <NetworkIcon id={networkId} withTooltip={false} size={40} />
               ) : null}
             </View>
           )}
         </View>
-        {!!withAmbireLogo && maxWidthSize(700) && <AmbireLogoHorizontal />}
+        {!!withAmbireLogo && maxWidthSize(700) && (
+          <View style={spacings.pl}>
+            <AmbireLogoHorizontal />
+          </View>
+        )}
       </View>
     </Header>
   )

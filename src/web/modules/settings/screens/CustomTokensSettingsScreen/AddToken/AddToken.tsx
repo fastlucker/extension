@@ -80,7 +80,7 @@ const AddToken = () => {
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{t(n.name)}</Text>,
-        icon: <NetworkIcon name={n.id as NetworkIconNameType} />
+        icon: <NetworkIcon id={n.id} name={n.id as NetworkIconNameType} />
       })),
     [t, networks]
   )

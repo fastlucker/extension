@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
 
+import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { Banner } from '@ambire-common/interfaces/banner'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'

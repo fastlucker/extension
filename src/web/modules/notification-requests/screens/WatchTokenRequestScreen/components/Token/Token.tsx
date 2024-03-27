@@ -67,6 +67,7 @@ const Token = ({
               networkId={tokenNetwork?.id}
               containerHeight={40}
               containerWidth={40}
+              address={tokenData?.address}
               width={28}
               height={28}
             />

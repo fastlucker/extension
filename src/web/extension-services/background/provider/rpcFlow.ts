@@ -4,6 +4,7 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import permissionService from '@web/extension-services/background/services/permission'
@@ -77,6 +78,8 @@ const flowContext = flow
           lockedOrigins.delete(origin)
           throw e
         }
+        // awaits the notification ctrl to resolve with this request before continuing with the actual dapp req
+        await delayPromise(350)
       }
     }
 

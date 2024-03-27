@@ -101,7 +101,7 @@ const NavMenu = () => {
                   size="small"
                   hasBottomSpacing={false}
                   childrenPosition="left"
-                  style={{ minHeight: 32 }}
+                  style={{ minHeight: 32, ...spacings.phTy }}
                   onPress={handleLockAmbire}
                 >
                   <LockFilledIcon style={spacings.mrTy} color={theme.primary} />

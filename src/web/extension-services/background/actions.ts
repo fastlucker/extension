@@ -5,6 +5,7 @@ import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
   AccountPreferences,
+  CustomNetwork,
   KeyPreferences,
   NetworkPreference
 } from '@ambire-common/interfaces/settings'
@@ -15,8 +16,6 @@ import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
-import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 import { controllersMapping } from './types'
 
@@ -85,9 +84,31 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerSettingsAddAccountPreferences = {
-  type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES'
+type MainControllerAddCustomNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
+  params: CustomNetwork
+}
+
+type MainControllerRemoveCustomNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
+  params: NetworkDescriptor['id']
+}
+
+type SettingsControllerAddAccountPreferences = {
+  type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES'
   params: AccountPreferences
+}
+
+type SettingsControllerSetNetworkToAddOrUpdate = {
+  type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
+  params: {
+    chainId: NetworkDescriptor['chainId']
+    rpcUrl: NetworkDescriptor['rpcUrl']
+  }
+}
+
+type SettingsControllerResetNetworkToAddOrUpdate = {
+  type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE'
 }
 
 type MainControllerSettingsAddKeyPreferences = {
@@ -305,6 +326,20 @@ type EmailVaultControllerRequestKeysSyncAction = {
   params: { email: string; keys: string[] }
 }
 
+type DomainsControllerReverseLookupAction = {
+  type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP'
+  params: { address: string }
+}
+
+type DomainsControllerSaveResolvedReverseLookupAction = {
+  type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP'
+  params: {
+    address: string
+    name: string
+    type: 'ens' | 'ud'
+  }
+}
+
 type DappsControllerRemoveConnectedSiteAction = {
   type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
   params: { origin: string }
@@ -341,7 +376,11 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
-  | MainControllerSettingsAddAccountPreferences
+  | SettingsControllerAddAccountPreferences
+  | SettingsControllerSetNetworkToAddOrUpdate
+  | SettingsControllerResetNetworkToAddOrUpdate
+  | MainControllerAddCustomNetwork
+  | MainControllerRemoveCustomNetwork
   | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkPreferences
   | MainControllerResetNetworkPreference
@@ -375,7 +414,6 @@ export type Action =
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerRemoveTokenPreferences
-  | PortfolioControllerResetAdditionalHints
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
@@ -390,6 +428,8 @@ export type Action =
   | EmailVaultControllerRecoverKeystoreAction
   | EmailVaultControllerCleanMagicAndSessionKeysAction
   | EmailVaultControllerRequestKeysSyncAction
+  | DomainsControllerReverseLookupAction
+  | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
