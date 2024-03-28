@@ -248,7 +248,7 @@ const TokenDetails = ({
     isRewards,
     isVesting,
     networkData
-  } = getTokenDetails(token)
+  } = getTokenDetails(token, networks)
 
   return (
     <View>

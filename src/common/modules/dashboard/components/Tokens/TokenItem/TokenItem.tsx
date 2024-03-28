@@ -11,6 +11,7 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -23,7 +24,14 @@ const TokenItem = ({
   token: TokenResult
   handleTokenSelect: ({ address, networkId, flags }: TokenResult) => void
 }) => {
-  const { symbol, address, networkId, flags } = token
+  const {
+    symbol,
+    address,
+    networkId,
+    flags: { onGasTank }
+  } = token
+  const { t } = useTranslation()
+  const { networks } = useSettingsControllerState()
   const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -32,8 +40,6 @@ const TokenItem = ({
       to: theme.secondaryBackground
     }
   })
-  const { t } = useTranslation()
-  const onGasTank = flags.onGasTank
 
   const {
     balanceFormatted,
@@ -43,7 +49,7 @@ const TokenItem = ({
     isVesting,
     networkData,
     isRewards
-  } = getTokenDetails(token)
+  } = getTokenDetails(token, networks)
 
   if ((isRewards || isVesting) && !balance) return null
 
