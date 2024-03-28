@@ -332,12 +332,6 @@ type NotificationControllerOpenNotificationRequestAction = {
   params: { id: number }
 }
 
-type AddressBookControllerSetAccountsInWalletContactsAction = {
-  type: 'ADDRESS_BOOK_CONTROLLER_UPDATE'
-  params: {
-    selectedAccount: Account['addr']
-  }
-}
 type AddressBookControllerAddContact = {
   type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
   params: {
@@ -438,7 +432,6 @@ export type Action =
   | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
-  | AddressBookControllerSetAccountsInWalletContactsAction
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact

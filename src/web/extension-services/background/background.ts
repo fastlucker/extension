@@ -834,9 +834,6 @@ async function init() {
                 return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
               case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
                 return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
-              case 'ADDRESS_BOOK_CONTROLLER_UPDATE': {
-                return mainCtrl.addressBook.update(params)
-              }
               case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
                 return await mainCtrl.addressBook.addContact(params.name, params.address)
               }
