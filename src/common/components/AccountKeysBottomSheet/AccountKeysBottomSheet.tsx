@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import AccountKey from '@common/components/AccountKey'
+import Alert from '@common/components/Alert'
 import BottomSheet from '@common/components/BottomSheet'
 import Label from '@common/components/Label'
 import Option from '@common/components/Option'
@@ -136,6 +137,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
                 'Basic accounts have one key, sourced from a private key, seed, or a hardware wallet. Re-import the account from a different source to use its key from multiple sources.'
               )
         }
+        style={spacings.mbSm}
         customTextStyle={{ textTransform: 'none' }}
         type="info"
       />
@@ -146,7 +148,18 @@ const AccountKeysBottomSheet: FC<Props> = ({
           icon={option.icon}
           onPress={option.onPress}
           iconProps={option?.iconProps}
-        />
+        >
+          {isBasicAccWithImportedOneInternalKey && (
+            <Alert
+              type="warning"
+              isTypeLabelHidden
+              style={spacings.mtTy}
+              text={t(
+                "Although importing a key from a hardware wallet to this Basic account is possible - it's discouraged due to account's private key already being imported. Remember, the primary purpose of hardware wallets is to serve as cold storage, keeping your keys securely offline."
+              )}
+            />
+          )}
+        </Option>
       ))}
     </BottomSheet>
   )

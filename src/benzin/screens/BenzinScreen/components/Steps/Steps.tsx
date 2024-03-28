@@ -93,7 +93,6 @@ const Steps: FC<Props> = ({
                   style={i !== calls.length! - 1 ? spacings.mbSm : {}}
                   call={call}
                   networkId={network!.id}
-                  explorerUrl={network!.explorerUrl}
                   rightIcon={
                     <OpenIcon
                       width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
