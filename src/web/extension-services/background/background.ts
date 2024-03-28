@@ -821,7 +821,7 @@ async function init() {
                     }
                     return t
                   })
-                  tokenPreferences = updatedTokenPreferences
+                  tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
                 }
                 await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
                 return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
