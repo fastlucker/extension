@@ -53,7 +53,7 @@ const icons: { [key: string]: any } = {
   [NETWORKS.gnosis]: GnosisLogo,
   [NETWORKS.kucoin]: KCCKuCoinLogo,
   [NETWORKS.andromeda]: AndromedaLogo,
-  gasTank: GasTankIcon,
+  gastank: GasTankIcon,
   rewards: RewardsIcon
 }
 
