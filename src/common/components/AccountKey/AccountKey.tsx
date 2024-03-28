@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -9,6 +9,7 @@ import CopyIcon from '@common/assets/svg/CopyIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
 import PrivateKeyMiniIcon from '@common/assets/svg/PrivateKeyMiniIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
@@ -139,17 +140,21 @@ const AccountKey: React.FC<Props> = ({
         </AnimatedPressable>
       </View>
       {isImported ? (
-        <>
-          {/* TODO: Use an arrow button instead */}
-          <Text onPress={openBottomSheet}>Details</Text>
-          <AccountKeyDetailsBottomSheet
-            sheetRef={sheetRef}
-            closeBottomSheet={closeBottomSheet}
-            meta={meta}
-            type={type}
-            // TODO: Pass the key details
-          />
-        </>
+        type !== 'internal' && (
+          <>
+            {/* @ts-ignore ts complains, whatever */}
+            <Pressable onPress={openBottomSheet}>
+              <RightArrowIcon width={16} height={16} />
+            </Pressable>
+            <AccountKeyDetailsBottomSheet
+              sheetRef={sheetRef}
+              closeBottomSheet={closeBottomSheet}
+              // TODO: Fix type warns
+              meta={meta}
+              type={type}
+            />
+          </>
+        )
       ) : (
         <View style={isPopup ? spacings.ml : spacings.mlXl}>
           <Badge type="warning" text={t('Not imported')} />
