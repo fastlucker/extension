@@ -15,6 +15,7 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen'
 
 const Token = ({
@@ -30,13 +31,13 @@ const Token = ({
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-
+  const { networks } = useSettingsControllerState()
   const tokenDetails = useMemo(
     () =>
       portfolioFoundToken &&
       portfolioFoundToken?.flags &&
-      getTokenDetails(portfolioFoundToken as TokenResult),
-    [portfolioFoundToken]
+      getTokenDetails(portfolioFoundToken as TokenResult, networks),
+    [portfolioFoundToken, networks]
   )
 
   if (!tokenNetwork?.id) return null
@@ -111,7 +112,7 @@ const Token = ({
             <CoingeckoConfirmedBadge
               text={t('Confirmed')}
               address={tokenData?.address}
-              networkId={tokenNetwork?.id}
+              network={tokenNetwork}
             />
           </View>
         ) : null}

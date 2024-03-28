@@ -40,6 +40,7 @@ import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
 import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
@@ -144,6 +145,7 @@ const MainRoutes = () => {
                   element={<DevicePasswordRecoverySettingsScreen />}
                 />
                 <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                 <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                 <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
               </Route>

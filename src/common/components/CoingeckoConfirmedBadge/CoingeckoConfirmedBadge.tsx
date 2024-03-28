@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
-import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import NetworkDescriptor from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CoingeckoIcon from '@common/assets/svg/CoingeckoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -19,10 +19,10 @@ type Props = {
   text: string
   containerStyle?: any
   address: CustomToken['address']
-  networkId: NetworkId
+  network: NetworkDescriptor
 }
 
-const CoingeckoConfirmedBadge = ({ text, address, networkId, containerStyle }: Props) => {
+const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { t } = useTranslation()
@@ -31,7 +31,7 @@ const CoingeckoConfirmedBadge = ({ text, address, networkId, containerStyle }: P
   const onCoingeckoBadgePress = async () => {
     if (!hasTokenInfo) return
 
-    const coingeckoId = geckoIdMapper(address, networkId)
+    const coingeckoId = geckoIdMapper(address, network)
 
     try {
       await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || address}`)
@@ -41,9 +41,9 @@ const CoingeckoConfirmedBadge = ({ text, address, networkId, containerStyle }: P
   }
 
   useEffect(() => {
-    if (address || networkId) return
+    if (!address || !network) return
 
-    const coingeckoId = geckoIdMapper(address, networkId)
+    const coingeckoId = geckoIdMapper(address, network)
 
     const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || address}`
 
@@ -51,6 +51,7 @@ const CoingeckoConfirmedBadge = ({ text, address, networkId, containerStyle }: P
       method: 'HEAD'
     })
       .then((result) => {
+        console.log(result)
         if (result.ok) {
           setHasTokenInfo(true)
           return
@@ -59,7 +60,7 @@ const CoingeckoConfirmedBadge = ({ text, address, networkId, containerStyle }: P
         setHasTokenInfo(false)
       })
       .catch(() => {})
-  }, [addToast, t, address, networkId])
+  }, [addToast, t, address, network])
 
   return (
     <Pressable

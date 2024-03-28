@@ -225,11 +225,7 @@ const AddToken = () => {
             </View>
             <View style={flexbox.directionRow}>
               {portfolioFoundToken?.priceIn?.length ? (
-                <CoingeckoConfirmedBadge
-                  text="Confirmed"
-                  address={address}
-                  networkId={network?.id}
-                />
+                <CoingeckoConfirmedBadge text="Confirmed" address={address} network={network} />
               ) : null}
             </View>
           </View>

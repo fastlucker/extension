@@ -3,6 +3,7 @@ import React, { FC } from 'react'
 
 import { Props as TextProps } from '@common/components/Text'
 import { isExtension } from '@web/constants/browserapi'
+import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import BaseAddress from './components/BaseAddress'
@@ -17,14 +18,16 @@ interface Props extends TextProps {
 
 const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const { accountPreferences } = useSettingsControllerState()
+  const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = getAddress(address)
   const { label: accountInWalletLabel } = accountPreferences?.[checksummedAddress] || {}
+  const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
 
   // highestPriorityAlias and account labels are of higher priority than domains
-  if (highestPriorityAlias || accountInWalletLabel)
+  if (highestPriorityAlias || contact?.name || accountInWalletLabel)
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias || accountInWalletLabel}
+        {highestPriorityAlias || contact?.name || accountInWalletLabel}
       </BaseAddress>
     )
 
