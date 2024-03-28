@@ -38,7 +38,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
     values: [
       {
         property: 'opacity',
-        from: 0.7,
+        from: 0.9,
         to: 1
       },
       {
@@ -104,4 +104,4 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
   )
 }
 
-export default RouteItem
+export default React.memo(RouteItem)

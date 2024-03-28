@@ -11,6 +11,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
 import Text, { TextWeight } from '../Text'
 
@@ -34,6 +35,8 @@ const ICON_MAP = {
   info: InfoIcon
 }
 
+const { isPopup } = getUiType()
+
 const Alert: FC<Props> = ({
   title,
   titleWeight,
@@ -48,7 +51,7 @@ const Alert: FC<Props> = ({
 }) => {
   const Icon = ICON_MAP[type]
   const { theme } = useTheme()
-  const isSmall = size === 'sm'
+  const isSmall = size === 'sm' || isPopup
   const fontSize = !isSmall ? 16 : 14
 
   return (

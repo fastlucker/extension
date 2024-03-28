@@ -135,6 +135,16 @@ const SelectComponent = ({
                 outline: 'none',
                 ...controlStyle
               } as any),
+            valueContainer: (baseStyles) => ({
+              ...baseStyles,
+              overflow: 'visible'
+            }),
+            singleValue: (baseStyles) => ({
+              ...baseStyles,
+              paddingTop: 0,
+              paddingBottom: 0,
+              overflow: 'visible'
+            }),
             menu: (baseStyles) =>
               ({
                 ...baseStyles,

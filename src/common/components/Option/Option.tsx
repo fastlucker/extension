@@ -17,9 +17,17 @@ interface Props {
   onPress: () => void
   hasLargerBottomSpace?: boolean
   iconProps?: SvgProps
+  children?: React.ReactNode
 }
 
-const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text, iconProps = {} }: Props) => {
+const Option = ({
+  icon: Icon,
+  onPress,
+  hasLargerBottomSpace,
+  text,
+  iconProps = {},
+  children
+}: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'borderColor',
@@ -36,15 +44,18 @@ const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text, iconProps = {
       onPress={onPress}
       {...bindAnim}
     >
-      <View style={styles.iconWrapper}>
-        <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View style={styles.iconWrapper}>
+          <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
+        </View>
+        <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
+          {text}
+        </Text>
+        <View style={spacings.mrSm}>
+          <RightArrowIcon />
+        </View>
       </View>
-      <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
-        {text}
-      </Text>
-      <View style={spacings.mrSm}>
-        <RightArrowIcon />
-      </View>
+      {children}
     </AnimatedPressable>
   )
 }

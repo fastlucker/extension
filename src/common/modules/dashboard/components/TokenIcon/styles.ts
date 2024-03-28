@@ -19,8 +19,7 @@ const getStyles = (theme: ThemeProps) =>
       borderRadius: 12
     },
     networkIcon: {
-      backgroundColor: theme.primaryBackground,
-      borderRadius: 12
+      backgroundColor: theme.primaryBackground
     }
   })
 

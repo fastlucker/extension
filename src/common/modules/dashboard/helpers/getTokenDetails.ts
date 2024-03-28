@@ -1,16 +1,13 @@
 import { formatUnits } from 'ethers'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import networks from '@common/constants/networks'
 import formatDecimals from '@common/utils/formatDecimals'
 
-const getTokenDetails = ({
-  flags: { rewardsType },
-  networkId,
-  priceIn,
-  amount,
-  decimals
-}: TokenResult) => {
+const getTokenDetails = (
+  { flags: { rewardsType }, networkId, priceIn, amount, decimals }: TokenResult,
+  networks: NetworkDescriptor[]
+) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
