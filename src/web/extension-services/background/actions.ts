@@ -1,5 +1,5 @@
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
-import { Contacts } from '@ambire-common/controllers/addressBook/addressBook'
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -341,21 +341,21 @@ type AddressBookControllerSetAccountsInWalletContactsAction = {
 type AddressBookControllerAddContact = {
   type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
   params: {
-    address: string
-    name: string
+    address: Contact['address']
+    name: Contact['name']
   }
 }
 type AddressBookControllerRenameContact = {
   type: 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT'
   params: {
-    address: string
-    newName: string
+    address: Contact['address']
+    newName: Contact['name']
   }
 }
 type AddressBookControllerRemoveContact = {
   type: 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT'
   params: {
-    address: string
+    address: Contact['address']
   }
 }
 
