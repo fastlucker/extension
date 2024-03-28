@@ -475,7 +475,6 @@ const SignAccountOpScreen = () => {
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
                       networkId={network!.id}
-                      explorerUrl={network!.explorerUrl}
                     />
                   )
                 })}
