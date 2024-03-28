@@ -174,7 +174,6 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
           ))}
       </View>
 
-      {/* TODO: implementation of add custom token will be in sprint 4 */}
       <Button
         type="secondary"
         text={t('+ Add Custom')}
