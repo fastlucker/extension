@@ -35,6 +35,12 @@ export const SETTINGS_LINKS = [
     path: ROUTES.accountsSettings
   },
   {
+    key: 'address-book',
+    Icon: React.memo(AddressBookIcon),
+    label: 'Address Book',
+    path: ROUTES.addressBook
+  },
+  {
     key: 'networks',
     Icon: React.memo(NetworksIcon),
     label: 'Networks',
@@ -77,12 +83,6 @@ export const SETTINGS_LINKS = [
     Icon: React.memo(CustomTokensIcon),
     label: 'Custom Tokens',
     path: '/settings/custom-tokens'
-  },
-  {
-    key: 'address-book',
-    Icon: React.memo(AddressBookIcon),
-    label: 'Address Book',
-    path: ROUTES.addressBook
   }
 ]
 
