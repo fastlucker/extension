@@ -10,7 +10,7 @@ import Button from '@common/components/Button'
 import CoingeckoConfirmedBadge from '@common/components/CoingeckoConfirmedBadge'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -80,7 +80,7 @@ const AddToken = () => {
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{t(n.name)}</Text>,
-        icon: <NetworkIcon id={n.id} name={n.id as NetworkIconNameType} />
+        icon: <NetworkIcon id={n.id} name={n.id as NetworkIconIdType} />
       })),
     [t, networks]
   )
