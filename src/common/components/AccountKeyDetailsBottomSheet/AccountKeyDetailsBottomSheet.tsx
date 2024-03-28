@@ -20,8 +20,15 @@ interface Props {
 const AccountKeyDetailsBottomSheet: FC<Props> = ({ sheetRef, type, meta, closeBottomSheet }) => {
   const { t } = useTranslation()
 
+  if (!meta) return null
+
   return (
-    <BottomSheet id="account-key-details" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+    <BottomSheet
+      adjustToContentHeight={false}
+      id="account-key-details"
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+    >
       <Text fontSize={18} weight="medium" style={spacings.mbSm}>
         {t('Key details')}
       </Text>
