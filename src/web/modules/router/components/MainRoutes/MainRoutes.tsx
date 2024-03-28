@@ -33,6 +33,7 @@ import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import WatchTokenRequestScreen from '@web/modules/notification-requests/screens/WatchTokenRequestScreen'
 import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
@@ -40,6 +41,7 @@ import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
+import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
@@ -142,6 +144,7 @@ const MainRoutes = () => {
                   path={WEB_ROUTES.devicePasswordRecovery}
                   element={<DevicePasswordRecoverySettingsScreen />}
                 />
+                <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
                 <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                 <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                 <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
@@ -166,6 +169,7 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+          <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
 
           <Route
             path={WEB_ROUTES.getEncryptionPublicKeyRequest}

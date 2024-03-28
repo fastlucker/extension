@@ -77,7 +77,8 @@ const WEB_ROUTES = {
   createSeedPhrasePrepare: 'create-seed-phrase/prepare',
   createSeedPhraseWrite: 'create-seed-phrase/write',
   createSeedPhraseConfirm: 'create-seed-phrase/confirm',
-  benzin: 'benzin'
+  benzin: 'benzin',
+  customTokens: 'custom-tokens'
 }
 
 const ROUTES = {

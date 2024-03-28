@@ -16,6 +16,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
 import { controllersMapping } from './types'
 
@@ -211,6 +212,26 @@ type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
     forceUpdate?: boolean
+    additionalHints?: TokenResult['address'][]
+  }
+}
+type PortfolioControllerUpdateTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
+  params: {
+    token: CustomToken | TokenResult
+  }
+}
+type PortfolioControllerRemoveTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
+  params: {
+    token: CustomToken | TokenResult
+  }
+}
+
+type PortfolioControllerCheckToken = {
+  type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
+  params: {
+    token: { address: TokenResult['address']; networkId: NetworkId }
   }
 }
 type MainControllerSignAccountOpInitAction = {
@@ -414,6 +435,9 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
+  | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerRemoveTokenPreferences
+  | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction

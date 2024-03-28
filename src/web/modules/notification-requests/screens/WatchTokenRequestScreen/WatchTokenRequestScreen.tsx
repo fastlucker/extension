@@ -1,226 +1,268 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { getAddress } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { Token, UsePortfolioReturnType } from '@ambire-common-v1/hooks/usePortfolio'
-import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import CloseIcon from '@common/assets/svg/CloseIcon'
+import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
-import Panel from '@common/components/Panel'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import Title from '@common/components/Title'
-import { Trans, useTranslation } from '@common/config/localization'
-import useNetwork from '@common/hooks/useNetwork'
-import usePortfolio from '@common/hooks/usePortfolio'
-import useToken from '@common/hooks/useToken'
-import TokenItem from '@common/modules/dashboard/components/AddOrHideToken/TokenItem'
-import colors from '@common/styles/colors'
+import { useTranslation } from '@common/config/localization'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import textStyles from '@common/styles/utils/text'
-import ManifestImage from '@web/components/ManifestImage'
-import useApproval from '@web/hooks/useApproval'
+import flexbox from '@common/styles/utils/flexbox'
+import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
+import {
+  TabLayoutContainer,
+  TabLayoutWrapperMainContent
+} from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import {
+  getTokenEligibility,
+  getTokenFromPortfolio,
+  getTokenFromPreferences,
+  handleTokenIsInPortfolio,
+  selectNetwork
+} from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
 
-import styles from './styles'
+import Token from './components/Token'
+import TokenHeader from './components/TokenHeader'
 
-// TODO: Refactor the useApproval, useNetwork and usePortfolio to match the latest changes.
+export type TokenData = {
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  image: string
+}
+
 const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
-  const [loadingTokenDetails, setLoadingTokenDetails] = useState(true)
-  const [error, setError] = useState('')
-  const [extraToken, setExtraToken] = useState<Token | null>(null)
-  const [isAdding, setIsAdding] = useState(false)
-  const { network } = useNetwork()
-  const { approval, resolveApproval, rejectApproval } = useApproval()
-  const { onAddExtraToken, checkIsTokenEligibleForAddingAsExtraToken } = usePortfolio()
-  const { getTokenDetails } = useToken()
-  const [tokenEligibleStatus, setTokenEligibleStatus] = useState<
-    ReturnType<UsePortfolioReturnType['checkIsTokenEligibleForAddingAsExtraToken']>
-  >({
-    isEligible: false
-  })
+  const { theme } = useTheme()
+  const { dispatch } = useBackgroundService()
+  const state = useNotificationControllerState()
+  const portfolio = usePortfolioControllerState()
+  const mainCtrl = useMainControllerState()
+  const { networks } = useSettingsControllerState()
+  const selectedAccount = mainCtrl.selectedAccount || ''
 
-  const tokenSymbol = approval?.data?.params?.data?.options?.symbol
-  const tokenAddress = approval?.data?.params?.data?.options?.address
+  const tokenData = state?.currentNotificationRequest?.params?.data?.options
+  const origin = state?.currentNotificationRequest?.params?.session?.origin
+  const network =
+    networks.find((n) => n.explorerUrl === origin) ||
+    networks.find((n) => n.id === tokenData?.networkId)
+  const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [tokenNetwork, setTokenNetwork] = useState(network)
+  const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
 
-  useEffect(() => {
-    setLoadingTokenDetails(true)
-    setError('')
+  const isControllerLoading =
+    (tokenNetwork?.id && portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading) ||
+    false
 
-    if (!tokenAddress) {
-      setLoadingTokenDetails(false)
-      setError('')
-      return
-    }
-
-    ;(async () => {
-      try {
-        const token = await getTokenDetails(tokenAddress)
-        setExtraToken(token)
-
-        if (!token)
-          throw new Error(
-            t('Token does not appear to correspond to an ERC20 token on {{networkName}}.', {
-              networkName: network?.name
-            })
-          )
-
-        setTokenEligibleStatus(checkIsTokenEligibleForAddingAsExtraToken(token))
-      } catch {
-        setLoadingTokenDetails(false)
-        setError(
-          t('Token does not appear to correspond to an ERC20 token on {{networkName}}.', {
-            networkName: network?.name
-          })
-        )
-      }
-
-      setLoadingTokenDetails(false)
-    })()
-    // Do not include the `checkIsTokenEligibleForAddingAsExtraToken`, because
-    // its deps (tokens, constants) are not properly memoized which triggers
-    // way too many re-renderings than needed (and loading indicator is shown)
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [getTokenDetails, t, tokenAddress])
-
-  const handleAddToken = useCallback(async () => {
-    setIsAdding(true)
-
-    if (extraToken) {
-      onAddExtraToken(extraToken)
-      resolveApproval(true)
-    }
-  }, [extraToken, onAddExtraToken, resolveApproval])
-
-  // On skip, resolve, since if you have positive balance of this token,
-  // you will be able to see it in the Ambire Wallet in all cases.
-  const handleSkipButtonPress = useCallback(() => {
-    setIsAdding(true)
-    resolveApproval(true)
-  }, [resolveApproval])
-
-  const handleDenyButtonPress = useCallback(
-    () => rejectApproval(t('User rejected the request.')),
-    [t, rejectApproval]
+  const tokenTypeEligibility = useMemo(
+    () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
+    [portfolio, tokenData, tokenNetwork]
   )
 
+  const handleCancel = useCallback(() => {
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: { err: t('User rejected the request.') }
+    })
+  }, [t, dispatch])
+
+  // Handle the case its already in token preferences
+  const tokenInPreferences = useMemo(
+    () => getTokenFromPreferences(tokenData, tokenNetwork, portfolio.state.tokenPreferences),
+    [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
+  )
+
+  const portfolioFoundToken = useMemo(
+    () =>
+      getTokenFromPortfolio(
+        tokenData,
+        tokenNetwork,
+        portfolio?.accountPortfolio,
+        tokenInPreferences
+      ),
+    [portfolio, tokenInPreferences, tokenData, tokenNetwork]
+  )
+
+  const handleTokenType = async (networkId: NetworkId) => {
+    await portfolio.checkToken({ address: tokenData?.address, networkId })
+  }
+
+  useEffect(() => {
+    const handleEffect = async () => {
+      await selectNetwork(
+        network,
+        tokenNetwork,
+        tokenData,
+        networks,
+        portfolio,
+        setIsLoading,
+        setTokenNetwork,
+        handleTokenType
+      )
+
+      if (tokenNetwork) {
+        // Check if token is eligible to add in portfolio
+        if (tokenData && !tokenTypeEligibility) {
+          await handleTokenType(tokenNetwork?.id)
+        }
+
+        if (tokenTypeEligibility) {
+          // Check if token is already in portfolio
+          const isTokenInHints = await handleTokenIsInPortfolio(
+            tokenInPreferences,
+            portfolio.accountPortfolio,
+            tokenNetwork,
+            tokenData
+          )
+          if (isTokenInHints) {
+            setIsLoading(false)
+            setShowAlreadyInPortfolioMessage(true)
+          } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
+            setAdditionalHintRequested(true)
+            portfolio.updateAdditionalHints([getAddress(tokenData?.address)])
+          }
+        }
+      }
+    }
+
+    handleEffect().catch(() => setIsLoading(false))
+
+    if (tokenTypeEligibility === false || !!portfolioFoundToken) {
+      setIsLoading(false)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    network,
+    tokenData,
+    tokenNetwork,
+    networks,
+    selectedAccount,
+    tokenTypeEligibility,
+    portfolioFoundToken,
+    setIsLoading,
+    tokenInPreferences,
+    portfolio.state.validTokens,
+    isControllerLoading
+  ])
+
+  const handleAddToken = useCallback(async () => {
+    if (!tokenNetwork?.id) return
+    const token: CustomToken = {
+      address: getAddress(tokenData.address),
+      name: tokenData?.name,
+      symbol: tokenData?.symbol,
+      decimals: tokenData?.decimals,
+      standard: 'ERC20',
+      networkId: tokenNetwork?.id
+    }
+
+    await portfolio.updateTokenPreferences(token)
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+      params: { data: null }
+    })
+  }, [dispatch, tokenData, tokenNetwork, portfolio])
+
+  if (isLoading && tokenTypeEligibility === undefined) {
+    return (
+      <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
+        <Spinner />
+      </View>
+    )
+  }
+
   return (
-    <ScrollableWrapper hasBottomTabNav={false} contentContainerStyle={spacings.pt0}>
-      <Panel>
-        <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
-          <ManifestImage
-            uri={approval?.data?.params?.session?.icon}
-            size={64}
-            fallback={() => <ManifestFallbackIcon />}
+    <TabLayoutContainer
+      width="full"
+      header={
+        <HeaderAccountAndNetworkInfo
+          networkName={tokenNetwork?.name}
+          networkId={tokenNetwork?.id}
+        />
+      }
+      footer={
+        <>
+          <Button
+            text={t('Cancel')}
+            type="danger"
+            hasBottomSpacing={false}
+            style={spacings.phLg}
+            onPress={handleCancel}
+          >
+            <View style={spacings.pl}>
+              <CloseIcon color={theme.errorDecorative} />
+            </View>
+          </Button>
+
+          <Button
+            style={spacings.phLg}
+            hasBottomSpacing={false}
+            onPress={handleAddToken}
+            disabled={isLoading || showAlreadyInPortfolioMessage || !tokenTypeEligibility}
+            text={t('Add token')}
           />
-        </View>
-
-        <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-          {approval?.data?.origin ? new URL(approval?.data?.origin)?.hostname : ''}
-        </Title>
-
-        {!loadingTokenDetails && error && (
+        </>
+      }
+    >
+      <TabLayoutWrapperMainContent style={spacings.mbLg}>
+        {!tokenTypeEligibility && tokenTypeEligibility !== undefined ? (
+          <Alert type="error" title={t('This token type is not supported.')} />
+        ) : (
           <>
-            <View>
-              <Text
-                fontSize={14}
-                weight="regular"
-                style={[textStyles.center, spacings.phSm, spacings.mbLg]}
-                appearance="errorText"
-              >
-                {error}
+            {showAlreadyInPortfolioMessage ? (
+              <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+                {tokenInPreferences
+                  ? t('This token is already in your preferences.')
+                  : t('This token is already in your portfolio.')}
               </Text>
-            </View>
-
-            <View style={styles.buttonWrapper}>
-              <Button
-                type="outline"
-                accentColor={colors.titan}
-                onPress={handleDenyButtonPress}
-                text={t('Dismiss')}
-              />
-            </View>
-          </>
-        )}
-
-        {loadingTokenDetails && !error && (
-          <View style={flexboxStyles.center}>
-            <Spinner />
-          </View>
-        )}
-
-        {!loadingTokenDetails && !error && (
-          <>
-            <View>
-              <Trans values={{ tokenSymbol, tokenAddress }}>
-                <Text style={[textStyles.center, spacings.phSm, spacings.mbLg]}>
-                  <Text fontSize={14} weight="regular">
-                    {'The dApp '}
-                  </Text>
-                  <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                    {approval?.data?.params?.name || ''}
-                  </Text>
-                  <Text fontSize={14} weight="regular">
-                    {
-                      ' is requesting to add the {{tokenSymbol}} token {{tokenAddress}} to the Ambire Wallet tokens list.'
-                    }
-                  </Text>
+            ) : (
+              <>
+                <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+                  {t('Add suggested token')}
                 </Text>
-              </Trans>
-
-              {!tokenEligibleStatus.isEligible && !!tokenEligibleStatus.reason && (
                 <Text
-                  fontSize={14}
                   weight="regular"
-                  style={[textStyles.center, spacings.phSm, spacings.mbLg]}
+                  fontSize={16}
+                  color={theme.secondaryText}
+                  style={spacings.mbXl}
                 >
-                  {tokenEligibleStatus.reason}
+                  {t('Would you like to add this token?')}
                 </Text>
-              )}
+              </>
+            )}
 
-              {extraToken && <TokenItem {...extraToken} />}
-            </View>
-
-            <View style={styles.buttonsContainer}>
-              {tokenEligibleStatus.isEligible && (
-                <>
-                  <View style={styles.buttonWrapper}>
-                    <Button
-                      disabled={isAdding}
-                      type="danger"
-                      onPress={handleDenyButtonPress}
-                      text={t('Deny')}
-                    />
-                  </View>
-                  <View style={styles.buttonWrapper}>
-                    <Button
-                      disabled={isAdding || !extraToken}
-                      type="outline"
-                      onPress={handleAddToken}
-                      text={isAdding ? t('Adding...') : t('Add token')}
-                    />
-                  </View>
-                </>
-              )}
-              {!tokenEligibleStatus.isEligible && (
-                <View style={styles.buttonWrapper}>
-                  <Button
-                    disabled={isAdding}
-                    type="outline"
-                    onPress={handleSkipButtonPress}
-                    text={isAdding ? t('Confirming...') : t('Okay')}
-                  />
-                </View>
-              )}
-            </View>
-
-            <Text fontSize={14} style={textStyles.center}>
-              {t('Token can be hidden any time from the Ambire extension settings.')}
-            </Text>
+            <View
+              style={{
+                width: '100%',
+                borderBottomWidth: 1,
+                borderColor: theme.secondaryBorder,
+                ...spacings.mb
+              }}
+            />
+            <TokenHeader portfolioFoundToken={portfolioFoundToken} />
+            <Token
+              tokenData={tokenData}
+              tokenNetwork={tokenNetwork}
+              portfolioFoundToken={portfolioFoundToken}
+              isLoading={isLoading}
+            />
           </>
         )}
-      </Panel>
-    </ScrollableWrapper>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

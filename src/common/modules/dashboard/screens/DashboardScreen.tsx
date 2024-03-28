@@ -191,6 +191,7 @@ const DashboardScreen = () => {
         <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
           <DashboardSectionList
             accountPortfolio={accountPortfolio}
+            tokenPreferences={state?.tokenPreferences}
             filterByNetworkId={filterByNetworkId}
           />
         </View>
