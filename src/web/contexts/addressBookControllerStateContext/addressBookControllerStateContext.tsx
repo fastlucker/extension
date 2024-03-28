@@ -33,15 +33,6 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('addressBook', onUpdate)
   }, [])
 
-  useEffect(() => {
-    dispatch({
-      type: 'ADDRESS_BOOK_CONTROLLER_UPDATE',
-      params: {
-        selectedAccount: mainState.selectedAccount || ''
-      }
-    })
-  }, [dispatch, mainState.selectedAccount])
-
   return (
     <AddressBookControllerStateContext.Provider value={useMemo(() => state, [state])}>
       {children}
