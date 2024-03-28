@@ -143,12 +143,12 @@ const NetworkForm = ({
         }
 
         if (
-          rpcUrl !== selectedNetwork?.rpcUrl ||
+          rpcUrl !== selectedNetwork?.rpcUrls?.[0] ||
           Number(chainId) !== Number(selectedNetwork?.chainId)
         ) {
           dispatch({
             type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-            params: { rpcUrl, chainId: BigInt(chainId) }
+            params: { rpcUrls: [rpcUrl], chainId: BigInt(chainId) }
           })
         }
         setValidatingRPC(false)
@@ -262,7 +262,11 @@ const NetworkForm = ({
 
         dispatch({
           type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
-          params: { ...networkFormValues, chainId: BigInt(networkFormValues.chainId) }
+          params: {
+            ...networkFormValues,
+            rpcUrls: [networkFormValues.rpcUrl],
+            chainId: BigInt(networkFormValues.chainId)
+          }
         })
       } else {
         const emptyFields = Object.keys(fields)
@@ -281,7 +285,7 @@ const NetworkForm = ({
           type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
           params: {
             networkPreferences: {
-              rpcUrl: networkFormValues.rpcUrl,
+              rpcUrls: [networkFormValues.rpcUrl],
               explorerUrl: networkFormValues.explorerUrl
             },
             networkId: selectedNetworkId

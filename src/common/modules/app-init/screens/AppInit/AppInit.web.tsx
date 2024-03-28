@@ -4,7 +4,6 @@ import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
-import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -17,7 +16,6 @@ import { ToastProvider } from '@common/contexts/toastContext'
 import useFonts from '@common/hooks/useFonts'
 import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
-import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
@@ -35,13 +33,6 @@ import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControl
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
-
-// Initialize rpc providers for all networks
-// @TODO: get rid of this and use the rpc providers from the settings controller
-const shouldInitProviders = !areRpcProvidersInitialized()
-if (shouldInitProviders) {
-  initRpcProviders(rpcProviders)
-}
 
 const Router = isExtension ? HashRouter : BrowserRouter
 
