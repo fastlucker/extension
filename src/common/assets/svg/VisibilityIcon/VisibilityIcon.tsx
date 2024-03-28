@@ -6,9 +6,10 @@ import { iconColors } from '@common/styles/themeConfig'
 const VisibilityIcon: React.FC<SvgProps> = ({
   width = 24,
   height = 24,
-  color = iconColors.primary
+  color = iconColors.primary,
+  ...rest
 }) => (
-  <Svg width={width} fill="none" height={height} viewBox="0 0 24 24">
+  <Svg width={width} fill="none" height={height} viewBox="0 0 24 24" {...rest}>
     <Path
       stroke={color}
       strokeLinecap="round"

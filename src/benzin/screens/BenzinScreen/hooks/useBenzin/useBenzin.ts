@@ -1,5 +1,6 @@
+import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
@@ -66,13 +67,22 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const useNetworks = settingsNetworks ?? networks
   const network = useNetworks.find((n) => n.id === networkId)
 
+  const [provider, setProvider] = useState<JsonRpcProvider | null>(null)
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
-  if ((!txnId && !userOpHash) || !network) return null
+  useEffect(() => {
+    if (!network?.rpcUrls) return
 
-  const provider = useMemo(() => {
-    return getRpcProvider(network.rpcUrls, network.chainId)
-  }, [network])
+    setProvider(getRpcProvider(network.rpcUrls, network.chainId))
+
+    return () => {
+      setProvider((prev) => {
+        prev?.destroy()
+
+        return null
+      })
+    }
+  }, [network?.rpcUrls, network?.chainId])
 
   const stepsState = useSteps({
     txnId,

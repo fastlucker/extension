@@ -31,7 +31,7 @@ const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slowe
 interface Props {
   txnId: string | null
   userOpHash: string | null
-  network: NetworkDescriptor
+  network?: NetworkDescriptor
   standardOptions: {
     storage: Storage
     fetch: any
@@ -39,7 +39,7 @@ interface Props {
     parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
-  provider: JsonRpcProvider
+  provider: JsonRpcProvider | null
 }
 
 export interface StepsData {
@@ -107,7 +107,7 @@ const useSteps = ({
 
   // if we have a userOpHash only, try to find the txnId
   useEffect(() => {
-    if (!userOpHash || txnId || userOpStatusData.txnId) return
+    if (!userOpHash || txnId || userOpStatusData.txnId || !network) return
 
     fetchUserOp(userOpHash, standardOptions.fetch)
       .then((reqRes: any) => {
@@ -157,7 +157,7 @@ const useSteps = ({
 
   // find the transaction
   useEffect(() => {
-    if (txn || (!txnId && !userOpStatusData.txnId)) return
+    if (txn || (!txnId && !userOpStatusData.txnId) || !provider) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
@@ -183,7 +183,7 @@ const useSteps = ({
   }, [txnId, userOpStatusData, txn, refetchTxnCounter, setActiveStep, provider])
 
   useEffect(() => {
-    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId)) return
+    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId) || !provider) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
@@ -251,7 +251,8 @@ const useSteps = ({
     if (
       !txn ||
       (finalizedStatus && finalizedStatus.status !== 'failed') ||
-      (finalizedStatus && finalizedStatus.reason)
+      (finalizedStatus && finalizedStatus.reason) ||
+      !provider
     )
       return
 
@@ -290,7 +291,7 @@ const useSteps = ({
 
   // calculate pending time
   useEffect(() => {
-    if (!txn || txnReceipt.blockNumber) return
+    if (!txn || txnReceipt.blockNumber || !provider || !network) return
 
     provider
       .getBlock('latest', true)
@@ -315,11 +316,11 @@ const useSteps = ({
         }
       })
       .catch(() => null)
-  }, [txn, txnReceipt, provider, network.feeOptions.is1559])
+  }, [txn, txnReceipt, provider, network])
 
   // get block
   useEffect(() => {
-    if (!txnReceipt.blockNumber || blockData !== null) return
+    if (!txnReceipt.blockNumber || blockData !== null || !provider) return
 
     provider
       .getBlock(Number(txnReceipt.blockNumber))

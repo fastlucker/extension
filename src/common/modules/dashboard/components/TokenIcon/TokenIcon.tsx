@@ -24,6 +24,7 @@ interface Props extends Partial<ImageProps> {
   height?: number
   onGasTank?: boolean
   networkSize?: number
+  uri?: string
 }
 
 const TokenIcon: React.FC<Props> = ({
