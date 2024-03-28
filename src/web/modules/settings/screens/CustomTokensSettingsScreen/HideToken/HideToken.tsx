@@ -29,12 +29,15 @@ const HideToken = () => {
 
       // Flip isHidden flag
       let tokenIsInPreferences = tokenPreferences.find(
-        (tokenPreference) => tokenPreference.address === token.address
+        (tokenPreference) =>
+          tokenPreference.address.toLowerCase() === token.address.toLowerCase() &&
+          tokenPreference.networkId === token.networkId
       )
+
       if (!tokenIsInPreferences) {
         tokenIsInPreferences = { ...token, isHidden: true }
       } else {
-        tokenIsInPreferences = { ...token, isHidden: !token.isHidden }
+        tokenIsInPreferences = { ...token, isHidden: !tokenIsInPreferences.isHidden }
       }
 
       let newTokenPreferences = []
