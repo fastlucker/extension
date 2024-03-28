@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
@@ -16,11 +18,16 @@ export interface AccountPortfolio {
   totalAmount: number
   isAllReady: boolean
 }
+
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
   startedLoading: null | number
   refreshPortfolio: () => void
+  updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
+  updateTokenPreferences: (token: CustomToken) => void
+  removeTokenPreferences: (token: CustomToken) => void
+  checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
 }>({
   accountPortfolio: {
     tokens: [],
@@ -30,7 +37,11 @@ const PortfolioControllerStateContext = createContext<{
   },
   state: {} as any,
   startedLoading: null,
-  refreshPortfolio: () => {}
+  refreshPortfolio: () => {},
+  updateAdditionalHints: () => {},
+  updateTokenPreferences: () => {},
+  removeTokenPreferences: () => {},
+  checkToken: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -117,6 +128,55 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('portfolio', onUpdate)
   }, [])
 
+  const updateAdditionalHints = useCallback(
+    (tokenIds: string[]) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
+        params: {
+          forceUpdate: true,
+          additionalHints: tokenIds
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const updateTokenPreferences = useCallback(
+    async (token: CustomToken) => {
+      dispatch({
+        type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+        params: {
+          token
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const removeTokenPreferences = useCallback(
+    (token: CustomToken) => {
+      dispatch({
+        type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES',
+        params: {
+          token
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const checkToken = useCallback(
+    (token: { networkId: NetworkId; address: string }) => {
+      dispatch({
+        type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN',
+        params: {
+          token
+        }
+      })
+    },
+    [dispatch]
+  )
+
   const refreshPortfolio = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
@@ -134,9 +194,22 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           state,
           accountPortfolio,
           refreshPortfolio,
-          startedLoading
+          startedLoading,
+          updateTokenPreferences,
+          updateAdditionalHints,
+          removeTokenPreferences,
+          checkToken
         }),
-        [state, accountPortfolio, startedLoading, refreshPortfolio]
+        [
+          state,
+          accountPortfolio,
+          startedLoading,
+          refreshPortfolio,
+          updateTokenPreferences,
+          updateAdditionalHints,
+          removeTokenPreferences,
+          checkToken
+        ]
       )}
     >
       {children}

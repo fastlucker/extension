@@ -1,4 +1,5 @@
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -15,6 +16,7 @@ import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
 import { controllersMapping } from './types'
 
@@ -210,6 +212,26 @@ type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
     forceUpdate?: boolean
+    additionalHints?: TokenResult['address'][]
+  }
+}
+type PortfolioControllerUpdateTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
+  params: {
+    token: CustomToken | TokenResult
+  }
+}
+type PortfolioControllerRemoveTokenPreferences = {
+  type: 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES'
+  params: {
+    token: CustomToken | TokenResult
+  }
+}
+
+type PortfolioControllerCheckToken = {
+  type: 'PORTFOLIO_CONTROLLER_CHECK_TOKEN'
+  params: {
+    token: { address: TokenResult['address']; networkId: NetworkId }
   }
 }
 type MainControllerSignAccountOpInitAction = {
@@ -330,6 +352,28 @@ type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
   params: { id: number }
 }
+
+type AddressBookControllerAddContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
+  params: {
+    address: Contact['address']
+    name: Contact['name']
+  }
+}
+type AddressBookControllerRenameContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT'
+  params: {
+    address: Contact['address']
+    newName: Contact['name']
+  }
+}
+type AddressBookControllerRemoveContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT'
+  params: {
+    address: Contact['address']
+  }
+}
+
 type ChangeCurrentDappNetworkAction = {
   type: 'CHANGE_CURRENT_DAPP_NETWORK'
   params: { chainId: number; origin: string }
@@ -391,6 +435,9 @@ export type Action =
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
+  | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerRemoveTokenPreferences
+  | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerLockAction
@@ -409,6 +456,9 @@ export type Action =
   | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
+  | AddressBookControllerAddContact
+  | AddressBookControllerRenameContact
+  | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction

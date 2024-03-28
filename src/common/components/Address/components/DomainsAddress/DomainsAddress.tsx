@@ -1,9 +1,8 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC } from 'react'
 
 import Spinner from '@common/components/Spinner'
 import { Props as TextProps } from '@common/components/Text'
-import useBackgroundService from '@web/hooks/useBackgroundService'
-import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
+import useReverseLookup from '@common/hooks/useReverseLookup'
 
 import BaseAddress from '../BaseAddress'
 
@@ -12,23 +11,9 @@ interface Props extends TextProps {
 }
 
 const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
-  const { dispatch } = useBackgroundService()
-  const { domains, loadingAddresses } = useDomainsControllerState()
-  const isLoading = loadingAddresses.includes(address)
-  const addressInDomains = domains[address]
+  const { ens, ud, isLoading } = useReverseLookup({ address })
 
-  useEffect(() => {
-    if (!address || addressInDomains || isLoading) return
-
-    dispatch({
-      type: 'DOMAINS_CONTROLLER_REVERSE_LOOKUP',
-      params: {
-        address
-      }
-    })
-  }, [address, addressInDomains, dispatch, isLoading])
-
-  if (isLoading || !addressInDomains)
+  if (isLoading)
     return (
       <Spinner
         style={{
@@ -40,7 +25,7 @@ const DomainsAddress: FC<Props> = ({ address, ...rest }) => {
 
   return (
     <BaseAddress address={address} {...rest}>
-      {addressInDomains?.ens || addressInDomains?.ud || address}
+      {ens || ud || address}
     </BaseAddress>
   )
 }
