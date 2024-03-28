@@ -158,7 +158,11 @@ const Account = ({
                       ]}
                       key={n.id}
                     >
-                      <NetworkIcon name={n.id as any} width={18} height={18} />
+                      <NetworkIcon
+                        style={{ backgroundColor: theme.primaryBackground }}
+                        id={n.id}
+                        size={18}
+                      />
                     </View>
                   )
                 })}

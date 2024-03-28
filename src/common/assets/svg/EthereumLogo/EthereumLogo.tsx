@@ -17,4 +17,4 @@ const EthereumLogo: React.FC<Props> = ({ width = 32, height = 32, ...rest }) => 
   </Svg>
 )
 
-export default EthereumLogo
+export default React.memo(EthereumLogo)
