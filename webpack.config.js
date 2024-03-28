@@ -9,7 +9,6 @@ const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
-const FileManagerPlugin = require('filemanager-webpack-plugin')
 
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
@@ -233,21 +232,6 @@ module.exports = async function (env, argv) {
           to: 'browser-polyfill.min.js'
         }
       ]
-    }),
-    new FileManagerPlugin({
-      events: {
-        onStart: {
-          delete: [
-            {
-              source: path.join(__dirname, 'src/ambire-common/node_modules/').replaceAll('\\', '/'),
-              options: {
-                force: true,
-                recursive: true
-              }
-            }
-          ]
-        }
-      }
     })
   ]
 
@@ -274,6 +258,10 @@ module.exports = async function (env, argv) {
   config.resolve.fallback = {}
   config.resolve.fallback.stream = require.resolve('stream-browserify')
   config.resolve.fallback.crypto = require.resolve('crypto-browserify')
+
+  // There will be 2 instances of React if node_modules are installed in src/ambire-common.
+  // That's why we need to alias the React package to the one in the root node_modules.
+  config.resolve.alias.react = path.resolve(__dirname, 'node_modules/react')
 
   config.output = {
     // possible output paths: /webkit-dev, /gecko-dev, /webkit-prod, gecko-prod
@@ -318,23 +306,6 @@ module.exports = async function (env, argv) {
             to: 'favicon.ico'
           }
         ]
-      }),
-      new FileManagerPlugin({
-        events: {
-          onStart: {
-            delete: [
-              {
-                source: path
-                  .join(__dirname, 'src/ambire-common/node_modules/')
-                  .replaceAll('\\', '/'),
-                options: {
-                  force: true,
-                  recursive: true
-                }
-              }
-            ]
-          }
-        }
       })
     ]
 
