@@ -1,4 +1,5 @@
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -330,6 +331,28 @@ type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
   params: { id: number }
 }
+
+type AddressBookControllerAddContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
+  params: {
+    address: Contact['address']
+    name: Contact['name']
+  }
+}
+type AddressBookControllerRenameContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT'
+  params: {
+    address: Contact['address']
+    newName: Contact['name']
+  }
+}
+type AddressBookControllerRemoveContact = {
+  type: 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT'
+  params: {
+    address: Contact['address']
+  }
+}
+
 type ChangeCurrentDappNetworkAction = {
   type: 'CHANGE_CURRENT_DAPP_NETWORK'
   params: { chainId: number; origin: string }
@@ -409,6 +432,9 @@ export type Action =
   | DappsControllerRemoveConnectedSiteAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
+  | AddressBookControllerAddContact
+  | AddressBookControllerRenameContact
+  | AddressBookControllerRemoveContact
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
