@@ -27,17 +27,17 @@ const HideToken = () => {
     async (token: CustomToken) => {
       const tokenPreferences = portfolio.state.tokenPreferences
 
-      // Flip isHidden flag
       let tokenIsInPreferences = tokenPreferences.find(
         (tokenPreference) =>
           tokenPreference.address.toLowerCase() === token.address.toLowerCase() &&
           tokenPreference.networkId === token.networkId
       )
 
+      // Flip isHidden flag
       if (!tokenIsInPreferences) {
         tokenIsInPreferences = { ...token, isHidden: true }
       } else {
-        tokenIsInPreferences = { ...token, isHidden: !tokenIsInPreferences.isHidden }
+        tokenIsInPreferences = { ...tokenIsInPreferences, isHidden: !tokenIsInPreferences.isHidden }
       }
 
       let newTokenPreferences = []
@@ -46,8 +46,11 @@ const HideToken = () => {
         newTokenPreferences.push(token)
       } else {
         const updatedTokenPreferences = tokenPreferences.map((_t: any) => {
-          if (_t.address === token.address && _t.networkId === token.networkId) {
-            return token
+          if (
+            _t.address.toLowerCase() === token.address.toLowerCase() &&
+            _t.networkId === token.networkId
+          ) {
+            return tokenIsInPreferences
           }
           return _t
         })
