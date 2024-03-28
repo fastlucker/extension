@@ -51,7 +51,6 @@ const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Pro
       method: 'HEAD'
     })
       .then((result) => {
-        console.log(result)
         if (result.ok) {
           setHasTokenInfo(true)
           return

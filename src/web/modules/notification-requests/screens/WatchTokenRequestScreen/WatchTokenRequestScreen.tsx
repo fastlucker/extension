@@ -218,7 +218,7 @@ const WatchTokenRequestScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        {!tokenTypeEligibility && tokenTypeEligibility !== undefined ? (
+        {!tokenTypeEligibility && tokenTypeEligibility !== undefined && !portfolioFoundToken ? (
           <Alert type="error" title={t('This token type is not supported.')} />
         ) : (
           <>
