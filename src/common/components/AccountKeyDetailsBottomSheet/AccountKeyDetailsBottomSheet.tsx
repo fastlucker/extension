@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { Modalize } from 'react-native-modalize'
 import { Tooltip } from 'react-tooltip'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
@@ -14,15 +15,13 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
-import Alert from '../Alert'
-import Label from '../Label'
+import getStyles from './styles'
 
 interface Props {
-  sheetRef: any
+  sheetRef: React.RefObject<Modalize>
   type?: KeyPreferences[number]['type']
   meta?: Key['meta']
   closeBottomSheet: () => void
@@ -36,13 +35,14 @@ const AccountKeyDetailsBottomSheet: FC<Props> = ({
   closeBottomSheet,
   children
 }) => {
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
 
-  // TODO: Implement internal key details
+  // TODO: Implement internal key details. Could also be in a separate component?
   if (type === 'internal') return null
 
-  // Ideally, the meta should be all in there, but just in case, add fallbacks
+  // Ideally, the meta should be all in there for external keys,
+  // but just in case, add fallbacks (that should never happen)
   const metaDetails = useMemo(
     () => [
       {
@@ -83,17 +83,7 @@ const AccountKeyDetailsBottomSheet: FC<Props> = ({
       <Text fontSize={18} weight="medium" style={spacings.mbSm}>
         {t('Key Details')}
       </Text>
-      <View
-        style={[
-          {
-            // TODO: Move to styles.
-            backgroundColor: colors.white,
-            borderRadius: BORDER_RADIUS_PRIMARY,
-            borderWidth: 1,
-            borderColor: '#CACDE6'
-          }
-        ]}
-      >
+      <View style={styles.container}>
         {children}
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
           {metaDetails.map(({ key, value, tooltip }) => (
