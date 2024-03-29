@@ -23,8 +23,8 @@ import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
 interface Props {
-  address: string
-  isLast: boolean
+  addr: string
+  isLast?: boolean
   isImported: boolean
   type?: Key['type']
   label?: string
@@ -45,8 +45,8 @@ const KeyTypeIcon: FC<{ type: Key['type'] }> = memo(({ type }) => {
 
 const AccountKey: React.FC<Props> = ({
   label,
-  address,
-  isLast,
+  addr,
+  isLast = false,
   type,
   isImported,
   style,
@@ -64,7 +64,7 @@ const AccountKey: React.FC<Props> = ({
 
   const handleCopy = async () => {
     try {
-      await Clipboard.setStringAsync(address)
+      await Clipboard.setStringAsync(addr)
       addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
       addToast(t('Could not copy the key address to the clipboard'), { type: 'error' })
@@ -76,7 +76,7 @@ const AccountKey: React.FC<Props> = ({
       type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
       params: [
         {
-          addr: address,
+          addr,
           type: type || 'internal',
           label: newLabel
         }
@@ -125,7 +125,7 @@ const AccountKey: React.FC<Props> = ({
           )}
         </View>
         <Text fontSize={fontSize} style={label || isImported ? spacings.mlTy : {}}>
-          {label ? `(${shortenAddress(address, 13)})` : address}
+          {label ? `(${shortenAddress(addr, 13)})` : addr}
         </Text>
         <AnimatedPressable
           style={[spacings.mlTy, copyIconAnimStyle]}
