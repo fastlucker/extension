@@ -108,7 +108,12 @@ const NetworkDetails = ({
             shouldDisplayEditButton ? spacings.mbLg : spacings.mbMd
           ]}
         >
-          <Text fontSize={18} weight="medium" style={flexbox.flex1}>
+          <Text
+            fontSize={18}
+            weight="medium"
+            style={[flexbox.flex1, spacings.mrTy]}
+            numberOfLines={1}
+          >
             {t('Network details')}
           </Text>
           {!!shouldDisplayEditButton && (
@@ -153,6 +158,11 @@ const NetworkDetails = ({
         id="edit-network-bottom-sheet"
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{
+          scrollEnabled: false,
+          contentContainerStyle: { flex: 1 }
+        }}
+        containerInnerWrapperStyles={{ flex: 1 }}
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >

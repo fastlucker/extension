@@ -5,7 +5,7 @@ const INPUT_FIELDS = [
     editable: false
   },
   {
-    name: 'rpcUrl',
+    name: 'rpcUrls',
     label: 'RPC URL',
     editable: true
   },

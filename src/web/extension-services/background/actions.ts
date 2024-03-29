@@ -13,7 +13,7 @@ import {
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
+import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'

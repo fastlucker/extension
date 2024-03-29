@@ -164,6 +164,11 @@ const NetworksSettingsScreen = () => {
         id="add-new-network"
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{
+          scrollEnabled: false,
+          contentContainerStyle: { flex: 1 }
+        }}
+        containerInnerWrapperStyles={{ flex: 1 }}
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
