@@ -127,7 +127,9 @@ const AccountKeysBottomSheet: FC<Props> = ({
             setCurrentKeyDetails({ type, addr, label, isImported, meta })
 
             // FIXME: Workaround, otherwise it doesn't work on the first try,
-            // because the <AccountKeyDetailsBottomSheet is not rendered yet
+            // because the <AccountKeyDetailsBottomSheet is not rendered yet.
+            // With hook - it doesn't work, because the <AccountKeyDetailsBottomSheet
+            // has the <AccountKey as a child (which props do change accordingly).
             setTimeout(() => openBottomSheetDetails(), 300)
           }
 
