@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -53,6 +53,7 @@ const AccountKeysBottomSheet: FC<Props> = ({
     open: openBottomSheetDetails,
     close: closeBottomSheetDetails
   } = useModalize()
+  const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
 
   const notImportedAccountKeys = associatedKeys.filter(
     (keyAddr) =>
@@ -119,27 +120,22 @@ const AccountKeysBottomSheet: FC<Props> = ({
         ]}
       >
         {accountKeys.map(({ type, addr, label, isImported, meta }, index) => {
-          const accountKeyProps = {
-            key: addr + type,
-            label,
-            address: addr,
-            type,
-            isLast: index === accountKeys.length - 1,
-            isImported
+          const isLast = index === accountKeys.length - 1
+          const accountKeyProps = { label, addr, type, isLast, isImported }
+
+          const handleOnKeyDetailsPress = () => {
+            setCurrentKeyDetails({ type, addr, label, isImported, meta })
+            openBottomSheetDetails()
           }
 
           return (
-            <>
-              <AccountKey {...accountKeyProps} handleOnKeyDetailsPress={openBottomSheetDetails} />
-              <AccountKeyDetailsBottomSheet
-                sheetRef={sheetRefDetails}
-                closeBottomSheet={closeBottomSheetDetails}
-                meta={meta}
-                type={type}
-              >
-                <AccountKey {...accountKeyProps} />
-              </AccountKeyDetailsBottomSheet>
-            </>
+            <React.Fragment key={addr + type}>
+              <AccountKey
+                {...accountKeyProps}
+                // TODO: Handle opening external key details
+                handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}
+              />
+            </React.Fragment>
           )
         })}
       </View>
@@ -182,6 +178,17 @@ const AccountKeysBottomSheet: FC<Props> = ({
           )}
         </Option>
       ))}
+
+      {currentKeyDetails && (
+        <AccountKeyDetailsBottomSheet
+          sheetRef={sheetRefDetails}
+          closeBottomSheet={closeBottomSheetDetails}
+          meta={currentKeyDetails.meta}
+          type={currentKeyDetails.type}
+        >
+          <AccountKey {...currentKeyDetails} />
+        </AccountKeyDetailsBottomSheet>
+      )}
     </BottomSheet>
   )
 }

@@ -33,28 +33,28 @@ const AccountKeyDetailsBottomSheet: FC<Props> = ({
   // TODO: Implement internal key details
   if (type === 'internal') return null
 
-  const metaDetails = useMemo(() => {
-    if (!meta) return []
-
-    return [
+  // Ideally, the meta should be all in there, but just in case, add fallbacks
+  const metaDetails = useMemo(
+    () => [
       {
         key: t('Device'),
         value: type ? HARDWARE_WALLET_DEVICE_NAMES[type] || type : '-'
       },
       {
         key: t('Device Model'),
-        value: meta?.deviceModel
+        value: meta?.deviceModel || '-'
       },
       {
         key: t('Device ID'),
-        value: meta?.deviceId
+        value: meta?.deviceId || '-'
       },
       {
         key: t('Derivation'),
-        value: getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
+        value: meta?.hdPathTemplate ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index) : '-'
       }
-    ]
-  }, [t, type, meta])
+    ],
+    [t, type, meta?.deviceId, meta?.deviceModel, meta?.hdPathTemplate, meta?.index]
+  )
 
   return (
     <BottomSheet
