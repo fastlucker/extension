@@ -17,7 +17,7 @@ import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keys
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer/utils'
+import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'

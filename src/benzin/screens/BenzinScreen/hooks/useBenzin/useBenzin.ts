@@ -5,29 +5,14 @@ import { Linking } from 'react-native'
 
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { Storage } from '@ambire-common/interfaces/storage'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import storage from '@web/extension-services/background/webapi/storage'
 
-function produceMemoryStore(): Storage {
-  const storage = new Map()
-
-  return {
-    get: (key, defaultValue): any => {
-      const serialized = storage.get(key)
-      return Promise.resolve(serialized ? parse(serialized) : defaultValue)
-    },
-    set: (key, value) => {
-      storage.set(key, stringify(value))
-      return Promise.resolve(null)
-    }
-  }
-}
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
   const finalParsedCalls = humanizedCalls.map((call) => {
@@ -40,7 +25,6 @@ const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   })
   setCalls(finalParsedCalls)
 }
-const storage = produceMemoryStore()
 const emittedErrors: ErrorRef[] = []
 const mockEmitError = (e: ErrorRef) => emittedErrors.push(e)
 const standardOptions = {
