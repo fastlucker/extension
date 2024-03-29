@@ -24,13 +24,13 @@ import { getUiType } from '@web/utils/uiType'
 
 interface Props {
   addr: string
-  isLast?: boolean
   isImported: boolean
+  isLast?: boolean
   type?: Key['type']
   label?: string
   style?: ViewStyle
   enableEditing?: boolean
-  handleOnKeyDetailsPress?: () => any
+  handleOnKeyDetailsPress?: () => void
 }
 
 const { isPopup } = getUiType()
