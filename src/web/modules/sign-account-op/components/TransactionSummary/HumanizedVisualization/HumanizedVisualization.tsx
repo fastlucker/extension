@@ -1,5 +1,5 @@
 import { formatUnits, MaxUint256 } from 'ethers'
-import React, { FC, Fragment, memo } from 'react'
+import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -8,7 +8,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { SPACING_SM } from '@common/styles/spacings'
+import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -29,9 +29,8 @@ const HumanizedVisualization: FC<Props> = ({
   networkId,
   isHistory
 }) => {
+  const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
-
-  console.count('humanized rerender')
 
   return (
     <View
@@ -52,16 +51,19 @@ const HumanizedVisualization: FC<Props> = ({
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
           const isMaxUint256 = item.amount === MaxUint256
           return (
-            <Fragment key={Number(item.id) || i}>
+            <View
+              key={Number(item.id) || i}
+              style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
+            >
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text
                   fontSize={textSize}
                   weight="medium"
                   appearance="primaryText"
-                  style={{ maxWidth: '100%' }}
+                  style={{ maxWidth: '100%', marginRight }}
                 >
                   {isUnlimitedByPermit2 || isMaxUint256 ? (
-                    <Text appearance="warningText">unlimited </Text>
+                    <Text appearance="warningText">{t('unlimited')}</Text>
                   ) : (
                     formatDecimals(
                       Number(
@@ -78,11 +80,12 @@ const HumanizedVisualization: FC<Props> = ({
                   height={24 * sizeMultiplierSize}
                   networkId={networkId}
                   address={item.address}
+                  style={{ marginRight: marginRight / 2 }}
                 />
               ) : null}
               {item?.humanizerMeta?.token ? (
                 <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                  {` ${item?.humanizerMeta?.token?.symbol || ''} `}
+                  {item?.humanizerMeta?.token?.symbol || ''}
                 </Text>
               ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text
@@ -91,27 +94,29 @@ const HumanizedVisualization: FC<Props> = ({
                   appearance="primaryText"
                   style={{ maxWidth: '100%' }}
                 >
-                  {t(' units of unknown token ')}
+                  {t('units of unknown token')}
                 </Text>
               ) : (
                 // there are cases where the humanizer would return token with amount = 0
                 // still, not having humanizerMeta.token is bad
                 <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                  {t('unknown token ')}
+                  {t('unknown token')}
                 </Text>
               )}
-            </Fragment>
+            </View>
           )
         }
 
         if (item.type === 'address' && item.address) {
           return (
-            <Address
-              fontSize={textSize}
-              address={item.address}
-              highestPriorityAlias={item?.humanizerMeta?.name}
-              explorerNetworkId={networkId}
-            />
+            <View style={{ marginRight }}>
+              <Address
+                fontSize={textSize}
+                address={item.address}
+                highestPriorityAlias={item?.humanizerMeta?.name}
+                explorerNetworkId={networkId}
+              />
+            </View>
           )
         }
 
@@ -122,22 +127,27 @@ const HumanizedVisualization: FC<Props> = ({
               fontSize={textSize}
               weight="medium"
               appearance="primaryText"
-              style={{ maxWidth: '100%' }}
+              style={{ maxWidth: '100%', marginRight }}
             >
-              {` ${item?.humanizerMeta?.name || item.address} `}
+              {item?.humanizerMeta?.name || item.address}
             </Text>
           )
         }
 
         if (item.type === 'deadline' && !isHistory)
           return (
-            <DeadlineItem key={Number(item.id) || i} deadline={item.amount!} textSize={textSize} />
+            <DeadlineItem
+              key={Number(item.id) || i}
+              deadline={item.amount!}
+              textSize={textSize}
+              marginRight={marginRight}
+            />
           )
         if (item.content) {
           return (
             <Text
               key={Number(item.id) || i}
-              style={{ maxWidth: '100%' }}
+              style={{ maxWidth: '100%', marginRight }}
               fontSize={textSize}
               weight={
                 item.type === 'label' ? 'regular' : item.type === 'action' ? 'semiBold' : 'medium'
@@ -149,7 +159,9 @@ const HumanizedVisualization: FC<Props> = ({
                   ? 'successText'
                   : 'primaryText'
               }
-            >{` ${item.content} `}</Text>
+            >
+              {item.content}
+            </Text>
           )
         }
 

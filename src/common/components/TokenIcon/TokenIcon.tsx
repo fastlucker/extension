@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Image, ImageProps, View } from 'react-native'
+import { Image, ImageProps, ImageStyle, View } from 'react-native'
 
 import { getIconId } from '@ambire-common/libs/portfolio/icons'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
@@ -18,6 +18,7 @@ interface Props extends Partial<ImageProps> {
   containerHeight?: number
   width?: number
   height?: number
+  style: ImageStyle
 }
 
 const TokenIcon: React.FC<Props> = ({
@@ -28,6 +29,7 @@ const TokenIcon: React.FC<Props> = ({
   containerHeight = 34,
   width = 22,
   height = 22,
+  style = {},
   ...props
 }) => {
   const [isLoading, setIsLoading] = useState(true)
@@ -73,7 +75,7 @@ const TokenIcon: React.FC<Props> = ({
     <View style={containerStyle || {}}>
       <Image
         source={{ uri: validUri }}
-        style={{ width, height, borderRadius: width / 2 }}
+        style={{ width, height, borderRadius: width / 2, ...style }}
         {...props}
       />
     </View>
