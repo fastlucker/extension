@@ -74,8 +74,6 @@ describe('balance', () => {
     await page.bringToFront()
     await page.reload()
 
-    console.log({ page })
-    console.log(process.env)
     await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
   })
 
@@ -93,7 +91,7 @@ describe('balance', () => {
 
     let availableAmmountNum = availableAmmount.replace(/\n/g, '')
     availableAmmountNum = availableAmmountNum.split('$')[1]
-    console.log(availableAmmountNum)
+
     /* Verify that the balance is bigger than 0 */
     expect(parseFloat(availableAmmountNum) > 0).toBeTruthy()
   })
