@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
@@ -16,6 +17,7 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { DEFAULT_KEY_LABEL_PATTERN } from '@web/modules/account-personalize/libs/defaults'
 
+import AccountKeyDetailsBottomSheet from '../AccountKeyDetailsBottomSheet'
 import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
 interface Props {
@@ -46,6 +48,11 @@ const AccountKeysBottomSheet: FC<Props> = ({
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const {
+    ref: sheetRefDetails,
+    open: openBottomSheetDetails,
+    close: closeBottomSheetDetails
+  } = useModalize()
 
   const notImportedAccountKeys = associatedKeys.filter(
     (keyAddr) =>
@@ -112,16 +119,27 @@ const AccountKeysBottomSheet: FC<Props> = ({
         ]}
       >
         {accountKeys.map(({ type, addr, label, isImported, meta }, index) => {
+          const accountKeyProps = {
+            key: addr + type,
+            label,
+            address: addr,
+            type,
+            isLast: index === accountKeys.length - 1,
+            isImported
+          }
+
           return (
-            <AccountKey
-              key={addr + type}
-              label={label}
-              address={addr}
-              type={type}
-              isLast={index === accountKeys.length - 1}
-              isImported={isImported}
-              meta={meta}
-            />
+            <>
+              <AccountKey {...accountKeyProps} handleOnKeyDetailsPress={openBottomSheetDetails} />
+              <AccountKeyDetailsBottomSheet
+                sheetRef={sheetRefDetails}
+                closeBottomSheet={closeBottomSheetDetails}
+                meta={meta}
+                type={type}
+              >
+                <AccountKey {...accountKeyProps} />
+              </AccountKeyDetailsBottomSheet>
+            </>
           )
         })}
       </View>

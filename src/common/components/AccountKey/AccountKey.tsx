@@ -2,7 +2,6 @@ import * as Clipboard from 'expo-clipboard'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -23,8 +22,6 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
-import AccountKeyDetailsBottomSheet from '../AccountKeyDetailsBottomSheet'
-
 interface Props {
   address: string
   isLast: boolean
@@ -32,8 +29,8 @@ interface Props {
   type?: Key['type']
   label?: string
   style?: ViewStyle
-  meta?: Key['meta']
   enableEditing?: boolean
+  handleOnKeyDetailsPress?: () => any
 }
 
 const { isPopup } = getUiType()
@@ -51,16 +48,15 @@ const AccountKey: React.FC<Props> = ({
   address,
   isLast,
   type,
-  meta,
   isImported,
   style,
-  enableEditing = true
+  enableEditing = true,
+  handleOnKeyDetailsPress
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -140,20 +136,10 @@ const AccountKey: React.FC<Props> = ({
         </AnimatedPressable>
       </View>
       {isImported ? (
-        type !== 'internal' && (
-          <>
-            {/* @ts-ignore ts complains, whatever */}
-            <Pressable onPress={openBottomSheet}>
-              <RightArrowIcon width={16} height={16} />
-            </Pressable>
-            <AccountKeyDetailsBottomSheet
-              sheetRef={sheetRef}
-              closeBottomSheet={closeBottomSheet}
-              // TODO: Fix type warns
-              meta={meta}
-              type={type}
-            />
-          </>
+        handleOnKeyDetailsPress && (
+          <Pressable onPress={handleOnKeyDetailsPress}>
+            <RightArrowIcon width={16} height={16} />
+          </Pressable>
         )
       ) : (
         <View style={isPopup ? spacings.ml : spacings.mlXl}>
