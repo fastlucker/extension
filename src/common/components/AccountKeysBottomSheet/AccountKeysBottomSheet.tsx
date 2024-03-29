@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+import { Modalize, useModalize } from 'react-native-modalize'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import { KeyPreferences } from '@ambire-common/interfaces/settings'
@@ -21,7 +21,7 @@ import AccountKeyDetailsBottomSheet from '../AccountKeyDetailsBottomSheet'
 import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
 interface Props {
-  sheetRef: any
+  sheetRef: React.RefObject<Modalize>
   associatedKeys: string[]
   keyPreferences: KeyPreferences
   importedAccountKeys: Key[]
