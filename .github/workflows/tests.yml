@@ -44,12 +44,12 @@ jobs:
         # but it fails right from the start when we attempt to locate the current page of the extension.
       - name: Configure the display server
         run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
-        env:
-          DISPLAY: ':99.0'
 
       - name: Puppeteer Tests 🧑‍🔬
         env:
           ENVIRONMENT: 'testing'
+          # Its value is based on the above Display server configuration
+          DISPLAY: ':99.0'
           RELAYER_URL: ${{ secrets.RELAYER_URL }}
           CONSTANTS_ENDPOINT: ${{ secrets.CONSTANTS_ENDPOINT }}
           VELCRO_API_ENDPOINT: ${{ secrets.VELCRO_API_ENDPOINT }}
