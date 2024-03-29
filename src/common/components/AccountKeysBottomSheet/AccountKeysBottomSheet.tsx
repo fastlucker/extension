@@ -125,7 +125,10 @@ const AccountKeysBottomSheet: FC<Props> = ({
 
           const handleOnKeyDetailsPress = () => {
             setCurrentKeyDetails({ type, addr, label, isImported, meta })
-            openBottomSheetDetails()
+
+            // FIXME: Workaround, otherwise it doesn't work on the first try,
+            // because the <AccountKeyDetailsBottomSheet is not rendered yet
+            setTimeout(() => openBottomSheetDetails(), 300)
           }
 
           return (
