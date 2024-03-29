@@ -39,10 +39,12 @@ jobs:
       - name: Git submodules update
         run: git submodule update
 
-      - name: Puppeteer Xvfb
+        # The next two steps are required to run Puppeteer in headful mode in GitHub Actions.
+        # We attempted to configure it in a headless manner,
+        # but it fails right from the start when we attempt to locate the current page of the extension.
+      - name: Configure the display server
         run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
-
-      - name: Puppeteer DISPLAY
+      - name: Set DISPLAY
         run: export DISPLAY=:99.0
 
       - name: Puppeteer Tests 🧑‍🔬

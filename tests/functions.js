@@ -11,10 +11,15 @@ const puppeteerArgs = [
 
   // '--disable-features=ClipboardContentSetting',
   '--clipboard-write: granted',
-  '--clipboard-read: prompt'
+  '--clipboard-read: prompt',
 
   // '--detectOpenHandles',
-  // '--start-maximized'
+  // '--start-maximized',
+
+  // We need this for running Puppeteer in Github Actions
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--font-render-hinting=none'
 ]
 
 export async function bootstrap(options = {}) {
@@ -25,7 +30,14 @@ export async function bootstrap(options = {}) {
     devtools,
     args: puppeteerArgs,
     defaultViewport: null,
-    slowMo
+    slowMo,
+    // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
+    // It configures the display server and make the tests working in headful mode in Github actions.
+    ...(process.env.DISPLAY && {
+      env: {
+        DISPLAY: process.env.DISPLAY
+      }
+    })
   })
 
   // Extract the extension ID from the browser targets
