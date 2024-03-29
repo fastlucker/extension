@@ -132,13 +132,12 @@ const AccountKeysBottomSheet: FC<Props> = ({
           }
 
           return (
-            <React.Fragment key={addr + type}>
-              <AccountKey
-                {...accountKeyProps}
-                // TODO: Handle opening external key details
-                handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}
-              />
-            </React.Fragment>
+            <AccountKey
+              key={addr + type}
+              {...accountKeyProps}
+              // TODO: Handle opening external key details
+              handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}
+            />
           )
         })}
       </View>
