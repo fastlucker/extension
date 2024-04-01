@@ -36,7 +36,7 @@ const foundDappRpcUrls: string[] = []
 const configuredDappRpcUrls: string[] = []
 
 ;(function () {
-  const originalFetch = window.fetch
+  const originalFetch = window.fetch.bind(window)
   window.fetch = async function (...args) {
     const [resource, config] = args
     if (config && config?.body) {
