@@ -154,7 +154,7 @@ const AccountKey: React.FC<Props> = ({
             {...bindKeyDetailsAnim}
           >
             <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mrTy}>
-              {t('Key Details')}
+              {t('Details')}
             </Text>
             <Animated.View style={keyDetailsAnimStyles}>
               <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
