@@ -117,7 +117,7 @@ const DappCatalogScreen = () => {
       <View style={[flexbox.flex1]}>
         <View style={[spacings.phSm, spacings.pvSm]}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <View style={[flexbox.flex1, spacings.mrLg]}>
+            <View style={[flexbox.flex1, spacings.mr]}>
               <Search placeholder="Search for dApp" control={control} />
             </View>
             <FilterButton

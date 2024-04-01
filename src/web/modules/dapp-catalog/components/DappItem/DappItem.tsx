@@ -6,6 +6,7 @@ import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
 import Badge from '@common/components/Badge'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -14,6 +15,7 @@ import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -61,10 +63,20 @@ const DappItem = ({ id, name, description, icon, url, favorite, isConnected }: P
             </Text>
           </View>
         </View>
-        <Text fontSize={12} appearance="secondaryText" numberOfLines={3}>
+
+        <Text
+          fontSize={12}
+          appearance="secondaryText"
+          numberOfLines={2}
+          // @ts-ignore
+          dataSet={{
+            tooltipId: id,
+            tooltipContent: description
+          }}
+        >
           {description}
         </Text>
-
+        {!!getUiType().isPopup && <Tooltip id={id} delayShow={1050} />}
         {!!isConnected && (
           <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
             <Badge text={t('Connected')} type="success" />
