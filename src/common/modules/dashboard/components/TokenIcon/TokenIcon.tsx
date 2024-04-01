@@ -42,24 +42,21 @@ const TokenIcon: React.FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
-  const [uri, setUri] = useState('')
   const { state } = usePortfolioControllerState()
-
-  useEffect(() => {
-    if (state.tokenIcons && !uri) {
-      const iconId = getIconId(networkId, address)
-      !!iconId && setUri(state.tokenIcons[iconId])
-    }
-  }, [state.tokenIcons, uri, networkId, address])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const hasLoadedUri = await checkIfImageExists(uri)
-      if (hasLoadedUri) {
-        setValidUri(uri as string) // the `hasLoadedUri` handles if `uri` is defined
-        setIsLoading(false)
-        return
+      const iconId = getIconId(networkId, address)
+      const uri = state.tokenIcons[iconId]
+
+      if (uri) {
+        const hasLoadedUri = await checkIfImageExists(uri)
+        if (hasLoadedUri) {
+          setValidUri(uri) // the `hasLoadedUri` handles if `uri` is defined
+          setIsLoading(false)
+          return
+        }
       }
 
       const alternativeUri = getTokenIcon(networkId, address)
@@ -72,7 +69,7 @@ const TokenIcon: React.FC<Props> = ({
 
       setIsLoading(false)
     })()
-  }, [address, networkId, uri])
+  }, [address, networkId, state.tokenIcons])
 
   const containerStyle = useMemo(
     () =>
