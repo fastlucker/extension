@@ -1,9 +1,8 @@
 import React from 'react'
-import { TouchableOpacity, View } from 'react-native'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import Button from '@common/components/Button'
 import Checkbox from '@common/components/Checkbox'
-import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 
 import styles from './styles'
@@ -26,30 +25,22 @@ const ConfirmAddress = ({
   addressValidationMsg
 }: Props) => {
   const { t } = useTranslation()
-  // const { isKnownAddress } = useAddressBook()
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
     addressValidationMsg !== 'Invalid address.' ? (
-    <View>
-      <TouchableOpacity
-        onPress={onAddToAddressBook}
-        // @TODO: implement address book
-        disabled
+    <>
+      <Checkbox
+        value={isRecipientAddressUnknownAgreed}
+        onValueChange={onRecipientAddressUnknownCheckboxClick}
+        label={t('Confirm sending to a previously unknown address')}
+      />
+      <Button
         style={styles.addToAddressBook}
-      >
-        <Text fontSize={14} underline>
-          {t('+ Add it to the address book')}
-        </Text>
-      </TouchableOpacity>
-      {!!isRecipientAddressUnknown && (
-        <Checkbox
-          value={isRecipientAddressUnknownAgreed}
-          onValueChange={onRecipientAddressUnknownCheckboxClick}
-          label={t('Confirm sending to a previously unknown address')}
-        />
-      )}
-    </View>
+        text={t('Add to Address Book')}
+        onPress={onAddToAddressBook}
+      />
+    </>
   ) : null
 }
 
