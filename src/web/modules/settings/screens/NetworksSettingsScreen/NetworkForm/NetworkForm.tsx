@@ -72,7 +72,7 @@ const NetworkForm = ({
     mode: 'onSubmit',
     defaultValues: {
       name: '',
-      rpcUrls: [{ value: '' }],
+      rpcUrls: selectedNetwork?.rpcUrls?.map(() => ({ value: '' })) || [{ value: '' }],
       chainId: '',
       nativeAssetSymbol: '',
       explorerUrl: ''
