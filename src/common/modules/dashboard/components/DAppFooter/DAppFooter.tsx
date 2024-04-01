@@ -39,13 +39,15 @@ const DAppFooter = () => {
     networks.filter((n) => Number(n.chainId) === currentDapp?.chainId)[0] ||
       networks.filter((n) => n.id === 'ethereum')[0]
   )
+  const [hovered, setHovered] = useState(false)
 
   const currentDappController = useCallback(
-    (settingsButtonType: 'open' | 'close') => {
+    (settingsButtonType: 'open' | 'close', inModal?: boolean) => {
+      const showDisconnectButton = !!currentDapp?.isConnected && (hovered || inModal)
       return (
         <View>
           <View style={styles.titleWrapper}>
-            <Text weight="medium" fontSize={10}>
+            <Text weight="medium" fontSize={12} appearance="secondaryText">
               {t('Manage current dApp')}
             </Text>
           </View>
@@ -86,13 +88,13 @@ const DAppFooter = () => {
               </View>
             )}
             <View style={flexbox.directionRow}>
-              {currentDapp?.isConnected && (
+              {!!showDisconnectButton && (
                 <Button
                   type="danger"
                   size="small"
                   hasBottomSpacing={false}
                   text={t('Disconnect')}
-                  style={spacings.mrSm}
+                  style={spacings.mrTy}
                   onPress={() => {
                     dispatch({
                       type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE',
@@ -109,7 +111,7 @@ const DAppFooter = () => {
                 type="secondary"
                 size="small"
                 hasBottomSpacing={false}
-                text={t('Settings')}
+                text={settingsButtonType === 'close' ? t('Close') : t('Manage')}
                 disabled={!currentDapp?.isConnected}
                 onPress={() => {
                   settingsButtonType === 'open' && openBottomSheet()
@@ -126,7 +128,17 @@ const DAppFooter = () => {
         </View>
       )
     },
-    [currentDapp, network?.name, styles, theme, openBottomSheet, closeBottomSheet, dispatch, t]
+    [
+      currentDapp,
+      hovered,
+      network?.name,
+      styles,
+      theme,
+      openBottomSheet,
+      closeBottomSheet,
+      dispatch,
+      t
+    ]
   )
 
   const handleSetNetworkValue = useCallback(
@@ -158,32 +170,32 @@ const DAppFooter = () => {
 
   return (
     <View style={styles.footerContainer}>
-      <View style={styles.container}>
-        {currentDappController('open')}
-        <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-          <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close')}</View>
-          <View style={styles.networkSelectorContainer}>
-            <Text fontSize={14} style={flexbox.flex1}>
-              {t('Select Current dApp Network')}
-            </Text>
-            <Select
-              setValue={handleSetNetworkValue}
-              style={{ width: 230 }}
-              controlStyle={{ height: 40 }}
-              options={networksOptions}
-              value={networksOptions.filter((opt) => opt.value === network.id)[0]}
-            />
-          </View>
-          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-            <Text style={spacings.mrLg} fontSize={12}>
-              {t(
-                'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
-              )}
-            </Text>
-            <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
-          </View>
-        </BottomSheet>
-      </View>
+      <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+        <View style={styles.container}>{currentDappController('open')}</View>
+      </div>
+      <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+        <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close', true)}</View>
+        <View style={styles.networkSelectorContainer}>
+          <Text fontSize={14} style={flexbox.flex1}>
+            {t('Select Current dApp Network')}
+          </Text>
+          <Select
+            setValue={handleSetNetworkValue}
+            style={{ width: 230 }}
+            controlStyle={{ height: 40 }}
+            options={networksOptions}
+            value={networksOptions.filter((opt) => opt.value === network.id)[0]}
+          />
+        </View>
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+          <Text style={spacings.mrLg} fontSize={12}>
+            {t(
+              'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
+            )}
+          </Text>
+          <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
+        </View>
+      </BottomSheet>
     </View>
   )
 }

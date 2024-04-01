@@ -51,7 +51,7 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       borderColor: theme.secondaryBorder,
       ...flexbox.directionRow,
-      ...spacings.phSm,
+      ...spacings.phTy,
       ...spacings.pvTy,
       ...flexbox.alignCenter,
       ...flexbox.justifySpaceBetween,
@@ -61,7 +61,7 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       ...spacings.phTy,
       position: 'absolute',
-      top: -7,
+      top: -9,
       left: SPACING_SM,
       zIndex: 50
     },
