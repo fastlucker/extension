@@ -25,7 +25,7 @@ const ContactsList = () => {
                 key={contact.address}
                 name={contact.name}
                 address={contact.address}
-                isWalletAccount={contact?.isWalletAccount}
+                isManageable={!contact?.isWalletAccount}
               />
             ))
           ) : (
