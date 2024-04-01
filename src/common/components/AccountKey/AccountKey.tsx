@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, memo } from 'react'
+import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View, ViewStyle } from 'react-native'
+import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -18,7 +18,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -39,7 +39,7 @@ type Props = AccountKeyType & {
 
 const { isPopup } = getUiType()
 
-const KeyTypeIcon: FC<{ type: Key['type'] }> = memo(({ type }) => {
+const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
   if (type === 'lattice') return <LatticeMiniIcon width={24} height={24} />
   if (type === 'trezor') return <TrezorMiniIcon width={24} height={24} />
   if (type === 'ledger') return <LedgerMiniIcon width={24} height={24} />
@@ -61,6 +61,13 @@ const AccountKey: React.FC<Props> = ({
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const [bindKeyDetailsAnim, keyDetailsAnimStyles] = useCustomHover({
+    property: 'left',
+    values: {
+      from: 0,
+      to: 4
+    }
+  })
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -141,9 +148,18 @@ const AccountKey: React.FC<Props> = ({
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (
-          <Pressable onPress={handleOnKeyDetailsPress}>
-            <RightArrowIcon width={16} height={16} />
-          </Pressable>
+          <AnimatedPressable
+            onPress={handleOnKeyDetailsPress}
+            style={[flexbox.directionRow, flexbox.alignCenter]}
+            {...bindKeyDetailsAnim}
+          >
+            <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mrTy}>
+              {t('Key Details')}
+            </Text>
+            <Animated.View style={keyDetailsAnimStyles}>
+              <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
+            </Animated.View>
+          </AnimatedPressable>
         )
       ) : (
         <View style={isPopup ? spacings.ml : spacings.mlXl}>
