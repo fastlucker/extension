@@ -1,19 +1,15 @@
 import { formatUnits } from 'ethers'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import formatDecimals from '@common/utils/formatDecimals'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-const getTokenDetails = ({
-  flags: { rewardsType },
-  networkId,
-  priceIn,
-  amount,
-  decimals
-}: TokenResult) => {
+const getTokenDetails = (
+  { flags: { rewardsType }, networkId, priceIn, amount, decimals }: TokenResult,
+  networks: NetworkDescriptor[]
+) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
-  const { networks } = useSettingsControllerState()
   const networkData = networks.find(({ id }) => networkId === id)
 
   const balance = parseFloat(formatUnits(amount, decimals))

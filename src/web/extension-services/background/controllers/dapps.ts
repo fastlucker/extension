@@ -1,6 +1,6 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
-import dappCatalogList from '@common/constants/dappCatalogList.json'
+import dappCatalogList from '@common/constants/dappCatalog.json'
 import { browser } from '@web/constants/browserapi'
 import permission from '@web/extension-services/background/services/permission'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
@@ -8,9 +8,9 @@ import { Session, SessionProp } from '@web/extension-services/background/service
 export type Dapp = {
   id: string
   name: string
-  description?: string
+  description: string
   url: string
-  iconUrl: string
+  icon: string | null
   favorite: boolean
 }
 export class DappsController extends EventEmitter {
@@ -60,7 +60,7 @@ export class DappsController extends EventEmitter {
     if (!storedDapps.length) {
       storedDapps = dappCatalogList.map((dapp) => ({
         ...dapp,
-        id: `${dapp.name}-${dapp.url}`,
+        url: `https://${dapp.id}`,
         favorite: false
       }))
       await this.#storage.set('dapps', storedDapps)

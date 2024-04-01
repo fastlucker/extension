@@ -1,4 +1,4 @@
-import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -7,7 +7,6 @@ import common from '@common/styles/utils/common'
 interface Style {
   dappItemWrapper: ViewStyle
   container: ViewStyle
-  icon: ImageStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -25,12 +24,6 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       ...spacings.phTy,
       ...spacings.pvTy
-    },
-    icon: {
-      width: 40,
-      height: 40,
-      ...common.borderRadiusPrimary,
-      ...spacings.mrTy
     }
   })
 

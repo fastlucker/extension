@@ -6,9 +6,10 @@ import Text from '@common/components/Text'
 interface Props {
   deadline: bigint
   textSize: number
+  marginRight: number
 }
 
-const DeadlineItem: FC<Props> = ({ deadline, textSize }) => {
+const DeadlineItem: FC<Props> = ({ deadline, textSize, marginRight }) => {
   const [deadlineText, setDeadlineText] = useState(getDeadlineText(deadline))
   const remainingTime = deadline - BigInt(Date.now())
   const minute: bigint = 60000n
@@ -36,7 +37,7 @@ const DeadlineItem: FC<Props> = ({ deadline, textSize }) => {
   }, [deadlineText, deadline, minute, remainingTime])
 
   return (
-    <Text fontSize={textSize} weight="medium" appearance="warningText">
+    <Text fontSize={textSize} weight="medium" appearance="warningText" style={{ marginRight }}>
       {`(${deadlineText})`}
     </Text>
   )

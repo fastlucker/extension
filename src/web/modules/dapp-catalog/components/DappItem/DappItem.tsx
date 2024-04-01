@@ -1,11 +1,13 @@
-import React from 'react'
-import { Image, Pressable, View } from 'react-native'
+import React, { useCallback } from 'react'
+import { Pressable, View } from 'react-native'
 
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import ManifestImage from '@web/components/ManifestImage'
 import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -14,7 +16,7 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import getStyles from './styles'
 
 const DappItem = (dapp: Dapp) => {
-  const { name, description, iconUrl, url, favorite } = dapp
+  const { name, description, icon, url, favorite } = dapp
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
 
@@ -26,6 +28,8 @@ const DappItem = (dapp: Dapp) => {
     }
   })
 
+  const fallbackIcon = useCallback(() => <ManifestFallbackIcon />, [])
+
   return (
     <View style={styles.dappItemWrapper}>
       <AnimatedPressable
@@ -34,7 +38,9 @@ const DappItem = (dapp: Dapp) => {
         {...bindAnim}
       >
         <View style={[flexbox.directionRow, spacings.mbSm]}>
-          <Image source={{ uri: iconUrl }} style={styles.icon} />
+          <View style={spacings.mrTy}>
+            <ManifestImage uri={icon || ''} size={40} fallback={fallbackIcon} />
+          </View>
           <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
             <Pressable
               onPress={() => {
