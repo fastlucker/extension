@@ -16,6 +16,8 @@ import { Storage } from '@ambire-common/interfaces/storage'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { getExplorerId } from '@ambire-common/libs/userOperation/userOperation'
+import { Bundler } from '@ambire-common/services/bundlers/bundler'
 import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
@@ -109,7 +111,22 @@ const useSteps = ({
   useEffect(() => {
     if (!userOpHash || txnId || userOpStatusData.txnId || !network) return
 
-    fetchUserOp(userOpHash, standardOptions.fetch)
+    // implement the bundler fetch here, why not
+    // and only listen for txIds
+    Bundler.getStatusAndTxnId(userOpHash, network)
+      .then((bundlerResult) => {
+        if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
+          setUserOpStatusData({
+            status: 'submitted',
+            txnId: bundlerResult.transactionHash
+          })
+          setActiveStep('in-progress')
+          setUrlToTxnId(bundlerResult.transactionHash, userOpHash, network.id)
+        }
+      })
+      .catch((e) => e)
+
+    fetchUserOp(userOpHash, standardOptions.fetch, getExplorerId(network))
       .then((reqRes: any) => {
         if (reqRes.status !== 200) {
           setTimeout(() => {
@@ -134,6 +151,10 @@ const useSteps = ({
             }, REFETCH_JIFFY_SCAN_TIME)
             return
           }
+
+          // if the txnId has already been found by the bundler,
+          // do not change the state
+          if (userOpStatusData.txnId) return
 
           const foundUserOp = userOps[0]
           setUserOpStatusData({
