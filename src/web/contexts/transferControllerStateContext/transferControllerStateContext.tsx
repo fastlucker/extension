@@ -85,13 +85,13 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [tokens, dispatch])
 
   useEffect(() => {
-    if (!mainState.selectedAccount || !mainState.accounts.length) return
+    if (!mainState.selectedAccount) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: { selectedAccount: mainState.selectedAccount, accounts: mainState.accounts }
+      params: { selectedAccount: mainState.selectedAccount }
     })
-  }, [mainState.selectedAccount, dispatch, mainState.accounts])
+  }, [mainState.selectedAccount, dispatch])
 
   useEffect(() => {
     if (mainState.isReady && !Object.keys(state).length) {
