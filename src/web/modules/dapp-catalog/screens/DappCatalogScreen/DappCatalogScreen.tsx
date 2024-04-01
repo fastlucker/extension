@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
 
@@ -22,10 +22,10 @@ import DappItem from '@web/modules/dapp-catalog/components/DappItem'
 import getStyles from './styles'
 
 type FilterButtonType = {
-  text: string
+  text: 'all' | 'favorites' | 'connected'
   active?: boolean
-  onPress: () => void
-  style: ViewStyle
+  onPress: (type: 'all' | 'favorites' | 'connected') => void
+  style?: ViewStyle
 }
 
 const FilterButton = React.memo(({ text, active, style, onPress }: FilterButtonType) => {
@@ -58,7 +58,7 @@ const FilterButton = React.memo(({ text, active, style, onPress }: FilterButtonT
         active && styles.filterButtonActive,
         style
       ]}
-      onPress={onPress}
+      onPress={() => onPress(text)}
     >
       <Text fontSize={14} color={active ? '#FFF' : theme.secondaryText}>
         {text}
@@ -74,16 +74,35 @@ const DappCatalogScreen = () => {
     }
   })
 
-  const { state } = useDappsControllerState()
+  const { state, getIsDappConnected } = useDappsControllerState()
+  const [predefinedFilter, setPredefinedFilter] = useState<
+    'all' | 'favorites' | 'connected' | null
+  >(null)
 
   const search = watch('search')
 
-  const filteredDapps = useMemo(
-    () => state.dapps.filter((dapp) => dapp.name.toLowerCase().includes(search.toLowerCase())),
-    [search, state.dapps]
-  )
+  const filteredDapps = useMemo(() => {
+    const allDapps = state.dapps
+    if (search.length) {
+      if (predefinedFilter) setPredefinedFilter(null)
+      return allDapps.filter((dapp) => dapp.name.toLowerCase().includes(search.toLowerCase()))
+    } else {
+      if (!predefinedFilter) setPredefinedFilter('all')
+      if (predefinedFilter === 'favorites') return allDapps.filter((dapp) => !!dapp.favorite)
+      if (predefinedFilter === 'connected')
+        return allDapps.filter((dapp) => getIsDappConnected(dapp.url))
+    }
 
-  const renderItem = ({ item }: { item: Dapp }) => <DappItem {...item} />
+    return allDapps
+  }, [search, state.dapps, predefinedFilter])
+
+  const handleSelectPredefinedFilter = useCallback((type: 'all' | 'favorites' | 'connected') => {
+    setPredefinedFilter(type)
+  }, [])
+
+  const renderItem = ({ item }: { item: Dapp }) => (
+    <DappItem isConnected={getIsDappConnected(item.url)} {...item} />
+  )
 
   return (
     <TabLayoutContainer
@@ -101,9 +120,23 @@ const DappCatalogScreen = () => {
             <View style={[flexbox.flex1, spacings.mrLg]}>
               <Search placeholder="Search for dApp" control={control} />
             </View>
-            <FilterButton text="all" />
-            <FilterButton text="favorites" />
-            <FilterButton text="connected" />
+            <FilterButton
+              text="all"
+              active={predefinedFilter === 'all'}
+              style={spacings.mrTy}
+              onPress={handleSelectPredefinedFilter}
+            />
+            <FilterButton
+              text="favorites"
+              active={predefinedFilter === 'favorites'}
+              style={spacings.mrTy}
+              onPress={handleSelectPredefinedFilter}
+            />
+            <FilterButton
+              text="connected"
+              active={predefinedFilter === 'connected'}
+              onPress={handleSelectPredefinedFilter}
+            />
           </View>
         </View>
         <ScrollableWrapper

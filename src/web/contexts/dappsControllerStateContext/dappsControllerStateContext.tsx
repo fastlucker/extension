@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import permission, { ConnectedSite } from '@web/extension-services/background/services/permission'
@@ -19,9 +19,11 @@ interface DappControllerState extends DappsController {
 const DappsControllerStateContext = createContext<{
   state: DappControllerState
   currentDapp: ConnectedSite | null
+  getIsDappConnected: (origin: string) => boolean
 }>({
   state: {} as DappControllerState,
-  currentDapp: null
+  currentDapp: null,
+  getIsDappConnected: () => false
 })
 
 const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -30,10 +32,14 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    dispatch({
-      type: 'INIT_CONTROLLER_STATE',
-      params: { controller: 'dapps' }
-    })
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await permission.init()
+      dispatch({
+        type: 'INIT_CONTROLLER_STATE',
+        params: { controller: 'dapps' }
+      })
+    })()
   }, [dispatch])
 
   useEffect(() => {
@@ -50,7 +56,6 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
         icon
       } = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
 
-      await permission.init()
       const site = permission.getSite(dappOrigin)
       if (site) {
         setCurrentDapp(site)
@@ -71,14 +76,19 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('dapps', onUpdate)
   }, [])
 
+  const getIsDappConnected = useCallback((origin: string) => {
+    return !!permission.hasPermission(origin)
+  }, [])
+
   return (
     <DappsControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
-          currentDapp
+          currentDapp,
+          getIsDappConnected
         }),
-        [state, currentDapp]
+        [state, currentDapp, getIsDappConnected]
       )}
     >
       {children}

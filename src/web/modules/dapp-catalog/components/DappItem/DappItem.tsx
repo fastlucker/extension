@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
+import Badge from '@common/components/Badge'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -15,10 +17,12 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 import getStyles from './styles'
 
-const DappItem = (dapp: Dapp) => {
-  const { name, description, icon, url, favorite } = dapp
+type Props = Dapp & { isConnected: boolean }
+
+const DappItem = ({ id, name, description, icon, url, favorite, isConnected }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
+  const { t } = useTranslation()
 
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -46,7 +50,7 @@ const DappItem = (dapp: Dapp) => {
               onPress={() => {
                 dispatch({
                   type: 'DAPP_CONTROLLER_UPDATE_DAPP',
-                  params: { ...dapp, favorite: !favorite }
+                  params: { id, name, description, icon, url, favorite: !favorite }
                 })
               }}
             >
@@ -57,9 +61,15 @@ const DappItem = (dapp: Dapp) => {
             </Text>
           </View>
         </View>
-        <Text fontSize={12} appearance="secondaryText" numberOfLines={4}>
+        <Text fontSize={12} appearance="secondaryText" numberOfLines={3}>
           {description}
         </Text>
+
+        {!!isConnected && (
+          <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
+            <Badge text={t('Connected')} type="success" />
+          </View>
+        )}
       </AnimatedPressable>
     </View>
   )
