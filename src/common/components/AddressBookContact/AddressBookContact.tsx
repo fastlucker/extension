@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import EnsCircularIcon from '@common/assets/svg/EnsCircularIcon'
 import UnstoppableDomainCircularIcon from '@common/assets/svg/UnstoppableDomainCircularIcon'
@@ -22,11 +22,20 @@ import ManageContact from './ManageContact'
 interface Props {
   address: string
   name: string
-  isWalletAccount?: boolean
+  isManageable?: boolean
+  isEditable?: boolean
   onPress?: () => void
+  style?: ViewStyle
 }
 
-const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress }) => {
+const AddressBookContact: FC<Props> = ({
+  address,
+  name,
+  isManageable,
+  isEditable,
+  onPress,
+  style = {}
+}) => {
   const ContainerElement = onPress ? AnimatedPressable : View
 
   const { t } = useTranslation()
@@ -62,6 +71,7 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
         spacings.phTy,
         spacings.pvTy,
         common.borderRadiusPrimary,
+        style,
         onPress && animStyle
       ]}
       onPress={onPress}
@@ -88,17 +98,23 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
           <Avatar pfp={address} size={32} />
         </View>
         <View>
-          <Editable
-            fontSize={14}
-            textProps={{
-              weight: 'medium'
-            }}
-            height={20}
-            minWidth={80}
-            maxLength={32}
-            value={name}
-            onSave={onSave}
-          />
+          {isEditable ? (
+            <Editable
+              fontSize={14}
+              textProps={{
+                weight: 'medium'
+              }}
+              height={20}
+              minWidth={80}
+              maxLength={32}
+              value={name}
+              onSave={onSave}
+            />
+          ) : (
+            <Text fontSize={14} weight="medium">
+              {name}
+            </Text>
+          )}
           {isLoading ? (
             <View
               style={{
@@ -124,7 +140,7 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
           )}
         </View>
       </View>
-      {!isWalletAccount ? <ManageContact address={address} name={name} /> : null}
+      {isManageable ? <ManageContact address={address} name={name} /> : null}
     </ContainerElement>
   )
 }
