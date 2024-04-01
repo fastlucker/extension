@@ -17,9 +17,17 @@ interface Props {
   onPress: () => void
   hasLargerBottomSpace?: boolean
   iconProps?: SvgProps
+  testID?: string
 }
 
-const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text, iconProps = {} }: Props) => {
+const Option = ({
+  icon: Icon,
+  onPress,
+  hasLargerBottomSpace,
+  text,
+  iconProps = {},
+  testID
+}: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
     property: 'borderColor',
@@ -35,6 +43,7 @@ const Option = ({ icon: Icon, onPress, hasLargerBottomSpace, text, iconProps = {
       style={[styles.container, hasLargerBottomSpace && spacings.mbXl, animStyle]}
       onPress={onPress}
       {...bindAnim}
+      testID={testID}
     >
       <View style={styles.iconWrapper}>
         <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />

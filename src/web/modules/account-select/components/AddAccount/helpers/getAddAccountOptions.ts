@@ -29,26 +29,30 @@ const getAddAccountOptions = ({
       key: 'hw',
       text: t('Connect a Hardware Wallet'),
       icon: HWIcon,
-      onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect)
+      onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect),
+      testID: 'connect-hardware-wallet'
     },
     {
       key: 'hot-wallet',
       text: t('Import an existing hot wallet'),
       icon: ImportAccountIcon,
-      onPress: () => navigateWrapped(ROUTES.importHotWallet)
+      onPress: () => navigateWrapped(ROUTES.importHotWallet),
+      testID: 'import-existing-wallet'
     },
     {
       key: 'create-wallet',
       text: t('Create a new hot wallet'),
       icon: CreateWalletIcon,
       onPress: () => navigateWrapped(ROUTES.createHotWallet),
-      hasLargerBottomSpace: true
+      hasLargerBottomSpace: true,
+      testID: 'create-new-wallet'
     },
     {
       key: 'view-only',
       text: t('Watch an address'),
       icon: ViewModeIcon,
-      onPress: () => navigateWrapped(ROUTES.viewOnlyAccountAdder)
+      onPress: () => navigateWrapped(ROUTES.viewOnlyAccountAdder),
+      testID: 'watch-address'
     }
   ]
 }

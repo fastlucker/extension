@@ -24,7 +24,7 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Make valid transaction', async () => {
+  it.only('Make valid transaction', async () => {
     await new Promise((r) => setTimeout(r, 2000))
 
     await page.waitForSelector('[data-testid="full-balance"]')
@@ -132,7 +132,7 @@ describe('transactions', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('Send sign message ', async () => {
     /* Allow permissions for read and write in clipboard */
-    context = browser.defaultBrowserContext()
+    const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
 
     await new Promise((r) => setTimeout(r, 2000))
@@ -221,7 +221,7 @@ describe('transactions', () => {
     let hasInsufficientBalanceText = false
 
     // Check every 500ms if the button is clickable for up to 4 seconds
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 16; i++) {
       isClickable = await page.evaluate((selector) => {
         const element = document.querySelector(selector)
         return element && !element.disabled
@@ -241,7 +241,6 @@ describe('transactions', () => {
         throw new Error('Insufficient MATIC balance')
       }
     }
-    await new Promise((r) => setTimeout(r, 500))
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
   })

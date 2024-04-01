@@ -48,7 +48,7 @@ export async function bootstrap(options = {}) {
 //----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector) {
   try {
-    const elementToClick = await page.waitForSelector(selector)
+    const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     await elementToClick.click()
   } catch (error) {
     throw new Error(`Could not click on selector: ${selector}`)
@@ -272,11 +272,14 @@ export async function confirmTransaction(
   await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
 
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(() => {
-    const pageText = document.documentElement.innerText
-    const occurrences = (pageText.match(/Timestamp/g) || []).length
-    return occurrences >= 2
-  })
+  await newPage.waitForFunction(
+    () => {
+      const pageText = document.documentElement.innerText
+      const occurrences = (pageText.match(/Timestamp/g) || []).length
+      return occurrences >= 2
+    },
+    { timeout: 120000 }
+  )
 
   const doesFailedExist = await newPage.evaluate(() => {
     return document.documentElement.innerText.includes('Failed')

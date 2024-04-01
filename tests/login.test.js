@@ -132,12 +132,11 @@ describe('login', () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]')
 
     const typeTextAndCheckValidity = async (privateKey, testName) => {
-      let textContent
       try {
         await typeText(page, enterSeedPhraseField, privateKey, { delay: 10 })
 
         /* Check whether text "Invalid private key." exists on the page */
-        textContent = await page.$$eval('div[dir="auto"]', (element) => {
+        await page.$$eval('div[dir="auto"]', (element) => {
           return element.find((item) => item.textContent === 'Invalid private key.').textContent
         })
         /* Check whether button is disabled */
@@ -195,7 +194,7 @@ describe('login', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Login into legacy account with invalid phrase', async () => {
+  it('(-) Login into basic account with invalid phrase', async () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]')
 
     await page.waitForSelector('[placeholder="Word 1"]')
@@ -358,9 +357,10 @@ describe('login', () => {
 
     /* Click on "+ Add Account"  */
     await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
+    await new Promise((r) => setTimeout(r, 500))
 
     /* Seleck "Watch an address" */
-    await clickOnElement(page, '[data-testid="watch-an-address"]')
+    await clickOnElement(page, '[data-testid="watch-address"]')
 
     const viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
 
