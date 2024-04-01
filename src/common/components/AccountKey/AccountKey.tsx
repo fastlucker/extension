@@ -22,12 +22,16 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
-interface Props {
-  addr: string
+export type AccountKeyType = {
   isImported: boolean
-  isLast?: boolean
+  addr: Key['addr']
   type?: Key['type']
+  meta?: Key['meta']
   label?: string
+}
+
+type Props = AccountKeyType & {
+  isLast?: boolean
   style?: ViewStyle
   enableEditing?: boolean
   handleOnKeyDetailsPress?: () => void
