@@ -1,12 +1,14 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
+import { TooltipRefProps } from 'react-tooltip'
 
 import EnsCircularIcon from '@common/assets/svg/EnsCircularIcon'
 import UnstoppableDomainCircularIcon from '@common/assets/svg/UnstoppableDomainCircularIcon'
 import { Avatar } from '@common/components/Avatar'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -50,6 +52,8 @@ const AddressBookContact: FC<Props> = ({
       to: theme.secondaryBackground
     }
   })
+  const tooltipRef = useRef<TooltipRefProps>(null)
+  const containerRef = useRef(null)
 
   const onSave = (newName: string) => {
     dispatch({
@@ -62,8 +66,27 @@ const AddressBookContact: FC<Props> = ({
     addToast(t('Successfully renamed contact'))
   }
 
+  const closeTooltip = useCallback(() => {
+    tooltipRef?.current?.close()
+  }, [])
+
+  useEffect(() => {
+    if (!isWeb) return
+
+    if (!containerRef.current) return
+
+    const container = containerRef.current as HTMLElement
+
+    container.addEventListener('mouseleave', closeTooltip)
+
+    return () => {
+      container.removeEventListener('mouseleave', () => closeTooltip)
+    }
+  }, [closeTooltip])
+
   return (
     <ContainerElement
+      ref={containerRef}
       style={[
         flexbox.directionRow,
         flexbox.alignCenter,
@@ -140,7 +163,9 @@ const AddressBookContact: FC<Props> = ({
           )}
         </View>
       </View>
-      {isManageable ? <ManageContact address={address} name={name} /> : null}
+      {isManageable ? (
+        <ManageContact tooltipRef={tooltipRef} address={address} name={name} />
+      ) : null}
     </ContainerElement>
   )
 }

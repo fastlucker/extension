@@ -2,6 +2,7 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 import { useModalize } from 'react-native-modalize'
+import { TooltipRefProps } from 'react-tooltip'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Dialog from '@common/components/Dialog'
@@ -16,11 +17,12 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
+  tooltipRef: React.RefObject<TooltipRefProps>
   address: string
   name: string
 }
 
-const ManageContact: FC<Props> = ({ address, name }) => {
+const ManageContact: FC<Props> = ({ address, name, tooltipRef }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
@@ -52,8 +54,8 @@ const ManageContact: FC<Props> = ({ address, name }) => {
           spacings.mlSm,
           flexbox.center,
           {
-            width: 32,
-            height: 32
+            width: 20,
+            height: 20
           }
         ]}
         // @ts-ignore
@@ -66,14 +68,18 @@ const ManageContact: FC<Props> = ({ address, name }) => {
         )}
       </Pressable>
       <Tooltip
+        tooltipRef={tooltipRef}
         id={address}
         style={{
           padding: 0,
           overflow: 'hidden'
         }}
         clickable
+        openOnClick
+        closeEvents={{ click: true, blur: true }}
         noArrow
-        place="bottom-end"
+        place="left"
+        withPortal={false}
       >
         <AnimatedPressable
           style={[text.center, spacings.pvTy, spacings.ph, removeBtnAnimStyle]}
