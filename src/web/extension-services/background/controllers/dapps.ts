@@ -11,12 +11,15 @@ export type Dapp = {
   description: string
   url: string
   icon: string | null
+  isConnected: boolean
   favorite: boolean
 }
+
+type DefaultDapp = Omit<Dapp, 'isConnected'>
 export class DappsController extends EventEmitter {
   dappsSessionMap: Map<string, Session>
 
-  #_dapps: Dapp[] = []
+  #_dapps: DefaultDapp[] = []
 
   #storage: Storage
 
@@ -43,11 +46,14 @@ export class DappsController extends EventEmitter {
     this.#initialLoadPromise = this.#load()
   }
 
-  get dapps() {
-    return this.#_dapps
+  get dapps(): Dapp[] {
+    return this.#_dapps.map((d) => ({
+      ...d,
+      isConnected: !!permission.hasPermission(d.url)
+    }))
   }
 
-  set dapps(val: Dapp[]) {
+  set dapps(val: DefaultDapp[]) {
     const updatedDapps = val
     this.#_dapps = updatedDapps
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -55,7 +61,7 @@ export class DappsController extends EventEmitter {
   }
 
   async #load() {
-    let storedDapps: Dapp[]
+    let storedDapps: DefaultDapp[]
     storedDapps = await this.#storage.get('dapps', [])
     if (!storedDapps.length) {
       storedDapps = dappCatalogList.map((dapp) => ({
@@ -118,7 +124,7 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
-  async addDapp(dapp: Dapp) {
+  async addDapp(dapp: DefaultDapp) {
     await this.#initialLoadPromise
 
     const storedDapp = this.dapps.find(
@@ -129,7 +135,7 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
-  async updateDapp(dapp: Dapp) {
+  async updateDapp(dapp: DefaultDapp) {
     await this.#initialLoadPromise
 
     this.dapps = this.dapps.map((d) => {

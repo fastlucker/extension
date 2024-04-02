@@ -20,10 +20,12 @@ const DappsControllerStateContext = createContext<{
   state: DappControllerState
   currentDapp: ConnectedSite | null
   getIsDappConnected: (origin: string) => boolean
+  getDappSession: (origin: string) => ConnectedSite | undefined
 }>({
   state: {} as DappControllerState,
   currentDapp: null,
-  getIsDappConnected: () => false
+  getIsDappConnected: () => false,
+  getDappSession: () => undefined
 })
 
 const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -80,15 +82,20 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     return !!permission.hasPermission(origin)
   }, [])
 
+  const getDappSession = useCallback((origin: string) => {
+    return permission.getSite(origin)
+  }, [])
+
   return (
     <DappsControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
           currentDapp,
-          getIsDappConnected
+          getIsDappConnected,
+          getDappSession
         }),
-        [state, currentDapp, getIsDappConnected]
+        [state, currentDapp, getIsDappConnected, getDappSession]
       )}
     >
       {children}
