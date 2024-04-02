@@ -1,8 +1,10 @@
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
+import Dialog from '@common/components/Dialog'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
@@ -23,6 +25,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const [bindRemoveBtnAnim, removeBtnAnimStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -38,6 +41,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
         address
       }
     })
+    closeDialog()
     addToast(t(`Successfully deleted ${name} from your Address Book.`))
   }
 
@@ -69,17 +73,25 @@ const ManageContact: FC<Props> = ({ address, name }) => {
         }}
         clickable
         noArrow
-        openOnClick
         place="bottom-end"
       >
         <AnimatedPressable
           style={[text.center, spacings.pvTy, spacings.ph, removeBtnAnimStyle]}
-          onPress={removeContact}
+          onPress={() => openDialog()}
           {...bindRemoveBtnAnim}
         >
           <Text fontSize={12}>{t('Delete Contact')}</Text>
         </AnimatedPressable>
       </Tooltip>
+      <Dialog
+        dialogRef={dialogRef}
+        id="delete-contact"
+        title={t('Delete Contact')}
+        text={t(`Are you sure you want to delete ${name} from your Address Book?`)}
+        handleClose={closeDialog}
+        handleConfirm={removeContact}
+        confirmButtonText={t('Delete')}
+      />
     </>
   )
 }
