@@ -38,7 +38,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
         address
       }
     })
-    addToast(t(`Successfully deleted ${name} from your address book.`))
+    addToast(t(`Successfully deleted ${name} from your Address Book.`))
   }
 
   return (
@@ -77,7 +77,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
           onPress={removeContact}
           {...bindRemoveBtnAnim}
         >
-          <Text fontSize={12}>{t('Delete Address')}</Text>
+          <Text fontSize={12}>{t('Delete Contact')}</Text>
         </AnimatedPressable>
       </Tooltip>
     </>
