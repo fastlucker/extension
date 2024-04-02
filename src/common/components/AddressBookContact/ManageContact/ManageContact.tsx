@@ -57,7 +57,9 @@ const ManageContact: FC<Props> = ({ address, name }) => {
           tooltipId: `${address}`
         }}
       >
-        <KebabMenuIcon color={theme.secondaryText} height={16} />
+        {({ hovered }: any) => (
+          <KebabMenuIcon color={hovered ? theme.primaryText : theme.secondaryText} height={16} />
+        )}
       </Pressable>
       <Tooltip
         id={address}
@@ -67,6 +69,7 @@ const ManageContact: FC<Props> = ({ address, name }) => {
         }}
         clickable
         noArrow
+        openOnClick
         place="bottom-end"
       >
         <AnimatedPressable
