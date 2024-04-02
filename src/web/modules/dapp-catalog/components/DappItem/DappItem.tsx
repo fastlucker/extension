@@ -55,8 +55,9 @@ const DappItem = ({ id, name, description, icon, url, favorite, isConnected }: P
                   params: { id, name, description, icon, url, favorite: !favorite }
                 })
               }}
+              style={flexbox.alignSelfStart}
             >
-              <StarIcon style={flexbox.alignSelfEnd} isFilled={favorite} />
+              <StarIcon isFilled={favorite} />
             </Pressable>
             <Text weight="semiBold" fontSize={14} appearance="primaryText" numberOfLines={1}>
               {name}
@@ -67,7 +68,7 @@ const DappItem = ({ id, name, description, icon, url, favorite, isConnected }: P
         <Text
           fontSize={12}
           appearance="secondaryText"
-          numberOfLines={2}
+          numberOfLines={isConnected ? 2 : 4}
           // @ts-ignore
           dataSet={{
             tooltipId: id,

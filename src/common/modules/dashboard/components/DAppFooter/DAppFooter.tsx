@@ -42,7 +42,7 @@ const DAppFooter = () => {
   const [hovered, setHovered] = useState(false)
 
   const currentDappController = useCallback(
-    (settingsButtonType: 'open' | 'close', inModal?: boolean) => {
+    (inModal?: boolean) => {
       const showDisconnectButton = !!currentDapp?.isConnected && (hovered || inModal)
       return (
         <View>
@@ -111,16 +111,16 @@ const DAppFooter = () => {
                 type="secondary"
                 size="small"
                 hasBottomSpacing={false}
-                text={settingsButtonType === 'close' ? t('Close') : t('Manage')}
+                text={inModal ? t('Close') : t('Manage')}
                 disabled={!currentDapp?.isConnected}
                 onPress={() => {
-                  settingsButtonType === 'open' && openBottomSheet()
-                  settingsButtonType === 'close' && closeBottomSheet()
+                  !inModal && openBottomSheet()
+                  inModal && closeBottomSheet()
                 }}
               >
                 <View style={spacings.plTy}>
-                  {settingsButtonType === 'open' && <UpArrowIcon color={theme.primary} />}
-                  {settingsButtonType === 'close' && <CloseIcon color={theme.primary} />}
+                  {!inModal && <UpArrowIcon color={theme.primary} />}
+                  {!!inModal && <CloseIcon color={theme.primary} />}
                 </View>
               </Button>
             </View>
@@ -171,10 +171,10 @@ const DAppFooter = () => {
   return (
     <View style={styles.footerContainer}>
       <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-        <View style={styles.container}>{currentDappController('open')}</View>
+        <View style={styles.container}>{currentDappController(false)}</View>
       </div>
       <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-        <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController('close', true)}</View>
+        <View style={[spacings.mbLg, spacings.ptSm]}>{currentDappController(true)}</View>
         <View style={styles.networkSelectorContainer}>
           <Text fontSize={14} style={flexbox.flex1}>
             {t('Select Current dApp Network')}

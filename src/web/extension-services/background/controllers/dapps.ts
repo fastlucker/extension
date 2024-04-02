@@ -48,7 +48,7 @@ export class DappsController extends EventEmitter {
   }
 
   set dapps(val: Dapp[]) {
-    const updatedDapps = val.sort((a, b) => a.name.localeCompare(b.name))
+    const updatedDapps = val
     this.#_dapps = updatedDapps
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.#storage.set('dapps', updatedDapps)
