@@ -81,7 +81,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="full"
+      width="xl"
       header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
