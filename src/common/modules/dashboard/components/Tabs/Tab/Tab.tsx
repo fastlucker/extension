@@ -18,9 +18,18 @@ interface Props {
   setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
   handleChangeQuery: (openTab: 'tokens' | 'collectibles' | 'defi') => void
   disabled?: boolean
+  testID?: string
 }
 
-const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }: Props) => {
+const Tab = ({
+  openTab,
+  tab,
+  tabLabel,
+  setOpenTab,
+  handleChangeQuery,
+  disabled,
+  testID
+}: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { selectedAccount } = useMainControllerState()
@@ -30,8 +39,8 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }
 
   return (
     <Pressable
-    testID={'tab-' + tabLabel.toLowerCase().replace(/\s+/g, '-')}
-    onPress={() => {
+      testID={testID}
+      onPress={() => {
         if (disabled) return
         handleChangeQuery(tab)
         setOpenTab(tab)

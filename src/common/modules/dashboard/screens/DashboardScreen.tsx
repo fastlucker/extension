@@ -114,7 +114,7 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text testID='full-balance' style={spacings.mbTy}>
+                      <Text testID="full-balance" style={spacings.mbTy}>
                         <Text
                           fontSize={32}
                           shouldScale={false}

@@ -24,6 +24,7 @@ interface Props {
     isExternal: boolean
     disabled?: boolean
     onPress?: () => void
+    testID?: string
   }
   index: number
   routeItemsLength: number
@@ -51,7 +52,6 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
 
   return (
     <Pressable
-      testID={'dashboard-button-' + routeItem.label.toLowerCase().replace(/\s+/g, '-')}
       key={routeItem.label}
       style={[flexbox.alignCenter, index !== routeItemsLength - 1 && spacings.mr]}
       disabled={routeItem.disabled}
@@ -74,6 +74,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
       {...bindAccountBtnAnim}
     >
       <View
+        testID={routeItem.testID}
         style={{
           width: 44,
           height: 44,

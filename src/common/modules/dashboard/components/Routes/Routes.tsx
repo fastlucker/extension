@@ -17,21 +17,36 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
   const { t } = useTranslation()
 
   const routeItems = [
-    { icon: SendIcon, label: t('Send'), route: WEB_ROUTES.transfer, isExternal: false },
     {
+      testID: 'dashboard-button-send',
+      icon: SendIcon,
+      label: t('Send'),
+      route: WEB_ROUTES.transfer,
+      isExternal: false
+    },
+    {
+      testID: 'dashboard-button-receive',
       icon: ReceiveIcon,
       label: t('Receive'),
       onPress: openReceiveModal,
       isExternal: false
     },
-    { icon: SwapIcon, label: t('Swap'), route: 'https://app.uniswap.org/swap', isExternal: true },
     {
+      testID: 'dashboard-button-swap',
+      icon: SwapIcon,
+      label: t('Swap'),
+      route: 'https://app.uniswap.org/swap',
+      isExternal: true
+    },
+    {
+      testID: 'dashboard-button-bridge',
       icon: BridgeIcon,
       label: t('Bridge'),
       route: BRIDGE_URL,
       isExternal: true
     },
     {
+      testID: 'dashboard-button-dapps',
       icon: DAppsIcon,
       label: t('dApps'),
       route: '',

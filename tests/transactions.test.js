@@ -24,7 +24,7 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Make valid transaction', async () => {
+  it('Make valid transaction', async () => {
     await new Promise((r) => setTimeout(r, 2000))
 
     await page.waitForSelector('[data-testid="full-balance"]')

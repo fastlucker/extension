@@ -18,6 +18,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   return (
     <View style={styles.container}>
       <Tab
+        testID="tab-tokens"
         openTab={openTab}
         tab="tokens"
         tabLabel="Tokens"
@@ -32,6 +33,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         }}
       />
       <Tab
+        testID="tab-nfts"
         openTab={openTab}
         tab="collectibles"
         tabLabel="NFTs"
@@ -46,6 +48,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
         }}
       />
       <Tab
+        testID="tab-defi"
         disabled
         openTab={openTab}
         tab="defi"

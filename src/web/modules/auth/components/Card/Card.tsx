@@ -25,9 +25,11 @@ interface Props {
   isDisabled?: boolean
   isSecondary?: boolean
   iconProps?: SvgProps
+  testID?: string
 }
 
 const Card: React.FC<Props> = ({
+  testID,
   style,
   text,
   title,
@@ -91,7 +93,7 @@ const Card: React.FC<Props> = ({
       )}
       {!!buttonText && (
         <Button
-          testID={'button-' + buttonText.replace(/\s+/g, '-')}
+          testID={testID}
           disabled={isDisabled}
           style={{ width: '100%' }}
           text={t(buttonText)}

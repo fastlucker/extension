@@ -12,6 +12,7 @@ const options = [
     isDisabled: true
   },
   {
+    testID: 'button-import-private-key',
     title: 'Private Key',
     text: 'Select this option to import your Basic or Smart account(s) by entering their Private Key.',
     image: PrivateKeyIcon,
@@ -19,6 +20,7 @@ const options = [
     flow: 'private-key'
   },
   {
+    testID: 'button-proceed-seed-phrase',
     title: 'Seed Phrase',
     text: 'Select this option to import your Basic or Smart account(s) by entering their Seed Phrase.',
     image: SeedPhraseIcon,

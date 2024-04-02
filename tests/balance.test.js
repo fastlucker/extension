@@ -1,12 +1,12 @@
 import { setLocalStorage, clickOnElement } from './functions.js'
 
 describe('balance', () => {
-  let browser
+  // let browser
   let page
 
   beforeEach(async () => {
-    const { browser: newBrowser, page: newPage } = await setLocalStorage()
-    browser = newBrowser
+    const { page: newPage } = await setLocalStorage()
+    // browser = newBrowser
     page = newPage
   })
 
@@ -16,9 +16,6 @@ describe('balance', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('check the balance in account ', async () => {
-    // eslint-disable-next-line no-console
-    console.log('The test starts----->>>>>')
-
     await page.waitForSelector('[data-testid="full-balance"]')
 
     /* Get the available balance */
@@ -30,12 +27,10 @@ describe('balance', () => {
     let availableAmmountNum = availableAmmount.replace(/\n/g, '')
     availableAmmountNum = availableAmmountNum.split('$')[1]
 
-    console.log(`Balance: ${availableAmmountNum}`)
+    // console.log(`Balance: ${availableAmmountNum}`)
 
     /* Verify that the balance is bigger than 0 */
     expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0)
-
-    console.log('The test ends----->>>>>')
   })
 
   //--------------------------------------------------------------------------------------------------------------

@@ -191,7 +191,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
   await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]')
 
   /* Click on "Import" button */
-  await page.$eval('[data-testid="button-Import"]', (button) => button.click())
+  await page.$eval('[data-testid="get-started-button-import"]', (button) => button.click())
 
   await page.waitForFunction(
     () => {
@@ -199,7 +199,6 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
     },
     { timeout: 60000 }
   )
-
   /* Click on "Import" private key */
   await page.$eval(privKeyOrPhraseSelector, (button) => button.click())
 

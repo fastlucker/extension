@@ -42,7 +42,7 @@ describe('login', () => {
 
   //------------------------------------------------------------------------------------------------------
   it('Create basic account with private key', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
     await typeText(
@@ -83,7 +83,7 @@ describe('login', () => {
 
   //------------------------------------------------------------------------------------------------------
   it('login into basic account with phrase', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-proceed-seed-phrase"]')
 
     const passphraseWords = process.env.PHRASE_LEGACY_ACCOUNT
     const wordArray = passphraseWords.split(' ')
@@ -129,7 +129,7 @@ describe('login', () => {
 
   //------------------------------------------------------------------------------------------------------
   it('(-) login into legacy account with invalid private key', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
 
     const typeTextAndCheckValidity = async (privateKey, testName) => {
       try {
@@ -195,7 +195,7 @@ describe('login', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Login into basic account with invalid phrase', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Proceed"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-proceed-seed-phrase"]')
 
     await page.waitForSelector('[placeholder="Word 1"]')
 
@@ -274,7 +274,7 @@ describe('login', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('change selected account name', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
 
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
@@ -331,7 +331,7 @@ describe('login', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   it('Add View-only account', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-Import"]')
+    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
     await typeText(
