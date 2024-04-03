@@ -11,10 +11,15 @@ const puppeteerArgs = [
 
   // '--disable-features=ClipboardContentSetting',
   '--clipboard-write: granted',
-  '--clipboard-read: prompt'
+  '--clipboard-read: prompt',
 
   // '--detectOpenHandles',
-  // '--start-maximized'
+  // '--start-maximized',
+
+  // We need this for running Puppeteer in Github Actions
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--font-render-hinting=none'
 ]
 
 export async function bootstrap(options = {}) {
@@ -25,7 +30,14 @@ export async function bootstrap(options = {}) {
     devtools,
     args: puppeteerArgs,
     defaultViewport: null,
-    slowMo
+    slowMo,
+    // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
+    // It configures the display server and make the tests working in headful mode in Github actions.
+    ...(process.env.DISPLAY && {
+      env: {
+        DISPLAY: process.env.DISPLAY
+      }
+    })
   })
 
   // Extract the extension ID from the browser targets
@@ -73,26 +85,8 @@ export async function typeText(page, selector, text) {
 export async function typeSeedPhrase(page, seedPhrase) {
   await new Promise((r) => setTimeout(r, 2000))
 
-  /* This loop check if Passphrase field exist on the page if not the page will be reloaded */
-  let attempts = 0
-  let element = null
+  await page.waitForSelector('[data-testid="passphrase-field"]')
 
-  while (attempts < 5) {
-    element = page.$('[data-testid="passphrase-field"]')
-    if (element) {
-      break
-    } else {
-      console.log(`Element not found. Reloading page (Attempt ${attempts + 1}/5)...`)
-      await new Promise((r) => setTimeout(r, 1000))
-
-      await page.reload()
-      attempts++
-    }
-  }
-  if (!element) {
-    console.log('Passphrase field not found after 5 attempts.')
-  }
-  /* Type keystore password */
   await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
   /* Click on "Unlock button" */
   await clickOnElement(page, '[data-testid="padding-button-Unlock"]')
