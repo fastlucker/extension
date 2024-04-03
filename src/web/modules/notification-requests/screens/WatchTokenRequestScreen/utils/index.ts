@@ -28,12 +28,9 @@ const selectNetwork = async (
       (_network: NetworkDescriptor) =>
         `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
     )
-
     if (allNetworksChecked) {
       setIsLoading(false)
-    }
-
-    if (validTokenNetworks.length > 0) {
+    } else if (validTokenNetworks.length > 0) {
       const newTokenNetwork = validTokenNetworks.find(
         (_network: NetworkDescriptor) => _network.id !== tokenNetwork?.id
       )
@@ -52,7 +49,9 @@ const getTokenEligibility = (
   tokenNetwork: NetworkDescriptor | undefined
 ) =>
   null ||
-  (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+  (tokenData &&
+    tokenNetwork?.id &&
+    portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
@@ -65,20 +64,6 @@ const getTokenFromPreferences = (
       token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
       token.networkId === tokenNetwork?.id
   )
-
-const getTokenFromPortfolio = (
-  tokenData: { address: string } | CustomToken,
-  tokenNetwork: NetworkDescriptor | undefined,
-  accountPortfolio: AccountPortfolio | null,
-  tokenInPreferences: CustomToken | undefined
-) =>
-  (tokenData &&
-    accountPortfolio?.tokens?.find(
-      (token) =>
-        token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-        token.networkId === tokenNetwork?.id
-    )) ||
-  tokenInPreferences
 
 const handleTokenIsInPortfolio = async (
   tokenInPreferences: CustomToken | undefined,
@@ -102,10 +87,38 @@ const handleTokenIsInPortfolio = async (
   return isTokenInHints || tokenInPreferences || isNative
 }
 
+const getTokenFromPortfolio = (
+  tokenData: { address: string } | CustomToken,
+  tokenNetwork: NetworkDescriptor | undefined,
+  accountPortfolio: AccountPortfolio | null,
+  tokenInPreferences: CustomToken | undefined
+) =>
+  (tokenData &&
+    accountPortfolio?.tokens?.find(
+      (token) =>
+        token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
+        token.networkId === tokenNetwork?.id
+    )) ||
+  tokenInPreferences
+
+const getTokenFromTemporaryTokens = (
+  portfolio: any,
+  tokenData: { address: string } | CustomToken,
+  tokenNetwork: NetworkDescriptor | undefined
+) =>
+  undefined ||
+  (tokenData &&
+    tokenNetwork &&
+    portfolio.state.temporaryTokens[tokenNetwork.id] &&
+    portfolio.state.temporaryTokens[tokenNetwork.id]?.result?.tokens?.find(
+      (x) => x.address.toLowerCase() === tokenData.address.toLowerCase()
+    ))
+
 export {
   selectNetwork,
   handleTokenIsInPortfolio,
   getTokenEligibility,
   getTokenFromPreferences,
+  getTokenFromTemporaryTokens,
   getTokenFromPortfolio
 }

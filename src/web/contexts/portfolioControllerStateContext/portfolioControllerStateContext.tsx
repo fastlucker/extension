@@ -24,7 +24,7 @@ const PortfolioControllerStateContext = createContext<{
   state: PortfolioController
   startedLoading: null | number
   refreshPortfolio: () => void
-  updateAdditionalHints: (tokenIds: CustomToken['address'][]) => void
+  getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
@@ -38,7 +38,7 @@ const PortfolioControllerStateContext = createContext<{
   state: {} as any,
   startedLoading: null,
   refreshPortfolio: () => {},
-  updateAdditionalHints: () => {},
+  getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
   checkToken: () => {}
@@ -141,6 +141,19 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     [dispatch]
   )
 
+  const getTemporaryTokens = useCallback(
+    (networkId: NetworkId, tokenId: string) => {
+      dispatch({
+        type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS',
+        params: {
+          networkId,
+          additionalHint: tokenId
+        }
+      })
+    },
+    [dispatch]
+  )
+
   const updateTokenPreferences = useCallback(
     async (token: CustomToken) => {
       dispatch({
@@ -198,7 +211,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateTokenPreferences,
           updateAdditionalHints,
           removeTokenPreferences,
-          checkToken
+          checkToken,
+          getTemporaryTokens
         }),
         [
           state,
@@ -208,7 +222,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateTokenPreferences,
           updateAdditionalHints,
           removeTokenPreferences,
-          checkToken
+          checkToken,
+          getTemporaryTokens
         ]
       )}
     >

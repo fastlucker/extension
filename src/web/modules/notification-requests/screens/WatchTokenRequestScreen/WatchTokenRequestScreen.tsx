@@ -27,6 +27,7 @@ import {
   getTokenEligibility,
   getTokenFromPortfolio,
   getTokenFromPreferences,
+  getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio,
   selectNetwork
 } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
@@ -60,17 +61,12 @@ const WatchTokenRequestScreen = () => {
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [tokenNetwork, setTokenNetwork] = useState(network)
-  const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
-
-  const isControllerLoading =
-    (tokenNetwork?.id && portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading) ||
-    false
+  const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
   const tokenTypeEligibility = useMemo(
     () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
     [portfolio, tokenData, tokenNetwork]
   )
-
   const handleCancel = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
@@ -84,7 +80,12 @@ const WatchTokenRequestScreen = () => {
     [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
   )
 
-  const portfolioFoundToken = useMemo(
+  const temporaryToken = useMemo(
+    () => getTokenFromTemporaryTokens(portfolio, tokenData, tokenNetwork),
+    [portfolio, tokenData, tokenNetwork]
+  )
+
+  const portfolioToken = useMemo(
     () =>
       getTokenFromPortfolio(
         tokenData,
@@ -92,7 +93,7 @@ const WatchTokenRequestScreen = () => {
         portfolio?.accountPortfolio,
         tokenInPreferences
       ),
-    [portfolio, tokenInPreferences, tokenData, tokenNetwork]
+    [portfolio, tokenInPreferences, tokenNetwork, tokenData]
   )
 
   const handleTokenType = async (networkId: NetworkId) => {
@@ -112,7 +113,7 @@ const WatchTokenRequestScreen = () => {
         handleTokenType
       )
 
-      if (tokenNetwork) {
+      if (tokenNetwork && !temporaryToken) {
         // Check if token is eligible to add in portfolio
         if (tokenData && !tokenTypeEligibility) {
           await handleTokenType(tokenNetwork?.id)
@@ -129,9 +130,9 @@ const WatchTokenRequestScreen = () => {
           if (isTokenInHints) {
             setIsLoading(false)
             setShowAlreadyInPortfolioMessage(true)
-          } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
-            setAdditionalHintRequested(true)
-            portfolio.updateAdditionalHints([getAddress(tokenData?.address)])
+          } else if (!temporaryToken && !isTemporaryTokenRequested) {
+            setTemporaryTokenRequested(true)
+            portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))
           }
         }
       }
@@ -139,7 +140,7 @@ const WatchTokenRequestScreen = () => {
 
     handleEffect().catch(() => setIsLoading(false))
 
-    if (tokenTypeEligibility === false || !!portfolioFoundToken) {
+    if (tokenTypeEligibility === false || !!temporaryToken) {
       setIsLoading(false)
     }
 
@@ -151,11 +152,10 @@ const WatchTokenRequestScreen = () => {
     networks,
     selectedAccount,
     tokenTypeEligibility,
-    portfolioFoundToken,
+    temporaryToken,
     setIsLoading,
     tokenInPreferences,
-    portfolio.state.validTokens,
-    isControllerLoading
+    portfolio
   ])
 
   const handleAddToken = useCallback(async () => {
@@ -218,7 +218,8 @@ const WatchTokenRequestScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        {!tokenTypeEligibility && tokenTypeEligibility !== undefined && !portfolioFoundToken ? (
+        {(!tokenTypeEligibility && tokenTypeEligibility !== undefined && !temporaryToken) ||
+        (!tokenNetwork?.id && !isLoading) ? (
           <Alert type="error" title={t('This token type is not supported.')} />
         ) : (
           <>
@@ -252,11 +253,11 @@ const WatchTokenRequestScreen = () => {
                 ...spacings.mb
               }}
             />
-            <TokenHeader portfolioFoundToken={portfolioFoundToken} />
+            <TokenHeader temporaryToken={temporaryToken || portfolioToken} />
             <Token
               tokenData={tokenData}
               tokenNetwork={tokenNetwork}
-              portfolioFoundToken={portfolioFoundToken}
+              temporaryToken={temporaryToken || portfolioToken}
               isLoading={isLoading}
             />
           </>

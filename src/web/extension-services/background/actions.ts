@@ -215,6 +215,15 @@ type MainControllerUpdateSelectedAccount = {
     additionalHints?: TokenResult['address'][]
   }
 }
+
+type PortfolioControllerGetTemporaryToken = {
+  type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
+  params: {
+    additionalHint: TokenResult['address']
+    networkId: NetworkId
+  }
+}
+
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
@@ -436,6 +445,7 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
