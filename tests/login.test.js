@@ -56,6 +56,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -102,6 +103,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -303,6 +305,7 @@ describe('login', () => {
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -342,6 +345,7 @@ describe('login', () => {
     await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -354,6 +358,7 @@ describe('login', () => {
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
     /* Click on "+ Add Account"  */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
     await new Promise((r) => setTimeout(r, 500))
 
@@ -369,6 +374,7 @@ describe('login', () => {
     await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
     /* Click on "Account"  */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
