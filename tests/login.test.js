@@ -56,6 +56,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 100))
     await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -102,6 +103,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 100))
     await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -305,6 +307,7 @@ describe('login', () => {
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 100))
     await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
 
     await page.waitForFunction(
