@@ -63,6 +63,7 @@ export async function clickOnElement(page, selector) {
     const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     await elementToClick.click()
   } catch (error) {
+    console.log({ error })
     throw new Error(`Could not click on selector: ${selector}`)
   }
 }
