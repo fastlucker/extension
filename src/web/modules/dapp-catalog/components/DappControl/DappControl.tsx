@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
+import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import PowerIcon from '@common/assets/svg/PowerIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
@@ -13,6 +14,7 @@ import predefinedDapps from '@common/constants/dappCatalog.json'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import ManifestImage from '@web/components/ManifestImage'
 import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -66,7 +68,11 @@ const DappControl = ({
       <View style={styles.border}>
         {dapp ? (
           <View style={styles.currentDApp}>
-            <Image source={{ uri: dapp.icon || '' }} resizeMode="contain" style={styles.icon} />
+            <ManifestImage
+              uri={dapp.icon || ''}
+              size={32}
+              fallback={() => <ManifestFallbackIcon />}
+            />
             <View style={[spacings.mlMi, flexbox.flex1]}>
               <View style={[flexbox.directionRow, flexbox.flex1]}>
                 <Text fontSize={12} weight="medium" numberOfLines={1} style={spacings.mrTy}>

@@ -1,6 +1,6 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
-import dappCatalogList from '@common/constants/dappCatalog.json'
+import predefinedDapps from '@common/constants/dappCatalog.json'
 import { browser } from '@web/constants/browserapi'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
 
@@ -60,9 +60,9 @@ export class DappsController extends EventEmitter {
 
   async #load() {
     let storedDapps: Dapp[]
-    storedDapps = await this.#storage.get('dapps', [])
+    storedDapps = []
     if (!storedDapps.length) {
-      storedDapps = dappCatalogList.map((dapp) => ({
+      storedDapps = predefinedDapps.map((dapp) => ({
         ...dapp,
         chainId: 1,
         favorite: false,
@@ -153,7 +153,7 @@ export class DappsController extends EventEmitter {
     if (!this.isReady) return
 
     // do not remove predefined dapps
-    if (dappCatalogList.find((d) => d.url === url)) return
+    if (predefinedDapps.find((d) => d.url === url)) return
 
     this.dapps = this.dapps.filter((d) => d.url !== url)
     this.emitUpdate()

@@ -44,7 +44,7 @@
   {
     "url": "https://spooky.fi",
     "name": "SpookySwap",
-    "icon": "https://spooky.fi/favicon.ico",
+    "icon": "https://spooky.fi/favicon.png",
     "description": "Farm BOO with Spooky LP Tokens"
   },
   {
@@ -230,14 +230,8 @@
   {
     "url": "https://app.ether.fi",
     "name": "ether",
-    "icon": null,
+    "icon": "https://app.ether.fi/favicon/favicon.ico",
     "description": "Delegated Staking Protocol"
-  },
-  {
-    "url": "https://play.sidusheroes.com",
-    "name": "Sidusheroes",
-    "icon": "https://static.debank.com/image/dapp/logo_url/ac9d41f5d8e1e3554f26c85446d78ece/ac9d41f5d8e1e3554f26c85446d78ece.png",
-    "description": ""
   },
   {
     "url": "https://portal.dymension.xyz",
@@ -266,7 +260,7 @@
   {
     "url": "https://minter.merkly.com",
     "name": "Merkly",
-    "icon": "https://static.debank.com/image/dapp/logo_url/0f70e178a022e10cdd62b20e0b34911e/0f70e178a022e10cdd62b20e0b34911e.png",
+    "icon": "https://minter.merkly.com/logo.webp",
     "description": "Merkly \nOmnichain Bridging Made Easy."
   },
   {
@@ -320,7 +314,7 @@
   {
     "url": "https://matcha.xyz",
     "name": "Matcha",
-    "icon": null,
+    "icon": "https://assets-global.website-files.com/6364e65656ab107e465325d2/651deefaa0331025effd2ef0_matcha-green-whitebg.png",
     "description": "Matcha DEX aggregator | Search and trade over +5 million tokens across +100 exchanges on 9 chains. Trade now."
   },
   {
@@ -442,5 +436,29 @@
     "name": "BaseSwap",
     "icon": "https://static.debank.com/image/dapp/logo_url/ac6367301d0f398ffb3cdbdf38c1cb15/ac6367301d0f398ffb3cdbdf38c1cb15.png",
     "description": "Welcome to BaseSwap - the leading DEX on Base Chain, where advanced blockchain technology meets unparalleled user experience. Trade, stake, and farm with ease. Dive into our world of concentrated liquidity, exclusive single-stake earning, innovative farmi"
+  },
+  {
+    "url": "https://polygon.lido.fi/",
+    "name": "Lido Polygon Staking",
+    "icon": "https://polygon.lido.fi/favicon-194x194.png",
+    "description": "Stake your MATIC and receive stMATIC."
+  },
+  {
+    "url": "https://kwenta.io/market/",
+    "name": "Kwenta",
+    "icon": "https://kwenta.io/images/favicon.svg",
+    "description": "Gain exposure to cryptocurrencies, forex, indices, and commodities on Ethereum with zero slippage."
+  },
+  {
+    "url": "https://mean.finance/",
+    "name": "Mean finance",
+    "icon": "https://mean.finance/favicon.ico",
+    "description": "Mean Finance is the state-of-the-art DCA protocol. It enables you to set up actions like 'Swap 10 USDC for WBTC every day, for 30 days'. "
+  },
+  {
+    "url": "https://app.defisaver.com/",
+    "name": "DeFi Saver",
+    "icon": "https://app.defisaver.com//assets/icons/icon-transparent.svg",
+    "description": "The next generation DeFi management dashboard"
   }
 ]
