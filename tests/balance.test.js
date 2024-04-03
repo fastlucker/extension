@@ -1,13 +1,19 @@
 import { setLocalStorage, clickOnElement } from './functions.js'
 
 describe('balance', () => {
-  // let browser
+  let browser
   let page
+  let extensionRootUrl
 
   beforeEach(async () => {
-    const { page: newPage } = await setLocalStorage()
-    // browser = newBrowser
+    const {
+      browser: newBrowser,
+      page: newPage,
+      extensionRootUrl: newExtensionRootUrl
+    } = await setLocalStorage()
+    browser = newBrowser
     page = newPage
+    extensionRootUrl = newExtensionRootUrl
   })
 
   afterEach(async () => {
