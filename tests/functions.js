@@ -264,7 +264,7 @@ export async function confirmTransaction(
   await new Promise((r) => setTimeout(r, 5000))
 
   /* Click on "Medium" button */
-  await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
+  await clickOnElement(newPage, '[data-testid="fee-medium:"]:not([disabled]')
 
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')

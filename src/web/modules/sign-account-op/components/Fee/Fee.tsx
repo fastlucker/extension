@@ -47,6 +47,7 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }:
       ]}
       disabled={disabled}
       onPress={() => onPress(type)}
+      testID={`fee-${label.toLowerCase()}`}
       {...bindAnim}
     >
       <Animated.View
