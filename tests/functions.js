@@ -232,7 +232,7 @@ export async function finishStoriesAndSelectAccount(page) {
   })
 
   /* Click on Import Accounts button */
-  await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]')
+  await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]:not([disabled])')
 
   return {
     firstSelectedBasicAccount,
