@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import BackButton from '@common/components/BackButton'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
@@ -22,7 +21,6 @@ import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import DappItem from '@web/modules/dapp-catalog/components/DappItem'
-import ManageDapp from '@web/modules/dapp-catalog/components/ManageDapp'
 
 import getStyles from './styles'
 
@@ -82,13 +80,11 @@ const DappCatalogScreen = () => {
   })
 
   const { t } = useTranslation()
-  const { state, getIsDappConnected } = useDappsControllerState()
+  const { state } = useDappsControllerState()
   const [predefinedFilter, setPredefinedFilter] = useState<
     'all' | 'favorites' | 'connected' | null
   >(null)
 
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const [selectedDapp, setSelectedDapp] = useState<Dapp>()
   const search = watch('search')
   const debouncedSearch = useDebounce({ value: search, delay: 350 })
   const filteredDapps = useMemo(() => {
@@ -101,27 +97,16 @@ const DappCatalogScreen = () => {
     }
     if (!predefinedFilter) setPredefinedFilter('all')
     if (predefinedFilter === 'favorites') return allDapps.filter((dapp) => !!dapp.favorite)
-    if (predefinedFilter === 'connected')
-      return allDapps.filter((dapp) => getIsDappConnected(dapp.url))
+    if (predefinedFilter === 'connected') return allDapps.filter((dapp) => dapp.isConnected)
 
     return allDapps
-  }, [debouncedSearch, state.dapps, predefinedFilter, getIsDappConnected])
+  }, [debouncedSearch, state.dapps, predefinedFilter])
 
   const handleSelectPredefinedFilter = useCallback((type: 'all' | 'favorites' | 'connected') => {
     setPredefinedFilter(type)
   }, [])
 
-  const handleOpenDappSettings = useCallback(
-    (dapp: Dapp) => {
-      setSelectedDapp(dapp)
-      openBottomSheet()
-    },
-    [openBottomSheet]
-  )
-
-  const renderItem = ({ item }: { item: Dapp }) => (
-    <DappItem onOpenDappSettings={handleOpenDappSettings} {...item} />
-  )
+  const renderItem = ({ item }: { item: Dapp }) => <DappItem {...item} />
 
   return (
     <TabLayoutContainer
@@ -168,7 +153,7 @@ const DappCatalogScreen = () => {
           numColumns={3}
           data={filteredDapps}
           renderItem={renderItem}
-          keyExtractor={(item: Dapp) => item.id}
+          keyExtractor={(item: Dapp) => item.url}
           ListEmptyComponent={
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
               <Text style={text.center}>{t('No dApp found')}</Text>
@@ -176,16 +161,6 @@ const DappCatalogScreen = () => {
           }
         />
       </View>
-      <ManageDapp
-        url={selectedDapp?.url}
-        name={selectedDapp?.name}
-        icon={selectedDapp?.icon}
-        isCurrentDapp={false}
-        isConnected={!!selectedDapp && getIsDappConnected(selectedDapp.url)}
-        sheetRef={sheetRef}
-        openBottomSheet={openBottomSheet}
-        closeBottomSheet={closeBottomSheet}
-      />
     </TabLayoutContainer>
   )
 }

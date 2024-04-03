@@ -2,28 +2,24 @@ import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
 import dappCatalogList from '@common/constants/dappCatalog.json'
 import { browser } from '@web/constants/browserapi'
-import permission from '@web/extension-services/background/services/permission'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
 
 export type Dapp = {
-  id: string
   name: string
   description: string
   url: string
   icon: string | null
   isConnected: boolean
+  chainId: number
   favorite: boolean
 }
 
-type DefaultDapp = Omit<Dapp, 'isConnected'>
 export class DappsController extends EventEmitter {
   dappsSessionMap: Map<string, Session>
 
-  #_dapps: DefaultDapp[] = []
+  #_dapps: Dapp[] = []
 
   #storage: Storage
-
-  #initialLoadPromise: Promise<void>
 
   constructor(_storage: Storage) {
     super()
@@ -43,17 +39,19 @@ export class DappsController extends EventEmitter {
       console.error('Failed to register browser.tabs.onRemoved.addListener', error)
     }
 
-    this.#initialLoadPromise = this.#load()
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.#load()
+  }
+
+  get isReady() {
+    return !!this.dapps
   }
 
   get dapps(): Dapp[] {
-    return this.#_dapps.map((d) => ({
-      ...d,
-      isConnected: !!permission.hasPermission(d.url)
-    }))
+    return this.#_dapps
   }
 
-  set dapps(val: DefaultDapp[]) {
+  set dapps(val: Dapp[]) {
     const updatedDapps = val
     this.#_dapps = updatedDapps
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -61,13 +59,14 @@ export class DappsController extends EventEmitter {
   }
 
   async #load() {
-    let storedDapps: DefaultDapp[]
+    let storedDapps: Dapp[]
     storedDapps = await this.#storage.get('dapps', [])
     if (!storedDapps.length) {
       storedDapps = dappCatalogList.map((dapp) => ({
         ...dapp,
-        url: `https://${dapp.id}`,
-        favorite: false
+        chainId: 1,
+        favorite: false,
+        isConnected: false
       }))
       await this.#storage.set('dapps', storedDapps)
     }
@@ -100,7 +99,7 @@ export class DappsController extends EventEmitter {
   broadcastDappSessionEvent = (ev: any, data?: any, origin?: string) => {
     let dappSessions: { key: string; data: Session }[] = []
     this.dappsSessionMap.forEach((session, key) => {
-      if (session && permission.hasPermission(session.origin)) {
+      if (session && this.hasPermission(session.origin)) {
         dappSessions.push({
           key,
           data: session
@@ -124,30 +123,53 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
-  async addDapp(dapp: DefaultDapp) {
-    await this.#initialLoadPromise
+  addDapp(dapp: Dapp) {
+    if (!this.isReady) return
 
-    const storedDapp = this.dapps.find(
-      (d) => d.id === dapp.id || (d.name === dapp.name && d.url === dapp.url)
-    )
-    if (storedDapp) return
+    const doesAlreadyExist = this.dapps.find((d) => d.url === dapp.url)
+    if (doesAlreadyExist) {
+      this.updateDapp(dapp.url, {
+        chainId: dapp.chainId,
+        isConnected: dapp.isConnected,
+        favorite: dapp.favorite
+      })
+      return
+    }
     this.dapps = [...this.dapps, dapp]
     this.emitUpdate()
   }
 
-  async updateDapp(dapp: DefaultDapp) {
-    await this.#initialLoadPromise
+  updateDapp(url: string, dapp: Partial<Dapp>) {
+    if (!this.isReady) return
 
     this.dapps = this.dapps.map((d) => {
-      if (d.id === dapp.id) return { ...d, ...dapp }
+      if (d.url === url) return { ...d, ...dapp }
       return d
     })
     this.emitUpdate()
   }
 
-  async removeDapp(dappId: string) {
-    this.dapps = this.dapps.filter((d) => d.id !== dappId)
+  removeDapp(url: string) {
+    if (!this.isReady) return
+
+    // do not remove predefined dapps
+    if (dappCatalogList.find((d) => d.url === url)) return
+
+    this.dapps = this.dapps.filter((d) => d.url !== url)
     this.emitUpdate()
+  }
+
+  hasPermission(url: string) {
+    const dapp = this.dapps.find((d) => d.url === url)
+    if (!dapp) return false
+
+    return dapp.isConnected
+  }
+
+  getDapp(url: string) {
+    if (!this.isReady) return
+
+    return this.dapps.find((d) => d.url === url)
   }
 
   toJSON() {
@@ -155,7 +177,8 @@ export class DappsController extends EventEmitter {
       ...this,
       ...super.toJSON(),
       dappsSessionMap: Object.fromEntries(this.dappsSessionMap),
-      dapps: this.dapps
+      dapps: this.dapps,
+      isReady: this.isReady
     }
   }
 }

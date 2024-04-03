@@ -6,14 +6,6 @@ const handleProviderRequests = async (req: ProviderRequest): Promise<any> => {
   const { data, session } = req
   if (data.method === 'tabCheckin') {
     session.setProp({ origin: req.origin, name: data.params.name, icon: data.params.icon })
-    await req.dappsCtrl.addDapp({
-      id: new URL(req.origin!).hostname,
-      name: data.params.name,
-      url: req.origin!,
-      icon: data.params.icon,
-      description: 'Custom dApp automatically added when connected for the first time.',
-      favorite: false
-    })
     return
   }
 

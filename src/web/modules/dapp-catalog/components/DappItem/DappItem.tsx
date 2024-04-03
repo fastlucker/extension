@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
@@ -17,24 +18,14 @@ import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import ManageDapp from '@web/modules/dapp-catalog/components/ManageDapp'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
-type Props = Dapp & {
-  onOpenDappSettings: (dapp: Dapp) => void
-}
-
-const DappItem = ({
-  id,
-  name,
-  description,
-  icon,
-  url,
-  favorite,
-  isConnected,
-  onOpenDappSettings
-}: Props) => {
+const DappItem = (dapp: Dapp) => {
+  const { url, name, icon, description, isConnected, favorite } = dapp
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
@@ -66,18 +57,14 @@ const DappItem = ({
                 onPress={() => {
                   dispatch({
                     type: 'DAPP_CONTROLLER_UPDATE_DAPP',
-                    params: { id, name, description, icon, url, favorite: !favorite }
+                    params: { url, dapp: { favorite: !favorite } }
                   })
                 }}
                 style={flexbox.alignSelfStart}
               >
                 <StarIcon isFilled={favorite} />
               </Pressable>
-              <Pressable
-                onPress={() => {
-                  onOpenDappSettings({ id, name, description, icon, url, favorite, isConnected })
-                }}
-              >
+              <Pressable onPress={openBottomSheet as any}>
                 {({ hovered }: any) => (
                   <SettingsIcon
                     width={16}
@@ -100,19 +87,26 @@ const DappItem = ({
           numberOfLines={isConnected ? 2 : 4}
           // @ts-ignore
           dataSet={{
-            tooltipId: id,
+            tooltipId: url,
             tooltipContent: description
           }}
         >
           {description}
         </Text>
-        {!!getUiType().isPopup && <Tooltip id={id} delayShow={1050} />}
+        {!!getUiType().isPopup && <Tooltip id={url} delayShow={1050} />}
         {!!isConnected && (
           <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
             <Badge text={t('Connected')} type="success" />
           </View>
         )}
       </AnimatedPressable>
+      <ManageDapp
+        dapp={dapp}
+        isCurrentDapp={false}
+        sheetRef={sheetRef}
+        openBottomSheet={openBottomSheet}
+        closeBottomSheet={closeBottomSheet}
+      />
     </View>
   )
 }

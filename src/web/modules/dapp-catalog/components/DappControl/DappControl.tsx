@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
@@ -11,35 +11,25 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
 type Props = {
+  dapp: Dapp | null
   isHovered?: boolean
-  isConnected: boolean
   inModal?: boolean
-  hasDapp: boolean
-  name?: string
-  icon?: string | null
-  url?: string
-  networkName?: string
-  favorite?: boolean
   isCurrentDapp?: boolean
   openBottomSheet: (dest?: 'top' | 'default' | undefined) => void
   closeBottomSheet: (dest?: 'default' | 'alwaysOpen' | undefined) => void
 }
 
 const DappControl = ({
-  hasDapp,
-  name,
-  icon,
-  url,
-  networkName,
-  favorite,
+  dapp,
   inModal,
   isHovered,
-  isConnected,
   isCurrentDapp,
   openBottomSheet,
   closeBottomSheet
@@ -47,8 +37,16 @@ const DappControl = ({
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const { networks } = useSettingsControllerState()
 
-  const showDisconnectButton = !!isConnected && (isHovered || inModal)
+  const network = useMemo(
+    () =>
+      networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
+      networks.filter((n) => n.id === 'ethereum')[0],
+    [dapp?.chainId, networks]
+  )
+
+  const showDisconnectButton = !!dapp?.isConnected && (isHovered || inModal)
 
   return (
     <View>
@@ -59,19 +57,19 @@ const DappControl = ({
       </View>
 
       <View style={styles.border}>
-        {hasDapp ? (
+        {dapp ? (
           <View style={styles.currentDApp}>
-            <Image source={{ uri: icon || '' }} resizeMode="contain" style={styles.icon} />
+            <Image source={{ uri: dapp.icon || '' }} resizeMode="contain" style={styles.icon} />
             <View style={[spacings.mlMi, flexbox.flex1]}>
               <Text fontSize={12} weight="medium" numberOfLines={1} style={spacings.mrMi}>
-                {name}
+                {dapp.name}
               </Text>
               <Text
                 weight="regular"
-                color={isConnected ? theme.successText : theme.errorText}
+                color={dapp.isConnected ? theme.successText : theme.errorText}
                 fontSize={10}
               >
-                {isConnected ? t(`Connected on ${networkName}`) : t('Not connected')}
+                {dapp.isConnected ? t(`Connected on ${network.name}`) : t('Not connected')}
               </Text>
             </View>
           </View>
@@ -84,7 +82,7 @@ const DappControl = ({
           </View>
         )}
         <View style={flexbox.directionRow}>
-          {!!showDisconnectButton && !!url && (
+          {!!showDisconnectButton && !!dapp?.url && (
             <Button
               type="danger"
               size="small"
@@ -108,7 +106,7 @@ const DappControl = ({
             size="small"
             hasBottomSpacing={false}
             text={inModal ? t('Close') : t('Manage')}
-            disabled={!isConnected}
+            disabled={!dapp?.isConnected}
             onPress={() => {
               !inModal && openBottomSheet()
               inModal && closeBottomSheet()

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import permission, { ConnectedSite } from '@web/extension-services/background/services/permission'
+import { Dapp, DappsController } from '@web/extension-services/background/controllers/dapps'
 import { Session } from '@web/extension-services/background/services/session'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import eventBus from '@web/extension-services/event/eventBus'
@@ -18,30 +17,22 @@ interface DappControllerState extends DappsController {
 
 const DappsControllerStateContext = createContext<{
   state: DappControllerState
-  currentDapp: ConnectedSite | null
-  getIsDappConnected: (origin: string) => boolean
-  getDappSession: (origin: string) => ConnectedSite | undefined
+  currentDapp: Dapp | null
 }>({
   state: {} as DappControllerState,
-  currentDapp: null,
-  getIsDappConnected: () => false,
-  getDappSession: () => undefined
+  currentDapp: null
 })
 
 const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as DappControllerState)
-  const [currentDapp, setCurrentDapp] = useState<ConnectedSite | null>(null)
+  const [currentDapp, setCurrentDapp] = useState<Dapp | null>(null)
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      await permission.init()
-      dispatch({
-        type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'dapps' }
-      })
-    })()
+    dispatch({
+      type: 'INIT_CONTROLLER_STATE',
+      params: { controller: 'dapps' }
+    })
   }, [dispatch])
 
   useEffect(() => {
@@ -58,18 +49,20 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
         icon
       } = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
 
-      const site = permission.getSite(dappOrigin)
-      if (site) {
-        setCurrentDapp(site)
+      const dapp = newState.dapps.find((d) => d.url === dappOrigin)
+
+      if (dapp) {
+        setCurrentDapp(dapp)
       } else if (name && icon) {
         setCurrentDapp({
-          origin: dappOrigin,
+          url: dappOrigin,
           name,
           icon,
           isConnected: false,
-          isSigned: false,
-          isTop: false
-        } as ConnectedSite)
+          description: '',
+          chainId: 1,
+          favorite: false
+        })
       }
     }
 
@@ -78,24 +71,14 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     return () => eventBus.removeEventListener('dapps', onUpdate)
   }, [])
 
-  const getIsDappConnected = useCallback((origin: string) => {
-    return !!permission.hasPermission(origin)
-  }, [])
-
-  const getDappSession = useCallback((origin: string) => {
-    return permission.getSite(origin)
-  }, [])
-
   return (
     <DappsControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
-          currentDapp,
-          getIsDappConnected,
-          getDappSession
+          currentDapp
         }),
-        [state, currentDapp, getIsDappConnected, getDappSession]
+        [state, currentDapp]
       )}
     >
       {children}

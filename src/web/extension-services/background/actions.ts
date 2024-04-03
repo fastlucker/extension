@@ -352,11 +352,11 @@ type DappsControllerAddDappAction = {
 }
 type DappsControllerUpdateDappAction = {
   type: 'DAPP_CONTROLLER_UPDATE_DAPP'
-  params: Dapp
+  params: { url: string; dapp: Partial<Dapp> }
 }
 type DappsControllerRemoveDappAction = {
   type: 'DAPP_CONTROLLER_REMOVE_DAPP'
-  params: Dapp['id']
+  params: Dapp['url']
 }
 
 type NotificationControllerReopenCurrentNotificationRequestAction = {

@@ -159,20 +159,13 @@ class PermissionService {
     const site = this.getConnectedSite(origin)
     if (!site || !this.lruCache) return
     order = order ?? (max(this.getRecentConnectedSites().map((item) => item.order)) || 0) + 1
-    this.updateConnectSite(origin, {
-      ...site,
-      order,
-      isTop: true
-    })
+    this.updateConnectSite(origin, { ...site, order, isTop: true })
   }
 
   unpinConnectedSite = (origin: string) => {
     const site = this.getConnectedSite(origin)
     if (!site || !this.lruCache) return
-    this.updateConnectSite(origin, {
-      ...site,
-      isTop: false
-    })
+    this.updateConnectSite(origin, { ...site, isTop: false })
   }
 
   removeConnectedSite = (origin: string) => {
@@ -181,10 +174,7 @@ class PermissionService {
     if (!site) {
       return
     }
-    this.setSite({
-      ...site,
-      isConnected: false
-    })
+    this.setSite({ ...site, isConnected: false })
     this.sync()
   }
 

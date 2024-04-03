@@ -12,19 +12,15 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import DappControl from '@web/modules/dapp-catalog/components/DappControl'
 
 import getStyles from './styles'
 
 type Props = {
-  isConnected: boolean
-  name?: string
-  icon?: string | null
-  url?: string
-  favorite?: boolean
+  dapp: Dapp | null
   isCurrentDapp?: boolean
   sheetRef: React.RefObject<IHandles>
   openBottomSheet: (dest?: 'top' | 'default' | undefined) => void
@@ -38,26 +34,18 @@ type NetworkOption = {
 }
 
 const ManageDapp = ({
-  name,
-  icon,
-  url,
-  favorite,
-  isConnected,
+  dapp,
   isCurrentDapp,
   sheetRef,
   openBottomSheet,
   closeBottomSheet
 }: Props) => {
   const { styles } = useTheme(getStyles)
-  const { getDappSession } = useDappsControllerState()
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
-  const dappSession = useMemo(() => {
-    return url ? getDappSession(url) : undefined
-  }, [getDappSession, url])
 
   const [network, setNetwork] = useState<NetworkDescriptor>(
-    networks.filter((n) => Number(n.chainId) === dappSession?.chainId)[0] ||
+    networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
       networks.filter((n) => n.id === 'ethereum')[0]
   )
   const { dispatch } = useBackgroundService()
@@ -74,33 +62,28 @@ const ManageDapp = ({
 
   const handleSetNetworkValue = useCallback(
     (networkOption: NetworkOption) => {
-      if (url) {
+      if (dapp?.url) {
         const newNetwork = networks.filter((net) => net.id === networkOption.value)[0]
         setNetwork(newNetwork)
         dispatch({
           type: 'CHANGE_CURRENT_DAPP_NETWORK',
           params: {
-            chainId: Number(newNetwork.chainId),
-            origin: url
+            origin: dapp.url,
+            chainId: Number(newNetwork.chainId)
           }
         })
       }
     },
-    [networks, url, dispatch]
+    [networks, dapp?.url, dispatch]
   )
 
   return (
     <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <View style={[spacings.mbLg, spacings.ptSm]}>
         <DappControl
-          hasDapp
-          name={name}
-          icon={icon}
-          url={url}
+          dapp={dapp}
           inModal
-          networkName={network.name}
           isCurrentDapp={isCurrentDapp}
-          isConnected={!!isConnected}
           openBottomSheet={openBottomSheet}
           closeBottomSheet={closeBottomSheet}
         />
