@@ -197,7 +197,6 @@ describe('transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid swap ', async () => {
-    await new Promise((r) => setTimeout(r, 2000))
     await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
@@ -212,35 +211,13 @@ describe('transactions', () => {
 
     await new Promise((r) => setTimeout(r, 500))
 
-    await typeText(page, '#swap-currency-output', '0.0001')
+    await typeText(page, '#swap-currency-input', '0.0001')
 
-    const selector = '[data-testid="swap-button"]'
-    await page.waitForSelector(selector)
+    const swapBtn = '[data-testid="swap-button"]:not([disabled])'
+    await new Promise((r) => setTimeout(r, 1000))
+    await page.waitForSelector(swapBtn)
+    await page.click(swapBtn)
 
-    let isClickable = false
-    let hasInsufficientBalanceText = false
-
-    // Check every 500ms if the button is clickable for up to 4 seconds
-    for (let i = 0; i < 16; i++) {
-      isClickable = await page.evaluate((selector) => {
-        const element = document.querySelector(selector)
-        return element && !element.disabled
-      }, selector)
-
-      if (isClickable) break
-      await page.waitForTimeout(500) // Wait for 500ms before checking again
-    }
-    if (isClickable) {
-      await page.click(selector)
-    } else {
-      hasInsufficientBalanceText = await page.evaluate(() => {
-        const element = document.querySelector('[data-testid="swap-button"]')
-        return element && element.textContent.includes('Insufficient MATIC balance')
-      })
-      if (hasInsufficientBalanceText) {
-        throw new Error('Insufficient MATIC balance')
-      }
-    }
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(page, extensionRootUrl, browser, '[data-testid="confirm-swap-button"]')
   })
