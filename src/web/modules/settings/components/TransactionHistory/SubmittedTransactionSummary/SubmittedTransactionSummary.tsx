@@ -47,7 +47,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     callsHumanizer(
       submittedAccountOp,
       storage,
-      fetch,
+      window.fetch.bind(window),
       (calls) => {
         setHumanizedCalls(calls)
       },

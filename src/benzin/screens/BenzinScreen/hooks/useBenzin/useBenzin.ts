@@ -11,7 +11,7 @@ import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import storage from '@web/extension-services/background/webapi/storage'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
