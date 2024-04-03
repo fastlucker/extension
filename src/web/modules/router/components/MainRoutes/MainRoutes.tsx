@@ -33,12 +33,18 @@ import NetworksScreen from '@web/modules/networks/screens'
 import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
 import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import WatchTokenRequestScreen from '@web/modules/notification-requests/screens/WatchTokenRequestScreen'
 import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
+import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
+import CustomTokensSettingsScreen from '@web/modules/settings/screens/CustomTokensSettingsScreen'
+import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
+import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
+import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
 import KeystoreScreen from '@web/modules/settings/screens/KeystoreScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
@@ -50,9 +56,6 @@ import Terms from '@web/modules/terms/screens/Terms'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 import { getUiType } from '@web/utils/uiType'
-import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
-import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
-import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 
 const stepperProvider = (
   <StepperProvider>
@@ -141,6 +144,8 @@ const MainRoutes = () => {
                   path={WEB_ROUTES.devicePasswordRecovery}
                   element={<DevicePasswordRecoverySettingsScreen />}
                 />
+                <Route path={WEB_ROUTES.customTokens} element={<CustomTokensSettingsScreen />} />
+                <Route path={WEB_ROUTES.addressBook} element={<AddressBookSettingsScreen />} />
                 <Route path={WEB_ROUTES.settingsTerms} element={<TermsSettingsScreen />} />
                 <Route path={WEB_ROUTES.keystore} element={<KeystoreScreen />} />
               </Route>
@@ -164,6 +169,7 @@ const MainRoutes = () => {
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />
+          <Route path={WEB_ROUTES.watchAsset} element={<WatchTokenRequestScreen />} />
 
           <Route
             path={WEB_ROUTES.getEncryptionPublicKeyRequest}

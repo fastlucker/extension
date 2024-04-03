@@ -122,8 +122,10 @@ const Input = ({
                 <InformationIcon
                   width={14}
                   height={14}
-                  data-tooltip-id={tooltip.id}
-                  data-tooltip-content={tooltip.content}
+                  dataSet={{
+                    tooltipId: tooltip.id,
+                    tooltipContent: tooltip.content
+                  }}
                 />
               </View>
             </View>

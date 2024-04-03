@@ -36,15 +36,22 @@ const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
       let ud = null
 
       try {
-        ens = await reverseLookupEns(address, ethereumProvider, fetch)
-      } catch (e) {
-        console.error('ENS reverse lookup unexpected error', e)
+        if (ethereumProvider.destroyed) return
+        ens = await reverseLookupEns(address, ethereumProvider)
+      } catch (e: any) {
+        if (!e?.message?.includes('cancelled request')) {
+          console.error('ENS reverse lookup unexpected error', e)
+        }
       }
 
       try {
+        if (ethereumProvider.destroyed) return
         ud = await reverseLookupUD(address)
       } catch (e: any) {
-        if (!e?.message?.includes('Only absolute URLs are supported')) {
+        if (
+          !e?.message?.includes('Only absolute URLs are supported') &&
+          !e?.message?.includes('cancelled request')
+        ) {
           console.error('UD reverse lookup unexpected error', e)
         }
       }
