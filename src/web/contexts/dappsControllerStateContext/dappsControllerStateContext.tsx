@@ -43,21 +43,17 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
       if (!tab.id || !tab.url) return
       const domain = getOriginFromUrl(tab.url)
 
-      const {
-        origin: dappOrigin,
-        name,
-        icon
-      } = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
+      const currentSession = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
 
-      const dapp = newState.dapps.find((d) => d.url === dappOrigin)
+      const dapp = newState.dapps.find((d) => d.url === currentSession.origin)
 
       if (dapp) {
         setCurrentDapp(dapp)
-      } else if (name && icon) {
+      } else if (currentSession.name && currentSession.icon) {
         setCurrentDapp({
-          url: dappOrigin,
-          name,
-          icon,
+          url: currentSession.origin,
+          name: currentSession.name,
+          icon: currentSession.icon,
           isConnected: false,
           description: '',
           chainId: 1,

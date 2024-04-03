@@ -4,16 +4,19 @@ import { View } from 'react-native'
 import { IHandles } from 'react-native-modalize/lib/options'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
+import predefinedDapps from '@common/constants/dappCatalog.json'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import DappControl from '@web/modules/dapp-catalog/components/DappControl'
 
@@ -40,9 +43,10 @@ const ManageDapp = ({
   openBottomSheet,
   closeBottomSheet
 }: Props) => {
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
+  const { state } = useDappsControllerState()
 
   const [network, setNetwork] = useState<NetworkDescriptor>(
     networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
@@ -77,6 +81,31 @@ const ManageDapp = ({
     [networks, dapp?.url, dispatch]
   )
 
+  const shouldShowRemoveDappFromCatalog = useMemo(() => {
+    return (
+      !!state.dapps?.find((d) => d.url === dapp?.url) &&
+      !predefinedDapps.find((d) => d.url === dapp?.url)
+    )
+  }, [dapp?.url, state.dapps])
+
+  const removeDappFromCatalog = () => {
+    // eslint-disable-next-line no-alert
+    const isSure = window.confirm(
+      dapp?.isConnected
+        ? t(
+            `Are you sure you want to remove ${dapp?.name} from your Dapp Catalog. This action will disconnect the dApp from Ambire Wallet.`
+          )
+        : t(`Are you sure you want to remove ${dapp?.name} from your Dapp Catalog.`)
+    )
+
+    if (!isSure) return
+
+    dispatch({
+      type: 'DAPP_CONTROLLER_REMOVE_DAPP',
+      params: dapp?.url!
+    })
+  }
+
   return (
     <BottomSheet id="dapp-footer" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
       <View style={[spacings.mbLg, spacings.ptSm]}>
@@ -88,7 +117,12 @@ const ManageDapp = ({
           closeBottomSheet={closeBottomSheet}
         />
       </View>
-      <View style={styles.networkSelectorContainer}>
+      <View
+        style={[
+          styles.networkSelectorContainer,
+          shouldShowRemoveDappFromCatalog ? spacings.mb3Xl : spacings.mb0
+        ]}
+      >
         <Text fontSize={14} style={flexbox.flex1}>
           {t('Select dApp Network')}
         </Text>
@@ -100,14 +134,26 @@ const ManageDapp = ({
           value={networksOptions.filter((opt) => opt.value === network.id)[0]}
         />
       </View>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
-        <Text style={spacings.mrLg} fontSize={12}>
-          {t(
-            'Our dApp Catalog is a curated collection of popular and verified decentralized apps. You can personalize it by adding the current dApp to the list, allowing quick and secure navigation in future use.'
-          )}
-        </Text>
-        <Button size="small" type="secondary" text={t('Add to dApp Catalog')} disabled />
-      </View>
+      {!!shouldShowRemoveDappFromCatalog && (
+        <View style={flexbox.alignCenter}>
+          <Button
+            size="small"
+            type="ghost"
+            textUnderline
+            textStyle={{ color: theme.errorDecorative }}
+            text={t('Remove from dApp Catalog')}
+            hasBottomSpacing={false}
+            onPress={removeDappFromCatalog}
+          >
+            <DeleteIcon
+              color={theme.errorDecorative}
+              width={16}
+              style={spacings.mlTy}
+              strokeWidth="1.8"
+            />
+          </Button>
+        </View>
+      )}
     </BottomSheet>
   )
 }

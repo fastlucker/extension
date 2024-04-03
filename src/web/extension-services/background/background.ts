@@ -919,9 +919,9 @@ async function init() {
                 break
               }
 
-              case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
-                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params.origin)
-                dappsCtrl.removeDapp(params.origin)
+              case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
+                dappsCtrl.updateDapp(params, { isConnected: false })
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
                 break
               }
               case 'CHANGE_CURRENT_DAPP_NETWORK': {
@@ -939,6 +939,7 @@ async function init() {
                 return dappsCtrl.updateDapp(params.url, params.dapp)
               }
               case 'DAPP_CONTROLLER_REMOVE_DAPP': {
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
                 return dappsCtrl.removeDapp(params)
               }
 

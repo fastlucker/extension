@@ -343,8 +343,8 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
 }
 
 type DappsControllerRemoveConnectedSiteAction = {
-  type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
-  params: { origin: string }
+  type: 'DAPPS_CONTROLLER_DISCONNECT_DAPP'
+  params: Dapp['url']
 }
 type DappsControllerAddDappAction = {
   type: 'DAPP_CONTROLLER_ADD_DAPP'

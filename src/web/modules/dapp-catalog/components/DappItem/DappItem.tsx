@@ -93,7 +93,7 @@ const DappItem = (dapp: Dapp) => {
         >
           {description}
         </Text>
-        {!!getUiType().isPopup && <Tooltip id={url} delayShow={1050} />}
+        {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
         {!!isConnected && (
           <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
             <Badge text={t('Connected')} type="success" />
