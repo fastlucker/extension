@@ -160,7 +160,7 @@ const Account = ({
                     >
                       <NetworkIcon
                         style={{ backgroundColor: theme.primaryBackground }}
-                        name={n.id as any}
+                        id={n.id}
                         size={18}
                       />
                     </View>

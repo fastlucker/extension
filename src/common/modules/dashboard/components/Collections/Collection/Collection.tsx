@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { Collectible as CollectibleInterface } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
@@ -19,7 +19,7 @@ import getStyles from './styles'
 interface Props {
   address: string
   name: string
-  networkId: NetworkIconNameType
+  networkId: NetworkIconIdType
   collectibles: CollectibleInterface[]
   priceIn: {
     baseCurrency: string
@@ -80,7 +80,7 @@ const Collection: FC<Props> = ({
             ...(isTab ? spacings.mrTy : spacings.mrMi)
           }}
         >
-          <NetworkIcon size={isTab ? 20 : 16} name={networkId} />
+          <NetworkIcon size={isTab ? 20 : 16} id={networkId} />
         </View>
         <Text fontSize={isTab ? 14 : 10} appearance="secondaryText">
           {networkData?.name || 'Unknown Network'}

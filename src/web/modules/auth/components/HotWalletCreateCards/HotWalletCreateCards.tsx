@@ -21,7 +21,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
       <Card
         title={t('Set up with an email')}
         text={t(
-          'This option lets you quickly and easily open a secure Smart Account wallet with just an email. It also allows you to recover your account with your email. Learn more'
+          'This option lets you quickly and easily open a secure Smart Account wallet with just an email. It also allows you to recover your account with your email.'
         )}
         style={{
           width: 296
@@ -38,7 +38,7 @@ const HotWalletCreateCards: FC<Props> = ({ handleEmailPress, handleSeedPress }) 
           width: 296
         }}
         text={t(
-          'This option lets you open a secure Smart Account wallet with a traditional 12-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity. Learn more'
+          'This option lets you open a secure Smart Account wallet with a traditional 12-word seed phrase. The unique seed phrase allows you to recover your account, but keeping it secret and secure is vital for the account integrity.'
         )}
         icon={SeedPhraseRecoveryIcon}
         buttonText={t('Proceed')}

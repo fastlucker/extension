@@ -66,7 +66,7 @@ const Account = ({
 
   const onSave = (value: string) => {
     dispatch({
-      type: 'MAIN_CONTROLLER_SETTINGS_ADD_ACCOUNT_PREFERENCES',
+      type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES',
       params: {
         [addr]: {
           ...settingsCtrl.accountPreferences[addr],

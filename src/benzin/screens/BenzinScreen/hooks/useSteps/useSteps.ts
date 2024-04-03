@@ -16,6 +16,8 @@ import { Storage } from '@ambire-common/interfaces/storage'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
+import { getExplorerId } from '@ambire-common/libs/userOperation/userOperation'
+import { Bundler } from '@ambire-common/services/bundlers/bundler'
 import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
@@ -31,7 +33,7 @@ const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slowe
 interface Props {
   txnId: string | null
   userOpHash: string | null
-  network: NetworkDescriptor
+  network?: NetworkDescriptor
   standardOptions: {
     storage: Storage
     fetch: any
@@ -39,7 +41,7 @@ interface Props {
     parser: Function
   }
   setActiveStep: (step: ActiveStepType) => void
-  provider: JsonRpcProvider
+  provider: JsonRpcProvider | null
 }
 
 export interface StepsData {
@@ -107,9 +109,24 @@ const useSteps = ({
 
   // if we have a userOpHash only, try to find the txnId
   useEffect(() => {
-    if (!userOpHash || txnId || userOpStatusData.txnId) return
+    if (!userOpHash || txnId || userOpStatusData.txnId || !network) return
 
-    fetchUserOp(userOpHash, standardOptions.fetch)
+    // implement the bundler fetch here, why not
+    // and only listen for txIds
+    Bundler.getStatusAndTxnId(userOpHash, network)
+      .then((bundlerResult) => {
+        if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
+          setUserOpStatusData({
+            status: 'submitted',
+            txnId: bundlerResult.transactionHash
+          })
+          setActiveStep('in-progress')
+          setUrlToTxnId(bundlerResult.transactionHash, userOpHash, network.id)
+        }
+      })
+      .catch((e) => e)
+
+    fetchUserOp(userOpHash, standardOptions.fetch, getExplorerId(network))
       .then((reqRes: any) => {
         if (reqRes.status !== 200) {
           setTimeout(() => {
@@ -135,6 +152,10 @@ const useSteps = ({
             return
           }
 
+          // if the txnId has already been found by the bundler,
+          // do not change the state
+          if (userOpStatusData.txnId) return
+
           const foundUserOp = userOps[0]
           setUserOpStatusData({
             status: 'submitted',
@@ -157,7 +178,7 @@ const useSteps = ({
 
   // find the transaction
   useEffect(() => {
-    if (txn || (!txnId && !userOpStatusData.txnId)) return
+    if (txn || (!txnId && !userOpStatusData.txnId) || !provider) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
@@ -183,7 +204,7 @@ const useSteps = ({
   }, [txnId, userOpStatusData, txn, refetchTxnCounter, setActiveStep, provider])
 
   useEffect(() => {
-    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId)) return
+    if (txnReceipt.blockNumber || (!txnId && !userOpStatusData.txnId) || !provider) return
 
     const finalTxnId = userOpStatusData.txnId ?? txnId
     provider
@@ -251,7 +272,8 @@ const useSteps = ({
     if (
       !txn ||
       (finalizedStatus && finalizedStatus.status !== 'failed') ||
-      (finalizedStatus && finalizedStatus.reason)
+      (finalizedStatus && finalizedStatus.reason) ||
+      !provider
     )
       return
 
@@ -290,7 +312,7 @@ const useSteps = ({
 
   // calculate pending time
   useEffect(() => {
-    if (!txn || txnReceipt.blockNumber) return
+    if (!txn || txnReceipt.blockNumber || !provider || !network) return
 
     provider
       .getBlock('latest', true)
@@ -315,11 +337,11 @@ const useSteps = ({
         }
       })
       .catch(() => null)
-  }, [txn, txnReceipt, provider, network.feeOptions.is1559])
+  }, [txn, txnReceipt, provider, network])
 
   // get block
   useEffect(() => {
-    if (!txnReceipt.blockNumber || blockData !== null) return
+    if (!txnReceipt.blockNumber || blockData !== null || !provider) return
 
     provider
       .getBlock(Number(txnReceipt.blockNumber))

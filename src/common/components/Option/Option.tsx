@@ -17,6 +17,7 @@ interface Props {
   onPress: () => void
   hasLargerBottomSpace?: boolean
   iconProps?: SvgProps
+  children?: React.ReactNode
   testID?: string
 }
 
@@ -26,6 +27,7 @@ const Option = ({
   hasLargerBottomSpace,
   text,
   iconProps = {},
+  children,
   testID
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
@@ -45,15 +47,18 @@ const Option = ({
       {...bindAnim}
       testID={testID}
     >
-      <View style={styles.iconWrapper}>
-        <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
+      <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        <View style={styles.iconWrapper}>
+          <Icon color={isHovered ? theme.primary : iconColors.primary} {...iconProps} />
+        </View>
+        <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
+          {text}
+        </Text>
+        <View style={spacings.mrSm}>
+          <RightArrowIcon />
+        </View>
       </View>
-      <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
-        {text}
-      </Text>
-      <View style={spacings.mrSm}>
-        <RightArrowIcon />
-      </View>
+      {children}
     </AnimatedPressable>
   )
 }

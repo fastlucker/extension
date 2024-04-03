@@ -44,8 +44,7 @@ const NetworkBottomSheet = ({
       closeBottomSheet={closeBottomSheet}
     >
       <View style={[styles.item, spacings.pvSm, spacings.mb3Xl]}>
-        {/* @ts-ignore */}
-        <NetworkIcon size={32} name={selectedNetworkId} />
+        {!!selectedNetworkId && <NetworkIcon size={32} id={selectedNetworkId} />}
         <Text fontSize={16} weight="medium" style={spacings.mlMi}>
           {networkData?.name || 'Unknown Network'}
         </Text>
