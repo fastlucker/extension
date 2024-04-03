@@ -14,7 +14,7 @@ const puppeteerArgs = [
   '--clipboard-read: prompt',
 
   // '--detectOpenHandles',
-  // '--start-maximized',
+  '--start-maximized',
 
   // We need this for running Puppeteer in Github Actions
   '--no-sandbox',
@@ -234,6 +234,7 @@ export async function finishStoriesAndSelectAccount(page) {
 
   /* Click on Import Accounts button */
   await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]:not([disabled])')
+  await page.waitForFunction("window.location.hash == '#/account-personalize'")
 
   return {
     firstSelectedBasicAccount,
