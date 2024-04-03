@@ -344,6 +344,7 @@ describe('login', () => {
     await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
+    await new Promise((r) => setTimeout(r, 100))
     await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -371,6 +372,7 @@ describe('login', () => {
     await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
     /* Click on "Account"  */
+    await new Promise((r) => setTimeout(r, 100))
     await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
