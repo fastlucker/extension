@@ -56,7 +56,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
       () => {
@@ -102,7 +102,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
       () => {
@@ -141,7 +141,7 @@ describe('login', () => {
         })
         /* Check whether button is disabled */
         const isButtonDisabled = await page.$eval(
-          '[data-testid="padding-button-Import"]',
+          '[data-testid="phrase-button-import"]',
           (button) => {
             return button.getAttribute('aria-disabled')
           }
@@ -214,7 +214,7 @@ describe('login', () => {
 
         /* Check whether button is disabled */
         const isButtonDisabled = await page.$eval(
-          '[data-testid="padding-button-Import"]',
+          '[data-testid="phrase-button-import"]',
           (button) => {
             return button.getAttribute('aria-disabled')
           }
@@ -305,7 +305,7 @@ describe('login', () => {
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
     /* Click on "Save and Continue" button */
-    await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
       () => {
@@ -344,7 +344,7 @@ describe('login', () => {
     await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
       () => {
@@ -371,7 +371,7 @@ describe('login', () => {
     await clickOnElement(page, '[data-testid="padding-button-Import"]')
 
     /* Click on "Account"  */
-    await clickOnElement(page, '[data-testid="padding-button-Save-and-Continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 

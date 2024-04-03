@@ -211,7 +211,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page) {
   /* Click on Import button. */
-  await clickOnElement(page, '[data-testid="padding-button-Import"]')
+  await clickOnElement(page, '[data-testid="phrase-button-import"]')
 
   await new Promise((r) => setTimeout(r, 2000))
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')

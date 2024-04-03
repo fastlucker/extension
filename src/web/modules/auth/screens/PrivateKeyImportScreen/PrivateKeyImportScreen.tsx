@@ -106,6 +106,7 @@ const PrivateKeyImportScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
+            testID="phrase-button-import"
             size="large"
             text={t('Import')}
             hasBottomSpacing={false}
@@ -128,7 +129,7 @@ const PrivateKeyImportScreen = () => {
             render={({ field: { onChange, onBlur, value } }) => {
               return (
                 <TextArea
-                  testID='enter-seed-phrase-field'
+                  testID="enter-seed-phrase-field"
                   value={value}
                   editable
                   multiline
