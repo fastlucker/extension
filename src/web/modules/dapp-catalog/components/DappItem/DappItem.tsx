@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -29,6 +29,7 @@ const DappItem = (dapp: Dapp) => {
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const [hovered, setHovered] = useState(false)
 
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -42,64 +43,74 @@ const DappItem = (dapp: Dapp) => {
 
   return (
     <View style={styles.dappItemWrapper}>
-      <AnimatedPressable
-        style={[styles.container, animStyle]}
-        onPress={() => openInTab(url)}
-        {...bindAnim}
+      <div
+        style={{ display: 'flex', flex: 1 }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
-        <View style={[flexbox.directionRow, spacings.mbSm]}>
-          <View style={spacings.mrTy}>
-            <ManifestImage uri={icon || ''} size={40} fallback={fallbackIcon} />
-          </View>
-          <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-              <Pressable
-                onPress={() => {
-                  dispatch({
-                    type: 'DAPP_CONTROLLER_UPDATE_DAPP',
-                    params: { url, dapp: { favorite: !favorite } }
-                  })
-                }}
-                style={flexbox.alignSelfStart}
-              >
-                <StarIcon isFilled={favorite} />
-              </Pressable>
-              <Pressable onPress={openBottomSheet as any}>
-                {({ hovered }: any) => (
-                  <SettingsIcon
-                    width={16}
-                    height={16}
-                    strokeWidth="2"
-                    color={hovered ? iconColors.secondary : iconColors.primary}
-                  />
-                )}
-              </Pressable>
-            </View>
-            <Text weight="semiBold" fontSize={14} appearance="primaryText" numberOfLines={1}>
-              {name}
-            </Text>
-          </View>
-        </View>
-
-        <Text
-          fontSize={12}
-          appearance="secondaryText"
-          numberOfLines={isConnected ? 2 : 4}
-          // @ts-ignore
-          dataSet={{
-            tooltipId: url,
-            tooltipContent: description
-          }}
+        <AnimatedPressable
+          style={[styles.container, animStyle]}
+          onPress={() => openInTab(url)}
+          {...bindAnim}
         >
-          {description}
-        </Text>
-        {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
-        {!!isConnected && (
-          <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
-            <Badge text={t('Connected')} type="success" />
+          <View style={[flexbox.directionRow, spacings.mbSm]}>
+            <View style={spacings.mrTy}>
+              <ManifestImage uri={icon || ''} size={40} fallback={fallbackIcon} />
+            </View>
+            <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
+              <View
+                style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}
+              >
+                <Pressable
+                  onPress={() => {
+                    dispatch({
+                      type: 'DAPP_CONTROLLER_UPDATE_DAPP',
+                      params: { url, dapp: { favorite: !favorite } }
+                    })
+                  }}
+                  style={flexbox.alignSelfStart}
+                >
+                  <StarIcon isFilled={favorite} />
+                </Pressable>
+                {!!hovered && (
+                  <Pressable onPress={openBottomSheet as any}>
+                    {({ hovered }: any) => (
+                      <SettingsIcon
+                        width={16}
+                        height={16}
+                        strokeWidth="2"
+                        color={hovered ? iconColors.secondary : iconColors.primary}
+                      />
+                    )}
+                  </Pressable>
+                )}
+              </View>
+              <Text weight="semiBold" fontSize={14} appearance="primaryText" numberOfLines={1}>
+                {name}
+              </Text>
+            </View>
           </View>
-        )}
-      </AnimatedPressable>
+
+          <Text
+            fontSize={12}
+            appearance="secondaryText"
+            numberOfLines={isConnected ? 2 : 4}
+            // @ts-ignore
+            dataSet={{
+              tooltipId: url,
+              tooltipContent: description
+            }}
+          >
+            {description}
+          </Text>
+          {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
+          {!!isConnected && (
+            <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
+              <Badge text={t('Connected')} type="success" />
+            </View>
+          )}
+        </AnimatedPressable>
+      </div>
       <ManageDapp
         dapp={dapp}
         isCurrentDapp={false}
