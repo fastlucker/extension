@@ -26,4 +26,4 @@ const SettingsIcon: React.FC<Props> = ({
   </Svg>
 )
 
-export default SettingsIcon
+export default React.memo(SettingsIcon)

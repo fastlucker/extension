@@ -156,7 +156,7 @@ const DappCatalogScreen = () => {
           numColumns={3}
           data={filteredDapps}
           renderItem={renderItem}
-          keyExtractor={(item: Dapp) => item.url}
+          keyExtractor={(item: Dapp) => item.url.toString()}
           ListEmptyComponent={
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
               <Text style={text.center}>{t('No dApp found')}</Text>
