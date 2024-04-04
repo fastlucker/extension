@@ -23,14 +23,13 @@ const puppeteerArgs = [
 ]
 
 export async function bootstrap(options = {}) {
-  const { devtools = false, slowMo = 10, headless = false } = options
+  const { headless = false } = options
 
   browser = await puppeteer.launch({
+    // devtools: true,
     headless,
-    devtools,
     args: puppeteerArgs,
     defaultViewport: null,
-    slowMo,
     // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
     // It configures the display server and make the tests working in headful mode in Github actions.
     ...(process.env.DISPLAY && {
@@ -63,7 +62,6 @@ export async function clickOnElement(page, selector) {
     const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     await elementToClick.click()
   } catch (error) {
-    console.log({ error })
     throw new Error(`Could not click on selector: ${selector}`)
   }
 }
@@ -98,7 +96,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
 //----------------------------------------------------------------------------------------------
 export async function setLocalStorage() {
   /* Initialize browser and page using bootstrap */
-  const context = await bootstrap({ headless: false, slowMo: 10 })
+  const context = await bootstrap()
   browser = context.browser
   extensionRootUrl = context.extensionRootUrl
   page = await browser.newPage()
@@ -148,7 +146,7 @@ export async function setLocalStorage() {
   // If it's not visible (when we are transitioning), the initialization fails.
   // Later, we will check how we can deal with this better.
   await new Promise((r) => {
-    setTimeout(r, 1000)
+    setTimeout(r, 2000)
   })
   // Please note that:
   // 1. We are no longer closing any tabs.

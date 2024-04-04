@@ -10,25 +10,20 @@ describe('login', () => {
   let browser
   let page
   let extensionRootUrl
-  let options
   let extensionId
 
   beforeEach(async () => {
-    options = {
-      devtools: false,
-      slowMo: 30
-    }
-
-    const context = await bootstrap(page, browser, options)
+    const context = await bootstrap(page, browser)
     browser = context.browser
     extensionRootUrl = context.extensionRootUrl
     extensionId = context.extensionId
 
     page = await browser.newPage()
-    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/`
-    await page.goto(getStartedPage, { waitUntil: 'load' })
+
+    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
+    await page.goto(getStartedPage)
     await new Promise((r) => {
-      setTimeout(r, 1000)
+      setTimeout(r, 3000)
     })
     await page.bringToFront()
     await page.reload()

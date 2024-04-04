@@ -1,6 +1,4 @@
-import { bootstrap, typeSeedPhrase, clickOnElement } from './functions.js'
-
-const puppeteer = require('puppeteer')
+import { bootstrap, typeSeedPhrase } from './functions.js'
 
 describe('balance', () => {
   let browser
@@ -9,7 +7,7 @@ describe('balance', () => {
 
   beforeEach(async () => {
     /* Initialize browser and page using bootStrap */
-    const context = await bootstrap({ headless: false, slowMo: 10 })
+    const context = await bootstrap()
     browser = context.browser
     extensionRootUrl = context.extensionRootUrl
     page = await browser.newPage()
@@ -63,7 +61,7 @@ describe('balance', () => {
     // If it's not visible (when we are transitioning), the initialization fails.
     // Later, we will check how we can deal with this better.
     await new Promise((r) => {
-      setTimeout(r, 1000)
+      setTimeout(r, 2000)
     })
     // Please note that:
     // 1. We are no longer closing any tabs.
