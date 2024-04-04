@@ -3,33 +3,27 @@ import { StyleSheet, ViewStyle } from 'react-native'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  footerContainer: ViewStyle
+  dappItemWrapper: ViewStyle
   container: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    footerContainer: {
-      ...spacings.phSm,
-      ...spacings.pbSm,
-      width: '100%'
+    dappItemWrapper: {
+      width: '33.33%',
+      height: 146,
+      ...spacings.phMi,
+      ...spacings.pvMi
     },
     container: {
-      ...flexbox.flex1,
+      width: '100%',
+      height: '100%',
       backgroundColor: theme.secondaryBackground,
-      ...spacings.phSm,
-      ...spacings.pvSm,
       ...common.borderRadiusPrimary,
-      shadowOffset: {
-        width: 0,
-        height: -3
-      },
-      shadowColor: '#CACDE699',
-      shadowOpacity: 1,
-      shadowRadius: 6
+      ...spacings.phTy,
+      ...spacings.pvTy
     }
   })
 

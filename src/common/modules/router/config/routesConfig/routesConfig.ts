@@ -197,6 +197,13 @@ const routesConfig: {
       default: i18n.t('dApp Wants to Connect')
     })
   },
+  [ROUTES.dappCatalog]: {
+    route: ROUTES.dappCatalog,
+    title: Platform.select({
+      web: i18n.t('dApp Catalog'),
+      default: i18n.t('dApp Catalog')
+    })
+  },
   [ROUTES.watchAsset]: {
     route: ROUTES.watchAsset,
     title: Platform.select({

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import permission, { ConnectedSite } from '@web/extension-services/background/services/permission'
+import { Dapp, DappsController } from '@web/extension-services/background/controllers/dapps'
 import { Session } from '@web/extension-services/background/services/session'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import eventBus from '@web/extension-services/event/eventBus'
@@ -18,7 +17,7 @@ interface DappControllerState extends DappsController {
 
 const DappsControllerStateContext = createContext<{
   state: DappControllerState
-  currentDapp: ConnectedSite | null
+  currentDapp: Dapp | null
 }>({
   state: {} as DappControllerState,
   currentDapp: null
@@ -26,7 +25,7 @@ const DappsControllerStateContext = createContext<{
 
 const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState({} as DappControllerState)
-  const [currentDapp, setCurrentDapp] = useState<ConnectedSite | null>(null)
+  const [currentDapp, setCurrentDapp] = useState<Dapp | null>(null)
   const { dispatch } = useBackgroundService()
 
   useEffect(() => {
@@ -44,25 +43,22 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
       if (!tab.id || !tab.url) return
       const domain = getOriginFromUrl(tab.url)
 
-      const {
-        origin: dappOrigin,
-        name,
-        icon
-      } = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
+      const currentSession = newState.dappsSessionMap?.[`${tab.id}-${domain}`] || {}
 
-      await permission.init()
-      const site = permission.getSite(dappOrigin)
-      if (site) {
-        setCurrentDapp(site)
-      } else if (name && icon) {
+      const dapp = newState.dapps.find((d) => d.url === currentSession.origin)
+
+      if (dapp) {
+        setCurrentDapp(dapp)
+      } else if (currentSession.name && currentSession.icon) {
         setCurrentDapp({
-          origin: dappOrigin,
-          name,
-          icon,
+          url: currentSession.origin,
+          name: currentSession.name,
+          icon: currentSession.icon,
           isConnected: false,
-          isSigned: false,
-          isTop: false
-        } as ConnectedSite)
+          description: '',
+          chainId: 1,
+          favorite: false
+        })
       }
     }
 

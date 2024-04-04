@@ -1,15 +1,31 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Storage } from '@ambire-common/interfaces/storage'
+import predefinedDapps from '@common/constants/dappCatalog.json'
 import { browser } from '@web/constants/browserapi'
-import permission from '@web/extension-services/background/services/permission'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
+
+export type Dapp = {
+  name: string
+  description: string
+  url: string
+  icon: string | null
+  isConnected: boolean
+  chainId: number
+  favorite: boolean
+}
 
 export class DappsController extends EventEmitter {
   dappsSessionMap: Map<string, Session>
 
-  constructor() {
+  #_dapps: Dapp[] = []
+
+  #storage: Storage
+
+  constructor(_storage: Storage) {
     super()
 
     this.dappsSessionMap = new Map<string, Session>()
+    this.#storage = _storage
 
     try {
       browser.tabs.onRemoved.addListener((tabId: number) => {
@@ -22,6 +38,41 @@ export class DappsController extends EventEmitter {
     } catch (error) {
       console.error('Failed to register browser.tabs.onRemoved.addListener', error)
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.#load()
+  }
+
+  get isReady() {
+    return !!this.dapps
+  }
+
+  get dapps(): Dapp[] {
+    return this.#_dapps
+  }
+
+  set dapps(val: Dapp[]) {
+    const updatedDapps = val
+    this.#_dapps = updatedDapps
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.#storage.set('dapps', updatedDapps)
+  }
+
+  async #load() {
+    let storedDapps: Dapp[]
+    storedDapps = await this.#storage.get('dapps', [])
+    if (!storedDapps.length) {
+      storedDapps = predefinedDapps.map((dapp) => ({
+        ...dapp,
+        chainId: 1,
+        favorite: false,
+        isConnected: false
+      }))
+      await this.#storage.set('dapps', storedDapps)
+    }
+
+    this.#_dapps = storedDapps
+    this.emitUpdate()
   }
 
   #createDappSession = (key: string, data: SessionProp | null = null) => {
@@ -48,7 +99,7 @@ export class DappsController extends EventEmitter {
   broadcastDappSessionEvent = (ev: any, data?: any, origin?: string) => {
     let dappSessions: { key: string; data: Session }[] = []
     this.dappsSessionMap.forEach((session, key) => {
-      if (session && permission.hasPermission(session.origin)) {
+      if (session && this.hasPermission(session.origin)) {
         dappSessions.push({
           key,
           data: session
@@ -72,11 +123,62 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
+  addDapp(dapp: Dapp) {
+    if (!this.isReady) return
+
+    const doesAlreadyExist = this.dapps.find((d) => d.url === dapp.url)
+    if (doesAlreadyExist) {
+      this.updateDapp(dapp.url, {
+        chainId: dapp.chainId,
+        isConnected: dapp.isConnected,
+        favorite: dapp.favorite
+      })
+      return
+    }
+    this.dapps = [...this.dapps, dapp]
+    this.emitUpdate()
+  }
+
+  updateDapp(url: string, dapp: Partial<Dapp>) {
+    if (!this.isReady) return
+
+    this.dapps = this.dapps.map((d) => {
+      if (d.url === url) return { ...d, ...dapp }
+      return d
+    })
+    this.emitUpdate()
+  }
+
+  removeDapp(url: string) {
+    if (!this.isReady) return
+
+    // do not remove predefined dapps
+    if (predefinedDapps.find((d) => d.url === url)) return
+
+    this.dapps = this.dapps.filter((d) => d.url !== url)
+    this.emitUpdate()
+  }
+
+  hasPermission(url: string) {
+    const dapp = this.dapps.find((d) => d.url === url)
+    if (!dapp) return false
+
+    return dapp.isConnected
+  }
+
+  getDapp(url: string) {
+    if (!this.isReady) return
+
+    return this.dapps.find((d) => d.url === url)
+  }
+
   toJSON() {
     return {
       ...this,
       ...super.toJSON(),
-      dappsSessionMap: Object.fromEntries(this.dappsSessionMap)
+      dappsSessionMap: Object.fromEntries(this.dappsSessionMap),
+      dapps: this.dapps,
+      isReady: this.isReady
     }
   }
 }

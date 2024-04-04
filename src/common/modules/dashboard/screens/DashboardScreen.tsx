@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -114,44 +115,54 @@ const DashboardScreen = () => {
                 <View style={styles.overview}>
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                      <Text style={spacings.mbTy} selectable>
-                        <Text
-                          fontSize={32}
-                          shouldScale={false}
-                          style={{ lineHeight: 34 }}
-                          weight="number_bold"
-                          color={theme.primaryBackground}
-                          selectable
-                        >
-                          {t('$')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[0]}
-                        </Text>
-                        <Text
-                          fontSize={20}
-                          shouldScale={false}
-                          weight="number_bold"
-                          color={theme.primaryBackground}
-                          selectable
-                        >
-                          {t('.')}
-                          {formatDecimals(totalPortfolioAmount).split('.')[1]}
-                        </Text>
-                      </Text>
-
-                      <View style={spacings.mlTy}>
-                        {!accountPortfolio?.isAllReady ? (
-                          <Spinner style={{ width: 16, height: 16 }} />
-                        ) : (
-                          <AnimatedPressable
-                            style={refreshButtonAnimStyle}
-                            onPress={refreshPortfolio}
-                            {...bindRefreshButtonAnim}
-                          >
-                            <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </AnimatedPressable>
-                        )}
-                      </View>
+                      {!accountPortfolio?.isAllReady && totalPortfolioAmount === 0 ? (
+                        <SkeletonLoader width={200} height={42} borderRadius={8} />
+                      ) : (
+                        <>
+                          <Text style={spacings.mbTy} selectable>
+                            <Text
+                              fontSize={32}
+                              shouldScale={false}
+                              style={{ lineHeight: 34 }}
+                              weight="number_bold"
+                              color={theme.primaryBackground}
+                              selectable
+                            >
+                              {t('$')}
+                              {formatDecimals(totalPortfolioAmount).split('.')[0]}
+                            </Text>
+                            <Text
+                              fontSize={20}
+                              shouldScale={false}
+                              weight="number_bold"
+                              color={theme.primaryBackground}
+                              selectable
+                            >
+                              {t('.')}
+                              {formatDecimals(totalPortfolioAmount).split('.')[1]}
+                            </Text>
+                          </Text>
+                          <View style={spacings.mlTy}>
+                            {!accountPortfolio?.isAllReady ? (
+                              <Spinner style={{ width: 16, height: 16 }} />
+                            ) : (
+                              <AnimatedPressable
+                                style={refreshButtonAnimStyle}
+                                onPress={refreshPortfolio}
+                                {...bindRefreshButtonAnim}
+                              >
+                                <RefreshIcon
+                                  color={theme.primaryBackground}
+                                  width={16}
+                                  height={16}
+                                />
+                              </AnimatedPressable>
+                            )}
+                          </View>
+                        </>
+                      )}
                     </View>
+
                     <AnimatedPressable
                       style={[flexbox.directionRow, flexbox.alignCenter, networkButtonAnimStyle]}
                       onPress={() => {
