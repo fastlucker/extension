@@ -25,6 +25,7 @@ import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletIm
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
 import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/BenzinNotificationScreen'
+import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
@@ -179,6 +180,7 @@ const MainRoutes = () => {
           <Route path={WEB_ROUTES.menu} element={<NavMenu />} />
           <Route path={WEB_ROUTES.accountSelect} element={<AccountSelectScreen />} />
           <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+          <Route path={WEB_ROUTES.dappCatalog} element={<DappCatalogScreen />} />
           <Route path={WEB_ROUTES.networks} element={<NetworksScreen />} />
         </Route>
       </Routes>
