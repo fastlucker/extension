@@ -6,7 +6,7 @@ import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
@@ -24,7 +24,7 @@ import { tabLayoutWidths } from '../TabLayoutWrapper'
 
 interface Props {
   networkName?: string
-  networkId?: NetworkIconNameType
+  networkId?: NetworkIconIdType
   withAmbireLogo?: boolean
 }
 const HeaderAccountAndNetworkInfo: FC<Props> = ({
@@ -85,7 +85,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
                 {networkName || t('Unknown network')}
               </Text>
               {networkId && maxWidthSize(800) ? (
-                <NetworkIcon name={networkId} withTooltip={false} size={40} />
+                <NetworkIcon id={networkId} withTooltip={false} size={40} />
               ) : null}
             </View>
           )}

@@ -26,7 +26,8 @@ const COMMON_ROUTES = {
   swap: 'swap',
   noConnection: 'no-connection',
   backup: 'backup',
-  accounts: 'accounts'
+  accounts: 'accounts',
+  dappCatalog: 'dapp-catalog'
 }
 
 const MOBILE_ROUTES = {
@@ -38,7 +39,6 @@ const MOBILE_ROUTES = {
   onboardingOnFirstLogin: 'onboarding-on-first-login',
   noConnection: 'no-connection',
   hardwareWallet: 'hardware-wallet',
-  dappsCatalog: 'dapps-catalog',
   web3Browser: 'web3-browser',
   enableOtp2FA: 'enable-otp-2fa',
   disableOtp2FA: 'disable-otp-2fa'
@@ -69,6 +69,7 @@ const WEB_ROUTES = {
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
+  addressBook: 'settings/address-book',
   importHotWallet: 'import-hot-wallet',
   importPrivateKey: 'import-private-key',
   importSeedPhrase: 'import-seed-phrase',
@@ -76,7 +77,8 @@ const WEB_ROUTES = {
   createSeedPhrasePrepare: 'create-seed-phrase/prepare',
   createSeedPhraseWrite: 'create-seed-phrase/write',
   createSeedPhraseConfirm: 'create-seed-phrase/confirm',
-  benzin: 'benzin'
+  benzin: 'benzin',
+  customTokens: 'custom-tokens'
 }
 
 const ROUTES = {

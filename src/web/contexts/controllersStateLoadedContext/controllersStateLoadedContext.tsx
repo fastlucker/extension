@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
+import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
@@ -35,6 +36,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const settingsState = useSettingsControllerState()
   const emailVaultState = useEmailVaultControllerState()
   const { state: dappsState } = useDappsControllerState()
+  const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
 
   const hasMainState: boolean = useMemo(
@@ -77,10 +79,17 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(emailVaultState).length && !!emailVaultState?.isReady,
     [emailVaultState]
   )
-  const hasDappsState: boolean = useMemo(() => !!Object.keys(dappsState).length, [dappsState])
+  const hasDappsState: boolean = useMemo(
+    () => !!Object.keys(dappsState).length && dappsState.isReady,
+    [dappsState]
+  )
   const hasDomainsState: boolean = useMemo(
     () => !!Object.keys(domainsControllerState).length,
     [domainsControllerState]
+  )
+  const hasAddressBookState: boolean = useMemo(
+    () => !!Object.keys(addressBookState).length,
+    [addressBookState]
   )
 
   useEffect(() => {
@@ -103,7 +112,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasSettingsState &&
       hasEmailVaultState &&
       hasDappsState &&
-      hasDomainsState
+      hasDomainsState &&
+      hasAddressBookState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -123,7 +133,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasEmailVaultState,
     hasDappsState,
     areControllerStatesLoaded,
-    hasDomainsState
+    hasDomainsState,
+    hasAddressBookState
   ])
 
   return (

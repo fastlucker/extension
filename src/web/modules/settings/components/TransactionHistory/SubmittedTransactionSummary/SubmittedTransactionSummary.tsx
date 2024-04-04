@@ -154,7 +154,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             style={styles.summaryItem}
             call={call}
             networkId={submittedAccountOp.networkId}
-            explorerUrl={network.explorerUrl}
             rightIcon={<OpenIcon />}
             onRightIconPress={handleOpenExplorer}
             isHistory

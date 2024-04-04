@@ -57,17 +57,25 @@ const ScrollableWrapper = ({
 
   const hasBottomTabNav = isWeb ? false : _hasBottomTabNav
 
+  const scrollableWrapperStyles = [
+    styles.wrapper,
+    horizontalSpacing,
+    ...(Array.isArray(style) ? style : [style])
+  ]
+
+  const scrollableWrapperContentContainerStyles = [
+    styles.contentContainerStyle,
+    !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
+    ...(Array.isArray(contentContainerStyle) ? contentContainerStyle : [contentContainerStyle])
+  ]
+
   if (type === WRAPPER_TYPES.FLAT_LIST) {
     return (
       // @ts-ignore
       <FlatList
         ref={wrapperRef}
-        style={[styles.wrapper, horizontalSpacing, style]}
-        contentContainerStyle={[
-          styles.contentContainerStyle,
-          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
-        ]}
+        style={scrollableWrapperStyles}
+        contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -81,12 +89,8 @@ const ScrollableWrapper = ({
       // @ts-ignore
       <SectionList
         ref={wrapperRef}
-        style={[styles.wrapper, horizontalSpacing, style]}
-        contentContainerStyle={[
-          styles.contentContainerStyle,
-          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
-        ]}
+        style={scrollableWrapperStyles}
+        contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -99,12 +103,8 @@ const ScrollableWrapper = ({
     return (
       <KeyboardAwareScrollView
         ref={wrapperRef}
-        style={[styles.wrapper, horizontalSpacing, style]}
-        contentContainerStyle={[
-          styles.contentContainerStyle,
-          !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-          contentContainerStyle
-        ]}
+        style={scrollableWrapperStyles}
+        contentContainerStyle={scrollableWrapperContentContainerStyles}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
         keyboardDismissMode={keyboardDismissMode || 'none'}
         alwaysBounceVertical={false}
@@ -130,12 +130,8 @@ const ScrollableWrapper = ({
   return (
     <ScrollView
       ref={wrapperRef}
-      style={[styles.wrapper, horizontalSpacing, style]}
-      contentContainerStyle={[
-        styles.contentContainerStyle,
-        !!hasBottomTabNav && { paddingBottom: TAB_BAR_HEIGHT + insets.bottom },
-        contentContainerStyle
-      ]}
+      style={scrollableWrapperStyles}
+      contentContainerStyle={scrollableWrapperContentContainerStyles}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps || 'handled'}
       keyboardDismissMode={keyboardDismissMode || 'none'}
       alwaysBounceVertical={false}

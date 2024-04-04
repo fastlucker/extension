@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Image, View } from 'react-native'
 
 import Spinner from '@common/components/Spinner'
+import useTheme from '@common/hooks/useTheme'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
@@ -18,6 +19,7 @@ type Props = {
 const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale = 1 }: Props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
+  const { theme } = useTheme()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -60,10 +62,12 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
       {!isLoading && !!validUri && (
         <Image
           source={{ uri: validUri }}
+          resizeMode="contain"
           style={[
             {
               width: size * iconScale,
-              height: size * iconScale
+              height: size * iconScale,
+              backgroundColor: theme.primaryBackground
             },
             !!isRound && { borderRadius: 50 }
           ]}

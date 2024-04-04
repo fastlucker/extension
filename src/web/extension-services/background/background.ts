@@ -33,7 +33,6 @@ import { NotificationController } from '@web/extension-services/background/contr
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
-import permissionService from '@web/extension-services/background/services/permission'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -77,8 +76,6 @@ async function init() {
       Object.keys(humanizerJSON.abis.NO_ABI).length
   )
     await storage.set(HUMANIZER_META_KEY, humanizerJSON)
-
-  await permissionService.init()
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -160,10 +157,10 @@ async function init() {
     }
   })
   const walletStateCtrl = new WalletStateController()
-  const notificationCtrl = new NotificationController(mainCtrl)
+  const dappsCtrl = new DappsController(storage)
+  const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
-  const dappsCtrl = new DappsController()
 
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -794,7 +791,61 @@ async function init() {
                 if (!mainCtrl.selectedAccount) return
                 return await mainCtrl.updateSelectedAccount(
                   mainCtrl.selectedAccount,
-                  params?.forceUpdate
+                  params?.forceUpdate,
+                  params?.additionalHints
+                )
+              }
+              case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
+                let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
+                const tokenIsNotInPreferences =
+                  (tokenPreferences?.length &&
+                    tokenPreferences.find(
+                      (_token) =>
+                        _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                        params.token.networkId === _token?.networkId
+                    )) ||
+                  false
+
+                if (!tokenIsNotInPreferences) {
+                  tokenPreferences.push(params.token)
+                } else {
+                  const updatedTokenPreferences = tokenPreferences.map((t: any) => {
+                    if (
+                      t.address.toLowerCase() === params.token.address.toLowerCase() &&
+                      t.networkId === params.token.networkId
+                    ) {
+                      return params.token
+                    }
+                    return t
+                  })
+                  tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
+                }
+                await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
+                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
+              }
+              case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
+                const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
+
+                const tokenIsNotInPreferences =
+                  tokenPreferences.find(
+                    (_token) =>
+                      _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                      _token.networkId === params.token.networkId
+                  ) || false
+                if (!tokenIsNotInPreferences) return
+                const newTokenPreferences = tokenPreferences.filter(
+                  (_token) =>
+                    _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
+                    _token.networkId !== params.token.networkId
+                )
+                await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
+                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
+              }
+              case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
+                if (!mainCtrl.selectedAccount) return
+                return await mainCtrl.portfolio.updateTokenValidationByStandard(
+                  params.token,
+                  mainCtrl.selectedAccount
                 )
               }
               case 'KEYSTORE_CONTROLLER_ADD_SECRET':
@@ -834,6 +885,27 @@ async function init() {
                 return await mainCtrl.emailVault.cleanMagicAndSessionKeys()
               case 'EMAIL_VAULT_CONTROLLER_REQUEST_KEYS_SYNC':
                 return await mainCtrl.emailVault.requestKeysSync(params.email, params.keys)
+              case 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT': {
+                return await mainCtrl.addressBook.addContact(params.name, params.address)
+              }
+              case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
+                const { address, newName } = params
+
+                if (
+                  mainCtrl.accounts.find(({ addr }) => addr.toLowerCase() === address.toLowerCase())
+                ) {
+                  return await mainCtrl.settings.addAccountPreferences({
+                    [address]: {
+                      ...mainCtrl.settings.accountPreferences[address],
+                      label: newName.trim()
+                    }
+                  })
+                }
+
+                return await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
+              }
+              case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
+                return await mainCtrl.addressBook.removeManuallyAddedContact(params.address)
               case 'DOMAINS_CONTROLLER_REVERSE_LOOKUP':
                 return await mainCtrl.domains.reverseLookup(params.address)
               case 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP':
@@ -847,22 +919,32 @@ async function init() {
                 break
               }
 
-              case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
-                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params.origin)
-                permissionService.removeConnectedSite(params.origin)
+              case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
+                dappsCtrl.updateDapp(params, { isConnected: false })
                 break
               }
               case 'CHANGE_CURRENT_DAPP_NETWORK': {
-                permissionService.updateConnectSite(
-                  params.origin,
-                  { chainId: params.chainId },
-                  true
+                dappsCtrl.updateDapp(params.origin, { chainId: params.chainId })
+                dappsCtrl.broadcastDappSessionEvent(
+                  'chainChanged',
+                  {
+                    chain: `0x${params.chainId.toString(16)}`,
+                    networkVersion: `${params.chainId}`
+                  },
+                  params.origin
                 )
-                dappsCtrl.broadcastDappSessionEvent('chainChanged', {
-                  chain: `0x${params.chainId.toString(16)}`,
-                  networkVersion: `${params.chainId}`
-                })
                 break
+              }
+              case 'DAPP_CONTROLLER_ADD_DAPP': {
+                return dappsCtrl.addDapp(params)
+              }
+              case 'DAPP_CONTROLLER_UPDATE_DAPP': {
+                return dappsCtrl.updateDapp(params.url, params.dapp)
+              }
+              case 'DAPP_CONTROLLER_REMOVE_DAPP': {
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
+                return dappsCtrl.removeDapp(params)
               }
 
               default:
@@ -935,7 +1017,7 @@ async function init() {
       })
       return { id, result: res }
     } catch (error: any) {
-      return { id, error: <Error>error }
+      return { id, error }
     }
   })
 })()

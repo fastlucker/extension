@@ -315,7 +315,7 @@ const NetworkForm = ({
         )}
         {selectedNetworkId !== 'add-custom-network' && !!selectedNetwork && (
           <>
-            <NetworkIcon name={selectedNetwork.id as any} style={spacings.mrTy} size={40} />
+            <NetworkIcon id={selectedNetwork.id} style={spacings.mrTy} size={40} />
             <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
               {selectedNetwork.name || t('Unknown network')}
             </Text>

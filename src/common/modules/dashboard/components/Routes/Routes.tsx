@@ -34,9 +34,8 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     {
       icon: DAppsIcon,
       label: t('dApps'),
-      route: '',
-      isExternal: true,
-      disabled: true
+      route: WEB_ROUTES.dappCatalog,
+      isExternal: false
     }
   ]
 

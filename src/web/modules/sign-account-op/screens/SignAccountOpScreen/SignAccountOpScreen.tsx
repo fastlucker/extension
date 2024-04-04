@@ -9,7 +9,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
@@ -349,7 +349,7 @@ const SignAccountOpScreen = () => {
       header={
         <HeaderAccountAndNetworkInfo
           networkName={network?.name}
-          networkId={network?.id as NetworkIconNameType}
+          networkId={network?.id as NetworkIconIdType}
         />
       }
       footer={
@@ -475,7 +475,6 @@ const SignAccountOpScreen = () => {
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
                       networkId={network!.id}
-                      explorerUrl={network!.explorerUrl}
                     />
                   )
                 })}
@@ -494,7 +493,7 @@ const SignAccountOpScreen = () => {
                   signAccountOpState={signAccountOpState}
                   accountPortfolio={portfolioState.accountPortfolio}
                   networkId={network!.id}
-                  disabled={isViewOnly || isSignLoading}
+                  disabled={isSignLoading}
                 />
               )}
               {!!hasEstimation &&

@@ -1,5 +1,6 @@
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
+import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
@@ -23,6 +24,7 @@ export const controllersNestedInMainMapping = {
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
   settings: SettingsController,
+  addressBook: AddressBookController,
   domains: DomainsController
 
   // Add the rest of the controllers that are part of the main controller:
