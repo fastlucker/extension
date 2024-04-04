@@ -35,6 +35,7 @@ export interface Props extends PressableProps {
   forceHoveredStyle?: boolean
   children?: React.ReactNode
   childrenPosition?: 'left' | 'right'
+  testID?: string
 }
 
 const Button = ({

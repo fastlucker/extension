@@ -35,7 +35,7 @@ describe('login', () => {
   })
 
   afterEach(async () => {
-    browser.close()
+    await browser.close()
   })
 
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
@@ -56,7 +56,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -103,7 +103,7 @@ describe('login', () => {
       await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -289,8 +289,6 @@ describe('login', () => {
     /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
     await finishStoriesAndSelectAccount(page)
 
-    await page.waitForSelector('[data-testid="pen-icon-edit-name"]')
-
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
 
@@ -307,7 +305,7 @@ describe('login', () => {
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
     /* Click on "Save and Continue" button */
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -347,7 +345,7 @@ describe('login', () => {
     await finishStoriesAndSelectAccount(page)
 
     /* Click on "Save and Continue" button */
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.waitForFunction(
@@ -359,6 +357,7 @@ describe('login', () => {
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
     /* Click on "+ Add Account"  */
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-add-account"]')
     await new Promise((r) => setTimeout(r, 500))
 
@@ -374,7 +373,7 @@ describe('login', () => {
     await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
     /* Click on "Account"  */
-    await new Promise((r) => setTimeout(r, 100))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })

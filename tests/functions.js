@@ -14,7 +14,7 @@ const puppeteerArgs = [
   '--clipboard-read: prompt',
 
   // '--detectOpenHandles',
-  // '--start-maximized',
+  '--start-maximized',
 
   // We need this for running Puppeteer in Github Actions
   '--no-sandbox',
@@ -233,6 +233,7 @@ export async function finishStoriesAndSelectAccount(page) {
   })
   /* Click on Import Accounts button */
   await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
+  await page.waitForFunction("window.location.hash == '#/account-personalize'")
 
   return {
     firstSelectedBasicAccount,
@@ -258,8 +259,11 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
+  // Wait all Fee options to be loaded and to be clickable
+  await new Promise((r) => setTimeout(r, 5000))
+
   /* Click on "Medium" button */
-  await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
+  await clickOnElement(newPage, '[data-testid="fee-medium:"]:not([disabled]')
 
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
