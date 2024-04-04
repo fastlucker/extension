@@ -920,16 +920,20 @@ async function init() {
               }
 
               case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-                dappsCtrl.updateDapp(params, { isConnected: false })
                 dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
+                dappsCtrl.updateDapp(params, { isConnected: false })
                 break
               }
               case 'CHANGE_CURRENT_DAPP_NETWORK': {
                 dappsCtrl.updateDapp(params.origin, { chainId: params.chainId })
-                dappsCtrl.broadcastDappSessionEvent('chainChanged', {
-                  chain: `0x${params.chainId.toString(16)}`,
-                  networkVersion: `${params.chainId}`
-                })
+                dappsCtrl.broadcastDappSessionEvent(
+                  'chainChanged',
+                  {
+                    chain: `0x${params.chainId.toString(16)}`,
+                    networkVersion: `${params.chainId}`
+                  },
+                  params.origin
+                )
                 break
               }
               case 'DAPP_CONTROLLER_ADD_DAPP': {
