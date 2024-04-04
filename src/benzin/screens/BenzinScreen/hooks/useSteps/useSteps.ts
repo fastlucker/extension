@@ -23,6 +23,7 @@ import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScree
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { isExtension } from '@web/constants/browserapi'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
@@ -459,7 +460,8 @@ const useSteps = ({
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
-        standardOptions.emitError
+        standardOptions.emitError,
+        { isExtension }
       ).catch((e) => {
         if (!calls) setCalls([])
         return e

@@ -4,16 +4,15 @@ import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { browser, isExtension } from '@web/constants/browserapi'
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 
-const benzinaMap = new Map()
-benzinaMap.set(HUMANIZER_META_KEY, stringify(humanizerInfo))
+localStorage.setItem(HUMANIZER_META_KEY, stringify(humanizerInfo))
 
 const benzinaStorage = {
   get: (key: string, defaultValue: any): any => {
-    const serialized = benzinaMap.get(key)
+    const serialized = localStorage.getItem(key)
     return Promise.resolve(serialized ? parse(serialized) : defaultValue)
   },
   set: (key: string, value: any) => {
-    benzinaMap.set(key, stringify(value))
+    localStorage.setItem(key, stringify(value))
     return Promise.resolve(null)
   }
 }
