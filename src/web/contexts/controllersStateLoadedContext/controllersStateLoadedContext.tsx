@@ -79,7 +79,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(emailVaultState).length && !!emailVaultState?.isReady,
     [emailVaultState]
   )
-  const hasDappsState: boolean = useMemo(() => !!Object.keys(dappsState).length, [dappsState])
+  const hasDappsState: boolean = useMemo(
+    () => !!Object.keys(dappsState).length && dappsState.isReady,
+    [dappsState]
+  )
   const hasDomainsState: boolean = useMemo(
     () => !!Object.keys(domainsControllerState).length,
     [domainsControllerState]

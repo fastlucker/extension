@@ -6,30 +6,20 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  footerContainer: ViewStyle
-  container: ViewStyle
+  networkSelectorContainer: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    footerContainer: {
-      ...spacings.phSm,
-      ...spacings.pbSm,
-      width: '100%'
-    },
-    container: {
-      ...flexbox.flex1,
-      backgroundColor: theme.secondaryBackground,
+    networkSelectorContainer: {
       ...spacings.phSm,
       ...spacings.pvSm,
+      backgroundColor: theme.infoBackground,
+      borderWidth: 1,
       ...common.borderRadiusPrimary,
-      shadowOffset: {
-        width: 0,
-        height: -3
-      },
-      shadowColor: '#CACDE699',
-      shadowOpacity: 1,
-      shadowRadius: 6
+      borderColor: theme.primary,
+      ...flexbox.directionRow,
+      ...spacings.mbLg
     }
   })
 
