@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View } from 'react-native'
 
+import { getIconId } from '@ambire-common/libs/portfolio/icons'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Spinner from '@common/components/Spinner'
@@ -9,11 +10,11 @@ import { getTokenIcon } from '@common/services/icons'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
-  uri?: string
   networkId?: string
   address?: string
   withContainer?: boolean
@@ -23,10 +24,10 @@ interface Props extends Partial<ImageProps> {
   height?: number
   onGasTank?: boolean
   networkSize?: number
+  uri?: string
 }
 
 const TokenIcon: React.FC<Props> = ({
-  uri,
   networkId = '',
   address = '',
   withContainer = false,
@@ -41,6 +42,15 @@ const TokenIcon: React.FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
+  const [uri, setUri] = useState('')
+  const { state } = usePortfolioControllerState()
+
+  useEffect(() => {
+    if (state.tokenIcons && !uri) {
+      const iconId = getIconId(networkId, address)
+      !!iconId && setUri(state.tokenIcons[iconId])
+    }
+  }, [state.tokenIcons, uri, networkId, address])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -110,14 +120,9 @@ const TokenIcon: React.FC<Props> = ({
       >
         {networkId && (
           <NetworkIcon
-            name={!onGasTank ? networkId : 'gasTank'}
-            style={[
-              styles.networkIcon,
-              {
-                width: networkSize,
-                height: networkSize
-              }
-            ]}
+            id={!onGasTank ? networkId : 'gasTank'}
+            size={networkSize}
+            style={styles.networkIcon}
           />
         )}
       </View>

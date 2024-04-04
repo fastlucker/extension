@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import NetworkIcon from '@common/components/NetworkIcon'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -12,11 +11,11 @@ import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
   network: NetworkDescriptor
-  selectedNetworkId: NetworkDescriptor['id']
+  selectedNetworkId?: NetworkDescriptor['id']
   handleSelectNetwork: (networkId: NetworkDescriptor['id']) => void
 }
 
-const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId }) => {
+const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -42,12 +41,12 @@ const Network: FC<Props> = ({ network, handleSelectNetwork, selectedNetworkId })
       ]}
       {...bindAnim}
     >
-      <NetworkIcon name={network.id as NetworkIconNameType} />
-      <Text fontSize={16} weight="regular" style={spacings.mlMi}>
+      <NetworkIcon id={network.id} />
+      <Text fontSize={16} weight="regular" style={spacings.mlMi} numberOfLines={1}>
         {network.name}
       </Text>
     </AnimatedPressable>
   )
 }
 
-export default Network
+export default React.memo(Network)

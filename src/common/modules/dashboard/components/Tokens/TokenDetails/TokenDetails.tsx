@@ -7,6 +7,7 @@ import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import gasTankFeeTokens from '@ambire-common/consts/gasTankFeeTokens'
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
@@ -16,6 +17,7 @@ import SwapIcon from '@common/assets/svg/SwapIcon'
 import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
+import Toggle from '@common/components/Toggle'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -35,10 +37,12 @@ import getStyles from './styles'
 
 const TokenDetails = ({
   token,
-  handleClose
+  handleClose,
+  tokenPreferences
 }: {
   token: TokenResult | null
   handleClose: () => void
+  tokenPreferences: CustomToken[]
 }) => {
   const { styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
@@ -48,6 +52,7 @@ const TokenDetails = ({
   const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
+  const [isHidden, setIsHidden] = useState(!!token?.isHidden)
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
@@ -166,9 +171,15 @@ const TokenDetails = ({
         text: t('Token Info'),
         icon: InfoIcon,
         onPress: async () => {
-          if (!hasTokenInfo || !token) return
+          if (!hasTokenInfo || !token || !networks.length) return
 
-          const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+          const networkData = networks.find((n) => n.id === token?.networkId)
+          if (!networkData) {
+            addToast(t('Network not found'), { type: 'error' })
+            return
+          }
+
+          const coingeckoId = geckoIdMapper(token?.address, networkData)
 
           try {
             await createTab(`https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`)
@@ -194,11 +205,16 @@ const TokenDetails = ({
     ]
   )
   useEffect(() => {
-    if (!token?.address || !token?.networkId) return
+    if (!token?.address || !token?.networkId || !networks.length) return
 
     setIsTokenInfoLoading(true)
 
-    const coingeckoId = geckoIdMapper(token?.address, token?.networkId)
+    const networkData = networks.find((n) => n.id === token?.networkId)
+    if (!networkData) {
+      addToast(t('Network not found'), { type: 'error' })
+      return
+    }
+    const coingeckoId = geckoIdMapper(token?.address, networkData)
 
     const tokenInfoUrl = `https://www.coingecko.com/en/coins/${coingeckoId || token?.address}`
 
@@ -219,8 +235,33 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId])
+  }, [addToast, t, token?.address, token?.networkId, networks])
 
+  const handleHideToken = () => {
+    if (!token) return
+    setIsHidden((prev) => !prev)
+    const tokenInPreferences =
+      tokenPreferences?.length &&
+      tokenPreferences.find(
+        (_token) =>
+          token.address.toLowerCase() === _token.address.toLowerCase() &&
+          token.networkId === _token.networkId
+      )
+
+    const newToken = {
+      ...token,
+      isHidden: !token.isHidden,
+      ...(tokenInPreferences && 'standard' in tokenInPreferences
+        ? { standard: tokenInPreferences.standard }
+        : {})
+    }
+    dispatch({
+      type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
+      params: {
+        token: newToken
+      }
+    })
+  }
   if (!token) return null
 
   const {
@@ -237,7 +278,7 @@ const TokenDetails = ({
     isRewards,
     isVesting,
     networkData
-  } = getTokenDetails(token)
+  } = getTokenDetails(token, networks)
 
   return (
     <View>
@@ -270,6 +311,16 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
+            {!onGasTank && (
+              <View style={[flexbox.alignSelfEnd]}>
+                <Toggle
+                  isOn={isHidden}
+                  onToggle={handleHideToken}
+                  label={isHidden ? t('Show Token') : t('Hide Token')}
+                  toggleProps={spacings.mrTy}
+                />
+              </View>
+            )}
           </View>
           <View style={styles.balance}>
             <Text
@@ -309,6 +360,7 @@ const TokenDetails = ({
           )}
         </View>
       </View>
+
       <View style={styles.actionsContainer}>
         {actions.map((action) => (
           <TokenDetailsButton

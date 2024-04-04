@@ -1,6 +1,6 @@
 import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -9,7 +9,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
-import { NetworkIconNameType } from '@common/components/NetworkIcon/NetworkIcon'
+import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
@@ -349,7 +349,7 @@ const SignAccountOpScreen = () => {
       header={
         <HeaderAccountAndNetworkInfo
           networkName={network?.name}
-          networkId={network?.id as NetworkIconNameType}
+          networkId={network?.id as NetworkIconIdType}
         />
       }
       footer={
@@ -392,10 +392,9 @@ const SignAccountOpScreen = () => {
                           {t('Tokens out')}
                         </Text>
                       </View>
-                      <ScrollView
+                      <ScrollableWrapper
                         style={styles.simulationScrollView}
                         contentContainerStyle={{ flexGrow: 1 }}
-                        scrollEnabled
                       >
                         {pendingSendTokens.map((token, i) => {
                           return (
@@ -407,7 +406,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                   {!!pendingReceiveTokens.length && (
@@ -417,7 +416,10 @@ const SignAccountOpScreen = () => {
                           {t('Tokens in')}
                         </Text>
                       </View>
-                      <ScrollView style={styles.simulationScrollView} scrollEnabled>
+                      <ScrollableWrapper
+                        style={styles.simulationScrollView}
+                        contentContainerStyle={{ flexGrow: 1 }}
+                      >
                         {pendingReceiveTokens.map((token, i) => {
                           return (
                             <PendingTokenSummary
@@ -428,7 +430,7 @@ const SignAccountOpScreen = () => {
                             />
                           )
                         })}
-                      </ScrollView>
+                      </ScrollableWrapper>
                     </View>
                   )}
                 </View>
@@ -473,21 +475,13 @@ const SignAccountOpScreen = () => {
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
                       networkId={network!.id}
-                      explorerUrl={network!.explorerUrl}
                     />
                   )
                 })}
               </ScrollableWrapper>
             </View>
           </View>
-          <View
-            style={[
-              styles.separator,
-              maxWidthSize('xl')
-                ? { ...spacings.mr3Xl, ...spacings.ml2Xl }
-                : { ...spacings.mrXl, ...spacings.ml }
-            ]}
-          />
+          <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <View style={styles.estimationContainer}>
             <Text fontSize={20} weight="medium" style={spacings.mbLg}>
               {t('Estimation')}
@@ -499,7 +493,7 @@ const SignAccountOpScreen = () => {
                   signAccountOpState={signAccountOpState}
                   accountPortfolio={portfolioState.accountPortfolio}
                   networkId={network!.id}
-                  disabled={isViewOnly || isSignLoading}
+                  disabled={isSignLoading}
                 />
               )}
               {!!hasEstimation &&

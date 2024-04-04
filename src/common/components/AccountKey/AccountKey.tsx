@@ -1,14 +1,15 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, memo } from 'react'
+import React, { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
 import CopyIcon from '@common/assets/svg/CopyIcon'
-import LatticeIcon from '@common/assets/svg/LatticeIcon'
-import LedgerIcon from '@common/assets/svg/LedgerIcon'
-import PrivateKeyIcon from '@common/assets/svg/PrivateKeyIcon'
-import TrezorIcon from '@common/assets/svg/TrezorIcon'
+import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
+import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
+import PrivateKeyMiniIcon from '@common/assets/svg/PrivateKeyMiniIcon'
+import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
+import TrezorMiniIcon from '@common/assets/svg/TrezorMiniIcon'
 import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
@@ -17,43 +18,56 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
-interface Props {
-  address: string
-  isLast: boolean
+export type AccountKeyType = {
   isImported: boolean
+  addr: Key['addr']
   type?: Key['type']
+  meta?: Key['meta']
   label?: string
+}
+
+type Props = AccountKeyType & {
+  isLast?: boolean
   style?: ViewStyle
   enableEditing?: boolean
+  handleOnKeyDetailsPress?: () => void
 }
 
 const { isPopup } = getUiType()
 
-const KeyTypeIcon: FC<{ type: Key['type'] }> = memo(({ type }) => {
-  if (type === 'lattice') return <LatticeIcon width={71.4} height={24} />
-  if (type === 'trezor') return <TrezorIcon width={16} height={24} />
-  if (type === 'ledger') return <LedgerIcon width={24} height={24} />
+const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
+  if (type === 'lattice') return <LatticeMiniIcon width={24} height={24} />
+  if (type === 'trezor') return <TrezorMiniIcon width={24} height={24} />
+  if (type === 'ledger') return <LedgerMiniIcon width={24} height={24} />
 
-  return <PrivateKeyIcon width={20.6} height={24} />
+  return <PrivateKeyMiniIcon width={24} height={24} />
 })
 
 const AccountKey: React.FC<Props> = ({
   label,
-  address,
-  isLast,
+  addr,
+  isLast = false,
   type,
   isImported,
   style,
-  enableEditing = true
+  enableEditing = true,
+  handleOnKeyDetailsPress
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
+  const [bindKeyDetailsAnim, keyDetailsAnimStyles] = useCustomHover({
+    property: 'left',
+    values: {
+      from: 0,
+      to: 4
+    }
+  })
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
@@ -61,7 +75,7 @@ const AccountKey: React.FC<Props> = ({
 
   const handleCopy = async () => {
     try {
-      await Clipboard.setStringAsync(address)
+      await Clipboard.setStringAsync(addr)
       addToast(t('Key address copied to clipboard'), { type: 'success' })
     } catch {
       addToast(t('Could not copy the key address to the clipboard'), { type: 'error' })
@@ -73,7 +87,7 @@ const AccountKey: React.FC<Props> = ({
       type: 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES',
       params: [
         {
-          addr: address,
+          addr,
           type: type || 'internal',
           label: newLabel
         }
@@ -85,8 +99,8 @@ const AccountKey: React.FC<Props> = ({
   return (
     <View
       style={[
-        spacings.ph,
-        spacings.pvSm,
+        spacings.phSm,
+        isImported ? spacings.pvTy : spacings.pvSm,
         flexbox.directionRow,
         flexbox.justifySpaceBetween,
         flexbox.alignCenter,
@@ -98,6 +112,11 @@ const AccountKey: React.FC<Props> = ({
       ]}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+        {isImported && (
+          <View style={spacings.mrTy}>
+            <KeyTypeIcon type={type || 'internal'} />
+          </View>
+        )}
         <View style={isPopup ? { maxWidth: 350 } : {}}>
           {/* Keys that aren't imported can't be labeled */}
           {isImported && enableEditing ? (
@@ -117,7 +136,7 @@ const AccountKey: React.FC<Props> = ({
           )}
         </View>
         <Text fontSize={fontSize} style={label || isImported ? spacings.mlTy : {}}>
-          {label ? `(${shortenAddress(address, 13)})` : address}
+          {label ? `(${shortenAddress(addr, 13)})` : addr}
         </Text>
         <AnimatedPressable
           style={[spacings.mlTy, copyIconAnimStyle]}
@@ -127,10 +146,26 @@ const AccountKey: React.FC<Props> = ({
           <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
         </AnimatedPressable>
       </View>
-      <View style={isPopup ? spacings.ml : spacings.mlXl}>
-        {!isImported && <Badge type="warning" text={t('Not imported')} />}
-        {isImported && type && <KeyTypeIcon type={type} />}
-      </View>
+      {isImported ? (
+        handleOnKeyDetailsPress && (
+          <AnimatedPressable
+            onPress={handleOnKeyDetailsPress}
+            style={[flexbox.directionRow, flexbox.alignCenter]}
+            {...bindKeyDetailsAnim}
+          >
+            <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mrTy}>
+              {t('Details')}
+            </Text>
+            <Animated.View style={keyDetailsAnimStyles}>
+              <RightArrowIcon width={16} height={16} color={theme.secondaryText} />
+            </Animated.View>
+          </AnimatedPressable>
+        )
+      ) : (
+        <View style={isPopup ? spacings.ml : spacings.mlXl}>
+          <Badge type="warning" text={t('Not imported')} />
+        </View>
+      )}
     </View>
   )
 }

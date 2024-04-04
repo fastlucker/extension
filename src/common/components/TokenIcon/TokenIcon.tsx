@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Image, ImageProps, View } from 'react-native'
+import { Image, ImageProps, ImageStyle, View } from 'react-native'
 
+import { getIconId } from '@ambire-common/libs/portfolio/icons'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
-import { getTokenIcon } from '@common/services/icons'
 import { checkIfImageExists } from '@common/utils/checkIfImageExists'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import Spinner from '../Spinner'
 import styles from './styles'
@@ -17,10 +18,10 @@ interface Props extends Partial<ImageProps> {
   containerHeight?: number
   width?: number
   height?: number
+  style: ImageStyle
 }
 
 const TokenIcon: React.FC<Props> = ({
-  uri,
   networkId = '',
   address = '',
   withContainer = false,
@@ -28,10 +29,20 @@ const TokenIcon: React.FC<Props> = ({
   containerHeight = 34,
   width = 22,
   height = 22,
+  style = {},
   ...props
 }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
+  const [uri, setUri] = useState('')
+  const { state } = usePortfolioControllerState()
+
+  useEffect(() => {
+    if (state.tokenIcons && !uri) {
+      const iconId = getIconId(networkId, address)
+      !!iconId && setUri(state.tokenIcons[iconId])
+    }
+  }, [state.tokenIcons, uri, networkId, address])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -39,14 +50,6 @@ const TokenIcon: React.FC<Props> = ({
       const hasLoadedUri = await checkIfImageExists(uri)
       if (hasLoadedUri) {
         setValidUri(uri as string) // the `hasLoadedUri` handles if `uri` is defined
-        setIsLoading(false)
-        return
-      }
-
-      const alternativeUri = getTokenIcon(networkId, address)
-      const hasLoadedFallbackUri = await checkIfImageExists(alternativeUri)
-      if (hasLoadedFallbackUri) {
-        setValidUri(alternativeUri)
         setIsLoading(false)
         return
       }
@@ -72,7 +75,7 @@ const TokenIcon: React.FC<Props> = ({
     <View style={containerStyle || {}}>
       <Image
         source={{ uri: validUri }}
-        style={{ width, height, borderRadius: width / 2 }}
+        style={{ width, height, borderRadius: width / 2, ...style }}
         {...props}
       />
     </View>

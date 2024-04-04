@@ -16,11 +16,8 @@ const SignMessageControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    if (mainState.isReady && !Object.keys(state).length) {
-      dispatch({
-        type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'signMessage' }
-      })
+    if (!Object.keys(state).length) {
+      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: 'signMessage' } })
     }
   }, [dispatch, mainState.isReady, state])
 

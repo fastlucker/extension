@@ -82,9 +82,9 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             </Text>
           )}
         </View>
-        <View style={spacings.mbXl}>
+        <View style={isPopup ? spacings.mb : spacings.mbXl}>
           <AnimatedPressable
-            style={[styles.accountAddress, isViewOnly ? spacings.mb : spacings.mb0, animStyle]}
+            style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
             onPress={handleCopyAddress}
             {...bindAnim}
           >
@@ -113,7 +113,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             {networks.map(({ id, name }: any) => (
               <View key={id} style={styles.supportedNetwork}>
                 <View style={spacings.mbMi}>
-                  <NetworkIcon name={id} type="monochrome" />
+                  <NetworkIcon id={id} size={22} scale={0.6} />
                 </View>
                 <Text
                   style={spacings.plMi}
@@ -134,4 +134,4 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   )
 }
 
-export default ReceiveModal
+export default React.memo(ReceiveModal)

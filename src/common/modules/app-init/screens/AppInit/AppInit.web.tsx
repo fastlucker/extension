@@ -22,9 +22,11 @@ import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
+import { AddressBookControllerStateProvider } from '@web/contexts/addressBookControllerStateContext'
 import { BackgroundServiceProvider } from '@web/contexts/backgroundServiceContext'
 import { ControllersStateLoadedProvider } from '@web/contexts/controllersStateLoadedContext'
 import { DappsControllerStateProvider } from '@web/contexts/dappsControllerStateContext'
+import { DomainsControllerStateProvider } from '@web/contexts/domainsControllerStateContext'
 import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
@@ -66,26 +68,30 @@ const AppInit = () => {
                                 <PortfolioControllerStateProvider>
                                   <EmailVaultControllerStateProvider>
                                     <DappsControllerStateProvider>
-                                      <ControllersStateLoadedProvider>
-                                        <LoaderProvider>
-                                          <StorageProvider>
-                                            <KeyboardProvider>
-                                              <NetInfoProvider>
-                                                <ConstantsProvider>
-                                                  <AuthProvider>
-                                                    <BiometricsProvider>
-                                                      <PrivateModeProvider>
-                                                        <AppRouter />
-                                                      </PrivateModeProvider>
-                                                      <PortalHost name="global" />
-                                                    </BiometricsProvider>
-                                                  </AuthProvider>
-                                                </ConstantsProvider>
-                                              </NetInfoProvider>
-                                            </KeyboardProvider>
-                                          </StorageProvider>
-                                        </LoaderProvider>
-                                      </ControllersStateLoadedProvider>
+                                      <DomainsControllerStateProvider>
+                                        <AddressBookControllerStateProvider>
+                                          <ControllersStateLoadedProvider>
+                                            <LoaderProvider>
+                                              <StorageProvider>
+                                                <KeyboardProvider>
+                                                  <NetInfoProvider>
+                                                    <ConstantsProvider>
+                                                      <AuthProvider>
+                                                        <BiometricsProvider>
+                                                          <PrivateModeProvider>
+                                                            <AppRouter />
+                                                          </PrivateModeProvider>
+                                                          <PortalHost name="global" />
+                                                        </BiometricsProvider>
+                                                      </AuthProvider>
+                                                    </ConstantsProvider>
+                                                  </NetInfoProvider>
+                                                </KeyboardProvider>
+                                              </StorageProvider>
+                                            </LoaderProvider>
+                                          </ControllersStateLoadedProvider>
+                                        </AddressBookControllerStateProvider>
+                                      </DomainsControllerStateProvider>
                                     </DappsControllerStateProvider>
                                   </EmailVaultControllerStateProvider>
                                 </PortfolioControllerStateProvider>
