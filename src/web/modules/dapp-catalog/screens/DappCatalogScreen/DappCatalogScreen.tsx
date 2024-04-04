@@ -10,7 +10,7 @@ import Text from '@common/components/Text'
 import useDebounce from '@common/hooks/useDebounce'
 import useTheme from '@common/hooks/useTheme'
 import Header from '@common/modules/header/components/Header'
-import spacings, { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
+import spacings, { SPACING_MI, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
@@ -21,6 +21,7 @@ import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import DappItem from '@web/modules/dapp-catalog/components/DappItem'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
@@ -72,6 +73,8 @@ const FilterButton = React.memo(({ value, active, style, onPress }: FilterButton
   )
 })
 
+const { isPopup } = getUiType()
+
 const DappCatalogScreen = () => {
   const { control, watch, setValue } = useForm({
     defaultValues: {
@@ -115,11 +118,10 @@ const DappCatalogScreen = () => {
       footer={<BackButton />}
       footerStyle={{ maxWidth: tabLayoutWidths.xl }}
       header={<Header withPopupBackButton mode="title" withAmbireLogo />}
-      style={spacings.ph0}
-      withHorizontalPadding={false}
+      withHorizontalPadding={!isPopup}
     >
       <View style={[flexbox.flex1]}>
-        <View style={[spacings.phSm, spacings.pvSm]}>
+        <View style={[!!isPopup && spacings.phSm, spacings.pvSm]}>
           <View style={[flexbox.directionRow, flexbox.alignCenter]}>
             <View style={[flexbox.flex1, spacings.mr]}>
               <Search placeholder={t('Search for dApp')} control={control} setValue={setValue} />
@@ -146,9 +148,10 @@ const DappCatalogScreen = () => {
         <ScrollableWrapper
           type={WRAPPER_TYPES.FLAT_LIST}
           contentContainerStyle={[
-            spacings.plTy,
+            { marginHorizontal: -SPACING_MI, marginTop: -SPACING_MI },
             spacings.pbTy,
-            { paddingRight: SPACING_TY - SPACING_MI / 2, marginTop: -SPACING_MI }
+            !!isPopup && spacings.plSm,
+            !!isPopup && { paddingRight: SPACING_SM - SPACING_MI / 2 }
           ]}
           numColumns={3}
           data={filteredDapps}
