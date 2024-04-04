@@ -75,8 +75,8 @@ export class DappsController extends EventEmitter {
     this.emitUpdate()
   }
 
-  #createDappSession = (key: string, data: SessionProp | null = null) => {
-    const dappSession = new Session(data)
+  #createDappSession = (key: string, tabId: number, data: SessionProp | null = null) => {
+    const dappSession = new Session(data, tabId)
     this.dappsSessionMap.set(key, dappSession)
     this.emitUpdate()
 
@@ -88,7 +88,7 @@ export class DappsController extends EventEmitter {
       return this.dappsSessionMap.get(`${tabId}-${origin}`) as Session
     }
 
-    return this.#createDappSession(`${tabId}-${origin}`)
+    return this.#createDappSession(`${tabId}-${origin}`, tabId)
   }
 
   deleteDappSession = (key: string) => {

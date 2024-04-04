@@ -273,7 +273,7 @@ export class EthereumProvider extends EventEmitter {
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
-    this.backgroundMessenger.reply('message', this._handleBackgroundMessage)
+    this.backgroundMessenger.reply('broadcast', this._handleBackgroundMessage)
   }
 
   initialize = async () => {
