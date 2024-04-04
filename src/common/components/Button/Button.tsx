@@ -52,6 +52,7 @@ const Button = ({
   disabledStyle,
   forceHoveredStyle = false,
   childrenPosition = 'right',
+  testID,
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
@@ -151,7 +152,7 @@ const Button = ({
   }
   return (
     <AnimatedPressable
-      testID={`padding-button-${text?.replace(/\s+/g, "-")}`}
+      testID={testID}
       disabled={disabled}
       style={
         [

@@ -351,10 +351,9 @@ describe('login', () => {
     )
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
-
     /* Click on "+ Add Account"  */
     await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="padding-button-Add-Account"]')
+    await clickOnElement(page, '[data-testid="button-add-account"]')
     await new Promise((r) => setTimeout(r, 500))
 
     /* Seleck "Watch an address" */
@@ -366,7 +365,7 @@ describe('login', () => {
     await new Promise((r) => setTimeout(r, 500))
 
     /* Click on "Import View-Only Accounts" button */
-    await clickOnElement(page, '[data-testid="padding-button-Import"]')
+    await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
     /* Click on "Account"  */
     await new Promise((r) => setTimeout(r, 1000))

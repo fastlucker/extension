@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
+
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -19,9 +20,9 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import storage from '@web/extension-services/background/webapi/storage'
-import Stepper from '@web/modules/router/components/Stepper'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
+import Stepper from '@web/modules/router/components/Stepper'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
@@ -90,6 +91,7 @@ const KeyStoreSetupScreen = () => {
         <>
           <BackButton />
           <Button
+            testID="keystore-button-create"
             textStyle={{ fontSize: 14 }}
             size="large"
             hasBottomSpacing={false}
