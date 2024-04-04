@@ -69,7 +69,7 @@
     "url": "https://app.eigenlayer.xyz",
     "name": "eigenlayer",
     "icon": "https://static.debank.com/image/dapp/logo_url/b4bc2c5b5a63be4692ab5cb2b5201ae4/b4bc2c5b5a63be4692ab5cb2b5201ae4.png",
-    "description": ""
+    "description": "Revolutionize Ethereum by restaking ETH across multiple protocols for enhanced security, rewards, and capital efficiency."
   },
   {
     "url": "https://layer3.xyz",
@@ -87,7 +87,7 @@
     "url": "https://swap.defillama.com",
     "name": "defillama",
     "icon": "https://static.debank.com/image/project/logo_url/arb_defillama/1be7417e6461f9851dcd2521786d41ba.png",
-    "description": ""
+    "description": "Open and transparent DeDefiLlama is the largest TVL aggregator for DeFi. Includes sections on yield farming, NFT collections, marketplaces, and more."
   },
   {
     "url": "https://app.aave.com",
@@ -105,7 +105,7 @@
     "url": "https://app.aevo.xyz",
     "name": "Aevo",
     "icon": "https://static.debank.com/image/dapp/logo_url/96650df9365d6b7b1569781a35bb562d/96650df9365d6b7b1569781a35bb562d.png",
-    "description": "What's your position?"
+    "description": "Aevo is a decentralized derivatives exchange platform. It enables you to access various financial products like options and perpetual futures through a unified margin account."
   },
   {
     "url": "https://swap.cow.fi",
@@ -117,7 +117,7 @@
     "url": "https://app.hyperliquid.xyz",
     "name": "Hyperliquid",
     "icon": "https://static.debank.com/image/dapp/logo_url/06166d17b67b2dedc8e9749d79f7ec32/06166d17b67b2dedc8e9749d79f7ec32.png",
-    "description": ""
+    "description": "Hyperliquid is a decentralized perpetual futures exchange. Hyperliquid runs its own L1 in order to keep the whole orderbook onchain for the best transparency."
   },
   {
     "url": "https://app.optimism.io",
@@ -129,7 +129,7 @@
     "url": "https://app.paraswap.io",
     "name": "ParaSwap",
     "icon": "https://static.debank.com/image/project/logo_url/matic_paraswap/a9a94be854135149254438560dfa461c.png",
-    "description": "ParaSwap aggregates DeFi liquidity and offers the best market rates"
+    "description": "ParaSwap aggregates DeFi liquidity and offers the best market rates."
   },
   {
     "url": "https://velodrome.finance",
@@ -141,13 +141,13 @@
     "url": "https://quest.puffer.fi",
     "name": "puffer",
     "icon": "https://static.debank.com/image/dapp/logo_url/0b414ccf4b117409fdd3f457cace6d8c/0b414ccf4b117409fdd3f457cace6d8c.png",
-    "description": ""
+    "description": "Native liquid Ethereum restaking supercharged by EigenLayer."
   },
   {
     "url": "https://curve.fi",
     "name": "Curve",
     "icon": "https://static.debank.com/image/dapp/logo_url/9b5695ae1125a207988f850c7003ecff/9b5695ae1125a207988f850c7003ecff.png",
-    "description": ""
+    "description": "Curve is automated market-maker optimized for stablecoins, working as an exchange on one side, and allowing liquidity providers to earn fees and lending interest on the other side."
   },
   {
     "url": "https://app.balancer.fi",
@@ -405,7 +405,7 @@
     "url": "https://app.frax.finance",
     "name": "Frax",
     "icon": "https://static.debank.com/image/dapp/logo_url/b6accfa80a6be1108f934d333ff0aad8/b6accfa80a6be1108f934d333ff0aad8.png",
-    "description": "Frax Finance official web app"
+    "description": "Frax attempts to be the first stablecoin protocol to implement design principles of both to create a highly scalable, trustless, extremely stable, and ideologically pure on-chain money."
   },
   {
     "url": "https://app.superform.xyz",
@@ -435,7 +435,7 @@
     "url": "https://baseswap.fi",
     "name": "BaseSwap",
     "icon": "https://static.debank.com/image/dapp/logo_url/ac6367301d0f398ffb3cdbdf38c1cb15/ac6367301d0f398ffb3cdbdf38c1cb15.png",
-    "description": "Welcome to BaseSwap - the leading DEX on Base Chain, where advanced blockchain technology meets unparalleled user experience. Trade, stake, and farm with ease. Dive into our world of concentrated liquidity, exclusive single-stake earning, innovative farmi"
+    "description": "Welcome to BaseSwap - the leading DEX on Base Chain, where advanced blockchain technology meets unparalleled user experience. Trade, stake, and farm with ease. Dive into our world of concentrated liquidity, exclusive single-stake earning, innovative farmi."
   },
   {
     "url": "https://polygon.lido.fi/",
@@ -453,12 +453,12 @@
     "url": "https://mean.finance/",
     "name": "Mean finance",
     "icon": "https://mean.finance/favicon.ico",
-    "description": "Mean Finance is the state-of-the-art DCA protocol. It enables you to set up actions like 'Swap 10 USDC for WBTC every day, for 30 days'. "
+    "description": "Mean Finance is the state-of-the-art DCA protocol. It enables you to set up actions like 'Swap 10 USDC for WBTC every day, for 30 days'."
   },
   {
     "url": "https://app.defisaver.com/",
     "name": "DeFi Saver",
     "icon": "https://app.defisaver.com//assets/icons/icon-transparent.svg",
-    "description": "The next generation DeFi management dashboard"
+    "description": "The next generation DeFi management dashboard."
   }
 ]

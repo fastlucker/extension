@@ -60,7 +60,7 @@ export class DappsController extends EventEmitter {
 
   async #load() {
     let storedDapps: Dapp[]
-    storedDapps = []
+    storedDapps = await this.#storage.get('dapps', [])
     if (!storedDapps.length) {
       storedDapps = predefinedDapps.map((dapp) => ({
         ...dapp,
