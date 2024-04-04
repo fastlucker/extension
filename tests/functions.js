@@ -90,7 +90,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
 
   await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
   /* Click on "Unlock button" */
-  await clickOnElement(page, '[data-testid="padding-button-Unlock"]')
+  await clickOnElement(page, '[data-testid="button-unlock"]')
 
   await page.waitForSelector('[data-testid="full-balance"]')
 }
@@ -203,11 +203,11 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
   await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
 
   /* Click on "Set up Ambire Key Store" button */
-  await clickOnElement(page, '[data-testid="padding-button-Create"]')
+  await clickOnElement(page, '[data-testid="keystore-button-create"]')
 
-  await page.waitForSelector('[data-testid="padding-button-Continue"]')
+  await page.waitForSelector('[data-testid="keystore-button-continue"]')
 
-  await page.$eval('[data-testid="padding-button-Continue"]', (button) => button.click())
+  await page.$eval('[data-testid="keystore-button-continue"]', (button) => button.click())
 }
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page) {
@@ -231,9 +231,8 @@ export async function finishStoriesAndSelectAccount(page) {
     element[1].click()
     return element[1].textContent
   })
-
   /* Click on Import Accounts button */
-  await clickOnElement(page, '[data-testid="padding-button-Import-Accounts"]:not([disabled])')
+  await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
 
   return {
     firstSelectedBasicAccount,
@@ -263,7 +262,7 @@ export async function confirmTransaction(
   await clickOnElement(newPage, 'xpath///div[contains(text(), "Medium:")]')
 
   /* Click on "Sign" button */
-  await clickOnElement(newPage, '[data-testid="padding-button-Sign"]')
+  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
 
   // Wait for the 'Timestamp' text to appear twice on the page
   await newPage.waitForFunction(

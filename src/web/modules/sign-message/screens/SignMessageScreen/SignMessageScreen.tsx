@@ -317,6 +317,7 @@ const SignMessageScreen = () => {
             <Alert type="error" text={t('Please, read the entire message before signing it.')} />
           ) : null}
           <Button
+            testID="button-sign"
             text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
             disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
             type="primary"

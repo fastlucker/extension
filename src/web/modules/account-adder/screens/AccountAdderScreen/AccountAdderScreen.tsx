@@ -61,6 +61,7 @@ const AccountAdderScreen = () => {
         <>
           <BackButton onPress={handleGoBack} />
           <Button
+            testID="button-import-account"
             hasBottomSpacing={false}
             textStyle={{ fontSize: 14 }}
             onPress={onImportReady}
