@@ -1,4 +1,4 @@
-import { ZeroAddress } from 'ethers'
+import { ZeroAddress, getAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -29,6 +29,7 @@ import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
+import { RELAYER_URL } from '@env'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
@@ -114,8 +115,18 @@ const TokenDetails = ({
         id: 'top-up',
         text: isGasTankFeeToken ? t('Top Up Gas Tank') : t('Top Up'),
         icon: TopUpIcon,
-        onPress: ({ networkId, address }: TokenResult) =>
-          navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`),
+        onPress: async ({ networkId, address }: TokenResult) => {
+          const assets: { network: string; address: string }[] = await fetch(
+            `${RELAYER_URL}/gas-tank/assets`
+          )
+            .then((r) => r.json())
+            .catch((e) => addToast(t('Error while fetching from relayer'), { type: 'error' }))
+          const canTopUp = !!assets.find(
+            (a) => getAddress(a.address) === getAddress(address) && a.network === networkId
+          )
+          if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
+          else addToast('We have disabled top ups with this token.', { type: 'error' })
+        },
         isDisabled: !isGasTankFeeToken,
         strokeWidth: 1
       },
