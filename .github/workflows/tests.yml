@@ -78,3 +78,11 @@ jobs:
           KEYSTORE_PASS_PHRASE_1: ${{ secrets.KEYSTORE_PASS_PHRASE_1 }}
 
         run: yarn run test:e2e:web
+
+      # Upload the recorded test videos (in case of failure) as Artifact
+      - name: Artifacts - Recordings
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: puppeteer-recordings
+          path: recorder
