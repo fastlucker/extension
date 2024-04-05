@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -38,11 +38,12 @@ const AddChainScreen = () => {
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { currentNotificationRequest } = useNotificationControllerState()
-  const [areParamsValid, setAreParamsValid] = useState<boolean>(false)
+  const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
   const { status, latestMethodCall, networkToAddOrUpdate } = useSettingsControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
+  const actionButtonPressedRef = useRef(false)
 
   const requestData = useMemo(
     () => currentNotificationRequest?.params?.data?.[0],
@@ -111,6 +112,7 @@ const AddChainScreen = () => {
   }, [dispatch, latestMethodCall, status])
 
   const handleDenyButtonPress = useCallback(() => {
+    actionButtonPressedRef.current = true
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: { err: t('User rejected the request.') }
@@ -119,6 +121,7 @@ const AddChainScreen = () => {
 
   const handleAddNetworkButtonPress = useCallback(() => {
     if (!networkDetails) return
+    actionButtonPressedRef.current = true
     dispatch({
       type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
       params: networkDetails
@@ -251,7 +254,7 @@ const AddChainScreen = () => {
             </ScrollableWrapper>
           </View>
         )}
-        {(!areParamsValid || !networkDetails) && (
+        {!areParamsValid && areParamsValid !== null && !actionButtonPressedRef.current && (
           <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
             <Alert
               title={t('Invalid Request Params')}
