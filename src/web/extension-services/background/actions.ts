@@ -104,7 +104,7 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
     chainId: NetworkDescriptor['chainId']
-    rpcUrls: NetworkDescriptor['rpcUrls']
+    rpcUrl: string
   }
 }
 

@@ -10,6 +10,7 @@ import CloseIcon from '@common/assets/svg/CloseIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -78,25 +79,26 @@ const AddChainScreen = () => {
       return {
         name,
         rpcUrls,
+        selectedRpcUrl: rpcUrls[rpcUrlIndex],
         chainId: BigInt(requestData.chainId),
         nativeAssetSymbol,
         explorerUrl: requestData.blockExplorerUrls?.[0],
         iconUrls: requestData.iconUrls || []
-      } as CustomNetwork
+      }
     } catch (error) {
       console.error(error)
       return undefined
     }
-  }, [areParamsValid, rpcUrls, requestData])
+  }, [areParamsValid, rpcUrls, requestData, rpcUrlIndex])
 
   useEffect(() => {
-    if (networkDetails && networkDetails.rpcUrls) {
+    if (networkDetails) {
       dispatch({
         type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-        params: { chainId: networkDetails.chainId, rpcUrls: networkDetails.rpcUrls }
+        params: { chainId: networkDetails.chainId, rpcUrl: networkDetails.selectedRpcUrl }
       })
     }
-  }, [dispatch, networkDetails])
+  }, [dispatch, rpcUrlIndex, networkDetails])
 
   useEffect(() => {
     setFeatures(getFeatures(networkToAddOrUpdate?.info))
@@ -167,6 +169,7 @@ const AddChainScreen = () => {
     >
       <TabLayoutWrapperMainContent
         style={spacings.mbLg}
+        withScroll={false}
         contentContainerStyle={[spacings.pvXl, { flexGrow: 1 }]}
       >
         <Text weight="medium" fontSize={20}>
@@ -200,19 +203,20 @@ const AddChainScreen = () => {
           </View>
         </View>
         {!!areParamsValid && !!networkDetails && (
-          <View style={[flexbox.directionRow]}>
-            <View style={flexbox.flex1}>
+          <View style={[flexbox.directionRow, flexbox.flex1]}>
+            <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <NetworkDetails
                 name={currentNotificationRequest?.params?.data?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
                 chainId={Number(networkDetails.chainId).toString()}
                 rpcUrls={networkDetails.rpcUrls}
+                selectedRpcUrl={rpcUrls[rpcUrlIndex]}
                 nativeAssetSymbol={networkDetails.nativeAssetSymbol}
                 explorerUrl={networkDetails.explorerUrl}
               />
-            </View>
+            </ScrollableWrapper>
             <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-            <View style={flexbox.flex1}>
+            <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <View style={spacings.mb}>
                 <Text fontSize={16} weight="semiBold" appearance="secondaryText">
                   {t('Ambire Wallet does not verify custom networks.')}
@@ -244,7 +248,7 @@ const AddChainScreen = () => {
                   handleRetry={handleRetryWithDifferentRpcUrl}
                 />
               )}
-            </View>
+            </ScrollableWrapper>
           </View>
         )}
         {(!areParamsValid || !networkDetails) && (

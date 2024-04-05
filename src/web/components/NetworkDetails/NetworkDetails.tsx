@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import CloseIcon from '@common/assets/svg/CloseIcon'
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -23,6 +25,7 @@ import getStyles from './styles'
 type Props = {
   name: string
   iconUrls?: string[]
+  selectedRpcUrl: string
   rpcUrls: string[]
   chainId: string
   explorerUrl: string
@@ -33,6 +36,7 @@ type Props = {
 const NetworkDetails = ({
   name,
   iconUrls = [],
+  selectedRpcUrl,
   rpcUrls,
   chainId,
   explorerUrl,
@@ -43,7 +47,7 @@ const NetworkDetails = ({
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-
+  const [showAllRpcUrls, setShowAllRpcUrls] = useState(false)
   const isEmpty = useMemo(
     () => [name, rpcUrls[0], chainId].some((p) => p === '-'),
     [chainId, name, rpcUrls]
@@ -98,6 +102,69 @@ const NetworkDetails = ({
     [name, iconUrls]
   )
 
+  const renderRpcUrlsItem = useCallback(() => {
+    const sortedRpcUrls = [selectedRpcUrl, ...rpcUrls.filter((u) => u !== selectedRpcUrl)]
+    return (
+      <View style={[flexbox.directionRow, spacings.mb]}>
+        <Text fontSize={14} appearance="tertiaryText" style={[spacings.mr]} numberOfLines={1}>
+          {t(`RPC URL${sortedRpcUrls.length ? '(s)' : ''}`)}
+        </Text>
+        <View style={[flexbox.flex1, flexbox.alignEnd]}>
+          {!showAllRpcUrls && (
+            <Text fontSize={14} appearance="primaryText" numberOfLines={1}>
+              {sortedRpcUrls[0]}
+            </Text>
+          )}
+          {!!showAllRpcUrls &&
+            sortedRpcUrls.map((rpcUrl: string, i) => (
+              <Text
+                fontSize={14}
+                appearance={i === 0 ? 'primaryText' : 'secondaryText'}
+                weight={i === 0 ? 'regular' : 'light'}
+                numberOfLines={1}
+                style={i !== sortedRpcUrls.length - 1 && spacings.mbMi}
+              >
+                {rpcUrl}
+              </Text>
+            ))}
+          {sortedRpcUrls.length > 1 && (
+            <Pressable
+              style={[spacings.ptMi, flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
+              onPress={() => setShowAllRpcUrls((p) => !p)}
+            >
+              <Text style={spacings.mrMi} fontSize={12} color={theme.featureDecorative} underline>
+                {!showAllRpcUrls &&
+                  t('show {{number}} more', {
+                    number: sortedRpcUrls.length - 1
+                  })}
+                {!!showAllRpcUrls &&
+                  t('hide {{number}} urls', {
+                    number: sortedRpcUrls.length - 1
+                  })}
+              </Text>
+              {!!showAllRpcUrls && (
+                <UpArrowIcon
+                  width={12}
+                  height={6}
+                  color={theme.featureDecorative}
+                  strokeWidth="1.7"
+                />
+              )}
+              {!showAllRpcUrls && (
+                <DownArrowIcon
+                  width={12}
+                  height={6}
+                  color={theme.featureDecorative}
+                  strokeWidth="1.7"
+                />
+              )}
+            </Pressable>
+          )}
+        </View>
+      </View>
+    )
+  }, [rpcUrls, selectedRpcUrl, showAllRpcUrls, theme, t])
+
   return (
     <>
       <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm]}>
@@ -147,8 +214,7 @@ const NetworkDetails = ({
         </View>
         <View style={flexbox.flex1}>
           {renderInfoItem(t('Network Name'), name)}
-          {/* TODO: show all urls */}
-          {renderInfoItem(t('RPC URL'), rpcUrls[0])}
+          {renderRpcUrlsItem()}
           {renderInfoItem(t('Chain ID'), chainId)}
           {renderInfoItem(t('Currency Symbol'), nativeAssetSymbol)}
           {renderInfoItem(t('Block Explorer URL'), explorerUrl, false)}
