@@ -1,4 +1,4 @@
-import { typeText, clickOnElement, setLocalStorage, confirmTransaction } from './functions.js'
+import { typeText, clickOnElement, bootstrapWithStorage, confirmTransaction } from './functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -7,21 +7,19 @@ describe('transactions', () => {
   let browser
   let page
   let extensionRootUrl
+  let recorder
 
   beforeEach(async () => {
-    const {
-      browser: newBrowser,
-      page: newPage,
-      extensionRootUrl: newExtensionRootUrl
-    } = await setLocalStorage()
-    browser = newBrowser
-    page = newPage
-    extensionRootUrl = newExtensionRootUrl
+    const context = await bootstrapWithStorage('transaction')
+    browser = context.browser
+    page = context.page
+    recorder = context.recorder
   })
 
-  // afterEach(async () => {
-  //   await browser.close()
-  // })
+  afterEach(async () => {
+    await recorder.stop()
+    await browser.close()
+  })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {

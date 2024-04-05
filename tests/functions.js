@@ -1,8 +1,6 @@
-const puppeteer = require('puppeteer')
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 
-let browser
-let page
-let extensionRootUrl
+const puppeteer = require('puppeteer')
 
 const puppeteerArgs = [
   `--disable-extensions-except=${__dirname}/../webkit-prod/`,
@@ -25,7 +23,7 @@ const puppeteerArgs = [
 export async function bootstrap(options = {}) {
   const { headless = false } = options
 
-  browser = await puppeteer.launch({
+  const browser = await puppeteer.launch({
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -45,11 +43,10 @@ export async function bootstrap(options = {}) {
   const partialExtensionUrl = extensionTarget.url() || ''
   const [, , extractedExtensionId] = partialExtensionUrl.split('/')
   const extensionId = extractedExtensionId
-  extensionRootUrl = `chrome-extension://${extensionId}`
+  const extensionRootUrl = `chrome-extension://${extensionId}`
 
   return {
     browser,
-    page,
     extensionRootUrl,
     extensionId,
     extensionTarget
@@ -94,12 +91,15 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function setLocalStorage() {
+export async function bootstrapWithStorage(namespace) {
   /* Initialize browser and page using bootstrap */
   const context = await bootstrap()
-  browser = context.browser
-  extensionRootUrl = context.extensionRootUrl
-  page = await browser.newPage()
+  const browser = context.browser
+  const extensionRootUrl = context.extensionRootUrl
+  const page = await browser.newPage()
+  const recorder = new PuppeteerScreenRecorder(page)
+
+  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
@@ -108,15 +108,6 @@ export async function setLocalStorage() {
   // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
   // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
   await page.evaluate(() => {
-    // let parsedKeystoreAccounts
-    // let parsedKeystoreUID
-    // let parsedKeystoreKeys
-    // let parsedKeystoreSecrets
-    // let envOnboardingStatus
-    // let envPermission
-    // let envSelectedAccount
-    // let envTermState
-    // let parsedPreviousHints
     const parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
     const parsedKeystoreUID = process.env.KEYSTORE_KEYSTORE_UID_1
     const parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
@@ -156,7 +147,7 @@ export async function setLocalStorage() {
 
   await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
 
-  return { browser, extensionRootUrl, page }
+  return { browser, extensionRootUrl, page, recorder }
 }
 
 //----------------------------------------------------------------------------------------------

@@ -1,16 +1,21 @@
-import { setLocalStorage, clickOnElement } from './functions.js'
+import { bootstrapWithStorage, clickOnElement } from './functions.js'
 
 describe('balance', () => {
   let browser
   let page
+  let recorder
+
+  beforeAll(async () => {})
 
   beforeEach(async () => {
-    const { browser: newBrowser, page: newPage } = await setLocalStorage()
-    browser = newBrowser
-    page = newPage
+    const context = await bootstrapWithStorage('balance')
+    browser = context.browser
+    page = context.page
+    recorder = context.recorder
   })
 
   afterEach(async () => {
+    await recorder.stop()
     await browser.close()
   })
 
