@@ -20,7 +20,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -50,9 +49,7 @@ const WatchTokenRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
-  const mainCtrl = useMainControllerState()
   const { networks, providers } = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
 
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
@@ -156,7 +153,6 @@ const WatchTokenRequestScreen = () => {
     tokenData,
     tokenNetwork,
     networks,
-    selectedAccount,
     tokenTypeEligibility,
     temporaryToken,
     setIsLoading,
