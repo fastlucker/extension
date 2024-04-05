@@ -116,8 +116,12 @@ const Token = ({
         ) : null}
       </View>
 
-      {!temporaryToken?.priceIn?.length && !isLoading ? (
+      {temporaryToken && !temporaryToken?.priceIn?.length && !isLoading ? (
         <Alert type="warning" title={t('This token is not listed in Coingecko.')} />
+      ) : null}
+
+      {!temporaryToken && !isLoading ?  (
+        <Alert type="warning" title={t('Cannot find token data.')} />
       ) : null}
     </>
   )
