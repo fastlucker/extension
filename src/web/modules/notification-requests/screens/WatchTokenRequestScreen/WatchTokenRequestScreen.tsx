@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -50,7 +51,7 @@ const WatchTokenRequestScreen = () => {
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
   const mainCtrl = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { networks, providers } = useSettingsControllerState()
   const selectedAccount = mainCtrl.selectedAccount || ''
 
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
@@ -62,6 +63,11 @@ const WatchTokenRequestScreen = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [tokenNetwork, setTokenNetwork] = useState(network)
   const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
+
+  const networkWithFailedRPC = tokenNetwork?.id && getNetworksWithFailedRPC({ providers }).filter((networkId: NetworkId) =>
+    tokenNetwork?.id === networkId
+  )
+
 
   const tokenTypeEligibility = useMemo(
     () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
@@ -176,6 +182,9 @@ const WatchTokenRequestScreen = () => {
     })
   }, [dispatch, tokenData, tokenNetwork, portfolio])
 
+  if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
+    return <Alert type="error" title={t('This network RPC is failing')} />
+  }
   if (isLoading && tokenTypeEligibility === undefined) {
     return (
       <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
