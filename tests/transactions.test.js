@@ -14,6 +14,7 @@ describe('transactions', () => {
     browser = context.browser
     page = context.page
     recorder = context.recorder
+    extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
