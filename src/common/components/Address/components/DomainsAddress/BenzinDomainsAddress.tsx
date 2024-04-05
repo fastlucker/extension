@@ -24,11 +24,11 @@ const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
     ud: null
   })
   useEffect(() => {
-    const rpcUrls = networks.find(({ id }) => id === 'ethereum')?.rpcUrls
+    const network = networks.find(({ id }) => id === 'ethereum')
 
-    if (!rpcUrls) return
+    if (!network) return
 
-    const ethereumProvider = getRpcProvider(rpcUrls)
+    const ethereumProvider = getRpcProvider(network.rpcUrls, network.chainId)
 
     const resolveDomain = async () => {
       setIsLoading(true)
