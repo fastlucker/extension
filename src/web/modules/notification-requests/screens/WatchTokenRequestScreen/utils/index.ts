@@ -19,6 +19,13 @@ const selectNetwork = async (
   handleTokenType: (networkId: string) => void
 ) => {
   if (!network && !tokenNetwork?.id) {
+    const checkedNetworks = Object.keys(portfolio.state.validTokens.erc20)
+      .filter(key => key.startsWith(`${tokenData?.address}-`))
+      .map(key => key.split('-')[1]);
+    const uncheckedNetworks = networks.filter(_network =>
+        !checkedNetworks.includes(_network.id)
+      );
+
     const validTokenNetworks = networks.filter(
       (_network: NetworkDescriptor) =>
         portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
@@ -28,17 +35,19 @@ const selectNetwork = async (
       (_network: NetworkDescriptor) =>
         `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
     )
-    if (allNetworksChecked) {
-      setIsLoading(false)
-    } else if (validTokenNetworks.length > 0) {
+  
+    
+    if (validTokenNetworks.length > 0) {
       const newTokenNetwork = validTokenNetworks.find(
         (_network: NetworkDescriptor) => _network.id !== tokenNetwork?.id
       )
       if (newTokenNetwork) {
         setTokenNetwork(newTokenNetwork)
       }
-    } else {
-      await Promise.all(networks.map((_network: NetworkDescriptor) => handleTokenType(_network.id)))
+    } else if (allNetworksChecked && validTokenNetworks.length === 0) {
+      setIsLoading(false)
+    }  else {
+      await Promise.all(uncheckedNetworks.map((_network: NetworkDescriptor) => handleTokenType(_network.id)))
     }
   }
 }
@@ -47,11 +56,12 @@ const getTokenEligibility = (
   tokenData: { address: string } | CustomToken,
   portfolio: { state: PortfolioController },
   tokenNetwork: NetworkDescriptor | undefined
-) =>
-  null ||
-  (tokenData &&
-    tokenNetwork?.id &&
-    portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+) => null ||
+    (tokenData &&
+      tokenNetwork?.id &&
+      portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+  
+
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
