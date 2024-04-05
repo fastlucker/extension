@@ -10,7 +10,7 @@ export type ProviderRequest<TMethod = string> = {
     $ctx?: any
   }
   session: Session
-  origin?: string
+  origin: string
   requestedNotificationRequest?: boolean
   mainCtrl: MainController
   notificationCtrl: NotificationController

@@ -17,8 +17,8 @@ const messenger = tabMessenger.available ? tabMessenger : windowMessenger
 export const bridgeMessenger = createMessenger({
   available: messenger.available,
   name: 'bridgeMessenger',
-  async send(topic, payload, { id } = {}) {
-    return messenger.send(topic, payload, { id })
+  async send(topic, payload, options) {
+    return messenger.send(topic, payload, options || {})
   },
   reply(topic, callback) {
     return messenger.reply(topic, callback)
