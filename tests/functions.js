@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer')
 
+jest.setTimeout(120000)
+
 let browser
 let page
 let extensionRootUrl

@@ -19,9 +19,9 @@ describe('transactions', () => {
     extensionRootUrl = newExtensionRootUrl
   })
 
-  // afterEach(async () => {
-  //   await browser.close()
-  // })
+  afterEach(async () => {
+    await browser.close()
+  })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
@@ -148,20 +148,28 @@ describe('transactions', () => {
     /* Select 'MetaMask' */
     await page.click('>>>[class^="name"]')
 
+    // Wait for the new page to be created and click on 'Connect' button
+    const newTarget = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
+    )
+    const newPage = await newTarget.page()
+    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
     /* Type message in the 'Message' field */
     const textMessage = 'text message'
     await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
     await new Promise((r) => setTimeout(r, 500))
+
     /* Click on "Sign" button */
     await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
 
     // Wait for the new window to be created and switch to it
-    const newTarget = await browser.waitForTarget(
+    const newTarget2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
     )
-    const newPage = await newTarget.page()
+    const newPage2 = await newTarget2.page()
     /* Click on "Sign" button */
-    await clickOnElement(newPage, '[data-testid="sign-message-button"]')
+    await clickOnElement(newPage2, '[data-testid="button-sign"]')
     await page.waitForSelector('.signatureResult-signature')
     /* Get the Message signature text */
     const messageSignature = await page.evaluate(() => {
@@ -201,47 +209,50 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Make valid swap ', async () => {
-    await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
+  it('Make valid swap ', async () => {
+    await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
     await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
     /* Select 'MetaMask' */
     await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
-    /* Select USDT token for swap */
+
+    // Wait for the new page to be created and click on 'Connect' button
+    const newTarget = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
+    )
+    const newPage = await newTarget.page()
+    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
+    // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
-    // await typeText(page, '[data-testid="token-search-input"]', 'USDC')
     await new Promise((r) => setTimeout(r, 500))
     await clickOnElement(page, '[data-testid="common-base-USDT"]')
-    await new Promise((r) => setTimeout(r, 500))
-    /* Click on 'Select token' and type 'USDC' and select 'USDC' token */
+
+    await page.waitForSelector('[data-testid="common-base-USDT"]', {
+      hidden: true,
+      timeout: 3000
+    })
+
+    // Click on 'Select token' and select 'USDC' token
     await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
-    // await typeText(page, '[data-testid="token-search-input"]', 'USDC')
-    await new Promise((r) => setTimeout(r, 500))
+    // await new Promise((r) => setTimeout(r, 500))
     await clickOnElement(page, '[data-testid="common-base-USDC"]')
-
-    await new Promise((r) => setTimeout(r, 500))
-
+    // wait until elemenent is not displayed
+    await page.waitForSelector('[data-testid="common-base-USDC"]', {
+      hidden: true,
+      timeout: 3000
+    })
     await typeText(page, '#swap-currency-output', '0.0001')
 
     const swapBtn = '[data-testid="swap-button"]:not([disabled])'
     await new Promise((r) => setTimeout(r, 500))
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
-    const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled])'
-    await page.waitForSelector(confirmSwapBtn)
-    await page.click(confirmSwapBtn)
-
-    await new Promise((r) => setTimeout(r, 500))
-
-    // Wait for the new page to be created
-    const newTarget = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
-    )
-    const newPage2 = await newTarget.page()
+    const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(newPage2, extensionRootUrl, browser, '[data-testid="button-sign"]')
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
   })
 })

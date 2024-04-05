@@ -86,6 +86,7 @@ const DappConnectScreen = () => {
             </Text>
           </View>
           <Button
+            testID="dapp-connect-button"
             style={spacings.phLg}
             size="large"
             hasBottomSpacing={false}
