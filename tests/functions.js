@@ -236,7 +236,8 @@ export async function confirmTransaction(
   page,
   extensionRootUrl,
   browser,
-  triggerTransactionSelector
+  triggerTransactionSelector,
+  namespace
 ) {
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
@@ -249,6 +250,9 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
+  const recorder = new PuppeteerScreenRecorder(newPage)
+
+  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
