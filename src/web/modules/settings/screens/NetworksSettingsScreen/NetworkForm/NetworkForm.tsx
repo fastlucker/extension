@@ -28,7 +28,6 @@ import {
   getAreDefaultsChanged,
   handleErrors
 } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
-import INPUT_FIELDS from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/inputFields'
 
 import getStyles from './styles'
 
@@ -114,9 +113,11 @@ const NetworkForm = ({
   }, [dispatch])
 
   const validateRpcUrlAndRecalculateFeatures = useCallback(
-    async (rpcUrl?: string, chainId?: string | number) => {
+    async (rpcUrl?: string, chainId?: string | number, type: 'add' | 'change' = 'change') => {
       setValidatingRPC(true)
-      dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
+      if (type === 'change') {
+        dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
+      }
       if (!rpcUrl && !selectedRpcUrl) return
       if (!rpcUrl && !chainId) return
 
@@ -165,8 +166,9 @@ const NetworkForm = ({
         }
 
         if (
-          rpcUrl !== selectedNetwork?.rpcUrls?.[0] ||
-          Number(chainId) !== Number(selectedNetwork?.chainId)
+          type === 'change' &&
+          (rpcUrl !== selectedNetwork?.selectedRpcUrl ||
+            Number(chainId) !== Number(selectedNetwork?.chainId))
         ) {
           dispatch({
             type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
@@ -267,19 +269,28 @@ const NetworkForm = ({
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
     handleSubmit(async (formFields: any) => {
-      let emptyFields = Object.keys(formFields).filter(
-        (key) =>
-          !['rpcUrls', 'coingeckoPlatformId', 'coingeckoNativeAssetId'].includes(key) &&
-          !formFields[key].length
-      )
+      const emptyFields: string[] = []
 
-      if (selectedNetworkId !== 'add-custom-network') {
-        emptyFields = emptyFields.filter((k) => INPUT_FIELDS.find((f) => f.name === k)!.editable)
+      if (selectedNetworkId === 'add-custom-network') {
+        Object.keys(formFields).filter(
+          (key) =>
+            !['rpcUrl', 'rpcUrls', 'coingeckoPlatformId', 'coingeckoNativeAssetId'].includes(key) &&
+            !formFields[key].length
+        )
+      } else {
+        Object.keys(formFields).filter(
+          (key) => ['explorerUrl'].includes(key) && !formFields[key].length
+        )
       }
+
+      if (!rpcUrls.length)
+        setError('rpcUrl', { type: 'custom-error', message: 'Field is required' })
 
       emptyFields.forEach((k) => {
         setError(k as any, { type: 'custom-error', message: 'Field is required' })
       })
+
+      console.log(emptyFields)
 
       if (emptyFields.length || !rpcUrls.length || !selectedRpcUrl) return
 
@@ -313,9 +324,12 @@ const NetworkForm = ({
 
   const handleAddRpcUrl = useCallback(
     async (value: string) => {
-      if (!rpcUrls.length && value) {
-        await validateRpcUrlAndRecalculateFeatures(value, watch('chainId'))
-        if (!errors.rpcUrl) setRpcUrls((p) => [value, ...p])
+      await validateRpcUrlAndRecalculateFeatures(value, watch('chainId'), 'add')
+      if (!errors.rpcUrl) {
+        setRpcUrls((p) => [value, ...p])
+        if (!rpcUrls.length) {
+          setSelectedRpcUrl(value)
+        }
       }
     },
     [rpcUrls.length, watch, errors.rpcUrl, validateRpcUrlAndRecalculateFeatures]
@@ -404,9 +418,13 @@ const NetworkForm = ({
                     />
                     <View style={{ paddingTop: 25 }}>
                       <Button
-                        text={t('Add')}
+                        text={
+                          value.length && !errors.rpcUrl && isValidatingRPC
+                            ? t('Adding...')
+                            : t('Add')
+                        }
                         type="secondary"
-                        disabled={!value.length || !!errors.rpcUrl}
+                        disabled={!value.length || !!errors.rpcUrl || isValidatingRPC}
                         containerStyle={{ height: 40 }}
                         style={{ height: 40 }}
                         onPress={() => handleAddRpcUrl(value)}
@@ -428,13 +446,24 @@ const NetworkForm = ({
                   rpcUrls.map((url, i) => {
                     return (
                       <Pressable
+                        key={url}
                         style={({ hovered }: any) => [
                           styles.selectRpcItem,
                           i !== rpcUrls.length - 1 && styles.selectRpcItemBorder,
                           rpcUrls.length <= 2 && { height: 40 },
                           hovered && { backgroundColor: theme.tertiaryBackground }
                         ]}
-                        onPress={() => setSelectedRpcUrl(url)}
+                        onPress={() => {
+                          setSelectedRpcUrl(url)
+                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                          const chainId = watch('chainId')
+                          if (chainId) {
+                            dispatch({
+                              type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+                              params: { rpcUrl: url, chainId: BigInt(chainId) }
+                            })
+                          }
+                        }}
                       >
                         {({ hovered }: any) => (
                           <>
