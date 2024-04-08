@@ -248,6 +248,8 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
+  newPage.bringToFront()
+
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
