@@ -50,8 +50,19 @@ export const tabMessenger = createMessenger({
   async send<TPayload, TResponse>(
     topic: string,
     payload: TPayload,
-    { id }: { id?: number | string } = {}
+    { id, tabId }: { id?: number | string; tabId?: number } = {}
   ) {
+    if (topic.includes('broadcast')) {
+      if (tabId) {
+        sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
+      } else {
+        getActiveTabs().then(([tab]) => {
+          sendMessage({ topic: `> ${topic}`, payload, id }, { tabId: tab?.id })
+        })
+      }
+      return Promise.resolve(null) as any
+    }
+
     return new Promise<TResponse>((resolve, reject) => {
       const listener = (
         message: ReplyMessage<TResponse>,
@@ -83,6 +94,15 @@ export const tabMessenger = createMessenger({
     ) => {
       if (!isValidSend({ message, topic })) return
 
+      if (topic.includes('broadcast')) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        callback(message.payload, {
+          id: message.id,
+          sender,
+          topic: message.topic
+        })
+        return
+      }
       const repliedTopic = message.topic.replace('>', '<')
 
       const [tab] = await getActiveTabs()

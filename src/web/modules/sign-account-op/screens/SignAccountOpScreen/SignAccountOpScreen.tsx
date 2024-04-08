@@ -493,7 +493,7 @@ const SignAccountOpScreen = () => {
                   signAccountOpState={signAccountOpState}
                   accountPortfolio={portfolioState.accountPortfolio}
                   networkId={network!.id}
-                  disabled={isViewOnly || isSignLoading}
+                  disabled={isSignLoading}
                 />
               )}
               {!!hasEstimation &&

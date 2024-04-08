@@ -22,6 +22,9 @@ export const windowMessenger = createMessenger({
   async send(topic, payload, { id } = {}) {
     // Since the window messenger cannot reply asynchronously, we must include the direction in our message ('> {topic}')...
     window.postMessage({ topic: `> ${topic}`, payload, id }, '*')
+
+    if (topic.includes('broadcast')) return Promise.resolve(null) as any
+
     // ... and also set up an event listener to listen for the response ('< {topic}').
     return new Promise((resolve, reject) => {
       const listener = (event: MessageEvent) => {
@@ -45,6 +48,16 @@ export const windowMessenger = createMessenger({
       const sender = event.source
       // eslint-disable-next-line eqeqeq
       if (sender != window) return
+
+      if (topic.includes('broadcast')) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        callback(event.data.payload, {
+          topic: event.data.topic,
+          sender,
+          id: event.data.id
+        })
+        return
+      }
 
       let error
       let response

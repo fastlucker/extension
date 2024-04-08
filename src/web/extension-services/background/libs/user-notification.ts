@@ -3,9 +3,15 @@ import { getBigInt } from 'ethers'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { parse } from '@ambire-common/libs/richJson/richJson'
-import permission from '@web/extension-services/background/services/permission'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 
-class UserNotification {
+export class UserNotification {
+  #dappsCtrl: DappsController
+
+  constructor(dappsCtrl: DappsController) {
+    this.#dappsCtrl = dappsCtrl
+  }
+
   createSignMessageUserRequest({
     id,
     data,
@@ -35,7 +41,7 @@ class UserNotification {
     }
 
     const network = networks.find(
-      (n) => Number(n.chainId) === Number(permission.getConnectedSite(origin)?.chainId)
+      (n) => Number(n.chainId) === Number(this.#dappsCtrl.getDapp(origin)?.chainId)
     )
 
     if (!network) {
@@ -107,7 +113,7 @@ class UserNotification {
     }
 
     const network = networks.find(
-      (n) => Number(n.chainId) === Number(permission.getConnectedSite(origin)?.chainId)
+      (n) => Number(n.chainId) === Number(this.#dappsCtrl.getDapp(origin)?.chainId)
     )
 
     if (!network) {
@@ -161,7 +167,7 @@ class UserNotification {
       return
     }
     const network = networks.find(
-      (n) => Number(n.chainId) === Number(permission.getConnectedSite(dappOrigin)?.chainId)
+      (n) => Number(n.chainId) === Number(this.#dappsCtrl.getDapp(dappOrigin)?.chainId)
     )
 
     if (!network) {
@@ -187,5 +193,3 @@ class UserNotification {
     return request
   }
 }
-
-export default new UserNotification()

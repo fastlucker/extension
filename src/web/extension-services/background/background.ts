@@ -33,7 +33,6 @@ import { NotificationController } from '@web/extension-services/background/contr
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
-import permissionService from '@web/extension-services/background/services/permission'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -77,8 +76,6 @@ async function init() {
       Object.keys(humanizerJSON.abis.NO_ABI).length
   )
     await storage.set(HUMANIZER_META_KEY, humanizerJSON)
-
-  await permissionService.init()
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
@@ -160,10 +157,10 @@ async function init() {
     }
   })
   const walletStateCtrl = new WalletStateController()
-  const notificationCtrl = new NotificationController(mainCtrl)
+  const dappsCtrl = new DappsController(storage)
+  const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
-  const dappsCtrl = new DappsController()
 
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
@@ -932,22 +929,32 @@ async function init() {
                 break
               }
 
-              case 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE': {
-                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params.origin)
-                permissionService.removeConnectedSite(params.origin)
+              case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
+                dappsCtrl.updateDapp(params, { isConnected: false })
                 break
               }
               case 'CHANGE_CURRENT_DAPP_NETWORK': {
-                permissionService.updateConnectSite(
-                  params.origin,
-                  { chainId: params.chainId },
-                  true
+                dappsCtrl.updateDapp(params.origin, { chainId: params.chainId })
+                dappsCtrl.broadcastDappSessionEvent(
+                  'chainChanged',
+                  {
+                    chain: `0x${params.chainId.toString(16)}`,
+                    networkVersion: `${params.chainId}`
+                  },
+                  params.origin
                 )
-                dappsCtrl.broadcastDappSessionEvent('chainChanged', {
-                  chain: `0x${params.chainId.toString(16)}`,
-                  networkVersion: `${params.chainId}`
-                })
                 break
+              }
+              case 'DAPP_CONTROLLER_ADD_DAPP': {
+                return dappsCtrl.addDapp(params)
+              }
+              case 'DAPP_CONTROLLER_UPDATE_DAPP': {
+                return dappsCtrl.updateDapp(params.url, params.dapp)
+              }
+              case 'DAPP_CONTROLLER_REMOVE_DAPP': {
+                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
+                return dappsCtrl.removeDapp(params)
               }
 
               default:
