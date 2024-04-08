@@ -109,20 +109,35 @@ const WatchTokenRequestScreen = () => {
     await portfolio.checkToken({ address: tokenData?.address, networkId })
   }
 
+  const handleSelectNetwork = useCallback(async () => {
+    await selectNetwork(
+      network,
+      tokenNetwork,
+      tokenData,
+      networks,
+      portfolio,
+      setIsLoading,
+      setTokenNetwork,
+      handleTokenType,
+      providers
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    network,
+    tokenNetwork,
+    tokenData,
+    networks,
+    portfolio.state.validTokens.erc20,
+    setIsLoading,
+    setTokenNetwork,
+    handleTokenType,
+    providers,
+    tokenTypeEligibility
+  ])
+
   useEffect(() => {
     const handleEffect = async () => {
-      await selectNetwork(
-        network,
-        tokenNetwork,
-        tokenData,
-        networks,
-        portfolio,
-        setIsLoading,
-        setTokenNetwork,
-        handleTokenType,
-        providers
-      )
-
+      handleSelectNetwork()
       if (tokenNetwork && !temporaryToken) {
         // Check if token is eligible to add in portfolio
         if (tokenData && !tokenTypeEligibility) {
@@ -162,9 +177,9 @@ const WatchTokenRequestScreen = () => {
     networks,
     tokenTypeEligibility,
     temporaryToken,
-    setIsLoading,
     tokenInPreferences,
-    portfolio
+    portfolio.accountPortfolio,
+    portfolio.state.validTokens.erc20
   ])
 
   const handleAddToken = useCallback(async () => {
