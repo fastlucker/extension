@@ -61,6 +61,11 @@ const WatchTokenRequestScreen = () => {
   const [tokenNetwork, setTokenNetwork] = useState(network)
   const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
+  const isLoadingTemporaryToken = useMemo(
+    () => tokenNetwork?.id && portfolio.state.temporaryTokens[tokenNetwork?.id]?.isLoading,
+    [tokenNetwork?.id, portfolio.state.temporaryTokens]
+  )
+
   const networkWithFailedRPC =
     tokenNetwork?.id &&
     getNetworksWithFailedRPC({ providers }).filter(
@@ -225,7 +230,10 @@ const WatchTokenRequestScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        {(!tokenTypeEligibility && tokenTypeEligibility !== undefined && !temporaryToken) ||
+        {(!tokenTypeEligibility &&
+          tokenTypeEligibility !== undefined &&
+          !temporaryToken &&
+          !isLoadingTemporaryToken) ||
         (!tokenNetwork?.id && !isLoading) ? (
           <Alert type="error" title={t('This token type is not supported.')} />
         ) : (

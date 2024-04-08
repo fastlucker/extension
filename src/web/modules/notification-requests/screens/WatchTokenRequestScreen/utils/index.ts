@@ -28,7 +28,8 @@ const selectNetwork = async (
     )
     const allNetworksChecked = networks.every(
       (_network: NetworkDescriptor) =>
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
+        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20 &&
+        providers[_network.id].isWorking
     )
 
     if (validTokenNetworks.length > 0) {
