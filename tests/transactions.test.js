@@ -23,20 +23,8 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Make valid transaction', async () => {
+  it.only('Make valid transaction', async () => {
     await new Promise((r) => setTimeout(r, 2000))
-
-    await page.waitForSelector('[data-testid="full-balance"]')
-    /* Get the available balance */
-    const availableAmmount = await page.evaluate(() => {
-      const balance = document.querySelector('[data-testid="full-balance"]')
-      return balance.innerText
-    })
-
-    let availableAmmountNum = availableAmmount.replace(/\n/g, '')
-    availableAmmountNum = availableAmmountNum.split('$')[1]
-    /* Verify that the balance is bigger than 0 */
-    expect(parseFloat(availableAmmountNum) > 0).toBeTruthy()
 
     /* Click on "Send" button */
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')

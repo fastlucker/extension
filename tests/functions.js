@@ -236,7 +236,8 @@ export async function confirmTransaction(
   page,
   extensionRootUrl,
   browser,
-  triggerTransactionSelector
+  triggerTransactionSelector,
+  namespace
 ) {
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
@@ -249,7 +250,9 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
-  newPage.bringToFront()
+  const recorder = new PuppeteerScreenRecorder(newPage)
+
+  await recorder.start(`./recorder/${namespace}_transactions_${Date.now()}.mp4`)
 
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
@@ -277,4 +280,6 @@ export async function confirmTransaction(
   await new Promise((r) => setTimeout(r, 300))
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+
+  return { recorder }
 }
