@@ -254,6 +254,10 @@ export async function confirmTransaction(
 
   await recorder.start(`./recorder/${namespace}_transactions_${Date.now()}.mp4`)
 
+  const pages = await browser.pages()
+  const lastPage = pages[pages.length - 1]
+  await lastPage.bringToFront()
+
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
