@@ -168,13 +168,7 @@ const NetworkDetails = ({
   return (
     <>
       <View style={[styles.container, shouldDisplayEditButton && spacings.ptSm]}>
-        <View
-          style={[
-            flexbox.directionRow,
-            flexbox.alignCenter,
-            shouldDisplayEditButton ? spacings.mbLg : spacings.mbMd
-          ]}
-        >
+        <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbMd]}>
           <Text
             fontSize={18}
             weight="medium"
@@ -232,7 +226,11 @@ const NetworkDetails = ({
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm selectedNetworkId={name.toLowerCase()} onSaved={closeBottomSheet} />
+        <NetworkForm
+          selectedNetworkId={name.toLowerCase()}
+          onCancel={closeBottomSheet}
+          onSaved={closeBottomSheet}
+        />
       </BottomSheet>
     </>
   )

@@ -236,7 +236,7 @@ async function init() {
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
 
-    // Debounce multiple emits in the same tick and only execute one if them
+    // Debounce multiple emits in the same tick and only execute one of them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
         pm.send('> ui', { method: ctrlName, params: ctrl })

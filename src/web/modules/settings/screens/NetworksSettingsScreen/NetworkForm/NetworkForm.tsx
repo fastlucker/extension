@@ -1,16 +1,14 @@
+/* eslint-disable no-param-reassign */
 import { JsonRpcProvider } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { NetworkPreference } from '@ambire-common/interfaces/settings'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
 import { isValidURL } from '@ambire-common/services/validations'
-import AddIcon from '@common/assets/svg/AddIcon'
-import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -22,9 +20,9 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useHover from '@web/hooks/useHover'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import {
   getAreDefaultsChanged,
@@ -36,9 +34,11 @@ import getStyles from './styles'
 
 const NetworkForm = ({
   selectedNetworkId = 'add-custom-network',
+  onCancel,
   onSaved
 }: {
   selectedNetworkId?: NetworkDescriptor['id']
+  onCancel: () => void
   onSaved: () => void
 }) => {
   const { t } = useTranslation()
@@ -46,9 +46,8 @@ const NetworkForm = ({
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
-  const { theme, styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const { networkToAddOrUpdate } = useSettingsControllerState()
-  const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
@@ -65,44 +64,47 @@ const NetworkForm = ({
     setError,
     clearErrors,
     control,
-    reset,
     handleSubmit,
+    setValue,
     formState: { errors, touchedFields }
   } = useForm({
     mode: 'onSubmit',
     defaultValues: {
       name: '',
-      rpcUrls: selectedNetwork?.rpcUrls?.map(() => ({ value: '' })) || [{ value: '' }],
+      rpcUrl: '',
       chainId: '',
       nativeAssetSymbol: '',
-      explorerUrl: ''
+      explorerUrl: '',
+      coingeckoPlatformId: '',
+      coingeckoNativeAssetId: ''
     },
     values: {
       name: selectedNetwork?.name || '',
-      rpcUrls: selectedNetwork?.rpcUrls?.map((u) => ({ value: u || '' })) || [{ value: '' }],
+      rpcUrl: '',
       chainId: Number(selectedNetwork?.chainId) || '',
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
-      explorerUrl: selectedNetwork?.explorerUrl || ''
+      explorerUrl: selectedNetwork?.explorerUrl || '',
+      coingeckoPlatformId: (selectedNetwork?.coingeckoPlatformId as string) || '',
+      coingeckoNativeAssetId: (selectedNetwork?.coingeckoNativeAssetId as string) || ''
     }
   })
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'rpcUrls'
-  })
-
+  const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
+  const [selectedRpcUrl, setSelectedRpcUrl] = useState(selectedNetwork?.selectedRpcUrl)
   const networkFormValues = watch()
 
-  const areDefaultValuesChanged = getAreDefaultsChanged(networkFormValues, selectedNetwork)
+  const showEnableSaveButton = useMemo(() => {
+    if (selectedRpcUrl !== selectedNetwork?.selectedRpcUrl) return true
+    return getAreDefaultsChanged({ ...networkFormValues, rpcUrls }, selectedNetwork)
+  }, [networkFormValues, rpcUrls, selectedNetwork, selectedRpcUrl])
 
   const features = useMemo(
     () =>
       networkToAddOrUpdate?.info
         ? getFeatures(networkToAddOrUpdate?.info)
-        : errors.rpcUrls?.length || errors.chainId
+        : errors.rpcUrl || errors.chainId
         ? getFeatures(undefined)
         : selectedNetwork?.features || getFeatures(undefined),
-    [errors.chainId, errors.rpcUrls?.length, networkToAddOrUpdate?.info, selectedNetwork?.features]
+    [errors.chainId, errors.rpcUrl, networkToAddOrUpdate?.info, selectedNetwork?.features]
   )
 
   useEffect(() => {
@@ -111,15 +113,20 @@ const NetworkForm = ({
     })
   }, [dispatch])
 
-  const validateRpcUrlAndRecalculateFeaturesIfNeeded = useCallback(
-    async (rpcUrl: string, fieldIndex: number, chainId?: string | number) => {
+  const validateRpcUrlAndRecalculateFeatures = useCallback(
+    async (rpcUrl?: string, chainId?: string | number) => {
       setValidatingRPC(true)
       dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
-      if (!rpcUrl) return
+      if (!rpcUrl && !selectedRpcUrl) return
+      if (!rpcUrl && !chainId) return
+
+      if (!rpcUrl) {
+        rpcUrl = selectedRpcUrl as string
+      }
 
       if (!rpcUrl.startsWith('http')) {
         setValidatingRPC(false)
-        setError(`rpcUrls.${fieldIndex}`, {
+        setError('rpcUrl', {
           type: 'custom-error',
           message: 'RPC URLs must include the correct HTTP/HTTPS prefix'
         })
@@ -128,12 +135,13 @@ const NetworkForm = ({
 
       if (!isValidURL(rpcUrl)) {
         setValidatingRPC(false)
-        setError(`rpcUrls.${fieldIndex}`, { type: 'custom-error', message: 'Invalid RPC URL' })
+        setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
         return
       }
 
-      if (!chainId) {
+      if (rpcUrls.includes(rpcUrl)) {
         setValidatingRPC(false)
+        setError('rpcUrl', { type: 'custom-error', message: 'RPC URL already added' })
         return
       }
 
@@ -142,9 +150,14 @@ const NetworkForm = ({
         const network = await rpc.getNetwork()
         rpc.destroy()
 
+        if (!chainId) {
+          chainId = Number(network.chainId).toString()
+          setValue('chainId', chainId)
+        }
+
         if (Number(network.chainId) !== Number(chainId) && selectedNetwork && rpcUrl) {
           setValidatingRPC(false)
-          setError(`rpcUrls.${fieldIndex}`, {
+          setError('rpcUrl', {
             type: 'custom-error',
             message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${chainId}`
           })
@@ -161,13 +174,13 @@ const NetworkForm = ({
           })
         }
         setValidatingRPC(false)
-        clearErrors(`rpcUrls.${fieldIndex}`)
+        clearErrors('rpcUrl')
       } catch (error) {
         setValidatingRPC(false)
-        setError(`rpcUrls.${fieldIndex}`, { type: 'custom-error', message: 'Invalid RPC URL' })
+        setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
       }
     },
-    [selectedNetwork, clearErrors, setError, dispatch]
+    [selectedNetwork, rpcUrls, selectedRpcUrl, setValue, clearErrors, setError, dispatch]
   )
 
   useEffect(() => {
@@ -175,25 +188,11 @@ const NetworkForm = ({
     // and resetting the form doesn't wait for the validation to finish so we get an error
     // when resetting the form.
     const subscription = watch(async (value, { name }) => {
-      if (name) {
+      if (name && !value[name]) {
         // @ts-ignore
-        if (!name.startsWith('rpcUrls') && !value[name]) {
-          setError(name, {
-            type: 'custom-error',
-            message: 'Field is required'
-          })
+        if (name !== 'rpcUrl') {
+          setError(name, { type: 'custom-error', message: 'Field is required' })
           return
-        }
-
-        if (name.startsWith('rpcUrls')) {
-          value.rpcUrls?.forEach((rpcUrl, i) => {
-            if (!rpcUrl?.value && !!touchedFields.rpcUrls?.[i]?.value) {
-              setError(`rpcUrls.${i}`, {
-                type: 'custom-error',
-                message: 'Field is required'
-              })
-            }
-          })
         }
       }
 
@@ -225,21 +224,13 @@ const NetworkForm = ({
         clearErrors('chainId')
       }
 
-      if (name?.startsWith('rpcUrls') || name === 'chainId') {
-        const urls = value.rpcUrls?.map((u) => u?.value || undefined).filter((u) => !!u) || []
-        for (let i = 0; i < urls.length; i++) {
-          const url = urls[i]!
-          // eslint-disable-next-line no-await-in-loop
-          await validateRpcUrlAndRecalculateFeaturesIfNeeded(url, i, value.chainId)
-        }
+      if (name === 'chainId') {
+        await validateRpcUrlAndRecalculateFeatures(undefined, value.chainId)
       }
 
       if (name === 'explorerUrl') {
         if (!value.explorerUrl) {
-          setError('explorerUrl', {
-            type: 'custom-error',
-            message: 'URL cannot be empty'
-          })
+          setError('explorerUrl', { type: 'custom-error', message: 'URL cannot be empty' })
           return
         }
 
@@ -253,10 +244,7 @@ const NetworkForm = ({
             return
           }
         } catch {
-          setError('explorerUrl', {
-            type: 'custom-error',
-            message: 'Invalid URL'
-          })
+          setError('explorerUrl', { type: 'custom-error', message: 'Invalid URL' })
           return
         }
         clearErrors('explorerUrl')
@@ -270,7 +258,7 @@ const NetworkForm = ({
     selectedNetworkId,
     networks,
     touchedFields,
-    validateRpcUrlAndRecalculateFeaturesIfNeeded,
+    validateRpcUrlAndRecalculateFeatures,
     clearErrors,
     setError,
     watch
@@ -279,44 +267,29 @@ const NetworkForm = ({
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
     handleSubmit(async (formFields: any) => {
-      let emptyFields = Object.keys(formFields).filter((key) => {
-        if (key === 'rpcUrls') {
-          return !!formFields[key].some((u: any) => !u.value.length)
-        }
-        return !formFields[key].length
-      })
+      let emptyFields = Object.keys(formFields).filter(
+        (key) =>
+          !['rpcUrls', 'coingeckoPlatformId', 'coingeckoNativeAssetId'].includes(key) &&
+          !formFields[key].length
+      )
 
       if (selectedNetworkId !== 'add-custom-network') {
         emptyFields = emptyFields.filter((k) => INPUT_FIELDS.find((f) => f.name === k)!.editable)
       }
 
       emptyFields.forEach((k) => {
-        if (k === 'rpcUrls') {
-          const rpcFields = formFields?.[k]?.map((u: any) => u.value)
-          rpcFields.forEach((v: any, i: number) => {
-            if (!v.length) {
-              setError(`${k}.${i}` as any, {
-                type: 'custom-error',
-                message: 'Field is required'
-              })
-            }
-          })
-        } else {
-          setError(k as any, {
-            type: 'custom-error',
-            message: 'Field is required'
-          })
-        }
+        setError(k as any, { type: 'custom-error', message: 'Field is required' })
       })
 
-      if (emptyFields.length) return
+      if (emptyFields.length || !rpcUrls.length || !selectedRpcUrl) return
 
       if (selectedNetworkId === 'add-custom-network') {
         dispatch({
           type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
           params: {
             ...networkFormValues,
-            rpcUrls: networkFormValues.rpcUrls.map((u) => u.value),
+            rpcUrls,
+            selectedRpcUrl,
             chainId: BigInt(networkFormValues.chainId)
           }
         })
@@ -325,7 +298,8 @@ const NetworkForm = ({
           type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
           params: {
             networkPreferences: {
-              rpcUrls: networkFormValues.rpcUrls.map((u) => u.value),
+              rpcUrls,
+              selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl
             },
             networkId: selectedNetworkId
@@ -337,173 +311,249 @@ const NetworkForm = ({
     })()
   }
 
-  const handleResetNetworkField = (preferenceKey: keyof NetworkPreference) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE',
-      params: { preferenceKey, networkId: selectedNetworkId }
-    })
-    addToast(
-      `Reset "${INPUT_FIELDS.find((field) => field.name === preferenceKey)?.label || ''}" for ${
-        selectedNetwork?.name
-      }.`
-    )
-  }
+  const handleAddRpcUrl = useCallback(
+    async (value: string) => {
+      if (!rpcUrls.length && value) {
+        await validateRpcUrlAndRecalculateFeatures(value, watch('chainId'))
+        if (!errors.rpcUrl) setRpcUrls((p) => [value, ...p])
+      }
+    },
+    [rpcUrls.length, watch, errors.rpcUrl, validateRpcUrlAndRecalculateFeatures]
+  )
 
   return (
     <>
       <View style={styles.modalHeader}>
         {selectedNetworkId === 'add-custom-network' && (
-          <Text fontSize={20} weight="medium">
+          <Text fontSize={20} weight="medium" numberOfLines={1}>
             {t('Add custom network')}
           </Text>
         )}
         {selectedNetworkId !== 'add-custom-network' && !!selectedNetwork && (
           <>
-            <NetworkIcon id={selectedNetwork.id} style={spacings.mrTy} size={40} />
-            <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
-              {selectedNetwork.name || t('Unknown network')}
+            <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+              <NetworkIcon id={selectedNetwork.id} style={spacings.mrTy} size={40} />
+              <Text appearance="secondaryText" weight="regular" style={spacings.mrMi} fontSize={16}>
+                {selectedNetwork.name || t('Unknown network')}
+              </Text>
+            </View>
+            <Text fontSize={20} weight="medium" numberOfLines={1}>
+              {t('Edit network')}
             </Text>
+            <View style={flexbox.flex1} />
           </>
         )}
       </View>
-      <View style={[spacings.phXl, spacings.pvXl, flexbox.directionRow, flexbox.flex1]}>
-        <View style={flexbox.flex1}>
-          <Text fontSize={18} weight="medium" style={spacings.mbMd}>
-            {t('Network details')}
-          </Text>
-          <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
-            {INPUT_FIELDS.map((inputField, index) => {
-              if (inputField.name === 'rpcUrls') {
-                return (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <View key={`rpcUrl-${index}`}>
-                    {fields.map((field, i) => {
-                      const fieldProps = watch(`rpcUrls.${i}`)
-                      if (!fieldProps?.value === undefined) return
-
-                      const { value } = fieldProps || { value: '' }
-
-                      return (
-                        <Controller
-                          key={field.id}
-                          control={control}
-                          render={({ field: { onChange, onBlur } }) => (
-                            <Input
-                              onBlur={onBlur}
-                              onChangeText={onChange}
-                              value={value}
-                              inputWrapperStyle={{ height: 40 }}
-                              inputStyle={{ height: 40 }}
-                              containerStyle={spacings.mb}
-                              label={inputField.label}
-                              error={(() => {
-                                if (isValidatingRPC) return false
-                                return handleErrors(errors.rpcUrls?.[i])
-                              })()}
-                              button={fields.length > 1 && i > 0 ? <DeleteIcon /> : null}
-                              onButtonPress={() => remove(i)}
-                            />
-                          )}
-                          name={`rpcUrls.${i}.value`}
-                        />
-                      )
-                    })}
-                    <Button
-                      {...bindAnim}
-                      onPress={() => append({ value: '' })}
-                      style={[{ height: 40 }, spacings.mb, animStyle]}
-                      type="secondary"
-                      containerStyle={{ height: 40 }}
-                      childrenPosition="left"
-                      text={t('Add one more RPC URL')}
-                    >
-                      <AddIcon color={theme.primary} style={spacings.mrTy} />
-                    </Button>
-                  </View>
-                )
-              }
-
-              return (
+      <View style={[spacings.phXl, spacings.pvXl, spacings.ptLg, flexbox.flex1]}>
+        <Text fontSize={18} weight="medium" style={spacings.mbMd}>
+          {t('Network details')}
+        </Text>
+        <View style={[flexbox.directionRow, flexbox.flex1]}>
+          <View style={flexbox.flex1}>
+            <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Controller
-                  key={inputField.name}
-                  name={inputField.name as any}
                   control={control}
-                  render={({ field: { onBlur, onChange, value } }) => {
-                    const correspondingConstantNetwork = predefinedNetworks.find(
-                      (network) => network.id === selectedNetworkId
-                    )
-                    const correspondingNetwork = networks.find(
-                      (network) => network.id === selectedNetworkId
-                    )
-
-                    const isChanged =
-                      correspondingNetwork?.[
-                        inputField.name as keyof typeof correspondingNetwork
-                      ] !==
-                      correspondingConstantNetwork?.[
-                        inputField.name as keyof typeof correspondingConstantNetwork
-                      ]
-
-                    const InputComponent = inputField.name === 'chainId' ? NumberInput : Input
-
-                    return (
-                      <InputComponent
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        disabled={
-                          !inputField.editable && selectedNetworkId !== 'add-custom-network'
-                        }
-                        allowHex
-                        tooltip={
-                          inputField.name === 'chainId'
-                            ? {
-                                id: inputField.name,
-                                content: t(
-                                  "The chain ID is a unique network identifier used to validate the provided RPC URL. You can input a decimal or '0x'-prefixed hexadecimal number."
-                                )
-                              }
-                            : undefined
-                        }
-                        isValid={
-                          !errors[inputField.name as keyof typeof errors] &&
-                          inputField.editable &&
-                          selectedNetworkId !== 'add-custom-network'
-                        }
-                        error={handleErrors(errors[inputField.name as keyof typeof errors])}
-                        inputWrapperStyle={{ height: 40 }}
-                        inputStyle={{ height: 40 }}
-                        containerStyle={
-                          index !== INPUT_FIELDS.length - 1 ? spacings.mb : spacings.mb0
-                        }
-                        label={inputField.label}
-                        button={
-                          inputField.editable && isChanged && isPredefinedNetwork ? 'Reset' : ''
-                        }
-                        onButtonPress={() =>
-                          handleResetNetworkField(inputField.name as keyof NetworkPreference)
-                        }
-                      />
-                    )
-                  }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mb, ...spacings.mrMi, flex: 1 }}
+                      label={t('Network name')}
+                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="name"
                 />
-              )
-            })}
-          </ScrollableWrapper>
-        </View>
-        <View
-          style={[
-            { flex: 1.5 },
-            spacings.plXl,
-            spacings.mlXl,
-            { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
-          ]}
-        >
-          <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={flexbox.flex1}>
-              <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
-            </View>
-            <View style={flexbox.alignEnd}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mb, ...spacings.mlMi, flex: 1 }}
+                      label={t('Currency Symbol')}
+                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="nativeAssetSymbol"
+                />
+              </View>
+
+              <Controller
+                control={control}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mb, ...spacings.mrTy, flex: 1 }}
+                      label={t('RPC URL')}
+                      error={handleErrors(errors.name)}
+                    />
+                    <View style={{ paddingTop: 25 }}>
+                      <Button
+                        text={t('Add')}
+                        type="secondary"
+                        disabled={!value.length || !!errors.rpcUrl}
+                        containerStyle={{ height: 40 }}
+                        style={{ height: 40 }}
+                        onPress={() => handleAddRpcUrl(value)}
+                      />
+                    </View>
+                  </View>
+                )}
+                name="rpcUrl"
+              />
+
+              <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
+                {t('Select default RPC URL')}
+              </Text>
+              <ScrollableWrapper
+                style={styles.rpcUrlsContainer}
+                contentContainerStyle={{ flexGrow: 1 }}
+              >
+                {!!rpcUrls.length &&
+                  rpcUrls.map((url, i) => {
+                    return (
+                      <Pressable
+                        style={({ hovered }: any) => [
+                          styles.selectRpcItem,
+                          i !== rpcUrls.length - 1 && styles.selectRpcItemBorder,
+                          rpcUrls.length <= 2 && { height: 40 },
+                          hovered && { backgroundColor: theme.tertiaryBackground }
+                        ]}
+                        onPress={() => setSelectedRpcUrl(url)}
+                      >
+                        {({ hovered }: any) => (
+                          <>
+                            <View
+                              style={[
+                                styles.radio,
+                                selectedRpcUrl === url && styles.radioSelected,
+                                hovered && styles.radioHovered
+                              ]}
+                            >
+                              {selectedRpcUrl === url && <View style={styles.radioSelectedInner} />}
+                            </View>
+                            <Text
+                              fontSize={14}
+                              appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
+                              numberOfLines={1}
+                            >
+                              {url}
+                            </Text>
+                          </>
+                        )}
+                      </Pressable>
+                    )
+                  })}
+                {!rpcUrls.length && (
+                  <View
+                    style={[
+                      flexbox.flex1,
+                      flexbox.alignCenter,
+                      flexbox.justifyCenter,
+                      spacings.pvLg
+                    ]}
+                  >
+                    <Text fontSize={14} style={text.center} appearance="secondaryText">
+                      {t('No RPC URLs added yet')}
+                    </Text>
+                  </View>
+                )}
+              </ScrollableWrapper>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <NumberInput
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value as any}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mrMi, flex: 1 }}
+                      label={t('Chain ID')}
+                      disabled={selectedNetworkId !== 'add-custom-network'}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="chainId"
+                />
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mlMi, flex: 2 }}
+                      label={t('Block Explorer URL')}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="explorerUrl"
+                />
+              </View>
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <NumberInput
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value as any}
+                      disabled
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mrMi, flex: 1 }}
+                      label={t('Coingecko platform ID')}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="coingeckoPlatformId"
+                />
+                <Controller
+                  control={control}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      disabled
+                      inputWrapperStyle={{ height: 40 }}
+                      inputStyle={{ height: 40 }}
+                      containerStyle={{ ...spacings.mlMi, flex: 1 }}
+                      label={t('Coingecko native asset ID')}
+                      error={handleErrors(errors.name)}
+                    />
+                  )}
+                  name="coingeckoNativeAssetId"
+                />
+              </View>
+            </ScrollableWrapper>
+          </View>
+          <View style={[flexbox.flex1, spacings.pl, spacings.ml]}>
+            <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={flexbox.flex1}>
+                <NetworkAvailableFeatures networkId={selectedNetwork?.id} features={features} />
+              </View>
+            </ScrollableWrapper>
+            <View style={[flexbox.alignEnd, spacings.ptXl]}>
               {selectedNetworkId === 'add-custom-network' ? (
                 <Button
                   onPress={handleSubmitButtonPress}
@@ -520,10 +570,9 @@ const NetworkForm = ({
               ) : (
                 <View style={[flexbox.directionRow]}>
                   <Button
-                    onPress={reset as any}
+                    onPress={onCancel}
                     text={t('Cancel')}
                     type="secondary"
-                    disabled={!areDefaultValuesChanged}
                     hasBottomSpacing={false}
                     style={[flexbox.flex1, spacings.mr, { width: 160 }]}
                     size="large"
@@ -533,7 +582,7 @@ const NetworkForm = ({
                     onPress={handleSubmitButtonPress}
                     text={t('Save')}
                     disabled={
-                      !areDefaultValuesChanged || !!Object.keys(errors).length || isValidatingRPC
+                      !showEnableSaveButton || !!Object.keys(errors).length || isValidatingRPC
                     }
                     style={[spacings.mlMi, flexbox.flex1, { width: 160 }]}
                     hasBottomSpacing={false}
@@ -542,7 +591,7 @@ const NetworkForm = ({
                 </View>
               )}
             </View>
-          </ScrollableWrapper>
+          </View>
         </View>
       </View>
       <Tooltip id="chainId" />

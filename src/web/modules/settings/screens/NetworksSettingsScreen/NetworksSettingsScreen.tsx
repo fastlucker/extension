@@ -139,7 +139,7 @@ const NetworksSettingsScreen = () => {
           ]}
         >
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={spacings.mbXl}>
+            <View style={spacings.mb}>
               <NetworkDetails
                 name={selectedNetwork?.name || '-'}
                 chainId={
@@ -173,7 +173,7 @@ const NetworksSettingsScreen = () => {
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm onSaved={closeBottomSheet} />
+        <NetworkForm onCancel={closeBottomSheet} onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )
