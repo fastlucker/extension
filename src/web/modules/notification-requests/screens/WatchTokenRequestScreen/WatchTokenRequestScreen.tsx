@@ -61,10 +61,11 @@ const WatchTokenRequestScreen = () => {
   const [tokenNetwork, setTokenNetwork] = useState(network)
   const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
-  const networkWithFailedRPC = tokenNetwork?.id && getNetworksWithFailedRPC({ providers }).filter((networkId: NetworkId) =>
-    tokenNetwork?.id === networkId
-  )
-
+  const networkWithFailedRPC =
+    tokenNetwork?.id &&
+    getNetworksWithFailedRPC({ providers }).filter(
+      (networkId: NetworkId) => tokenNetwork?.id === networkId
+    )
 
   const tokenTypeEligibility = useMemo(
     () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
@@ -113,7 +114,8 @@ const WatchTokenRequestScreen = () => {
         portfolio,
         setIsLoading,
         setTokenNetwork,
-        handleTokenType
+        handleTokenType,
+        providers
       )
 
       if (tokenNetwork && !temporaryToken) {
