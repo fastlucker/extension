@@ -8,7 +8,7 @@ import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
-const TokenHeader = ({ portfolioFoundToken }: CustomToken | TokenResult) => {
+const TokenHeader = ({ temporaryToken }: CustomToken | TokenResult) => {
   const { t } = useTranslation()
 
   return (
@@ -37,7 +37,7 @@ const TokenHeader = ({ portfolioFoundToken }: CustomToken | TokenResult) => {
           spacings.mbMd,
           {
             textAlign: 'right',
-            flex: portfolioFoundToken?.priceIn?.length ? 0.7 : 0.12
+            flex: temporaryToken?.priceIn?.length ? 0.7 : 0.12
           }
         ]}
         appearance="secondaryText"
@@ -45,7 +45,7 @@ const TokenHeader = ({ portfolioFoundToken }: CustomToken | TokenResult) => {
         {t('USD Value')}
       </Text>
 
-      <View style={{ flex: portfolioFoundToken?.priceIn?.length ? 0.5 : 0 }} />
+      <View style={{ flex: temporaryToken?.priceIn?.length ? 0.5 : 0 }} />
     </View>
   )
 }
