@@ -31,6 +31,71 @@ import {
 
 import getStyles from './styles'
 
+type RpcSelectorItemType = {
+  index: number
+  url: string
+  rpcUrlsLength: number
+  selectedRpcUrl?: string
+  shouldShowRemove: boolean
+  onPress: (url: string) => void
+  onRemove: (url: string) => void
+}
+
+const RpcSelectorItem = React.memo(
+  ({
+    index,
+    url,
+    rpcUrlsLength,
+    selectedRpcUrl,
+    shouldShowRemove,
+    onPress,
+    onRemove
+  }: RpcSelectorItemType) => {
+    const { styles, theme } = useTheme(getStyles)
+    const [hovered, setHovered] = useState(false)
+    const { t } = useTranslation()
+
+    return (
+      <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+        <Pressable
+          style={[
+            styles.selectRpcItem,
+            index !== rpcUrlsLength - 1 && styles.selectRpcItemBorder,
+            rpcUrlsLength <= 2 && { height: 40 },
+            hovered && { backgroundColor: theme.tertiaryBackground }
+          ]}
+          onPress={() => onPress(url)}
+        >
+          <View
+            style={[
+              styles.radio,
+              selectedRpcUrl === url && styles.radioSelected,
+              hovered && styles.radioHovered
+            ]}
+          >
+            {selectedRpcUrl === url && <View style={styles.radioSelectedInner} />}
+          </View>
+          <Text
+            fontSize={14}
+            appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
+            numberOfLines={1}
+            style={flexbox.flex1}
+          >
+            {url}
+          </Text>
+          {!!shouldShowRemove && !!hovered && (
+            <Pressable onPress={() => onRemove(url)}>
+              <Text fontSize={12} underline color={theme.errorDecorative}>
+                {t('Remove')}
+              </Text>
+            </Pressable>
+          )}
+        </Pressable>
+      </div>
+    )
+  }
+)
+
 const NetworkForm = ({
   selectedNetworkId = 'add-custom-network',
   onCancel,
@@ -45,7 +110,7 @@ const NetworkForm = ({
   const { addToast } = useToast()
   const { networks } = useSettingsControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
-  const { styles, theme } = useTheme(getStyles)
+  const { styles } = useTheme(getStyles)
   const { networkToAddOrUpdate } = useSettingsControllerState()
 
   const selectedNetwork = useMemo(
@@ -298,7 +363,6 @@ const NetworkForm = ({
         setError(k as any, { type: 'custom-error', message: 'Field is required' })
       })
 
-      console.log(emptyFields, rpcUrls, selectedRpcUrl)
       if (emptyFields.length || !rpcUrls.length || !selectedRpcUrl) return
 
       if (selectedNetworkId === 'add-custom-network') {
@@ -347,6 +411,21 @@ const NetworkForm = ({
       }
     },
     [selectedRpcUrl, dispatch, watch]
+  )
+
+  const handleRemoveRpcUrl = useCallback(
+    (url: string) => {
+      if (isPredefinedNetwork && predefinedNetworks.find((n) => n.rpcUrls.includes(url))) return
+
+      const filteredRpcUrls = rpcUrls.filter((u) => u !== url)
+      if (url === selectedRpcUrl) {
+        if (filteredRpcUrls.length) {
+          handleSelectRpcUrl(filteredRpcUrls[0])
+        }
+      }
+      setRpcUrls(filteredRpcUrls)
+    },
+    [isPredefinedNetwork, rpcUrls, selectedRpcUrl, handleSelectRpcUrl]
   )
 
   const handleAddRpcUrl = useCallback(
@@ -477,37 +556,20 @@ const NetworkForm = ({
                 {!!rpcUrls.length &&
                   rpcUrls.map((url, i) => {
                     return (
-                      <Pressable
+                      <RpcSelectorItem
                         key={url}
-                        style={({ hovered }: any) => [
-                          styles.selectRpcItem,
-                          i !== rpcUrls.length - 1 && styles.selectRpcItemBorder,
-                          rpcUrls.length <= 2 && { height: 40 },
-                          hovered && { backgroundColor: theme.tertiaryBackground }
-                        ]}
-                        onPress={() => handleSelectRpcUrl(url)}
-                      >
-                        {({ hovered }: any) => (
-                          <>
-                            <View
-                              style={[
-                                styles.radio,
-                                selectedRpcUrl === url && styles.radioSelected,
-                                hovered && styles.radioHovered
-                              ]}
-                            >
-                              {selectedRpcUrl === url && <View style={styles.radioSelectedInner} />}
-                            </View>
-                            <Text
-                              fontSize={14}
-                              appearance={selectedRpcUrl === url ? 'primaryText' : 'secondaryText'}
-                              numberOfLines={1}
-                            >
-                              {url}
-                            </Text>
-                          </>
-                        )}
-                      </Pressable>
+                        index={i}
+                        url={url}
+                        selectedRpcUrl={selectedRpcUrl}
+                        rpcUrlsLength={rpcUrls.length}
+                        onPress={handleSelectRpcUrl}
+                        shouldShowRemove={
+                          isPredefinedNetwork
+                            ? !predefinedNetworks.find((n) => n.rpcUrls.includes(url))
+                            : true
+                        }
+                        onRemove={handleRemoveRpcUrl}
+                      />
                     )
                   })}
                 {!rpcUrls.length && (
