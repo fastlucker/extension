@@ -3,12 +3,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { MainController } from '@ambire-common/controllers/main/main'
 import {
   FeeSpeed,
   SignAccountOpController
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -16,7 +14,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
@@ -24,20 +21,11 @@ import Fee from '@web/modules/sign-account-op/components/Fee'
 import getStyles from './styles'
 
 type Props = {
-  mainState: MainController
-  accountPortfolio: AccountPortfolio | null
   signAccountOpState: SignAccountOpController
-  networkId: NetworkDescriptor['id']
   disabled: boolean
 }
 
-const Estimation = ({
-  mainState,
-  accountPortfolio,
-  signAccountOpState,
-  networkId,
-  disabled
-}: Props) => {
+const Estimation = ({ signAccountOpState, disabled }: Props) => {
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme } = useTheme(getStyles)
@@ -54,47 +42,17 @@ const Estimation = ({
         }
       ]
     const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
-      const account = mainState.accounts.find((acc) => acc.addr === feeOption.paidBy)
-
-      // the logic below may seem overextended but please proceed
-      // with caution if you wish to make it more tidy. Especially the
-      // checkNetworkIfNative var. If the code is copied in the final return
-      // statement, it stops working as it should and it starts returning
-      // always true
-      const token = accountPortfolio?.tokens.find((t) => {
-        if (!feeOption.isGasTank) {
-          return t.address === feeOption.address && t.networkId === networkId && !t.flags.onGasTank
-        }
-
-        // native fee tokens should be from the same network
-        // other gas tank tokens (USDT, USDC) have a networkId of ethereum
-        // hardcoded. We should skip network check for them
-        const checkNetworkIfNative =
-          feeOption.address === '0x0000000000000000000000000000000000000000'
-            ? t.networkId === networkId
-            : true
-        return t.address === feeOption.address && t.flags.onGasTank && checkNetworkIfNative
-      })
-
-      // TODO: validate - should never happen but there are some cases in which account is undefined
-      if (!account || !token) return undefined
-
-      const gasTankKey = token.flags.onGasTank === true ? 'gasTank' : ''
+      const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
       return {
-        value: feeOption.paidBy + feeOption.address + gasTankKey,
-        label: <PayOption account={account} token={token} isGasTank={feeOption.isGasTank} />,
+        value: feeOption.paidBy + feeOption.token.address + gasTankKey,
+        label: <PayOption feeOption={feeOption} />,
         paidBy: feeOption.paidBy,
-        token
+        token: feeOption.token
       }
     })
 
     return opts.filter((opt) => opt)
-  }, [
-    signAccountOpState.availableFeeOptions,
-    mainState.accounts,
-    accountPortfolio?.tokens,
-    networkId
-  ])
+  }, [signAccountOpState.availableFeeOptions])
 
   const defaultPayOption = useMemo(() => {
     if (!payOptions) return undefined

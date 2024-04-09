@@ -2,6 +2,7 @@ import { ZeroAddress } from 'ethers'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { RPCProviders } from '@ambire-common/interfaces/settings'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
@@ -16,7 +17,8 @@ const selectNetwork = async (
   portfolio: { state: PortfolioController },
   setIsLoading: (isLoading: boolean) => void,
   setTokenNetwork: (network: NetworkDescriptor) => void,
-  handleTokenType: (networkId: string) => void
+  handleTokenType: (networkId: string) => void,
+  providers: RPCProviders
 ) => {
   if (!network && !tokenNetwork?.id) {
     const validTokenNetworks = networks.filter(
@@ -26,12 +28,9 @@ const selectNetwork = async (
     )
     const allNetworksChecked = networks.every(
       (_network: NetworkDescriptor) =>
-        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
+        `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20 &&
+        providers[_network.id].isWorking
     )
-
-    if (allNetworksChecked) {
-      setIsLoading(false)
-    }
 
     if (validTokenNetworks.length > 0) {
       const newTokenNetwork = validTokenNetworks.find(
@@ -40,8 +39,15 @@ const selectNetwork = async (
       if (newTokenNetwork) {
         setTokenNetwork(newTokenNetwork)
       }
+    } else if (allNetworksChecked && validTokenNetworks.length === 0) {
+      setIsLoading(false)
     } else {
-      await Promise.all(networks.map((_network: NetworkDescriptor) => handleTokenType(_network.id)))
+      await Promise.all(
+        networks.map(
+          (_network: NetworkDescriptor) =>
+            providers[_network.id].isWorking && handleTokenType(_network.id)
+        )
+      )
     }
   }
 }
@@ -52,7 +58,9 @@ const getTokenEligibility = (
   tokenNetwork: NetworkDescriptor | undefined
 ) =>
   null ||
-  (tokenData && portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
+  (tokenData?.address &&
+    tokenNetwork?.id &&
+    portfolio.state.validTokens.erc20[`${tokenData?.address}-${tokenNetwork?.id}`])
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
@@ -65,20 +73,6 @@ const getTokenFromPreferences = (
       token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
       token.networkId === tokenNetwork?.id
   )
-
-const getTokenFromPortfolio = (
-  tokenData: { address: string } | CustomToken,
-  tokenNetwork: NetworkDescriptor | undefined,
-  accountPortfolio: AccountPortfolio | null,
-  tokenInPreferences: CustomToken | undefined
-) =>
-  (tokenData &&
-    accountPortfolio?.tokens?.find(
-      (token) =>
-        token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
-        token.networkId === tokenNetwork?.id
-    )) ||
-  tokenInPreferences
 
 const handleTokenIsInPortfolio = async (
   tokenInPreferences: CustomToken | undefined,
@@ -102,10 +96,38 @@ const handleTokenIsInPortfolio = async (
   return isTokenInHints || tokenInPreferences || isNative
 }
 
+const getTokenFromPortfolio = (
+  tokenData: { address: string } | CustomToken,
+  tokenNetwork: NetworkDescriptor | undefined,
+  accountPortfolio: AccountPortfolio | null,
+  tokenInPreferences: CustomToken | undefined
+) =>
+  (tokenData &&
+    accountPortfolio?.tokens?.find(
+      (token) =>
+        token.address.toLowerCase() === tokenData?.address.toLowerCase() &&
+        token.networkId === tokenNetwork?.id
+    )) ||
+  tokenInPreferences
+
+const getTokenFromTemporaryTokens = (
+  portfolio: any,
+  tokenData: { address: string } | CustomToken,
+  tokenNetwork: NetworkDescriptor | undefined
+) =>
+  undefined ||
+  (tokenData &&
+    tokenNetwork &&
+    portfolio.state.temporaryTokens[tokenNetwork.id] &&
+    portfolio.state.temporaryTokens[tokenNetwork.id]?.result?.tokens?.find(
+      (x) => x.address.toLowerCase() === tokenData.address.toLowerCase()
+    ))
+
 export {
   selectNetwork,
   handleTokenIsInPortfolio,
   getTokenEligibility,
   getTokenFromPreferences,
+  getTokenFromTemporaryTokens,
   getTokenFromPortfolio
 }

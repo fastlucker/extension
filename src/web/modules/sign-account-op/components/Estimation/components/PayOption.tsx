@@ -2,8 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Account } from '@ambire-common/interfaces/account'
-import { TokenResult } from '@ambire-common/libs/portfolio'
+import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
@@ -14,20 +13,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
-const PayOption = ({
-  account,
-  token,
-  isGasTank
-}: {
-  account: Account
-  token: TokenResult
-  isGasTank: boolean
-}) => {
+const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
   const { t } = useTranslation()
   const settingsCtrl = useSettingsControllerState()
   const { maxWidthSize } = useWindowSize()
   const isL = maxWidthSize('l')
-  const accountPref = settingsCtrl.accountPreferences[account.addr]
+  const accountPref = settingsCtrl.accountPreferences[feeOption.paidBy]
 
   const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
 
@@ -58,7 +49,11 @@ const PayOption = ({
             {label}
           </Text>
           <Text weight="medium" fontSize={10} numberOfLines={1} appearance="secondaryText">
-            ({!isGasTank ? shortenAddress(account.addr, isL ? 23 : 13) : t('Gas Tank')})
+            (
+            {!feeOption.token.flags.onGasTank
+              ? shortenAddress(feeOption.paidBy, isL ? 23 : 13)
+              : t('Gas Tank')}
+            )
           </Text>
         </View>
       </View>
@@ -81,12 +76,12 @@ const PayOption = ({
             width={isL ? 20 : 16}
             height={isL ? 20 : 16}
             networkSize={10}
-            address={token.address}
-            networkId={token.networkId}
-            onGasTank={token.flags.onGasTank}
+            address={feeOption.token.address}
+            networkId={feeOption.token.networkId}
+            onGasTank={feeOption.token.flags.onGasTank}
           />
           <Text weight="medium" numberOfLines={1} style={spacings.mlMi} fontSize={isL ? 14 : 12}>
-            {token.symbol}
+            {feeOption.token.symbol}
           </Text>
         </View>
         <View

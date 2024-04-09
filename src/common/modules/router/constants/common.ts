@@ -26,7 +26,8 @@ const COMMON_ROUTES = {
   swap: 'swap',
   noConnection: 'no-connection',
   backup: 'backup',
-  accounts: 'accounts'
+  accounts: 'accounts',
+  dappCatalog: 'dapp-catalog'
 }
 
 const MOBILE_ROUTES = {
@@ -38,7 +39,6 @@ const MOBILE_ROUTES = {
   onboardingOnFirstLogin: 'onboarding-on-first-login',
   noConnection: 'no-connection',
   hardwareWallet: 'hardware-wallet',
-  dappsCatalog: 'dapps-catalog',
   web3Browser: 'web3-browser',
   enableOtp2FA: 'enable-otp-2fa',
   disableOtp2FA: 'disable-otp-2fa'

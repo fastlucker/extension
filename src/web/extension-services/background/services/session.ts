@@ -13,17 +13,22 @@ export class Session {
 
   name = ''
 
+  tabId: number | null = null
+
   messenger: Messenger | null = null
 
   sendMessage(event: any, data: any) {
     if (this.messenger) {
-      this.messenger.send('message', { event, data })
+      this.messenger.send('broadcast', { event, data }, { tabId: this.tabId })
     }
   }
 
-  constructor(data?: SessionProp | null) {
+  constructor(data?: SessionProp | null, tabId?: number) {
     if (data) {
       this.setProp(data)
+    }
+    if (tabId) {
+      this.tabId = tabId
     }
   }
 

@@ -7,8 +7,10 @@ import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
-import userNotification from '@web/extension-services/background/libs/user-notification'
+import { UserNotification } from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
+
+import { DappsController } from './dapps'
 
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
   'SendTransaction',
@@ -65,6 +67,8 @@ export interface NotificationRequest {
 export class NotificationController extends EventEmitter {
   #mainCtrl: MainController
 
+  #dappsCtrl: DappsController
+
   _notificationRequests: NotificationRequest[] = []
 
   notificationWindowId: null | number = null
@@ -79,9 +83,10 @@ export class NotificationController extends EventEmitter {
     this._notificationRequests = newValue
   }
 
-  constructor(mainCtrl: MainController) {
+  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
     super()
     this.#mainCtrl = mainCtrl
+    this.#dappsCtrl = dappsCtrl
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
@@ -352,6 +357,7 @@ export class NotificationController extends EventEmitter {
         }
       }
       if (isSignMessageMethod(data?.params?.method)) {
+        const userNotification = new UserNotification(this.#dappsCtrl)
         const request = userNotification.createSignMessageUserRequest({
           id,
           data: data?.params?.data,
@@ -369,6 +375,7 @@ export class NotificationController extends EventEmitter {
       }
 
       if (isSignTypedDataMethod(data?.params?.method)) {
+        const userNotification = new UserNotification(this.#dappsCtrl)
         const request = userNotification.createSignTypedDataUserRequest({
           id,
           data: data?.params?.data,
@@ -389,6 +396,7 @@ export class NotificationController extends EventEmitter {
         const txs = data?.params?.data
         let success = false
         Object.keys(txs).forEach((key) => {
+          const userNotification = new UserNotification(this.#dappsCtrl)
           const request = userNotification.createAccountOpUserRequest({
             id,
             txn: txs[key],

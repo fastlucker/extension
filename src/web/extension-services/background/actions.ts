@@ -18,6 +18,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
+import { Dapp } from './controllers/dapps'
 import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
@@ -219,6 +220,15 @@ type MainControllerUpdateSelectedAccount = {
     additionalHints?: TokenResult['address'][]
   }
 }
+
+type PortfolioControllerGetTemporaryToken = {
+  type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
+  params: {
+    additionalHint: TokenResult['address']
+    networkId: NetworkId
+  }
+}
+
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
@@ -346,9 +356,22 @@ type DomainsControllerSaveResolvedReverseLookupAction = {
 }
 
 type DappsControllerRemoveConnectedSiteAction = {
-  type: 'DAPPS_CONTROLLER_REMOVE_CONNECTED_SITE'
-  params: { origin: string }
+  type: 'DAPPS_CONTROLLER_DISCONNECT_DAPP'
+  params: Dapp['url']
 }
+type DappsControllerAddDappAction = {
+  type: 'DAPP_CONTROLLER_ADD_DAPP'
+  params: Dapp
+}
+type DappsControllerUpdateDappAction = {
+  type: 'DAPP_CONTROLLER_UPDATE_DAPP'
+  params: { url: string; dapp: Partial<Dapp> }
+}
+type DappsControllerRemoveDappAction = {
+  type: 'DAPP_CONTROLLER_REMOVE_DAPP'
+  params: Dapp['url']
+}
+
 type NotificationControllerReopenCurrentNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
 }
@@ -441,6 +464,7 @@ export type Action =
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction
@@ -459,6 +483,9 @@ export type Action =
   | DomainsControllerReverseLookupAction
   | DomainsControllerSaveResolvedReverseLookupAction
   | DappsControllerRemoveConnectedSiteAction
+  | DappsControllerAddDappAction
+  | DappsControllerUpdateDappAction
+  | DappsControllerRemoveDappAction
   | NotificationControllerReopenCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | AddressBookControllerAddContact
