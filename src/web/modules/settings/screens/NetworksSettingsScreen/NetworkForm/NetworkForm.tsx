@@ -100,10 +100,10 @@ const NetworkForm = ({
     () =>
       networkToAddOrUpdate?.info
         ? getFeatures(networkToAddOrUpdate?.info)
-        : errors.rpcUrl || errors.chainId
+        : errors.chainId
         ? getFeatures(undefined)
         : selectedNetwork?.features || getFeatures(undefined),
-    [errors.chainId, errors.rpcUrl, networkToAddOrUpdate?.info, selectedNetwork?.features]
+    [errors.chainId, networkToAddOrUpdate?.info, selectedNetwork?.features]
   )
 
   useEffect(() => {
@@ -212,6 +212,10 @@ const NetworkForm = ({
         clearErrors('name')
       }
 
+      if (name === 'nativeAssetSymbol') {
+        clearErrors('nativeAssetSymbol')
+      }
+
       if (name === 'chainId') {
         if (
           selectedNetworkId === 'add-custom-network' &&
@@ -250,6 +254,10 @@ const NetworkForm = ({
           return
         }
         clearErrors('explorerUrl')
+      }
+
+      if (name === 'rpcUrl') {
+        clearErrors('rpcUrl')
       }
     })
 
@@ -290,8 +298,7 @@ const NetworkForm = ({
         setError(k as any, { type: 'custom-error', message: 'Field is required' })
       })
 
-      console.log(emptyFields)
-
+      console.log(emptyFields, rpcUrls, selectedRpcUrl)
       if (emptyFields.length || !rpcUrls.length || !selectedRpcUrl) return
 
       if (selectedNetworkId === 'add-custom-network') {
@@ -299,6 +306,9 @@ const NetworkForm = ({
           type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
           params: {
             ...networkFormValues,
+            name: networkFormValues.name,
+            nativeAssetSymbol: networkFormValues.nativeAssetSymbol,
+            explorerUrl: networkFormValues.explorerUrl,
             rpcUrls,
             selectedRpcUrl,
             chainId: BigInt(networkFormValues.chainId)
@@ -322,24 +332,46 @@ const NetworkForm = ({
     })()
   }
 
+  const handleSelectRpcUrl = useCallback(
+    (url: string) => {
+      if (selectedRpcUrl !== url) {
+        setSelectedRpcUrl(url)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        const chainId = watch('chainId')
+        if (chainId) {
+          dispatch({
+            type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
+            params: { rpcUrl: url, chainId: BigInt(chainId) }
+          })
+        }
+      }
+    },
+    [selectedRpcUrl, dispatch, watch]
+  )
+
   const handleAddRpcUrl = useCallback(
     async (value: string) => {
       await validateRpcUrlAndRecalculateFeatures(value, watch('chainId'), 'add')
       if (!errors.rpcUrl) {
         setRpcUrls((p) => [value, ...p])
         if (!rpcUrls.length) {
-          setSelectedRpcUrl(value)
+          handleSelectRpcUrl(value)
         }
       }
     },
-    [rpcUrls.length, watch, errors.rpcUrl, validateRpcUrlAndRecalculateFeatures]
+    [rpcUrls.length, watch, errors.rpcUrl, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
   )
 
   return (
     <>
       <View style={styles.modalHeader}>
         {selectedNetworkId === 'add-custom-network' && (
-          <Text fontSize={20} weight="medium" numberOfLines={1}>
+          <Text
+            fontSize={20}
+            weight="medium"
+            numberOfLines={1}
+            style={[text.center, flexbox.flex1]}
+          >
             {t('Add custom network')}
           </Text>
         )}
@@ -365,7 +397,7 @@ const NetworkForm = ({
         <View style={[flexbox.directionRow, flexbox.flex1]}>
           <View style={flexbox.flex1}>
             <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <View style={[flexbox.directionRow, flexbox.alignStart]}>
                 <Controller
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -395,7 +427,7 @@ const NetworkForm = ({
                       containerStyle={{ ...spacings.mb, ...spacings.mlMi, flex: 1 }}
                       label={t('Currency Symbol')}
                       disabled={selectedNetworkId !== 'add-custom-network'}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.nativeAssetSymbol)}
                     />
                   )}
                   name="nativeAssetSymbol"
@@ -405,7 +437,7 @@ const NetworkForm = ({
               <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <View style={[flexbox.directionRow, flexbox.alignStart]}>
                     <Input
                       onBlur={onBlur}
                       onChangeText={onChange}
@@ -414,9 +446,9 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mb, ...spacings.mrTy, flex: 1 }}
                       label={t('RPC URL')}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.rpcUrl)}
                     />
-                    <View style={{ paddingTop: 25 }}>
+                    <View style={{ paddingTop: 27 }}>
                       <Button
                         text={
                           value.length && !errors.rpcUrl && isValidatingRPC
@@ -453,17 +485,7 @@ const NetworkForm = ({
                           rpcUrls.length <= 2 && { height: 40 },
                           hovered && { backgroundColor: theme.tertiaryBackground }
                         ]}
-                        onPress={() => {
-                          setSelectedRpcUrl(url)
-                          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                          const chainId = watch('chainId')
-                          if (chainId) {
-                            dispatch({
-                              type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE',
-                              params: { rpcUrl: url, chainId: BigInt(chainId) }
-                            })
-                          }
-                        }}
+                        onPress={() => handleSelectRpcUrl(url)}
                       >
                         {({ hovered }: any) => (
                           <>
@@ -503,7 +525,7 @@ const NetworkForm = ({
                   </View>
                 )}
               </ScrollableWrapper>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <View style={[flexbox.directionRow, flexbox.alignStart]}>
                 <Controller
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -516,7 +538,7 @@ const NetworkForm = ({
                       containerStyle={{ ...spacings.mrMi, flex: 1 }}
                       label={t('Chain ID')}
                       disabled={selectedNetworkId !== 'add-custom-network'}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.chainId)}
                     />
                   )}
                   name="chainId"
@@ -532,13 +554,13 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mlMi, flex: 2 }}
                       label={t('Block Explorer URL')}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.explorerUrl)}
                     />
                   )}
                   name="explorerUrl"
                 />
               </View>
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+              <View style={[flexbox.directionRow, flexbox.alignStart]}>
                 <Controller
                   control={control}
                   render={({ field: { onChange, onBlur, value } }) => (
@@ -551,7 +573,7 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mrMi, flex: 1 }}
                       label={t('Coingecko platform ID')}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.coingeckoPlatformId)}
                     />
                   )}
                   name="coingeckoPlatformId"
@@ -568,7 +590,7 @@ const NetworkForm = ({
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mlMi, flex: 1 }}
                       label={t('Coingecko native asset ID')}
-                      error={handleErrors(errors.name)}
+                      error={handleErrors(errors.coingeckoNativeAssetId)}
                     />
                   )}
                   name="coingeckoNativeAssetId"
