@@ -117,7 +117,7 @@ const NetworkForm = ({
   const { networks } = useSettingsControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
   const { styles } = useTheme(getStyles)
-  const { networkToAddOrUpdate } = useSettingsControllerState()
+  const { networkToAddOrUpdate, status, latestMethodCall } = useSettingsControllerState()
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
@@ -345,6 +345,21 @@ const NetworkForm = ({
     watch
   ])
 
+  useEffect(() => {
+    if (status === 'SUCCESS' && latestMethodCall === 'addCustomNetwork') {
+      addToast('Network successfully added!')
+      !!onSaved && onSaved()
+    }
+  }, [addToast, onSaved, latestMethodCall, status])
+
+  useEffect(() => {
+    console.log(status, latestMethodCall)
+    if (status === 'SUCCESS' && latestMethodCall === 'updateNetworkPreferences') {
+      addToast(`${selectedNetwork?.name} settings saved!`)
+      !!onSaved && onSaved()
+    }
+  }, [addToast, onSaved, latestMethodCall, selectedNetwork?.name, status])
+
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
     handleSubmit(async (formFields: any) => {
@@ -399,9 +414,7 @@ const NetworkForm = ({
             networkId: selectedNetworkId
           }
         })
-        addToast(`${selectedNetwork?.name} settings saved!`)
       }
-      !!onSaved && onSaved()
     })()
   }
 

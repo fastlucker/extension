@@ -118,6 +118,7 @@ const NetworkDetails = ({
           {!!showAllRpcUrls &&
             sortedRpcUrls.map((rpcUrl: string, i) => (
               <Text
+                key={rpcUrl}
                 fontSize={14}
                 appearance={i === 0 ? 'primaryText' : 'secondaryText'}
                 weight={i === 0 ? 'regular' : 'light'}
