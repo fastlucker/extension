@@ -3,7 +3,7 @@ import { JsonRpcProvider } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -35,19 +35,23 @@ type RpcSelectorItemType = {
   index: number
   url: string
   rpcUrlsLength: number
+  forceLargeItems?: boolean
   selectedRpcUrl?: string
   shouldShowRemove: boolean
+  style?: ViewStyle
   onPress: (url: string) => void
-  onRemove: (url: string) => void
+  onRemove?: (url: string) => void
 }
 
-const RpcSelectorItem = React.memo(
+export const RpcSelectorItem = React.memo(
   ({
     index,
     url,
     rpcUrlsLength,
+    forceLargeItems,
     selectedRpcUrl,
     shouldShowRemove,
+    style,
     onPress,
     onRemove
   }: RpcSelectorItemType) => {
@@ -61,10 +65,13 @@ const RpcSelectorItem = React.memo(
           style={[
             styles.selectRpcItem,
             index !== rpcUrlsLength - 1 && styles.selectRpcItemBorder,
-            rpcUrlsLength <= 2 && { height: 40 },
+            (rpcUrlsLength <= 2 || forceLargeItems) && { height: 40 },
+            style,
             hovered && { backgroundColor: theme.tertiaryBackground }
           ]}
-          onPress={() => onPress(url)}
+          onPress={() => {
+            if (url !== selectedRpcUrl) onPress(url)
+          }}
         >
           <View
             style={[
@@ -84,7 +91,7 @@ const RpcSelectorItem = React.memo(
             {url}
           </Text>
           {!!shouldShowRemove && !!hovered && (
-            <Pressable onPress={() => onRemove(url)}>
+            <Pressable onPress={() => !!onRemove && onRemove(url)}>
               {({ hovered: removeButtonHovered }: any) => (
                 <Text
                   fontSize={12}
@@ -353,7 +360,6 @@ const NetworkForm = ({
   }, [addToast, onSaved, latestMethodCall, status])
 
   useEffect(() => {
-    console.log(status, latestMethodCall)
     if (status === 'SUCCESS' && latestMethodCall === 'updateNetworkPreferences') {
       addToast(`${selectedNetwork?.name} settings saved!`)
       !!onSaved && onSaved()
