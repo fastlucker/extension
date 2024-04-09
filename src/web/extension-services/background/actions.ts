@@ -120,7 +120,7 @@ type MainControllerSettingsAddKeyPreferences = {
 type MainControllerUpdateNetworkPreferences = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
-    networkPreferences: NetworkPreference
+    networkPreferences: Partial<NetworkPreference>
     networkId: NetworkDescriptor['id']
   }
 }

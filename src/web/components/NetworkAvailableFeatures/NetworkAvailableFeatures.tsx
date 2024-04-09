@@ -154,7 +154,12 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
                 key={feature.id}
                 style={[flexbox.directionRow, i !== features.length - 1 && spacings.mb]}
               >
-                <View style={[spacings.mrTy, { marginTop: 3 }]}>
+                <View style={[spacings.mrTy, feature.level !== 'initial' && { marginTop: 3 }]}>
+                  {feature.level === 'initial' && (
+                    <Text fontSize={14} weight="semiBold" appearance="secondaryText">
+                      ?
+                    </Text>
+                  )}
                   {feature.level === 'loading' && <Spinner style={{ width: 14, height: 14 }} />}
                   {feature.level === 'success' && <CheckIcon width={14} height={14} />}
                   {feature.level === 'warning' && <WarningFilledIcon width={14} height={14} />}

@@ -85,9 +85,15 @@ const RpcSelectorItem = React.memo(
           </Text>
           {!!shouldShowRemove && !!hovered && (
             <Pressable onPress={() => onRemove(url)}>
-              <Text fontSize={12} underline color={theme.errorDecorative}>
-                {t('Remove')}
-              </Text>
+              {({ hovered: removeButtonHovered }: any) => (
+                <Text
+                  fontSize={12}
+                  underline
+                  color={removeButtonHovered ? theme.errorText : theme.errorDecorative}
+                >
+                  {t('Remove')}
+                </Text>
+              )}
             </Pressable>
           )}
         </Pressable>
@@ -342,22 +348,25 @@ const NetworkForm = ({
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
     handleSubmit(async (formFields: any) => {
-      const emptyFields: string[] = []
+      let emptyFields: string[] = []
 
       if (selectedNetworkId === 'add-custom-network') {
-        Object.keys(formFields).filter(
+        emptyFields = Object.keys(formFields).filter(
           (key) =>
             !['rpcUrl', 'rpcUrls', 'coingeckoPlatformId', 'coingeckoNativeAssetId'].includes(key) &&
             !formFields[key].length
         )
       } else {
-        Object.keys(formFields).filter(
+        emptyFields = Object.keys(formFields).filter(
           (key) => ['explorerUrl'].includes(key) && !formFields[key].length
         )
       }
 
       if (!rpcUrls.length)
-        setError('rpcUrl', { type: 'custom-error', message: 'Field is required' })
+        setError('rpcUrl', {
+          type: 'custom-error',
+          message: 'At least one RPC URL should be added'
+        })
 
       emptyFields.forEach((k) => {
         setError(k as any, { type: 'custom-error', message: 'Field is required' })
