@@ -279,4 +279,6 @@ export async function confirmTransaction(
   await new Promise((r) => setTimeout(r, 300))
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+
+  await recorder.stop()
 }
