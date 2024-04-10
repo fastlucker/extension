@@ -118,35 +118,35 @@ const AddToken = () => {
   const handleTokenType = async () => {
     await portfolio.checkToken({ address, networkId: network.id })
   }
-
   useEffect(() => {
     const handleEffect = async () => {
+      if (!address || !network) return
       if (address && !isValidAddress(address)) {
         setError('address', { message: t('Invalid address') })
+        return
+      }
+      // Check if token is already in portfolio
+      const isTokenInHints = await handleTokenIsInPortfolio(
+        tokenInPreferences,
+        portfolio.accountPortfolio,
+        network,
+        { address }
+      )
+      if (isTokenInHints) {
+        setIsLoading(false)
+        setShowAlreadyInPortfolioMessage(true)
+        return
       }
 
-      if (address && network && !tokenTypeEligibility && isValidAddress(address)) {
+      if (tokenTypeEligibility && !temporaryToken && !isAdditionalHintRequested) {
         setIsLoading(true)
-        await handleTokenType()
-      }
-
-      if (tokenTypeEligibility) {
-        setIsLoading(true)
-
-        // Check if token is already in portfolio
-        const isTokenInHints = await handleTokenIsInPortfolio(
-          tokenInPreferences,
-          portfolio.accountPortfolio,
-          network,
-          { address }
-        )
-        if (isTokenInHints) {
-          setIsLoading(false)
-          setShowAlreadyInPortfolioMessage(true)
-        } else if (!temporaryToken && !isAdditionalHintRequested) {
+        if (!temporaryToken && !isAdditionalHintRequested) {
           portfolio.getTemporaryTokens(network?.id, getAddress(address))
           setAdditionalHintRequested(true)
         }
+      } else if (!temporaryToken && tokenTypeEligibility === undefined) {
+        setIsLoading(true)
+        await handleTokenType()
       }
     }
 
@@ -189,6 +189,7 @@ const AddToken = () => {
             containerStyle={
               !isAdditionalHintRequested &&
               !temporaryToken &&
+              !showAlreadyInPortfolioMessage &&
               !isLoading &&
               tokenTypeEligibility === undefined
                 ? { marginBottom: SPACING_SM + SPACING_2XL }

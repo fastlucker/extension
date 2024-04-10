@@ -144,18 +144,19 @@ const WatchTokenRequestScreen = () => {
           await handleTokenType(tokenNetwork?.id)
         }
 
-        if (tokenTypeEligibility) {
-          // Check if token is already in portfolio
-          const isTokenInHints = await handleTokenIsInPortfolio(
-            tokenInPreferences,
-            portfolio.accountPortfolio,
-            tokenNetwork,
-            tokenData
-          )
-          if (isTokenInHints) {
-            setIsLoading(false)
-            setShowAlreadyInPortfolioMessage(true)
-          } else if (!temporaryToken && !isTemporaryTokenRequested) {
+        // Check if token is already in portfolio
+        const isTokenInHints = await handleTokenIsInPortfolio(
+          tokenInPreferences,
+          portfolio.accountPortfolio,
+          tokenNetwork,
+          tokenData
+        )
+        if (isTokenInHints) {
+          setIsLoading(false)
+          setShowAlreadyInPortfolioMessage(true)
+        }
+        if (tokenTypeEligibility && !isTokenInHints) {
+          if (!temporaryToken && !isTemporaryTokenRequested) {
             setTemporaryTokenRequested(true)
             portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))
           }
@@ -210,6 +211,7 @@ const WatchTokenRequestScreen = () => {
       </View>
     )
   }
+  console.log(isLoading, showAlreadyInPortfolioMessage, !tokenTypeEligibility)
 
   return (
     <TabLayoutContainer
@@ -238,7 +240,11 @@ const WatchTokenRequestScreen = () => {
             style={spacings.phLg}
             hasBottomSpacing={false}
             onPress={handleAddToken}
-            disabled={isLoading || showAlreadyInPortfolioMessage || !tokenTypeEligibility}
+            disabled={
+              isLoading ||
+              showAlreadyInPortfolioMessage ||
+              (!tokenTypeEligibility && !temporaryToken)
+            }
             text={t('Add token')}
           />
         </>
@@ -283,12 +289,16 @@ const WatchTokenRequestScreen = () => {
                 ...spacings.mb
               }}
             />
-            <TokenHeader temporaryToken={temporaryToken || portfolioToken} />
+            <TokenHeader
+              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
+              temporaryToken={temporaryToken || portfolioToken}
+            />
             <Token
               tokenData={tokenData}
               tokenNetwork={tokenNetwork}
               temporaryToken={temporaryToken || portfolioToken}
               isLoading={isLoading}
+              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
             />
           </>
         )}

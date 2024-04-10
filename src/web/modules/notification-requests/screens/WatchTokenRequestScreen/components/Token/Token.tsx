@@ -22,12 +22,14 @@ const Token = ({
   temporaryToken,
   tokenData,
   tokenNetwork,
-  isLoading
+  isLoading,
+  showAlreadyInPortfolioMessage
 }: {
   temporaryToken: TokenResult
   tokenData: TokenData | CustomToken | undefined
   tokenNetwork: NetworkDescriptor | undefined
   isLoading: boolean
+  showAlreadyInPortfolioMessage: boolean
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -120,7 +122,7 @@ const Token = ({
         <Alert type="warning" title={t('This token is not listed in Coingecko.')} />
       ) : null}
 
-      {!temporaryToken && !isLoading ?  (
+      {!temporaryToken && !isLoading && !showAlreadyInPortfolioMessage ? (
         <Alert type="warning" title={t('Cannot find token data.')} />
       ) : null}
     </>
