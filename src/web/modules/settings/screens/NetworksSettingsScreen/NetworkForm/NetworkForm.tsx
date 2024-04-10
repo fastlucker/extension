@@ -659,6 +659,7 @@ const NetworkForm = ({
                       onChangeText={onChange}
                       value={value as any}
                       disabled
+                      placeholder="Coming soon..."
                       inputWrapperStyle={{ height: 40 }}
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mrMi, flex: 1 }}
@@ -676,6 +677,7 @@ const NetworkForm = ({
                       onChangeText={onChange}
                       value={value}
                       disabled
+                      placeholder="Coming soon..."
                       inputWrapperStyle={{ height: 40 }}
                       inputStyle={{ height: 40 }}
                       containerStyle={{ ...spacings.mlMi, flex: 1 }}
