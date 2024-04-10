@@ -1,21 +1,27 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { Action, Banner as BannerType } from '@ambire-common/interfaces/banner'
 import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
+import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -36,7 +42,47 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
+  const { t } = useTranslation()
+  const { networks, status, latestMethodCall } = useSettingsControllerState()
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]
+
+  const withRpcUrlSelectBottomSheet = useMemo(
+    () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
+    [actions]
+  )
+  const network = useMemo(() => {
+    if (!withRpcUrlSelectBottomSheet) return undefined
+
+    return networks.find(
+      // @ts-ignore
+      (n) => n.id === actions.filter((a) => a.actionName === 'select-rpc-url')[0]?.meta?.network?.id
+    )
+  }, [actions, networks, withRpcUrlSelectBottomSheet])
+
+  useEffect(() => {
+    if (!withRpcUrlSelectBottomSheet) return
+
+    if (status === 'SUCCESS' && latestMethodCall === 'updateNetworkPreferences') {
+      addToast(`Successfully switched the RPC URL for ${network?.name}`)
+      setTimeout(() => {
+        closeBottomSheet()
+      }, 250)
+    }
+  }, [
+    withRpcUrlSelectBottomSheet,
+    status,
+    latestMethodCall,
+    addToast,
+    closeBottomSheet,
+    network?.name
+  ])
+
+  const handleOpenBottomSheet = useCallback(() => {
+    if (withRpcUrlSelectBottomSheet) {
+      openBottomSheet()
+    }
+  }, [openBottomSheet, withRpcUrlSelectBottomSheet])
 
   const handleActionPress = useCallback(
     (action: Action) => {
@@ -78,8 +124,30 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
       if (action.actionName === 'backup-keystore-secret') {
         navigate(ROUTES.devicePasswordRecovery)
       }
+
+      if (action.actionName === 'select-rpc-url') {
+        handleOpenBottomSheet()
+      }
     },
-    [dispatch, addToast, navigate, type]
+    [dispatch, addToast, navigate, handleOpenBottomSheet, type]
+  )
+
+  const handleSelectRpcUrl = useCallback(
+    (url: string) => {
+      const id = network?.id
+      if (id) {
+        dispatch({
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+          params: {
+            networkPreferences: {
+              selectedRpcUrl: url
+            },
+            networkId: id
+          }
+        })
+      }
+    },
+    [network?.id, dispatch]
   )
 
   return (
@@ -117,6 +185,29 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
           )
         })}
       </View>
+      {!!withRpcUrlSelectBottomSheet && (
+        <BottomSheet id="select-rpc-url" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
+          <Text fontSize={20} weight="semiBold" numberOfLines={1} style={spacings.mbLg}>
+            {t(`Select RPC URL for ${network?.name}`)}
+          </Text>
+          <View style={{ ...common.borderRadiusPrimary, ...common.hidden }}>
+            {network?.rpcUrls.map((url: string, i: number) => {
+              return (
+                <RpcSelectorItem
+                  index={i}
+                  url={url}
+                  style={{ backgroundColor: theme.primaryBackground }}
+                  rpcUrlsLength={network?.rpcUrls?.length}
+                  shouldShowRemove={false}
+                  selectedRpcUrl={network?.selectedRpcUrl}
+                  forceLargeItems
+                  onPress={() => handleSelectRpcUrl(url)}
+                />
+              )
+            })}
+          </View>
+        </BottomSheet>
+      )}
     </View>
   )
 }

@@ -113,9 +113,13 @@ const ThemeColors = {
     [THEME_TYPES.DARK]: colors.greenHaze,
     [THEME_TYPES.LIGHT]: '#FEEBEE'
   },
-  secondaryDecorative: {
+  featureDecorative: {
     [THEME_TYPES.DARK]: '#3851FF',
     [THEME_TYPES.LIGHT]: '#3851FF'
+  },
+  featureBackground: {
+    [THEME_TYPES.DARK]: '#ECF4FD',
+    [THEME_TYPES.LIGHT]: '#ECF4FD'
   }
 }
 

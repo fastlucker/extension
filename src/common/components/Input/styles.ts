@@ -91,8 +91,8 @@ const getStyles = (theme: ThemeProps) =>
     tooltipWrapper: {
       position: 'absolute',
       left: '100%',
-      zIndex: 10,
-      width: 350
+      zIndex: 10
+      // width: 350
     },
     tooltip: {
       ...spacings.mlTy,
