@@ -110,6 +110,7 @@ export const TabLayoutContainer = ({
 
 interface TabLayoutWrapperMainContentProps extends WrapperProps {
   children: React.ReactNode
+  withScroll?: boolean
   wrapperRef?: any
 }
 
@@ -117,18 +118,23 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
   children,
   wrapperRef,
   contentContainerStyle = {},
+  withScroll = true,
   ...rest
 }: TabLayoutWrapperMainContentProps) => {
   const { styles } = useTheme(getStyles)
 
-  return (
-    <ScrollableWrapper
-      contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
-      showsVerticalScrollIndicator={false}
-      wrapperRef={wrapperRef}
-      {...rest}
-    >
-      {children}
-    </ScrollableWrapper>
-  )
+  if (withScroll) {
+    return (
+      <ScrollableWrapper
+        contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
+        showsVerticalScrollIndicator={false}
+        wrapperRef={wrapperRef}
+        {...rest}
+      >
+        {children}
+      </ScrollableWrapper>
+    )
+  }
+
+  return <View style={[styles.contentContainer, contentContainerStyle]}>{children}</View>
 }

@@ -9,7 +9,7 @@ const rpcProviders: { [key in NetworkDescriptor['id']]: any } = {}
 const setProvider = (_id: NetworkDescriptor['id']) => {
   // eslint-disable-next-line no-underscore-dangle
   const network = networks.find(({ id }) => id === _id)
-  const url = network?.rpcUrl
+  const url = network?.rpcUrls[0]
   if (!network) return null
 
   if (url?.startsWith('wss:')) {

@@ -8,6 +8,7 @@ import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
@@ -70,11 +71,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
   useEffect(() => {
-    if (!network?.rpcUrl) return
+    if (!network?.rpcUrls) return
 
-    const newProvider = new JsonRpcProvider(network.rpcUrl)
-
-    setProvider(newProvider)
+    setProvider(getRpcProvider(network.rpcUrls, network.chainId))
 
     return () => {
       setProvider((prev) => {
@@ -83,7 +82,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         return null
       })
     }
-  }, [network?.rpcUrl])
+  }, [network?.rpcUrls, network?.chainId])
 
   const stepsState = useSteps({
     txnId,

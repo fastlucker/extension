@@ -49,7 +49,7 @@ const AccountsOnPageList = ({
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(!!subType)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -117,20 +117,20 @@ const AccountsOnPageList = ({
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
     }) => {
-      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
-      return filteredAccounts.map((acc, i: number) => {
-        let hasBottomSpacing = true
-        if (shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1) {
-          hasBottomSpacing = false
-        }
+      const filteredAccounts = accounts.filter(
+        (a) =>
+          byType.includes(getType(a)) &&
+          !(hideEmptyAccounts && getType(a) === 'basic' && !a.account.usedOnNetworks.length)
+      )
 
+      return filteredAccounts.map((acc, i: number) => {
+        const hasBottomSpacing = !!(
+          shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1
+        )
+        const isUnused = !acc.account.usedOnNetworks.length
         const isSelected = state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.account.addr === acc.account.addr
         )
-
-        if (hideEmptyAccounts && getType(acc) === 'basic' && !acc.account.usedOnNetworks.length) {
-          return null
-        }
 
         return (
           <Account
@@ -139,7 +139,7 @@ const AccountsOnPageList = ({
             type={getType(acc)}
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
-            unused={!acc.account.usedOnNetworks.length}
+            unused={isUnused}
             isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
             isDisabled={acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
             importStatus={acc.importStatus}
@@ -176,11 +176,6 @@ const AccountsOnPageList = ({
   const isAccountAdderEmpty = useMemo(
     () => !state.accountsLoading && state.accountsOnPage.length === 0,
     [state.accountsLoading, state.accountsOnPage]
-  )
-
-  const shouldDisplayHideEmptyAccountsToggle = useMemo(
-    () => subType !== 'private-key' && !isAccountAdderEmpty,
-    [subType, isAccountAdderEmpty]
   )
 
   // Prevents the user from temporarily seeing (flashing) empty (error) states
@@ -283,7 +278,7 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {shouldDisplayHideEmptyAccountsToggle && (
+        {!isAccountAdderEmpty && (
           <View style={[spacings.mbLg, flexbox.alignStart]}>
             <Toggle
               isOn={hideEmptyAccounts}

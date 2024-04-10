@@ -211,7 +211,6 @@ const WatchTokenRequestScreen = () => {
       </View>
     )
   }
-  console.log(isLoading, showAlreadyInPortfolioMessage, !tokenTypeEligibility)
 
   return (
     <TabLayoutContainer

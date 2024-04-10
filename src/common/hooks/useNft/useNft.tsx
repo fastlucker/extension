@@ -1,7 +1,9 @@
 import { Contract } from 'ethers'
 import { useEffect, useState } from 'react'
 
-import { getProvider } from '@ambire-common/services/provider'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { CustomNetwork, NetworkPreference } from '@ambire-common/interfaces/settings'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import ERC721ABI from '@contracts/compiled/IERC721.json'
 
 import fetchCollectible from './helpers/fetchCollectible'
@@ -11,7 +13,7 @@ import { CollectibleData } from './types'
 
 interface Props {
   address: string
-  networkId: string
+  network: NetworkDescriptor & (NetworkPreference | CustomNetwork)
   id: bigint
 }
 
@@ -26,12 +28,12 @@ interface MaybeUri {
   err?: string
 }
 
-const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
+const useNft = ({ address, network, id }: Props): ReturnInterface => {
   const [error, setError] = useState(false)
   const [data, setData] = useState<CollectibleData | null>(null)
 
   useEffect(() => {
-    const provider = getProvider(networkId)
+    const provider = getRpcProvider(network.rpcUrls, network.chainId)
     const contract = new Contract(address, ERC721ABI.abi, provider)
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -77,7 +79,11 @@ const useNft = ({ address, networkId, id }: Props): ReturnInterface => {
         setData(null)
         setError(true)
       })
-  }, [address, id, networkId])
+    provider?.destroy()
+    return () => {
+      provider?.destroy()
+    }
+  }, [address, id, network])
 
   return { data, error, isLoading: !data && !error }
 }

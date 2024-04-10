@@ -6,9 +6,15 @@ import { iconColors } from '@common/styles/themeConfig'
 interface Props extends SvgProps {
   width?: number
   height?: number
+  strokeWidth?: string
 }
 
-const UpArrowIcon: React.FC<Props> = ({ width = 15, height = 9, color = iconColors.primary }) => (
+const UpArrowIcon: React.FC<Props> = ({
+  width = 15,
+  height = 9,
+  strokeWidth = '1.5',
+  color = iconColors.primary
+}) => (
   <Svg width={width} height={height} viewBox="0 0 14.879 8.466">
     <Path
       d="M-5813.015-21729.285l-6.348,6.373,6.348,6.385"
@@ -16,7 +22,7 @@ const UpArrowIcon: React.FC<Props> = ({ width = 15, height = 9, color = iconColo
       fill="none"
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
     />
   </Svg>
 )

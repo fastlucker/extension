@@ -139,13 +139,14 @@ const NetworksSettingsScreen = () => {
           ]}
         >
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={spacings.mbXl}>
+            <View style={spacings.mb}>
               <NetworkDetails
                 name={selectedNetwork?.name || '-'}
                 chainId={
                   selectedNetwork?.chainId ? Number(selectedNetwork.chainId).toString() : '-'
                 }
-                rpcUrl={selectedNetwork?.rpcUrl || '-'}
+                rpcUrls={selectedNetwork?.rpcUrls || ['-']}
+                selectedRpcUrl={selectedNetwork?.selectedRpcUrl || '-'}
                 nativeAssetSymbol={selectedNetwork?.nativeAssetSymbol || '-'}
                 explorerUrl={selectedNetwork?.explorerUrl || '-'}
                 handleRemoveNetwork={onRemoveCustomNetwork}
@@ -164,10 +165,15 @@ const NetworksSettingsScreen = () => {
         id="add-new-network"
         sheetRef={sheetRef}
         closeBottomSheet={closeBottomSheet}
+        scrollViewProps={{
+          scrollEnabled: false,
+          contentContainerStyle: { flex: 1 }
+        }}
+        containerInnerWrapperStyles={{ flex: 1 }}
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
       >
-        <NetworkForm onSaved={closeBottomSheet} />
+        <NetworkForm onCancel={closeBottomSheet} onSaved={closeBottomSheet} />
       </BottomSheet>
     </>
   )
