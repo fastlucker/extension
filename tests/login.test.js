@@ -12,7 +12,7 @@ describe('login', () => {
   let page
   let extensionRootUrl
   let extensionId
-  let recorder
+  // let recorder
 
   beforeEach(async () => {
     const context = await bootstrap()
@@ -22,8 +22,8 @@ describe('login', () => {
 
     page = await browser.newPage()
 
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/login_${Date.now()}.mp4`)
+    // recorder = new PuppeteerScreenRecorder(page)
+    // await recorder.start(`./recorder/login_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
@@ -35,7 +35,7 @@ describe('login', () => {
   })
 
   afterEach(async () => {
-    await recorder.stop()
+    // await recorder.stop()
     await browser.close()
   })
 

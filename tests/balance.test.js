@@ -3,19 +3,21 @@ import { bootstrapWithStorage, clickOnElement } from './functions.js'
 describe('balance', () => {
   let browser
   let page
-  let recorder
+  // let recorder
 
   beforeAll(async () => {})
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('balance')
+    const context = await bootstrapWithStorage()
+    // const context = await bootstrapWithStorage('balance')
+
     browser = context.browser
     page = context.page
-    recorder = context.recorder
+    // recorder = context.recorder
   })
 
   afterEach(async () => {
-    await recorder.stop()
+    // await recorder.stop()
     await browser.close()
   })
 
