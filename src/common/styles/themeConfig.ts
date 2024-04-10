@@ -127,7 +127,8 @@ export const iconColors = {
   warning: '#CA7E04',
   primary: '#54597A',
   secondary: colors.martinique,
-  danger: '#EA0129'
+  danger: '#EA0129',
+  favorite: '#ffbc00'
 }
 
 export const lightOnlyRoutesOnMobile = []

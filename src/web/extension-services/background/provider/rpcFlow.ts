@@ -7,14 +7,8 @@ import { ethErrors } from 'eth-rpc-errors'
 import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import { ProviderRequest } from '@web/extension-services/background/provider/types'
-import permissionService from '@web/extension-services/background/services/permission'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
-
-const isSignRequest = (type: string) => {
-  const SIGN_REQUESTS = ['SignText', 'SignTypedData', 'SendTransaction']
-  return SIGN_REQUESTS.includes(type)
-}
 
 const lockedOrigins = new Set<string>()
 const connectOrigins = new Set<string>()
@@ -62,7 +56,7 @@ const flowContext = flow
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
 
-      if (!isUnlock && permissionService.hasPermission(origin)) {
+      if (!isUnlock && dappsCtrl.hasPermission(origin)) {
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
@@ -98,7 +92,7 @@ const flowContext = flow
     } = ctx
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
-      if (!permissionService.hasPermission(origin)) {
+      if (!dappsCtrl.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
         }
@@ -110,7 +104,15 @@ const flowContext = flow
             screen: 'DappConnectRequest'
           })
           connectOrigins.delete(origin)
-          permissionService.addConnectedSite(origin, name, icon, 1)
+          dappsCtrl.addDapp({
+            name,
+            url: origin,
+            icon,
+            description: 'Custom dApp automatically added when connected for the first time.',
+            favorite: false,
+            chainId: 1,
+            isConnected: true
+          })
         } catch (e) {
           connectOrigins.delete(origin)
           throw e
@@ -147,11 +149,6 @@ const flowContext = flow
         },
         origin
       })
-      if (isSignRequest(requestType)) {
-        permissionService.updateConnectSite(origin, { isSigned: true }, true)
-      } else {
-        permissionService.touchConnectedSite(origin)
-      }
     }
 
     return next()

@@ -2,17 +2,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-param-reassign */
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { JsonRpcProvider, Network, toBeHex, WebSocketProvider } from 'ethers'
 import { EventEmitter } from 'events'
-import forIn from 'lodash/forIn'
-import isUndefined from 'lodash/isUndefined'
 import { nanoid } from 'nanoid'
 
-import networks, { NetworkId } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
-import { DAPP_PROVIDER_URLS } from '@web/extension-services/inpage/config/dapp-providers'
 import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
@@ -35,6 +30,54 @@ const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
   isEIP6963,
   defaultWallet: _defaultWallet
 })
+
+let forwardRpcRequestId = 0
+const foundDappRpcUrls: string[] = []
+const configuredDappRpcUrls: string[] = []
+
+;(function () {
+  const originalFetch = window.fetch.bind(window)
+  window.fetch = async function (...args) {
+    const [resource, config] = args
+    if (config && config?.body) {
+      const { body } = config
+      // if the dapp uses ethers the body of the requests to the RPC will be Uint8Array
+      if (body instanceof Uint8Array) {
+        if (!foundDappRpcUrls.includes(resource as string))
+          foundDappRpcUrls.push(resource as string) // store potential RPC URL
+      } else {
+        try {
+          const bodyObj: any = JSON.parse(body as any)
+          if (bodyObj.jsonrpc) {
+            if (!foundDappRpcUrls.includes(resource as string))
+              foundDappRpcUrls.push(resource as string) // store the potential RPC URL
+          }
+        } catch (error) {
+          // silent fail
+        }
+      }
+    }
+
+    return originalFetch(resource as string, config)
+  }
+})()
+
+async function forwardRpcRequests(url: string, method: any, params: any) {
+  forwardRpcRequestId++
+  const id = forwardRpcRequestId
+  const data = JSON.stringify({ jsonrpc: '2.0', method, params, id })
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: data
+  })
+
+  if (!response.ok) throw new Error(`RPC call failed with status ${response.status}`)
+
+  const responseJson = await response.json()
+  return responseJson.result
+}
 
 Object.defineProperty(window, 'defaultWallet', {
   configurable: false,
@@ -173,8 +216,8 @@ export class EthereumProvider extends EventEmitter {
    */
   networkVersion: string | null = null
 
-  dAppOwnProviders: {
-    [key in NetworkId]?: JsonRpcProvider | WebSocketProvider | null
+  dappProviderUrls: {
+    [key: string]: string
   } = {}
 
   isAmbire = true
@@ -230,7 +273,7 @@ export class EthereumProvider extends EventEmitter {
     this.initialize()
     this.shimLegacy()
     this._pushEventHandlers = new PushEventHandlers(this)
-    this.backgroundMessenger.reply('message', this._handleBackgroundMessage)
+    this.backgroundMessenger.reply('broadcast', this._handleBackgroundMessage)
   }
 
   initialize = async () => {
@@ -280,44 +323,6 @@ export class EthereumProvider extends EventEmitter {
       })
 
       this._pushEventHandlers.accountsChanged(accounts)
-
-      // eslint-disable-next-line no-restricted-globals
-      const { hostname } = location
-      if (DAPP_PROVIDER_URLS[hostname]) {
-        // eslint-disable-next-line no-restricted-syntax
-        forIn(DAPP_PROVIDER_URLS[hostname], async (providerUrl, networkId) => {
-          const network = networks.find((n) => n.id === networkId)
-          if (!network || !providerUrl) return
-
-          try {
-            this.dAppOwnProviders[network.id] = providerUrl.startsWith('wss:')
-              ? new WebSocketProvider(providerUrl, {
-                  name: network.name,
-                  chainId: network.chainId
-                })
-              : new JsonRpcProvider(providerUrl, {
-                  name: network.name,
-                  chainId: network.chainId
-                })
-
-            // Acts as a mechanism to check if the provider credentials work
-            const networkResponse = await Promise.race([
-              this.dAppOwnProviders[network.id]?.getNetwork(),
-              // Timeouts after 3 secs because sometimes the provider call hangs with no response
-              delayPromise(3000)
-            ])
-            if (!(networkResponse instanceof Network))
-              throw new Error("Failed to retrieve the network via dapp's own provider.")
-            logInfoWithPrefix(`👌 The dApp's own provider initiated for ${network.name} network.`)
-          } catch (e) {
-            this.dAppOwnProviders[network.id] = null
-            logWarnWithPrefix(
-              `The dApp's own provider for ${network.name} network failed to init.`,
-              e
-            )
-          }
-        })
-      }
     } catch {
       //
     } finally {
@@ -390,36 +395,58 @@ export class EthereumProvider extends EventEmitter {
 
     this._requestPromiseCheckVisibility()
 
+    // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
+    ;(async () => {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const url of foundDappRpcUrls.filter((u) => !u.startsWith('wss'))) {
+        if (
+          !Object.values(this.dappProviderUrls).find((u) => u === url) &&
+          !configuredDappRpcUrls.includes(url)
+        ) {
+          try {
+            // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
+            // eslint-disable-next-line no-await-in-loop
+            const chainId = await forwardRpcRequests(url, 'eth_chainId', [])
+            if (chainId) this.dappProviderUrls[chainId] = url
+          } catch (error) {
+            // silent fail
+          }
+          configuredDappRpcUrls.push(url)
+        }
+      }
+    })()
+
     return this._requestPromise.call(async () => {
       if (
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const network = networks.find((n) => toBeHex(n.chainId) === this.chainId)
-        if (network?.id && this.dAppOwnProviders[network.id]) {
+        const numberOfDappProviders = Object.keys(this.dappProviderUrls).length
+        if (numberOfDappProviders) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
           }
 
-          try {
-            const result = await Promise.race([
-              this.dAppOwnProviders[network.id]?.send(data.method, data.params),
-              // Timeouts after 3 secs because sometimes the provider call hangs with no response
-              delayPromise(3000)
-            ])
+          const providerUrl =
+            this.dappProviderUrls[this.chainId as string] || Object.values(this.dappProviderUrls)[0]
+          if (providerUrl)
+            try {
+              const result = await Promise.race([
+                forwardRpcRequests(providerUrl, data.method, data.params),
+                // Timeouts after 3 secs because sometimes the provider call hangs with no response
+                delayPromise(3000)
+              ])
 
-            if (data.method !== 'eth_call') {
-              logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
-            }
+              if (data.method !== 'eth_call')
+                logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
 
-            // Otherwise, if no result comes, do not return, fallback to our provider.
-            if (!isUndefined(result)) return result
-          } catch (err) {
-            //  Do not throw on error because there is fallback to our provider.
-            if (data.method !== 'eth_call') {
-              logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+              // Otherwise, if no result comes, do not return, fallback to our provider.
+              if (result) return result
+            } catch (err) {
+              // We disregard any errors here since we'll handle the request with our provider regardless of the error
+              if (data.method !== 'eth_call')
+                logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
             }
-          }
         }
       }
 

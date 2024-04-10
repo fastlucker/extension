@@ -6,9 +6,15 @@ import { iconColors } from '@common/styles/themeConfig'
 interface Props extends SvgProps {
   width?: number
   height?: number
+  strokeWidth?: string
 }
 
-const CloseIcon: React.FC<Props> = ({ width = 14, height = 14, color = iconColors.primary }) => (
+const CloseIcon: React.FC<Props> = ({
+  width = 14,
+  height = 14,
+  strokeWidth = '1.5',
+  color = iconColors.primary
+}) => (
   <Svg width={width} height={height} viewBox="0 0 14.121 14.121">
     <G transform="translate(-70.81 -462.818)">
       <Line
@@ -18,7 +24,7 @@ const CloseIcon: React.FC<Props> = ({ width = 14, height = 14, color = iconColor
         fill="none"
         stroke={color}
         strokeLinecap="round"
-        strokeWidth="1.5"
+        strokeWidth={strokeWidth}
       />
       <Line
         x1="12"
@@ -27,7 +33,7 @@ const CloseIcon: React.FC<Props> = ({ width = 14, height = 14, color = iconColor
         fill="none"
         stroke={color}
         strokeLinecap="round"
-        strokeWidth="1.5"
+        strokeWidth={strokeWidth}
       />
     </G>
   </Svg>

@@ -221,6 +221,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
       style={[spacings.ph0, commonWebStyles.contentContainer, !allBanners.length && spacings.mtTy]}
       contentContainerStyle={[
         isPopup && spacings.phSm,
+        isPopup && spacings.prTy,
         allBanners.length ? spacings.ptTy : spacings.pt0,
         { flexGrow: 1 }
       ]}
