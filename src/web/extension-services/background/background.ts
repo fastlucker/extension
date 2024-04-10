@@ -801,6 +801,16 @@ async function init() {
                   params?.additionalHints
                 )
               }
+
+              case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
+                if (!mainCtrl.selectedAccount) return
+
+                return await mainCtrl.portfolio.getTemporaryTokens(
+                  mainCtrl.selectedAccount,
+                  params.networkId,
+                  params.additionalHint
+                )
+              }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
                 let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
                 const tokenIsNotInPreferences =

@@ -19,12 +19,12 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen'
 
 const Token = ({
-  portfolioFoundToken,
+  temporaryToken,
   tokenData,
   tokenNetwork,
   isLoading
 }: {
-  portfolioFoundToken: TokenResult
+  temporaryToken: TokenResult
   tokenData: TokenData | CustomToken | undefined
   tokenNetwork: NetworkDescriptor | undefined
   isLoading: boolean
@@ -34,10 +34,10 @@ const Token = ({
   const { networks } = useSettingsControllerState()
   const tokenDetails = useMemo(
     () =>
-      portfolioFoundToken &&
-      portfolioFoundToken?.flags &&
-      getTokenDetails(portfolioFoundToken as TokenResult, networks),
-    [portfolioFoundToken, networks]
+      temporaryToken &&
+      temporaryToken?.flags &&
+      getTokenDetails(temporaryToken as TokenResult, networks),
+    [temporaryToken, networks]
   )
 
   if (!tokenNetwork?.id) return null
@@ -51,7 +51,7 @@ const Token = ({
           spacings.phTy,
           spacings.pvTy,
           spacings.mbTy,
-          !portfolioFoundToken || !portfolioFoundToken?.priceIn?.length
+          !temporaryToken || !temporaryToken?.priceIn?.length
             ? {
                 borderWidth: 1,
                 borderColor: theme.warningDecorative,
@@ -98,16 +98,14 @@ const Token = ({
           </Text>
         </View>
 
-        <View
-          style={[flexbox.alignEnd, { flex: portfolioFoundToken?.priceIn?.length ? 0.7 : 0.12 }]}
-        >
+        <View style={[flexbox.alignEnd, { flex: temporaryToken?.priceIn?.length ? 0.7 : 0.12 }]}>
           <View style={[flexbox.directionRow, flexbox.alignEnd]}>
             <Text weight="number_bold" fontSize={16} style={flexbox.justifyEnd}>
               {tokenDetails?.balanceUSDFormatted || '-'}
             </Text>
           </View>
         </View>
-        {portfolioFoundToken?.priceIn?.length ? (
+        {temporaryToken?.priceIn?.length ? (
           <View style={[flexbox.alignEnd, { flex: 0.5 }]}>
             <CoingeckoConfirmedBadge
               text={t('Confirmed')}
@@ -118,8 +116,12 @@ const Token = ({
         ) : null}
       </View>
 
-      {!portfolioFoundToken?.priceIn?.length && !isLoading ? (
+      {temporaryToken && !temporaryToken?.priceIn?.length && !isLoading ? (
         <Alert type="warning" title={t('This token is not listed in Coingecko.')} />
+      ) : null}
+
+      {!temporaryToken && !isLoading ?  (
+        <Alert type="warning" title={t('Cannot find token data.')} />
       ) : null}
     </>
   )

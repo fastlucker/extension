@@ -22,7 +22,6 @@ const Collections: FC<Props> = ({ searchValue, ...rest }) => {
   const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
 
   const closeCollectibleModal = useCallback(() => {
-    setSelectedCollectible(null)
     closeModal()
   }, [closeModal])
 

@@ -226,8 +226,8 @@ const HideToken = () => {
                     disabled={isLoading[`${token.address}-${token.networkId}`]}
                     onPress={() => hideToken(token)}
                   >
-                    <VisibilityIcon
-                      color={theme.successDecorative}
+                    <InvisibilityIcon
+                      color={theme.errorDecorative}
                       style={[spacings.phTy, { cursor: 'pointer' }]}
                     />
                   </Pressable>
@@ -236,8 +236,8 @@ const HideToken = () => {
                     disabled={isLoading[`${token.address}-${token.networkId}`]}
                     onPress={() => hideToken(token)}
                   >
-                    <InvisibilityIcon
-                      color={theme.errorDecorative}
+                    <VisibilityIcon
+                      color={theme.successDecorative}
                       style={[spacings.phTy, { cursor: 'pointer' }]}
                     />
                   </Pressable>
