@@ -63,7 +63,8 @@ describe('transactions', () => {
       page,
       extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]'
+      '[data-testid="transfer-button-send"]',
+      'new-window'
     )
   })
 

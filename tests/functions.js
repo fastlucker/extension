@@ -253,6 +253,7 @@ export async function confirmTransaction(
   const recorder = new PuppeteerScreenRecorder(newPage)
 
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
@@ -281,4 +282,5 @@ export async function confirmTransaction(
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 
   await recorder.stop()
+  return { recorder }
 }
