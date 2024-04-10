@@ -64,7 +64,7 @@ describe('transactions', () => {
       extensionRootUrl,
       browser,
       '[data-testid="transfer-button-send"]',
-      'new-window'
+      'newWindow1'
     )
   })
 
@@ -242,6 +242,6 @@ describe('transactions', () => {
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn, 'newWindow2')
   })
 })
