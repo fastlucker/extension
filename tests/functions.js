@@ -92,7 +92,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function bootstrapWithStorage(namespace) {
+export async function bootstrapWithStorage() {
   /* Initialize browser and page using bootstrap */
   const context = await bootstrap()
   const browser = context.browser
