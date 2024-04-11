@@ -18,7 +18,7 @@ describe('transactions', () => {
   })
 
   afterEach(async () => {
-    await recorder.stop()
+    // await recorder.stop()
     await browser.close()
   })
 
