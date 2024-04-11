@@ -49,7 +49,7 @@ const DashboardScreen = () => {
       }),
       Animated.timing(paddingTop, {
         toValue: isOverviewShown ? SPACING_XL : 0,
-        duration: DURATIONS.FAST,
+        duration: DURATIONS.REGULAR, // Slower on purpose
         useNativeDriver: !isWeb
       }),
       Animated.timing(paddingBottom, {

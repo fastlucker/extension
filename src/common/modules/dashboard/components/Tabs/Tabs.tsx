@@ -5,54 +5,72 @@ import useTheme from '@common/hooks/useTheme'
 
 import getStyles from './styles'
 import Tab from './Tab'
+import { TabType } from './Tab/Tab'
 
 interface Props {
-  openTab: 'tokens' | 'collectibles' | 'defi'
-  setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
+  openTab: TabType
+  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   handleChangeQuery: (openTab: string) => void
 }
+
+const TABS: {
+  tab: TabType
+  tabLabel: string
+  disabled?: boolean
+}[] = [
+  {
+    tab: 'tokens',
+    tabLabel: 'Tokens'
+  },
+  {
+    tab: 'collectibles',
+    tabLabel: 'NFT'
+  },
+  {
+    tab: 'defi',
+    tabLabel: 'DeFi',
+    disabled: true
+  },
+  {
+    tab: 'activity',
+    tabLabel: 'Activity',
+    disabled: true
+  }
+]
 
 const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
   const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={styles.container}>
-      <Tab
-        openTab={openTab}
-        tab="tokens"
-        tabLabel="Tokens"
-        setOpenTab={setOpenTab}
-        handleChangeQuery={handleChangeQuery}
-      />
-      <View
-        style={{
-          width: 1,
-          height: 24,
-          backgroundColor: openTab === 'defi' ? theme.secondaryBorder : 'transparent'
-        }}
-      />
-      <Tab
-        openTab={openTab}
-        tab="collectibles"
-        tabLabel="NFTs"
-        setOpenTab={setOpenTab}
-        handleChangeQuery={handleChangeQuery}
-      />
-      <View
-        style={{
-          width: 1,
-          height: 24,
-          backgroundColor: openTab === 'tokens' ? theme.secondaryBorder : 'transparent'
-        }}
-      />
-      <Tab
-        disabled
-        openTab={openTab}
-        tab="defi"
-        tabLabel="DeFi positions"
-        setOpenTab={setOpenTab}
-        handleChangeQuery={handleChangeQuery}
-      />
+      {TABS.map(({ tab, tabLabel, disabled }, tabIndex) => {
+        const openTabIndex = TABS.findIndex((t) => t.tab === openTab)
+        const indexDiff = tabIndex - openTabIndex
+
+        return (
+          <>
+            <Tab
+              key={tab}
+              openTab={openTab}
+              tab={tab}
+              tabLabel={tabLabel}
+              setOpenTab={setOpenTab}
+              handleChangeQuery={handleChangeQuery}
+              disabled={disabled}
+            />
+            {tabIndex !== TABS.length - 1 && (
+              <View
+                style={{
+                  borderRightWidth: 1,
+                  height: 24,
+                  borderRightColor:
+                    indexDiff >= 1 || indexDiff < -1 ? theme.secondaryBorder : 'transparent'
+                }}
+              />
+            )}
+          </>
+        )
+      })}
     </View>
   )
 }
