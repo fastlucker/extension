@@ -63,11 +63,17 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       })
       .map((feeOption) => {
         const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
+
+        const aId = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
+        const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
+        const aCanCoverFee = aSlow && feeOption.availableAmount > aSlow.amount
+
         return {
           value: feeOption.paidBy + feeOption.token.address + gasTankKey,
           label: <PayOption feeOption={feeOption} />,
           paidBy: feeOption.paidBy,
-          token: feeOption.token
+          token: feeOption.token,
+          isDisabled: !aCanCoverFee
         }
       })
   }, [
@@ -103,7 +109,13 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       signAccountOpState.selectedOption,
       signAccountOpState.accountOp.accountAddr
     )
-    return signAccountOpState.feeSpeeds[identifier]
+    return signAccountOpState.feeSpeeds[identifier].map((speed) => {
+      const localSpeed: any = { ...speed }
+      localSpeed.disabled =
+        signAccountOpState.selectedOption &&
+        signAccountOpState.selectedOption.availableAmount < localSpeed.amount
+      return localSpeed
+    })
   }, [
     signAccountOpState.feeSpeeds,
     signAccountOpState.selectedOption,
@@ -154,7 +166,7 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
           >
             {feeSpeeds.map((fee, i) => (
               <Fee
-                disabled={disabled}
+                disabled={disabled || fee.disabled}
                 isLastItem={i === feeSpeeds.length - 1}
                 key={fee.amount + fee.type}
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
