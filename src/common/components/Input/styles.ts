@@ -30,7 +30,8 @@ export const INPUT_WRAPPER_HEIGHT = INPUT_HEIGHT + 2 // 1px border top and botto
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     inputContainer: {
-      ...spacings.mbSm
+      ...spacings.mbSm,
+      zIndex: 10
     },
     borderWrapper: {
       borderWidth: 2,
