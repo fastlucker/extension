@@ -18,8 +18,9 @@ import TransactionHistoryIcon from '@common/assets/svg/TransactionHistoryIcon'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import { ROUTES } from '@common/modules/router/constants/common'
+import { ROUTES, WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
@@ -112,7 +113,9 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
   const keystoreState = useKeystoreControllerState()
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const { state } = useRoute()
   const { navigate } = useNavigation()
+  const isTransferPreviousPage = state?.prevRoute?.pathname?.includes(ROUTES.transfer)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -125,12 +128,19 @@ const Sidebar = ({ activeLink }: { activeLink?: string }) => {
     <View style={{ ...spacings.pbLg, position: 'relative', height: '100%' }}>
       <AnimatedPressable
         style={[styles.backToDashboardButton, animStyle]}
-        onPress={() => navigate(ROUTES.dashboard)}
+        onPress={() => {
+          if (isTransferPreviousPage) {
+            navigate(ROUTES.transfer)
+            return
+          }
+
+          navigate(WEB_ROUTES.dashboard)
+        }}
         {...bindAnim}
       >
         <LeftArrowIcon color={theme.secondaryText} />
         <Text fontSize={16} weight="medium" appearance="secondaryText" style={spacings.mlLg}>
-          {t('Dashboard')}
+          {isTransferPreviousPage ? t('Send') : t('Dashboard')}
         </Text>
       </AnimatedPressable>
       <Text style={[spacings.ml, spacings.mbMd]} fontSize={20} weight="medium">

@@ -23,8 +23,6 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
-import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
-import { rpcProviders } from '@common/services/providers'
 import { RELAYER_URL, ENVIRONMENT } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -59,13 +57,6 @@ function saveTimestamp() {
 }
 
 async function init() {
-  // Initialize rpc providers for all networks
-  // @TODO: get rid of this and use the rpc providers from the settings controller
-  const shouldInitProviders = !areRpcProvidersInitialized()
-  if (shouldInitProviders) {
-    initRpcProviders(rpcProviders)
-  }
-
   const humanizerMetaInStorage: HumanizerMeta = await storage.get(HUMANIZER_META_KEY, {})
   if (
     Object.keys(humanizerMetaInStorage).length === 0 ||
@@ -249,7 +240,7 @@ async function init() {
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
 
-    // Debounce multiple emits in the same tick and only execute one if them
+    // Debounce multiple emits in the same tick and only execute one of them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
         pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
@@ -795,6 +786,8 @@ async function init() {
                 return mainCtrl.transfer.resetForm()
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
+              case 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN':
+                return mainCtrl.transfer.checkIsRecipientAddressUnknown()
               case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
                 notificationCtrl.resolveNotificationRequest(params.data, params.id)
                 break

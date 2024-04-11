@@ -25,9 +25,13 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import Account from '@web/modules/account-adder/components/Account'
-import { AccountAdderIntroStepsProvider } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
+import {
+  AccountAdderIntroStepsProvider,
+  BasicAccountIntroId
+} from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
 
 const AccountsOnPageList = ({
@@ -46,10 +50,12 @@ const AccountsOnPageList = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
+  const keystoreCtrl = useKeystoreControllerState()
+  const [onlySmartAccountsVisible, setOnlySmartAccountsVisible] = useState(!!subType)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
 
-  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(subType === 'seed')
+  const [hideEmptyAccounts, setHideEmptyAccounts] = useState(!!subType)
 
   const slots = useMemo(() => {
     return groupBy(state.accountsOnPage, 'slot')
@@ -84,6 +90,14 @@ const AccountsOnPageList = ({
     return 'smart'
   }, [])
 
+  const accountsWithKeys = useMemo(
+    () =>
+      mainState.accounts.filter((acc) =>
+        keystoreCtrl.keys.some((k) => acc.associatedKeys.includes(k.addr))
+      ),
+    [keystoreCtrl.keys, mainState.accounts]
+  )
+
   const linkedAccounts = useMemo(() => {
     if (lookingForLinkedAccounts) return []
 
@@ -117,20 +131,24 @@ const AccountsOnPageList = ({
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
     }) => {
-      const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
-      return filteredAccounts.map((acc, i: number) => {
-        let hasBottomSpacing = true
-        if (shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1) {
-          hasBottomSpacing = false
-        }
+      const filteredAccounts = accounts.filter(
+        (a) =>
+          byType.includes(getType(a)) &&
+          !(hideEmptyAccounts && getType(a) === 'basic' && !a.account.usedOnNetworks.length)
+      )
 
+      if (filteredAccounts.some((a) => getType(a) === 'basic') && onlySmartAccountsVisible) {
+        setOnlySmartAccountsVisible(false)
+      }
+
+      return filteredAccounts.map((acc, i: number) => {
+        const hasBottomSpacing = !(
+          shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1
+        )
+        const isUnused = !acc.account.usedOnNetworks.length
         const isSelected = state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.account.addr === acc.account.addr
         )
-
-        if (hideEmptyAccounts && getType(acc) === 'basic' && !acc.account.usedOnNetworks.length) {
-          return null
-        }
 
         return (
           <Account
@@ -139,7 +157,7 @@ const AccountsOnPageList = ({
             type={getType(acc)}
             shouldAddIntroStepsIds={['basic', 'smart'].includes(getType(acc)) && slotIndex === 0}
             withBottomSpacing={hasBottomSpacing}
-            unused={!acc.account.usedOnNetworks.length}
+            unused={isUnused}
             isSelected={isSelected || acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
             isDisabled={acc.importStatus === ImportStatus.ImportedWithTheSameKeys}
             importStatus={acc.importStatus}
@@ -149,7 +167,14 @@ const AccountsOnPageList = ({
         )
       })
     },
-    [handleDeselectAccount, handleSelectAccount, hideEmptyAccounts, state.selectedAccounts, getType]
+    [
+      handleDeselectAccount,
+      handleSelectAccount,
+      onlySmartAccountsVisible,
+      hideEmptyAccounts,
+      state.selectedAccounts,
+      getType
+    ]
   )
 
   const setTitle = useCallback(() => {
@@ -178,17 +203,12 @@ const AccountsOnPageList = ({
     [state.accountsLoading, state.accountsOnPage]
   )
 
-  const shouldDisplayHideEmptyAccountsToggle = useMemo(
-    () => subType !== 'private-key' && !isAccountAdderEmpty,
-    [subType, isAccountAdderEmpty]
-  )
-
   // Prevents the user from temporarily seeing (flashing) empty (error) states
   // while being navigated back (resetting the Account Adder state).
   if (!state.isInitialized) return null
 
   return (
-    <AccountAdderIntroStepsProvider forceCompleted={!!mainState.accounts.length}>
+    <AccountAdderIntroStepsProvider forceCompleted={!!accountsWithKeys.length}>
       <View style={flexbox.flex1} nativeID="account-adder-page-list">
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb, { height: 40 }]}>
           <Text
@@ -283,13 +303,21 @@ const AccountsOnPageList = ({
           </View>
         </BottomSheet>
 
-        {shouldDisplayHideEmptyAccountsToggle && (
-          <View style={[spacings.mbLg, flexbox.alignStart]}>
+        {!isAccountAdderEmpty && (
+          <View
+            style={[spacings.mbLg, flexbox.alignStart, flexbox.alignSelfStart]}
+            {...(!!hideEmptyAccounts && onlySmartAccountsVisible
+              ? {
+                  nativeID: BasicAccountIntroId
+                }
+              : {})}
+          >
             <Toggle
               isOn={hideEmptyAccounts}
               onToggle={() => setHideEmptyAccounts((p) => !p)}
               label={t('Hide empty basic accounts')}
               labelProps={{ appearance: 'secondaryText', weight: 'medium' }}
+              style={flexbox.alignSelfStart}
             />
           </View>
         )}

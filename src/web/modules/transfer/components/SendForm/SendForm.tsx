@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -11,6 +11,7 @@ import Select from '@common/components/Select/'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
+import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -106,6 +107,26 @@ const SendForm = ({
 
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
 
+  const prevAmount = usePrevious(amount)
+  // duplicating the value from the controller to the react
+  // state resolves an issue with the cursor positioning in the field
+  const [amountFieldValue, setAmountFieldValue] = useState(amount)
+
+  useEffect(() => {
+    if (prevAmount !== amount) if (amountFieldValue !== amount) setAmountFieldValue(amount)
+  }, [amount, amountFieldValue, prevAmount])
+
+  const prevAddressValue = usePrevious(addressState.fieldValue)
+  // duplicating the value from the controller to the react
+  // state resolves an issue with the cursor positioning in the field
+  const [addressFieldValue, setAddressFieldValue] = useState(addressState.fieldValue)
+
+  useEffect(() => {
+    if (prevAddressValue !== addressState.fieldValue)
+      if (addressFieldValue !== addressState.fieldValue)
+        setAddressFieldValue(addressState.fieldValue)
+  }, [addressState.fieldValue, addressFieldValue, prevAddressValue])
+
   const handleChangeToken = useCallback(
     (value: string) => {
       const tokenToSelect = tokens.find(
@@ -136,9 +157,18 @@ const SendForm = ({
 
   const onAmountChange = useCallback(
     (newAmount: string) => {
+      setAmountFieldValue(newAmount)
       updateTransferCtrlProperty('amount', newAmount)
     },
     [updateTransferCtrlProperty]
+  )
+
+  const onAddressChange = useCallback(
+    (newAddressValue: string) => {
+      setAddressFieldValue(newAddressValue)
+      setFieldValue(newAddressValue)
+    },
+    [setFieldValue]
   )
 
   const setMaxAmount = useCallback(() => {
@@ -164,7 +194,7 @@ const SendForm = ({
         style={styles.tokenSelect}
       />
       <InputSendToken
-        amount={amount}
+        amount={amountFieldValue}
         selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
         errorMessage={validationFormMsgs?.amount.message}
         onAmountChange={onAmountChange}
@@ -176,9 +206,9 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
-            setAddress={setFieldValue}
+            setAddress={onAddressChange}
             validation={validation}
-            address={addressState.fieldValue}
+            address={addressFieldValue}
             uDAddress={addressState.udAddress}
             ensAddress={addressState.ensAddress}
             addressValidationMsg={validationFormMsgs?.recipientAddress.message}

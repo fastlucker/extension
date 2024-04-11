@@ -10,15 +10,12 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -75,8 +72,8 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate, dispatch])
 
-  const sendTransaction = useCallback(async () => {
-    await dispatch({
+  const sendTransaction = useCallback(() => {
+    dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
   }, [dispatch])
@@ -84,7 +81,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="sm"
+      width="xl"
       header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
@@ -122,27 +119,16 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, !state.isTopUp && spacings.pv0]}
-            forceContainerSmallSpacings={state.isTopUp}
-            title={state.isTopUp ? 'Top Up Gas Tank' : ''}
+            style={[styles.panel]}
+            forceContainerSmallSpacings
+            title={state.isTopUp ? 'Top Up Gas Tank' : 'Send'}
           >
-            <View
-              style={[
-                flexbox.directionRow,
-                flexbox.flex1,
-                common.fullWidth,
-                !state.isTopUp && spacings.pvXl
-              ]}
-            >
-              <ScrollableWrapper style={[flexbox.flex1]}>
-                <SendForm
-                  addressInputState={addressInputState}
-                  state={state}
-                  isAllReady={accountPortfolio?.isAllReady}
-                  isSmartAccount={isSmartAccount}
-                />
-              </ScrollableWrapper>
-            </View>
+            <SendForm
+              addressInputState={addressInputState}
+              state={state}
+              isAllReady={accountPortfolio?.isAllReady}
+              isSmartAccount={isSmartAccount}
+            />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
                 <Alert

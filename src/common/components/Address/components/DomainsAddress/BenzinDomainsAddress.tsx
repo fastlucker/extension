@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import { JsonRpcProvider } from 'ethers'
 import React, { FC, useEffect, useState } from 'react'
 
 import { networks } from '@ambire-common/consts/networks'
 import { reverseLookupEns } from '@ambire-common/services/ensDomains'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { reverseLookupUD } from '@ambire-common/services/unstoppableDomains'
 import Spinner from '@common/components/Spinner'
 import { Props as TextProps } from '@common/components/Text'
@@ -24,11 +24,11 @@ const BenzinDomainsAddress: FC<Props> = ({ address, ...rest }) => {
     ud: null
   })
   useEffect(() => {
-    const rpcUrl = networks.find(({ id }) => id === 'ethereum')?.rpcUrl
+    const network = networks.find(({ id }) => id === 'ethereum')
 
-    if (!rpcUrl) return
+    if (!network) return
 
-    const ethereumProvider = new JsonRpcProvider(rpcUrl)
+    const ethereumProvider = getRpcProvider(network.rpcUrls, network.chainId)
 
     const resolveDomain = async () => {
       setIsLoading(true)
