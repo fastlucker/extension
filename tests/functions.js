@@ -260,8 +260,8 @@ export async function confirmTransaction(
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
-  /* Click on "Medium" button */
-  await clickOnElement(newPage, '[data-testid="fee-medium:"]:not([disabled]')
+  /* Click on "Fast" button */
+  await clickOnElement(newPage, '[data-testid="fee-fast:"]:not([disabled]')
 
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
@@ -273,7 +273,7 @@ export async function confirmTransaction(
       const occurrences = (pageText.match(/Timestamp/g) || []).length
       return occurrences >= 2
     },
-    { timeout: 120000 }
+    { timeout: 300000 } // wait max 5 minutes txn to be confirmed
   )
 
   const doesFailedExist = await newPage.evaluate(() => {
