@@ -8,6 +8,7 @@ import {
   FeeSpeed,
   SignAccountOpController
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -42,18 +43,38 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
           token: null
         }
       ]
-    const opts = signAccountOpState.availableFeeOptions.map((feeOption) => {
-      const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
-      return {
-        value: feeOption.paidBy + feeOption.token.address + gasTankKey,
-        label: <PayOption feeOption={feeOption} />,
-        paidBy: feeOption.paidBy,
-        token: feeOption.token
-      }
-    })
+    return signAccountOpState.availableFeeOptions
+      .sort((a: FeePaymentOption, b: FeePaymentOption) => {
+        const aId = getFeeSpeedIdentifier(a, signAccountOpState.accountOp.accountAddr)
+        const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
+        if (!aSlow) return -1
+        const aCanCoverFee = a.availableAmount > aSlow.amount
 
-    return opts.filter((opt) => opt)
-  }, [signAccountOpState.availableFeeOptions])
+        const bId = getFeeSpeedIdentifier(b, signAccountOpState.accountOp.accountAddr)
+        const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
+        if (!bSlow) return 1
+        const bCanCoverFee = b.availableAmount > bSlow.amount
+
+        if (aCanCoverFee && !bCanCoverFee) return -1
+        if (!aCanCoverFee && bCanCoverFee) return 1
+        if (a.token.flags.onGasTank && !b.token.flags.onGasTank) return -1
+        if (!a.token.flags.onGasTank && b.token.flags.onGasTank) return 1
+        return 0
+      })
+      .map((feeOption) => {
+        const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
+        return {
+          value: feeOption.paidBy + feeOption.token.address + gasTankKey,
+          label: <PayOption feeOption={feeOption} />,
+          paidBy: feeOption.paidBy,
+          token: feeOption.token
+        }
+      })
+  }, [
+    signAccountOpState.availableFeeOptions,
+    signAccountOpState.accountOp.accountAddr,
+    signAccountOpState.feeSpeeds
+  ])
 
   const defaultPayOption = useMemo(() => {
     if (!payOptions) return undefined
