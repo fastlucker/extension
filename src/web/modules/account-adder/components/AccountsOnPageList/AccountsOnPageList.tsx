@@ -124,7 +124,7 @@ const AccountsOnPageList = ({
       )
 
       return filteredAccounts.map((acc, i: number) => {
-        const hasBottomSpacing = !!(
+        const hasBottomSpacing = !(
           shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1
         )
         const isUnused = !acc.account.usedOnNetworks.length
