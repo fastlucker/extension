@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -36,29 +36,32 @@ const DashboardScreen = () => {
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
-  const onScroll = (value: number) => {
-    if (!isPopup) return
+  const onScroll = useCallback(
+    (value: number) => {
+      if (!isPopup) return
 
-    const isOverviewShown = value < 60
+      const isOverviewShown = value < 60
 
-    Animated.parallel([
-      Animated.timing(maxHeight, {
-        toValue: isOverviewShown ? DEFAULT_MAX_HEIGHT : 0,
-        duration: DURATIONS.FAST,
-        useNativeDriver: !isWeb
-      }),
-      Animated.timing(paddingTop, {
-        toValue: isOverviewShown ? SPACING_XL : 0,
-        duration: DURATIONS.REGULAR, // Slower on purpose
-        useNativeDriver: !isWeb
-      }),
-      Animated.timing(paddingBottom, {
-        toValue: isOverviewShown ? SPACING : SPACING_TY,
-        duration: DURATIONS.FAST,
-        useNativeDriver: !isWeb
-      })
-    ]).start()
-  }
+      Animated.parallel([
+        Animated.timing(maxHeight, {
+          toValue: isOverviewShown ? DEFAULT_MAX_HEIGHT : 0,
+          duration: DURATIONS.FAST,
+          useNativeDriver: !isWeb
+        }),
+        Animated.timing(paddingTop, {
+          toValue: isOverviewShown ? SPACING_XL : 0,
+          duration: isOverviewShown ? 100 : DURATIONS.REGULAR, // Different on purpose
+          useNativeDriver: !isWeb
+        }),
+        Animated.timing(paddingBottom, {
+          toValue: isOverviewShown ? SPACING : SPACING_TY,
+          duration: DURATIONS.FAST,
+          useNativeDriver: !isWeb
+        })
+      ]).start()
+    },
+    [maxHeight, paddingBottom, paddingTop]
+  )
 
   return (
     <>
