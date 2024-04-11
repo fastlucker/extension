@@ -42,7 +42,7 @@ describe('login', () => {
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
 
   //------------------------------------------------------------------------------------------------------
-  it.only('Create basic account with private key', async () => {
+  it('Create basic account with private key', async () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
@@ -101,7 +101,7 @@ describe('login', () => {
 
     /* This function will complete the onboarsding stories and will select and retrieve first basic and first smarts account */
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
-      await finishStoriesAndSelectAccount(page)
+      await finishStoriesAndSelectAccount(page, true)
 
     /* Click on "Save and Continue" button */
     await new Promise((r) => setTimeout(r, 1000))

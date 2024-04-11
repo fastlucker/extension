@@ -200,7 +200,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
   await page.$eval('[data-testid="keystore-button-continue"]', (button) => button.click())
 }
 //----------------------------------------------------------------------------------------------
-export async function finishStoriesAndSelectAccount(page) {
+export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   /* Click on Import button. */
   await clickOnElement(page, '[data-testid="phrase-button-import"]')
 
@@ -213,12 +213,22 @@ export async function finishStoriesAndSelectAccount(page) {
   await page.waitForSelector('[data-testid="checkbox"]')
 
   /* Select one Legacy account and one Smart account */
-  const firstSelectedBasicAccount = await page.$$eval('[data-testid="add-account"]', (element) => {
-    return element[0].textContent
-  })
-  const firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', (element) => {
-    return element[1].textContent
-  })
+  const firstSelectedBasicAccount = await page.$$eval(
+    '[data-testid="add-account"]',
+    (element, shouldClick) => {
+      if (shouldClick) element[0].click()
+      return element[0].textContent
+    },
+    shouldClickOnAccounts
+  )
+  const firstSelectedSmartAccount = await page.$$eval(
+    '[data-testid="add-account"]',
+    (element, shouldClick) => {
+      if (shouldClick) element[1].click()
+      return element[1].textContent
+    },
+    shouldClickOnAccounts
+  )
   /* Click on Import Accounts button */
   await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
   await page.waitForFunction("window.location.hash == '#/account-personalize'")
