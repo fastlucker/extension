@@ -7,18 +7,18 @@ describe('transactions', () => {
   let browser
   let page
   let extensionRootUrl
-  // let recorder
+  let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage()
+    const context = await bootstrapWithStorage('transaction')
     browser = context.browser
     page = context.page
-    // recorder = context.recorder
+    recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
-    // await recorder.stop()
+    await recorder.stop()
     await browser.close()
   })
 
