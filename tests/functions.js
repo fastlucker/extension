@@ -24,7 +24,7 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 50,
+    slowMo: 0,
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -92,15 +92,15 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function bootstrapWithStorage() {
+export async function bootstrapWithStorage(namespace) {
   /* Initialize browser and page using bootstrap */
   const context = await bootstrap()
   const browser = context.browser
   const extensionRootUrl = context.extensionRootUrl
   const page = await browser.newPage()
-  // const recorder = new PuppeteerScreenRecorder(page)
+  const recorder = new PuppeteerScreenRecorder(page)
 
-  // await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
@@ -148,7 +148,7 @@ export async function bootstrapWithStorage() {
 
   await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
 
-  return { browser, extensionRootUrl, page }
+  return { browser, extensionRootUrl, page, recorder }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -236,8 +236,7 @@ export async function confirmTransaction(
   page,
   extensionRootUrl,
   browser,
-  triggerTransactionSelector,
-  namespace
+  triggerTransactionSelector
 ) {
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
@@ -249,10 +248,6 @@ export async function confirmTransaction(
     (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
   )
   const newPage = await newTarget.page()
-
-  const recorder = new PuppeteerScreenRecorder(newPage)
-
-  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
@@ -280,7 +275,4 @@ export async function confirmTransaction(
   await new Promise((r) => setTimeout(r, 300))
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
-
-  await recorder.stop()
-  return { recorder }
 }

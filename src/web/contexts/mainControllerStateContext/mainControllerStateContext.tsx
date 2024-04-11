@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import eventBus from '@web/extension-services/event/eventBus'
@@ -19,8 +20,12 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch])
 
   useEffect(() => {
-    const onUpdate = (newState: MainController) => {
-      setState(newState)
+    const onUpdate = async (newState: MainController, forceEmit?: boolean) => {
+      if (forceEmit) {
+        flushSync(() => setState(newState))
+      } else {
+        setState(newState)
+      }
     }
 
     eventBus.addEventListener('main', onUpdate)

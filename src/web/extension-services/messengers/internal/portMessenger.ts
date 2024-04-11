@@ -63,11 +63,11 @@ export class PortMessenger {
     })
   }
 
-  send: SendType = (type, message) => {
+  send: SendType = (type, message, forceEmit?: boolean) => {
     if (!this.ports.length) return
 
     this.ports.forEach((port) => {
-      port.postMessage({ messageType: type, message: stringify(message) })
+      port.postMessage({ messageType: type, message: stringify(message), forceEmit })
     })
   }
 

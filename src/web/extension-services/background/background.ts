@@ -243,7 +243,8 @@ async function init() {
   function debounceFrontEndEventUpdatesOnSameTick(
     ctrlName: string,
     ctrl: any,
-    stateToLog?: any
+    stateToLog: any,
+    forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
@@ -251,8 +252,8 @@ async function init() {
     // Debounce multiple emits in the same tick and only execute one if them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
-        pm.send('> ui', { method: ctrlName, params: ctrl })
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
+        pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
+        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -264,8 +265,8 @@ async function init() {
     Initialize the onUpdate callback for the MainController. Once the mainCtrl load is ready,
     initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
    */
-  mainCtrl.onUpdate(() => {
-    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl)
+  mainCtrl.onUpdate((forceEmit) => {
+    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl, mainCtrl, forceEmit)
     if (res === 'DEBOUNCED') return
 
     // if the signAccountOp controller is active, reestimate at a set period of time
@@ -293,8 +294,13 @@ async function init() {
         const hasOnUpdateInitialized = controller.onUpdateIds.includes('background')
 
         if (!hasOnUpdateInitialized) {
-          controller?.onUpdate(async () => {
-            const res = debounceFrontEndEventUpdatesOnSameTick(ctrlName, controller)
+          controller?.onUpdate(async (forceEmit?: boolean) => {
+            const res = debounceFrontEndEventUpdatesOnSameTick(
+              ctrlName,
+              controller,
+              mainCtrl,
+              forceEmit
+            )
             if (res === 'DEBOUNCED') return
 
             if (ctrlName === 'keystore') {
@@ -360,8 +366,13 @@ async function init() {
   })
 
   // Broadcast onUpdate for the wallet state controller
-  walletStateCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
+  walletStateCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'walletState',
+      walletStateCtrl,
+      walletStateCtrl,
+      forceEmit
+    )
   })
   walletStateCtrl.onError(() => {
     pm.send('> ui-error', {
@@ -371,8 +382,13 @@ async function init() {
   })
 
   // Broadcast onUpdate for the notification controller
-  notificationCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
+  notificationCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'notification',
+      notificationCtrl,
+      notificationCtrl,
+      forceEmit
+    )
   })
   notificationCtrl.onError(() => {
     pm.send('> ui-error', {
@@ -381,8 +397,8 @@ async function init() {
     })
   })
   // Broadcast onUpdate for the notification controller
-  dappsCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl)
+  dappsCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl, forceEmit)
   })
   dappsCtrl.onError(() => {
     pm.send('> ui-error', {
