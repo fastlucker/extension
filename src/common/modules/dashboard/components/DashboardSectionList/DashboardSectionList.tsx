@@ -27,6 +27,7 @@ interface Props {
   accountPortfolio: AccountPortfolio | null
   filterByNetworkId: any
   tokenPreferences: CustomToken[]
+  onScroll: (offset: number) => void
 }
 
 // We do this instead of unmounting the component to prevent component rerendering when switching tabs.
@@ -34,7 +35,12 @@ const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0, display: 'no
 
 const { isPopup } = getUiType()
 
-const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPreferences }: Props) => {
+const DashboardSectionList = ({
+  accountPortfolio,
+  filterByNetworkId,
+  tokenPreferences,
+  onScroll
+}: Props) => {
   const { theme } = useTheme()
   const route = useRoute()
   const { t } = useTranslation()
@@ -200,16 +206,16 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
       }
     ],
     [
-      handleChangeQuery,
-      t,
       allBanners,
-      control,
+      theme.primaryBackground,
+      handleChangeQuery,
       openTab,
-      initTab?.collectibles,
-      initTab?.tokens,
-      searchValue,
+      control,
+      t,
       tokens,
-      theme,
+      initTab?.tokens,
+      initTab?.collectibles,
+      searchValue,
       accountPortfolio?.isAllReady,
       tokenPreferences
     ]
@@ -225,6 +231,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
         allBanners.length ? spacings.ptTy : spacings.pt0,
         { flexGrow: 1 }
       ]}
+      onScroll={(e) => onScroll(e.nativeEvent.contentOffset.y)}
       sections={SECTIONS_DATA}
       keyExtractor={(item, index) => item?.id || item + index}
       renderItem={({ section: { renderItem } }: any) => renderItem}

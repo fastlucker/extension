@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import React, { useMemo, useRef, useState } from 'react'
+import { Animated, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -8,18 +8,19 @@ import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import ReceiveModal from '@web/components/ReceiveModal'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useHover, { AnimatedPressable, DURATIONS } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -34,10 +35,17 @@ import getStyles, { DASHBOARD_OVERVIEW_BACKGROUND } from './styles'
 
 const { isPopup, isTab } = getUiType()
 
+const DEFAULT_MAX_HEIGHT = 120
+
 const DashboardScreen = () => {
+  const route = useRoute()
+  const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { minWidthSize } = useWindowSize()
+  const { networks } = useSettingsControllerState()
+  const { selectedAccount } = useMainControllerState()
+  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -49,15 +57,35 @@ const DashboardScreen = () => {
     width: 0,
     height: 0
   })
+  const maxHeight = useRef(new Animated.Value(DEFAULT_MAX_HEIGHT)).current
+  const paddingTop = useRef(new Animated.Value(SPACING_XL)).current
+  const paddingBottom = useRef(new Animated.Value(SPACING)).current
 
-  const route = useRoute()
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
-  const { networks } = useSettingsControllerState()
-  const { selectedAccount } = useMainControllerState()
-  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
+  const onScroll = (value: number) => {
+    if (!isPopup) return
 
-  const { t } = useTranslation()
+    const isOverviewShown = value < 60
+
+    Animated.parallel([
+      Animated.timing(maxHeight, {
+        toValue: isOverviewShown ? DEFAULT_MAX_HEIGHT : 0,
+        duration: DURATIONS.REGULAR,
+        useNativeDriver: !isWeb
+      }),
+      Animated.timing(paddingTop, {
+        toValue: isOverviewShown ? SPACING_XL : 0,
+        duration: DURATIONS.REGULAR,
+        useNativeDriver: !isWeb
+      }),
+      Animated.timing(paddingBottom, {
+        toValue: isOverviewShown ? SPACING : SPACING_TY,
+        duration: DURATIONS.REGULAR,
+        useNativeDriver: !isWeb
+      })
+    ]).start()
+  }
 
   const filterByNetworkName = useMemo(() => {
     if (!filterByNetworkId) return ''
@@ -87,13 +115,13 @@ const DashboardScreen = () => {
       <View style={styles.container}>
         <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
           <View style={[styles.contentContainer]}>
-            <View
+            <Animated.View
               style={[
                 common.borderRadiusPrimary,
-                spacings.pvTy,
+                spacings.ptTy,
                 spacings.phSm,
-                spacings.pb,
                 {
+                  paddingBottom,
                   backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
                   overflow: 'hidden'
                 }
@@ -112,7 +140,14 @@ const DashboardScreen = () => {
               />
               <View style={{ zIndex: 2 }}>
                 <DashboardHeader />
-                <View style={styles.overview}>
+                <Animated.View
+                  style={{
+                    ...styles.overview,
+                    paddingTop,
+                    maxHeight,
+                    overflow: 'hidden'
+                  }}
+                >
                   <View>
                     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                       {!accountPortfolio?.isAllReady && totalPortfolioAmount === 0 ? (
@@ -194,9 +229,9 @@ const DashboardScreen = () => {
                     </AnimatedPressable>
                   </View>
                   <Routes openReceiveModal={openReceiveModal} />
-                </View>
+                </Animated.View>
               </View>
-            </View>
+            </Animated.View>
           </View>
         </View>
         <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
@@ -204,6 +239,7 @@ const DashboardScreen = () => {
             accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
             filterByNetworkId={filterByNetworkId}
+            onScroll={onScroll}
           />
         </View>
         {!!isPopup && <DAppFooter />}
