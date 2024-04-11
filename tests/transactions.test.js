@@ -198,7 +198,7 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Make valid swap ', async () => {
+  it.only('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
@@ -240,6 +240,8 @@ describe('transactions', () => {
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
+
+    await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn, 'newWindow2')
