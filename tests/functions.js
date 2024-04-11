@@ -24,7 +24,7 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 0,
+    slowMo: 20,
     // devtools: true,
     headless,
     args: puppeteerArgs,
