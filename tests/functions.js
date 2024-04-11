@@ -214,11 +214,9 @@ export async function finishStoriesAndSelectAccount(page) {
 
   /* Select one Legacy account and one Smart account */
   const firstSelectedBasicAccount = await page.$$eval('[data-testid="add-account"]', (element) => {
-    element[0].click()
     return element[0].textContent
   })
   const firstSelectedSmartAccount = await page.$$eval('[data-testid="add-account"]', (element) => {
-    element[1].click()
     return element[1].textContent
   })
   /* Click on Import Accounts button */
