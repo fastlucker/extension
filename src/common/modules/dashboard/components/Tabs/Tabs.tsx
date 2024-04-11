@@ -2,6 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 
 import useTheme from '@common/hooks/useTheme'
+import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
 import Tab from './Tab'
@@ -14,25 +15,25 @@ interface Props {
 }
 
 const TABS: {
-  tab: TabType
+  type: TabType
   tabLabel: string
   disabled?: boolean
 }[] = [
   {
-    tab: 'tokens',
+    type: 'tokens',
     tabLabel: 'Tokens'
   },
   {
-    tab: 'collectibles',
+    type: 'collectibles',
     tabLabel: 'NFT'
   },
   {
-    tab: 'defi',
+    type: 'defi',
     tabLabel: 'DeFi',
     disabled: true
   },
   {
-    tab: 'activity',
+    type: 'activity',
     tabLabel: 'Activity',
     disabled: true
   }
@@ -43,16 +44,15 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
 
   return (
     <View style={styles.container}>
-      {TABS.map(({ tab, tabLabel, disabled }, tabIndex) => {
-        const openTabIndex = TABS.findIndex((t) => t.tab === openTab)
+      {TABS.map(({ type, tabLabel, disabled }, tabIndex) => {
+        const openTabIndex = TABS.findIndex((t) => t.type === openTab)
         const indexDiff = tabIndex - openTabIndex
 
         return (
-          <>
+          <View key={type} style={[flexbox.directionRow, flexbox.alignCenter]}>
             <Tab
-              key={tab}
               openTab={openTab}
-              tab={tab}
+              tab={type}
               tabLabel={tabLabel}
               setOpenTab={setOpenTab}
               handleChangeQuery={handleChangeQuery}
@@ -68,7 +68,7 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
                 }}
               />
             )}
-          </>
+          </View>
         )
       })}
     </View>
