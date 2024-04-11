@@ -98,7 +98,7 @@ export async function bootstrapWithStorage(namespace) {
   const browser = context.browser
   const extensionRootUrl = context.extensionRootUrl
   const page = await browser.newPage()
-  const recorder = new PuppeteerScreenRecorder(page)
+  const recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
 
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
@@ -257,6 +257,10 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
+  const recorder = new PuppeteerScreenRecorder(newPage, { followNewTab: true })
+
+  await recorder.start(`./recorder/transaction_new_window_${Date.now()}.mp4`)
+
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
@@ -281,6 +285,8 @@ export async function confirmTransaction(
   })
 
   await new Promise((r) => setTimeout(r, 300))
+
+  await recorder.stop()
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 }
