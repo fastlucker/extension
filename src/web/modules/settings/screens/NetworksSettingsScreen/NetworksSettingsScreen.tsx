@@ -38,9 +38,11 @@ const NetworksSettingsScreen = () => {
   const { addToast } = useToast()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { theme } = useTheme()
+  const [shouldOpenBottomSheet, setShouldOpenBottomSheet] = useState(() => {
+    const parsedSearchParams = new URLSearchParams(searchParams)
 
-  const search = watch('search')
-
+    return parsedSearchParams.has('addNetwork')
+  })
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
     if (parsedSearchParams.has('networkId')) return parsedSearchParams.get('networkId') as string
@@ -52,6 +54,24 @@ const NetworksSettingsScreen = () => {
     () => networks.find((network) => network.id === selectedNetworkId),
     [networks, selectedNetworkId]
   )
+
+  const search = watch('search')
+
+  useEffect(() => {
+    if (!shouldOpenBottomSheet) return
+
+    const interval = setInterval(() => {
+      if (sheetRef.current) {
+        openBottomSheet()
+        setShouldOpenBottomSheet(false)
+        clearInterval(interval)
+      }
+    }, 50)
+
+    return () => {
+      clearTimeout(interval)
+    }
+  }, [openBottomSheet, sheetRef, shouldOpenBottomSheet])
 
   useEffect(() => {
     setCurrentSettingsPage('networks')
