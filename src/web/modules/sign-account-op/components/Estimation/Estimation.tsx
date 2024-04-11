@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
   SignAccountOpController
@@ -74,12 +75,23 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
     }
   }, [dispatch, payValue])
 
+  const feeSpeeds = useMemo(() => {
+    if (!signAccountOpState.selectedOption) return []
+
+    const identifier = getFeeSpeedIdentifier(
+      signAccountOpState.selectedOption,
+      signAccountOpState.accountOp.accountAddr
+    )
+    return signAccountOpState.feeSpeeds[identifier]
+  }, [
+    signAccountOpState.feeSpeeds,
+    signAccountOpState.selectedOption,
+    signAccountOpState.accountOp.accountAddr
+  ])
+
   const selectedFee = useMemo(
-    () =>
-      signAccountOpState.feeSpeeds.find(
-        (speed) => speed.type === signAccountOpState.selectedFeeSpeed
-      ),
-    [signAccountOpState.selectedFeeSpeed, signAccountOpState.feeSpeeds]
+    () => feeSpeeds.find((speed) => speed.type === signAccountOpState.selectedFeeSpeed),
+    [signAccountOpState.selectedFeeSpeed, feeSpeeds]
   )
 
   const onFeeSelect = useCallback(
@@ -105,7 +117,7 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         disabled={disabled}
         defaultValue={payValue}
       />
-      {signAccountOpState.feeSpeeds.length > 0 && (
+      {feeSpeeds.length > 0 && (
         <View style={[spacings.mbMd]}>
           <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
             {t('Transaction speed')}
@@ -119,10 +131,10 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
               minWidthSize('xxl') && { margin: -SPACING_MI }
             ]}
           >
-            {signAccountOpState.feeSpeeds.map((fee, i) => (
+            {feeSpeeds.map((fee, i) => (
               <Fee
                 disabled={disabled}
-                isLastItem={i === signAccountOpState.feeSpeeds.length - 1}
+                isLastItem={i === feeSpeeds.length - 1}
                 key={fee.amount + fee.type}
                 label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
                 type={fee.type}
