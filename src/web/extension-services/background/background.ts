@@ -237,14 +237,23 @@ async function init() {
     stateToLog: any,
     forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
+    const sendUpdate = () => {
+      pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
+      logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
+    }
+
+    if (forceEmit) {
+      sendUpdate()
+      return 'EMITTED'
+    }
+
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
 
     // Debounce multiple emits in the same tick and only execute one of them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
-        pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
+        sendUpdate()
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)

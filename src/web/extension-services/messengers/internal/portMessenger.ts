@@ -20,6 +20,7 @@ type ListenCallbackType = <TMessageType extends MessageType>(
 export type PortMessageType = {
   method: string
   params: any
+  forceEmit?: boolean
 }
 
 /**
@@ -63,11 +64,11 @@ export class PortMessenger {
     })
   }
 
-  send: SendType = (type, message, forceEmit?: boolean) => {
+  send: SendType = (type, message) => {
     if (!this.ports.length) return
 
     this.ports.forEach((port) => {
-      port.postMessage({ messageType: type, message: stringify(message), forceEmit })
+      port.postMessage({ messageType: type, message: stringify(message) })
     })
   }
 
