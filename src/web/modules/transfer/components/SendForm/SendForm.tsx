@@ -108,6 +108,8 @@ const SendForm = ({
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
 
   const prevAmount = usePrevious(amount)
+  // duplicating the value from the controller to the react
+  // state resolves an issue with the cursor positioning in the field
   const [amountFieldValue, setAmountFieldValue] = useState(amount)
 
   useEffect(() => {
@@ -115,6 +117,8 @@ const SendForm = ({
   }, [amount, amountFieldValue, prevAmount])
 
   const prevAddressValue = usePrevious(addressState.fieldValue)
+  // duplicating the value from the controller to the react
+  // state resolves an issue with the cursor positioning in the field
   const [addressFieldValue, setAddressFieldValue] = useState(addressState.fieldValue)
 
   useEffect(() => {
