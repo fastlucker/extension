@@ -256,15 +256,14 @@ export async function confirmTransaction(
     (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
   )
   const newPage = await newTarget.page()
+
+  console.log({ newPage })
+
   const recorder = new PuppeteerScreenRecorder(newPage, { followNewTab: true })
 
-  try {
-    await recorder.start(`./recorder/transactionnewwindow_${Date.now()}.mp4`)
-  } catch (error) {
-    await recorder.stop()
-    throw new Error(error)
-  }
+  console.log({ recorder })
 
+  await recorder.start(`./recorder/test_${Date.now()}.mp4`)
 
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
