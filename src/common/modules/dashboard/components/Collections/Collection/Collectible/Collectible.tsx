@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
@@ -10,6 +10,7 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import { useCustomHover } from '@web/hooks/useHover'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
@@ -29,10 +30,16 @@ type Props = CollectibleType & {
 const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) => {
   const { theme } = useTheme()
   const [imageFailed, setImageFailed] = useState(false)
+  const { networks } = useSettingsControllerState()
+
+  const network = useMemo(
+    () => networks.find((n) => n.id === collectionData.networkId),
+    [collectionData.networkId, networks]
+  )
   const { data, error, isLoading } = useNft({
     id,
     address: collectionData.address,
-    networkId: collectionData.networkId
+    network: network!
   })
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
