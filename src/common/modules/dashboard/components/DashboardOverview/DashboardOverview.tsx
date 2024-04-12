@@ -205,4 +205,4 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight
   )
 }
 
-export default DashboardOverview
+export default React.memo(DashboardOverview)
