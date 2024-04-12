@@ -263,8 +263,6 @@ const SelectWithSearch = (props: Props) => {
               marginTop: 0,
               borderTopWidth: 0
             }}
-            menuPosition="fixed"
-            menuPlacement="bottom"
             backspaceRemovesValue={false}
           />
         </View>
