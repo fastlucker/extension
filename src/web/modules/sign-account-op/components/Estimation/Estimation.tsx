@@ -1,13 +1,18 @@
+import { formatUnits } from 'ethers'
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { getFeeSpeedIdentifier } from '@ambire-common/controllers/signAccountOp/helper'
+import {
+  getFeeSpeedIdentifier,
+  getTokenUsdAmount
+} from '@ambire-common/controllers/signAccountOp/helper'
 import {
   FeeSpeed,
   SignAccountOpController
 } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
@@ -64,16 +69,16 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       .map((feeOption) => {
         const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
 
-        const aId = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
-        const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
-        const aCanCoverFee = aSlow && feeOption.availableAmount > aSlow.amount
+        const id = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
+        const slow = signAccountOpState.feeSpeeds[id].find((speed) => speed.type === 'slow')
+        const canCoverFee = slow && feeOption.availableAmount > slow.amount
 
         return {
           value: feeOption.paidBy + feeOption.token.address + gasTankKey,
           label: <PayOption feeOption={feeOption} />,
           paidBy: feeOption.paidBy,
           token: feeOption.token,
-          isDisabled: !aCanCoverFee
+          isDisabled: !canCoverFee
         }
       })
   }, [
@@ -141,15 +146,17 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
 
   return (
     <>
-      <Select
-        setValue={setPayValue}
-        label={t('Pay fee with')}
-        options={payOptions}
-        style={spacings.mb}
-        value={payValue || {}}
-        disabled={disabled}
-        defaultValue={payValue}
-      />
+      {isSmartAccount(signAccountOpState.account) && (
+        <Select
+          setValue={setPayValue}
+          label={t('Pay fee with')}
+          options={payOptions}
+          style={spacings.mb}
+          value={payValue || {}}
+          disabled={disabled}
+          defaultValue={payValue}
+        />
+      )}
       {feeSpeeds.length > 0 && (
         <View style={[spacings.mbMd]}>
           <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
@@ -205,6 +212,41 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
         {/* </View> */}
       </View>
+      {signAccountOpState.selectedOption && payValue && payValue.token && (
+        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
+          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+            <Text fontSize={16} weight="medium" style={spacings.mrTy}>
+              {t('Available')}:
+            </Text>
+            <Text selectable fontSize={16} weight="medium">
+              {formatDecimals(
+                parseFloat(
+                  formatUnits(
+                    signAccountOpState.selectedOption.availableAmount,
+                    Number(payValue.token.decimals)
+                  )
+                )
+              )}{' '}
+              {payValue.token.symbol}
+            </Text>
+            {payValue.token.priceIn.length && (
+              <Text selectable weight="medium" fontSize={16} appearance="primary">
+                {' '}
+                (~ $
+                {formatDecimals(
+                  Number(
+                    getTokenUsdAmount(
+                      payValue.token,
+                      signAccountOpState.selectedOption.availableAmount
+                    )
+                  )
+                )}
+                )
+              </Text>
+            )}
+          </View>
+        </View>
+      )}
     </>
   )
 }
