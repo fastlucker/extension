@@ -6,7 +6,7 @@ import { isWeb } from '@common/config/env'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
 import { DURATIONS } from '@web/hooks/useHover'
@@ -20,7 +20,7 @@ import getStyles from './styles'
 
 const { isPopup, isTab } = getUiType()
 
-const DEFAULT_MAX_HEIGHT = 120
+export const OVERVIEW_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
   const route = useRoute()
@@ -30,9 +30,7 @@ const DashboardScreen = () => {
   const { accountPortfolio, state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
 
-  const maxHeight = useRef(new Animated.Value(DEFAULT_MAX_HEIGHT)).current
-  const paddingTop = useRef(new Animated.Value(SPACING_XL)).current
-  const paddingBottom = useRef(new Animated.Value(SPACING)).current
+  const maxHeight = useRef(new Animated.Value(OVERVIEW_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -40,27 +38,17 @@ const DashboardScreen = () => {
     (value: number) => {
       if (!isPopup) return
 
-      const isOverviewShown = value < 60
+      const isOverviewShown = value < 50
 
-      Animated.parallel([
-        Animated.timing(maxHeight, {
-          toValue: isOverviewShown ? DEFAULT_MAX_HEIGHT : 0,
-          duration: DURATIONS.FAST,
-          useNativeDriver: !isWeb
-        }),
-        Animated.timing(paddingTop, {
-          toValue: isOverviewShown ? SPACING_XL : 0,
-          duration: isOverviewShown ? 100 : DURATIONS.REGULAR, // Different on purpose
-          useNativeDriver: !isWeb
-        }),
-        Animated.timing(paddingBottom, {
-          toValue: isOverviewShown ? SPACING : SPACING_TY,
-          duration: DURATIONS.FAST,
-          useNativeDriver: !isWeb
-        })
-      ]).start()
+      Animated.spring(maxHeight, {
+        toValue: isOverviewShown ? OVERVIEW_MAX_HEIGHT : 0,
+        bounciness: 0,
+        speed: 2.8,
+        overshootClamping: true,
+        useNativeDriver: !isWeb
+      }).start()
     },
-    [maxHeight, paddingBottom, paddingTop]
+    [maxHeight]
   )
 
   return (
@@ -68,12 +56,7 @@ const DashboardScreen = () => {
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
       <View style={styles.container}>
         <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
-          <DashboardOverview
-            openReceiveModal={openReceiveModal}
-            maxHeight={maxHeight}
-            paddingTop={paddingTop}
-            paddingBottom={paddingBottom}
-          />
+          <DashboardOverview openReceiveModal={openReceiveModal} maxHeight={maxHeight} />
           <DashboardSectionList
             accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
