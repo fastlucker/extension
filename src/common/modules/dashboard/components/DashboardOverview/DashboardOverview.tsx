@@ -30,10 +30,10 @@ import getStyles from './styles'
 
 interface Props {
   openReceiveModal: () => void
-  maxHeight: Animated.Value
+  animatedOverviewHeight: Animated.Value
 }
 
-const DashboardOverview: FC<Props> = ({ openReceiveModal, maxHeight }) => {
+const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight }) => {
   const route = useRoute()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -85,7 +85,7 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, maxHeight }) => {
             spacings.ptTy,
             spacings.phSm,
             {
-              paddingBottom: maxHeight.interpolate({
+              paddingBottom: animatedOverviewHeight.interpolate({
                 inputRange: [0, OVERVIEW_MAX_HEIGHT],
                 outputRange: [SPACING_TY, SPACING],
                 extrapolate: 'clamp'
@@ -111,12 +111,12 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, maxHeight }) => {
             <Animated.View
               style={{
                 ...styles.overview,
-                paddingTop: maxHeight.interpolate({
+                paddingTop: animatedOverviewHeight.interpolate({
                   inputRange: [0, SPACING_XL],
                   outputRange: [0, SPACING],
                   extrapolate: 'clamp'
                 }),
-                maxHeight,
+                maxHeight: animatedOverviewHeight,
                 overflow: 'hidden'
               }}
             >

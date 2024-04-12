@@ -9,7 +9,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
-import { DURATIONS } from '@web/hooks/useHover'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
@@ -30,7 +29,7 @@ const DashboardScreen = () => {
   const { accountPortfolio, state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
 
-  const maxHeight = useRef(new Animated.Value(OVERVIEW_MAX_HEIGHT)).current
+  const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -40,7 +39,7 @@ const DashboardScreen = () => {
 
       const isOverviewShown = value < 50
 
-      Animated.spring(maxHeight, {
+      Animated.spring(animatedOverviewHeight, {
         toValue: isOverviewShown ? OVERVIEW_MAX_HEIGHT : 0,
         bounciness: 0,
         speed: 2.8,
@@ -48,7 +47,7 @@ const DashboardScreen = () => {
         useNativeDriver: !isWeb
       }).start()
     },
-    [maxHeight]
+    [animatedOverviewHeight]
   )
 
   return (
@@ -56,7 +55,10 @@ const DashboardScreen = () => {
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
       <View style={styles.container}>
         <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
-          <DashboardOverview openReceiveModal={openReceiveModal} maxHeight={maxHeight} />
+          <DashboardOverview
+            openReceiveModal={openReceiveModal}
+            animatedOverviewHeight={animatedOverviewHeight}
+          />
           <DashboardSectionList
             accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
