@@ -1,22 +1,27 @@
-import React, { useMemo, useState } from 'react'
-import { Keyboard, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native'
-import { useModalize } from 'react-native-modalize'
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import React, { CSSProperties, FC, useState } from 'react'
+import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
+import Select, {
+  components,
+  MenuPlacement,
+  OptionProps,
+  Props as SelectProps,
+  SingleValueProps
+} from 'react-select'
 
-import CheckIcon from '@common/assets/svg/CheckIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
-import BottomSheet from '@common/components/BottomSheet'
-import Input from '@common/components/Input'
-import NavIconWrapper from '@common/components/NavIconWrapper'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
-import { useTranslation } from '@common/config/localization'
-import colors from '@common/styles/colors'
+import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
-import flexboxStyles from '@common/styles/utils/flexbox'
-import textStyles from '@common/styles/utils/text'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 
-interface Props {
+import getStyles from './styles'
+
+export type OptionType = OptionProps['data']
+
+interface Props extends SelectProps {
   value: {} // @TODO: react-native works with object here, we need to find its type
   defaultValue?: {} // @TODO: react-native works with object here, we need to find its type
   options: any[]
@@ -24,139 +29,263 @@ interface Props {
   placeholder?: string
   label?: string
   labelStyle?: TextStyle
-  extraText?: string
-  hasArrow?: boolean
   disabled?: boolean
-  menuPlacement?: string
-  controlStyle?: ViewStyle
+  menuPlacement?: MenuPlacement
   style?: ViewStyle
+  menuStyle?: ViewStyle
+  controlStyle?: CSSProperties
+  openMenuOnClick?: boolean
+  onDropdownOpen?: () => void
+  withSearch?: boolean
 }
 
-const Select = ({
+const Option = ({ data }: { data: any }) => {
+  const { styles } = useTheme(getStyles)
+
+  if (!data) return null
+  return (
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      {!!data?.icon && typeof data?.icon === 'object' && (
+        <View style={styles.optionIcon}>{data.icon}</View>
+      )}
+      {!!data?.icon && typeof data?.icon === 'string' && (
+        <Image source={{ uri: data.icon }} style={styles.optionIcon} />
+      )}
+      {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
+      {typeof data?.label === 'string' ? <Text fontSize={14}>{data.label}</Text> : data?.label}
+    </View>
+  )
+}
+
+const IconOption: FC<OptionProps> = ({ data, ...rest }) => (
+  // @ts-ignore
+  <components.Option data={data} {...rest}>
+    <Option data={data} />
+  </components.Option>
+)
+
+const SingleValueIconOption: FC<SingleValueProps> = ({ data, ...rest }) => (
+  <components.SingleValue data={data} {...rest}>
+    <Option data={data} />
+  </components.SingleValue>
+)
+
+const SelectComponent = ({
   value,
+  defaultValue,
   disabled,
   setValue,
   options,
   placeholder,
   label,
   labelStyle,
-  extraText,
-  hasArrow = true,
   menuPlacement = 'auto',
+  style,
   controlStyle,
-  style
+  menuStyle,
+  openMenuOnClick = true,
+  onDropdownOpen,
+  withSearch,
+  components: componentsProps,
+  ...rest
 }: Props) => {
-  const [searchValue, setSearchValue] = useState('')
-  const { t } = useTranslation()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  const { theme } = useTheme()
 
-  const item = useMemo(() => options?.find((i) => i.value === value), [value, options])
-
-  const filteredItems = useMemo(
-    () =>
-      searchValue
-        ? options.filter((i: any) => i?.label?.toLowerCase().includes(searchValue.toLowerCase()))
-        : options,
-    [options, searchValue]
-  )
-
-  const renderItem = ({ item: _item }: any) => {
-    const onSelect = () => {
-      !!setValue && setValue(_item.value)
-      !isWeb && closeBottomSheet()
-    }
-
+  const DropdownIndicator = () => {
     return (
-      <TouchableOpacity
-        style={[
-          flexboxStyles.directionRow,
-          flexboxStyles.alignCenter,
-          spacings.phTy,
-          spacings.pvMi,
-          common.borderRadiusPrimary,
-          { backgroundColor: _item.value === value ? colors.howl : 'transparent' },
-          { opacity: _item?.disabled ? 0.3 : 1 }
-        ]}
-        activeOpacity={0.6}
-        onPress={onSelect}
-        disabled={_item?.disabled}
-      >
-        {!!_item.icon && _item.icon()}
-        <View style={[flexboxStyles.flex1, spacings.phTy, { backgroundColor: colors.howl }]}>
-          <Text numberOfLines={1}>{_item.label}</Text>
-        </View>
-        {_item.value === value && <CheckIcon />}
-      </TouchableOpacity>
+      <View style={spacings.mrSm}>
+        <DownArrowIcon />
+      </View>
     )
   }
 
   return (
     <>
-      <TouchableOpacity
-        onPress={() => {
-          Keyboard.dismiss()
-          openBottomSheet()
-        }}
-        disabled={disabled}
-      >
-        <View pointerEvents="none">
-          <Input
-            placeholder={placeholder}
-            value={item?.label}
-            leftIcon={item?.icon}
-            containerStyle={{ width: 250, marginBottom: 0 }}
-            button={
-              hasArrow ? (
-                <View>
-                  {!!extraText && (
-                    <View style={styles.extra}>
-                      <Text fontSize={12} color={colors.heliotrope}>
-                        {extraText}
-                      </Text>
-                    </View>
-                  )}
-                  <NavIconWrapper onPress={() => null}>
-                    <DownArrowIcon width={34} height={34} />
-                  </NavIconWrapper>
-                </View>
-              ) : (
-                <></>
-              )
+      {!!label && (
+        <Text
+          fontSize={14}
+          weight="regular"
+          appearance="secondaryText"
+          style={[spacings.mbMi, labelStyle]}
+        >
+          {label}
+        </Text>
+      )}
+      <View style={withSearch ? {} : style}>
+        <Select
+          {...(disabled
+            ? {
+                menuIsOpen: false,
+                autoFocus: false
+              }
+            : {})}
+          options={options}
+          defaultValue={defaultValue}
+          menuPortalTarget={document.body}
+          // It fixes z-index/overlapping issue with the next closest element.
+          // If we don't set it, the Select dropdown menu overlaps the next element once we show the menu.
+          menuPosition="fixed"
+          components={{
+            DropdownIndicator,
+            Option: IconOption,
+            SingleValue: SingleValueIconOption,
+            IndicatorSeparator: null,
+            ...componentsProps
+          }}
+          styles={{
+            placeholder: (baseStyles) =>
+              ({
+                ...baseStyles,
+                ...common.borderRadiusPrimary,
+                fontSize: 14,
+                color: theme.primaryText
+              } as any),
+            control: (baseStyles) =>
+              ({
+                ...baseStyles,
+                height: 50,
+                background: theme.secondaryBackground,
+                ...common.borderRadiusPrimary,
+                borderColor: `${theme.secondaryBorder as any} !important`,
+                fontSize: 14,
+                color: theme.primaryText,
+                outline: 'none',
+                'box-shadow': 'none !important',
+                cursor: 'pointer !important',
+                ...controlStyle
+              } as any),
+            valueContainer: (baseStyles) => ({
+              ...baseStyles,
+              overflow: 'visible'
+            }),
+            singleValue: (baseStyles) => ({
+              ...baseStyles,
+              paddingTop: 0,
+              paddingBottom: 0,
+              overflow: 'visible'
+            }),
+            menu: (baseStyles) =>
+              ({
+                ...baseStyles,
+                overflow: 'hidden',
+                'box-shadow': 'none',
+                'border-style': 'solid',
+                borderWidth: 1,
+                borderRadius: BORDER_RADIUS_PRIMARY,
+                borderColor: theme.secondaryBorder,
+                'box-sizing': 'border-box',
+                ...menuStyle
+              } as any),
+            menuPortal: (baseStyles) => ({ ...baseStyles, zIndex: 9999 }),
+            option: (baseStyles) =>
+              ({
+                ...baseStyles,
+                fontSize: 14,
+                cursor: 'pointer',
+                color: theme.primaryText
+              } as any),
+            menuList: (baseStyles) => ({
+              ...baseStyles,
+              padding: 0
+            })
+          }}
+          theme={(incomingTheme) => ({
+            ...incomingTheme,
+            borderRadius: 0,
+            colors: {
+              ...incomingTheme.colors,
+              primary25: String(theme.secondaryBackground),
+              primary: String(theme.tertiaryBackground)
             }
-          />
-        </View>
-      </TouchableOpacity>
-      <BottomSheet
-        id="select-bottom-sheet"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        displayCancel={false}
-        flatListProps={{
-          data: filteredItems || [],
-          renderItem,
-          keyExtractor: (i: any, idx: number) => `${i.value}-${idx}`,
-          ListEmptyComponent: (
-            <View style={[spacings.ptLg, flexboxStyles.alignCenter]}>
-              <Text style={textStyles.center}>{t('No tokens were found.')}</Text>
-            </View>
-          ),
-          ListHeaderComponent: (
-            <View style={[spacings.pbSm, { backgroundColor: colors.clay }]}>
-              <Input
-                value={searchValue}
-                containerStyle={spacings.mb0}
-                onChangeText={setSearchValue}
-                placeholder={t('Search...')}
-              />
-            </View>
-          ),
-          stickyHeaderIndices: [0]
-        }}
-        // Disable dynamic height, because it breaks when the flat list items change dynamically
-        adjustToContentHeight={false}
-      />
+          })}
+          isSearchable={false}
+          value={value}
+          onChange={setValue}
+          placeholder={placeholder}
+          openMenuOnClick={openMenuOnClick}
+          menuPlacement={menuPlacement}
+          {...rest}
+        />
+      </View>
     </>
   )
 }
 
-export default React.memo(Select)
+const SelectWithSearch = (props: Props) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { setValue, disabled, openMenuOnClick = true, style } = props
+
+  const { styles } = useTheme(getStyles)
+
+  return (
+    <View style={[disabled && { opacity: 0.6 }, style]}>
+      <Pressable
+        onPress={() => {
+          if (!openMenuOnClick) return
+          setIsMenuOpen((p) => !p)
+        }}
+        disabled={disabled}
+      >
+        <SelectComponent
+          {...props}
+          withSearch
+          menuIsOpen={false}
+          autoFocus={false}
+          components={{ IndicatorSeparator: null }}
+        />
+      </Pressable>
+      {!!isMenuOpen && (
+        <View style={styles.menuContainer}>
+          <SelectComponent
+            {...props}
+            label={undefined}
+            autoFocus
+            menuIsOpen
+            onChange={(newValue) => {
+              !!setValue && setValue(newValue)
+              setIsMenuOpen(false)
+            }}
+            isSearchable
+            controlShouldRenderValue={false}
+            hideSelectedOptions={false}
+            isClearable={false}
+            placeholder="Search..."
+            components={{ DropdownIndicator: null, IndicatorSeparator: null }}
+            controlStyle={{
+              height: 40,
+              borderWidth: 1,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0
+            }}
+            menuStyle={{
+              borderTopRightRadius: 0,
+              borderTopLeftRadius: 0,
+              marginTop: 0,
+              borderTopWidth: 0
+            }}
+            menuPosition="fixed"
+            menuPlacement="bottom"
+            backspaceRemovesValue={false}
+          />
+        </View>
+      )}
+      {!!isMenuOpen && (
+        <div
+          style={{
+            bottom: 0,
+            left: 0,
+            top: 0,
+            right: 0,
+            position: 'fixed',
+            zIndex: 1
+          }}
+          onClick={() => setIsMenuOpen(false)}
+        />
+      )}
+    </View>
+  )
+}
+
+export { SelectWithSearch }
+
+export default React.memo(SelectComponent)
