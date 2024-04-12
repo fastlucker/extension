@@ -22,7 +22,7 @@ const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     menuContainer: {
       backgroundColor: theme.primaryBackground,
-      ...spacings.mtTy,
+      ...spacings.mtMi,
       ...spacings.pbTy,
       zIndex: 9999
     },
