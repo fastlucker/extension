@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -45,7 +45,8 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
           value: 'no-option',
           label: 'Nothing available at the moment to cover the fee',
           paidBy: 'no-option',
-          token: null
+          token: null,
+          speedCoverage: []
         }
       ]
     return signAccountOpState.availableFeeOptions
@@ -70,15 +71,18 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
 
         const id = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
-        const slow = signAccountOpState.feeSpeeds[id].find((speed) => speed.type === 'slow')
-        const canCoverFee = slow && feeOption.availableAmount > slow.amount
+        const speedCoverage: FeeSpeed[] = []
+        signAccountOpState.feeSpeeds[id].forEach((speed) => {
+          if (feeOption.availableAmount > speed.amount) speedCoverage.push(speed.type)
+        })
 
         return {
           value: feeOption.paidBy + feeOption.token.address + gasTankKey,
           label: <PayOption feeOption={feeOption} />,
           paidBy: feeOption.paidBy,
           token: feeOption.token,
-          isDisabled: !canCoverFee
+          isDisabled: !speedCoverage.includes(FeeSpeed.Slow),
+          speedCoverage
         }
       })
   }, [
@@ -87,25 +91,28 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
     signAccountOpState.feeSpeeds
   ])
 
-  const defaultPayOption = useMemo(() => {
-    if (!payOptions) return undefined
+  const [payValue, setPayValue] = useState(payOptions[0])
+  const [initialSetupDone, setInitialSetupDone] = useState(false)
 
-    return payOptions[0]
-  }, [payOptions])
+  const setFeeOption = (payValue: any) => {
+    setPayValue(payValue)
 
-  const [payValue, setPayValue] = useState(defaultPayOption)
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+      params: {
+        feeToken: payValue.token,
+        paidBy: payValue.paidBy,
+        speed: payValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
+          ? signAccountOpState.selectedFeeSpeed
+          : FeeSpeed.Slow
+      }
+    })
+  }
 
-  useEffect(() => {
-    if (payValue && payValue.token) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-        params: {
-          feeToken: payValue.token,
-          paidBy: payValue.paidBy
-        }
-      })
-    }
-  }, [dispatch, payValue])
+  if (!initialSetupDone) {
+    setInitialSetupDone(true)
+    setFeeOption(payValue)
+  }
 
   const feeSpeeds = useMemo(() => {
     if (!signAccountOpState.selectedOption) return []
@@ -148,7 +155,7 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
     <>
       {isSmartAccount(signAccountOpState.account) && (
         <Select
-          setValue={setPayValue}
+          setValue={setFeeOption}
           label={t('Pay fee with')}
           options={payOptions}
           style={spacings.mb}
