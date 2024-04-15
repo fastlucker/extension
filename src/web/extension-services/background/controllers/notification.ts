@@ -12,13 +12,6 @@ import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/w
 
 import { DappsController } from './dapps'
 
-const QUEUE_REQUESTS_COMPONENTS_WHITELIST = [
-  'SendTransaction',
-  'SignText',
-  'SignTypedData',
-  'LedgerHardwareWaiting'
-]
-
 export const BENZIN_NOTIFICATION_DATA = {
   screen: 'Benzin',
   method: 'benzin'
@@ -324,14 +317,6 @@ export class NotificationController extends EventEmitter {
         },
         reject: (data) => {
           reject(data)
-        }
-      }
-
-      if (!QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen) && this.notificationWindowId) {
-        if (this.currentNotificationRequest) {
-          throw ethErrors.provider.userRejectedRequest(
-            'please request after current request resolve'
-          )
         }
       }
 
