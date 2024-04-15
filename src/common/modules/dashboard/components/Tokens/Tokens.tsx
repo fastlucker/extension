@@ -170,6 +170,80 @@ const Tokens = ({
     navigate(WEB_ROUTES.customTokens)
   }, [navigate])
 
+  const renderItem = useCallback(
+    ({ item }: any) => {
+      if (item === 'header') {
+        return (
+          <View style={{ backgroundColor: theme.primaryBackground }}>
+            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+            <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
+                {t('ASSET/AMOUNT')}
+              </Text>
+              <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 0.7 }}>
+                {t('PRICE')}
+              </Text>
+              <Text
+                appearance="secondaryText"
+                fontSize={14}
+                weight="medium"
+                style={{ flex: 0.8, textAlign: 'right' }}
+              >
+                {t('USD VALUE')}
+              </Text>
+            </View>
+          </View>
+        )
+      }
+
+      if (item === 'empty') {
+        return (
+          <View style={[flexbox.alignCenter, spacings.pv]}>
+            {searchValue ? (
+              <Text fontSize={16} weight="medium">
+                {t('No tokens found')}
+              </Text>
+            ) : (
+              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
+                  {isLoading ? t('Looking for tokens') : t('No tokens yet')}
+                </Text>
+                {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
+              </View>
+            )}
+          </View>
+        )
+      }
+
+      if (!initTab?.tokens || !item) return null
+
+      return <TokenItem token={item} tokenPreferences={tokenPreferences} />
+    },
+    [
+      control,
+      initTab?.tokens,
+      isLoading,
+      openTab,
+      searchValue,
+      setOpenTab,
+      t,
+      theme.primaryBackground,
+      tokenPreferences
+    ]
+  )
+
+  const keyExtractor = useCallback((tokenOrElement: any) => {
+    if (typeof tokenOrElement === 'string') {
+      return tokenOrElement
+    }
+
+    const token = tokenOrElement
+
+    return `${token?.address}-${token?.networkId}-${token?.flags?.onGasTank ? 'gas-tank' : ''}${
+      token?.flags?.rewardsType ? 'rewards' : ''
+    }${!token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''}`
+  }, [])
+
   useEffect(() => {
     setValue('search', '')
 
@@ -193,75 +267,8 @@ const Tokens = ({
         ...(initTab?.tokens ? sortedTokens : []),
         !sortedTokens.length ? 'empty' : ''
       ]}
-      renderItem={({ item }) => {
-        if (item === 'header') {
-          return (
-            <View style={{ backgroundColor: theme.primaryBackground }}>
-              <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
-              <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
-                <Text
-                  appearance="secondaryText"
-                  fontSize={14}
-                  weight="medium"
-                  style={{ flex: 1.5 }}
-                >
-                  {t('ASSET/AMOUNT')}
-                </Text>
-                <Text
-                  appearance="secondaryText"
-                  fontSize={14}
-                  weight="medium"
-                  style={{ flex: 0.7 }}
-                >
-                  {t('PRICE')}
-                </Text>
-                <Text
-                  appearance="secondaryText"
-                  fontSize={14}
-                  weight="medium"
-                  style={{ flex: 0.8, textAlign: 'right' }}
-                >
-                  {t('USD VALUE')}
-                </Text>
-              </View>
-            </View>
-          )
-        }
-
-        if (item === 'empty') {
-          return (
-            <View style={[flexbox.alignCenter, spacings.pv]}>
-              {searchValue ? (
-                <Text fontSize={16} weight="medium">
-                  {t('No tokens found')}
-                </Text>
-              ) : (
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
-                    {isLoading ? t('Looking for tokens') : t('No tokens yet')}
-                  </Text>
-                  {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
-                </View>
-              )}
-            </View>
-          )
-        }
-
-        if (!initTab?.tokens || !item) return null
-
-        return <TokenItem token={item} tokenPreferences={tokenPreferences} />
-      }}
-      keyExtractor={(tokenOrElement) => {
-        if (typeof tokenOrElement === 'string') {
-          return tokenOrElement
-        }
-
-        const token = tokenOrElement
-
-        return `${token?.address}-${token?.networkId}-${token?.flags?.onGasTank ? 'gas-tank' : ''}${
-          token?.flags?.rewardsType ? 'rewards' : ''
-        }${!token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''}`
-      }}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
       stickyHeaderIndices={[1]} // Makes the header sticky
       ListFooterComponent={
         <Button type="secondary" text={t('+ Add Custom')} onPress={navigateToAddCustomToken} />

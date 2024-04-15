@@ -78,6 +78,57 @@ const Collections: FC<Props> = ({
     [accountPortfolio?.collections, searchValue]
   )
 
+  const renderItem = useCallback(
+    ({ item }: any) => {
+      if (item === 'header') {
+        return (
+          <View style={{ backgroundColor: theme.primaryBackground }}>
+            <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+          </View>
+        )
+      }
+
+      if (item === 'empty') {
+        return (
+          <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
+            {t("You don't have any collectibles (NFTs) yet")}
+          </Text>
+        )
+      }
+
+      if (!initTab?.collectibles || !item) return null
+
+      const { name, address, networkId, collectibles, priceIn } = item
+
+      return (
+        <Collection
+          key={address}
+          name={name}
+          address={address}
+          networkId={networkId}
+          collectibles={collectibles}
+          priceIn={priceIn}
+          openCollectibleModal={openCollectibleModal}
+        />
+      )
+    },
+    [
+      control,
+      initTab?.collectibles,
+      openCollectibleModal,
+      openTab,
+      setOpenTab,
+      t,
+      theme.primaryBackground
+    ]
+  )
+
+  const keyExtractor = useCallback((collectionOrElement: any) => {
+    if (typeof collectionOrElement === 'string') return collectionOrElement
+
+    return collectionOrElement.address
+  }, [])
+
   useEffect(() => {
     setValue('search', '')
 
@@ -108,44 +159,8 @@ const Collections: FC<Props> = ({
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
           !filteredPortfolioCollections.length ? 'empty' : ''
         ]}
-        renderItem={({ item }) => {
-          if (item === 'header') {
-            return (
-              <View style={{ backgroundColor: theme.primaryBackground }}>
-                <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
-              </View>
-            )
-          }
-
-          if (item === 'empty') {
-            return (
-              <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-                {t("You don't have any collectibles (NFTs) yet")}
-              </Text>
-            )
-          }
-
-          if (!initTab?.collectibles || !item) return null
-
-          const { name, address, networkId, collectibles, priceIn } = item
-
-          return (
-            <Collection
-              key={address}
-              name={name}
-              address={address}
-              networkId={networkId}
-              collectibles={collectibles}
-              priceIn={priceIn}
-              openCollectibleModal={openCollectibleModal}
-            />
-          )
-        }}
-        keyExtractor={(collectionOrElement) => {
-          if (typeof collectionOrElement === 'string') return collectionOrElement
-
-          return collectionOrElement.address
-        }}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
         stickyHeaderIndices={[1]} // Makes the header sticky
         initialNumToRender={isPopup ? 4 : 10}
         removeClippedSubviews
