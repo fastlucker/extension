@@ -1,3 +1,4 @@
+import { TFunction } from 'i18next'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { View, ViewStyle } from 'react-native'
@@ -21,12 +22,14 @@ import useBanners from '../../hooks/useBanners'
 import Collections from '../Collections'
 import DashboardBanner from '../DashboardBanner'
 import Tabs from '../Tabs'
+import { TabType } from '../Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
   accountPortfolio: AccountPortfolio | null
   filterByNetworkId: any
   tokenPreferences: CustomToken[]
+  onScroll: (offset: number) => void
 }
 
 // We do this instead of unmounting the component to prevent component rerendering when switching tabs.
@@ -34,7 +37,20 @@ const HIDDEN_STYLE: ViewStyle = { position: 'absolute', opacity: 0, display: 'no
 
 const { isPopup } = getUiType()
 
-const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPreferences }: Props) => {
+const getSearchPlaceholder = (openTab: TabType, t: TFunction) => {
+  if (isPopup) {
+    return t('Search')
+  }
+
+  return openTab === 'tokens' ? t('Search for tokens') : t('Search for NFTs')
+}
+
+const DashboardSectionList = ({
+  accountPortfolio,
+  filterByNetworkId,
+  tokenPreferences,
+  onScroll
+}: Props) => {
   const { theme } = useTheme()
   const route = useRoute()
   const { t } = useTranslation()
@@ -42,7 +58,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
 
-    return (params.get('tab') as 'tokens' | 'collectibles' | 'defi') || 'tokens'
+    return (params.get('tab') as TabType) || 'tokens'
   })
   const prevOpenTab = usePrevious(openTab)
   // To prevent initial load of all tabs but load them when requested by the user
@@ -134,12 +150,10 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
               {['tokens', 'collectibles'].includes(openTab) && (
                 <View style={{ margin: -2 }}>
                   <Search
-                    containerStyle={{ flex: 1, maxWidth: 212 }}
+                    containerStyle={{ flex: 1, maxWidth: isPopup ? 128 : 212 }}
                     control={control}
                     height={32}
-                    placeholder={t(
-                      openTab === 'tokens' ? 'Search for tokens' : 'Search for collections'
-                    )}
+                    placeholder={getSearchPlaceholder(openTab, t)}
                   />
                 </View>
               )}
@@ -200,16 +214,16 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
       }
     ],
     [
-      handleChangeQuery,
-      t,
       allBanners,
-      control,
+      theme.primaryBackground,
+      handleChangeQuery,
       openTab,
-      initTab?.collectibles,
-      initTab?.tokens,
-      searchValue,
+      control,
+      t,
       tokens,
-      theme,
+      initTab?.tokens,
+      initTab?.collectibles,
+      searchValue,
       accountPortfolio?.isAllReady,
       tokenPreferences
     ]
@@ -225,6 +239,7 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
         allBanners.length ? spacings.ptTy : spacings.pt0,
         { flexGrow: 1 }
       ]}
+      onScroll={(e) => onScroll(e.nativeEvent.contentOffset.y)}
       sections={SECTIONS_DATA}
       keyExtractor={(item, index) => item?.id || item + index}
       renderItem={({ section: { renderItem } }: any) => renderItem}
