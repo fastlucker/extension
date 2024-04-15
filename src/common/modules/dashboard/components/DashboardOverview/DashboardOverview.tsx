@@ -14,9 +14,10 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
+import { OVERVIEW_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
@@ -29,17 +30,10 @@ import getStyles from './styles'
 
 interface Props {
   openReceiveModal: () => void
-  maxHeight: Animated.Value
-  paddingTop: Animated.Value
-  paddingBottom: Animated.Value
+  animatedOverviewHeight: Animated.Value
 }
 
-const DashboardOverview: FC<Props> = ({
-  openReceiveModal,
-  maxHeight,
-  paddingTop,
-  paddingBottom
-}) => {
+const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight }) => {
   const route = useRoute()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -91,7 +85,11 @@ const DashboardOverview: FC<Props> = ({
             spacings.ptTy,
             spacings.phSm,
             {
-              paddingBottom,
+              paddingBottom: animatedOverviewHeight.interpolate({
+                inputRange: [0, OVERVIEW_MAX_HEIGHT],
+                outputRange: [SPACING_TY, SPACING],
+                extrapolate: 'clamp'
+              }),
               backgroundColor: DASHBOARD_OVERVIEW_BACKGROUND,
               overflow: 'hidden'
             }
@@ -113,8 +111,12 @@ const DashboardOverview: FC<Props> = ({
             <Animated.View
               style={{
                 ...styles.overview,
-                paddingTop,
-                maxHeight,
+                paddingTop: animatedOverviewHeight.interpolate({
+                  inputRange: [0, SPACING_XL],
+                  outputRange: [0, SPACING],
+                  extrapolate: 'clamp'
+                }),
+                maxHeight: animatedOverviewHeight,
                 overflow: 'hidden'
               }}
             >
@@ -203,4 +205,4 @@ const DashboardOverview: FC<Props> = ({
   )
 }
 
-export default DashboardOverview
+export default React.memo(DashboardOverview)
