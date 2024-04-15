@@ -101,4 +101,4 @@ const SelectWithSearch = (props: Props) => {
   )
 }
 
-export default SelectWithSearch
+export default React.memo(SelectWithSearch)
