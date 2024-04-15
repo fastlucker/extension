@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react'
-import { Animated, View } from 'react-native'
+import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
@@ -14,7 +14,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
-import DashboardSectionList from '../components/DashboardSectionList'
+import DashboardPages from '../components/DashboardPages'
 import getStyles from './styles'
 
 const { isPopup, isTab } = getUiType()
@@ -34,10 +34,14 @@ const DashboardScreen = () => {
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const onScroll = useCallback(
-    (value: number) => {
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (!isPopup) return
 
-      const isOverviewShown = value < 50
+      const {
+        contentOffset: { y }
+      } = event.nativeEvent
+
+      const isOverviewShown = y < 50
 
       Animated.spring(animatedOverviewHeight, {
         toValue: isOverviewShown ? OVERVIEW_MAX_HEIGHT : 0,
@@ -59,7 +63,7 @@ const DashboardScreen = () => {
             openReceiveModal={openReceiveModal}
             animatedOverviewHeight={animatedOverviewHeight}
           />
-          <DashboardSectionList
+          <DashboardPages
             accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
             filterByNetworkId={filterByNetworkId}
