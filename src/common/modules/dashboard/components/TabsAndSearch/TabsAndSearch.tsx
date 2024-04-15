@@ -68,4 +68,4 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   )
 }
 
-export default TabsAndSearch
+export default React.memo(TabsAndSearch)
