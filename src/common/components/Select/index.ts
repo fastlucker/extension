@@ -1,4 +1,5 @@
 import Select from './Select'
+import SelectWithSearch from './SelectWithSearch'
 
-export * from './Select'
+export { SelectWithSearch, Select }
 export default Select

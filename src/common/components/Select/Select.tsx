@@ -1,43 +1,19 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { CSSProperties, FC, useState } from 'react'
-import { Image, Pressable, TextStyle, View, ViewStyle } from 'react-native'
-import Select, {
-  components,
-  MenuPlacement,
-  OptionProps,
-  Props as SelectProps,
-  SingleValueProps
-} from 'react-select'
+import React, { FC } from 'react'
+import { Image, View } from 'react-native'
+import Select, { components, OptionProps, SingleValueProps } from 'react-select'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
+import { FONT_FAMILIES } from '@common/hooks/useFonts'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
-
-export type OptionType = OptionProps['data']
-
-interface Props extends SelectProps {
-  value: {} // @TODO: react-native works with object here, we need to find its type
-  defaultValue?: {} // @TODO: react-native works with object here, we need to find its type
-  options: any[]
-  setValue?: (value: any) => void
-  placeholder?: string
-  label?: string
-  labelStyle?: TextStyle
-  disabled?: boolean
-  menuPlacement?: MenuPlacement
-  style?: ViewStyle
-  menuStyle?: ViewStyle
-  controlStyle?: CSSProperties
-  openMenuOnClick?: boolean
-  onDropdownOpen?: () => void
-  withSearch?: boolean
-}
+import { Props } from './types'
 
 const Option = ({ data }: { data: any }) => {
   const { styles } = useTheme(getStyles)
@@ -138,7 +114,8 @@ const SelectComponent = ({
                 ...baseStyles,
                 ...common.borderRadiusPrimary,
                 fontSize: 14,
-                color: theme.primaryText
+                color: theme.secondaryText,
+                fontFamily: FONT_FAMILIES.REGULAR
               } as any),
             control: (baseStyles) =>
               ({
@@ -148,6 +125,7 @@ const SelectComponent = ({
                 ...common.borderRadiusPrimary,
                 borderColor: `${theme.secondaryBorder as any} !important`,
                 fontSize: 14,
+                fontFamily: FONT_FAMILIES.REGULAR,
                 color: theme.primaryText,
                 outline: 'none',
                 'box-shadow': 'none !important',
@@ -181,6 +159,7 @@ const SelectComponent = ({
               ({
                 ...baseStyles,
                 fontSize: 14,
+                fontFamily: FONT_FAMILIES.REGULAR,
                 cursor: 'pointer',
                 color: theme.primaryText
               } as any),
@@ -210,80 +189,5 @@ const SelectComponent = ({
     </>
   )
 }
-
-const SelectWithSearch = (props: Props) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { setValue, disabled, openMenuOnClick = true, style } = props
-
-  const { styles } = useTheme(getStyles)
-
-  return (
-    <View style={[disabled && { opacity: 0.6 }, style]}>
-      <Pressable
-        onPress={() => {
-          if (!openMenuOnClick) return
-          setIsMenuOpen((p) => !p)
-        }}
-        disabled={disabled}
-      >
-        <SelectComponent
-          {...props}
-          withSearch
-          menuIsOpen={false}
-          autoFocus={false}
-          components={{ IndicatorSeparator: null }}
-        />
-      </Pressable>
-      {!!isMenuOpen && (
-        <View style={styles.menuContainer}>
-          <SelectComponent
-            {...props}
-            label={undefined}
-            autoFocus
-            menuIsOpen
-            onChange={(newValue) => {
-              !!setValue && setValue(newValue)
-              setIsMenuOpen(false)
-            }}
-            isSearchable
-            controlShouldRenderValue={false}
-            hideSelectedOptions={false}
-            isClearable={false}
-            placeholder="Search..."
-            components={{ DropdownIndicator: null, IndicatorSeparator: null }}
-            controlStyle={{
-              height: 40,
-              borderWidth: 1,
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0
-            }}
-            menuStyle={{
-              borderTopRightRadius: 0,
-              borderTopLeftRadius: 0,
-              marginTop: 0,
-              borderTopWidth: 0
-            }}
-            backspaceRemovesValue={false}
-          />
-        </View>
-      )}
-      {!!isMenuOpen && (
-        <div
-          style={{
-            bottom: 0,
-            left: 0,
-            top: 0,
-            right: 0,
-            position: 'fixed',
-            zIndex: 1
-          }}
-          onClick={() => setIsMenuOpen(false)}
-        />
-      )}
-    </View>
-  )
-}
-
-export { SelectWithSearch }
 
 export default React.memo(SelectComponent)
