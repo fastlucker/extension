@@ -133,8 +133,6 @@ const Tokens = ({
     setMaxPages(Math.ceil(tokens.length / TOKENS_PER_PAGE))
   }, [setMaxPages, tokens.length])
 
-  console.log('rerender this many tokens', tokens.length)
-
   return (
     <View {...rest}>
       <View style={[spacings.mb]}>
