@@ -51,7 +51,8 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
   const [initTab, setInitTab] = useState<{
     [key: string]: boolean
   }>({})
-
+  const [page, setPage] = useState(1)
+  const [maxPages, setMaxPages] = useState(1)
   const { control, watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
@@ -79,8 +80,15 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
     window.history.pushState(null, '', `${window.location.href}?tab=${tab}`)
   }, [])
 
+  const onScrollableEndReached = useCallback(() => {
+    if (page < maxPages) {
+      setPage((prevPage) => prevPage + 1)
+    }
+  }, [maxPages, page])
+
   useEffect(() => {
     setValue('search', '')
+    setPage(1)
   }, [openTab, setValue])
 
   const tokens = useMemo(
@@ -183,6 +191,9 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
                 pointerEvents={openTab !== 'tokens' ? 'none' : 'auto'}
                 style={openTab !== 'tokens' ? HIDDEN_STYLE : {}}
                 isLoading={!accountPortfolio?.isAllReady}
+                page={page}
+                maxPages={maxPages}
+                setMaxPages={setMaxPages}
                 tokenPreferences={tokenPreferences}
               />
             )}
@@ -192,6 +203,8 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
                 pointerEvents={openTab !== 'collectibles' ? 'none' : 'auto'}
                 style={openTab !== 'collectibles' ? HIDDEN_STYLE : {}}
                 searchValue={searchValue}
+                page={page}
+                setMaxPages={setMaxPages}
               />
             )}
           </>
@@ -200,18 +213,20 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
       }
     ],
     [
-      handleChangeQuery,
-      t,
       allBanners,
-      control,
+      theme.primaryBackground,
+      handleChangeQuery,
       openTab,
-      initTab?.collectibles,
-      initTab?.tokens,
-      searchValue,
+      control,
+      t,
       tokens,
-      theme,
+      initTab?.tokens,
+      initTab?.collectibles,
+      searchValue,
       accountPortfolio?.isAllReady,
-      tokenPreferences
+      tokenPreferences,
+      page,
+      maxPages
     ]
   )
 
@@ -226,10 +241,17 @@ const DashboardSectionList = ({ accountPortfolio, filterByNetworkId, tokenPrefer
         { flexGrow: 1 }
       ]}
       sections={SECTIONS_DATA}
-      keyExtractor={(item, index) => item?.id || item + index}
+      keyExtractor={(item, index) => {
+        return item?.id || item + index
+      }}
       renderItem={({ section: { renderItem } }: any) => renderItem}
       renderSectionHeader={({ section: { header } }) => header || null}
       stickySectionHeadersEnabled
+      onEndReached={onScrollableEndReached}
+      onEndReachedThreshold={0.5}
+      initialNumToRender={10}
+      removeClippedSubviews
+      windowSize={5}
     />
   )
 }

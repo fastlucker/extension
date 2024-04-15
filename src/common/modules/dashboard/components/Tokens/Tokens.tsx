@@ -1,12 +1,10 @@
 import { formatUnits } from 'ethers'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View, ViewProps } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
-import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -15,8 +13,8 @@ import useNavigation from '@common/hooks/useNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import { getUiType } from '@web/utils/uiType'
 
-import TokenDetails from './TokenDetails'
 import TokenItem from './TokenItem'
 
 interface Props extends ViewProps {
@@ -24,7 +22,12 @@ interface Props extends ViewProps {
   searchValue: string
   isLoading: boolean
   tokenPreferences: CustomToken[]
+  page: number
+  maxPages: number
+  setMaxPages: React.Dispatch<React.SetStateAction<number>>
 }
+
+const { isPopup } = getUiType()
 
 const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   const balance = parseFloat(formatUnits(amount, decimals))
@@ -34,27 +37,40 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: Props) => {
+const TOKENS_PER_PAGE = isPopup ? 25 : 50
+
+const Tokens = ({
+  isLoading,
+  tokens,
+  searchValue,
+  tokenPreferences,
+  page,
+  maxPages,
+  setMaxPages,
+  ...rest
+}: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
 
   // Filter out tokens which are not in
   // tokenPreferences and pinned
-  const hasNonZeroTokensOrPreferences = tokens
-    .filter(
-      ({ address, amount }) =>
-        !PINNED_TOKENS.find(
-          (token) => token.address.toLowerCase() === address.toLowerCase() && token.amount > 0n
-        ) &&
-        !tokenPreferences.find(
-          (token: CustomToken) => token.address.toLowerCase() === address.toLowerCase()
-        ) &&
-        amount > 0n
-    )
-    .some((token) => token.amount > 0n)
-
-  const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
+  const hasNonZeroTokensOrPreferences = useMemo(
+    () =>
+      tokens
+        .filter(
+          ({ address, amount }) =>
+            !PINNED_TOKENS.find(
+              (pinnedToken) =>
+                pinnedToken.address.toLowerCase() === address.toLowerCase() && amount > 0n
+            ) &&
+            !tokenPreferences.find(
+              (token: CustomToken) => token.address.toLowerCase() === address.toLowerCase()
+            ) &&
+            amount > 0n
+        )
+        .some((token) => token.amount > 0n),
+    [tokenPreferences, tokens]
+  )
 
   const sortedTokens = useMemo(
     () =>
@@ -104,44 +120,23 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
           }
 
           return 0
-        }),
-    [tokens, hasNonZeroTokensOrPreferences, tokenPreferences]
+        })
+        .filter((_, index) => index < page * TOKENS_PER_PAGE),
+    [tokens, page, tokenPreferences, hasNonZeroTokensOrPreferences]
   )
 
-  const handleSelectToken = useCallback(
-    ({ address, networkId, flags }: TokenResult) => {
-      const token =
-        tokens.find(
-          (tokenI) =>
-            tokenI.address === address &&
-            tokenI.networkId === networkId &&
-            tokenI.flags.onGasTank === flags.onGasTank
-        ) || null
-      setSelectedToken(token)
-      openBottomSheet()
-    },
-    [openBottomSheet, tokens]
-  )
+  const navigateToAddCustomToken = useCallback(() => {
+    navigate(WEB_ROUTES.customTokens)
+  }, [navigate])
 
-  const handleTokenDetailsClose = () => {
-    setSelectedToken(null)
-  }
+  useEffect(() => {
+    setMaxPages(Math.ceil(tokens.length / TOKENS_PER_PAGE))
+  }, [setMaxPages, tokens.length])
+
+  console.log('rerender this many tokens', tokens.length)
 
   return (
     <View {...rest}>
-      <BottomSheet
-        id="token-details"
-        sheetRef={sheetRef}
-        closeBottomSheet={closeBottomSheet}
-        onClosed={handleTokenDetailsClose}
-      >
-        <TokenDetails
-          tokenPreferences={tokenPreferences}
-          token={selectedToken}
-          handleClose={closeBottomSheet}
-        />
-      </BottomSheet>
-
       <View style={[spacings.mb]}>
         {!sortedTokens.length && (
           <View style={[flexbox.alignCenter, spacings.pv]}>
@@ -169,16 +164,24 @@ const Tokens = ({ isLoading, tokens, searchValue, tokenPreferences, ...rest }: P
                 !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
               }`}
               token={token}
-              handleTokenSelect={handleSelectToken}
+              tokenPreferences={tokenPreferences}
+              // handleTokenSelect={handleSelectToken}
             />
           ))}
       </View>
 
-      <Button
-        type="secondary"
-        text={t('+ Add Custom')}
-        onPress={() => navigate(WEB_ROUTES.customTokens)}
-      />
+      {page === maxPages ? (
+        <Button type="secondary" text={t('+ Add Custom')} onPress={navigateToAddCustomToken} />
+      ) : (
+        <Spinner
+          style={{
+            marginVertical: 24,
+            alignSelf: 'center',
+            width: 24,
+            height: 24
+          }}
+        />
+      )}
     </View>
   )
 }
