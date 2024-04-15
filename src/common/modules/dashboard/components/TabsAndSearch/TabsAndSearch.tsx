@@ -57,7 +57,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
       {['tokens', 'collectibles'].includes(openTab) && (
         <View style={{ margin: -2 }}>
           <Search
-            containerStyle={{ flex: 1, maxWidth: isPopup ? 128 : 212 }}
+            containerStyle={{ flex: 1, maxWidth: isPopup ? 184 : 212 }}
             control={searchControl}
             height={32}
             placeholder={getSearchPlaceholder(openTab, t)}
