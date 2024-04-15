@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ViewStyle } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, ViewStyle } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -19,7 +19,7 @@ interface Props {
   accountPortfolio: AccountPortfolio | null
   filterByNetworkId: NetworkDescriptor['id']
   tokenPreferences: CustomToken[]
-  onScroll: (offset: number) => void
+  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
 
 // We do this instead of unmounting the component to prevent component rerendering when switching tabs.
@@ -99,7 +99,6 @@ const DashboardPages = ({
         setOpenTab={setOpenTab}
         style={tokensStyle}
         contentContainerStyle={contentContainerStyle}
-        // @ts-ignore
         onScroll={onScroll}
         initTab={initTab}
       />
@@ -110,7 +109,6 @@ const DashboardPages = ({
         openTab={openTab}
         setOpenTab={setOpenTab}
         initTab={initTab}
-        // @ts-ignore
         onScroll={onScroll}
       />
     </>

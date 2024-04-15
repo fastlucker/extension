@@ -17,17 +17,27 @@ import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
 import styles from './styles'
 
-interface Props extends FlatListProps<any> {
+interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   initTab?: {
     [key: string]: boolean
   }
+  style: FlatListProps<any>['style']
+  contentContainerStyle: FlatListProps<any>['contentContainerStyle']
+  onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, ...rest }) => {
+const Collections: FC<Props> = ({
+  openTab,
+  setOpenTab,
+  initTab,
+  style,
+  contentContainerStyle,
+  onScroll
+}) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -88,8 +98,10 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, ...rest }) => {
         selectedCollectible={selectedCollectible}
       />
       <FlatList
-        {...rest}
         ref={flatlistRef}
+        style={style}
+        contentContainerStyle={contentContainerStyle}
+        onScroll={onScroll}
         ListHeaderComponent={<DashboardBanners />}
         data={[
           'header',

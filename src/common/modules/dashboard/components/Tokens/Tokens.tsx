@@ -24,7 +24,7 @@ import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
 
-interface Props extends FlatListProps<any> {
+interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   filterByNetworkId: NetworkDescriptor['id']
@@ -33,6 +33,9 @@ interface Props extends FlatListProps<any> {
   initTab?: {
     [key: string]: boolean
   }
+  style: FlatListProps<any>['style']
+  contentContainerStyle: FlatListProps<any>['contentContainerStyle']
+  onScroll: FlatListProps<any>['onScroll']
 }
 
 const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
@@ -52,7 +55,9 @@ const Tokens = ({
   openTab,
   setOpenTab,
   initTab,
-  ...rest
+  onScroll,
+  style,
+  contentContainerStyle
 }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -179,8 +184,9 @@ const Tokens = ({
 
   return (
     <FlatList
-      {...rest}
       ref={flatlistRef}
+      style={style}
+      contentContainerStyle={contentContainerStyle}
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
@@ -265,6 +271,7 @@ const Tokens = ({
       onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
       initialNumToRender={isPopup ? 10 : 20}
       windowSize={9} // Larger values can cause performance issues.
+      onScroll={onScroll}
     />
   )
 }
