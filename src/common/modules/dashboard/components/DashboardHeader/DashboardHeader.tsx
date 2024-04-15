@@ -85,8 +85,7 @@ const DashboardHeader = () => {
         flexboxStyles.directionRow,
         flexboxStyles.alignCenter,
         flexboxStyles.flex1,
-        commonWebStyles.contentContainer,
-        spacings.mbXl
+        commonWebStyles.contentContainer
       ]}
     >
       <View
