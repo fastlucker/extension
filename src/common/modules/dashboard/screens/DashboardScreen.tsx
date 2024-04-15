@@ -14,7 +14,7 @@ import { getUiType } from '@web/utils/uiType'
 
 import DAppFooter from '../components/DAppFooter'
 import DashboardOverview from '../components/DashboardOverview'
-import DashboardSectionList from '../components/DashboardSectionList'
+import DashboardPages from '../components/DashboardPages'
 import getStyles from './styles'
 
 const { isPopup, isTab } = getUiType()
@@ -59,7 +59,7 @@ const DashboardScreen = () => {
             openReceiveModal={openReceiveModal}
             animatedOverviewHeight={animatedOverviewHeight}
           />
-          <DashboardSectionList
+          <DashboardPages
             accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
             filterByNetworkId={filterByNetworkId}

@@ -1,8 +1,10 @@
 import { formatUnits } from 'ethers'
-import React, { useCallback, useEffect, useMemo } from 'react'
-import { View, ViewProps } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useForm } from 'react-hook-form'
+import { FlatList, FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
@@ -10,24 +12,28 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import DashboardBanners from '../DashboardBanners'
+import TabsAndSearch from '../TabsAndSearch'
+import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
 
-interface Props extends ViewProps {
-  tokens: TokenResult[]
-  searchValue: string
+interface Props extends FlatListProps<any> {
+  openTab: TabType
+  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  filterByNetworkId: NetworkDescriptor['id']
   isLoading: boolean
   tokenPreferences: CustomToken[]
-  page: number
-  maxPages: number
-  setMaxPages: React.Dispatch<React.SetStateAction<number>>
+  initTab?: {
+    [key: string]: boolean
+  }
 }
-
-const { isPopup } = getUiType()
 
 const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   const balance = parseFloat(formatUnits(amount, decimals))
@@ -37,20 +43,51 @@ const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
   return balance * price
 }
 
-const TOKENS_PER_PAGE = isPopup ? 25 : 50
+const { isPopup } = getUiType()
 
 const Tokens = ({
   isLoading,
-  tokens,
-  searchValue,
+  filterByNetworkId,
   tokenPreferences,
-  page,
-  maxPages,
-  setMaxPages,
+  openTab,
+  setOpenTab,
+  initTab,
   ...rest
 }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { theme } = useTheme()
+  const { accountPortfolio } = usePortfolioControllerState()
+  const { control, watch, setValue } = useForm({
+    mode: 'all',
+    defaultValues: {
+      search: ''
+    }
+  })
+  const flatlistRef = useRef<FlatList | null>(null)
+
+  const searchValue = watch('search')
+
+  const tokens = useMemo(
+    () =>
+      (accountPortfolio?.tokens || [])
+        .filter((token) => {
+          if (!filterByNetworkId) return true
+          if (filterByNetworkId === 'rewards') return token.flags.rewardsType
+          if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
+
+          return token.networkId === filterByNetworkId
+        })
+        .filter((token) => {
+          if (!searchValue) return true
+
+          const doesAddressMatch = token.address.toLowerCase().includes(searchValue.toLowerCase())
+          const doesSymbolMatch = token.symbol.toLowerCase().includes(searchValue.toLowerCase())
+
+          return doesAddressMatch || doesSymbolMatch
+        }),
+    [accountPortfolio?.tokens, filterByNetworkId, searchValue]
+  )
 
   // Filter out tokens which are not in
   // tokenPreferences and pinned
@@ -120,9 +157,8 @@ const Tokens = ({
           }
 
           return 0
-        })
-        .filter((_, index) => index < page * TOKENS_PER_PAGE),
-    [tokens, page, tokenPreferences, hasNonZeroTokensOrPreferences]
+        }),
+    [tokens, tokenPreferences, hasNonZeroTokensOrPreferences]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -130,57 +166,106 @@ const Tokens = ({
   }, [navigate])
 
   useEffect(() => {
-    setMaxPages(Math.ceil(tokens.length / TOKENS_PER_PAGE))
-  }, [setMaxPages, tokens.length])
+    setValue('search', '')
+
+    if (!flatlistRef.current) return
+
+    // Fixes weird behaviour that occurs when you scroll in one tab and then move to another and back.
+    flatlistRef.current?.scrollToOffset({
+      offset: 0,
+      animated: false
+    })
+  }, [setValue, openTab])
 
   return (
-    <View {...rest}>
-      <View style={[spacings.mb]}>
-        {!sortedTokens.length && (
-          <View style={[flexbox.alignCenter, spacings.pv]}>
-            {!searchValue && (
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
-                  {isLoading ? t('Looking for tokens') : t('No tokens yet')}
+    <FlatList
+      {...rest}
+      ref={flatlistRef}
+      ListHeaderComponent={<DashboardBanners />}
+      data={[
+        'header',
+        ...(initTab?.tokens ? sortedTokens : []),
+        !sortedTokens.length ? 'empty' : ''
+      ]}
+      renderItem={({ item }) => {
+        if (item === 'header') {
+          return (
+            <View style={{ backgroundColor: theme.primaryBackground }}>
+              <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+              <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 1.5 }}
+                >
+                  {t('ASSET/AMOUNT')}
                 </Text>
-                {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 0.7 }}
+                >
+                  {t('PRICE')}
+                </Text>
+                <Text
+                  appearance="secondaryText"
+                  fontSize={14}
+                  weight="medium"
+                  style={{ flex: 0.8, textAlign: 'right' }}
+                >
+                  {t('USD VALUE')}
+                </Text>
               </View>
-            )}
-            {!!searchValue && (
-              <Text fontSize={16} weight="medium">
-                {t('No tokens found')}
-              </Text>
-            )}
-          </View>
-        )}
-        {!!sortedTokens.length &&
-          sortedTokens.map((token: TokenResult) => (
-            <TokenItem
-              key={`${token?.address}-${token?.networkId}-${
-                token?.flags?.onGasTank ? 'gas-tank' : ''
-              }${token?.flags?.rewardsType ? 'rewards' : ''}${
-                !token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''
-              }`}
-              token={token}
-              tokenPreferences={tokenPreferences}
-              // handleTokenSelect={handleSelectToken}
-            />
-          ))}
-      </View>
+            </View>
+          )
+        }
 
-      {page === maxPages ? (
+        if (item === 'empty') {
+          return (
+            <View style={[flexbox.alignCenter, spacings.pv]}>
+              {searchValue ? (
+                <Text fontSize={16} weight="medium">
+                  {t('No tokens found')}
+                </Text>
+              ) : (
+                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+                  <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
+                    {isLoading ? t('Looking for tokens') : t('No tokens yet')}
+                  </Text>
+                  {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
+                </View>
+              )}
+            </View>
+          )
+        }
+
+        if (!initTab?.tokens || !item) return null
+
+        return <TokenItem token={item} tokenPreferences={tokenPreferences} />
+      }}
+      keyExtractor={(tokenOrElement) => {
+        if (typeof tokenOrElement === 'string') {
+          return tokenOrElement
+        }
+
+        const token = tokenOrElement
+
+        return `${token?.address}-${token?.networkId}-${token?.flags?.onGasTank ? 'gas-tank' : ''}${
+          token?.flags?.rewardsType ? 'rewards' : ''
+        }${!token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''}`
+      }}
+      stickyHeaderIndices={[1]} // Makes the header sticky
+      ListFooterComponent={
         <Button type="secondary" text={t('+ Add Custom')} onPress={navigateToAddCustomToken} />
-      ) : (
-        <Spinner
-          style={{
-            marginVertical: 24,
-            alignSelf: 'center',
-            width: 24,
-            height: 24
-          }}
-        />
-      )}
-    </View>
+      }
+      ListFooterComponentStyle={spacings.ptSm}
+      removeClippedSubviews
+      onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
+      initialNumToRender={isPopup ? 10 : 20}
+      windowSize={9} // Larger values can cause performance issues.
+    />
   )
 }
 

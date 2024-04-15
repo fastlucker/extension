@@ -1,29 +1,47 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { View, ViewProps } from 'react-native'
+import { FlatList, FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import Text from '@common/components/Text'
+import useTheme from '@common/hooks/useTheme'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getUiType } from '@web/utils/uiType'
 
+import DashboardBanners from '../DashboardBanners'
+import TabsAndSearch from '../TabsAndSearch'
+import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import CollectibleModal from './CollectibleModal'
 import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
 import styles from './styles'
 
-interface Props extends ViewProps {
-  searchValue: string
-  page: number
-  setMaxPages: React.Dispatch<React.SetStateAction<number>>
+interface Props extends FlatListProps<any> {
+  openTab: TabType
+  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  initTab?: {
+    [key: string]: boolean
+  }
 }
 
-const COLLECTIONS_PER_PAGE = 10
+const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ searchValue, page, setMaxPages, ...rest }) => {
+const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, ...rest }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
+  const { theme } = useTheme()
   const [selectedCollectible, setSelectedCollectible] = useState<SelectedCollectible | null>(null)
+  const { control, watch, setValue } = useForm({
+    mode: 'all',
+    defaultValues: {
+      search: ''
+    }
+  })
+  const flatlistRef = useRef<FlatList | null>(null)
+
+  const searchValue = watch('search')
 
   const closeCollectibleModal = useCallback(() => {
     closeModal()
@@ -39,49 +57,89 @@ const Collections: FC<Props> = ({ searchValue, page, setMaxPages, ...rest }) => 
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || [])
-        .filter(({ name, address }) => {
-          if (!searchValue) return true
-          return (
-            name.toLowerCase().includes(searchValue.toLowerCase()) ||
-            address.toLowerCase().includes(searchValue.toLowerCase())
-          )
-        })
-        .filter((_, index) => index < page * COLLECTIONS_PER_PAGE),
-    [accountPortfolio?.collections, page, searchValue]
+      (accountPortfolio?.collections || []).filter(({ name, address }) => {
+        if (!searchValue) return true
+
+        return (
+          name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          address.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      }),
+    [accountPortfolio?.collections, searchValue]
   )
 
   useEffect(() => {
-    if (!accountPortfolio?.collections.length) return
+    setValue('search', '')
 
-    setMaxPages(Math.floor(accountPortfolio.collections.length / COLLECTIONS_PER_PAGE))
-  }, [setMaxPages, accountPortfolio?.collections?.length])
+    if (!flatlistRef.current) return
+
+    // Fixes weird behaviour that occurs when you scroll in one tab and then move to another and back.
+    flatlistRef.current?.scrollToOffset({
+      offset: 0,
+      animated: false
+    })
+  }, [openTab, setValue])
 
   return (
-    <View {...rest}>
+    <>
       <CollectibleModal
         modalRef={modalRef}
         handleClose={closeCollectibleModal}
         selectedCollectible={selectedCollectible}
       />
-      {filteredPortfolioCollections.length ? (
-        filteredPortfolioCollections.map(({ address, name, networkId, collectibles, priceIn }) => (
-          <Collection
-            address={address}
-            networkId={networkId}
-            key={address}
-            name={name}
-            collectibles={collectibles}
-            priceIn={priceIn}
-            openCollectibleModal={openCollectibleModal}
-          />
-        ))
-      ) : (
-        <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-          {t("You don't have any collectibles (NFTs) yet")}
-        </Text>
-      )}
-    </View>
+      <FlatList
+        {...rest}
+        ref={flatlistRef}
+        ListHeaderComponent={<DashboardBanners />}
+        data={[
+          'header',
+          ...(initTab?.collectibles ? filteredPortfolioCollections : []),
+          !filteredPortfolioCollections.length ? 'empty' : ''
+        ]}
+        renderItem={({ item }) => {
+          if (item === 'header') {
+            return (
+              <View style={{ backgroundColor: theme.primaryBackground }}>
+                <TabsAndSearch openTab={openTab} setOpenTab={setOpenTab} searchControl={control} />
+              </View>
+            )
+          }
+
+          if (item === 'empty') {
+            return (
+              <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
+                {t("You don't have any collectibles (NFTs) yet")}
+              </Text>
+            )
+          }
+
+          if (!initTab?.collectibles || !item) return null
+
+          const { name, address, networkId, collectibles, priceIn } = item
+
+          return (
+            <Collection
+              key={address}
+              name={name}
+              address={address}
+              networkId={networkId}
+              collectibles={collectibles}
+              priceIn={priceIn}
+              openCollectibleModal={openCollectibleModal}
+            />
+          )
+        }}
+        keyExtractor={(collectionOrElement) => {
+          if (typeof collectionOrElement === 'string') return collectionOrElement
+
+          return collectionOrElement.address
+        }}
+        stickyHeaderIndices={[1]} // Makes the header sticky
+        initialNumToRender={isPopup ? 4 : 10}
+        removeClippedSubviews
+        windowSize={15}
+      />
+    </>
   )
 }
 
