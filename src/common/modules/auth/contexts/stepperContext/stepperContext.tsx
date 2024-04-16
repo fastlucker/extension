@@ -7,6 +7,8 @@ const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
 const DEVICE_PASSWORD_STEP = 'Set up a\nDevice Password'
 const PERSONALIZE_STEP = 'Personalize\nyour Accounts'
 
+export type StepperFlow = 'email' | 'hw' | 'private-key' | 'seed' | 'create-seed'
+
 export const STEPPER_FLOWS = {
   email: {
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
