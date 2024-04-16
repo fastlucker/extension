@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Image, ImageProps, ImageStyle, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
+import Spinner from '@common/components/Spinner'
+import useTheme from '@common/hooks/useTheme'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-import Spinner from '../Spinner'
-import styles from './styles'
+import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
   networkId?: string
@@ -30,62 +31,64 @@ const TokenIcon: React.FC<Props> = ({
   style = {},
   ...props
 }) => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [validUri, setValidUri] = useState('')
-  const [initialLoad, setInitialLoad] = useState(true)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [hasError, setHasError] = useState<boolean>(false)
   const { networks } = useSettingsControllerState()
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      if (!initialLoad) return
-
-      // if we're in the extension, we have settings networks => we load from there
-      // if benzina, we don't => we load from predefined
-      // this will affect custom networks in benzina but the external benzin
-      // doesn't work with custom networks at the moment
-      const network = networks
+  const { styles } = useTheme(getStyles)
+  const network = useMemo(
+    () =>
+      networks
         ? networks.find((net) => net.id === networkId)
-        : predefinedNetworks.find((net) => net.id === networkId)
-      if (network) {
-        setValidUri(`https://cena.ambire.com/iconProxy/${network.platformId}/${address}`)
-      }
-
-      setInitialLoad(false)
-      setIsLoading(false)
-    })()
-  }, [address, networkId, networks, initialLoad])
-
-  const containerStyle = useMemo(
-    () => withContainer && [styles.container, { width: containerWidth, height: containerHeight }],
-    [containerHeight, containerWidth, withContainer]
+        : predefinedNetworks.find((net) => net.id === networkId),
+    [networkId, networks]
   )
 
-  if (isLoading) {
-    return (
-      <View style={containerStyle}>
-        <Spinner style={{ width: 24, height: 24 }} />
-      </View>
-    )
-  }
+  const imageUrl = useMemo(() => {
+    if (!network) return undefined
 
-  return validUri ? (
-    <View style={containerStyle || {}}>
-      <Image
-        source={{ uri: validUri }}
-        style={{ width, height, borderRadius: width / 2, ...style }}
-        onError={() => setValidUri('')}
-        {...props}
-      />
+    return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
+  }, [address, network])
+
+  const containerStyle = useMemo(
+    () =>
+      withContainer ? [styles.container, { width: containerWidth, height: containerHeight }] : {},
+    [containerHeight, containerWidth, withContainer, styles]
+  )
+
+  const setLoadingFinished = useCallback(() => {
+    setIsLoading(false)
+  }, [])
+
+  const setShowFallbackImage = useCallback(() => {
+    setHasError(true)
+  }, [])
+
+  return (
+    <View style={containerStyle}>
+      {!!isLoading && !hasError && (
+        <View style={styles.loader}>
+          <Spinner style={{ width, height }} />
+        </View>
+      )}
+      {!!imageUrl && !hasError && (
+        <Image
+          source={{ uri: imageUrl }}
+          style={{ width, height, borderRadius: width / 2, ...style }}
+          onError={setShowFallbackImage}
+          onLoadEnd={setLoadingFinished}
+          {...props}
+        />
+      )}
+      {!!hasError && (
+        <MissingTokenIcon
+          withRect={withContainer}
+          // A bit larger when they don't have a container,
+          // because the SVG sizings are made with rectangle in mind
+          width={withContainer ? containerWidth : width * 1.3}
+          height={withContainer ? containerHeight : height * 1.3}
+        />
+      )}
     </View>
-  ) : (
-    <MissingTokenIcon
-      withRect={withContainer}
-      // A bit larger when they don't have a container,
-      // because the SVG sizings are made with rectangle in mind
-      width={withContainer ? containerWidth : width * 1.3}
-      height={withContainer ? containerHeight : height * 1.3}
-    />
   )
 }
 
