@@ -71,13 +71,17 @@ const ToastProvider = ({ children }: Props) => {
         ...defaultOptions,
         ...(options || {})
       }
+      if (toasts.some((t) => t.text === toast.text)) {
+        return
+      }
+
       setToasts((_toasts) => [..._toasts, toast])
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
       return toast.id
     },
-    [setToasts, removeToast]
+    [toasts, setToasts, removeToast]
   )
 
   const onToastPress = useCallback(
