@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -25,10 +25,10 @@ const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
   const { minWidthSize } = useWindowSize()
-
   const { accountPortfolio, state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
-
+  const [lastOffsetY, setLastOffsetY] = useState(0)
+  const [scrollUpStartedAt, setScrollUpStartedAt] = useState(0)
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
@@ -41,7 +41,14 @@ const DashboardScreen = () => {
         contentOffset: { y }
       } = event.nativeEvent
 
-      const isOverviewShown = y < 50
+      if (scrollUpStartedAt === 0 && lastOffsetY > y) {
+        setScrollUpStartedAt(y)
+      } else if (scrollUpStartedAt > 0 && y > lastOffsetY) {
+        setScrollUpStartedAt(0)
+      }
+      setLastOffsetY(y)
+
+      const isOverviewShown = y < 50 || y < scrollUpStartedAt - 200
 
       Animated.spring(animatedOverviewHeight, {
         toValue: isOverviewShown ? OVERVIEW_MAX_HEIGHT : 0,
@@ -51,7 +58,7 @@ const DashboardScreen = () => {
         useNativeDriver: !isWeb
       }).start()
     },
-    [animatedOverviewHeight]
+    [animatedOverviewHeight, lastOffsetY, scrollUpStartedAt]
   )
 
   return (
