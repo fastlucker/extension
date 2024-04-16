@@ -22,6 +22,7 @@ interface Options {
   type?: 'error' | 'success' | 'info' | 'warning'
   sticky?: boolean
   badge?: string
+  isTypeLabelHidden?: boolean
 }
 
 interface Toast extends Options {
@@ -101,19 +102,19 @@ const ToastProvider = ({ children }: Props) => {
     >
       <Portal hostName="global">
         <View style={[styles.container, { top: topInset }]}>
-          {toasts.map(({ id, url, type = 'success', sticky, text, onClick }) => (
+          {toasts.map(({ id, url, type = 'success', sticky, text, onClick, isTypeLabelHidden }) => (
             <Pressable
               onPress={() => onToastPress(id, onClick, url)}
-              style={[
-                styles.toastWrapper,
-                {
-                  borderWidth: 1,
-                  borderColor: theme[`${type}Decorative`]
-                }
-              ]}
+              style={styles.toastWrapper}
               key={id}
             >
-              <Alert size={isPopup ? 'sm' : 'md'} title={text} type={type}>
+              <Alert
+                size={isPopup ? 'sm' : 'md'}
+                title={text}
+                type={type}
+                style={{ borderWidth: 2 }}
+                isTypeLabelHidden={isTypeLabelHidden}
+              >
                 {!!sticky && (
                   <Pressable
                     style={{ marginLeft: 'auto', ...spacings.mtMi }}

@@ -85,7 +85,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     const onWarning = (newState: { warnings: string[]; controller: string }) => {
       const lastWarning = newState.warnings[newState.warnings.length - 1]
       if (lastWarning) {
-        addToast(lastWarning, { timeout: 4500, type: 'warning' })
+        addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
       }
     }
 
