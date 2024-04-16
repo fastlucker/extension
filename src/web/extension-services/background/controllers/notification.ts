@@ -335,12 +335,12 @@ export class NotificationController extends EventEmitter {
           this.currentNotificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>())
           this.deleteNotificationRequest(this.currentNotificationRequest)
         } else {
-          chrome.windows.update(this.notificationWindowId, { focused: true })
+          winMgr.focusNotificationWindow(this.notificationWindowId)
           this.#pm.send('> ui-warning', {
             method: 'notification',
             params: {
               warnings: [
-                'You have a pending dApp request. Please resolve it before making another request.'
+                'You currently have a pending dApp request. Please resolve it before making another request.'
               ],
               controller: 'notification'
             }
