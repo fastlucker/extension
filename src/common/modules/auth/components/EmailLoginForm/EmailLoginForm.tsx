@@ -151,7 +151,7 @@ const EmailLoginForm: React.FC<any> = ({
             style={{ ...flexbox.alignSelfCenter, marginBottom: 60 }}
             appearance="primary"
           >
-            {t('Waiting Email Confirmation')}
+            {t('Waiting for Email Confirmation')}
           </Text>
 
           <Text
