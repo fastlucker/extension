@@ -164,7 +164,7 @@ export async function bootstrapWithStorage(namespace) {
 
   await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
 
-  return { browser, extensionRootUrl, page, recorder }
+  return { browser, extensionRootUrl, page, recorder: {} }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -273,30 +273,37 @@ export async function confirmTransaction(
   )
   const newPage = await newTarget.page()
 
+  console.log({ newPage })
+
+  const recorder = new PuppeteerScreenRecorder(newPage, { followNewTab: true })
+
+  console.log({ recorder })
+
+  await recorder.start(`./recorder/test_${Date.now()}.mp4`)
+
   // Wait all Fee options to be loaded and to be clickable
   await new Promise((r) => setTimeout(r, 5000))
 
-  /* Click on "Fast" button */
-  await clickOnElement(newPage, '[data-testid="fee-fast:"]:not([disabled]')
+  /* Click on "Ape" button */
+  await clickOnElement(newPage, '[data-testid="fee-ape:"]:not([disabled]')
 
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
 
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(
-    () => {
-      const pageText = document.documentElement.innerText
-      const occurrences = (pageText.match(/Timestamp/g) || []).length
-      return occurrences >= 2
-    },
-    { timeout: 300000 } // wait max 5 minutes txn to be confirmed
-  )
+  await newPage.waitForFunction(() => {
+    const pageText = document.documentElement.innerText
+    const occurrences = (pageText.match(/Timestamp/g) || []).length
+    return occurrences >= 2
+  })
 
   const doesFailedExist = await newPage.evaluate(() => {
     return document.documentElement.innerText.includes('Failed')
   })
 
   await new Promise((r) => setTimeout(r, 300))
+
+  await recorder.stop()
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 }
