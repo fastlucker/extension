@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Image, ImageProps, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
@@ -8,7 +8,6 @@ import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { fetchImageFromCena } from '@common/utils/checkIfImageExists'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
@@ -30,52 +29,32 @@ const TokenIcon: React.FC<Props> = ({
   networkId = '',
   address = '',
   withContainer = false,
-  containerWidth = 35,
-  containerHeight = 35,
+  containerWidth = 34,
+  containerHeight = 34,
   width = 20,
   height = 20,
   onGasTank = false,
   networkSize = 14,
   ...props
 }) => {
-  // try to retrieve the image from the cache
-  const key = `${networkId}:${address}`
-  const uriValueFromCena = localStorage.getItem(key) ?? ''
-  const uriValue =
-    uriValueFromCena !== '' && uriValueFromCena !== 'not-found' ? uriValueFromCena : ''
-
   const { theme, styles } = useTheme(getStyles)
-  const [isLoading, setIsLoading] = useState(uriValueFromCena === '')
-  const [validUri, setValidUri] = useState(uriValue)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [hasError, setHasError] = useState<boolean>()
   const { networks } = useSettingsControllerState()
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      if (validUri !== '') return
-
-      // if we're in the extension, we have settings networks => we load from there
-      // if benzina, we don't => we load from predefined
-      // this will affect custom networks in benzina but the external benzin
-      // doesn't work with custom networks at the moment
-      const network = networks
+  const network = useMemo(
+    () =>
+      networks
         ? networks.find((net) => net.id === networkId)
-        : predefinedNetworks.find((net) => net.id === networkId)
-      if (network) {
-        const cenaUrl = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-        const cenaImg = await fetchImageFromCena(cenaUrl)
-        if (cenaImg) {
-          localStorage.setItem(key, cenaImg)
-          setValidUri(cenaImg)
-          setIsLoading(false)
-          return
-        }
-      }
+        : predefinedNetworks.find((net) => net.id === networkId),
+    [networkId, networks]
+  )
 
-      localStorage.setItem(key, 'not-found')
-      setIsLoading(false)
-    })()
-  }, [address, networkId, networks, key, validUri])
+  const imageUrl = useMemo(() => {
+    if (!network) return undefined
+
+    return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
+  }, [address, network])
 
   const containerStyle = useMemo(
     () =>
@@ -92,17 +71,31 @@ const TokenIcon: React.FC<Props> = ({
     [containerHeight, containerWidth, withContainer, theme.secondaryBackground]
   )
 
+  const setLoadingFinished = useCallback(() => {
+    setIsLoading(false)
+  }, [])
+
+  const setShowFallbackImage = useCallback(() => {
+    setHasError(true)
+  }, [])
+
   return (
     <View style={containerStyle}>
-      {!!isLoading && <Spinner style={{ width: 24, height: 24 }} />}
-      {!!validUri && !isLoading && (
+      {!!isLoading && !hasError && (
+        <View style={styles.loader}>
+          <Spinner style={{ width, height }} />
+        </View>
+      )}
+      {!!imageUrl && !hasError && (
         <Image
-          source={{ uri: validUri }}
+          source={{ uri: imageUrl }}
           style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
+          onError={setShowFallbackImage}
+          onLoadEnd={setLoadingFinished}
           {...props}
         />
       )}
-      {!validUri && !isLoading && (
+      {!!hasError && (
         <MissingTokenIcon
           withRect={withContainer}
           // A bit larger when they don't have a container,
@@ -111,7 +104,6 @@ const TokenIcon: React.FC<Props> = ({
           height={withContainer ? containerHeight : height * 1.3}
         />
       )}
-
       <View
         style={[
           styles.networkIconWrapper,
@@ -121,7 +113,7 @@ const TokenIcon: React.FC<Props> = ({
           }
         ]}
       >
-        {networkId && (
+        {!!networkId && (
           <NetworkIcon
             id={!onGasTank ? networkId : 'gasTank'}
             size={networkSize}
