@@ -16,3 +16,17 @@ export const checkIfImageExists = (uri?: string) => {
     })
     .catch(() => Promise.resolve(false))
 }
+
+// try to fetch the token icon from cena.ambire.com
+// if it fails, return null
+export async function fetchImageFromCena(uri: string): Promise<string | null> {
+  try {
+    const cenaResult = await fetch(uri, {
+      mode: 'cors'
+    })
+    if (cenaResult.status !== 404) return cenaResult.url
+    return null
+  } catch (e) {
+    return null
+  }
+}
