@@ -21,8 +21,12 @@ export const checkIfImageExists = (uri?: string) => {
 // if it fails, return null
 export async function fetchImageFromCena(uri: string): Promise<string | null> {
   try {
-    const cenaResult = await fetch(uri)
+    const cenaResult = await fetch(uri, {
+      mode: 'cors'
+    })
+    console.log(cenaResult)
     if (cenaResult.status !== 404) return cenaResult.url
+    console.log(2)
     return null
   } catch (e) {
     return null
