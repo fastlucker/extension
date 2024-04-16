@@ -22,7 +22,7 @@ export const STEPPER_FLOWS = {
   'private-key': {
     [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
-    [WEB_ROUTES.importPrivateKey]: 'Enter your private Key',
+    [WEB_ROUTES.importPrivateKey]: 'Enter your private key',
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
