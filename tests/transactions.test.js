@@ -171,7 +171,7 @@ describe('transactions', () => {
     /* Click on a button that triggers a copy to clipboard. */
     await page.click('.copyButton')
 
-    const copiedAddress = process.env.KEYSTORE_SELECTED_ACCOUNT_1
+    const copiedAddress = process.env.BA_SELECTED_ACCOUNT
     /* Click on "Verify" tab */
     await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
     /* Fill copied address in the Signer field */
@@ -215,7 +215,7 @@ describe('transactions', () => {
 
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
-    await new Promise((r) => setTimeout(r, 500))
+    await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="common-base-USDT"]')
 
     await page.waitForSelector('[data-testid="common-base-USDT"]', {
