@@ -149,7 +149,7 @@ async function init() {
   })
   const walletStateCtrl = new WalletStateController()
   const dappsCtrl = new DappsController(storage)
-  const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl)
+  const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl, pm)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
 
