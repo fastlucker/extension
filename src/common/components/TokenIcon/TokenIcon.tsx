@@ -32,12 +32,13 @@ const TokenIcon: React.FC<Props> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [validUri, setValidUri] = useState('')
+  const [initialLoad, setInitialLoad] = useState(true)
   const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      if (validUri === 'not-found') return
+      if (!initialLoad) return
 
       // if we're in the extension, we have settings networks => we load from there
       // if benzina, we don't => we load from predefined
@@ -48,13 +49,12 @@ const TokenIcon: React.FC<Props> = ({
         : predefinedNetworks.find((net) => net.id === networkId)
       if (network) {
         setValidUri(`https://cena.ambire.com/iconProxy/${network.platformId}/${address}`)
-        setIsLoading(false)
-        return
       }
 
+      setInitialLoad(false)
       setIsLoading(false)
     })()
-  }, [address, networkId, networks, validUri])
+  }, [address, networkId, networks, initialLoad])
 
   const containerStyle = useMemo(
     () => withContainer && [styles.container, { width: containerWidth, height: containerHeight }],
