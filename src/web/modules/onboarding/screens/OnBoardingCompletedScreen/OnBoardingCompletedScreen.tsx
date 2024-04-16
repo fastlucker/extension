@@ -99,7 +99,9 @@ const OnBoardingCompletedScreen = () => {
         </View>
         <Image style={styles.tokensImg} source={tokensEarnedImg} />
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mb2Xl]}>
-          {t("You've just earned $WALLET rewards for creating a new fresh account.")}
+          {t(
+            'Congratulations on creating a new hot wallet! You earned $WALLET just by doing that!'
+          )}
         </Text>
         <Pressable
           onPress={() => {
