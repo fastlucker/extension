@@ -34,7 +34,6 @@ const TokenIcon: React.FC<Props> = ({
   // try to retrieve the image from the cache
   const key = `${networkId}:${address}`
   const uriValueFromCena = localStorage.getItem(key) ?? ''
-  console.log(uriValueFromCena)
   const uriValue =
     uriValueFromCena !== '' && uriValueFromCena !== 'not-found' ? uriValueFromCena : ''
 
@@ -57,9 +56,7 @@ const TokenIcon: React.FC<Props> = ({
       if (network) {
         const cenaUrl = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
         const cenaImg = await fetchImageFromCena(cenaUrl)
-        console.log(cenaImg)
         if (cenaImg) {
-          console.log('vlizam')
           localStorage.setItem(key, cenaImg)
           setValidUri(cenaImg)
           setIsLoading(false)
