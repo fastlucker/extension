@@ -8,7 +8,6 @@ import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { fetchImageFromCena } from '@common/utils/checkIfImageExists'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
@@ -38,21 +37,16 @@ const TokenIcon: React.FC<Props> = ({
   networkSize = 14,
   ...props
 }) => {
-  // try to retrieve the image from the cache
-  const key = `${networkId}:${address}`
-  const uriValueFromCena = localStorage.getItem(key) ?? ''
-  const uriValue =
-    uriValueFromCena !== '' && uriValueFromCena !== 'not-found' ? uriValueFromCena : ''
-
   const { theme, styles } = useTheme(getStyles)
-  const [isLoading, setIsLoading] = useState(uriValueFromCena === '')
-  const [validUri, setValidUri] = useState(uriValue)
+  const [isLoading, setIsLoading] = useState(true)
+  const [validUri, setValidUri] = useState('')
+  const [initialLoad, setInitialLoad] = useState(true)
   const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      if (validUri !== '') return
+      if (!initialLoad) return
 
       // if we're in the extension, we have settings networks => we load from there
       // if benzina, we don't => we load from predefined
@@ -62,20 +56,13 @@ const TokenIcon: React.FC<Props> = ({
         ? networks.find((net) => net.id === networkId)
         : predefinedNetworks.find((net) => net.id === networkId)
       if (network) {
-        const cenaUrl = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-        const cenaImg = await fetchImageFromCena(cenaUrl)
-        if (cenaImg) {
-          localStorage.setItem(key, cenaImg)
-          setValidUri(cenaImg)
-          setIsLoading(false)
-          return
-        }
+        setValidUri(`https://cena.ambire.com/iconProxy/${network.platformId}/${address}`)
       }
 
-      localStorage.setItem(key, 'not-found')
+      setInitialLoad(false)
       setIsLoading(false)
     })()
-  }, [address, networkId, networks, key, validUri])
+  }, [address, networkId, networks, initialLoad])
 
   const containerStyle = useMemo(
     () =>
@@ -99,6 +86,7 @@ const TokenIcon: React.FC<Props> = ({
         <Image
           source={{ uri: validUri }}
           style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
+          onError={() => setValidUri('')}
           {...props}
         />
       )}

@@ -3,7 +3,6 @@ import { Image, ImageProps, ImageStyle, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
-import { fetchImageFromCena } from '@common/utils/checkIfImageExists'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import Spinner from '../Spinner'
@@ -31,20 +30,14 @@ const TokenIcon: React.FC<Props> = ({
   style = {},
   ...props
 }) => {
-  // try to retrieve the image from the cache
-  const key = `${networkId}:${address}`
-  const uriValueFromCena = localStorage.getItem(key) ?? ''
-  const uriValue =
-    uriValueFromCena !== '' && uriValueFromCena !== 'not-found' ? uriValueFromCena : ''
-
-  const [isLoading, setIsLoading] = useState(uriValueFromCena === '')
-  const [validUri, setValidUri] = useState(uriValue)
+  const [isLoading, setIsLoading] = useState(true)
+  const [validUri, setValidUri] = useState('')
   const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      if (validUri !== '') return
+      if (validUri === 'not-found') return
 
       // if we're in the extension, we have settings networks => we load from there
       // if benzina, we don't => we load from predefined
@@ -54,20 +47,14 @@ const TokenIcon: React.FC<Props> = ({
         ? networks.find((net) => net.id === networkId)
         : predefinedNetworks.find((net) => net.id === networkId)
       if (network) {
-        const cenaUrl = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
-        const cenaImg = await fetchImageFromCena(cenaUrl)
-        if (cenaImg) {
-          localStorage.setItem(key, cenaImg)
-          setValidUri(cenaImg)
-          setIsLoading(false)
-          return
-        }
+        setValidUri(`https://cena.ambire.com/iconProxy/${network.platformId}/${address}`)
+        setIsLoading(false)
+        return
       }
 
-      localStorage.setItem(key, 'not-found')
       setIsLoading(false)
     })()
-  }, [address, networkId, networks, key, validUri])
+  }, [address, networkId, networks, validUri])
 
   const containerStyle = useMemo(
     () => withContainer && [styles.container, { width: containerWidth, height: containerHeight }],
@@ -82,11 +69,12 @@ const TokenIcon: React.FC<Props> = ({
     )
   }
 
-  return validUri ? (
+  return validUri && validUri !== 'not-found' ? (
     <View style={containerStyle || {}}>
       <Image
         source={{ uri: validUri }}
         style={{ width, height, borderRadius: width / 2, ...style }}
+        onError={() => setValidUri('not-found')}
         {...props}
       />
     </View>
