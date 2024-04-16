@@ -9,8 +9,11 @@ import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { UserNotification } from '@web/extension-services/background/libs/user-notification'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
+import { PortMessenger } from '@web/extension-services/messengers'
 
 import { DappsController } from './dapps'
+
+const QUEUE_REQUESTS_COMPONENTS_WHITELIST = ['SendTransaction', 'SignText', 'SignTypedData']
 
 export const BENZIN_NOTIFICATION_DATA = {
   screen: 'Benzin',
@@ -62,6 +65,8 @@ export class NotificationController extends EventEmitter {
 
   #dappsCtrl: DappsController
 
+  #pm: PortMessenger
+
   _notificationRequests: NotificationRequest[] = []
 
   notificationWindowId: null | number = null
@@ -76,10 +81,11 @@ export class NotificationController extends EventEmitter {
     this._notificationRequests = newValue
   }
 
-  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
+  constructor(mainCtrl: MainController, dappsCtrl: DappsController, pm: PortMessenger) {
     super()
     this.#mainCtrl = mainCtrl
     this.#dappsCtrl = dappsCtrl
+    this.#pm = pm
     winMgr.event.on('windowRemoved', (winId: number) => {
       if (winId === this.notificationWindowId) {
         this.notificationWindowId = null
@@ -317,6 +323,31 @@ export class NotificationController extends EventEmitter {
         },
         reject: (data) => {
           reject(data)
+        }
+      }
+
+      if (
+        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen) &&
+        this.notificationWindowId &&
+        this.currentNotificationRequest
+      ) {
+        if (data.screen === this.currentNotificationRequest.screen) {
+          this.currentNotificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>())
+          this.deleteNotificationRequest(this.currentNotificationRequest)
+        } else {
+          chrome.windows.update(this.notificationWindowId, { focused: true })
+          this.#pm.send('> ui-warning', {
+            method: 'notification',
+            params: {
+              warnings: [
+                'You have a pending dApp request. Please resolve it before making another request.'
+              ],
+              controller: 'notification'
+            }
+          })
+          throw ethErrors.provider.userRejectedRequest(
+            'please request after current request resolve'
+          )
         }
       }
 
