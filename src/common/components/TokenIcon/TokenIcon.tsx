@@ -69,12 +69,12 @@ const TokenIcon: React.FC<Props> = ({
     )
   }
 
-  return validUri && validUri !== 'not-found' ? (
+  return validUri ? (
     <View style={containerStyle || {}}>
       <Image
         source={{ uri: validUri }}
         style={{ width, height, borderRadius: width / 2, ...style }}
-        onError={() => setValidUri('not-found')}
+        onError={() => setValidUri('')}
         {...props}
       />
     </View>
