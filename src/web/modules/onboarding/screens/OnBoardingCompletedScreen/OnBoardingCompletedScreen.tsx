@@ -75,7 +75,7 @@ const OnBoardingCompletedScreen = () => {
         <Image style={styles.missedRewardsImg} source={missedRewardsImg} />
         <Text weight="medium" fontSize={20} style={[text.center, spacings.mb2Xl]}>
           {t(
-            "You've missed to get a $WALLET reward. Create a new smart account and get your tokens!"
+            "You've successfully imported a view-only account. If you create a new smart account, you will get $WALLET rewards!"
           )}
         </Text>
         <Pressable
@@ -84,7 +84,7 @@ const OnBoardingCompletedScreen = () => {
           }}
         >
           <Text underline appearance="primary" fontSize={14} weight="medium" style={text.center}>
-            {t('Check how you can get a reward')}
+            {t('Learn how to get a reward')}
           </Text>
         </Pressable>
       </>
@@ -137,7 +137,7 @@ const OnBoardingCompletedScreen = () => {
                 <Button
                   onPress={() => navigate(ROUTES.dashboard)}
                   hasBottomSpacing={false}
-                  text={t('Continue to Dashboard')}
+                  text={t('Go to Dashboard')}
                 >
                   <View style={spacings.pl}>
                     <RightArrowIcon color={colors.titan} />
