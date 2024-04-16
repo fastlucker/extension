@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
@@ -15,12 +16,16 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import getStyles from './styles'
+
 const HideToken = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
 
   const portfolio = usePortfolioControllerState()
-  const [isLoading, setIsLoading] = useState<any>({})
+  const [isLoading, setIsLoading] = useState<{
+    [token: string]: boolean
+  }>({})
   const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>([])
 
   const hideToken = useCallback(
@@ -66,7 +71,7 @@ const HideToken = () => {
   )
 
   const removeToken = useCallback(
-    async (token: CustomToken) => {
+    async (token: CustomToken | TokenResult) => {
       await portfolio.removeTokenPreferences(token)
     },
     [portfolio]
@@ -211,10 +216,7 @@ const HideToken = () => {
                     standard === 'ERC20'
                 ) && (
                   <Pressable onPress={() => removeToken(token)}>
-                    <DeleteIcon
-                      color={theme.secondaryText}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
+                    <DeleteIcon color={theme.secondaryText} style={styles.icon} />
                   </Pressable>
                 )}
                 {portfolio.state.tokenPreferences.find(
@@ -226,20 +228,14 @@ const HideToken = () => {
                     disabled={isLoading[`${token.address}-${token.networkId}`]}
                     onPress={() => hideToken(token)}
                   >
-                    <InvisibilityIcon
-                      color={theme.errorDecorative}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
+                    <InvisibilityIcon color={theme.errorDecorative} style={styles.icon} />
                   </Pressable>
                 ) : (
                   <Pressable
                     disabled={isLoading[`${token.address}-${token.networkId}`]}
                     onPress={() => hideToken(token)}
                   >
-                    <VisibilityIcon
-                      color={theme.successDecorative}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
+                    <VisibilityIcon color={theme.successDecorative} style={styles.icon} />
                   </Pressable>
                 )}
               </View>
