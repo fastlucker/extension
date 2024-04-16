@@ -4,8 +4,8 @@ import useRoute from '@common/hooks/useRoute'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 
 const ACCOUNT_ADDER_STEP = 'Select accounts\nto import'
-const DEVICE_PASSWORD_STEP = 'Set up a\nDevice Password'
-const PERSONALIZE_STEP = 'Personalize\nyour Accounts'
+const DEVICE_PASSWORD_STEP = 'Set up a\ndevice password'
+const PERSONALIZE_STEP = 'Personalize\nyour accounts'
 
 export const STEPPER_FLOWS = {
   email: {
@@ -29,15 +29,15 @@ export const STEPPER_FLOWS = {
   seed: {
     [WEB_ROUTES.importHotWallet]: 'Select the\nimport option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
-    [WEB_ROUTES.importSeedPhrase]: 'Enter your\nSeed Phrase',
+    [WEB_ROUTES.importSeedPhrase]: 'Enter your\nseed phrase',
     [WEB_ROUTES.accountAdder]: ACCOUNT_ADDER_STEP,
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   },
   'create-seed': {
     'select-recovery': 'Select the\nrecovery option',
     [WEB_ROUTES.keyStoreSetup]: DEVICE_PASSWORD_STEP,
-    'secure-seed': 'Secure your\nSeed Phrase',
-    [WEB_ROUTES.createSeedPhraseConfirm]: 'Confirm your\nSeed Phrase',
+    'secure-seed': 'Secure your\nseed phrase',
+    [WEB_ROUTES.createSeedPhraseConfirm]: 'Confirm your\nseed phrase',
     [WEB_ROUTES.accountPersonalize]: PERSONALIZE_STEP
   }
 }
