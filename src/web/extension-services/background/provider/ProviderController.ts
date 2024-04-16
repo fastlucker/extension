@@ -171,8 +171,7 @@ export class ProviderController {
       const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
       if (is4337Broadcast) {
-        const receipt = await bundler.poll(hash, network)
-        hash = receipt.receipt.transactionHash
+        hash = (await bundler.pollTxnHash(hash, network)).transactionHash
       }
 
       // delay just for better UX
