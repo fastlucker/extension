@@ -138,11 +138,7 @@ const WatchTokenRequestScreen = () => {
   useEffect(() => {
     const handleEffect = async () => {
       handleSelectNetwork()
-      if (tokenNetwork && !temporaryToken) {
-        // Check if token is eligible to add in portfolio
-        if (tokenData && !tokenTypeEligibility) {
-          await handleTokenType(tokenNetwork?.id)
-        }
+      if (tokenNetwork) {
 
         // Check if token is already in portfolio
         const isTokenInHints = await handleTokenIsInPortfolio(
@@ -155,8 +151,14 @@ const WatchTokenRequestScreen = () => {
           setIsLoading(false)
           setShowAlreadyInPortfolioMessage(true)
         }
-        if (tokenTypeEligibility && !isTokenInHints) {
-          if (!temporaryToken && !isTemporaryTokenRequested) {
+        if (!temporaryToken) {
+
+          // Check if token is eligible to add in portfolio
+          if (tokenData && !tokenTypeEligibility) {
+            await handleTokenType(tokenNetwork?.id)
+          }
+          
+          if (tokenTypeEligibility && !isTokenInHints && !isTemporaryTokenRequested) {
             setTemporaryTokenRequested(true)
             portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))
           }
@@ -211,6 +213,7 @@ const WatchTokenRequestScreen = () => {
       </View>
     )
   }
+  console.log(portfolioToken, 'portfolioToken')
 
   return (
     <TabLayoutContainer
@@ -290,12 +293,12 @@ const WatchTokenRequestScreen = () => {
             />
             <TokenHeader
               showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
-              temporaryToken={temporaryToken || portfolioToken}
+              temporaryToken={portfolioToken || temporaryToken}
             />
             <Token
               tokenData={tokenData}
               tokenNetwork={tokenNetwork}
-              temporaryToken={temporaryToken || portfolioToken}
+              temporaryToken={portfolioToken || temporaryToken}
               isLoading={isLoading}
               showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
             />

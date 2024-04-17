@@ -138,15 +138,15 @@ const AddToken = () => {
         return
       }
 
-      if (tokenTypeEligibility && !temporaryToken && !isAdditionalHintRequested) {
-        setIsLoading(true)
-        if (!temporaryToken && !isAdditionalHintRequested) {
+      if (!temporaryToken) {
+        if (tokenTypeEligibility && !isAdditionalHintRequested) {
+          setIsLoading(true)
           portfolio.getTemporaryTokens(network?.id, getAddress(address))
           setAdditionalHintRequested(true)
+        } else if (tokenTypeEligibility === undefined) {
+          setIsLoading(true)
+          await handleTokenType()
         }
-      } else if (!temporaryToken && tokenTypeEligibility === undefined) {
-        setIsLoading(true)
-        await handleTokenType()
       }
     }
 
@@ -258,10 +258,10 @@ const AddToken = () => {
       <Button
         disabled={
           showAlreadyInPortfolioMessage ||
-          !tokenTypeEligibility ||
+          (!temporaryToken && !tokenTypeEligibility) ||
           !isValidAddress(address) ||
           !network ||
-          !temporaryToken ||
+          
           isSubmitting
         }
         text={t('Add Token')}
