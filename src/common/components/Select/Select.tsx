@@ -22,8 +22,8 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
 
   if (!item) return null
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      {!!item?.icon && typeof item?.icon === 'object' && (
+    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
+      {!!item?.icon && typeof item?.icon !== 'string' && (
         <View style={styles.optionIcon}>{item.icon}</View>
       )}
       {!!item?.icon && typeof item?.icon === 'string' && (
@@ -81,7 +81,7 @@ const Select = ({
   const selectRef = useRef(null)
   const menuRef = useRef(null)
   const { x, y, height, width } = useElementSize(selectRef)
-  const { control, watch } = useForm({ defaultValues: { search: '' } })
+  const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
 
   const search = watch('search')
 
@@ -105,6 +105,7 @@ const Select = ({
       // @ts-ignore
       if (menuRef.current && !menuRef.current?.contains(event.target)) {
         setIsMenuOpen(false)
+        setSearchValue('search', '')
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -112,14 +113,15 @@ const Select = ({
       if (!isWeb) return
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isMenuOpen])
+  }, [isMenuOpen, setSearchValue])
 
   const handleOptionSelect = useCallback(
     (item: SelectValue) => {
       !!setValue && setValue(item)
       setIsMenuOpen(false)
+      setSearchValue('search', '')
     },
-    [setValue]
+    [setValue, setSearchValue]
   )
 
   const renderItem = useCallback(
@@ -160,7 +162,11 @@ const Select = ({
             selectStyle
           ]}
         >
-          {!value && <Text fontSize={14}>{placeholder || t('Select...')}</Text>}
+          {!value && (
+            <Text fontSize={14} appearance="secondaryText">
+              {placeholder || t('Select...')}
+            </Text>
+          )}
           {!!value && <Option item={value} />}
         </View>
       </Pressable>
