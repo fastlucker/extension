@@ -77,7 +77,11 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         })
 
         return {
-          value: feeOption.paidBy + feeOption.token.address + gasTankKey,
+          value:
+            feeOption.paidBy +
+            feeOption.token.address +
+            feeOption.token.symbol.toLowerCase() +
+            gasTankKey,
           label: <PayOption feeOption={feeOption} />,
           paidBy: feeOption.paidBy,
           token: feeOption.token,
