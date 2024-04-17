@@ -1,17 +1,20 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Image, Pressable, View } from 'react-native'
 
+import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 
-import getStyles from './styles'
+import getStyles, { MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
 
 const Option = React.memo(({ item }: { item: SelectValue }) => {
@@ -32,6 +35,33 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
   )
 })
 
+const OptionItemToRender = React.memo(
+  ({
+    item,
+    isSelected,
+    onPress
+  }: {
+    item: SelectValue
+    isSelected: boolean
+    onPress: (item: SelectValue) => void
+  }) => {
+    const { theme, styles } = useTheme(getStyles)
+
+    return (
+      <Pressable
+        style={({ hovered }: any) => [
+          styles.menuOption,
+          isSelected && { backgroundColor: theme.tertiaryBackground },
+          hovered && { backgroundColor: theme.secondaryBackground }
+        ]}
+        onPress={() => onPress(item)}
+      >
+        <Option item={item} />
+      </Pressable>
+    )
+  }
+)
+
 const Select = ({
   label,
   setValue,
@@ -40,7 +70,10 @@ const Select = ({
   placeholder,
   containerStyle,
   selectStyle,
-  labelStyle
+  labelStyle,
+  menuStyle,
+  disabled,
+  withSearch = true
 }: SelectProps) => {
   const { t } = useTranslation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -48,6 +81,21 @@ const Select = ({
   const selectRef = useRef(null)
   const menuRef = useRef(null)
   const { x, y, height, width } = useElementSize(selectRef)
+  const { control, watch } = useForm({ defaultValues: { search: '' } })
+
+  const search = watch('search')
+
+  const filteredOptions = useMemo(() => {
+    if (!search) return options
+    return options.filter((o) => {
+      let found: boolean = o.value.toString().toLowerCase().includes(search.toLowerCase())
+      if (!found && typeof o.label === 'string') {
+        found = o.label.toLowerCase().includes(search.toLowerCase())
+      }
+
+      return found
+    })
+  }, [options, search])
 
   // close menu on click outside
   useEffect(() => {
@@ -66,27 +114,25 @@ const Select = ({
     }
   }, [isMenuOpen])
 
+  const handleOptionSelect = useCallback(
+    (item: SelectValue) => {
+      !!setValue && setValue(item)
+      setIsMenuOpen(false)
+    },
+    [setValue]
+  )
+
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: SelectValue }) => {
-      const isSelected = item.value === value.value
-      return (
-        <Pressable
-          style={({ hovered }: any) => [
-            styles.menuOption,
-            isSelected && { backgroundColor: theme.tertiaryBackground },
-            hovered && { backgroundColor: theme.secondaryBackground }
-          ]}
-          onPress={() => {
-            !!setValue && setValue(item)
-            setIsMenuOpen(false)
-          }}
-        >
-          <Option item={item} />
-        </Pressable>
-      )
-    },
-    [setValue, styles, value, theme]
+    ({ item }: { item: SelectValue }) => (
+      <OptionItemToRender
+        item={item}
+        isSelected={item.value === value.value}
+        onPress={handleOptionSelect}
+      />
+    ),
+
+    [value, handleOptionSelect]
   )
 
   return (
@@ -102,6 +148,7 @@ const Select = ({
         </Text>
       )}
       <Pressable
+        disabled={disabled}
         style={[styles.selectBorderWrapper, isMenuOpen && { borderColor: theme.infoBackground }]}
         onPress={() => setIsMenuOpen((p) => !p)}
       >
@@ -109,7 +156,7 @@ const Select = ({
           ref={selectRef}
           style={[
             styles.select,
-            { borderColor: isMenuOpen ? theme.infoDecorative : theme.secondaryBorder },
+            { borderColor: isMenuOpen ? theme.primary : theme.secondaryBorder },
             selectStyle
           ]}
         >
@@ -120,14 +167,48 @@ const Select = ({
       {!!isMenuOpen && (
         <Portal hostName="global">
           <View style={styles.menuBackdrop}>
-            <View ref={menuRef} style={[styles.menuContainer, { top: y + height, left: x, width }]}>
+            <View
+              ref={menuRef}
+              style={[styles.menuContainer, { top: y + height, left: x, width }, menuStyle]}
+            >
+              {!!withSearch && (
+                <Search
+                  placeholder={t('Search...')}
+                  autoFocus
+                  control={control}
+                  containerStyle={spacings.mb0}
+                  borderWrapperStyle={{ borderWidth: 0, borderRadius: 0 }}
+                  inputWrapperStyle={{
+                    borderWidth: 0,
+                    borderBottomWidth: 1,
+                    borderRadius: 0,
+                    borderColor: theme.secondaryBorder
+                  }}
+                />
+              )}
               <FlatList
-                data={options}
+                data={filteredOptions}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.value.toString()}
                 initialNumToRender={15}
                 windowSize={10}
+                maxToRenderPerBatch={20}
                 removeClippedSubviews
+                getItemLayout={(data, index) => ({
+                  length: MENU_OPTION_HEIGHT,
+                  offset: MENU_OPTION_HEIGHT * index,
+                  index
+                })}
+                ListEmptyComponent={
+                  <Text
+                    style={[spacings.pv, flexbox.flex1, text.center]}
+                    numberOfLines={1}
+                    appearance="secondaryText"
+                    fontSize={14}
+                  >
+                    {t('No items found')}
+                  </Text>
+                }
               />
             </View>
           </View>

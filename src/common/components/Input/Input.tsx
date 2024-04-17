@@ -35,6 +35,7 @@ export interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
   nativeInputStyle?: ViewStyle & TextStyle
+  borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
@@ -63,6 +64,7 @@ const Input = ({
   containerStyle,
   inputStyle,
   nativeInputStyle,
+  borderWrapperStyle,
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
@@ -135,7 +137,7 @@ const Input = ({
         </Text>
       )}
       <View style={{ zIndex: 10 }}>
-        <View style={borderWrapperStyles}>
+        <View style={[borderWrapperStyles, borderWrapperStyle]}>
           <View style={inputWrapperStyles}>
             {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
             {/* TextInput doesn't support border styles so we wrap it in a View */}

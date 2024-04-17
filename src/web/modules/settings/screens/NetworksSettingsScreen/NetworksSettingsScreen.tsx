@@ -90,10 +90,14 @@ const NetworksSettingsScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="Networks" />
+      <SettingsPageHeader title={t('Networks')} />
       <View style={[flexbox.directionRow, flexbox.flex1]}>
         <View style={[{ flex: 1 }]}>
-          <Search placeholder="Search for network" control={control} containerStyle={spacings.mb} />
+          <Search
+            placeholder={t('Search for network')}
+            control={control}
+            containerStyle={spacings.mb}
+          />
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (

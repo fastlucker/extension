@@ -19,6 +19,8 @@ interface Style {
   optionIcon: ImageStyle
 }
 
+export const MENU_OPTION_HEIGHT = 50
+
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     selectContainer: {
@@ -62,7 +64,7 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.flex1
     },
     menuOption: {
-      height: 50,
+      height: MENU_OPTION_HEIGHT,
       ...spacings.ph,
       ...flexbox.directionRow,
       ...flexbox.alignCenter

@@ -4,15 +4,15 @@ import { ViewStyle } from 'react-native'
 
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import SearchIcon from '@common/assets/svg/SearchIcon'
+import Input, { InputProps } from '@common/components/Input'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 
-import Input from '../Input'
-
-type Props = {
+interface Props extends InputProps {
   placeholder?: string
   style?: ViewStyle
   containerStyle?: ViewStyle
+  inputWrapperStyle?: ViewStyle
   control: Control<{ search: string }, any>
   setValue?: UseFormSetValue<{ search: string }>
   height?: number
@@ -24,7 +24,9 @@ const Search = ({
   control,
   setValue,
   containerStyle = {},
-  height = 40
+  inputWrapperStyle = {},
+  height = 40,
+  ...rest
 }: Props) => {
   const { theme } = useTheme()
 
@@ -38,7 +40,7 @@ const Search = ({
           leftIcon={() => <SearchIcon color={theme.secondaryText} />}
           placeholder={placeholder}
           style={style}
-          inputWrapperStyle={{ height }}
+          inputWrapperStyle={[{ height }, inputWrapperStyle]}
           inputStyle={{ height }}
           placeholderTextColor={theme.secondaryText}
           onBlur={onBlur}
@@ -51,6 +53,7 @@ const Search = ({
                 onButtonPress: () => setValue('search', '')
               }
             : {})}
+          {...rest}
         />
       )}
     />
