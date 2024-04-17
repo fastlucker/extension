@@ -213,7 +213,6 @@ const WatchTokenRequestScreen = () => {
       </View>
     )
   }
-  console.log(portfolioToken, 'portfolioToken')
 
   return (
     <TabLayoutContainer
