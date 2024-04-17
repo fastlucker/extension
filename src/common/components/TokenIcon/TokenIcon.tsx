@@ -17,7 +17,7 @@ interface Props extends Partial<ImageProps> {
   containerHeight?: number
   width?: number
   height?: number
-  style: ImageStyle
+  style?: ImageStyle
 }
 
 const TokenIcon: React.FC<Props> = ({
