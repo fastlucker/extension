@@ -1,193 +1,140 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { FC } from 'react'
-import { Image, View } from 'react-native'
-import Select, { components, OptionProps, SingleValueProps } from 'react-select'
+/* eslint-disable react/prop-types */
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FlatList, Image, Pressable, View } from 'react-native'
 
-import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import Text from '@common/components/Text'
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import { isWeb } from '@common/config/env'
+import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { Portal } from '@gorhom/portal'
 
 import getStyles from './styles'
-import { Props } from './types'
+import { SelectProps, SelectValue } from './types'
 
-const Option = ({ data }: { data: any }) => {
+const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
 
-  if (!data) return null
+  if (!item) return null
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      {!!data?.icon && typeof data?.icon === 'object' && (
-        <View style={styles.optionIcon}>{data.icon}</View>
+      {!!item?.icon && typeof item?.icon === 'object' && (
+        <View style={styles.optionIcon}>{item.icon}</View>
       )}
-      {!!data?.icon && typeof data?.icon === 'string' && (
-        <Image source={{ uri: data.icon }} style={styles.optionIcon} />
+      {!!item?.icon && typeof item?.icon === 'string' && (
+        <Image source={{ uri: item.icon }} style={styles.optionIcon} />
       )}
       {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-      {typeof data?.label === 'string' ? <Text fontSize={14}>{data.label}</Text> : data?.label}
+      {typeof item?.label === 'string' ? <Text fontSize={14}>{item.label}</Text> : item?.label}
     </View>
   )
-}
+})
 
-const IconOption: FC<OptionProps> = ({ data, ...rest }) => (
-  // @ts-ignore
-  <components.Option data={data} {...rest}>
-    <Option data={data} />
-  </components.Option>
-)
-
-const SingleValueIconOption: FC<SingleValueProps> = ({ data, ...rest }) => (
-  <components.SingleValue data={data} {...rest}>
-    <Option data={data} />
-  </components.SingleValue>
-)
-
-const SelectComponent = ({
-  value,
-  defaultValue,
-  disabled,
+const Select = ({
+  label,
   setValue,
+  value,
   options,
   placeholder,
-  label,
-  labelStyle,
-  menuPlacement = 'auto',
-  style,
-  controlStyle,
-  menuStyle,
-  openMenuOnClick = true,
-  onDropdownOpen,
-  withSearch,
-  components: componentsProps,
-  ...rest
-}: Props) => {
-  const { theme } = useTheme()
+  containerStyle,
+  selectStyle,
+  labelStyle
+}: SelectProps) => {
+  const { t } = useTranslation()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { theme, styles } = useTheme(getStyles)
+  const selectRef = useRef(null)
+  const menuRef = useRef(null)
+  const { x, y, height, width } = useElementSize(selectRef)
 
-  const DropdownIndicator = () => {
-    return (
-      <View style={spacings.mrSm}>
-        <DownArrowIcon />
-      </View>
-    )
-  }
+  // close menu on click outside
+  useEffect(() => {
+    if (!isWeb) return
+    function handleClickOutside(event: MouseEvent) {
+      if (!isMenuOpen) return
+      // @ts-ignore
+      if (menuRef.current && !menuRef.current?.contains(event.target)) {
+        setIsMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      if (!isWeb) return
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
+  const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
+    ({ item }: { item: SelectValue }) => {
+      const isSelected = item.value === value.value
+      return (
+        <Pressable
+          style={({ hovered }: any) => [
+            styles.menuOption,
+            isSelected && { backgroundColor: theme.tertiaryBackground },
+            hovered && { backgroundColor: theme.secondaryBackground }
+          ]}
+          onPress={() => {
+            !!setValue && setValue(item)
+            setIsMenuOpen(false)
+          }}
+        >
+          <Option item={item} />
+        </Pressable>
+      )
+    },
+    [setValue, styles, value, theme]
+  )
 
   return (
-    <>
+    <View style={[styles.selectContainer, containerStyle]}>
       {!!label && (
         <Text
+          appearance="secondaryText"
           fontSize={14}
           weight="regular"
-          appearance="secondaryText"
           style={[spacings.mbMi, labelStyle]}
         >
           {label}
         </Text>
       )}
-      <View style={withSearch ? {} : style}>
-        <Select
-          {...(disabled
-            ? {
-                menuIsOpen: false,
-                autoFocus: false
-              }
-            : {})}
-          options={options}
-          defaultValue={defaultValue}
-          menuPortalTarget={document.body}
-          // It fixes z-index/overlapping issue with the next closest element.
-          // If we don't set it, the Select dropdown menu overlaps the next element once we show the menu.
-          menuPosition="fixed"
-          components={{
-            DropdownIndicator,
-            Option: IconOption,
-            SingleValue: SingleValueIconOption,
-            IndicatorSeparator: null,
-            ...componentsProps
-          }}
-          styles={{
-            placeholder: (baseStyles) =>
-              ({
-                ...baseStyles,
-                ...common.borderRadiusPrimary,
-                fontSize: 14,
-                color: theme.secondaryText,
-                fontFamily: FONT_FAMILIES.REGULAR
-              } as any),
-            control: (baseStyles) =>
-              ({
-                ...baseStyles,
-                height: 50,
-                background: theme.secondaryBackground,
-                ...common.borderRadiusPrimary,
-                borderColor: `${theme.secondaryBorder as any} !important`,
-                fontSize: 14,
-                fontFamily: FONT_FAMILIES.REGULAR,
-                color: theme.primaryText,
-                outline: 'none',
-                'box-shadow': 'none !important',
-                cursor: 'pointer !important',
-                ...controlStyle
-              } as any),
-            valueContainer: (baseStyles) => ({
-              ...baseStyles,
-              overflow: 'visible'
-            }),
-            singleValue: (baseStyles) => ({
-              ...baseStyles,
-              paddingTop: 0,
-              paddingBottom: 0,
-              overflow: 'visible'
-            }),
-            menu: (baseStyles) =>
-              ({
-                ...baseStyles,
-                overflow: 'hidden',
-                'box-shadow': 'none',
-                'border-style': 'solid',
-                borderWidth: 1,
-                borderRadius: BORDER_RADIUS_PRIMARY,
-                borderColor: theme.secondaryBorder,
-                'box-sizing': 'border-box',
-                ...menuStyle
-              } as any),
-            menuPortal: (baseStyles) => ({ ...baseStyles, zIndex: 9999 }),
-            option: (baseStyles) =>
-              ({
-                ...baseStyles,
-                fontSize: 14,
-                fontFamily: FONT_FAMILIES.REGULAR,
-                cursor: 'pointer',
-                color: theme.primaryText
-              } as any),
-            menuList: (baseStyles) => ({
-              ...baseStyles,
-              padding: 0
-            })
-          }}
-          theme={(incomingTheme) => ({
-            ...incomingTheme,
-            borderRadius: 0,
-            colors: {
-              ...incomingTheme.colors,
-              primary25: String(theme.secondaryBackground),
-              primary: String(theme.tertiaryBackground)
-            }
-          })}
-          isSearchable={false}
-          value={value}
-          onChange={setValue}
-          placeholder={placeholder}
-          openMenuOnClick={openMenuOnClick}
-          menuPlacement={menuPlacement}
-          {...rest}
-        />
-      </View>
-    </>
+      <Pressable
+        style={[styles.selectBorderWrapper, isMenuOpen && { borderColor: theme.infoBackground }]}
+        onPress={() => setIsMenuOpen((p) => !p)}
+      >
+        <View
+          ref={selectRef}
+          style={[
+            styles.select,
+            { borderColor: isMenuOpen ? theme.infoDecorative : theme.secondaryBorder },
+            selectStyle
+          ]}
+        >
+          {!value && <Text fontSize={14}>{placeholder || t('Select...')}</Text>}
+          {!!value && <Option item={value} />}
+        </View>
+      </Pressable>
+      {!!isMenuOpen && (
+        <Portal hostName="global">
+          <View style={styles.menuBackdrop}>
+            <View ref={menuRef} style={[styles.menuContainer, { top: y + height, left: x, width }]}>
+              <FlatList
+                data={options}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.value.toString()}
+                initialNumToRender={15}
+                windowSize={10}
+                removeClippedSubviews
+              />
+            </View>
+          </View>
+        </Portal>
+      )}
+    </View>
   )
 }
 
-export default React.memo(SelectComponent)
+export default React.memo(Select)

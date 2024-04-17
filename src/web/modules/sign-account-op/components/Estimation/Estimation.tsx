@@ -100,7 +100,7 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         setValue={setPayValue}
         label={t('Pay fee with')}
         options={payOptions}
-        style={spacings.mb}
+        containerStyle={spacings.mb}
         value={payValue || {}}
         disabled={disabled}
         defaultValue={payValue}

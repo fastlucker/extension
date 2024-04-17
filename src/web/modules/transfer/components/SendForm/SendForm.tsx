@@ -7,7 +7,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
-import { SelectWithSearch } from '@common/components/Select'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -186,13 +186,13 @@ const SendForm = ({
 
   return (
     <View style={[styles.container, isTopUp ? styles.topUpContainer : {}]}>
-      <SelectWithSearch
+      <Select
         setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
         options={options}
         value={tokenSelectValue}
         disabled={tokenSelectDisabled || disableForm}
-        style={styles.tokenSelect}
+        containerStyle={styles.tokenSelect}
       />
       <InputSendToken
         amount={amountFieldValue}

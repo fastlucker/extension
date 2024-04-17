@@ -183,14 +183,14 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       <View style={[flexbox.directionRow, spacings.mbLg]}>
         <Select
           setValue={handleSetAccountValue}
-          style={{ width: maxWidthSize('xl') ? 420 : 340, ...spacings.mr }}
+          containerStyle={{ width: maxWidthSize('xl') ? 420 : 340, ...spacings.mr }}
           options={accountsOptions}
           value={accountsOptions.filter((opt) => opt.value === account.addr)[0]}
         />
         {historyType !== 'messages' && (
           <Select
             setValue={handleSetNetworkValue}
-            style={{ width: 260 }}
+            containerStyle={{ width: 260 }}
             options={networksOptions}
             value={networksOptions.filter((opt) => opt.value === network.id)[0]}
           />
