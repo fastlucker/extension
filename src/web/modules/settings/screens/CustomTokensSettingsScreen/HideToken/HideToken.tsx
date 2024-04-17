@@ -141,7 +141,6 @@ const HideToken = () => {
         data={tokens}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        // style={flexbox.flex1}
         removeClippedSubviews
         onEndReachedThreshold={2.5}
         initialNumToRender={20}
