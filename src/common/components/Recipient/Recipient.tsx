@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TokenResult } from '@ambire-common/libs/portfolio'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
@@ -33,6 +34,9 @@ interface Props extends InputProps {
   onRecipientAddressUnknownCheckboxClick: () => void
   validation: AddressValidation
   isRecipientDomainResolving: boolean
+  isSWWarningVisible: boolean
+  isSWWarningAgreed: boolean
+  selectedTokenSymbol?: TokenResult['symbol']
 }
 
 const Recipient: React.FC<Props> = ({
@@ -47,7 +51,10 @@ const Recipient: React.FC<Props> = ({
   isRecipientAddressUnknown,
   validation,
   isRecipientDomainResolving,
-  disabled
+  disabled,
+  isSWWarningVisible,
+  isSWWarningAgreed,
+  selectedTokenSymbol
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -147,8 +154,10 @@ const Recipient: React.FC<Props> = ({
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
           addressValidationMsg={addressValidationMsg}
-          // @TODO: Address book
           onAddToAddressBook={openBottomSheet}
+          isSWWarningVisible={isSWWarningVisible}
+          isSWWarningAgreed={isSWWarningAgreed}
+          selectedTokenSymbol={selectedTokenSymbol}
         />
       </View>
       <AddContactBottomSheet
