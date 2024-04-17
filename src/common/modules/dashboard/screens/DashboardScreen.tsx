@@ -19,7 +19,7 @@ import getStyles from './styles'
 
 const { isPopup, isTab } = getUiType()
 
-export const OVERVIEW_MAX_HEIGHT = 120
+export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
   const route = useRoute()
@@ -29,7 +29,11 @@ const DashboardScreen = () => {
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const [lastOffsetY, setLastOffsetY] = useState(0)
   const [scrollUpStartedAt, setScrollUpStartedAt] = useState(0)
-  const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_MAX_HEIGHT)).current
+  const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
+    width: 0,
+    height: 0
+  })
+  const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -48,17 +52,26 @@ const DashboardScreen = () => {
       }
       setLastOffsetY(y)
 
-      const isOverviewShown = y < 50 || y < scrollUpStartedAt - 200
+      // The user has to scroll down the height of the overview container in order make it smaller.
+      // This is done, because hiding the overview will subtract the height of the overview from the height of the
+      // scroll view, thus a shorter scroll container may no longer be scrollable after hiding the overview
+      // and if that happens, the user will not be able to scroll up to expand the overview again.
+      const scrollDownThreshold = dashboardOverviewSize.height + 20
+      // scrollUpThreshold must be a constant value and not dependent on the height of the overview,
+      // because the height will change as the overview animates from small to large.
+      const scrollUpThreshold = 200
+      const isOverviewExpanded =
+        y < scrollDownThreshold || y < scrollUpStartedAt - scrollUpThreshold
 
       Animated.spring(animatedOverviewHeight, {
-        toValue: isOverviewShown ? OVERVIEW_MAX_HEIGHT : 0,
+        toValue: isOverviewExpanded ? OVERVIEW_CONTENT_MAX_HEIGHT : 0,
         bounciness: 0,
         speed: 2.8,
         overshootClamping: true,
         useNativeDriver: !isWeb
       }).start()
     },
-    [animatedOverviewHeight, lastOffsetY, scrollUpStartedAt]
+    [animatedOverviewHeight, dashboardOverviewSize.height, lastOffsetY, scrollUpStartedAt]
   )
 
   return (
@@ -69,6 +82,8 @@ const DashboardScreen = () => {
           <DashboardOverview
             openReceiveModal={openReceiveModal}
             animatedOverviewHeight={animatedOverviewHeight}
+            dashboardOverviewSize={dashboardOverviewSize}
+            setDashboardOverviewSize={setDashboardOverviewSize}
           />
           <DashboardPages
             accountPortfolio={accountPortfolio}
