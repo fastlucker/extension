@@ -256,7 +256,7 @@ const SeedPhraseImportScreen = () => {
                 numberOfLines={1}
                 style={spacings.mrTy}
               >
-                {t('Enter your Seed Phrase')}
+                {t('Enter your seed phrase')}
               </Text>
             </View>
             <Controller
@@ -278,7 +278,7 @@ const SeedPhraseImportScreen = () => {
           <Alert
             style={spacings.mbLg}
             type="info"
-            title={t('You can paste your entire Seed Phrase in any field')}
+            title={t('You can paste your entire seed phrase in any field')}
           />
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {fields.map((field, index) => (

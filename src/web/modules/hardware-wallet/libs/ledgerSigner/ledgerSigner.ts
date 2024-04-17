@@ -4,7 +4,9 @@ import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
-import LedgerController, { ledgerService } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import LedgerController, {
+  ledgerService
+} from '@web/modules/hardware-wallet/controllers/LedgerController'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -120,7 +122,7 @@ class LedgerSigner implements KeystoreSigner {
       const signature = Signature.from({
         r: addHexPrefix(res.r),
         s: addHexPrefix(res.s),
-        v: Signature.getNormalizedV(res.v)
+        v: Signature.getNormalizedV(addHexPrefix(res.v))
       })
       const signedSerializedTxn = Transaction.from({
         ...unsignedTxn,

@@ -108,7 +108,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
               onBlur={onBlur}
-              placeholder={t('Enter current Password')}
+              placeholder={t('Enter current password')}
               onChangeText={onChange}
               isValid={isValidPassword(value)}
               value={value}
@@ -128,7 +128,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
               onBlur={onBlur}
-              placeholder={t('Enter new Password')}
+              placeholder={t('Enter new password')}
               onChangeText={onChange}
               isValid={isValidPassword(value)}
               value={value}
@@ -150,7 +150,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
               onBlur={onBlur}
-              placeholder={t('Repeat new Password')}
+              placeholder={t('Repeat new password')}
               onChangeText={onChange}
               value={value}
               isValid={!!value && !errors.newPassword && newPassword === value}
