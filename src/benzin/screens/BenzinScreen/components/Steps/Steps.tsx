@@ -1,4 +1,3 @@
-import { randomBytes } from 'ethers'
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
@@ -6,10 +5,8 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
-import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import Step from './components/Step'
 import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from './utils/rows'
@@ -19,18 +16,11 @@ interface Props {
   network: NetworkDescriptor
   txnId: string | null
   userOpHash: string | null
-  handleOpenExplorer: () => void
   stepsState: StepsData
+  summary: any
 }
 
-const Steps: FC<Props> = ({
-  activeStep,
-  network,
-  txnId,
-  userOpHash,
-  handleOpenExplorer,
-  stepsState
-}) => {
+const Steps: FC<Props> = ({ activeStep, network, txnId, userOpHash, stepsState, summary }) => {
   const { nativePrice, blockData, finalizedStatus, cost, calls, from } = stepsState
 
   const stepRows: any = [
@@ -85,25 +75,7 @@ const Steps: FC<Props> = ({
           activeStep={activeStep}
           finalizedStatus={finalizedStatus}
         >
-          {!!calls &&
-            calls.map((call, i) => {
-              return (
-                <TransactionSummary
-                  key={call.data + randomBytes(6)}
-                  style={i !== calls.length! - 1 ? spacings.mbSm : {}}
-                  call={call}
-                  networkId={network!.id}
-                  rightIcon={
-                    <OpenIcon
-                      width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                      height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 14}
-                    />
-                  }
-                  onRightIconPress={handleOpenExplorer}
-                  size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-                />
-              )
-            })}
+          {!!summary && summary}
           {!!calls && !calls.length && stepsState.finalizedStatus?.status !== 'fetching' && (
             <Text appearance="errorText" fontSize={14}>
               Could not decode calldata

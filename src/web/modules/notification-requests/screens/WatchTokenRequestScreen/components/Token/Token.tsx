@@ -64,7 +64,6 @@ const Token = ({
           <View style={[flexbox.directionRow]}>
             <TokenIcon
               withContainer
-              uri={tokenData?.image}
               networkId={tokenNetwork?.id}
               containerHeight={40}
               containerWidth={40}
@@ -107,11 +106,13 @@ const Token = ({
         </View>
         {temporaryToken?.priceIn?.length ? (
           <View style={[flexbox.alignEnd, { flex: 0.5 }]}>
-            <CoingeckoConfirmedBadge
-              text={t('Confirmed')}
-              address={tokenData?.address}
-              network={tokenNetwork}
-            />
+            {tokenData && (
+              <CoingeckoConfirmedBadge
+                text={t('Confirmed')}
+                address={tokenData.address}
+                network={tokenNetwork}
+              />
+            )}
           </View>
         ) : null}
       </View>
@@ -120,7 +121,7 @@ const Token = ({
         <Alert type="warning" title={t('This token is not listed in Coingecko.')} />
       ) : null}
 
-      {!temporaryToken && !isLoading ?  (
+      {!temporaryToken && !isLoading ? (
         <Alert type="warning" title={t('Cannot find token data.')} />
       ) : null}
     </>

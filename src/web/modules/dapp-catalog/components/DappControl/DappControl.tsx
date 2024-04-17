@@ -105,7 +105,7 @@ const DappControl = ({
           <View style={styles.currentDApp}>
             <DAppsIcon width={24} height={24} color={theme.secondaryText} />
             <Text fontSize={14} appearance="secondaryText" weight="regular" style={spacings.mlTy}>
-              {t('No DApp found')}
+              {t('No dApp found')}
             </Text>
           </View>
         )}

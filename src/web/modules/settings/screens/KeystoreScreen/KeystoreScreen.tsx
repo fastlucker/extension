@@ -64,7 +64,7 @@ const KeystoreScreen = () => {
       <View style={[spacings.mb]}>
         {ev.currentState === EmailVaultState.WaitingEmailConfirmation && (
           <View style={spacings.mbXl}>
-            <Text>Waiting email confirmation ...</Text>
+            <Text>Waiting for Email Confirmation ...</Text>
           </View>
         )}
 
