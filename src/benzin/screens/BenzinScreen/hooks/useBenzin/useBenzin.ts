@@ -99,7 +99,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
 
       if (isRenderedInternally) {
         address = `https://benzin.ambire.com/?networkId=${networkId}${
-          txnId ? `&txnId=${txnId}` : ''
+          stepsState.txnId ? `&txnId=${stepsState.txnId}` : ''
         }${userOpHash ? `&userOpHash=${userOpHash}` : ''}`
       }
 
@@ -108,7 +108,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, isRenderedInternally, userOpHash, networkId, txnId])
+  }, [addToast, isRenderedInternally, userOpHash, networkId, stepsState.txnId])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return
