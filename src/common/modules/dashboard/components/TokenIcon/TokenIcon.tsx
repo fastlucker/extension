@@ -1,16 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Image, ImageProps, View } from 'react-native'
 
-import { getIconId } from '@ambire-common/libs/portfolio/icons'
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
-import { getTokenIcon } from '@common/services/icons'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { checkIfImageExists } from '@common/utils/checkIfImageExists'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { fetchImageFromCena } from '@common/utils/checkIfImageExists'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -39,37 +38,44 @@ const TokenIcon: React.FC<Props> = ({
   networkSize = 14,
   ...props
 }) => {
+  // try to retrieve the image from the cache
+  const key = `${networkId}:${address}`
+  const uriValueFromCena = localStorage.getItem(key) ?? ''
+  const uriValue =
+    uriValueFromCena !== '' && uriValueFromCena !== 'not-found' ? uriValueFromCena : ''
+
   const { theme, styles } = useTheme(getStyles)
-  const [isLoading, setIsLoading] = useState(true)
-  const [validUri, setValidUri] = useState('')
-  const { state } = usePortfolioControllerState()
+  const [isLoading, setIsLoading] = useState(uriValueFromCena === '')
+  const [validUri, setValidUri] = useState(uriValue)
+  const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
-      const iconId = getIconId(networkId, address)
-      const uri = state.tokenIcons[iconId]
+      if (validUri !== '') return
 
-      if (uri) {
-        const hasLoadedUri = await checkIfImageExists(uri)
-        if (hasLoadedUri) {
-          setValidUri(uri) // the `hasLoadedUri` handles if `uri` is defined
+      // if we're in the extension, we have settings networks => we load from there
+      // if benzina, we don't => we load from predefined
+      // this will affect custom networks in benzina but the external benzin
+      // doesn't work with custom networks at the moment
+      const network = networks
+        ? networks.find((net) => net.id === networkId)
+        : predefinedNetworks.find((net) => net.id === networkId)
+      if (network) {
+        const cenaUrl = `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
+        const cenaImg = await fetchImageFromCena(cenaUrl)
+        if (cenaImg) {
+          localStorage.setItem(key, cenaImg)
+          setValidUri(cenaImg)
           setIsLoading(false)
           return
         }
       }
 
-      const alternativeUri = getTokenIcon(networkId, address)
-      const hasLoadedFallbackUri = await checkIfImageExists(alternativeUri)
-      if (hasLoadedFallbackUri) {
-        setValidUri(alternativeUri)
-        setIsLoading(false)
-        return
-      }
-
+      localStorage.setItem(key, 'not-found')
       setIsLoading(false)
     })()
-  }, [address, networkId, state.tokenIcons])
+  }, [address, networkId, networks, key, validUri])
 
   const containerStyle = useMemo(
     () =>
