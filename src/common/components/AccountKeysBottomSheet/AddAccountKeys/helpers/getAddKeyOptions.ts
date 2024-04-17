@@ -7,7 +7,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
-const { isNotification } = getUiType()
+const { isNotification, isPopup } = getUiType()
 
 const getAddKeyOptions = ({
   navigate,
@@ -23,6 +23,10 @@ const getAddKeyOptions = ({
 
     if (isNotification) {
       openInternalPageInTab(`${nextRoute}?flow=${flow}`)
+      return
+    }
+    if (isPopup) {
+      navigate(`${nextRoute}?flow=${flow}`)
       return
     }
     navigate(nextRoute, { state: { flow } })
