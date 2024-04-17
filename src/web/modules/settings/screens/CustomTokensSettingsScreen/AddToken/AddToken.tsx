@@ -161,7 +161,7 @@ const AddToken = () => {
   useEffect(() => {
     setShowAlreadyInPortfolioMessage(false) // Reset the state when address changes
     setAdditionalHintRequested(false)
-  }, [address])
+  }, [address, network])
 
   return (
     <View style={flexbox.flex1}>
