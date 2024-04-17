@@ -1,7 +1,7 @@
 import { uniqBy } from 'lodash'
 import groupBy from 'lodash/groupBy'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Dimensions, View } from 'react-native'
+import { Dimensions, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
@@ -33,6 +33,9 @@ import {
   BasicAccountIntroId
 } from '@web/modules/account-adder/contexts/accountAdderIntroStepsContext'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
+import { createTab } from '@web/extension-services/background/webapi/tab'
+import { Trans } from 'react-i18next'
+import useToast from '@common/hooks/useToast'
 
 const AccountsOnPageList = ({
   state,
@@ -48,6 +51,7 @@ const AccountsOnPageList = ({
   lookingForLinkedAccounts: boolean
 }) => {
   const { t } = useTranslation()
+  const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
   const keystoreCtrl = useKeystoreControllerState()
@@ -328,11 +332,28 @@ const AccountsOnPageList = ({
           }}
         >
           {isAccountAdderEmpty && (
-            <Text appearance="errorText" style={[spacings.mt, spacings.mbTy]}>
-              {t(
-                'The process of retrieving accounts was cancelled or it failed.\n\nPlease go a step back and trigger the account adding process again. If the problem persists, please contact support.'
-              )}
-            </Text>
+            <Trans style={[spacings.mt, spacings.mbTy]}>
+              <Text appearance="errorText">
+                The process of retrieving accounts was cancelled or it failed.
+                {'\n\n'}
+                Please go back and start the account-adding process again. If the problem persists,
+                please{' '}
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await createTab('https://help.ambire.com/hc/en-us/requests/new')
+                    } catch {
+                      addToast("Couldn't open link", { type: 'error' })
+                    }
+                  }}
+                >
+                  <Text appearance="errorText" underline>
+                    {t('contact our support team')}
+                  </Text>
+                </Pressable>
+                .
+              </Text>
+            </Trans>
           )}
           {state.accountsLoading ? (
             <View

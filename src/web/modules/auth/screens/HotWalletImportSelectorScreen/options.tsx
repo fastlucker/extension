@@ -13,14 +13,14 @@ const options = [
   },
   {
     title: 'Private Key',
-    text: 'Select this option to import your Basic or Smart account(s) by entering their Private Key.',
+    text: 'Select this option to import your Basic or Smart account(s) by entering their private key.',
     image: PrivateKeyIcon,
     buttonText: 'Import',
     flow: 'private-key'
   },
   {
     title: 'Seed Phrase',
-    text: 'Select this option to import your Basic or Smart account(s) by entering their Seed Phrase.',
+    text: 'Select this option to import your Basic or Smart account(s) by entering their seed phrase.',
     image: SeedPhraseIcon,
     buttonText: 'Proceed',
     flow: 'seed'

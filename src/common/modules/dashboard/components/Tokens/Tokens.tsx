@@ -271,7 +271,7 @@ const Tokens = ({
       keyExtractor={keyExtractor}
       stickyHeaderIndices={[1]} // Makes the header sticky
       ListFooterComponent={
-        <Button type="secondary" text={t('+ Add Custom')} onPress={navigateToAddCustomToken} />
+        <Button type="secondary" text={t('+ Add Custom Token')} onPress={navigateToAddCustomToken} />
       }
       ListFooterComponentStyle={spacings.ptSm}
       removeClippedSubviews
