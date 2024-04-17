@@ -1,7 +1,7 @@
 import React from 'react'
 import Svg, { G, Path, Rect, SvgProps } from 'react-native-svg'
 
-import colors from '@common/styles/colors'
+import { iconColors } from '@common/styles/themeConfig'
 
 interface Props extends SvgProps {
   width?: number
@@ -18,7 +18,7 @@ const UnstoppableDomainIcon: React.FC<Props> = ({ width = 24, height = 24, isAct
         <Path
           d="M7.881,79.926A7.844,7.844,0,0,1,3.474,78.58,7.9,7.9,0,0,1,.619,75.113,7.83,7.83,0,0,1,0,72.046V65.9l4.746-2.619V72.09a2.731,2.731,0,1,0,5.463,0V60.262L15.761,57.2V72.046a7.844,7.844,0,0,1-1.346,4.406,7.9,7.9,0,0,1-3.467,2.855A7.83,7.83,0,0,1,7.881,79.926Z"
           transform="translate(1086.412 542)"
-          fill={colors.black}
+          fill={iconColors.primary}
         />
       </G>
     </G>

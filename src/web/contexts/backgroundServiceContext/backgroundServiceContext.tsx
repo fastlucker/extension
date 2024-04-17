@@ -40,6 +40,9 @@ if (isExtension) {
     if (messageType === '> ui-error') {
       eventBus.emit('error', params)
     }
+    if (messageType === '> ui-warning') {
+      eventBus.emit('warning', params)
+    }
   })
 
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
@@ -76,6 +79,19 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     eventBus.addEventListener('error', onError)
 
     return () => eventBus.removeEventListener('error', onError)
+  }, [addToast])
+
+  useEffect(() => {
+    const onWarning = (newState: { warnings: string[]; controller: string }) => {
+      const lastWarning = newState.warnings[newState.warnings.length - 1]
+      if (lastWarning) {
+        addToast(lastWarning, { timeout: 4500, type: 'warning' })
+      }
+    }
+
+    eventBus.addEventListener('warning', onWarning)
+
+    return () => eventBus.removeEventListener('warning', onWarning)
   }, [addToast])
 
   return (

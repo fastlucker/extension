@@ -43,6 +43,7 @@ export interface InputProps extends TextInputProps {
     content: string
   }
   childrenBeforeButtons?: React.ReactNode
+  childrenBelowInput?: React.ReactNode
   borderless?: boolean
 }
 
@@ -66,6 +67,7 @@ const Input = ({
   infoTextStyle,
   leftIcon,
   childrenBeforeButtons,
+  childrenBelowInput,
   tooltip,
   borderless,
   ...rest
@@ -132,45 +134,48 @@ const Input = ({
           )}
         </Text>
       )}
-      <View style={borderWrapperStyles}>
-        <View style={inputWrapperStyles}>
-          {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
-          {/* TextInput doesn't support border styles so we wrap it in a View */}
-          <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
-            <TextInput
-              placeholderTextColor={theme.secondaryText}
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!disabled}
-              onBlur={handleOnBlur}
-              onFocus={handleOnFocus}
-              {...rest}
-              style={[styles.nativeInput, nativeInputStyle]}
-            />
+      <View style={{ zIndex: 10 }}>
+        <View style={borderWrapperStyles}>
+          <View style={inputWrapperStyles}>
+            {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
+            {/* TextInput doesn't support border styles so we wrap it in a View */}
+            <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
+              <TextInput
+                placeholderTextColor={theme.secondaryText}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!disabled}
+                onBlur={handleOnBlur}
+                onFocus={handleOnFocus}
+                {...rest}
+                style={[styles.nativeInput, nativeInputStyle]}
+              />
+            </View>
+            {childrenBeforeButtons || null}
+            {!!hasButton && (
+              <AnimatedPressable
+                // The `focusable` prop determines whether a component is user-focusable
+                // and appears in the keyboard tab flow. It's missing in the
+                // TouchableOpacity props, because it's react-native-web specific, see:
+                // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
+                // @ts-ignore-next-line
+                focusable={false}
+                onPress={onButtonPress}
+                disabled={disabled}
+                style={[styles.button, buttonStyle, animStyle]}
+                {...buttonProps}
+                {...bindAnim}
+              >
+                {typeof button === 'string' || button instanceof String ? (
+                  <Text weight="medium">{button}</Text>
+                ) : (
+                  button
+                )}
+              </AnimatedPressable>
+            )}
           </View>
-          {childrenBeforeButtons || null}
-          {!!hasButton && (
-            <AnimatedPressable
-              // The `focusable` prop determines whether a component is user-focusable
-              // and appears in the keyboard tab flow. It's missing in the
-              // TouchableOpacity props, because it's react-native-web specific, see:
-              // {@link https://necolas.github.io/react-native-web/docs/accessibility/#keyboard-focus}
-              // @ts-ignore-next-line
-              focusable={false}
-              onPress={onButtonPress}
-              disabled={disabled}
-              style={[styles.button, buttonStyle, animStyle]}
-              {...buttonProps}
-              {...bindAnim}
-            >
-              {typeof button === 'string' || button instanceof String ? (
-                <Text weight="medium">{button}</Text>
-              ) : (
-                button
-              )}
-            </AnimatedPressable>
-          )}
         </View>
+        {childrenBelowInput}
       </View>
       {!!error && (
         <Text
