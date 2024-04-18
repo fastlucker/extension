@@ -3,6 +3,7 @@ import { Animated, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-n
 import { useModalize } from 'react-native-modalize'
 
 import { isWeb } from '@common/config/env'
+import useDebounce from '@common/hooks/useDebounce'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -33,6 +34,7 @@ const DashboardScreen = () => {
     width: 0,
     height: 0
   })
+  const debouncedDashboardOverviewSize = useDebounce({ value: dashboardOverviewSize, delay: 100 })
   const animatedOverviewHeight = useRef(new Animated.Value(OVERVIEW_CONTENT_MAX_HEIGHT)).current
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
@@ -82,7 +84,7 @@ const DashboardScreen = () => {
           <DashboardOverview
             openReceiveModal={openReceiveModal}
             animatedOverviewHeight={animatedOverviewHeight}
-            dashboardOverviewSize={dashboardOverviewSize}
+            dashboardOverviewSize={debouncedDashboardOverviewSize}
             setDashboardOverviewSize={setDashboardOverviewSize}
           />
           <DashboardPages
