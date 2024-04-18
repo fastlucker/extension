@@ -27,8 +27,8 @@ const DashboardScreen = () => {
   const { minWidthSize } = useWindowSize()
   const { accountPortfolio, state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
-  const [lastOffsetY, setLastOffsetY] = useState(0)
-  const [scrollUpStartedAt, setScrollUpStartedAt] = useState(0)
+  const lastOffsetY = useRef(0)
+  const scrollUpStartedAt = useRef(0)
   const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
     width: 0,
     height: 0
@@ -45,12 +45,12 @@ const DashboardScreen = () => {
         contentOffset: { y }
       } = event.nativeEvent
 
-      if (scrollUpStartedAt === 0 && lastOffsetY > y) {
-        setScrollUpStartedAt(y)
-      } else if (scrollUpStartedAt > 0 && y > lastOffsetY) {
-        setScrollUpStartedAt(0)
+      if (scrollUpStartedAt.current === 0 && lastOffsetY.current > y) {
+        scrollUpStartedAt.current = y
+      } else if (scrollUpStartedAt.current > 0 && y > lastOffsetY.current) {
+        scrollUpStartedAt.current = 0
       }
-      setLastOffsetY(y)
+      lastOffsetY.current = y
 
       // The user has to scroll down the height of the overview container in order make it smaller.
       // This is done, because hiding the overview will subtract the height of the overview from the height of the
@@ -61,7 +61,7 @@ const DashboardScreen = () => {
       // because the height will change as the overview animates from small to large.
       const scrollUpThreshold = 200
       const isOverviewExpanded =
-        y < scrollDownThreshold || y < scrollUpStartedAt - scrollUpThreshold
+        y < scrollDownThreshold || y < scrollUpStartedAt.current - scrollUpThreshold
 
       Animated.spring(animatedOverviewHeight, {
         toValue: isOverviewExpanded ? OVERVIEW_CONTENT_MAX_HEIGHT : 0,
