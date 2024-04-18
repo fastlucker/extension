@@ -142,7 +142,7 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
 
     /* Type message in the 'Message' field */
     const textMessage = 'text message'
