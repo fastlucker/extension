@@ -8,7 +8,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 
 import getStyles from './styles'
 
@@ -19,7 +19,7 @@ interface Props {
 const Info: FC<Props> = ({ kindOfMessage }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { currentNotificationRequest } = useNotificationControllerState()
+  const { dapp } = useSignMessageControllerState()
 
   const renderMessageTypeBadge = useCallback(
     (isHidden?: boolean) => {
@@ -43,15 +43,11 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: currentNotificationRequest?.params?.session?.icon }}
-        style={styles.image}
-        resizeMode="contain"
-      />
+      <Image source={{ uri: dapp?.icon }} style={styles.image} resizeMode="contain" />
       <View style={styles.content}>
         {renderMessageTypeBadge(true)}
         <View style={[flexbox.flex1, spacings.phLg]}>
-          <Trans values={{ name: currentNotificationRequest?.params?.session?.name || 'The dApp' }}>
+          <Trans values={{ name: dapp?.name || 'The dApp' }}>
             <Text style={text.center}>
               <Text fontSize={20} appearance="secondaryText" weight="semiBold">
                 {'{{name}} '}

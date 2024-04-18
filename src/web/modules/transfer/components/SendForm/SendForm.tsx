@@ -7,7 +7,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
-import Select from '@common/components/Select/'
+import { SelectWithSearch } from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -30,8 +30,8 @@ const NO_TOKENS_ITEMS = [
 ]
 
 const getTokenAddressAndNetworkFromId = (id: string) => {
-  const [address, networkId] = id.split('-')
-  return [address, networkId]
+  const [address, networkId, symbol] = id.split('-')
+  return [address, networkId, symbol]
 }
 
 const getSelectProps = ({
@@ -97,7 +97,7 @@ const SendForm = ({
 
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
-  const token = `${selectedToken?.address}-${selectedToken?.networkId}`
+  const token = `${selectedToken?.address}-${selectedToken?.networkId}-${selectedToken?.symbol}`
   const {
     value: tokenSelectValue,
     options,
@@ -132,7 +132,8 @@ const SendForm = ({
       const tokenToSelect = tokens.find(
         (tokenRes: TokenResult) =>
           tokenRes.address === getTokenAddressAndNetworkFromId(value)[0] &&
-          tokenRes.networkId === getTokenAddressAndNetworkFromId(value)[1]
+          tokenRes.networkId === getTokenAddressAndNetworkFromId(value)[1] &&
+          tokenRes.symbol === getTokenAddressAndNetworkFromId(value)[2]
       )
       dispatch({
         type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
@@ -185,7 +186,7 @@ const SendForm = ({
 
   return (
     <View style={[styles.container, isTopUp ? styles.topUpContainer : {}]}>
-      <Select
+      <SelectWithSearch
         setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
         options={options}

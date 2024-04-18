@@ -69,7 +69,7 @@ export async function clickOnElement(page, selector, timeout = 5000) {
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
   try {
-    await page.waitForSelector(selector)
+    await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     const whereToType = await page.$(selector)
     await whereToType.click({ clickCount: 3 })
     await whereToType.press('Backspace')
@@ -110,28 +110,42 @@ export async function bootstrapWithStorage(namespace) {
   // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
   // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
   await page.evaluate(() => {
-    const parsedKeystoreAccounts = JSON.parse(process.env.KEYSTORE_ACCOUNTS_1)
-    const parsedKeystoreUID = process.env.KEYSTORE_KEYSTORE_UID_1
-    const parsedKeystoreKeys = JSON.parse(process.env.KEYSTORE_KEYS_1)
-    const parsedKeystoreSecrets = JSON.parse(process.env.KEYSTORE_SECRETS_1)
-    const envOnboardingStatus = process.env.KEYSTORE_ONBOARDING_STATUS_1
-    const envPermission = process.env.KEYSTORE_PERMISSION_1
-    const envSelectedAccount = process.env.KEYSTORE_SELECTED_ACCOUNT_1
-    const envTermState = process.env.KEYSTORE_TERMSTATE_1
-    const parsedPreviousHints = process.env.KEYSTORE_PREVIOUSHINTS_1
+    const parsedKeystoreAccountsPreferences = JSON.parse(process.env.BA_ACCOUNT_PREFERENCES)
+    const parsedKeystoreAccounts = JSON.parse(process.env.BA_ACCOUNTS)
+    const parsedIsDefaultWallet = process.env.BA_IS_DEFAULT_WALLET
+    const parsedKeyPreferences = JSON.parse(process.env.BA_KEY_PREFERENCES)
+    const parsedKeystoreUID = process.env.BA_KEYSTORE_UID
+    const parsedKeystoreKeys = JSON.parse(process.env.BA_KEYS)
+    const parsedKeystoreSecrets = JSON.parse(process.env.BA_SECRETS)
+    const parsedNetworkPreferences = JSON.parse(process.env.BA_NETWORK_PREFERENCES)
+    const paresdNetworksWithAssetsByAccount = JSON.parse(process.env.BA_NETWORK_WITH_ASSETS)
+    const parsedOnboardingState = JSON.parse(process.env.BA_ONBOARDING_STATE)
+    const envPermission = process.env.BA_PERMISSION
+    const parsedPreviousHints = JSON.parse(process.env.BA_PREVIOUSHINTS)
+    const envSelectedAccount = process.env.BA_SELECTED_ACCOUNT
+    const envTermState = process.env.BA_TERMSTATE
+    const parsedTokenItems = JSON.parse(process.env.BA_TOKEN_ITEMS)
+
     chrome.storage.local.set({
+      accountPreferences: parsedKeystoreAccountsPreferences,
       accounts: parsedKeystoreAccounts,
+      isDefaultWallet: parsedIsDefaultWallet,
+      keyPreferences: parsedKeyPreferences,
       keyStoreUid: parsedKeystoreUID,
       keystoreKeys: parsedKeystoreKeys,
       keystoreSecrets: parsedKeystoreSecrets,
-      onboardingStatus: envOnboardingStatus,
+      networkPreferences: parsedNetworkPreferences,
+      networksWithAssetsByAccount: paresdNetworksWithAssetsByAccount,
+      onboardingState: parsedOnboardingState,
+      // onboardingStatus: envOnboardingStatus,
       permission: envPermission,
+      previousHints: parsedPreviousHints,
       selectedAccount: envSelectedAccount,
       termsState: envTermState,
-      previousHints: parsedPreviousHints
+      previousHints: parsedPreviousHints,
+      tokenIcons: parsedTokenItems
     })
   })
-
   // Please note the following:
   // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
   // 2. But at the same time, the extension onboarding page is also shown automatically.
@@ -147,7 +161,7 @@ export async function bootstrapWithStorage(namespace) {
   await page.bringToFront()
   await page.reload()
 
-  await typeSeedPhrase(page, process.env.KEYSTORE_PASS_PHRASE_1)
+  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
 
   return { browser, extensionRootUrl, page, recorder }
 }

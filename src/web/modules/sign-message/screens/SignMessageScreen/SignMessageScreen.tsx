@@ -113,13 +113,15 @@ const SignMessageScreen = () => {
   }, [params?.accountAddr, navigate])
 
   useEffect(() => {
-    if (prevSignMessageState.status === 'LOADING' && signMessageState.status === 'DONE') {
-      if (signMessageState.signedMessage) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
-          params: { signedMessage: signMessageState.signedMessage }
-        })
-      }
+    if (
+      prevSignMessageState.status === 'LOADING' &&
+      signMessageState.status === 'DONE' &&
+      signMessageState.signedMessage
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
+        params: { signedMessage: signMessageState.signedMessage }
+      })
     }
   }, [
     dispatch,
@@ -208,7 +210,7 @@ const SignMessageScreen = () => {
   const handleReject = () => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-      params: { err: t('User rejected the request.') }
+      params: { err: t('User rejected the request.'), id: signMessageState.messageToSign?.id }
     })
   }
 

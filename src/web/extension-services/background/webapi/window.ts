@@ -118,8 +118,13 @@ const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefi
   return create({ url, ...rest })
 }
 
+const focusNotificationWindow = (windowId: number) => {
+  chrome.windows.update(windowId, { focused: true })
+}
+
 export default {
   openNotification,
+  focusNotificationWindow,
   event,
   remove
 }

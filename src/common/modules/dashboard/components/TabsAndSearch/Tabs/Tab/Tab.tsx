@@ -5,18 +5,21 @@ import { Pressable } from 'react-native'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
+import spacings from '@common/styles/spacings'
 import { getAvatarColors } from '@common/utils/avatars'
 import mixHexColors from '@common/utils/mixHexColors'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import getStyles from './styles'
 
+export type TabType = 'tokens' | 'collectibles' | 'defi' | 'activity'
+
 interface Props {
   openTab: string
-  tab: 'tokens' | 'collectibles' | 'defi'
+  tab: TabType
   tabLabel: string
-  setOpenTab: React.Dispatch<React.SetStateAction<'tokens' | 'collectibles' | 'defi'>>
-  handleChangeQuery: (openTab: 'tokens' | 'collectibles' | 'defi') => void
+  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  handleChangeQuery: (openTab: TabType) => void
   disabled?: boolean
   testID?: string
 }
@@ -66,8 +69,8 @@ const Tab = ({
         locations={[0.7, 1]}
         style={[
           styles.toggleItem,
+          spacings.phLg,
           {
-            width: tab === 'defi' ? 152 : 96,
             opacity: disabled ? 0.4 : 1,
             // @ts-ignore cursor is web only
             cursor: disabled ? 'not-allowed' : 'pointer'
