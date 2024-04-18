@@ -54,7 +54,7 @@ const BottomSheet: React.FC<Props> = ({
   scrollViewProps,
   backgroundColor = 'secondaryBackground',
   autoWidth = false,
-  autoOpen
+  autoOpen = false
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -64,18 +64,21 @@ const BottomSheet: React.FC<Props> = ({
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
   const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
 
-  const autoOpened: React.MutableRefObject<boolean> = useRef(!autoOpen)
-  const setRef = useCallback((node: HTMLElement | null) => {
-    // @ts-ignore
-    // eslint-disable-next-line no-param-reassign
-    sheetRef.current = node
-    // check if component is mounted and if should autoOpen
-    if (autoOpen && sheetRef.current && !autoOpened.current) {
-      sheetRef.current.open()
-      autoOpened.current = !autoOpened.current // ensure that the bottom sheet auto-opens only once
-    }
+  const autoOpened: React.MutableRefObject<boolean> = useRef(false)
+  const setRef = useCallback(
+    (node: HTMLElement | null) => {
+      // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
+      sheetRef.current = node
+      // check if component is mounted and if should autoOpen
+      if (autoOpen && sheetRef.current && !autoOpened.current) {
+        sheetRef.current.open()
+        autoOpened.current = !autoOpened.current // ensure that the bottom sheet auto-opens only once
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    [autoOpen]
+  )
 
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
