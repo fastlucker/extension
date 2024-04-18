@@ -210,13 +210,15 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       <View>
         {!!selectedFee && !!payValue && (
           <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={16} weight="medium" style={spacings.mrTy}>
-                {t('Fee')}:
+            <View style={[flexbox.directionRow]}>
+              <Text fontSize={16} weight="medium">
+                {t('Fee')}:{' '}
               </Text>
               <Text selectable fontSize={16} weight="medium">
                 {formatDecimals(parseFloat(selectedFee.amountFormatted))} {payValue.token?.symbol}
               </Text>
+            </View>
+            <View>
               {selectedFee.amountUsd ? (
                 <Text selectable weight="medium" fontSize={16} appearance="primary">
                   {' '}
@@ -234,9 +236,9 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       </View>
       {signAccountOpState.selectedOption && payValue && payValue.token && (
         <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-          <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-            <Text fontSize={16} weight="medium" style={spacings.mrTy}>
-              {t('Available')}:
+          <View style={[flexbox.directionRow]}>
+            <Text fontSize={16} weight="medium">
+              {t('Available')}:{' '}
             </Text>
             <Text selectable fontSize={16} weight="medium">
               {formatDecimals(
@@ -249,6 +251,8 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
               )}{' '}
               {payValue.token.symbol}
             </Text>
+          </View>
+          <View>
             {payValue.token.priceIn.length && (
               <Text selectable weight="medium" fontSize={16} appearance="primary">
                 {' '}
