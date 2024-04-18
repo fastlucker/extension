@@ -16,8 +16,9 @@ const CustomTokensSettingsScreen = () => {
   useEffect(() => {
     setCurrentSettingsPage('custom-tokens')
   }, [setCurrentSettingsPage])
+
   return (
-    <View style={flexbox.directionRow}>
+    <View style={[flexbox.directionRow, flexbox.flex1]}>
       <AddToken />
       <View style={styles.separator} />
       <HideToken />
