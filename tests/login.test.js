@@ -46,7 +46,7 @@ describe('login', () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_BA)
+    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
     /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
@@ -83,7 +83,7 @@ describe('login', () => {
   it('login into basic account with phrase', async () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-proceed-seed-phrase"]')
 
-    const passphraseWords = process.env.PASSPHRASE_BA
+    const passphraseWords = process.env.BA_PASSPHRASE
     const wordArray = passphraseWords.split(' ')
 
     await page.waitForSelector('[placeholder="Word 1"]')
@@ -277,7 +277,7 @@ describe('login', () => {
 
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_BA)
+    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
     /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
     await finishStoriesAndSelectAccount(page)
@@ -328,7 +328,7 @@ describe('login', () => {
     await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_BA)
+    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
     /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
     await finishStoriesAndSelectAccount(page)
