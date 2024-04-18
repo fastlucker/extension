@@ -118,7 +118,7 @@ export async function bootstrapWithStorage(namespace) {
     const parsedKeystoreKeys = JSON.parse(process.env.BA_KEYS)
     const parsedKeystoreSecrets = JSON.parse(process.env.BA_SECRETS)
     const parsedNetworkPreferences = JSON.parse(process.env.BA_NETWORK_PREFERENCES)
-    const paresdNetworksWithAssetsByAccount = JSON.parse(process.env.BA_NETWORK_WITH_ASSETS)
+    const parsedNetworksWithAssetsByAccount = JSON.parse(process.env.BA_NETWORK_WITH_ASSETS)
     const parsedOnboardingState = JSON.parse(process.env.BA_ONBOARDING_STATE)
     const envPermission = process.env.BA_PERMISSION
     const parsedPreviousHints = JSON.parse(process.env.BA_PREVIOUSHINTS)
@@ -135,14 +135,13 @@ export async function bootstrapWithStorage(namespace) {
       keystoreKeys: parsedKeystoreKeys,
       keystoreSecrets: parsedKeystoreSecrets,
       networkPreferences: parsedNetworkPreferences,
-      networksWithAssetsByAccount: paresdNetworksWithAssetsByAccount,
+      networksWithAssetsByAccount: parsedNetworksWithAssetsByAccount,
       onboardingState: parsedOnboardingState,
       // onboardingStatus: envOnboardingStatus,
       permission: envPermission,
       previousHints: parsedPreviousHints,
       selectedAccount: envSelectedAccount,
       termsState: envTermState,
-      previousHints: parsedPreviousHints,
       tokenIcons: parsedTokenItems
     })
   })
