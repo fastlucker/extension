@@ -20,7 +20,8 @@ const useElementSize = (ref: MutableRefObject<HTMLElement | null>): ElementSizeP
     x: 0,
     y: 0,
     maxElementWidthSize,
-    minElementWidthSize
+    minElementWidthSize,
+    forceUpdate: () => {}
   }
 }
 

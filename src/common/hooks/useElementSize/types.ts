@@ -5,4 +5,5 @@ export type ElementSizeProps = {
   y: number
   minElementWidthSize: (size: number) => boolean
   maxElementWidthSize: (size: number) => boolean
+  forceUpdate: () => void
 }

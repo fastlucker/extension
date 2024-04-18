@@ -13,13 +13,13 @@ interface Style {
   menuBackdrop: ViewStyle
   menuContainer: ViewStyle
   menuOption: ViewProps
-  selectedItemContainerStyle: ViewProps
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   optionIcon: ImageStyle
 }
 
 export const MENU_OPTION_HEIGHT = 50
+export const MAX_MENU_HEIGHT = 400
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
@@ -49,28 +49,27 @@ const getStyles = (theme: ThemeProps) =>
       top: 0,
       left: 0,
       width: '100%',
-      height: '100%'
+      height: '100%',
+      zIndex: 901 // higher than the BottomSheet zIndex
     },
     menuContainer: {
       backgroundColor: theme.primaryBackground,
-      ...spacings.mtMi,
+      ...spacings.mvMi,
       ...common.borderRadiusPrimary,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: theme.secondaryBorder,
       ...common.shadowSecondary,
       position: 'absolute',
-      maxHeight: 400,
-      ...flexbox.flex1
+      maxHeight: MAX_MENU_HEIGHT,
+      ...flexbox.flex1,
+      zIndex: 902 // // higher than the menuBackdrop zIndex
     },
     menuOption: {
       height: MENU_OPTION_HEIGHT,
       ...spacings.ph,
       ...flexbox.directionRow,
       ...flexbox.alignCenter
-    },
-    selectedItemContainerStyle: {
-      backgroundColor: colors.howl
     },
     searchContainerStyle: {
       flexDirection: 'column-reverse',

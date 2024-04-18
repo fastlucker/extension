@@ -20,4 +20,5 @@ export type SelectProps = {
   disabled?: boolean
   menuStyle?: ViewStyle
   withSearch?: boolean
+  inPortal?: boolean
 }

@@ -9,12 +9,13 @@ import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
+import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 
-import getStyles, { MENU_OPTION_HEIGHT } from './styles'
+import getStyles, { MAX_MENU_HEIGHT, MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
 
 const Option = React.memo(({ item }: { item: SelectValue }) => {
@@ -80,7 +81,8 @@ const Select = ({
   const { theme, styles } = useTheme(getStyles)
   const selectRef = useRef(null)
   const menuRef = useRef(null)
-  const { x, y, height, width } = useElementSize(selectRef)
+  const { x, y, height, width, forceUpdate } = useElementSize(selectRef)
+  const { height: windowHeight } = useWindowSize()
   const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
 
   const search = watch('search')
@@ -137,6 +139,18 @@ const Select = ({
     [value, handleOptionSelect]
   )
 
+  const handleOpenMenu = useCallback(() => {
+    setIsMenuOpen(true)
+    forceUpdate() // calculate menu position
+  }, [forceUpdate])
+
+  const menuPosition = useMemo(() => {
+    if (!!isMenuOpen && y + height + MAX_MENU_HEIGHT > windowHeight && y - MAX_MENU_HEIGHT > 0)
+      return 'top'
+
+    return 'bottom'
+  }, [height, isMenuOpen, windowHeight, y])
+
   return (
     <View style={[styles.selectContainer, containerStyle]}>
       {!!label && (
@@ -152,7 +166,7 @@ const Select = ({
       <Pressable
         disabled={disabled}
         style={[styles.selectBorderWrapper, isMenuOpen && { borderColor: theme.infoBackground }]}
-        onPress={() => setIsMenuOpen((p) => !p)}
+        onPress={handleOpenMenu}
       >
         <View
           ref={selectRef}
@@ -175,9 +189,15 @@ const Select = ({
           <View style={styles.menuBackdrop}>
             <View
               ref={menuRef}
-              style={[styles.menuContainer, { top: y + height, left: x, width }, menuStyle]}
+              style={[
+                styles.menuContainer,
+                { width, left: x },
+                menuPosition === 'bottom' && { top: y + height },
+                menuPosition === 'top' && { bottom: windowHeight - y },
+                menuStyle
+              ]}
             >
-              {!!withSearch && (
+              {!!withSearch && menuPosition === 'bottom' && (
                 <Search
                   placeholder={t('Search...')}
                   autoFocus
@@ -216,6 +236,22 @@ const Select = ({
                   </Text>
                 }
               />
+              {!!withSearch && menuPosition === 'top' && (
+                <Search
+                  placeholder={t('Search...')}
+                  autoFocus
+                  control={control}
+                  containerStyle={spacings.mb0}
+                  borderWrapperStyle={{ borderWidth: 0, borderRadius: 0 }}
+                  inputWrapperStyle={{
+                    borderWidth: 0,
+                    borderTopWidth: 1,
+                    borderBottomWidth: 0,
+                    borderRadius: 0,
+                    borderColor: theme.secondaryBorder
+                  }}
+                />
+              )}
             </View>
           </View>
         </Portal>
