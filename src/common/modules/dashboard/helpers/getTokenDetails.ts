@@ -5,14 +5,22 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import formatDecimals from '@common/utils/formatDecimals'
 
 const getTokenDetails = (
-  { flags: { rewardsType }, networkId, priceIn, amount, decimals }: TokenResult,
+  {
+    flags: { rewardsType },
+    networkId,
+    priceIn,
+    amount,
+    decimals,
+    amountPostSimulation
+  }: TokenResult,
   networks: NetworkDescriptor[]
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
 
-  const balance = parseFloat(formatUnits(amount, decimals))
+  const displayAmount = amountPostSimulation !== undefined ? amountPostSimulation : amount
+  const balance = parseFloat(formatUnits(displayAmount, decimals))
   const priceUSD = priceIn.find(
     ({ baseCurrency }: { baseCurrency: string }) => baseCurrency.toLowerCase() === 'usd'
   )?.price

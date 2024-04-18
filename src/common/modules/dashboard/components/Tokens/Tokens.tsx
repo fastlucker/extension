@@ -6,6 +6,7 @@ import { FlatList, FlatListProps, View } from 'react-native'
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
@@ -38,7 +39,15 @@ interface Props {
   onScroll: FlatListProps<any>['onScroll']
 }
 
-const calculateTokenBalance = ({ amount, decimals, priceIn }: TokenResult) => {
+// if any of the post amount (during simulation) or the current state
+// has a balance above 0, we should consider it legit and show it
+const hasAmount = (token: TokenResult) => {
+  return token.amount > 0n || (token.amountPostSimulation && token.amountPostSimulation > 0n)
+}
+
+const calculateTokenBalance = (token: TokenResult) => {
+  const amount = getTokenAmount(token)
+  const { decimals, priceIn } = token
   const balance = parseFloat(formatUnits(amount, decimals))
   const price =
     priceIn.find(({ baseCurrency }: { baseCurrency: string }) => baseCurrency === 'usd')?.price || 0
@@ -100,17 +109,18 @@ const Tokens = ({
     () =>
       tokens
         .filter(
-          ({ address, amount }) =>
+          (tokenRes) =>
             !PINNED_TOKENS.find(
               (pinnedToken) =>
-                pinnedToken.address.toLowerCase() === address.toLowerCase() && amount > 0n
+                pinnedToken.address.toLowerCase() === tokenRes.address.toLowerCase() &&
+                hasAmount(tokenRes)
             ) &&
             !tokenPreferences.find(
-              (token: CustomToken) => token.address.toLowerCase() === address.toLowerCase()
+              (token: CustomToken) => token.address.toLowerCase() === tokenRes.address.toLowerCase()
             ) &&
-            amount > 0n
+            hasAmount(tokenRes)
         )
-        .some((token) => token.amount > 0n),
+        .some(hasAmount),
     [tokenPreferences, tokens]
   )
 
@@ -119,7 +129,7 @@ const Tokens = ({
       tokens
         .filter(
           (token) =>
-            token.amount > 0n ||
+            hasAmount(token) ||
             tokenPreferences.find(
               ({ address, networkId }) =>
                 token.address.toLowerCase() === address.toLowerCase() &&
@@ -148,7 +158,7 @@ const Tokens = ({
 
           if (a.flags.rewardsType === b.flags.rewardsType) {
             if (aBalance === bBalance) {
-              return Number(b.amount) - Number(a.amount)
+              return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
             }
 
             return bBalance - aBalance
@@ -271,7 +281,11 @@ const Tokens = ({
       keyExtractor={keyExtractor}
       stickyHeaderIndices={[1]} // Makes the header sticky
       ListFooterComponent={
-        <Button type="secondary" text={t('+ Add Custom Token')} onPress={navigateToAddCustomToken} />
+        <Button
+          type="secondary"
+          text={t('+ Add Custom Token')}
+          onPress={navigateToAddCustomToken}
+        />
       }
       ListFooterComponentStyle={spacings.ptSm}
       removeClippedSubviews
