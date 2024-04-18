@@ -76,16 +76,25 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
           if (feeOption.availableAmount > speed.amount) speedCoverage.push(speed.type)
         })
 
+        const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
+        const disabledReason = isDisabled ? 'Insufficient amount' : undefined
+
         return {
           value:
             feeOption.paidBy +
             feeOption.token.address +
             feeOption.token.symbol.toLowerCase() +
             gasTankKey,
-          label: <PayOption feeOption={feeOption} />,
+          label: (
+            <PayOption
+              feeOption={feeOption}
+              disabled={isDisabled}
+              disabledReason={disabledReason}
+            />
+          ),
           paidBy: feeOption.paidBy,
           token: feeOption.token,
-          isDisabled: !speedCoverage.includes(FeeSpeed.Slow),
+          isDisabled,
           speedCoverage
         }
       })
