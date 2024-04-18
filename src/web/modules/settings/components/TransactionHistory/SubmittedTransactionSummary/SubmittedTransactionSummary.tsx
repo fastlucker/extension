@@ -148,7 +148,6 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   return (
     <View style={[styles.container, style]}>
       {calls.map((call: IrCall) => {
-        console.log(`call req id ${call.fromUserRequestId}`)
         return (
           <TransactionSummary
             key={call.fromUserRequestId}
