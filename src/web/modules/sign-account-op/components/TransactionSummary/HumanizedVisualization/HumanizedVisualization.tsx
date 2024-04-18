@@ -1,4 +1,4 @@
-import { formatUnits, MaxUint256 } from 'ethers'
+import { formatUnits, MaxUint256, randomBytes } from 'ethers'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -52,7 +52,7 @@ const HumanizedVisualization: FC<Props> = ({
           const isMaxUint256 = item.amount === MaxUint256
           return (
             <View
-              key={Number(item.id) || i}
+              key={`${i}-${randomBytes(10)}`}
               style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
             >
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
@@ -123,7 +123,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'nft') {
           return (
             <Text
-              key={Number(item.id) || i}
+              key={`${i}-${randomBytes(10)}`}
               fontSize={textSize}
               weight="medium"
               appearance="primaryText"
@@ -137,7 +137,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'deadline' && !isHistory)
           return (
             <DeadlineItem
-              key={Number(item.id) || i}
+              key={`${i}-${randomBytes(10)}`}
               deadline={item.amount!}
               textSize={textSize}
               marginRight={marginRight}
@@ -146,7 +146,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.content) {
           return (
             <Text
-              key={Number(item.id) || i}
+              key={`${i}-${randomBytes(10)}`}
               style={{ maxWidth: '100%', marginRight }}
               fontSize={textSize}
               weight={
