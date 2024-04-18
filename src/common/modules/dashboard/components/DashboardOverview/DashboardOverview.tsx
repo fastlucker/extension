@@ -133,7 +133,7 @@ const DashboardOverview: FC<Props> = ({
                     <SkeletonLoader width={200} height={42} borderRadius={8} />
                   ) : (
                     <>
-                      <Text style={spacings.mbTy} selectable>
+                      <Text style={spacings.mbTy} selectable testID="full-balance">
                         <Text
                           fontSize={32}
                           shouldScale={false}
