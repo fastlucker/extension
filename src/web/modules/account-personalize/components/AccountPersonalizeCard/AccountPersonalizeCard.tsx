@@ -3,6 +3,10 @@ import { Control, Controller } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
+import {
+  isAmbireV1LinkedAccount,
+  isSmartAccount as getIsSmartAccount
+} from '@ambire-common/libs/account/account'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import EditPenIcon from '@common/assets/svg/EditPenIcon'
 import { Avatar } from '@common/components/Avatar'
@@ -13,6 +17,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
 
@@ -25,8 +30,7 @@ export type AccountPersonalizeFormValues = {
 }
 
 type Props = {
-  address: Account['addr']
-  isSmartAccount: boolean
+  account: Account
   pfp: string
   index: number
   control: Control<AccountPersonalizeFormValues>
@@ -34,17 +38,18 @@ type Props = {
 }
 
 const AccountPersonalizeCard = ({
-  address,
-  isSmartAccount,
+  account,
   index,
   pfp,
   control,
   hasBottomSpacing = true
 }: Props) => {
+  const { addr: address, associatedKeys, creation } = account
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
-
+  const keystoreCtrl = useKeystoreControllerState()
   const [editNameEnabled, setEditNameEnabled] = useState(false)
+  const isSmartAccount = getIsSmartAccount(account)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -56,10 +61,17 @@ const AccountPersonalizeCard = ({
               <Text fontSize={14} style={spacings.mrLg}>
                 {address}
               </Text>
-              {isSmartAccount ? (
-                <Badge withIcon type="success" text={t('Smart Account')} />
-              ) : (
-                <Badge withIcon type="warning" text={t('Basic Account')} />
+              <Badge
+                withIcon
+                style={spacings.mlTy}
+                type={isSmartAccount ? 'success' : 'warning'}
+                text={isSmartAccount ? t('Smart Account') : t('Basic Account')}
+              />
+              {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
+                <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
+              )}
+              {isSmartAccount && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
+                <Badge style={spacings.mlTy} type="info" text={t('Ambire v1')} />
               )}
             </View>
 
