@@ -118,34 +118,34 @@ const AddToken = () => {
   const handleTokenType = async () => {
     await portfolio.checkToken({ address, networkId: network.id })
   }
-
   useEffect(() => {
     const handleEffect = async () => {
+      if (!address || !network) return
       if (address && !isValidAddress(address)) {
         setError('address', { message: t('Invalid address') })
+        return
+      }
+      // Check if token is already in portfolio
+      const isTokenInHints = await handleTokenIsInPortfolio(
+        tokenInPreferences,
+        portfolio.accountPortfolio,
+        network,
+        { address }
+      )
+      if (isTokenInHints) {
+        setIsLoading(false)
+        setShowAlreadyInPortfolioMessage(true)
+        return
       }
 
-      if (address && network && !tokenTypeEligibility && isValidAddress(address)) {
-        setIsLoading(true)
-        await handleTokenType()
-      }
-
-      if (tokenTypeEligibility) {
-        setIsLoading(true)
-
-        // Check if token is already in portfolio
-        const isTokenInHints = await handleTokenIsInPortfolio(
-          tokenInPreferences,
-          portfolio.accountPortfolio,
-          network,
-          { address }
-        )
-        if (isTokenInHints) {
-          setIsLoading(false)
-          setShowAlreadyInPortfolioMessage(true)
-        } else if (!temporaryToken && !isAdditionalHintRequested) {
+      if (!temporaryToken) {
+        if (tokenTypeEligibility && !isAdditionalHintRequested) {
+          setIsLoading(true)
           portfolio.getTemporaryTokens(network?.id, getAddress(address))
           setAdditionalHintRequested(true)
+        } else if (tokenTypeEligibility === undefined) {
+          setIsLoading(true)
+          await handleTokenType()
         }
       }
     }
@@ -161,7 +161,7 @@ const AddToken = () => {
   useEffect(() => {
     setShowAlreadyInPortfolioMessage(false) // Reset the state when address changes
     setAdditionalHintRequested(false)
-  }, [address])
+  }, [address, network])
 
   return (
     <View style={flexbox.flex1}>
@@ -189,6 +189,7 @@ const AddToken = () => {
             containerStyle={
               !isAdditionalHintRequested &&
               !temporaryToken &&
+              !showAlreadyInPortfolioMessage &&
               !isLoading &&
               tokenTypeEligibility === undefined
                 ? { marginBottom: SPACING_SM + SPACING_2XL }
@@ -257,10 +258,10 @@ const AddToken = () => {
       <Button
         disabled={
           showAlreadyInPortfolioMessage ||
-          !tokenTypeEligibility ||
+          (!temporaryToken && !tokenTypeEligibility) ||
           !isValidAddress(address) ||
           !network ||
-          !temporaryToken ||
+          
           isSubmitting
         }
         text={t('Add Token')}

@@ -8,6 +8,7 @@ import Option from '@common/components/Option'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import spacings from '@common/styles/spacings'
+import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import { getAddKeyOptions } from './helpers/getAddKeyOptions'
 
@@ -19,6 +20,7 @@ interface Props {
 const AddAccountKeys: FC<Props> = ({ isSmartAccount, importedAccountKeys }) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { isReadyToStoreKeys } = useKeystoreControllerState()
 
   // Since Basic accounts have only 1 key, if the internal key is imported,
   // we should not show the option to import another key with a private key or
@@ -30,7 +32,8 @@ const AddAccountKeys: FC<Props> = ({ isSmartAccount, importedAccountKeys }) => {
 
   const addAccountOptions = getAddKeyOptions({
     navigate,
-    t
+    t,
+    isKeystoreSetup: isReadyToStoreKeys
   }).filter((o) => {
     return !(
       isBasicAccWithImportedOneInternalKey &&
