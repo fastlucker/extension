@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BackHandler, View, ViewStyle } from 'react-native'
 import { Modalize, ModalizeProps } from 'react-native-modalize'
 
@@ -31,6 +31,7 @@ interface Props {
   scrollViewProps?: ModalizeProps['scrollViewProps']
   backgroundColor?: 'primaryBackground' | 'secondaryBackground'
   autoWidth?: boolean
+  autoOpen?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -52,7 +53,8 @@ const BottomSheet: React.FC<Props> = ({
   flatListProps,
   scrollViewProps,
   backgroundColor = 'secondaryBackground',
-  autoWidth = false
+  autoWidth = false,
+  autoOpen
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -61,6 +63,19 @@ const BottomSheet: React.FC<Props> = ({
   const prevIsOpen = usePrevious(isOpen)
   const [isBackdropVisible, setIsBackdropVisible] = useState(false)
   const { isScrollable, checkIsScrollable, scrollViewRef } = useIsScrollable()
+
+  const autoOpened: React.MutableRefObject<boolean> = useRef(!autoOpen)
+  const setRef = useCallback((node: HTMLElement | null) => {
+    // @ts-ignore
+    // eslint-disable-next-line no-param-reassign
+    sheetRef.current = node
+    // check if component is mounted and if should autoOpen
+    if (autoOpen && sheetRef.current && !autoOpened.current) {
+      sheetRef.current.open()
+      autoOpened.current = !autoOpened.current // ensure that the bottom sheet auto-opens only once
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (prevIsOpen && !isOpen) {
@@ -114,7 +129,7 @@ const BottomSheet: React.FC<Props> = ({
         // bottom sheet and the user navigates to a route that also has a bottom sheet. Without
         // this key or without a unique key, the bottom sheet will not close when navigating
         key={id}
-        ref={sheetRef}
+        ref={setRef}
         contentRef={scrollViewRef}
         modalStyle={[
           styles.bottomSheet,
