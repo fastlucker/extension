@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
@@ -121,10 +122,6 @@ const SignAccountOpScreen = () => {
       })
     }
   }, [activityState.isInitialized, dispatch, params])
-
-  const account = useMemo(() => {
-    return mainState.accounts.find((acc) => acc.addr === signAccountOpState?.accountOp?.accountAddr)
-  }, [mainState.accounts, signAccountOpState?.accountOp?.accountAddr])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
@@ -334,7 +331,7 @@ const SignAccountOpScreen = () => {
         <Footer
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
-          isEOA={!account?.creation}
+          isEOA={!isSmartAccount(signAccountOpState.account)}
           isSignLoading={isSignLoading}
           readyToSign={signAccountOpState.readyToSign}
           isViewOnly={isViewOnly}
