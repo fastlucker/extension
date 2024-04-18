@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -25,6 +25,7 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
 
+import AmountInfo from './components/AmountInfo'
 import getStyles from './styles'
 
 type Props = {
@@ -54,12 +55,12 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         const aId = getFeeSpeedIdentifier(a, signAccountOpState.accountOp.accountAddr)
         const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
         if (!aSlow) return -1
-        const aCanCoverFee = a.availableAmount > aSlow.amount
+        const aCanCoverFee = a.availableAmount >= aSlow.amount
 
         const bId = getFeeSpeedIdentifier(b, signAccountOpState.accountOp.accountAddr)
         const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
         if (!bSlow) return 1
-        const bCanCoverFee = b.availableAmount > bSlow.amount
+        const bCanCoverFee = b.availableAmount >= bSlow.amount
 
         if (aCanCoverFee && !bCanCoverFee) return -1
         if (!aCanCoverFee && bCanCoverFee) return 1
@@ -68,12 +69,12 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
         return 0
       })
       .map((feeOption) => {
-        const gasTankKey = feeOption.token.flags.onGasTank === true ? 'gasTank' : ''
+        const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
 
         const id = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
         const speedCoverage: FeeSpeed[] = []
         signAccountOpState.feeSpeeds[id].forEach((speed) => {
-          if (feeOption.availableAmount > speed.amount) speedCoverage.push(speed.type)
+          if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
         })
 
         const isDisabled = !speedCoverage.includes(FeeSpeed.Slow)
@@ -107,25 +108,30 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
   const [payValue, setPayValue] = useState(payOptions[0])
   const [initialSetupDone, setInitialSetupDone] = useState(false)
 
-  const setFeeOption = (payValue: any) => {
-    setPayValue(payValue)
+  const setFeeOption = useCallback(
+    (localPayValue: any) => {
+      setPayValue(localPayValue)
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-      params: {
-        feeToken: payValue.token,
-        paidBy: payValue.paidBy,
-        speed: payValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
-          ? signAccountOpState.selectedFeeSpeed
-          : FeeSpeed.Slow
-      }
-    })
-  }
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
+        params: {
+          feeToken: localPayValue.token,
+          paidBy: localPayValue.paidBy,
+          speed: localPayValue.speedCoverage.includes(signAccountOpState.selectedFeeSpeed)
+            ? signAccountOpState.selectedFeeSpeed
+            : FeeSpeed.Slow
+        }
+      })
+    },
+    [dispatch, signAccountOpState.selectedFeeSpeed]
+  )
 
-  if (!initialSetupDone) {
-    setInitialSetupDone(true)
-    setFeeOption(payValue)
-  }
+  useEffect(() => {
+    if (!initialSetupDone && payValue && payValue.token) {
+      setInitialSetupDone(true)
+      setFeeOption(payValue)
+    }
+  }, [initialSetupDone, payValue, setFeeOption])
 
   const feeSpeeds = useMemo(() => {
     if (!signAccountOpState.selectedOption) return []
@@ -134,13 +140,13 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
       signAccountOpState.selectedOption,
       signAccountOpState.accountOp.accountAddr
     )
-    return signAccountOpState.feeSpeeds[identifier].map((speed) => {
-      const localSpeed: any = { ...speed }
-      localSpeed.disabled =
+    return signAccountOpState.feeSpeeds[identifier].map((speed) => ({
+      ...speed,
+      disabled: !!(
         signAccountOpState.selectedOption &&
-        signAccountOpState.selectedOption.availableAmount < localSpeed.amount
-      return localSpeed
-    })
+        signAccountOpState.selectedOption.availableAmount < speed.amount
+      )
+    }))
   }, [
     signAccountOpState.feeSpeeds,
     signAccountOpState.selectedOption,
@@ -207,69 +213,32 @@ const Estimation = ({ signAccountOpState, disabled }: Props) => {
           </View>
         </View>
       )}
-      <View>
-        {!!selectedFee && !!payValue && (
-          <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-            <View style={[flexbox.directionRow]}>
-              <Text fontSize={16} weight="medium">
-                {t('Fee')}:{' '}
-              </Text>
-              <Text selectable fontSize={16} weight="medium">
-                {formatDecimals(parseFloat(selectedFee.amountFormatted))} {payValue.token?.symbol}
-              </Text>
-            </View>
-            <View>
-              {selectedFee.amountUsd ? (
-                <Text selectable weight="medium" fontSize={16} appearance="primary">
-                  {' '}
-                  (~ ${formatDecimals(Number(selectedFee.amountUsd))})
-                </Text>
-              ) : null}
-            </View>
-          </View>
-        )}
-        {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
-        {/* <View style={styles.gasTankContainer}> */}
-        {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
-        {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
-        {/* </View> */}
-      </View>
+      {!!selectedFee && !!payValue && (
+        <AmountInfo
+          label="Fee"
+          amountFormatted={selectedFee.amountFormatted}
+          amountUsd={selectedFee.amountUsd}
+          symbol={payValue.token?.symbol}
+        />
+      )}
+      {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
+      {/* <View style={styles.gasTankContainer}> */}
+      {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
+      {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
+      {/* </View> */}
       {signAccountOpState.selectedOption && payValue && payValue.token && (
-        <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, flexbox.alignCenter]}>
-          <View style={[flexbox.directionRow]}>
-            <Text fontSize={16} weight="medium">
-              {t('Available')}:{' '}
-            </Text>
-            <Text selectable fontSize={16} weight="medium">
-              {formatDecimals(
-                parseFloat(
-                  formatUnits(
-                    signAccountOpState.selectedOption.availableAmount,
-                    Number(payValue.token.decimals)
-                  )
-                )
-              )}{' '}
-              {payValue.token.symbol}
-            </Text>
-          </View>
-          <View>
-            {payValue.token.priceIn.length && (
-              <Text selectable weight="medium" fontSize={16} appearance="primary">
-                {' '}
-                (~ $
-                {formatDecimals(
-                  Number(
-                    getTokenUsdAmount(
-                      payValue.token,
-                      signAccountOpState.selectedOption.availableAmount
-                    )
-                  )
-                )}
-                )
-              </Text>
-            )}
-          </View>
-        </View>
+        <AmountInfo
+          label="Available"
+          amountFormatted={formatUnits(
+            signAccountOpState.selectedOption.availableAmount,
+            Number(payValue.token.decimals)
+          )}
+          amountUsd={getTokenUsdAmount(
+            payValue.token,
+            signAccountOpState.selectedOption.availableAmount
+          )}
+          symbol={payValue.token.symbol}
+        />
       )}
     </>
   )
