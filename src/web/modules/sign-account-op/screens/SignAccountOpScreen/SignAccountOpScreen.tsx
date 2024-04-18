@@ -109,28 +109,6 @@ const SignAccountOpScreen = () => {
       return
     }
 
-    const estimateAccountOp = () => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE',
-        params: {
-          accountAddr: params.accountAddr,
-          networkId: params.network.id
-        }
-      })
-    }
-
-    const interval = setInterval(estimateAccountOp, 60000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [params, dispatch])
-
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
-
     if (!activityState.isInitialized) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
