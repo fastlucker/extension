@@ -59,7 +59,7 @@ const ManageDapp = ({
       networks.map((n) => ({
         value: n.id,
         label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon id={n.id} />
+        icon: <NetworkIcon id={n.id} size={30} />
       })),
     [networks]
   )

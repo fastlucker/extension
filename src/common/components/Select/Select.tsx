@@ -25,7 +25,7 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
       {!!item?.icon && typeof item?.icon !== 'string' && (
-        <View style={styles.optionIcon}>{item.icon}</View>
+        <View style={spacings.mrTy}>{item.icon}</View>
       )}
       {!!item?.icon && typeof item?.icon === 'string' && (
         <Image source={{ uri: item.icon }} style={styles.optionIcon} />
