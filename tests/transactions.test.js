@@ -124,7 +124,7 @@ describe('transactions', () => {
 
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
-  it('Send sign message ', async () => {
+  it('Send sign message', async () => {
     /* Allow permissions for read and write in clipboard */
     const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
@@ -156,7 +156,14 @@ describe('transactions', () => {
     const newTarget2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
     )
+
     const newPage2 = await newTarget2.page()
+
+    newPage2.setViewport({
+      width: 1000,
+      height: 1000
+    })
+
     /* Click on "Sign" button */
     await clickOnElement(newPage2, '[data-testid="button-sign"]')
     await page.waitForSelector('.signatureResult-signature')
