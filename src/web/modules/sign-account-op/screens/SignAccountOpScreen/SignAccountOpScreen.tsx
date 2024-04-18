@@ -488,13 +488,7 @@ const SignAccountOpScreen = () => {
             </Text>
             <ScrollableWrapper style={[styles.estimationScrollView]}>
               {!!hasEstimation && !estimationFailed && (
-                <Estimation
-                  mainState={mainState}
-                  signAccountOpState={signAccountOpState}
-                  accountPortfolio={portfolioState.accountPortfolio}
-                  networkId={network!.id}
-                  disabled={isSignLoading}
-                />
+                <Estimation signAccountOpState={signAccountOpState} disabled={isSignLoading} />
               )}
               {!!hasEstimation &&
                 !estimationFailed &&

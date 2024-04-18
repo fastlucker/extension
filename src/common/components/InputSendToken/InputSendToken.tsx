@@ -20,12 +20,13 @@ const MaxAmount = ({
   return (
     <View style={styles.maxAmount}>
       <Text weight="regular" fontSize={14} appearance="secondaryText" style={styles.maxAmountLabel}>
-        {t('Available Amount:')}
+        {t('Enter Amount')}
       </Text>
 
       {maxAmount !== undefined && maxAmount !== null ? (
         <View style={styles.maxAmountValueWrapper}>
           <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
+            <Text fontSize={12}>Available Amount: </Text>
             {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
           </Text>
           {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}

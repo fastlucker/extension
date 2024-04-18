@@ -8,12 +8,14 @@ interface Props extends SvgProps {
   width?: number
   height?: number
   color?: ColorValue
+  strokeWidth?: string
 }
 
 const DownArrowIcon: React.FC<Props> = ({
   width = 15,
   height = 9,
   color = iconColors.primary,
+  strokeWidth = '1.5',
   ...rest
 }) => (
   <Svg width={width} height={height} viewBox="0 0 14.879 8.466" {...rest}>
@@ -23,7 +25,7 @@ const DownArrowIcon: React.FC<Props> = ({
       fill="none"
       stroke={color}
       strokeLinecap="round"
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
     />
   </Svg>
 )

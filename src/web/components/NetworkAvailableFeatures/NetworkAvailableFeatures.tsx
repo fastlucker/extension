@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Interface, JsonRpcProvider } from 'ethers'
+import { Interface } from 'ethers'
 /* eslint-disable react/jsx-no-useless-fragment */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,7 @@ import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
 import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import CheckIcon from '@common/assets/svg/CheckIcon'
 import ErrorFilledIcon from '@common/assets/svg/ErrorFilledIcon'
 import InformationIcon from '@common/assets/svg/InformationIcon'
@@ -29,6 +30,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import { deployContractsBytecode } from './oldDeployParams'
+import getStyles from './styles'
 
 type Props = {
   networkId?: NetworkDescriptor['id']
@@ -39,7 +41,7 @@ type Props = {
 
 const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handleRetry }: Props) => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
+  const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
   const { selectedAccount, accounts } = useMainControllerState()
   const { networks, providers } = useSettingsControllerState()
@@ -56,7 +58,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
     if (!selectedNetwork || selectedNetwork.areContractsDeployed || checkedDeploy) return
 
     setCheckedDeploy(true)
-    const provider = new JsonRpcProvider(selectedNetwork.rpcUrl)
+    const provider = getRpcProvider(selectedNetwork.rpcUrls, selectedNetwork.chainId)
     provider
       .getCode(AMBIRE_ACCOUNT_FACTORY)
       .then((factoryCode: string) => {
@@ -140,16 +142,24 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   )
 
   return (
-    <View style={[spacings.pbLg, spacings.pr]}>
+    <View style={styles.container}>
       <Text fontSize={18} weight="medium" style={spacings.mbMd}>
         {t('Available features')}
       </Text>
       <View>
         {!!features &&
-          features.map((feature) => {
+          features.map((feature, i) => {
             return (
-              <View key={feature.id} style={[flexbox.directionRow, spacings.mb]}>
-                <View style={[spacings.mrTy, { marginTop: 3 }]}>
+              <View
+                key={feature.id}
+                style={[flexbox.directionRow, i !== features.length - 1 && spacings.mb]}
+              >
+                <View style={[spacings.mrTy, feature.level !== 'initial' && { marginTop: 3 }]}>
+                  {feature.level === 'initial' && (
+                    <Text fontSize={14} weight="semiBold" appearance="secondaryText">
+                      ?
+                    </Text>
+                  )}
                   {feature.level === 'loading' && <Spinner style={{ width: 14, height: 14 }} />}
                   {feature.level === 'success' && <CheckIcon width={14} height={14} />}
                   {feature.level === 'warning' && <WarningFilledIcon width={14} height={14} />}
@@ -183,7 +193,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
                       )}
                     {!!feature.msg && (
                       <View style={{ width: 1 }}>
-                        <View style={{ position: 'absolute', top: -11.5, left: 8 }}>
+                        <View style={{ position: 'absolute', top: -11.5, left: 6 }}>
                           <InformationIcon
                             width={14}
                             height={14}

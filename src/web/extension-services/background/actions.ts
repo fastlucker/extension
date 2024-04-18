@@ -13,7 +13,7 @@ import {
 import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { EstimateResult } from '@ambire-common/libs/estimate/estimate'
+import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
@@ -105,7 +105,7 @@ type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
     chainId: NetworkDescriptor['chainId']
-    rpcUrl: NetworkDescriptor['rpcUrl']
+    rpcUrl: string
   }
 }
 
@@ -121,7 +121,7 @@ type MainControllerSettingsAddKeyPreferences = {
 type MainControllerUpdateNetworkPreferences = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
-    networkPreferences: NetworkPreference
+    networkPreferences: Partial<NetworkPreference>
     networkId: NetworkDescriptor['id']
   }
 }
@@ -196,6 +196,10 @@ type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
 }
 
+type TransferControllerCheckIsRecipientAddressUnknownAction = {
+  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
+}
+
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: TransferUpdate
@@ -216,6 +220,15 @@ type MainControllerUpdateSelectedAccount = {
     additionalHints?: TokenResult['address'][]
   }
 }
+
+type PortfolioControllerGetTemporaryToken = {
+  type: 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS'
+  params: {
+    additionalHint: TokenResult['address']
+    networkId: NetworkId
+  }
+}
+
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
@@ -445,11 +458,13 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
+  | TransferControllerCheckIsRecipientAddressUnknownAction
   | MainControllerTransferUpdateAction
   | NotificationControllerResolveRequestAction
   | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
+  | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
   | PortfolioControllerCheckToken
   | KeystoreControllerAddSecretAction

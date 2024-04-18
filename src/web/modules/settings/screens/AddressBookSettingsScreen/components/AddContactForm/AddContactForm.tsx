@@ -104,7 +104,7 @@ const AddContactForm = () => {
   })
 
   return (
-    <Section title="Add new address">
+    <Section title="Add new Contact">
       <Controller
         name="name"
         control={control}
@@ -115,7 +115,7 @@ const AddContactForm = () => {
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             label={t('Name')}
-            placeholder="Address title"
+            placeholder={t('Contact name')}
             maxLength={32}
             value={value}
             onChangeText={onChange}

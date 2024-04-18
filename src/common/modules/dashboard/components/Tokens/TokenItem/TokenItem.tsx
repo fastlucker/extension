@@ -1,8 +1,11 @@
 import React from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
+import BottomSheet from '@common/components/BottomSheet'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -13,16 +16,17 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
+import TokenDetails from '../TokenDetails'
 import getStyles from './styles'
 
 // TODO: customize token component for gas token, wallet isRewards token. Each of them has different button and styling
 // TODO: correct props once connected with portfolio controller
 const TokenItem = ({
   token,
-  handleTokenSelect
+  tokenPreferences
 }: {
   token: TokenResult
-  handleTokenSelect: ({ address, networkId, flags }: TokenResult) => void
+  tokenPreferences: CustomToken[]
 }) => {
   const {
     symbol,
@@ -32,7 +36,10 @@ const TokenItem = ({
   } = token
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
+
   const { styles, theme } = useTheme(getStyles)
+  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+  // const [selectedToken, setSelectedToken] = useState<TokenResult | null>(null)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -55,10 +62,21 @@ const TokenItem = ({
 
   return (
     <AnimatedPressable
-      onPress={() => handleTokenSelect(token)}
+      onPress={() => openBottomSheet()}
       style={[styles.container, animStyle]}
       {...bindAnim}
     >
+      <BottomSheet
+        id={`token-details-${address}`}
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+      >
+        <TokenDetails
+          tokenPreferences={tokenPreferences}
+          token={token}
+          handleClose={closeBottomSheet}
+        />
+      </BottomSheet>
       <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
         <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
           {!!isRewards || !!isVesting ? (

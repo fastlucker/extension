@@ -1,12 +1,12 @@
-import { ImageStyle, StyleSheet, TextProps, ViewProps } from 'react-native'
+import { ImageStyle, StyleSheet, TextProps, ViewProps, ViewStyle } from 'react-native'
 
 import colors from '@common/styles/colors'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import commonStyles from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 
 interface Style {
-  dropdown: ViewProps
+  menuContainer: ViewStyle
   listItemContainerStyle: ViewProps
   selectedItemContainerStyle: ViewProps
   searchContainerStyle: ViewProps
@@ -20,13 +20,11 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    dropdown: {
-      backgroundColor: colors.melrose_15,
-      ...commonStyles.borderRadiusPrimary,
-      borderWidth: 1,
-      borderColor: colors.scampi_20,
-      height: 50,
-      ...spacings.mbSm
+    menuContainer: {
+      backgroundColor: theme.primaryBackground,
+      ...spacings.mtMi,
+      ...spacings.pbTy,
+      zIndex: 9999
     },
     listItemLabelStyle: {
       color: theme.primaryText,
@@ -37,7 +35,7 @@ const getStyles = (theme: ThemeProps) =>
       ...spacings.phTy,
       height: 50,
       backgroundColor: 'transparent',
-      ...commonStyles.borderRadiusPrimary
+      ...common.borderRadiusPrimary
     },
     selectedItemContainerStyle: {
       backgroundColor: colors.howl
@@ -75,7 +73,7 @@ const getStyles = (theme: ThemeProps) =>
     optionIcon: {
       width: 30,
       height: 30,
-      ...commonStyles.borderRadiusPrimary,
+      ...common.borderRadiusPrimary,
       ...spacings.mrTy
     }
   })

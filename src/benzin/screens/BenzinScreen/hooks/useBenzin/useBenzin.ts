@@ -6,6 +6,7 @@ import { Linking } from 'react-native'
 import { networks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
@@ -54,11 +55,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const [activeStep, setActiveStep] = useState<ActiveStepType>('signed')
 
   useEffect(() => {
-    if (!network?.rpcUrl) return
+    if (!network?.rpcUrls) return
 
-    const newProvider = new JsonRpcProvider(network.rpcUrl)
-
-    setProvider(newProvider)
+    setProvider(getRpcProvider(network.rpcUrls, network.chainId))
 
     return () => {
       setProvider((prev) => {
@@ -67,7 +66,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         return null
       })
     }
-  }, [network?.rpcUrl])
+  }, [network?.rpcUrls, network?.chainId])
 
   const stepsState = useSteps({
     txnId,
@@ -84,7 +83,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
 
       if (isRenderedInternally) {
         address = `https://benzin.ambire.com/?networkId=${networkId}${
-          txnId ? `&txnId=${txnId}` : ''
+          stepsState.txnId ? `&txnId=${stepsState.txnId}` : ''
         }${userOpHash ? `&userOpHash=${userOpHash}` : ''}`
       }
 
@@ -93,7 +92,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
       addToast('Error copying to clipboard', { type: 'error' })
     }
     addToast('Copied to clipboard!')
-  }, [addToast, isRenderedInternally, userOpHash, networkId, txnId])
+  }, [addToast, isRenderedInternally, userOpHash, networkId, stepsState.txnId])
 
   const handleOpenExplorer = useCallback(async () => {
     if (!network) return

@@ -28,6 +28,7 @@ export type Messenger = {
     options?: {
       /** Identify & scope the request via an ID. */
       id?: string | number
+      [key: string]: any
     }
   ) => Promise<TResponse>
   /** Replies to `send`. */

@@ -29,7 +29,7 @@ browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
   // eslint-disable-next-line no-prototype-builtins
   if (namespace === 'local' && changes.hasOwnProperty('isDefaultWallet')) {
     const isDefaultWallet = JSON.parse(changes.isDefaultWallet.newValue)
-    inpageMessenger.send('message', {
+    inpageMessenger.send('broadcast', {
       data: {
         type: 'setDefaultWallet',
         value: isDefaultWallet ? 'AMBIRE' : 'OTHER',
@@ -41,7 +41,7 @@ browser.storage.onChanged.addListener(async (changes: any, namespace: any) => {
 
 const initIsDefaultWallet = async () => {
   const isDefaultWallet = await storage.get('isDefaultWallet', true)
-  inpageMessenger.send('message', {
+  inpageMessenger.send('broadcast', {
     data: {
       type: 'setDefaultWallet',
       value: isDefaultWallet ? 'AMBIRE' : 'OTHER',

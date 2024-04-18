@@ -3,7 +3,6 @@
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
-import { areRpcProvidersInitialized, initRpcProviders } from '@ambire-common/services/provider'
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
 import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
@@ -18,18 +17,10 @@ import AppRouter from '@common/modules/app-init/components/AppRouter'
 import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { navigationContainerDarkTheme } from '@common/modules/router/styles'
 import { navigationRef, routeNameRef } from '@common/services/navigation'
-import { rpcProviders } from '@common/services/providers'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 // TODO: v2
 // import { Web3Provider } from '@mobile/modules/web3/contexts/web3Context'
 import { NavigationContainer } from '@react-navigation/native'
-
-// Initialize rpc providers for all networks
-// @TODO: get rid of this and use the rpc providers from the settings controller
-const shouldInitProviders = !areRpcProvidersInitialized()
-if (shouldInitProviders) {
-  initRpcProviders(rpcProviders)
-}
 
 const handleOnReady = () => {
   // @ts-ignore for some reason TS complains about this 👇

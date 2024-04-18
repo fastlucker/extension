@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -19,7 +20,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -27,6 +27,7 @@ import {
   getTokenEligibility,
   getTokenFromPortfolio,
   getTokenFromPreferences,
+  getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio,
   selectNetwork
 } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
@@ -48,9 +49,7 @@ const WatchTokenRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useNotificationControllerState()
   const portfolio = usePortfolioControllerState()
-  const mainCtrl = useMainControllerState()
-  const { networks } = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
+  const { networks, providers } = useSettingsControllerState()
 
   const tokenData = state?.currentNotificationRequest?.params?.data?.options
   const origin = state?.currentNotificationRequest?.params?.session?.origin
@@ -60,17 +59,23 @@ const WatchTokenRequestScreen = () => {
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(true)
   const [tokenNetwork, setTokenNetwork] = useState(network)
-  const [isAdditionalHintRequested, setAdditionalHintRequested] = useState(false)
+  const [isTemporaryTokenRequested, setTemporaryTokenRequested] = useState(false)
 
-  const isControllerLoading =
-    (tokenNetwork?.id && portfolio.state.latest[selectedAccount][tokenNetwork?.id]?.isLoading) ||
-    false
+  const isLoadingTemporaryToken = useMemo(
+    () => tokenNetwork?.id && portfolio.state.temporaryTokens[tokenNetwork?.id]?.isLoading,
+    [tokenNetwork?.id, portfolio.state.temporaryTokens]
+  )
+
+  const networkWithFailedRPC =
+    tokenNetwork?.id &&
+    getNetworksWithFailedRPC({ providers }).filter(
+      (networkId: NetworkId) => tokenNetwork?.id === networkId
+    )
 
   const tokenTypeEligibility = useMemo(
     () => getTokenEligibility(tokenData, portfolio, tokenNetwork),
     [portfolio, tokenData, tokenNetwork]
   )
-
   const handleCancel = useCallback(() => {
     dispatch({
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
@@ -84,7 +89,12 @@ const WatchTokenRequestScreen = () => {
     [portfolio.state.tokenPreferences, tokenData, tokenNetwork]
   )
 
-  const portfolioFoundToken = useMemo(
+  const temporaryToken = useMemo(
+    () => getTokenFromTemporaryTokens(portfolio, tokenData, tokenNetwork),
+    [portfolio, tokenData, tokenNetwork]
+  )
+
+  const portfolioToken = useMemo(
     () =>
       getTokenFromPortfolio(
         tokenData,
@@ -92,46 +102,65 @@ const WatchTokenRequestScreen = () => {
         portfolio?.accountPortfolio,
         tokenInPreferences
       ),
-    [portfolio, tokenInPreferences, tokenData, tokenNetwork]
+    [portfolio, tokenInPreferences, tokenNetwork, tokenData]
   )
 
   const handleTokenType = async (networkId: NetworkId) => {
     await portfolio.checkToken({ address: tokenData?.address, networkId })
   }
 
+  const handleSelectNetwork = useCallback(async () => {
+    await selectNetwork(
+      network,
+      tokenNetwork,
+      tokenData,
+      networks,
+      portfolio,
+      setIsLoading,
+      setTokenNetwork,
+      handleTokenType,
+      providers
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    network,
+    tokenNetwork,
+    tokenData,
+    networks,
+    portfolio.state.validTokens.erc20,
+    setIsLoading,
+    setTokenNetwork,
+    handleTokenType,
+    providers,
+    tokenTypeEligibility
+  ])
+
   useEffect(() => {
     const handleEffect = async () => {
-      await selectNetwork(
-        network,
-        tokenNetwork,
-        tokenData,
-        networks,
-        portfolio,
-        setIsLoading,
-        setTokenNetwork,
-        handleTokenType
-      )
-
+      handleSelectNetwork()
       if (tokenNetwork) {
-        // Check if token is eligible to add in portfolio
-        if (tokenData && !tokenTypeEligibility) {
-          await handleTokenType(tokenNetwork?.id)
-        }
 
-        if (tokenTypeEligibility) {
-          // Check if token is already in portfolio
-          const isTokenInHints = await handleTokenIsInPortfolio(
-            tokenInPreferences,
-            portfolio.accountPortfolio,
-            tokenNetwork,
-            tokenData
-          )
-          if (isTokenInHints) {
-            setIsLoading(false)
-            setShowAlreadyInPortfolioMessage(true)
-          } else if (!portfolioFoundToken && !isAdditionalHintRequested) {
-            setAdditionalHintRequested(true)
-            portfolio.updateAdditionalHints([getAddress(tokenData?.address)])
+        // Check if token is already in portfolio
+        const isTokenInHints = await handleTokenIsInPortfolio(
+          tokenInPreferences,
+          portfolio.accountPortfolio,
+          tokenNetwork,
+          tokenData
+        )
+        if (isTokenInHints) {
+          setIsLoading(false)
+          setShowAlreadyInPortfolioMessage(true)
+        }
+        if (!temporaryToken) {
+
+          // Check if token is eligible to add in portfolio
+          if (tokenData && !tokenTypeEligibility) {
+            await handleTokenType(tokenNetwork?.id)
+          }
+          
+          if (tokenTypeEligibility && !isTokenInHints && !isTemporaryTokenRequested) {
+            setTemporaryTokenRequested(true)
+            portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))
           }
         }
       }
@@ -139,7 +168,7 @@ const WatchTokenRequestScreen = () => {
 
     handleEffect().catch(() => setIsLoading(false))
 
-    if (tokenTypeEligibility === false || !!portfolioFoundToken) {
+    if (tokenTypeEligibility === false || !!temporaryToken) {
       setIsLoading(false)
     }
 
@@ -149,13 +178,11 @@ const WatchTokenRequestScreen = () => {
     tokenData,
     tokenNetwork,
     networks,
-    selectedAccount,
     tokenTypeEligibility,
-    portfolioFoundToken,
-    setIsLoading,
+    temporaryToken,
     tokenInPreferences,
-    portfolio.state.validTokens,
-    isControllerLoading
+    portfolio.accountPortfolio,
+    portfolio.state.validTokens.erc20
   ])
 
   const handleAddToken = useCallback(async () => {
@@ -176,6 +203,9 @@ const WatchTokenRequestScreen = () => {
     })
   }, [dispatch, tokenData, tokenNetwork, portfolio])
 
+  if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
+    return <Alert type="error" title={t('This network RPC is failing')} />
+  }
   if (isLoading && tokenTypeEligibility === undefined) {
     return (
       <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
@@ -211,14 +241,22 @@ const WatchTokenRequestScreen = () => {
             style={spacings.phLg}
             hasBottomSpacing={false}
             onPress={handleAddToken}
-            disabled={isLoading || showAlreadyInPortfolioMessage || !tokenTypeEligibility}
+            disabled={
+              isLoading ||
+              showAlreadyInPortfolioMessage ||
+              (!tokenTypeEligibility && !temporaryToken)
+            }
             text={t('Add token')}
           />
         </>
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        {!tokenTypeEligibility && tokenTypeEligibility !== undefined && !portfolioFoundToken ? (
+        {(!tokenTypeEligibility &&
+          tokenTypeEligibility !== undefined &&
+          !temporaryToken &&
+          !isLoadingTemporaryToken) ||
+        (!tokenNetwork?.id && !isLoading) ? (
           <Alert type="error" title={t('This token type is not supported.')} />
         ) : (
           <>
@@ -252,12 +290,16 @@ const WatchTokenRequestScreen = () => {
                 ...spacings.mb
               }}
             />
-            <TokenHeader portfolioFoundToken={portfolioFoundToken} />
+            <TokenHeader
+              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
+              temporaryToken={portfolioToken || temporaryToken}
+            />
             <Token
               tokenData={tokenData}
               tokenNetwork={tokenNetwork}
-              portfolioFoundToken={portfolioFoundToken}
+              temporaryToken={portfolioToken || temporaryToken}
               isLoading={isLoading}
+              showAlreadyInPortfolioMessage={showAlreadyInPortfolioMessage}
             />
           </>
         )}

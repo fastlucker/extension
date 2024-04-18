@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Trans, useTranslation } from 'react-i18next'
+import { Pressable, View } from 'react-native'
 
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
@@ -10,15 +10,12 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -29,11 +26,15 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import Text from '@common/components/Text'
 
+import { createTab } from '@web/extension-services/background/webapi/tab'
+import useToast from '@common/hooks/useToast'
 import getStyles from './styles'
 
 const TransferScreen = () => {
   const { dispatch } = useBackgroundService()
+  const { addToast } = useToast()
   const { state } = useTransferControllerState()
   const { isTopUp, userRequest, isFormValid } = state
   const { accountPortfolio } = usePortfolioControllerState()
@@ -75,8 +76,8 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate, dispatch])
 
-  const sendTransaction = useCallback(async () => {
-    await dispatch({
+  const sendTransaction = useCallback(() => {
+    dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
   }, [dispatch])
@@ -84,7 +85,7 @@ const TransferScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      width="sm"
+      width="xl"
       header={<HeaderAccountAndNetworkInfo />}
       footer={
         <>
@@ -121,35 +122,43 @@ const TransferScreen = () => {
       <TabLayoutWrapperMainContent>
         {state?.isInitialized ? (
           <Panel
-            style={[styles.panel, !state.isTopUp && spacings.pv0]}
-            forceContainerSmallSpacings={state.isTopUp}
-            title={state.isTopUp ? 'Top Up Gas Tank' : ''}
+            style={[styles.panel]}
+            forceContainerSmallSpacings
+            title={state.isTopUp ? 'Top Up Gas Tank' : 'Send'}
           >
-            <View
-              style={[
-                flexbox.directionRow,
-                flexbox.flex1,
-                common.fullWidth,
-                !state.isTopUp && spacings.pvXl
-              ]}
-            >
-              <ScrollableWrapper style={[flexbox.flex1]}>
-                <SendForm
-                  addressInputState={addressInputState}
-                  state={state}
-                  isAllReady={accountPortfolio?.isAllReady}
-                  isSmartAccount={isSmartAccount}
-                />
-              </ScrollableWrapper>
-            </View>
+            <SendForm
+              addressInputState={addressInputState}
+              state={state}
+              isAllReady={accountPortfolio?.isAllReady}
+              isSmartAccount={isSmartAccount}
+            />
             {isTopUp && !isSmartAccount && (
               <View style={spacings.ptLg}>
                 <Alert
                   type="warning"
-                  // @TODO: replace temporary text
-                  title={t(
-                    'The Gas Tank is exclusively available for Smart Accounts. It enables you to pre-pay network fees using stablecoins and custom tokens.'
-                  )}
+                  title={
+                    <Trans>
+                      The Gas Tank is exclusively available for Smart Accounts. It lets you pre-pay
+                      for network fees using stable coins and other tokens and use the funds on any
+                      chain.{' '}
+                      <Pressable
+                        onPress={async () => {
+                          try {
+                            await createTab(
+                              'https://help.ambire.com/hc/en-us/articles/5397969913884-What-is-the-Gas-Tank'
+                            )
+                          } catch {
+                            addToast("Couldn't open link", { type: 'error' })
+                          }
+                        }}
+                      >
+                        <Text appearance="warningText" underline>
+                          {t('Learn more')}
+                        </Text>
+                      </Pressable>
+                      .
+                    </Trans>
+                  }
                   isTypeLabelHidden
                 />
               </View>

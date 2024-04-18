@@ -46,6 +46,7 @@ const AddressInput: React.FC<Props> = ({
   validation,
   containerStyle = {},
   placeholder,
+  childrenBeforeButtons,
   ...rest
 }) => {
   const { t } = useTranslation()
@@ -133,6 +134,7 @@ const AddressInput: React.FC<Props> = ({
               </AnimatedPressable>
             ) : null}
             <View style={[styles.domainIcons, rest.button ? spacings.prTy : spacings.pr]}>
+              {childrenBeforeButtons}
               <UnstoppableDomainIcon isActive={!!udAddress} />
               <View style={styles.plTy}>
                 <EnsIcon isActive={!!ensAddress} />

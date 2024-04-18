@@ -1,76 +1,25 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Pressable, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import DeleteIcon from '@common/assets/svg/DeleteIcon'
-import InvisibilityIcon from '@common/assets/svg/InvisibilityIcon'
-import VisibilityIcon from '@common/assets/svg/VisibilityIcon'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
-import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
+import HideTokenTokenItem from './TokenItem'
+
 const HideToken = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
 
   const portfolio = usePortfolioControllerState()
-  const [isLoading, setIsLoading] = useState<any>({})
+  const [isLoading, setIsLoading] = useState<{
+    [token: string]: boolean
+  }>({})
   const [tokenPreferencesCopy, seTokenPreferencesCopy] = useState<CustomToken[]>([])
-
-  const hideToken = useCallback(
-    async (token: CustomToken) => {
-      const tokenPreferences = portfolio.state.tokenPreferences
-
-      let tokenIsInPreferences = tokenPreferences.find(
-        (tokenPreference) =>
-          tokenPreference.address.toLowerCase() === token.address.toLowerCase() &&
-          tokenPreference.networkId === token.networkId
-      )
-
-      // Flip isHidden flag
-      if (!tokenIsInPreferences) {
-        tokenIsInPreferences = { ...token, isHidden: true }
-      } else {
-        tokenIsInPreferences = { ...tokenIsInPreferences, isHidden: !tokenIsInPreferences.isHidden }
-      }
-
-      let newTokenPreferences = []
-
-      if (!tokenIsInPreferences) {
-        newTokenPreferences.push(token)
-      } else {
-        const updatedTokenPreferences = tokenPreferences.map((_t: any) => {
-          if (
-            _t.address.toLowerCase() === token.address.toLowerCase() &&
-            _t.networkId === token.networkId
-          ) {
-            return tokenIsInPreferences
-          }
-          return _t
-        })
-        newTokenPreferences = updatedTokenPreferences
-      }
-
-      seTokenPreferencesCopy(newTokenPreferences)
-      setIsLoading({ [`${token.address}-${token.networkId}`]: true })
-
-      await portfolio.updateTokenPreferences(tokenIsInPreferences)
-    },
-    [portfolio]
-  )
-
-  const removeToken = useCallback(
-    async (token: CustomToken) => {
-      await portfolio.removeTokenPreferences(token)
-    },
-    [portfolio]
-  )
 
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -156,6 +105,20 @@ const HideToken = () => {
     [portfolio.accountPortfolio?.tokens, portfolio.state.tokenPreferences, searchValue]
   )
 
+  const renderItem = useCallback(
+    ({ item }: any) => (
+      <HideTokenTokenItem
+        token={item}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        seTokenPreferencesCopy={seTokenPreferencesCopy}
+      />
+    ),
+    [isLoading]
+  )
+
+  const keyExtractor = useCallback((item: any) => `${item.address}-${item.networkId}`, [])
+
   return (
     <View style={flexbox.flex1}>
       <Text fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]} weight="medium">
@@ -174,79 +137,15 @@ const HideToken = () => {
           />
         )}
       />
-      <View>
-        {(tokens &&
-          tokens.length &&
-          tokens.map((token) => (
-            <View
-              key={`${token.address}-${token.networkId}`}
-              style={[
-                flexbox.directionRow,
-                flexbox.alignCenter,
-                flexbox.justifySpaceBetween,
-                spacings.phTy,
-                spacings.pvTy,
-                spacings.mbTy
-              ]}
-            >
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <TokenIcon
-                  containerHeight={32}
-                  containerWidth={32}
-                  width={22}
-                  height={22}
-                  withContainer
-                  networkId={token.networkId}
-                  address={token.address}
-                />
-                <Text fontSize={16} style={spacings.mlTy} weight="semiBold">
-                  {token.symbol}
-                </Text>
-              </View>
-              <View style={flexbox.directionRow}>
-                {portfolio.state.tokenPreferences.find(
-                  ({ address, networkId, standard }) =>
-                    token.address.toLowerCase() === address.toLowerCase() &&
-                    token.networkId === networkId &&
-                    standard === 'ERC20'
-                ) && (
-                  <Pressable onPress={() => removeToken(token)}>
-                    <DeleteIcon
-                      color={theme.secondaryText}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
-                  </Pressable>
-                )}
-                {portfolio.state.tokenPreferences.find(
-                  ({ address, networkId }) =>
-                    token.address.toLowerCase() === address.toLowerCase() &&
-                    token.networkId === networkId
-                )?.isHidden ? (
-                  <Pressable
-                    disabled={isLoading[`${token.address}-${token.networkId}`]}
-                    onPress={() => hideToken(token)}
-                  >
-                    <VisibilityIcon
-                      color={theme.successDecorative}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
-                  </Pressable>
-                ) : (
-                  <Pressable
-                    disabled={isLoading[`${token.address}-${token.networkId}`]}
-                    onPress={() => hideToken(token)}
-                  >
-                    <InvisibilityIcon
-                      color={theme.errorDecorative}
-                      style={[spacings.phTy, { cursor: 'pointer' }]}
-                    />
-                  </Pressable>
-                )}
-              </View>
-            </View>
-          ))) ||
-          null}
-      </View>
+      <FlatList
+        data={tokens}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        removeClippedSubviews
+        onEndReachedThreshold={2.5}
+        initialNumToRender={20}
+        windowSize={9}
+      />
     </View>
   )
 }

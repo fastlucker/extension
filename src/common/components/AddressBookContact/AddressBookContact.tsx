@@ -1,12 +1,14 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
+import { TooltipRefProps } from 'react-tooltip'
 
 import EnsCircularIcon from '@common/assets/svg/EnsCircularIcon'
 import UnstoppableDomainCircularIcon from '@common/assets/svg/UnstoppableDomainCircularIcon'
 import { Avatar } from '@common/components/Avatar'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
+import { isWeb } from '@common/config/env'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -22,11 +24,20 @@ import ManageContact from './ManageContact'
 interface Props {
   address: string
   name: string
-  isWalletAccount?: boolean
+  isManageable?: boolean
+  isEditable?: boolean
   onPress?: () => void
+  style?: ViewStyle
 }
 
-const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress }) => {
+const AddressBookContact: FC<Props> = ({
+  address,
+  name,
+  isManageable,
+  isEditable,
+  onPress,
+  style = {}
+}) => {
   const ContainerElement = onPress ? AnimatedPressable : View
 
   const { t } = useTranslation()
@@ -41,6 +52,8 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
       to: theme.secondaryBackground
     }
   })
+  const tooltipRef = useRef<TooltipRefProps>(null)
+  const containerRef = useRef(null)
 
   const onSave = (newName: string) => {
     dispatch({
@@ -53,8 +66,27 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
     addToast(t('Successfully renamed contact'))
   }
 
+  const closeTooltip = useCallback(() => {
+    tooltipRef?.current?.close()
+  }, [])
+
+  useEffect(() => {
+    if (!isWeb) return
+
+    if (!containerRef.current) return
+
+    const container = containerRef.current as HTMLElement
+
+    container.addEventListener('mouseleave', closeTooltip)
+
+    return () => {
+      container.removeEventListener('mouseleave', () => closeTooltip)
+    }
+  }, [closeTooltip])
+
   return (
     <ContainerElement
+      ref={containerRef}
       style={[
         flexbox.directionRow,
         flexbox.alignCenter,
@@ -62,6 +94,7 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
         spacings.phTy,
         spacings.pvTy,
         common.borderRadiusPrimary,
+        style,
         onPress && animStyle
       ]}
       onPress={onPress}
@@ -88,17 +121,23 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
           <Avatar pfp={address} size={32} />
         </View>
         <View>
-          <Editable
-            fontSize={14}
-            textProps={{
-              weight: 'medium'
-            }}
-            height={20}
-            minWidth={80}
-            maxLength={32}
-            value={name}
-            onSave={onSave}
-          />
+          {isEditable ? (
+            <Editable
+              fontSize={14}
+              textProps={{
+                weight: 'medium'
+              }}
+              height={20}
+              minWidth={80}
+              maxLength={32}
+              value={name}
+              onSave={onSave}
+            />
+          ) : (
+            <Text fontSize={14} weight="medium">
+              {name}
+            </Text>
+          )}
           {isLoading ? (
             <View
               style={{
@@ -124,7 +163,9 @@ const AddressBookContact: FC<Props> = ({ address, name, isWalletAccount, onPress
           )}
         </View>
       </View>
-      {!isWalletAccount ? <ManageContact address={address} name={name} /> : null}
+      {isManageable ? (
+        <ManageContact tooltipRef={tooltipRef} address={address} name={name} />
+      ) : null}
     </ContainerElement>
   )
 }

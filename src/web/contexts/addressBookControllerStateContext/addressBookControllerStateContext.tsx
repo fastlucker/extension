@@ -24,6 +24,12 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch, mainState.isReady, state])
 
   useEffect(() => {
+    dispatch({
+      type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
+    })
+  }, [state?.contacts?.length, dispatch])
+
+  useEffect(() => {
     const onUpdate = (newState: AddressBookController) => {
       setState(newState)
     }
