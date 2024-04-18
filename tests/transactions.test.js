@@ -18,7 +18,7 @@ describe('transactions', () => {
   })
 
   afterEach(async () => {
-    // await recorder.stop()
+    await recorder.stop()
     await browser.close()
   })
 
@@ -198,7 +198,7 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Make valid swap ', async () => {
+  it('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
@@ -211,7 +211,8 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
+    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
 
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
@@ -239,11 +240,9 @@ describe('transactions', () => {
     await new Promise((r) => setTimeout(r, 500))
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
-    const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
-
-    await recorder.stop()
+    const confirmSwapBtn = '[data-testid="confirm-swap-button"]'
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn, 'newWindow2')
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
   })
 })
