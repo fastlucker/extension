@@ -27,7 +27,7 @@ const getAddAccountOptions = ({
   return [
     {
       key: 'hw',
-      text: t('Connect a Hardware Wallet'),
+      text: t('Connect a hardware wallet'),
       icon: HWIcon,
       onPress: () => navigateWrapped(ROUTES.hardwareWalletSelect),
       testID: 'connect-hardware-wallet'

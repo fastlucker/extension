@@ -155,12 +155,12 @@ const SelectComponent = ({
                 ...menuStyle
               } as any),
             menuPortal: (baseStyles) => ({ ...baseStyles, zIndex: 9999 }),
-            option: (baseStyles) =>
+            option: (baseStyles, { isDisabled }) =>
               ({
                 ...baseStyles,
                 fontSize: 14,
                 fontFamily: FONT_FAMILIES.REGULAR,
-                cursor: 'pointer',
+                cursor: isDisabled ? 'default' : 'pointer',
                 color: theme.primaryText
               } as any),
             menuList: (baseStyles) => ({

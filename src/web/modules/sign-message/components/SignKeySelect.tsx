@@ -66,7 +66,7 @@ const SigningKeySelect = ({
                 disabled={isSigning}
               >
                 <AccountKey
-                  address={key.addr}
+                  addr={key.addr}
                   type={key.type}
                   label={label || `Key ${i + 1}`}
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}

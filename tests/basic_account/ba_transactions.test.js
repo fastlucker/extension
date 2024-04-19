@@ -124,7 +124,7 @@ describe('transactions', () => {
 
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
-  it('Send sign message ', async () => {
+  it('Send sign message', async () => {
     /* Allow permissions for read and write in clipboard */
     const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
@@ -142,7 +142,7 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
 
     /* Type message in the 'Message' field */
     const textMessage = 'text message'
@@ -156,7 +156,14 @@ describe('transactions', () => {
     const newTarget2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
     )
+
     const newPage2 = await newTarget2.page()
+
+    newPage2.setViewport({
+      width: 1000,
+      height: 1000
+    })
+
     /* Click on "Sign" button */
     await clickOnElement(newPage2, '[data-testid="button-sign"]')
     await page.waitForSelector('.signatureResult-signature')
@@ -211,7 +218,8 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
+    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
 
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
@@ -239,11 +247,9 @@ describe('transactions', () => {
     await new Promise((r) => setTimeout(r, 500))
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
-    const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
-
-    await recorder.stop()
+    const confirmSwapBtn = '[data-testid="confirm-swap-button"]'
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn, 'newWindow2')
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
   })
 })

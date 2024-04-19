@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
@@ -30,10 +30,6 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
   const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
   const [imageFailed, setImageFailed] = useState(false)
-  const urlFormatted = url.startsWith('data:application')
-    ? url
-    : `https://nftcdn.ambire.com/proxy?url=${url}`
-
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
     values: {
@@ -41,6 +37,30 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
       to: 1.15
     }
   })
+
+  const imageUrl = useMemo(() => {
+    // Ambire's NFT CDN can't handle base64 json data
+    if (url.startsWith('data:application')) {
+      try {
+        // Convert base64 to json
+        const json = Buffer.from(url.substring(29), 'base64').toString()
+        const result = JSON.parse(json)
+
+        // Add a proxy if the image is IPFS
+        if (result.image.startsWith('ipfs://')) {
+          return `https://ipfs.io/ipfs/${result.image.substring(7)}`
+        }
+
+        return result.image
+      } catch {
+        // imageFailed will be set by the onError event
+        return ''
+      }
+    }
+
+    // Resolves to an image from a JSON source
+    return `https://nftcdn.ambire.com/proxy?url=${url}`
+  }, [url])
 
   return (
     <Pressable
@@ -61,7 +81,7 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
           name: `${collectionData.name} #${id}`,
           networkId: collectionData.networkId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
-          image: imageFailed ? '' : urlFormatted,
+          image: imageFailed ? '' : imageUrl,
           collectionName: collectionData.name
         })
       }}
@@ -74,7 +94,7 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
               onError={() => setImageFailed(true)}
               onLoadEnd={() => setIsLoading(false)}
               source={{
-                uri: urlFormatted
+                uri: imageUrl
               }}
               style={[
                 styles.image,
