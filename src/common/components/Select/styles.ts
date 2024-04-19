@@ -17,6 +17,9 @@ interface Style {
   searchContainerStyle: ViewProps
   searchTextInputStyle: ViewProps
   optionIcon: ImageStyle
+  searchBorderWrapperStyle: ViewStyle
+  topSearchInputWrapperStyle: ViewStyle
+  bottomSearchInputWrapperStyle: ViewStyle
 }
 
 export const MENU_OPTION_HEIGHT = 50
@@ -97,6 +100,23 @@ const getStyles = (theme: ThemeProps) =>
       height: 30,
       ...common.borderRadiusPrimary,
       ...spacings.mrTy
+    },
+    searchBorderWrapperStyle: {
+      borderWidth: 0,
+      borderRadius: 0
+    },
+    topSearchInputWrapperStyle: {
+      borderWidth: 0,
+      borderTopWidth: 1,
+      borderBottomWidth: 0,
+      borderRadius: 0,
+      borderColor: theme.secondaryBorder
+    },
+    bottomSearchInputWrapperStyle: {
+      borderWidth: 0,
+      borderBottomWidth: 1,
+      borderRadius: 0,
+      borderColor: theme.secondaryBorder
     }
   })
 

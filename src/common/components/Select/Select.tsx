@@ -138,6 +138,17 @@ const Select = ({
     [value, handleOptionSelect]
   )
 
+  const keyExtractor = useCallback((item: SelectValue) => item.value.toString(), [])
+
+  const getItemLayout = useCallback(
+    (data: SelectValue[] | null | undefined, index: number) => ({
+      length: MENU_OPTION_HEIGHT,
+      offset: MENU_OPTION_HEIGHT * index,
+      index
+    }),
+    []
+  )
+
   const handleOpenMenu = useCallback(() => {
     setIsMenuOpen(true)
     forceUpdate() // calculate menu position
@@ -210,28 +221,20 @@ const Select = ({
                   autoFocus
                   control={control}
                   containerStyle={spacings.mb0}
-                  borderWrapperStyle={{ borderWidth: 0, borderRadius: 0 }}
-                  inputWrapperStyle={{
-                    borderWidth: 0,
-                    borderBottomWidth: 1,
-                    borderRadius: 0,
-                    borderColor: theme.secondaryBorder
-                  }}
+                  borderWrapperStyle={styles.searchBorderWrapperStyle}
+                  inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
+                  leftIconStyle={spacings.pl}
                 />
               )}
               <FlatList
                 data={filteredOptions}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.value.toString()}
+                keyExtractor={keyExtractor}
                 initialNumToRender={15}
                 windowSize={10}
                 maxToRenderPerBatch={20}
                 removeClippedSubviews
-                getItemLayout={(data, index) => ({
-                  length: MENU_OPTION_HEIGHT,
-                  offset: MENU_OPTION_HEIGHT * index,
-                  index
-                })}
+                getItemLayout={getItemLayout}
                 ListEmptyComponent={
                   <Text
                     style={[spacings.pv, flexbox.flex1, text.center]}
@@ -249,14 +252,10 @@ const Select = ({
                   autoFocus
                   control={control}
                   containerStyle={spacings.mb0}
-                  borderWrapperStyle={{ borderWidth: 0, borderRadius: 0 }}
-                  inputWrapperStyle={{
-                    borderWidth: 0,
-                    borderTopWidth: 1,
-                    borderBottomWidth: 0,
-                    borderRadius: 0,
-                    borderColor: theme.secondaryBorder
-                  }}
+                  borderWrapperStyle={styles.searchBorderWrapperStyle}
+                  inputWrapperStyle={styles.topSearchInputWrapperStyle}
+                  inputStyle={spacings.ph}
+                  leftIconStyle={spacings.pl}
                 />
               )}
             </View>
