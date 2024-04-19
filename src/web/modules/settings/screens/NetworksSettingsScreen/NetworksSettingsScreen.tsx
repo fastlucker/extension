@@ -38,9 +38,6 @@ const NetworksSettingsScreen = () => {
   const { addToast } = useToast()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
   const { theme } = useTheme()
-
-  const search = watch('search')
-
   const [selectedNetworkId, setSelectedNetworkId] = useState(() => {
     const parsedSearchParams = new URLSearchParams(searchParams)
     if (parsedSearchParams.has('networkId')) return parsedSearchParams.get('networkId') as string
@@ -48,10 +45,18 @@ const NetworksSettingsScreen = () => {
     return undefined
   })
 
+  const shouldOpenBottomSheet = useMemo(() => {
+    const parsedSearchParams = new URLSearchParams(searchParams)
+
+    return parsedSearchParams.has('addNetwork')
+  }, [searchParams])
+
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),
     [networks, selectedNetworkId]
   )
+
+  const search = watch('search')
 
   useEffect(() => {
     setCurrentSettingsPage('networks')
@@ -90,10 +95,14 @@ const NetworksSettingsScreen = () => {
 
   return (
     <>
-      <SettingsPageHeader title="Networks" />
+      <SettingsPageHeader title={t('Networks')} />
       <View style={[flexbox.directionRow, flexbox.flex1]}>
         <View style={[{ flex: 1 }]}>
-          <Search placeholder="Search for network" control={control} containerStyle={spacings.mb} />
+          <Search
+            placeholder={t('Search for network')}
+            control={control}
+            containerStyle={spacings.mb}
+          />
           <ScrollableWrapper contentContainerStyle={{ flexGrow: 1 }}>
             {filteredNetworkBySearch.length > 0 ? (
               filteredNetworkBySearch.map((network) => (
@@ -172,6 +181,7 @@ const NetworksSettingsScreen = () => {
         containerInnerWrapperStyles={{ flex: 1 }}
         backgroundColor="primaryBackground"
         style={{ ...spacings.ph0, ...spacings.pv0, overflow: 'hidden' }}
+        autoOpen={shouldOpenBottomSheet}
       >
         <NetworkForm onCancel={closeBottomSheet} onSaved={closeBottomSheet} />
       </BottomSheet>

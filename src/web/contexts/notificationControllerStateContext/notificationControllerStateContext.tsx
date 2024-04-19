@@ -68,7 +68,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       state.currentNotificationRequest?.params?.method !== BENZIN_NOTIFICATION_DATA.method
     ) {
       dispatch({
-        type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
+        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
       })
       window.close()
     }
@@ -88,7 +88,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method)
     ) {
       dispatch({
-        type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
+        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
       })
       window.close()
     }

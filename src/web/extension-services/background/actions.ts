@@ -372,8 +372,8 @@ type DappsControllerRemoveDappAction = {
   params: Dapp['url']
 }
 
-type NotificationControllerReopenCurrentNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST'
+type NotificationControllerFocusCurrentNotificationRequestAction = {
+  type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
 }
 type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
@@ -486,7 +486,7 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
-  | NotificationControllerReopenCurrentNotificationRequestAction
+  | NotificationControllerFocusCurrentNotificationRequestAction
   | NotificationControllerOpenNotificationRequestAction
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact

@@ -39,7 +39,7 @@ const TokenIcon: React.FC<Props> = ({
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [hasError, setHasError] = useState<boolean>()
+  const [hasError, setHasError] = useState<boolean>(false)
   const { networks } = useSettingsControllerState()
 
   const network = useMemo(
@@ -52,7 +52,7 @@ const TokenIcon: React.FC<Props> = ({
 
   const imageUrl = useMemo(() => {
     if (!network) return undefined
-
+    setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
 
