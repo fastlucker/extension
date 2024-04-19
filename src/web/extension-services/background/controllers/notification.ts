@@ -127,17 +127,22 @@ export class NotificationController extends EventEmitter {
     }, 'notification')
   }
 
-  reopenCurrentNotificationRequest = async () => {
-    try {
-      if (this.notificationRequests.length < 0 || !this.currentNotificationRequest) return
-      this.openNotification(this.currentNotificationRequest?.winProps)
-    } catch (e: any) {
-      this.emitError({
-        level: 'major',
-        message: 'Request opening failed',
-        error: e
-      })
-    }
+  focusCurrentNotificationWindow = () => {
+    if (
+      !this.notificationRequests.length ||
+      !this.currentNotificationRequest ||
+      !this.notificationWindowId
+    )
+      return
+
+    winMgr.focusNotificationWindow(this.notificationWindowId)
+    this.#pm.send('> ui-warning', {
+      method: 'notification',
+      params: {
+        warnings: ['Please resolve your pending request first.'],
+        controller: 'notification'
+      }
+    })
   }
 
   openNotificationRequest = async (notificationId: number) => {
