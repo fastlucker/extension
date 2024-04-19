@@ -216,7 +216,6 @@ const Select = ({
                   containerStyle={spacings.mb0}
                   borderWrapperStyle={styles.searchBorderWrapperStyle}
                   inputWrapperStyle={styles.topSearchInputWrapperStyle}
-                  inputStyle={spacings.ph}
                   leftIconStyle={spacings.pl}
                 />
               )}
