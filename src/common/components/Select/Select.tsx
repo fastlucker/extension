@@ -30,6 +30,7 @@ const Select = ({
   containerStyle,
   selectStyle,
   labelStyle,
+  menuOptionHeight = MENU_OPTION_HEIGHT,
   menuStyle,
   disabled,
   withSearch = true
@@ -100,11 +101,11 @@ const Select = ({
 
   const getItemLayout = useCallback(
     (data: SelectValue[] | null | undefined, index: number) => ({
-      length: MENU_OPTION_HEIGHT,
-      offset: MENU_OPTION_HEIGHT * index,
+      length: menuOptionHeight,
+      offset: menuOptionHeight * index,
       index
     }),
-    []
+    [menuOptionHeight]
   )
 
   const handleOpenMenu = useCallback(() => {
@@ -166,60 +167,58 @@ const Select = ({
       </Pressable>
       {!!isMenuOpen && (
         <Portal hostName="global">
-          <View style={styles.menuBackdrop}>
-            <View
-              ref={menuRef}
-              style={[
-                styles.menuContainer,
-                { width, maxHeight: maxMenuDynamicHeight, left: x },
-                menuPosition === 'bottom' && { top: y + height },
-                menuPosition === 'top' && { bottom: windowHeight - y },
-                menuStyle
-              ]}
-            >
-              {!!withSearch && menuPosition === 'bottom' && (
-                <Search
-                  placeholder={t('Search...')}
-                  autoFocus
-                  control={control}
-                  containerStyle={spacings.mb0}
-                  borderWrapperStyle={styles.searchBorderWrapperStyle}
-                  inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
-                  leftIconStyle={spacings.pl}
-                />
-              )}
-              <FlatList
-                data={filteredOptions}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-                initialNumToRender={15}
-                windowSize={10}
-                maxToRenderPerBatch={20}
-                removeClippedSubviews
-                getItemLayout={getItemLayout}
-                ListEmptyComponent={
-                  <Text
-                    style={[spacings.pv, flexbox.flex1, text.center]}
-                    numberOfLines={1}
-                    appearance="secondaryText"
-                    fontSize={14}
-                  >
-                    {t('No items found')}
-                  </Text>
-                }
+          <View
+            ref={menuRef}
+            style={[
+              styles.menuContainer,
+              { width, maxHeight: maxMenuDynamicHeight, left: x },
+              menuPosition === 'bottom' && { top: y + height },
+              menuPosition === 'top' && { bottom: windowHeight - y },
+              menuStyle
+            ]}
+          >
+            {!!withSearch && menuPosition === 'bottom' && (
+              <Search
+                placeholder={t('Search...')}
+                autoFocus
+                control={control}
+                containerStyle={spacings.mb0}
+                borderWrapperStyle={styles.searchBorderWrapperStyle}
+                inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
+                leftIconStyle={spacings.pl}
               />
-              {!!withSearch && menuPosition === 'top' && (
-                <Search
-                  placeholder={t('Search...')}
-                  autoFocus
-                  control={control}
-                  containerStyle={spacings.mb0}
-                  borderWrapperStyle={styles.searchBorderWrapperStyle}
-                  inputWrapperStyle={styles.topSearchInputWrapperStyle}
-                  leftIconStyle={spacings.pl}
-                />
-              )}
-            </View>
+            )}
+            <FlatList
+              data={filteredOptions}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              initialNumToRender={15}
+              windowSize={10}
+              maxToRenderPerBatch={20}
+              removeClippedSubviews
+              getItemLayout={getItemLayout}
+              ListEmptyComponent={
+                <Text
+                  style={[spacings.pv, flexbox.flex1, text.center]}
+                  numberOfLines={1}
+                  appearance="secondaryText"
+                  fontSize={14}
+                >
+                  {t('No items found')}
+                </Text>
+              }
+            />
+            {!!withSearch && menuPosition === 'top' && (
+              <Search
+                placeholder={t('Search...')}
+                autoFocus
+                control={control}
+                containerStyle={spacings.mb0}
+                borderWrapperStyle={styles.searchBorderWrapperStyle}
+                inputWrapperStyle={styles.topSearchInputWrapperStyle}
+                leftIconStyle={spacings.pl}
+              />
+            )}
           </View>
         </Portal>
       )}

@@ -11,7 +11,6 @@ interface Style {
   selectContainer: ViewStyle
   selectBorderWrapper: ViewStyle
   select: ViewStyle
-  menuBackdrop: ViewStyle
   menuContainer: ViewStyle
   menuOption: ViewProps
   searchContainerStyle: ViewProps
@@ -49,14 +48,6 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.directionRow,
       ...spacings.ph
     },
-    menuBackdrop: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      zIndex: BOTTOM_SHEET_Z_INDEX + 1
-    },
     menuContainer: {
       backgroundColor: theme.primaryBackground,
       ...spacings.mvMi,
@@ -68,7 +59,7 @@ const getStyles = (theme: ThemeProps) =>
       position: 'absolute',
       maxHeight: MAX_MENU_HEIGHT,
       ...flexbox.flex1,
-      zIndex: BOTTOM_SHEET_Z_INDEX + 2
+      zIndex: BOTTOM_SHEET_Z_INDEX + 1
     },
     menuOption: {
       height: MENU_OPTION_HEIGHT,

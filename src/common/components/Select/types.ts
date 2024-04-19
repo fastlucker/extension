@@ -18,7 +18,7 @@ export type SelectProps = {
   selectStyle?: ViewStyle
   labelStyle?: TextStyle
   disabled?: boolean
+  menuOptionHeight?: number
   menuStyle?: ViewStyle
   withSearch?: boolean
-  inPortal?: boolean
 }
