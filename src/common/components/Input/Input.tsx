@@ -96,7 +96,8 @@ const Input = ({
     !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
     isValid && isFocused && { borderColor: theme.successBackground },
-    borderless && { borderColor: 'transparent', borderWidth: 0 }
+    borderless && { borderColor: 'transparent', borderWidth: 0 },
+    borderWrapperStyle
   ]
 
   const inputWrapperStyles = [
@@ -137,7 +138,7 @@ const Input = ({
         </Text>
       )}
       <View style={{ zIndex: 10 }}>
-        <View style={[borderWrapperStyles, borderWrapperStyle]}>
+        <View style={borderWrapperStyles}>
           <View style={inputWrapperStyles}>
             {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
             {/* TextInput doesn't support border styles so we wrap it in a View */}

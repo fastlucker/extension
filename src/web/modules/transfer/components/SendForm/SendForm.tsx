@@ -4,7 +4,6 @@ import { View } from 'react-native'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
-import Checkbox from '@common/components/Checkbox'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import Select from '@common/components/Select'
@@ -12,14 +11,11 @@ import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import usePrevious from '@common/hooks/usePrevious'
-import spacings from '@common/styles/spacings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 
 import styles from './styles'
-
-const unsupportedSWPlatforms = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
 
 const NO_TOKENS_ITEMS = [
   {
@@ -87,9 +83,9 @@ const SendForm = ({
     addressState,
     isRecipientAddressUnknown,
     isRecipientHumanizerKnownTokenOrSmartContract,
-    isSWWarningVisible,
     tokens,
     validationFormMsgs,
+    isSWWarningVisible,
     isSWWarningAgreed,
     isRecipientAddressUnknownAgreed,
     isTopUp
@@ -176,10 +172,6 @@ const SendForm = ({
     updateTransferCtrlProperty('amount', maxAmount)
   }, [updateTransferCtrlProperty, maxAmount])
 
-  const onSWWarningCheckboxClick = useCallback(() => {
-    updateTransferCtrlProperty('isSWWarningAgreed', true)
-  }, [updateTransferCtrlProperty])
-
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
     updateTransferCtrlProperty('isRecipientAddressUnknownAgreed', true)
   }, [updateTransferCtrlProperty])
@@ -220,28 +212,11 @@ const SendForm = ({
             isRecipientDomainResolving={addressState.isDomainResolving}
             isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
             onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+            isSWWarningVisible={isSWWarningVisible}
+            isSWWarningAgreed={isSWWarningAgreed}
+            selectedTokenSymbol={selectedToken?.symbol}
           />
         )}
-
-        {isSWWarningVisible ? (
-          <Checkbox
-            value={isSWWarningAgreed}
-            style={{ ...spacings.plTy, ...spacings.mb0 }}
-            onValueChange={onSWWarningCheckboxClick}
-          >
-            <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
-              {
-                t(
-                  'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
-                  {
-                    platforms: unsupportedSWPlatforms.join(' / '),
-                    token: selectedToken?.symbol
-                  }
-                ) as string
-              }
-            </Text>
-          </Checkbox>
-        ) : null}
       </View>
     </View>
   )

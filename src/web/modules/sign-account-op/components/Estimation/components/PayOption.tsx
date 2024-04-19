@@ -13,7 +13,15 @@ import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
-const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
+const PayOption = ({
+  feeOption,
+  disabled,
+  disabledReason
+}: {
+  feeOption: FeePaymentOption
+  disabled: boolean
+  disabledReason?: string
+}) => {
   const { t } = useTranslation()
   const settingsCtrl = useSettingsControllerState()
   const { maxWidthSize } = useWindowSize()
@@ -21,6 +29,7 @@ const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
   const accountPref = settingsCtrl.accountPreferences[feeOption.paidBy]
 
   const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
+  const disabledStyle = disabled ? { opacity: 0.5 } : {}
 
   return (
     <View
@@ -39,7 +48,8 @@ const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
           spacings.mrTy,
           {
             flexGrow: 1,
-            flexShrink: 1
+            flexShrink: 1,
+            ...disabledStyle
           }
         ]}
       >
@@ -66,7 +76,8 @@ const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
             flexbox.flex1,
             {
               minWidth: 'fit-content',
-              flexShrink: 0
+              flexShrink: 0,
+              ...disabledStyle
             }
           ]}
         >
@@ -86,12 +97,23 @@ const PayOption = ({ feeOption }: { feeOption: FeePaymentOption }) => {
         </View>
         <View
           style={{
-            marginLeft: 'auto'
+            marginLeft: 'auto',
+            ...disabledStyle
           }}
         >
-          <Text fontSize={10} appearance="secondaryText" weight="medium">
+          <Text
+            fontSize={10}
+            appearance="secondaryText"
+            weight="medium"
+            style={{ textAlign: 'right' }}
+          >
             {t('Fee token')}
           </Text>
+          {disabledReason && (
+            <Text fontSize={10} appearance="errorText" weight="semiBold">
+              {disabledReason}
+            </Text>
+          )}
         </View>
       </View>
     </View>

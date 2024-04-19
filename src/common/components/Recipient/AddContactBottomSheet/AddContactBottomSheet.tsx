@@ -38,6 +38,7 @@ const AddContactBottomSheet: FC<Props> = ({ sheetRef, closeBottomSheet, address 
       }
     })
     closeBottomSheet()
+    setName('')
     addToast(t('Contact added to Address Book'))
   }
 

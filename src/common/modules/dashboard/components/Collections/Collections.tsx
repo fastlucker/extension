@@ -1,17 +1,18 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { FlatList, FlatListProps, View } from 'react-native'
+import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
+import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
+import DashboardPageScrollContainer from '@common/modules/dashboard/components/DashboardPageScrollContainer'
+import TabsAndSearch from '@common/modules/dashboard/components/TabsAndSearch'
+import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tab/Tab'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import DashboardBanners from '../DashboardBanners'
-import TabsAndSearch from '../TabsAndSearch'
-import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import CollectibleModal from './CollectibleModal'
 import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
@@ -23,21 +24,12 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  style: FlatListProps<any>['style']
-  contentContainerStyle: FlatListProps<any>['contentContainerStyle']
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({
-  openTab,
-  setOpenTab,
-  initTab,
-  style,
-  contentContainerStyle,
-  onScroll
-}) => {
+const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -49,8 +41,6 @@ const Collections: FC<Props> = ({
       search: ''
     }
   })
-  const flatlistRef = useRef<FlatList | null>(null)
-
   const searchValue = watch('search')
 
   const closeCollectibleModal = useCallback(() => {
@@ -131,14 +121,6 @@ const Collections: FC<Props> = ({
 
   useEffect(() => {
     setValue('search', '')
-
-    if (!flatlistRef.current) return
-
-    // Fixes weird behaviour that occurs when you scroll in one tab and then move to another and back.
-    flatlistRef.current?.scrollToOffset({
-      offset: 0,
-      animated: false
-    })
   }, [openTab, setValue])
 
   return (
@@ -148,10 +130,9 @@ const Collections: FC<Props> = ({
         handleClose={closeCollectibleModal}
         selectedCollectible={selectedCollectible}
       />
-      <FlatList
-        ref={flatlistRef}
-        style={style}
-        contentContainerStyle={contentContainerStyle}
+      <DashboardPageScrollContainer
+        tab="collectibles"
+        openTab={openTab}
         onScroll={onScroll}
         ListHeaderComponent={<DashboardBanners />}
         data={[
@@ -161,10 +142,9 @@ const Collections: FC<Props> = ({
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        stickyHeaderIndices={[1]} // Makes the header sticky
         initialNumToRender={isPopup ? 4 : 10}
-        removeClippedSubviews
         windowSize={15}
+        bounces={false}
       />
     </>
   )

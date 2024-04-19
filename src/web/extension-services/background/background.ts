@@ -255,11 +255,7 @@ async function init() {
 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
-      if (
-        mainCtrl.signAccountOp &&
-        (mainCtrl.signAccountOp.status === null ||
-          mainCtrl.signAccountOp.status.type !== SigningStatus.EstimationError)
-      ) {
+      if (mainCtrl.signAccountOp) {
         setReestimateInterval(mainCtrl.signAccountOp.accountOp)
       } else {
         !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)

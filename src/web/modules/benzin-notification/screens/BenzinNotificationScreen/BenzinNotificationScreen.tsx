@@ -38,7 +38,7 @@ const BenzinNotificationScreen = () => {
             hasBottomSpacing={false}
             text={t('Close')}
           />
-          {state?.handleCopyText && state?.handleOpenExplorer ? (
+          {state?.handleOpenExplorer ? (
             <Buttons
               handleCopyText={state.handleCopyText}
               handleOpenExplorer={state.handleOpenExplorer}

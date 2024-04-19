@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC, useMemo } from 'react'
 import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -14,7 +14,7 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
-import { OVERVIEW_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
+import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
@@ -31,9 +31,19 @@ import getStyles from './styles'
 interface Props {
   openReceiveModal: () => void
   animatedOverviewHeight: Animated.Value
+  dashboardOverviewSize: {
+    width: number
+    height: number
+  }
+  setDashboardOverviewSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>
 }
 
-const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight }) => {
+const DashboardOverview: FC<Props> = ({
+  openReceiveModal,
+  animatedOverviewHeight,
+  dashboardOverviewSize,
+  setDashboardOverviewSize
+}) => {
   const route = useRoute()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -48,10 +58,7 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
-  const [dashboardOverviewSize, setDashboardOverviewSize] = useState({
-    width: 0,
-    height: 0
-  })
+
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
   const filterByNetworkName = useMemo(() => {
@@ -86,7 +93,7 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight
             spacings.phSm,
             {
               paddingBottom: animatedOverviewHeight.interpolate({
-                inputRange: [0, OVERVIEW_MAX_HEIGHT],
+                inputRange: [0, OVERVIEW_CONTENT_MAX_HEIGHT],
                 outputRange: [SPACING_TY, SPACING],
                 extrapolate: 'clamp'
               }),

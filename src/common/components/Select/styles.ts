@@ -1,5 +1,6 @@
 import { ImageStyle, StyleSheet, ViewProps, ViewStyle } from 'react-native'
 
+import { BOTTOM_SHEET_Z_INDEX } from '@common/components/BottomSheet/styles'
 import colors from '@common/styles/colors'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
@@ -50,7 +51,7 @@ const getStyles = (theme: ThemeProps) =>
       left: 0,
       width: '100%',
       height: '100%',
-      zIndex: 901 // higher than the BottomSheet zIndex
+      zIndex: BOTTOM_SHEET_Z_INDEX + 1
     },
     menuContainer: {
       backgroundColor: theme.primaryBackground,
@@ -63,7 +64,7 @@ const getStyles = (theme: ThemeProps) =>
       position: 'absolute',
       maxHeight: MAX_MENU_HEIGHT,
       ...flexbox.flex1,
-      zIndex: 902 // // higher than the menuBackdrop zIndex
+      zIndex: BOTTOM_SHEET_Z_INDEX + 2
     },
     menuOption: {
       height: MENU_OPTION_HEIGHT,
