@@ -120,7 +120,7 @@ const PrivateKeyImportScreen = () => {
       }
     >
       <TabLayoutWrapperMainContent>
-        <Panel title={t('Import your Private Key')}>
+        <Panel title={t('Import your private Key')}>
           <Controller
             control={control}
             rules={{ validate: (value) => handleValidation(value), required: true }}

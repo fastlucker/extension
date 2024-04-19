@@ -1,16 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { NativeScrollEvent, NativeSyntheticEvent, ViewStyle } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
-import spacings from '@common/styles/spacings'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
-import commonWebStyles from '@web/styles/utils/common'
-import { getUiType } from '@web/utils/uiType'
 
-import useBanners from '../../hooks/useBanners'
 import Collections from '../Collections'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
@@ -21,24 +17,6 @@ interface Props {
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
-
-// We do this instead of unmounting the component to prevent component rerendering when switching tabs.
-const HIDDEN_STYLE: ViewStyle = {
-  position: 'absolute',
-  opacity: 0,
-  display: 'none',
-  // @ts-ignore
-  pointerEvents: 'none'
-}
-
-const getFlatListStyle = (tab: TabType, openTab: TabType, allBannersLength: number) => [
-  spacings.ph0,
-  commonWebStyles.contentContainer,
-  !allBannersLength && spacings.mtTy,
-  openTab !== tab ? HIDDEN_STYLE : {}
-]
-
-const { isPopup } = getUiType()
 
 const DashboardPages = ({
   accountPortfolio,
@@ -61,33 +39,11 @@ const DashboardPages = ({
     [key: string]: boolean
   }>({})
 
-  const allBanners = useBanners()
-
   useEffect(() => {
     if (openTab !== prevOpenTab && !initTab?.[openTab]) {
       setInitTab((prev) => ({ ...prev, [openTab]: true }))
     }
   }, [openTab, prevOpenTab, initTab])
-
-  const contentContainerStyle = useMemo(
-    () => [
-      isPopup && spacings.phSm,
-      isPopup && spacings.prTy,
-      allBanners.length ? spacings.ptTy : spacings.pt0,
-      { flexGrow: 1 }
-    ],
-    [allBanners.length]
-  )
-
-  const tokensStyle = useMemo(
-    () => getFlatListStyle('tokens', openTab, allBanners.length),
-    [allBanners.length, openTab]
-  )
-
-  const collectiblesStyle = useMemo(
-    () => getFlatListStyle('collectibles', openTab, allBanners.length),
-    [allBanners.length, openTab]
-  )
 
   return (
     <>
@@ -97,15 +53,11 @@ const DashboardPages = ({
         tokenPreferences={tokenPreferences}
         openTab={openTab}
         setOpenTab={setOpenTab}
-        style={tokensStyle}
-        contentContainerStyle={contentContainerStyle}
         onScroll={onScroll}
         initTab={initTab}
       />
 
       <Collections
-        style={collectiblesStyle}
-        contentContainerStyle={contentContainerStyle}
         openTab={openTab}
         setOpenTab={setOpenTab}
         initTab={initTab}

@@ -32,7 +32,7 @@ const ContactsList = () => {
             <>
               <Text fontSize={14}>{t('Your Address Book is empty.')}</Text>
               <Text fontSize={14} style={spacings.mbXl}>
-                {t('Wanna add some?')}
+                {t('Why not add addresses you often interact with to your address book?')}
               </Text>
             </>
           )}

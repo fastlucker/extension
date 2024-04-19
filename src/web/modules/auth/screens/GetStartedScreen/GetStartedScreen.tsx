@@ -207,7 +207,7 @@ const GetStartedScreen = () => {
                     ...spacings.mh
                   }}
                   text={t(
-                    'Securely import an existing wallet from a Seed Phrase, Private Key, or with an Email Vault.'
+                    'Securely import an existing wallet from a seed phrase, private key, or with an email vault.'
                   )}
                   icon={ImportAccountIcon}
                   iconProps={{
@@ -236,7 +236,7 @@ const GetStartedScreen = () => {
                 <Card
                   title={t('Watch an\naddress')}
                   text={t(
-                    'Import an address in View-only mode to see its balance and simulate transactions.'
+                    'Import an address in view-only mode to see its balance and simulate transactions.'
                   )}
                   icon={ViewOnlyIcon}
                   style={flexbox.flex1}

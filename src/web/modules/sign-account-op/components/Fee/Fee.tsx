@@ -55,7 +55,8 @@ const Fee = ({ label, type, amount, onPress, isSelected, isLastItem, disabled }:
           minWidthSize('xxl') && flexbox.directionRow,
           minWidthSize('xxl') && flexbox.justifySpaceBetween,
           minWidthSize('xxl') && flexbox.alignCenter,
-          animStyle
+          animStyle,
+          ...[disabled ? [styles.disabled] : []]
         ]}
       >
         <Text
