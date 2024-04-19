@@ -31,16 +31,11 @@ describe('transactions', () => {
 
     await page.waitForSelector(amountField)
 
-    /* Check if selected network is Polygon */
-    const textExists = await page.evaluate(() => {
-      return document.body.innerText.includes('MATIC')
-    })
-
-    if (!textExists) {
-      /* If "MATIC" text does not exist, select network Polygon */
-      await clickOnElement(page, 'xpath///div[contains(text(), "on")]')
-      await clickOnElement(page, 'xpath///div[contains(text(), "MATIC")]')
-    }
+    await clickOnElement(page, '[data-testid="tokens-select"]')
+    await clickOnElement(
+      page,
+      '[data-testid="option-0x0000000000000000000000000000000000000000-polygon-matic"]'
+    )
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')

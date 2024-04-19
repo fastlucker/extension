@@ -130,7 +130,7 @@ const Select = ({
   }, [height, menuPosition, windowHeight, y])
 
   return (
-    <View style={[styles.selectContainer, containerStyle]}>
+    <View style={[styles.selectContainer, containerStyle]} testID="tokens-select">
       {!!label && (
         <Text
           appearance="secondaryText"
