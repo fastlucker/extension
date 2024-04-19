@@ -34,12 +34,10 @@ describe('login', () => {
     await page.reload()
   })
 
-  // afterEach(async () => {
-  //   await recorder.stop()
-  //   await browser.close()
-  // })
-
-  const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
+  afterEach(async () => {
+    await recorder.stop()
+    await browser.close()
+  })
 
   //------------------------------------------------------------------------------------------------------
   it('create smart account with phrase', async () => {
@@ -188,7 +186,7 @@ describe('login', () => {
     /* Click on "Got it" */
     await page.$eval(buttonNext, (button) => button.click())
 
-    await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]')
+    await page.waitForSelector('[data-testid="get-started-button-add"]')
 
     /* Select "Add" */
     await clickOnElement(page, '[data-testid="get-started-button-add"]')

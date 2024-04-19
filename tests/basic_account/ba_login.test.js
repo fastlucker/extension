@@ -345,7 +345,7 @@ describe('login', () => {
     /* Click on "Got it" */
     await page.$eval(buttonNext, (button) => button.click())
 
-    await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]')
+    await page.waitForSelector('[data-testid="get-started-button-add"]')
 
     /* Select "Add" */
     await clickOnElement(page, '[data-testid="get-started-button-add"]')
