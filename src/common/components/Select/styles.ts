@@ -45,7 +45,8 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       ...common.hidden,
       borderColor: 'transparent',
-      ...flexbox.justifyCenter,
+      ...flexbox.alignCenter,
+      ...flexbox.directionRow,
       ...spacings.ph
     },
     menuBackdrop: {

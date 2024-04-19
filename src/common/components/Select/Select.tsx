@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, View } from 'react-native'
 
+import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
@@ -117,7 +119,7 @@ const Select = ({
     return 'bottom'
   }, [height, isMenuOpen, windowHeight, y])
 
-  const menuDynamicHeight = useMemo(() => {
+  const maxMenuDynamicHeight = useMemo(() => {
     if (menuPosition === 'bottom' && y + height + MAX_MENU_HEIGHT > windowHeight) {
       return windowHeight - (y + height) - SPACING
     }
@@ -150,12 +152,16 @@ const Select = ({
             selectStyle
           ]}
         >
-          {!value && (
-            <Text fontSize={14} appearance="secondaryText">
-              {placeholder || t('Select...')}
-            </Text>
-          )}
-          {!!value && <Option item={value} />}
+          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+            {!!value && <Option item={value} />}
+            {!value && (
+              <Text fontSize={14} appearance="secondaryText">
+                {placeholder || t('Select...')}
+              </Text>
+            )}
+          </View>
+          {!!isMenuOpen && <UpArrowIcon />}
+          {!isMenuOpen && <DownArrowIcon />}
         </View>
       </Pressable>
       {!!isMenuOpen && (
@@ -165,7 +171,7 @@ const Select = ({
               ref={menuRef}
               style={[
                 styles.menuContainer,
-                { width, height: menuDynamicHeight, left: x },
+                { width, maxHeight: maxMenuDynamicHeight, left: x },
                 menuPosition === 'bottom' && { top: y + height },
                 menuPosition === 'top' && { bottom: windowHeight - y },
                 menuStyle
