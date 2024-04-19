@@ -173,7 +173,7 @@ const AddToken = () => {
         options={networksOptions}
         value={networksOptions.filter((opt) => opt.value === network.id)[0]}
         label={t('Choose Network')}
-        style={spacings.mbMd}
+        containerStyle={spacings.mbMd}
       />
       <Controller
         control={control}

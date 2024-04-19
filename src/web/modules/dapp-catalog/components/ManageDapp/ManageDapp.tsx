@@ -58,8 +58,12 @@ const ManageDapp = ({
     () =>
       networks.map((n) => ({
         value: n.id,
-        label: <Text weight="medium">{n.name}</Text>,
-        icon: <NetworkIcon id={n.id} />
+        label: (
+          <Text weight="medium" numberOfLines={1}>
+            {n.name}
+          </Text>
+        ),
+        icon: <NetworkIcon id={n.id} size={30} />
       })),
     [networks]
   )
@@ -93,7 +97,7 @@ const ManageDapp = ({
     const isSure = window.confirm(
       dapp?.isConnected
         ? t(
-            `Are you sure you want to remove ${dapp?.name} from your Dapp Catalog. This action will disconnect the dApp from Ambire Wallet.`
+            `Are you sure you want to remove ${dapp?.name} from your Dapp Catalog. This action will also disconnect the dApp from Ambire Wallet.`
           )
         : t(`Are you sure you want to remove ${dapp?.name} from your Dapp Catalog.`)
     )
@@ -128,8 +132,9 @@ const ManageDapp = ({
         </Text>
         <Select
           setValue={handleSetNetworkValue}
-          style={{ width: 230 }}
-          controlStyle={{ height: 40 }}
+          menuOptionHeight={48}
+          containerStyle={{ width: 230 }}
+          selectStyle={{ height: 40 }}
           options={networksOptions}
           value={networksOptions.filter((opt) => opt.value === network.id)[0]}
         />
