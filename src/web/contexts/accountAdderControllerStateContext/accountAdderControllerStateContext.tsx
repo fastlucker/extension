@@ -5,6 +5,7 @@ import AccountAdderController from '@ambire-common/controllers/accountAdder/acco
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import { flushSync } from 'react-dom'
 
 const AccountAdderControllerStateContext = createContext<AccountAdderController>(
   {} as AccountAdderController
@@ -22,8 +23,12 @@ const AccountAdderControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch, mainState.isReady, state])
 
   useEffect(() => {
-    const onUpdate = (newState: AccountAdderController) => {
-      setState(newState)
+    const onUpdate = (newState: AccountAdderController, forceEmit?: boolean) => {
+      if (forceEmit) {
+        flushSync(() => setState(newState))
+      } else {
+        setState(newState)
+      }
     }
 
     eventBus.addEventListener('accountAdder', onUpdate)

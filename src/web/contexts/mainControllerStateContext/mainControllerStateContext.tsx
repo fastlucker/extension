@@ -20,7 +20,7 @@ const MainControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch])
 
   useEffect(() => {
-    const onUpdate = async (newState: MainController, forceEmit?: boolean) => {
+    const onUpdate = (newState: MainController, forceEmit?: boolean) => {
       if (forceEmit) {
         flushSync(() => setState(newState))
       } else {
