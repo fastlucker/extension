@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { FlatList, Image, Pressable, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
@@ -15,53 +15,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
 
+import { MenuOption, Option } from './MenuOption'
 import getStyles, { MAX_MENU_HEIGHT, MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
-
-const Option = React.memo(({ item }: { item: SelectValue }) => {
-  const { styles } = useTheme(getStyles)
-
-  if (!item) return null
-  return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
-      {!!item?.icon && typeof item?.icon !== 'string' && (
-        <View style={spacings.mrTy}>{item.icon}</View>
-      )}
-      {!!item?.icon && typeof item?.icon === 'string' && (
-        <Image source={{ uri: item.icon }} style={styles.optionIcon} />
-      )}
-      {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-      {typeof item?.label === 'string' ? <Text fontSize={14}>{item.label}</Text> : item?.label}
-    </View>
-  )
-})
-
-const OptionItemToRender = React.memo(
-  ({
-    item,
-    isSelected,
-    onPress
-  }: {
-    item: SelectValue
-    isSelected: boolean
-    onPress: (item: SelectValue) => void
-  }) => {
-    const { theme, styles } = useTheme(getStyles)
-
-    return (
-      <Pressable
-        style={({ hovered }: any) => [
-          styles.menuOption,
-          isSelected && { backgroundColor: theme.tertiaryBackground },
-          hovered && { backgroundColor: theme.secondaryBackground }
-        ]}
-        onPress={() => onPress(item)}
-      >
-        <Option item={item} />
-      </Pressable>
-    )
-  }
-)
 
 const Select = ({
   label,
@@ -129,7 +85,7 @@ const Select = ({
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: SelectValue }) => (
-      <OptionItemToRender
+      <MenuOption
         item={item}
         isSelected={item.value === value.value}
         onPress={handleOptionSelect}
