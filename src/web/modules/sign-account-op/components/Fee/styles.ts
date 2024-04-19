@@ -7,6 +7,7 @@ import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   container: ViewStyle
+  disabled: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -20,6 +21,9 @@ const getStyles = (theme: ThemeProps) =>
       borderWidth: 1,
       backgroundColor: theme.secondaryBackground,
       borderColor: theme.secondaryBorder
+    },
+    disabled: {
+      opacity: 0.5
     }
   })
 
