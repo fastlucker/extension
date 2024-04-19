@@ -771,8 +771,8 @@ async function init() {
                 break
               }
 
-              case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
-                return await notificationCtrl.reopenCurrentNotificationRequest()
+              case 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST':
+                return notificationCtrl.focusCurrentNotificationWindow()
               case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
                 return await notificationCtrl.openNotificationRequest(params.id)
 

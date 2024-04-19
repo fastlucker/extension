@@ -22,7 +22,8 @@ const styles = StyleSheet.create<Style>({
     maxWidth: TAB_CONTENT_WIDTH,
     width: '100%',
     ...common.borderRadiusPrimary,
-    ...spacings.mbTy
+    ...spacings.mbTy,
+    ...common.shadowSecondary
   }
 })
 
