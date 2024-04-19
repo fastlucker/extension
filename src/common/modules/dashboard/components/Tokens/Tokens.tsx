@@ -140,6 +140,19 @@ const Tokens = ({
         )
         .filter((token) => !token.isHidden)
         .sort((a, b) => {
+          if (
+            typeof a.amountPostSimulation === 'bigint' &&
+            a.amountPostSimulation !== BigInt(a.amount)
+          ) {
+            return -1
+          }
+          if (
+            typeof b.amountPostSimulation === 'bigint' &&
+            b.amountPostSimulation !== BigInt(b.amount)
+          ) {
+            return 1
+          }
+
           // If a is a rewards token and b is not, a should come before b.
           if (a.flags.rewardsType && !b.flags.rewardsType) {
             return -1
