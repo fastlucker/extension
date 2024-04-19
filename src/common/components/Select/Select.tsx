@@ -35,8 +35,8 @@ const Select = ({
   disabled,
   withSearch = true
 }: SelectProps) => {
-  const selectRef = useRef(null)
-  const menuRef = useRef(null)
+  const selectRef: React.MutableRefObject<any> = useRef(null)
+  const menuRef: React.MutableRefObject<any> = useRef(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { t } = useTranslation()
   const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
@@ -63,8 +63,13 @@ const Select = ({
     if (!isWeb) return
     function handleClickOutside(event: MouseEvent) {
       if (!isMenuOpen) return
-      // @ts-ignore
-      if (menuRef.current && !menuRef.current?.contains(event.target)) {
+
+      if (
+        menuRef.current &&
+        selectRef.current &&
+        !menuRef.current?.contains(event.target) &&
+        !selectRef.current?.contains(event.target)
+      ) {
         setIsMenuOpen(false)
         setSearchValue('search', '')
       }
@@ -110,9 +115,11 @@ const Select = ({
   )
 
   const handleOpenMenu = useCallback(() => {
+    if (isMenuOpen) return
+
     setIsMenuOpen(true)
     forceUpdate() // calculate menu position
-  }, [forceUpdate])
+  }, [forceUpdate, isMenuOpen])
 
   const menuPosition = useMemo(() => {
     if (!!isMenuOpen && y + height + MAX_MENU_HEIGHT > windowHeight && y - MAX_MENU_HEIGHT > 0)
