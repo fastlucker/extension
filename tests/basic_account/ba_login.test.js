@@ -1,11 +1,11 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import {
   bootstrap,
-  setAmbKeyStoreForLegacy,
+  setAmbKeyStore,
   finishStoriesAndSelectAccount,
   clickOnElement,
   typeText
-} from './functions.js'
+} from '../functions.js'
 
 describe('login', () => {
   let browser
@@ -42,8 +42,8 @@ describe('login', () => {
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'
 
   //------------------------------------------------------------------------------------------------------
-  it('Create basic account with private key', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
+  it('create basic and smart accounts with private key', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_BA)
@@ -80,8 +80,8 @@ describe('login', () => {
   })
 
   //------------------------------------------------------------------------------------------------------
-  it('login into basic account with phrase', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-proceed-seed-phrase"]')
+  it('create basic account with phrase', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
     const passphraseWords = process.env.PASSPHRASE_BA
     const wordArray = passphraseWords.split(' ')
@@ -127,8 +127,8 @@ describe('login', () => {
   })
 
   //------------------------------------------------------------------------------------------------------
-  it('(-) login into legacy account with invalid private key', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
+  it('(-) login into account with invalid private key', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
 
     const typeTextAndCheckValidity = async (privateKey, testName) => {
       try {
@@ -194,7 +194,7 @@ describe('login', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Login into basic account with invalid phrase', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-proceed-seed-phrase"]')
+    await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
     await page.waitForSelector('[placeholder="Word 1"]')
 
@@ -272,8 +272,8 @@ describe('login', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('change selected account name', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
+  it('change the name of the selected BA & SA account', async () => {
+    await setAmbKeyStore(page, '[data-testid="button-import-private-key"]')
 
     await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
 
@@ -324,36 +324,33 @@ describe('login', () => {
     expect(selectedSmartAccount).toContain(accountName2)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it('Add View-only account', async () => {
-    await setAmbKeyStoreForLegacy(page, '[data-testid="button-import-private-key"]')
-    await page.waitForSelector('[data-testid="enter-seed-phrase-field"]')
-
-    await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.PRIVATE_KEY_BA)
-
-    /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
-    await finishStoriesAndSelectAccount(page)
-
-    /* Click on "Save and Continue" button */
+  it('add view-only basic account', async () => {
     await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
+    const buttonNext = '[data-testid="stories-button-next"]'
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/onboarding-completed')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForSelector(buttonNext)
 
-    await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
-    /* Click on "+ Add Account"  */
-    await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-add-account"]')
-    await new Promise((r) => setTimeout(r, 500))
+    /* Click on "Next" button several times to finish the onboarding */
+    await page.$eval(buttonNext, (button) => button.click())
 
-    /* Seleck "Watch an address" */
-    await clickOnElement(page, '[data-testid="watch-address"]')
+    await page.waitForSelector('[data-testid="stories-button-previous"]')
 
-    const viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
+    await page.$eval(buttonNext, (button) => button.click())
+
+    /* check the checkbox "I agree ..." */
+    await page.$eval('[data-testid="checkbox"]', (button) => button.click())
+    /* Click on "Got it" */
+    await page.$eval(buttonNext, (button) => button.click())
+
+    await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]')
+
+    /* Select "Add" */
+    await clickOnElement(page, '[data-testid="get-started-button-add"]')
+
+    const viewOnlyAddress = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
 
     await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
     await new Promise((r) => setTimeout(r, 500))

@@ -1,4 +1,4 @@
-import { typeText, clickOnElement, bootstrapWithStorage, confirmTransaction } from './functions.js'
+import { typeText, clickOnElement, bootstrapWithStorage, confirmTransaction } from '../functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -18,7 +18,7 @@ describe('transactions', () => {
   })
 
   afterEach(async () => {
-    // await recorder.stop()
+    await recorder.stop()
     await browser.close()
   })
 
@@ -198,7 +198,7 @@ describe('transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Make valid swap ', async () => {
+  it('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */

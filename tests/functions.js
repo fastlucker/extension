@@ -138,12 +138,10 @@ export async function bootstrapWithStorage(namespace) {
       networkPreferences: parsedNetworkPreferences,
       networksWithAssetsByAccount: paresdNetworksWithAssetsByAccount,
       onboardingState: parsedOnboardingState,
-      // onboardingStatus: envOnboardingStatus,
       permission: envPermission,
       previousHints: parsedPreviousHints,
       selectedAccount: envSelectedAccount,
       termsState: envTermState,
-      previousHints: parsedPreviousHints,
       tokenIcons: parsedTokenItems
     })
   })
@@ -164,11 +162,85 @@ export async function bootstrapWithStorage(namespace) {
 
   await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
 
-  return { browser, extensionRootUrl, page, recorder: {} }
+  return { browser, extensionRootUrl, page, recorder }
 }
 
 //----------------------------------------------------------------------------------------------
-export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
+export async function sa_bootstrapWithStorage(namespace) {
+  /* Initialize browser and page using bootstrap */
+  const context = await bootstrap()
+  const browser = context.browser
+  const extensionRootUrl = context.extensionRootUrl
+  const page = await browser.newPage()
+  recorder = new PuppeteerScreenRecorder(page)
+
+  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+
+  // Navigate to a specific URL if necessary
+  await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
+
+  // Please note the following:
+  // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
+  // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
+  await page.evaluate(() => {
+    const parsedKeystoreAccountsPreferences = JSON.parse(process.env.SA_ACCOUNT_PREFERENCES)
+    const parsedKeystoreAccounts = JSON.parse(process.env.SA_ACCOUNTS)
+    const parsedIsDefaultWallet = process.env.SA_IS_DEFAULT_WALLET
+    const parsedIsOnBouarded = process.env.SA_IS_ONBOARDED
+    const parsedKeyPreferences = JSON.parse(process.env.SA_KEY_PREFERENCES)
+    const parsedKeystoreUID = process.env.SA_KEYSTORE_UID
+    const parsedKeystoreKeys = JSON.parse(process.env.SA_KEYS)
+    const parsedKeystoreSecrets = JSON.parse(process.env.SA_SECRETS)
+    const parsedNetworkPreferences = JSON.parse(process.env.SA_NETWORK_PREFERENCES)
+    const paresdNetworksWithAssetsByAccount = JSON.parse(process.env.SA_NETWORK_WITH_ASSETS)
+    const parsedOnboardingState = JSON.parse(process.env.SA_ONBOARDING_STATE)
+    const envPermission = process.env.SA_PERMISSION
+    const parsedPreviousHints = JSON.parse(process.env.SA_PREVIOUSHINTS)
+    const envSelectedAccount = process.env.SA_SELECTED_ACCOUNT
+    const envTermState = process.env.SA_TERMSTATE
+    const parsedTokenItems = JSON.parse(process.env.SA_TOKEN_ITEMS)
+
+    chrome.storage.local.set({
+      accountPreferences: parsedKeystoreAccountsPreferences,
+      accounts: parsedKeystoreAccounts,
+      isDefaultWallet: parsedIsDefaultWallet,
+      isOnBoarded: parsedIsOnBouarded,
+      keyPreferences: parsedKeyPreferences,
+      keyStoreUid: parsedKeystoreUID,
+      keystoreKeys: parsedKeystoreKeys,
+      keystoreSecrets: parsedKeystoreSecrets,
+      networkPreferences: parsedNetworkPreferences,
+      networksWithAssetsByAccount: paresdNetworksWithAssetsByAccount,
+      onboardingState: parsedOnboardingState,
+      permission: envPermission,
+      previousHints: parsedPreviousHints,
+      selectedAccount: envSelectedAccount,
+      termsState: envTermState,
+      tokenIcons: parsedTokenItems
+    })
+  })
+  // Please note the following:
+  // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
+  // 2. But at the same time, the extension onboarding page is also shown automatically.
+  // 3. During these page transitions (new tabs being opened), we should wait a bit and avoid switching between or closing tabs because the extension background process is being initialized, and it will only initialize if the current tab is visible.
+  // If it's not visible (when we are transitioning), the initialization fails.
+  // Later, we will check how we can deal with this better.
+  await new Promise((r) => {
+    setTimeout(r, 2000)
+  })
+  // Please note that:
+  // 1. We are no longer closing any tabs.
+  // 2. Instead, we simply switch back to our tab under testing.
+  await page.bringToFront()
+  await page.reload()
+
+  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+
+  return { browser, extensionRootUrl, page, recorder }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   await new Promise((r) => setTimeout(r, 1000))
   const buttonNext = '[data-testid="stories-button-next"]'
 
@@ -215,6 +287,7 @@ export async function setAmbKeyStoreForLegacy(page, privKeyOrPhraseSelector) {
 
   await page.$eval('[data-testid="keystore-button-continue"]', (button) => button.click())
 }
+
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   /* Click on Import button. */

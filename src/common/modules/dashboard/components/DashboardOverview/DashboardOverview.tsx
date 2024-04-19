@@ -126,7 +126,7 @@ const DashboardOverview: FC<Props> = ({ openReceiveModal, animatedOverviewHeight
                     <SkeletonLoader width={200} height={42} borderRadius={8} />
                   ) : (
                     <>
-                      <Text style={spacings.mbTy} selectable>
+                      <Text testID="full-balance" style={spacings.mbTy} selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}

@@ -1,11 +1,9 @@
-import { bootstrapWithStorage, clickOnElement } from './functions.js'
+import { bootstrapWithStorage, clickOnElement } from '../functions.js'
 
 describe('balance', () => {
   let browser
   let page
   let recorder
-
-  beforeAll(async () => {})
 
   beforeEach(async () => {
     const context = await bootstrapWithStorage('balance')
@@ -33,7 +31,7 @@ describe('balance', () => {
     let availableAmmountNum = availableAmmount.replace(/\n/g, '')
     availableAmmountNum = availableAmmountNum.split('$')[1]
 
-    // console.log(`Balance: ${availableAmmountNum}`)
+    console.log(`Balance: ${availableAmmountNum}`)
 
     /* Verify that the balance is bigger than 0 */
     expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0)
@@ -61,7 +59,7 @@ describe('balance', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('check if item exist in Collectibles tab', async () => {
     /* Click on "Collectibles" button */
-    await clickOnElement(page, '[data-testid="tab-nfts"]')
+    await clickOnElement(page, '[data-testid="tab-nft"]')
     // eslint-disable-next-line no-promise-executor-return
     await new Promise((r) => setTimeout(r, 1000))
 
