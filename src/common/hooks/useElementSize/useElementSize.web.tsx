@@ -1,29 +1,34 @@
-import { MutableRefObject, useEffect, useState } from 'react'
+import { MutableRefObject, useCallback, useEffect, useState } from 'react'
 
 const useElementSize = (ref: MutableRefObject<HTMLElement | null>) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-  useEffect(() => {
-    const updateElementSize = () => {
-      if (ref.current) {
-        const { width, height } = ref.current.getBoundingClientRect()
-        setDimensions({ width, height })
-      }
-    }
+  const [position, setPosition] = useState({ x: 0, y: 0 })
 
+  const updateElementSize = useCallback(() => {
+    if (ref.current) {
+      const { width, height, x, y } = ref.current.getBoundingClientRect()
+      setDimensions({ width, height })
+      setPosition({ x, y })
+    }
+  }, [ref])
+
+  useEffect(() => {
     updateElementSize()
 
     let resizeObserver: any = new ResizeObserver(updateElementSize)
     if (ref.current) {
       resizeObserver.observe(ref.current)
+      window.addEventListener('resize', updateElementSize)
     }
 
     return () => {
       if (ref.current) {
         resizeObserver.unobserve(ref.current)
         resizeObserver = null
+        window.removeEventListener('resize', updateElementSize)
       }
     }
-  }, [ref])
+  }, [ref, updateElementSize])
 
   const maxElementWidthSize = (size: number) => {
     return size <= dimensions.width
@@ -35,8 +40,10 @@ const useElementSize = (ref: MutableRefObject<HTMLElement | null>) => {
 
   return {
     ...dimensions,
+    ...position,
     maxElementWidthSize,
-    minElementWidthSize
+    minElementWidthSize,
+    forceUpdate: updateElementSize
   }
 }
 

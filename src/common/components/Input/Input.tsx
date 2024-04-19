@@ -35,9 +35,11 @@ export interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
   nativeInputStyle?: ViewStyle & TextStyle
+  borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
   infoTextStyle?: TextStyle | TextStyle[]
   leftIcon?: () => JSX.Element | JSX.Element
+  leftIconStyle?: ViewStyle
   tooltip?: {
     id: string
     content: string
@@ -63,9 +65,11 @@ const Input = ({
   containerStyle,
   inputStyle,
   nativeInputStyle,
+  borderWrapperStyle,
   inputWrapperStyle,
   infoTextStyle,
   leftIcon,
+  leftIconStyle,
   childrenBeforeButtons,
   childrenBelowInput,
   tooltip,
@@ -94,7 +98,8 @@ const Input = ({
     !!error && { borderColor: theme.errorBackground },
     isFocused && { borderColor: theme.infoBackground },
     isValid && isFocused && { borderColor: theme.successBackground },
-    borderless && { borderColor: 'transparent', borderWidth: 0 }
+    borderless && { borderColor: 'transparent', borderWidth: 0 },
+    borderWrapperStyle
   ]
 
   const inputWrapperStyles = [
@@ -137,7 +142,7 @@ const Input = ({
       <View style={{ zIndex: 10 }}>
         <View style={borderWrapperStyles}>
           <View style={inputWrapperStyles}>
-            {!!leftIcon && <View style={styles.leftIcon}>{leftIcon()}</View>}
+            {!!leftIcon && <View style={[styles.leftIcon, leftIconStyle]}>{leftIcon()}</View>}
             {/* TextInput doesn't support border styles so we wrap it in a View */}
             <View style={[inputStyles, hasButton ? { width: '100%' } : {}]}>
               <TextInput

@@ -1,193 +1,234 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import React, { FC } from 'react'
-import { Image, View } from 'react-native'
-import Select, { components, OptionProps, SingleValueProps } from 'react-select'
+/* eslint-disable react/prop-types */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { FlatList, Pressable, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
+import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
+import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import { FONT_FAMILIES } from '@common/hooks/useFonts'
+import { isWeb } from '@common/config/env'
+import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
-import spacings from '@common/styles/spacings'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import useWindowSize from '@common/hooks/useWindowSize'
+import spacings, { SPACING } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
+import { Portal } from '@gorhom/portal'
 
-import getStyles from './styles'
-import { Props } from './types'
+import { MenuOption, Option } from './MenuOption'
+import getStyles, { MAX_MENU_HEIGHT, MENU_OPTION_HEIGHT } from './styles'
+import { SelectProps, SelectValue } from './types'
 
-const Option = ({ data }: { data: any }) => {
-  const { styles } = useTheme(getStyles)
-
-  if (!data) return null
-  return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-      {!!data?.icon && typeof data?.icon === 'object' && (
-        <View style={styles.optionIcon}>{data.icon}</View>
-      )}
-      {!!data?.icon && typeof data?.icon === 'string' && (
-        <Image source={{ uri: data.icon }} style={styles.optionIcon} />
-      )}
-      {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-      {typeof data?.label === 'string' ? <Text fontSize={14}>{data.label}</Text> : data?.label}
-    </View>
-  )
-}
-
-const IconOption: FC<OptionProps> = ({ data, ...rest }) => (
-  // @ts-ignore
-  <components.Option data={data} {...rest}>
-    <Option data={data} />
-  </components.Option>
-)
-
-const SingleValueIconOption: FC<SingleValueProps> = ({ data, ...rest }) => (
-  <components.SingleValue data={data} {...rest}>
-    <Option data={data} />
-  </components.SingleValue>
-)
-
-const SelectComponent = ({
-  value,
-  defaultValue,
-  disabled,
+const Select = ({
+  label,
   setValue,
+  value,
   options,
   placeholder,
-  label,
+  containerStyle,
+  selectStyle,
   labelStyle,
-  menuPlacement = 'auto',
-  style,
-  controlStyle,
+  menuOptionHeight = MENU_OPTION_HEIGHT,
   menuStyle,
-  openMenuOnClick = true,
-  onDropdownOpen,
-  withSearch,
-  components: componentsProps,
-  ...rest
-}: Props) => {
-  const { theme } = useTheme()
+  disabled,
+  withSearch = true
+}: SelectProps) => {
+  const selectRef = useRef(null)
+  const menuRef = useRef(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { t } = useTranslation()
+  const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
+  const { x, y, height, width, forceUpdate } = useElementSize(selectRef)
+  const { height: windowHeight } = useWindowSize()
+  const { theme, styles } = useTheme(getStyles)
 
-  const DropdownIndicator = () => {
-    return (
-      <View style={spacings.mrSm}>
-        <DownArrowIcon />
-      </View>
-    )
-  }
+  const search = watch('search')
+
+  const filteredOptions = useMemo(() => {
+    if (!search) return options
+    return options.filter((o) => {
+      let found: boolean = o.value.toString().toLowerCase().includes(search.toLowerCase())
+      if (!found && typeof o.label === 'string') {
+        found = o.label.toLowerCase().includes(search.toLowerCase())
+      }
+
+      return found
+    })
+  }, [options, search])
+
+  // close menu on click outside
+  useEffect(() => {
+    if (!isWeb) return
+    function handleClickOutside(event: MouseEvent) {
+      if (!isMenuOpen) return
+      // @ts-ignore
+      if (menuRef.current && !menuRef.current?.contains(event.target)) {
+        setIsMenuOpen(false)
+        setSearchValue('search', '')
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      if (!isWeb) return
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen, setSearchValue])
+
+  const handleOptionSelect = useCallback(
+    (item: SelectValue) => {
+      !!setValue && setValue(item)
+      setIsMenuOpen(false)
+      setSearchValue('search', '')
+    },
+    [setValue, setSearchValue]
+  )
+
+  const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
+    ({ item }: { item: SelectValue }) => (
+      <MenuOption
+        item={item}
+        height={menuOptionHeight}
+        isSelected={item.value === value.value}
+        onPress={handleOptionSelect}
+      />
+    ),
+    [value, menuOptionHeight, handleOptionSelect]
+  )
+
+  const keyExtractor = useCallback((item: SelectValue) => item.value.toString(), [])
+
+  const getItemLayout = useCallback(
+    (data: SelectValue[] | null | undefined, index: number) => ({
+      length: menuOptionHeight,
+      offset: menuOptionHeight * index,
+      index
+    }),
+    [menuOptionHeight]
+  )
+
+  const handleOpenMenu = useCallback(() => {
+    setIsMenuOpen(true)
+    forceUpdate() // calculate menu position
+  }, [forceUpdate])
+
+  const menuPosition = useMemo(() => {
+    if (!!isMenuOpen && y + height + MAX_MENU_HEIGHT > windowHeight && y - MAX_MENU_HEIGHT > 0)
+      return 'top'
+
+    return 'bottom'
+  }, [height, isMenuOpen, windowHeight, y])
+
+  const maxMenuDynamicHeight = useMemo(() => {
+    if (menuPosition === 'bottom' && y + height + MAX_MENU_HEIGHT > windowHeight) {
+      return windowHeight - (y + height) - SPACING
+    }
+
+    return MAX_MENU_HEIGHT
+  }, [height, menuPosition, windowHeight, y])
 
   return (
-    <>
+    <View style={[styles.selectContainer, containerStyle]}>
       {!!label && (
         <Text
+          appearance="secondaryText"
           fontSize={14}
           weight="regular"
-          appearance="secondaryText"
           style={[spacings.mbMi, labelStyle]}
         >
           {label}
         </Text>
       )}
-      <View style={withSearch ? {} : style}>
-        <Select
-          {...(disabled
-            ? {
-                menuIsOpen: false,
-                autoFocus: false
+      <Pressable
+        disabled={disabled}
+        style={[
+          styles.selectBorderWrapper,
+          disabled && { opacity: 0.6 },
+          isMenuOpen && { borderColor: theme.infoBackground }
+        ]}
+        onPress={handleOpenMenu}
+      >
+        <View
+          ref={selectRef}
+          style={[
+            styles.select,
+            { borderColor: isMenuOpen ? theme.primary : theme.secondaryBorder },
+            selectStyle
+          ]}
+        >
+          <View style={[flexbox.flex1, flexbox.directionRow, flexbox.alignCenter]}>
+            {!!value && <Option item={value} />}
+            {!value && (
+              <Text fontSize={14} appearance="secondaryText">
+                {placeholder || t('Select...')}
+              </Text>
+            )}
+          </View>
+          {!!isMenuOpen && <UpArrowIcon />}
+          {!isMenuOpen && <DownArrowIcon />}
+        </View>
+      </Pressable>
+      {!!isMenuOpen && (
+        <Portal hostName="global">
+          <View
+            ref={menuRef}
+            style={[
+              styles.menuContainer,
+              { width, maxHeight: maxMenuDynamicHeight, left: x },
+              menuPosition === 'bottom' && { top: y + height },
+              menuPosition === 'top' && { bottom: windowHeight - y },
+              menuStyle
+            ]}
+          >
+            {!!withSearch && menuPosition === 'bottom' && (
+              <Search
+                placeholder={t('Search...')}
+                autoFocus
+                control={control}
+                containerStyle={spacings.mb0}
+                borderWrapperStyle={styles.searchBorderWrapperStyle}
+                inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
+                leftIconStyle={spacings.pl}
+              />
+            )}
+            <FlatList
+              data={filteredOptions}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              initialNumToRender={15}
+              windowSize={10}
+              maxToRenderPerBatch={20}
+              removeClippedSubviews
+              getItemLayout={getItemLayout}
+              ListEmptyComponent={
+                <Text
+                  style={[spacings.pv, flexbox.flex1, text.center]}
+                  numberOfLines={1}
+                  appearance="secondaryText"
+                  fontSize={14}
+                >
+                  {t('No items found')}
+                </Text>
               }
-            : {})}
-          options={options}
-          defaultValue={defaultValue}
-          menuPortalTarget={document.body}
-          // It fixes z-index/overlapping issue with the next closest element.
-          // If we don't set it, the Select dropdown menu overlaps the next element once we show the menu.
-          menuPosition="fixed"
-          components={{
-            DropdownIndicator,
-            Option: IconOption,
-            SingleValue: SingleValueIconOption,
-            IndicatorSeparator: null,
-            ...componentsProps
-          }}
-          styles={{
-            placeholder: (baseStyles) =>
-              ({
-                ...baseStyles,
-                ...common.borderRadiusPrimary,
-                fontSize: 14,
-                color: theme.secondaryText,
-                fontFamily: FONT_FAMILIES.REGULAR
-              } as any),
-            control: (baseStyles) =>
-              ({
-                ...baseStyles,
-                height: 50,
-                background: theme.secondaryBackground,
-                ...common.borderRadiusPrimary,
-                borderColor: `${theme.secondaryBorder as any} !important`,
-                fontSize: 14,
-                fontFamily: FONT_FAMILIES.REGULAR,
-                color: theme.primaryText,
-                outline: 'none',
-                'box-shadow': 'none !important',
-                cursor: 'pointer !important',
-                ...controlStyle
-              } as any),
-            valueContainer: (baseStyles) => ({
-              ...baseStyles,
-              overflow: 'visible'
-            }),
-            singleValue: (baseStyles) => ({
-              ...baseStyles,
-              paddingTop: 0,
-              paddingBottom: 0,
-              overflow: 'visible'
-            }),
-            menu: (baseStyles) =>
-              ({
-                ...baseStyles,
-                overflow: 'hidden',
-                'box-shadow': 'none',
-                'border-style': 'solid',
-                borderWidth: 1,
-                borderRadius: BORDER_RADIUS_PRIMARY,
-                borderColor: theme.secondaryBorder,
-                'box-sizing': 'border-box',
-                ...menuStyle
-              } as any),
-            menuPortal: (baseStyles) => ({ ...baseStyles, zIndex: 9999 }),
-            option: (baseStyles) =>
-              ({
-                ...baseStyles,
-                fontSize: 14,
-                fontFamily: FONT_FAMILIES.REGULAR,
-                cursor: 'pointer',
-                color: theme.primaryText
-              } as any),
-            menuList: (baseStyles) => ({
-              ...baseStyles,
-              padding: 0
-            })
-          }}
-          theme={(incomingTheme) => ({
-            ...incomingTheme,
-            borderRadius: 0,
-            colors: {
-              ...incomingTheme.colors,
-              primary25: String(theme.secondaryBackground),
-              primary: String(theme.tertiaryBackground)
-            }
-          })}
-          isSearchable={false}
-          value={value}
-          onChange={setValue}
-          placeholder={placeholder}
-          openMenuOnClick={openMenuOnClick}
-          menuPlacement={menuPlacement}
-          {...rest}
-        />
-      </View>
-    </>
+            />
+            {!!withSearch && menuPosition === 'top' && (
+              <Search
+                placeholder={t('Search...')}
+                autoFocus
+                control={control}
+                containerStyle={spacings.mb0}
+                borderWrapperStyle={styles.searchBorderWrapperStyle}
+                inputWrapperStyle={styles.topSearchInputWrapperStyle}
+                leftIconStyle={spacings.pl}
+              />
+            )}
+          </View>
+        </Portal>
+      )}
+    </View>
   )
 }
 
-export default React.memo(SelectComponent)
+export default React.memo(Select)

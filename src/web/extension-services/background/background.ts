@@ -255,11 +255,7 @@ async function init() {
 
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
-      if (
-        mainCtrl.signAccountOp &&
-        (mainCtrl.signAccountOp.status === null ||
-          mainCtrl.signAccountOp.status.type !== SigningStatus.EstimationError)
-      ) {
+      if (mainCtrl.signAccountOp) {
         setReestimateInterval(mainCtrl.signAccountOp.accountOp)
       } else {
         !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
@@ -775,8 +771,8 @@ async function init() {
                 break
               }
 
-              case 'NOTIFICATION_CONTROLLER_REOPEN_CURRENT_NOTIFICATION_REQUEST':
-                return await notificationCtrl.reopenCurrentNotificationRequest()
+              case 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST':
+                return notificationCtrl.focusCurrentNotificationWindow()
               case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
                 return await notificationCtrl.openNotificationRequest(params.id)
 
