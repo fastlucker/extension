@@ -6,7 +6,7 @@ import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
-import { SelectWithSearch } from '@common/components/Select'
+import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
@@ -20,7 +20,11 @@ import styles from './styles'
 const NO_TOKENS_ITEMS = [
   {
     value: 'noTokens',
-    label: <Text weight="medium">You don&apos;t have any tokens</Text>,
+    label: (
+      <Text weight="medium" fontSize={14}>
+        You don&apos;t have any tokens
+      </Text>
+    ),
     icon: null
   }
 ]
@@ -178,13 +182,13 @@ const SendForm = ({
 
   return (
     <View style={[styles.container, isTopUp ? styles.topUpContainer : {}]}>
-      <SelectWithSearch
+      <Select
         setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
         options={options}
         value={tokenSelectValue}
         disabled={tokenSelectDisabled || disableForm}
-        style={styles.tokenSelect}
+        containerStyle={styles.tokenSelect}
       />
       <InputSendToken
         amount={amountFieldValue}

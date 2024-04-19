@@ -15,11 +15,13 @@ interface Style {
   backDrop: ViewStyle
 }
 
+export const BOTTOM_SHEET_Z_INDEX = 900
+
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
     root: {
       // Lower number than the toasts' zIndex
-      zIndex: 900,
+      zIndex: BOTTOM_SHEET_Z_INDEX,
       elevation: 19
     },
     bottomSheet: {
@@ -48,7 +50,7 @@ const getStyles = (theme: ThemeProps) =>
       minHeight: DEVICE_HEIGHT,
       position: 'absolute',
       backgroundColor: 'transparent',
-      zIndex: 899
+      zIndex: BOTTOM_SHEET_Z_INDEX - 1
     }
   })
 
