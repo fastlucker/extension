@@ -6,7 +6,6 @@ import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
@@ -183,19 +182,13 @@ const DashboardOverview: FC<Props> = ({
                           <Tooltip id="total-balance-warning" />
                         </>
                       )}
-                      <View style={spacings.mlTy}>
-                        {!accountPortfolio?.isAllReady ? (
-                          <Spinner style={{ width: 16, height: 16 }} />
-                        ) : (
-                          <AnimatedPressable
-                            style={refreshButtonAnimStyle}
-                            onPress={refreshPortfolio}
-                            {...bindRefreshButtonAnim}
-                          >
-                            <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </AnimatedPressable>
-                        )}
-                      </View>
+                      <AnimatedPressable
+                        style={[spacings.mlTy, refreshButtonAnimStyle]}
+                        onPress={refreshPortfolio}
+                        {...bindRefreshButtonAnim}
+                      >
+                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                      </AnimatedPressable>
                     </View>
                   )}
                 </View>
