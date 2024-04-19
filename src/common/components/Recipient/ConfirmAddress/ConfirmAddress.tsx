@@ -22,8 +22,6 @@ type Props = {
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
-const UNSUPPORTED_SW_PLATFORMS = ['Binance', 'Huobi', 'KuCoin', 'Gate.io', 'FTX']
-
 const ConfirmAddress = ({
   onAddToAddressBook,
   onRecipientAddressUnknownCheckboxClick,
@@ -71,9 +69,8 @@ const ConfirmAddress = ({
             <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
               {
                 t(
-                  'I confirm this address is not a {{platforms}} address: These platforms do not support {{token}} deposits from smart wallets.',
+                  'I confirm this address is not Binance, Coinbase or another centralized exchange. These platforms do not support {{token}} deposits from smart wallets.',
                   {
-                    platforms: UNSUPPORTED_SW_PLATFORMS.join(' / '),
                     token: selectedTokenSymbol
                   }
                 ) as string

@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers'
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { FlatList, FlatListProps, View } from 'react-native'
+import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
@@ -21,6 +21,7 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import { getUiType } from '@web/utils/uiType'
 
 import DashboardBanners from '../DashboardBanners'
+import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
 import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
@@ -34,8 +35,6 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  style: FlatListProps<any>['style']
-  contentContainerStyle: FlatListProps<any>['contentContainerStyle']
   onScroll: FlatListProps<any>['onScroll']
 }
 
@@ -64,9 +63,7 @@ const Tokens = ({
   openTab,
   setOpenTab,
   initTab,
-  onScroll,
-  style,
-  contentContainerStyle
+  onScroll
 }: Props) => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
@@ -78,7 +75,6 @@ const Tokens = ({
       search: ''
     }
   })
-  const flatlistRef = useRef<FlatList | null>(null)
 
   const searchValue = watch('search')
 
@@ -256,21 +252,12 @@ const Tokens = ({
 
   useEffect(() => {
     setValue('search', '')
-
-    if (!flatlistRef.current) return
-
-    // Fixes weird behaviour that occurs when you scroll in one tab and then move to another and back.
-    flatlistRef.current?.scrollToOffset({
-      offset: 0,
-      animated: false
-    })
-  }, [setValue, openTab])
+  }, [setValue])
 
   return (
-    <FlatList
-      ref={flatlistRef}
-      style={style}
-      contentContainerStyle={contentContainerStyle}
+    <DashboardPageScrollContainer
+      tab="tokens"
+      openTab={openTab}
       ListHeaderComponent={<DashboardBanners />}
       data={[
         'header',
@@ -279,7 +266,6 @@ const Tokens = ({
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      stickyHeaderIndices={[1]} // Makes the header sticky
       ListFooterComponent={
         <Button
           type="secondary"
@@ -288,7 +274,6 @@ const Tokens = ({
         />
       }
       ListFooterComponentStyle={spacings.ptSm}
-      removeClippedSubviews
       onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
       initialNumToRender={isPopup ? 10 : 20}
       windowSize={9} // Larger values can cause performance issues.
