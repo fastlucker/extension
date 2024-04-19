@@ -446,7 +446,7 @@ const SignAccountOpScreen = () => {
                 {callsToVisualize.map((call, i) => {
                   return (
                     <TransactionSummary
-                      key={call.data + call.fromUserRequestId}
+                      key={`${call.fromUserRequestId}+${i}`}
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
                       networkId={network!.id}
