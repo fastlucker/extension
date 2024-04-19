@@ -260,7 +260,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   /* Click on "Got it" */
   await page.$eval(buttonNext, (button) => button.click())
 
-  await page.waitForXPath('//div[contains(text(), "Welcome to your Ambire Wallet")]')
+  await page.waitForSelector('[data-testid="get-started-button-import"]')
 
   /* Click on "Import" button */
   await page.$eval('[data-testid="get-started-button-import"]', (button) => button.click())

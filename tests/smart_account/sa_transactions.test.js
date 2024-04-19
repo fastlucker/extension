@@ -68,8 +68,7 @@ describe('transactions', () => {
       page,
       extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]',
-      'newWindow1'
+      '[data-testid="transfer-button-send"]'
     )
   })
 
@@ -249,6 +248,6 @@ describe('transactions', () => {
     await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn, 'newWindow2')
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
   })
 })
