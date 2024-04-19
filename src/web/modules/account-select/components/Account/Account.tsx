@@ -82,12 +82,14 @@ const Account = ({
   }
 
   useEffect(() => {
-    // Otherwise onSelect will be called n times, where n is the number of accounts
-    if (addr.toLowerCase() !== mainCtrl.selectedAccount?.toLowerCase()) return
-
-    // Done in a useEffect, because onSelect must be called after the account is selected
-    onSelect && onSelect(addr)
-  }, [addr, mainCtrl.selectedAccount, onSelect])
+    if (
+      mainCtrl.latestMethodCall === 'selectAccount' &&
+      mainCtrl.status === 'SUCCESS' &&
+      addr.toLowerCase() === mainCtrl.selectedAccount?.toLowerCase()
+    ) {
+      onSelect && onSelect(addr)
+    }
+  }, [addr, mainCtrl.latestMethodCall, mainCtrl.selectedAccount, mainCtrl.status, onSelect])
 
   return (
     <Pressable onPress={selectAccount} {...bindAnim} testID="account">
