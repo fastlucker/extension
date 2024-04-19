@@ -444,7 +444,6 @@ const SignAccountOpScreen = () => {
               </Text>
               <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
                 {callsToVisualize.map((call, i) => {
-                  console.log(`${call.fromUserRequestId}+${i}`)
                   return (
                     <TransactionSummary
                       key={`${call.fromUserRequestId}+${i}`}
