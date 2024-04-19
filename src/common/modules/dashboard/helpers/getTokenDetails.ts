@@ -18,10 +18,11 @@ const getTokenDetails = (
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'
   const networkData = networks.find(({ id }) => networkId === id)
-  const postAmount = amountPostSimulation !== undefined ? amountPostSimulation : 0n
-  const isPending = amountPostSimulation !== undefined && amountPostSimulation !== amount
+  const amountish = BigInt(amount)
+  const postAmount = typeof amountPostSimulation === 'bigint' ? amountPostSimulation : 0n
+  const isPending = typeof amountPostSimulation === 'bigint' && amountPostSimulation !== amountish
 
-  const balance = parseFloat(formatUnits(amount, decimals))
+  const balance = parseFloat(formatUnits(amountish, decimals))
   const pendingBalance = isPending
     ? parseFloat(formatUnits(amountPostSimulation, decimals))
     : parseFloat('0')
@@ -30,8 +31,8 @@ const getTokenDetails = (
   )?.price
   const balanceUSD = priceUSD ? balance * priceUSD : undefined
   const pendingBalanceUSD = priceUSD && isPending ? pendingBalance * priceUSD : undefined
-  const isBalanceIncrease = postAmount > amount
-  const balanceChange = isBalanceIncrease ? postAmount - amount : amount - postAmount
+  const isBalanceIncrease = postAmount > amountish
+  const balanceChange = isBalanceIncrease ? postAmount - amountish : amountish - postAmount
 
   return {
     balance,
