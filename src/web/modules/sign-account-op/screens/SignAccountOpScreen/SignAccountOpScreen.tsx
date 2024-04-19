@@ -1,4 +1,4 @@
-import { isHexString, randomBytes } from 'ethers'
+import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -444,9 +444,10 @@ const SignAccountOpScreen = () => {
               </Text>
               <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
                 {callsToVisualize.map((call, i) => {
+                  console.log(`${call.fromUserRequestId}+${i}`)
                   return (
                     <TransactionSummary
-                      key={`${call.data}-${call.fromUserRequestId}-${randomBytes(10)}`}
+                      key={`${call.fromUserRequestId}+${i}`}
                       style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                       call={call}
                       networkId={network!.id}
