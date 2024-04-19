@@ -85,13 +85,8 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     const onWarning = (newState: { warnings: string[]; controller: string }) => {
       const lastWarning = newState.warnings[newState.warnings.length - 1]
       if (lastWarning) {
-        if (newState.controller === 'notification') {
-          if (getUiType().isNotification) {
-            addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
-          }
-        } else {
-          addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
-        }
+        if (newState.controller === 'notification' && !getUiType().isNotification) return
+        addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
       }
     }
 

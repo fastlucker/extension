@@ -71,8 +71,10 @@ const ToastProvider = ({ children }: Props) => {
         ...defaultOptions,
         ...(options || {})
       }
-      if (toasts.some((t) => t.text === toast.text)) {
-        return
+
+      const existingToast = toasts.find((t) => t.text === toast.text)
+      if (existingToast) {
+        removeToast(existingToast.id)
       }
 
       setToasts((_toasts) => [..._toasts, toast])

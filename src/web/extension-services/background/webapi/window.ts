@@ -26,7 +26,7 @@ export const WINDOW_SIZE = {
   height: NOTIFICATION_WINDOW_HEIGHT
 }
 
-const setScreenHeight = (h: number) => {
+const getScreenHeight = (h: number) => {
   try {
     const height = h > MIN_NOTIFICATION_WINDOW_HEIGHT ? h : MIN_NOTIFICATION_WINDOW_HEIGHT
 
@@ -36,7 +36,7 @@ const setScreenHeight = (h: number) => {
   }
 }
 
-const setScreenWidth = (w: number) => {
+const getScreenWidth = (w: number) => {
   try {
     if (w < NOTIFICATION_WINDOW_WIDTH) {
       return Math.round(NOTIFICATION_WINDOW_WIDTH)
@@ -59,19 +59,19 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
 
   if (isManifestV3) {
     const displayInfo = await chrome.system.display.getInfo()
-    screenWidth = setScreenWidth(displayInfo?.[0]?.workArea?.width)
-    screenHeight = setScreenHeight(displayInfo?.[0]?.workArea?.height)
+    screenWidth = getScreenWidth(displayInfo?.[0]?.workArea?.width)
+    screenHeight = getScreenHeight(displayInfo?.[0]?.workArea?.height)
   } else {
-    screenWidth = setScreenWidth(window.screen.width)
-    screenHeight = setScreenHeight(window.screen.height)
+    screenWidth = getScreenWidth(window.screen.width)
+    screenHeight = getScreenHeight(window.screen.height)
   }
 
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
       const ratio = 0.88 // 88% of the screen/tab size
 
-      let desiredWidth = setScreenWidth(screenWidth * ratio)
-      let desiredHeight = setScreenHeight(screenHeight * ratio)
+      let desiredWidth = getScreenWidth(screenWidth * ratio)
+      let desiredHeight = getScreenHeight(screenHeight * ratio)
 
       let leftPosition = (screenWidth - desiredWidth) / 2
       let topPosition = (screenHeight - desiredHeight) / 2
@@ -89,9 +89,9 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
             }
 
             if (activeTab.width && activeTab.height) {
-              desiredWidth = setScreenWidth(activeTab.width * ratio)
+              desiredWidth = getScreenWidth(activeTab.width * ratio)
               leftPosition = (activeTab.width - desiredWidth) / 2 + leftOffset
-              desiredHeight = setScreenHeight(activeTab.height * ratio)
+              desiredHeight = getScreenHeight(activeTab.height * ratio)
               topPosition =
                 (activeTab.height - desiredHeight) / 2 +
                 topOffset +
