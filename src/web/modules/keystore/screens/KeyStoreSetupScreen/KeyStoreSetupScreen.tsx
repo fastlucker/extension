@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -19,28 +20,36 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import storage from '@web/extension-services/background/webapi/storage'
-import Stepper from '@web/modules/router/components/Stepper'
 import KeyStoreSetupForm from '@web/modules/keystore/components/KeyStoreSetupForm'
 import useKeyStoreSetup from '@web/modules/keystore/components/KeyStoreSetupForm/hooks/useKeyStoreSetup'
+import Stepper from '@web/modules/router/components/Stepper'
 
 const KeyStoreSetupScreen = () => {
   const { t } = useTranslation()
   const { navigate, goBack } = useNavigation()
-  const { params } = useRoute()
+  const { params, search } = useRoute()
   const { updateStepperState } = useStepper()
   const { theme } = useTheme()
   const keyStoreSetup = useKeyStoreSetup()
 
-  useEffect(() => {
-    if (!params?.flow) return
-    updateStepperState(WEB_ROUTES.keyStoreSetup, params.flow)
-  }, [updateStepperState, params?.flow])
+  const flow = useMemo(() => {
+    if (params?.flow) return params.flow
+
+    const searchParams = new URLSearchParams(search)
+
+    return searchParams.get('flow') || null
+  }, [params?.flow, search])
 
   useEffect(() => {
-    if (!params?.flow) {
+    if (!flow) return
+    updateStepperState(WEB_ROUTES.keyStoreSetup, flow)
+  }, [updateStepperState, flow])
+
+  useEffect(() => {
+    if (!flow) {
       navigate(WEB_ROUTES.getStarted)
     }
-  }, [params?.flow, navigate])
+  }, [flow, navigate])
 
   useEffect(() => {
     ;(async () => {
@@ -52,30 +61,30 @@ const KeyStoreSetupScreen = () => {
   }, [goBack])
 
   const onKeyStoreCreation = useCallback(() => {
-    if (params?.flow === 'hw') {
+    if (flow === 'hw') {
       navigate(WEB_ROUTES.hardwareWalletSelect, {
         state: { backTo: WEB_ROUTES.getStarted }
       })
       return
     }
-    if (params?.flow === 'seed') {
+    if (flow === 'seed') {
       navigate(WEB_ROUTES.importSeedPhrase, {
         state: { backTo: WEB_ROUTES.importHotWallet }
       })
       return
     }
-    if (params?.flow === 'private-key') {
+    if (flow === 'private-key') {
       navigate(WEB_ROUTES.importPrivateKey, {
         state: { backTo: WEB_ROUTES.importHotWallet }
       })
       return
     }
-    if (params?.flow === 'create-seed') {
+    if (flow === 'create-seed') {
       navigate(WEB_ROUTES.createSeedPhrasePrepare, {
         state: { backTo: WEB_ROUTES.getStarted }
       })
     }
-  }, [params?.flow])
+  }, [flow, navigate])
 
   return (
     <TabLayoutContainer

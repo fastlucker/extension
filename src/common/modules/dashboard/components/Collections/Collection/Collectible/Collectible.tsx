@@ -2,7 +2,7 @@ import React, { FC, useMemo, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
-import useNft from '@common/hooks/useNft'
+import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
@@ -10,7 +10,6 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import { useCustomHover } from '@web/hooks/useHover'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
@@ -27,20 +26,10 @@ type Props = CollectibleType & {
   openCollectibleModal: (collectible: SelectedCollectible) => void
 }
 
-const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) => {
+const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal }) => {
   const { theme } = useTheme()
+  const [isLoading, setIsLoading] = useState(true)
   const [imageFailed, setImageFailed] = useState(false)
-  const { networks } = useSettingsControllerState()
-
-  const network = useMemo(
-    () => networks.find((n) => n.id === collectionData.networkId),
-    [collectionData.networkId, networks]
-  )
-  const { data, error, isLoading } = useNft({
-    id,
-    address: collectionData.address,
-    network: network!
-  })
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
     values: {
@@ -48,18 +37,36 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
       to: 1.15
     }
   })
-  const renderFallbackImage = error || imageFailed || !data?.image
 
-  // Works like a skeleton loader while the collectible is being fetched.
-  if (isLoading) return <View style={[styles.container, { backgroundColor: theme.backdrop }]} />
+  const imageUrl = useMemo(() => {
+    // Ambire's NFT CDN can't handle base64 json data
+    if (url.startsWith('data:application')) {
+      try {
+        // Convert base64 to json
+        const json = Buffer.from(url.substring(29), 'base64').toString()
+        const result = JSON.parse(json)
 
-  if (!data && !error) return null
+        // Add a proxy if the image is IPFS
+        if (result.image.startsWith('ipfs://')) {
+          return `https://ipfs.io/ipfs/${result.image.substring(7)}`
+        }
+
+        return result.image
+      } catch {
+        // imageFailed will be set by the onError event
+        return ''
+      }
+    }
+
+    // Resolves to an image from a JSON source
+    return `https://nftcdn.ambire.com/proxy?url=${url}`
+  }, [url])
 
   return (
     <Pressable
       style={[
         styles.container,
-        renderFallbackImage
+        imageFailed || isLoading
           ? {
               backgroundColor: theme.primaryBackground,
               borderRadius: BORDER_RADIUS_PRIMARY,
@@ -70,21 +77,24 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
       onPress={() => {
         openCollectibleModal({
           address: collectionData.address,
-          name: data?.name || '',
+          name: `${collectionData.name} #${id}`,
           networkId: collectionData.networkId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
-          image: !data?.image || imageFailed ? '' : data?.image,
+          image: imageFailed ? '' : imageUrl,
           collectionName: collectionData.name
         })
       }}
       {...bindAnim}
     >
-      {({ hovered }: any) => (
-        <>
-          {!error && data?.image && !imageFailed && (
+      {({ hovered }: any) =>
+        !imageFailed ? (
+          <>
             <Animated.Image
               onError={() => setImageFailed(true)}
-              source={{ uri: data.image }}
+              onLoadEnd={() => setIsLoading(false)}
+              source={{
+                uri: imageUrl
+              }}
               style={[
                 styles.image,
                 {
@@ -92,16 +102,33 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
                 }
               ]}
             />
-          )}
-          {!!renderFallbackImage && (
-            <ImageIcon
-              color={theme.secondaryText}
-              width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
-              height={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
-            />
-          )}
-        </>
-      )}
+            {isLoading && (
+              <View
+                style={{
+                  ...styles.image,
+                  ...flexbox.center,
+                  backgroundColor: theme.primaryBackground,
+                  // Display it over the image while loading
+                  zIndex: 3
+                }}
+              >
+                <Spinner
+                  style={{
+                    width: 24,
+                    height: 24
+                  }}
+                />
+              </View>
+            )}
+          </>
+        ) : (
+          <ImageIcon
+            color={theme.secondaryText}
+            width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
+            height={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
+          />
+        )
+      }
     </Pressable>
   )
 }

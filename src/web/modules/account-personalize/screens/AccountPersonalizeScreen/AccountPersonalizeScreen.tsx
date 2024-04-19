@@ -4,7 +4,6 @@ import { ScrollView, View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import Alert from '@common/components/Alert'
 import Button from '@common/components/Button'
@@ -132,10 +131,10 @@ const AccountPersonalizeScreen = () => {
             <Alert type="success" size="sm" style={{ ...spacings.pvTy, ...flexbox.alignCenter }}>
               <Text fontSize={16} appearance="successText">
                 {newAccounts.length === 1
-                  ? t('Successfully added ({{numOfAccounts}}) account', {
+                  ? t('Successfully added {{numOfAccounts}} account', {
                       numOfAccounts: newAccounts.length
                     })
-                  : t('Successfully added ({{numOfAccounts}}) accounts', {
+                  : t('Successfully added {{numOfAccounts}} accounts', {
                       numOfAccounts: newAccounts.length
                     })}
               </Text>
@@ -147,9 +146,8 @@ const AccountPersonalizeScreen = () => {
                 key={field.id} // important to include key with field's id
                 control={control}
                 index={index}
-                isSmartAccount={isSmartAccount(field.account)}
+                account={field.account}
                 pfp={watchPreferences[index].pfp}
-                address={field.account.addr}
                 hasBottomSpacing={index !== fields.length - 1}
               />
             ))}

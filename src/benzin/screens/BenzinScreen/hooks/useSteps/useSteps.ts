@@ -157,12 +157,14 @@ const useSteps = ({
           if (userOpStatusData.txnId) return
 
           const foundUserOp = userOps[0]
-          setUserOpStatusData({
-            status: 'submitted',
-            txnId: foundUserOp.transactionHash
-          })
-          setActiveStep('in-progress')
-          setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
+          if (foundUserOp.transactionHash) {
+            setUserOpStatusData({
+              status: 'submitted',
+              txnId: foundUserOp.transactionHash
+            })
+            setActiveStep('in-progress')
+            setUrlToTxnId(foundUserOp.transactionHash, userOpHash, network.id)
+          }
         })
       })
       .catch((e) => e)

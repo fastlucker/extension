@@ -8,7 +8,7 @@ import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 
 const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
   values.map((value) => ({
-    value: `${value.address}-${value.networkId}`,
+    value: `${value.address}-${value.networkId}-${value.symbol}`,
     label: (
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TokenIcon
