@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -41,7 +41,6 @@ const Account = ({
   const { addr, creation, associatedKeys } = account
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-
   const { addToast } = useToast()
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
@@ -53,15 +52,20 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: addr === mainCtrl.selectedAccount
+    forceHoveredStyle: addr.toLowerCase() === mainCtrl.selectedAccount?.toLowerCase()
   })
 
-  const selectAccount = (selectedAddr: string) => {
+  const selectAccount = () => {
+    // No need to dispatch if the account is already selected
+    if (onSelect && mainCtrl.selectedAccount?.toLowerCase() === addr?.toLowerCase()) {
+      onSelect(addr)
+      return
+    }
+
     dispatch({
       type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-      params: { accountAddr: selectedAddr }
+      params: { accountAddr: addr }
     })
-    onSelect && onSelect(addr)
   }
 
   const onSave = (value: string) => {
@@ -77,15 +81,16 @@ const Account = ({
     addToast(t('Account label updated.'))
   }
 
+  useEffect(() => {
+    // Otherwise onSelect will be called n times, where n is the number of accounts
+    if (addr.toLowerCase() !== mainCtrl.selectedAccount?.toLowerCase()) return
+
+    // Done in a useEffect, because onSelect must be called after the account is selected
+    onSelect && onSelect(addr)
+  }, [addr, mainCtrl.selectedAccount, onSelect])
+
   return (
-    <Pressable
-      testID='account'
-      key={addr}
-      onPress={() => {
-        selectAccount(addr)
-      }}
-      {...bindAnim}
-    >
+    <Pressable onPress={selectAccount} {...bindAnim} testID="account">
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <View style={[flexboxStyles.justifyCenter]}>

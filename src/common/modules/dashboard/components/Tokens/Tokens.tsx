@@ -257,11 +257,13 @@ const Tokens = ({
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       ListFooterComponent={
-        <Button
-          type="secondary"
-          text={t('+ Add Custom Token')}
-          onPress={navigateToAddCustomToken}
-        />
+        accountPortfolio?.isAllReady ? (
+          <Button
+            type="secondary"
+            text={t('+ Add Custom Token')}
+            onPress={navigateToAddCustomToken}
+          />
+        ) : null
       }
       ListFooterComponentStyle={spacings.ptSm}
       onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
