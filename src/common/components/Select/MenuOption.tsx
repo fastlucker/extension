@@ -21,7 +21,13 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
         <Image source={{ uri: item.icon }} style={styles.optionIcon} />
       )}
       {/* The label can be a string or a React component. If it is a string, it will be rendered as a text element. */}
-      {typeof item?.label === 'string' ? <Text fontSize={14}>{item.label}</Text> : item?.label}
+      {typeof item?.label === 'string' ? (
+        <Text fontSize={14} numberOfLines={1}>
+          {item.label}
+        </Text>
+      ) : (
+        item?.label
+      )}
     </View>
   )
 })
@@ -29,10 +35,12 @@ const Option = React.memo(({ item }: { item: SelectValue }) => {
 const MenuOption = React.memo(
   ({
     item,
+    height,
     isSelected,
     onPress
   }: {
     item: SelectValue
+    height?: number
     isSelected: boolean
     onPress: (item: SelectValue) => void
   }) => {
@@ -42,6 +50,7 @@ const MenuOption = React.memo(
       <Pressable
         style={({ hovered }: any) => [
           styles.menuOption,
+          !!height && { height },
           isSelected && { backgroundColor: theme.tertiaryBackground },
           hovered && { backgroundColor: theme.secondaryBackground }
         ]}

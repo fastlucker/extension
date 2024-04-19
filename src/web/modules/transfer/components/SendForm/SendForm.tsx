@@ -20,7 +20,11 @@ import styles from './styles'
 const NO_TOKENS_ITEMS = [
   {
     value: 'noTokens',
-    label: <Text weight="medium">You don&apos;t have any tokens</Text>,
+    label: (
+      <Text weight="medium" fontSize={14}>
+        You don&apos;t have any tokens
+      </Text>
+    ),
     icon: null
   }
 ]

@@ -90,11 +90,12 @@ const Select = ({
     ({ item }: { item: SelectValue }) => (
       <MenuOption
         item={item}
+        height={menuOptionHeight}
         isSelected={item.value === value.value}
         onPress={handleOptionSelect}
       />
     ),
-    [value, handleOptionSelect]
+    [value, menuOptionHeight, handleOptionSelect]
   )
 
   const keyExtractor = useCallback((item: SelectValue) => item.value.toString(), [])
@@ -142,7 +143,11 @@ const Select = ({
       )}
       <Pressable
         disabled={disabled}
-        style={[styles.selectBorderWrapper, isMenuOpen && { borderColor: theme.infoBackground }]}
+        style={[
+          styles.selectBorderWrapper,
+          disabled && { opacity: 0.6 },
+          isMenuOpen && { borderColor: theme.infoBackground }
+        ]}
         onPress={handleOpenMenu}
       >
         <View

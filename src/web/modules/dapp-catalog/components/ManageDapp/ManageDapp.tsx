@@ -58,7 +58,11 @@ const ManageDapp = ({
     () =>
       networks.map((n) => ({
         value: n.id,
-        label: <Text weight="medium">{n.name}</Text>,
+        label: (
+          <Text weight="medium" numberOfLines={1}>
+            {n.name}
+          </Text>
+        ),
         icon: <NetworkIcon id={n.id} size={30} />
       })),
     [networks]
@@ -128,6 +132,7 @@ const ManageDapp = ({
         </Text>
         <Select
           setValue={handleSetNetworkValue}
+          menuOptionHeight={48}
           containerStyle={{ width: 230 }}
           selectStyle={{ height: 40 }}
           options={networksOptions}
