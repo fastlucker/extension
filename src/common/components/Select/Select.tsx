@@ -10,7 +10,7 @@ import { isWeb } from '@common/config/env'
 import useElementSize from '@common/hooks/useElementSize'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import { Portal } from '@gorhom/portal'
@@ -76,14 +76,14 @@ const Select = ({
   disabled,
   withSearch = true
 }: SelectProps) => {
-  const { t } = useTranslation()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, styles } = useTheme(getStyles)
   const selectRef = useRef(null)
   const menuRef = useRef(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { t } = useTranslation()
+  const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
   const { x, y, height, width, forceUpdate } = useElementSize(selectRef)
   const { height: windowHeight } = useWindowSize()
-  const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
+  const { theme, styles } = useTheme(getStyles)
 
   const search = watch('search')
 
@@ -135,7 +135,6 @@ const Select = ({
         onPress={handleOptionSelect}
       />
     ),
-
     [value, handleOptionSelect]
   )
 
@@ -150,6 +149,14 @@ const Select = ({
 
     return 'bottom'
   }, [height, isMenuOpen, windowHeight, y])
+
+  const menuDynamicHeight = useMemo(() => {
+    if (menuPosition === 'bottom' && y + height + MAX_MENU_HEIGHT > windowHeight) {
+      return windowHeight - (y + height) - SPACING
+    }
+
+    return MAX_MENU_HEIGHT
+  }, [height, menuPosition, windowHeight, y])
 
   return (
     <View style={[styles.selectContainer, containerStyle]}>
@@ -191,7 +198,7 @@ const Select = ({
               ref={menuRef}
               style={[
                 styles.menuContainer,
-                { width, left: x },
+                { width, height: menuDynamicHeight, left: x },
                 menuPosition === 'bottom' && { top: y + height },
                 menuPosition === 'top' && { bottom: windowHeight - y },
                 menuStyle
