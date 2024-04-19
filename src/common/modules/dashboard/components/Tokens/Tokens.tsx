@@ -140,6 +140,7 @@ const Tokens = ({
         )
         .filter((token) => !token.isHidden)
         .sort((a, b) => {
+          // pending tokens go on top
           if (
             typeof a.amountPostSimulation === 'bigint' &&
             a.amountPostSimulation !== BigInt(a.amount)
