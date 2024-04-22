@@ -1,14 +1,15 @@
 import React from 'react'
-import Svg, { G, Path, SvgProps } from 'react-native-svg'
+import Svg, { Path, SvgProps } from 'react-native-svg'
 
 import colors from '@common/styles/colors'
 
 const WarningIcon: React.FC<SvgProps> = ({
   width = 24,
   height = 24,
-  color = colors.martinique
+  color = colors.martinique,
+  ...rest
 }) => (
-  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24">
+  <Svg width={width} height={height} fill="none" viewBox="0 0 24 24" {...rest}>
     <Path
       stroke={color}
       strokeLinecap="round"

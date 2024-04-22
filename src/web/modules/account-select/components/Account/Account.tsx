@@ -41,7 +41,6 @@ const Account = ({
   const { addr, creation, associatedKeys } = account
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-
   const { addToast } = useToast()
   const mainCtrl = useMainControllerState()
   const settingsCtrl = useSettingsControllerState()
@@ -53,14 +52,17 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: addr === mainCtrl.selectedAccount
+    forceHoveredStyle: addr.toLowerCase() === mainCtrl.selectedAccount?.toLowerCase()
   })
 
-  const selectAccount = (selectedAddr: string) => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-      params: { accountAddr: selectedAddr }
-    })
+  const selectAccount = () => {
+    if (mainCtrl.selectedAccount?.toLowerCase() !== addr?.toLowerCase()) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: addr }
+      })
+    }
+
     onSelect && onSelect(addr)
   }
 
@@ -78,13 +80,7 @@ const Account = ({
   }
 
   return (
-    <Pressable
-      key={addr}
-      onPress={() => {
-        selectAccount(addr)
-      }}
-      {...bindAnim}
-    >
+    <Pressable onPress={selectAccount} {...bindAnim}>
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <View style={[flexboxStyles.justifyCenter]}>

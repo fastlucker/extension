@@ -65,7 +65,7 @@ const CollectibleModal = ({
         >
           {!renderFallbackImage ? (
             <Image
-              resizeMode="cover"
+              resizeMode="contain"
               source={{ uri: image }}
               style={{
                 width: '100%',
@@ -82,9 +82,20 @@ const CollectibleModal = ({
           )}
         </View>
         <View
-          style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbSm, flexbox.alignSelfStart]}
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            spacings.mbSm,
+            flexbox.alignSelfStart,
+            { width: '100%' }
+          ]}
         >
-          <Text fontSize={isTab ? 18 : 14} weight="medium" style={spacings.mrMi}>
+          <Text
+            fontSize={isTab ? 18 : 14}
+            weight="medium"
+            style={[spacings.mrMi]}
+            numberOfLines={1}
+          >
             {name || 'Unknown Name'}
           </Text>
           <Pressable
