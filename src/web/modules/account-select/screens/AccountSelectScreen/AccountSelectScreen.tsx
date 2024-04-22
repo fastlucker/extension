@@ -11,12 +11,12 @@ import Button from '@common/components/Button'
 import CopyText from '@common/components/CopyText'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useAccounts from '@common/hooks/useAccounts'
 import useElementSize from '@common/hooks/useElementSize'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
+import DashboardSkeleton from '@common/modules/dashboard/screens/Skeleton'
 import Header from '@common/modules/header/components/Header'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -120,9 +120,7 @@ const AccountSelectScreen = () => {
       </BottomSheet>
     </TabLayoutContainer>
   ) : (
-    <View style={[flexbox.flex1, flexbox.center]}>
-      <Spinner />
-    </View>
+    <DashboardSkeleton />
   )
 }
 
