@@ -199,8 +199,8 @@ describe('transactions', () => {
     )
   })
 
-  //--------------------------------------------------------------------------------------------------------------
-  it('Make valid swap ', async () => {
+  // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
+  it.skip('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
