@@ -407,7 +407,7 @@ export class EthereumProvider extends EventEmitter {
             // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
             // eslint-disable-next-line no-await-in-loop
             const chainId = await forwardRpcRequests(url, 'eth_chainId', [])
-            if (chainId) this.dappProviderUrls[chainId] = url
+            if (chainId) this.dappProviderUrls[Number(chainId).toString()] = url
           } catch (error) {
             // silent fail
           }
@@ -421,32 +421,28 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const numberOfDappProviders = Object.keys(this.dappProviderUrls).length
-        if (numberOfDappProviders) {
+        const providerUrl = this.dappProviderUrls[Number(this.chainId).toString()]
+        if (providerUrl) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
           }
+          try {
+            const result = await Promise.race([
+              forwardRpcRequests(providerUrl, data.method, data.params),
+              // Timeouts after 3 secs because sometimes the provider call hangs with no response
+              delayPromise(3000)
+            ])
 
-          const providerUrl =
-            this.dappProviderUrls[this.chainId as string] || Object.values(this.dappProviderUrls)[0]
-          if (providerUrl)
-            try {
-              const result = await Promise.race([
-                forwardRpcRequests(providerUrl, data.method, data.params),
-                // Timeouts after 3 secs because sometimes the provider call hangs with no response
-                delayPromise(3000)
-              ])
+            if (data.method !== 'eth_call')
+              logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
 
-              if (data.method !== 'eth_call')
-                logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
-
-              // Otherwise, if no result comes, do not return, fallback to our provider.
-              if (result) return result
-            } catch (err) {
-              // We disregard any errors here since we'll handle the request with our provider regardless of the error
-              if (data.method !== 'eth_call')
-                logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
-            }
+            // Otherwise, if no result comes, do not return, fallback to our provider.
+            if (result) return result
+          } catch (err) {
+            // We disregard any errors here since we'll handle the request with our provider regardless of the error
+            if (data.method !== 'eth_call')
+              logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+          }
         }
       }
 

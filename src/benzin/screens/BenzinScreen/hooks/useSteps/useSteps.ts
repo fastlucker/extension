@@ -9,7 +9,6 @@ import {
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
@@ -23,6 +22,8 @@ import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/human
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import { isExtension } from '@web/constants/browserapi'
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
@@ -444,7 +445,7 @@ const useSteps = ({
 
     if (network && txnReceipt.from && txn) {
       setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
-      const accountOp = {
+      const accountOp: AccountOp = {
         accountAddr: txnReceipt.from!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.from!, // irrelevant
@@ -454,15 +455,15 @@ const useSteps = ({
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
-        accountOpToExecuteBefore: null,
-        humanizerMeta: humanizerJSON
+        accountOpToExecuteBefore: null
       }
       callsHumanizer(
         accountOp,
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
-        standardOptions.emitError
+        standardOptions.emitError,
+        { isExtension }
       ).catch((e) => {
         if (!calls) setCalls([])
         return e

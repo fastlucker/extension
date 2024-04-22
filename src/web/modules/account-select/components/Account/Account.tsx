@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
@@ -56,16 +56,14 @@ const Account = ({
   })
 
   const selectAccount = () => {
-    // No need to dispatch if the account is already selected
-    if (onSelect && mainCtrl.selectedAccount?.toLowerCase() === addr?.toLowerCase()) {
-      onSelect(addr)
-      return
+    if (mainCtrl.selectedAccount?.toLowerCase() !== addr?.toLowerCase()) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
+        params: { accountAddr: addr }
+      })
     }
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
-      params: { accountAddr: addr }
-    })
+    onSelect && onSelect(addr)
   }
 
   const onSave = (value: string) => {
@@ -80,16 +78,6 @@ const Account = ({
     })
     addToast(t('Account label updated.'))
   }
-
-  useEffect(() => {
-    if (
-      mainCtrl.latestMethodCall === 'selectAccount' &&
-      mainCtrl.status === 'SUCCESS' &&
-      addr.toLowerCase() === mainCtrl.selectedAccount?.toLowerCase()
-    ) {
-      onSelect && onSelect(addr)
-    }
-  }, [addr, mainCtrl.latestMethodCall, mainCtrl.selectedAccount, mainCtrl.status, onSelect])
 
   return (
     <Pressable onPress={selectAccount} {...bindAnim} testID="account">

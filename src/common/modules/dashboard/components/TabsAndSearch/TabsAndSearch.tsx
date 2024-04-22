@@ -8,9 +8,9 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import Tabs from '@common/modules/dashboard/components/TabsAndSearch/Tabs/Tabs'
 import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
-import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
+
+import styles from './styles'
 
 const { isPopup } = getUiType()
 
@@ -43,16 +43,7 @@ const TabsAndSearch: FC<Props> = ({ openTab, setOpenTab, searchControl }) => {
   const allBanners = useBanners()
 
   return (
-    <View
-      style={[
-        commonWebStyles.contentContainer,
-        flexbox.directionRow,
-        flexbox.justifySpaceBetween,
-        flexbox.alignCenter,
-        spacings.mb,
-        !!allBanners.length && spacings.ptTy
-      ]}
-    >
+    <View style={[styles.container, !!allBanners.length && spacings.ptTy]}>
       <Tabs handleChangeQuery={handleChangeQuery} setOpenTab={setOpenTab} openTab={openTab} />
       {['tokens', 'collectibles'].includes(openTab) && (
         <View style={{ margin: -2 }}>
