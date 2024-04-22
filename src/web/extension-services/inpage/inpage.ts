@@ -470,6 +470,13 @@ export class EthereumProvider extends EventEmitter {
         throw serializeError(response.error)
       }
 
+      if (data.method === 'wallet_switchEthereumChain') {
+        // EXPERIMENTAL FIX: fixes the RPC requests forwarding for the newly selected network
+        // Most dApps initialize their provider for the given network only upon loading the dApp and after that they rely on the connected wallet's RPC provider.
+        // For these dApps there is no other way to obtain the RPC URL of the new network except by forcing a reload of the dApp for it to make a call to the RPC URL.
+        // Subsequently, we receive the URL in the customized fetch function and then we initialize the forwarding mechanism for the selected network
+        window.location.reload()
+      }
       logInfoWithPrefix('[request: success]', data.method, response.result)
       return response.result
     })
