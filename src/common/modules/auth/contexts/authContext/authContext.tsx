@@ -31,6 +31,12 @@ const AuthProvider: React.FC = ({ children }: any) => {
       return
     }
 
+    // If we omit this check, a race condition arises between the onAccountAdderSuccess status and the selectAccount status
+    // with the latter potentially overwriting the status value of the former.
+    // To mitigate this issue, it's imperative to ensure that mainCtrl.status is in its INITIAL phase before dispatching MAIN_CONTROLLER_SELECT_ACCOUNT.
+    // If the problem persists, a possible solution is to introduce two distinct statuses for each method.
+    if (mainCtrlState.status !== 'INITIAL') return
+
     if (mainCtrlState.selectedAccount) {
       setAuthStatus(AUTH_STATUS.AUTHENTICATED)
     } else {
