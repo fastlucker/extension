@@ -245,6 +245,13 @@ async function init() {
       logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
     }
 
+    /**
+     * Bypasses both background and React batching,
+     * ensuring that the state update is immediately applied at the application level (React/Extension).
+     *
+     * For more info, please refer to:
+     * EventEmitter.forceEmitUpdate() or useControllerState().
+     */
     if (forceEmit) {
       sendUpdate()
       return 'EMITTED'
