@@ -1,6 +1,6 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings from '@common/styles/spacings'
+import spacings, { SPACING_SM } from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -17,7 +17,8 @@ const getStyles = () =>
   StyleSheet.create<Style>({
     modal: {
       ...spacings.phSm,
-      ...spacings.pvSm
+      ...spacings.pvSm,
+      maxWidth: COLLECTIBLE_IMAGE_SIZE + SPACING_SM * 2
     },
     image: {
       ...spacings.mbSm,
