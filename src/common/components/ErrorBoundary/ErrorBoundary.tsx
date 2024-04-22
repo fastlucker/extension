@@ -1,4 +1,5 @@
 import React from 'react'
+import { withTranslation } from 'react-i18next'
 import { Pressable, TouchableOpacity, View } from 'react-native'
 
 import spacings from '@common/styles/spacings'
@@ -15,6 +16,7 @@ interface ErrorBoundaryState {
 
 interface Props {
   children: React.ReactNode
+  t: (key: string) => string
 }
 
 class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
@@ -33,7 +35,7 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
 
   render() {
     const { hasError } = this.state
-    const { children } = this.props
+    const { children, t } = this.props
 
     if (hasError) {
       return (
@@ -69,7 +71,7 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
                 ...spacings.mbMd
               }}
             >
-              Something went wrong, but your funds are safe!
+              {t('Something went wrong, but your funds are safe!')}
             </Text>
             <View
               style={{
@@ -78,11 +80,11 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
               }}
             >
               <Text fontSize={14} style={[text.center, spacings.mbMd]}>
-                If the problem persists, please contact us via our
+                {t('If the problem persists, please contact us via our')}
                 <TouchableOpacity>
                   <Text fontSize={14} weight="medium" color="#6000FF">
                     {' '}
-                    Help Center
+                    {t('Help Center')}
                   </Text>
                 </TouchableOpacity>
               </Text>
@@ -100,7 +102,7 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
               }}
             >
               <Text fontSize={14} weight="medium" color="#fff">
-                Reload
+                {t('Reload')}
               </Text>
             </Pressable>
           </View>
@@ -112,4 +114,4 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
   }
 }
 
-export default ErrorBoundary
+export default withTranslation()(React.memo(ErrorBoundary))
