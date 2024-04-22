@@ -1,9 +1,9 @@
 import React from 'react'
 import { Defs, G, LinearGradient, Path, Stop, Svg, SvgProps } from 'react-native-svg'
 
-const AmbireLogoHorizontal: React.FC<SvgProps> = () => {
+const AmbireLogoHorizontal: React.FC<SvgProps> = ({ ...rest }) => {
   return (
-    <Svg width="82.451" height="27.346" viewBox="0 0 82.451 27.346">
+    <Svg width="82.451" height="27.346" viewBox="0 0 82.451 27.346" {...rest}>
       <Defs>
         <LinearGradient
           id="linear-gradient"

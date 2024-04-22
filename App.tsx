@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
+import ErrorBoundary from '@common/components/ErrorBoundary'
 import AppInit from '@common/modules/app-init/screens/AppInit'
 import colors from '@common/styles/colors'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -14,11 +15,13 @@ SplashScreen.preventAutoHideAsync().catch(console.warn) // TODO: log a sentry er
 
 const App = () => {
   return (
-    <GestureHandlerRootView style={[flexboxStyles.flex1, { backgroundColor: colors.white }]}>
-      <StatusBar style="light" backgroundColor={colors.zircon} />
+    <ErrorBoundary>
+      <GestureHandlerRootView style={[flexboxStyles.flex1, { backgroundColor: colors.white }]}>
+        <StatusBar style="light" backgroundColor={colors.zircon} />
 
-      <AppInit />
-    </GestureHandlerRootView>
+        <AppInit />
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   )
 }
 
