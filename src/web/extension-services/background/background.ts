@@ -70,7 +70,10 @@ async function init() {
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
-  if (ENVIRONMENT === 'testing') {
+  // In the testing environment, we need to slow down app initialization.
+  // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
+  // ensuring that the Controllers are initialized with the storage correctly.
+  if (process.env.IS_TESTING === 'true') {
     await new Promise((r) => {
       setTimeout(r, 1000)
     })
@@ -1056,7 +1059,7 @@ async function init() {
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
-  if (ENVIRONMENT === 'testing') return
+  if (process.env.IS_TESTING === 'true') return
 
   if (reason === 'install') {
     setTimeout(() => {
