@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { memo, useEffect, useRef } from 'react'
 import { Animated, Easing, ViewStyle } from 'react-native'
 
 import { isWeb } from '@common/config/env'
@@ -66,4 +66,4 @@ const SkeletonLoader = ({
   )
 }
 
-export default SkeletonLoader
+export default memo(SkeletonLoader)
