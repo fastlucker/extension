@@ -8,9 +8,9 @@ import {
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useControllerState from '@web/hooks/useControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -45,6 +45,8 @@ const PortfolioControllerStateContext = createContext<{
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
+  const controller = 'portfolio'
+  const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainCtrl = useMainControllerState()
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>({
@@ -54,7 +56,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     isAllReady: false
   })
   const [startedLoading, setStartedLoading] = useState(null)
-  const [state, setState] = useState({} as PortfolioController)
   const prevAccountPortfolio = useRef<AccountPortfolio>({
     tokens: [],
     collections: [],
@@ -66,7 +67,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     if (!Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'portfolio' }
+        params: { controller }
       })
     }
   }, [dispatch, state])
@@ -117,16 +118,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       )
     }
   }, [state?.latest, mainCtrl.selectedAccount, startedLoading])
-
-  useEffect(() => {
-    const onUpdate = (newState: PortfolioController) => {
-      setState(newState)
-    }
-
-    eventBus.addEventListener('portfolio', onUpdate)
-
-    return () => eventBus.removeEventListener('portfolio', onUpdate)
-  }, [])
 
   const updateAdditionalHints = useCallback(
     (tokenIds: string[]) => {

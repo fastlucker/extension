@@ -1,16 +1,17 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useControllerState from '@web/hooks/useControllerState'
 
 const AddressBookControllerStateContext = createContext<AddressBookController>(
   {} as AddressBookController
 )
 
 const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
-  const [state, setState] = useState({} as AddressBookController)
+  const controller = 'addressBook'
+  const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
 
@@ -18,7 +19,7 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
     if (mainState.isReady && !Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'addressBook' }
+        params: { controller }
       })
     }
   }, [dispatch, mainState.isReady, state])
@@ -28,16 +29,6 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
       type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
     })
   }, [state?.contacts?.length, dispatch])
-
-  useEffect(() => {
-    const onUpdate = (newState: AddressBookController) => {
-      setState(newState)
-    }
-
-    eventBus.addEventListener('addressBook', onUpdate)
-
-    return () => eventBus.removeEventListener('addressBook', onUpdate)
-  }, [])
 
   return (
     <AddressBookControllerStateContext.Provider value={useMemo(() => state, [state])}>

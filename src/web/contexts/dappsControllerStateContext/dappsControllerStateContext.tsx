@@ -7,6 +7,7 @@ import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
+import { flushSync } from 'react-dom'
 
 // @ts-ignore
 interface DappControllerState extends DappsController {
@@ -36,8 +37,12 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch])
 
   useEffect(() => {
-    const onUpdate = async (newState: DappControllerState) => {
-      setState(newState)
+    const onUpdate = async (newState: DappControllerState, forceEmit?: boolean) => {
+      if (forceEmit) {
+        flushSync(() => setState(newState))
+      } else {
+        setState(newState)
+      }
 
       const tab = await getCurrentTab()
       if (!tab.id || !tab.url) return
