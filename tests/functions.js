@@ -18,7 +18,8 @@ const puppeteerArgs = [
   '--no-sandbox',
   '--disable-setuid-sandbox',
   '--font-render-hinting=none',
-  '--ignore-certificate-errors'
+  '--ignore-certificate-errors',
+  '--window-size=1920,1080'
 ]
 
 export async function bootstrap(options = {}) {
