@@ -143,7 +143,7 @@ const DashboardOverview: FC<Props> = ({
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <SkeletonLoader width={200} height={42} borderRadius={8} />
+                    <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
                   ) : (
                     <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                       <Text selectable>
