@@ -69,7 +69,7 @@ const ViewOnlyScreen = () => {
     setValue,
     handleSubmit,
     trigger,
-    formState: { isValid, isSubmitting }
+    formState: { isValid, isSubmitting, isSubmitSuccessful }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -187,7 +187,8 @@ const ViewOnlyScreen = () => {
     settingsControllerState.accountPreferences
   ])
 
-  const disabled = !isValid || isSubmitting || duplicateAccountsIndexes.length > 0
+  const disabled =
+    !isValid || isSubmitting || isSubmitSuccessful || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
