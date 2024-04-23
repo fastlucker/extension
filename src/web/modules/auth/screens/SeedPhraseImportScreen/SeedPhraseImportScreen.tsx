@@ -271,6 +271,7 @@ const SeedPhraseImportScreen = () => {
                   options={SEED_LENGTH_SELECT_OPTIONS}
                   controlStyle={{ height: 40 }}
                   value={value}
+                  containerStyle={{ width: 230 }}
                 />
               )}
             />
