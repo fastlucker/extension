@@ -1,13 +1,15 @@
 import React from 'react'
 import { withTranslation } from 'react-i18next'
-import { Pressable, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
+import { ThemeContext } from '@common/contexts/themeContext'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 
 import AmbireLogoHorizontal from '../AmbireLogoHorizontal'
+import Button from '../Button'
 import Text from '../Text'
 
 interface ErrorBoundaryState {
@@ -18,8 +20,10 @@ interface Props {
   children: React.ReactNode
   t: (key: string) => string
 }
-
 class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
+  // eslint-disable-next-line react/static-property-placement
+  static contextType = ThemeContext
+
   constructor(props: Props) {
     super(props)
     this.state = { hasError: false }
@@ -36,6 +40,8 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
   render() {
     const { hasError } = this.state
     const { children, t } = this.props
+    // @ts-ignore
+    const { theme } = this.context
 
     if (hasError) {
       return (
@@ -44,7 +50,7 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
             flexbox.flex1,
             flexbox.center,
             {
-              backgroundColor: '#F2F3FA'
+              backgroundColor: theme.secondaryBackground
             }
           ]}
         >
@@ -55,8 +61,8 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
               flexbox.alignCenter,
               common.borderRadiusPrimary,
               {
-                backgroundColor: '#FFFFFF',
-                borderColor: '#CACDE6',
+                backgroundColor: theme.primaryBackground,
+                borderColor: theme.secondaryBorder,
                 borderWidth: 1
               }
             ]}
@@ -82,29 +88,21 @@ class ErrorBoundary extends React.Component<Props, ErrorBoundaryState> {
               <Text fontSize={14} style={[text.center, spacings.mbMd]}>
                 {t('If the problem persists, please contact us via our')}
                 <TouchableOpacity>
-                  <Text fontSize={14} weight="medium" color="#6000FF">
+                  <Text fontSize={14} weight="medium" color={theme.primary}>
                     {' '}
                     {t('Help Center')}
                   </Text>
                 </TouchableOpacity>
               </Text>
             </View>
-            <Pressable
-              style={({ hovered }: any) => ({
-                backgroundColor: hovered ? '#8B3DFF' : '#6000FF',
-                height: 56,
-                width: 200,
-                ...common.borderRadiusPrimary,
-                ...flexbox.center
-              })}
-              onPress={() => {
-                window.location.reload()
+            <Button
+              style={{
+                width: 200
               }}
-            >
-              <Text fontSize={14} weight="medium" color="#fff">
-                {t('Reload')}
-              </Text>
-            </Pressable>
+              text={t('Reload')}
+              onPress={() => window.location.reload()}
+              hasBottomSpacing={false}
+            />
           </View>
         </View>
       )
