@@ -66,6 +66,7 @@ const KeyStoreSetupForm = ({
           rules={{ validate: isValidPassword }}
           render={({ field: { onChange, onBlur, value } }) => (
             <InputPassword
+              testID="enter-pass-field"
               onBlur={onBlur}
               placeholder={t('Enter Password')}
               onChangeText={onChange}
@@ -89,6 +90,7 @@ const KeyStoreSetupForm = ({
           }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
+              testID="repeat-pass-field"
               onBlur={onBlur}
               placeholder={t('Repeat Password')}
               onChangeText={onChange}
@@ -140,6 +142,7 @@ const KeyStoreSetupForm = ({
           {t('Your Device Password is set!')}
         </Text>
         <Button
+          testID="keystore-button-continue"
           text={t('Continue')}
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}

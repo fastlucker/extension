@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useControllerState from '@web/hooks/useControllerState'
 
 const DomainsControllerStateContext = createContext<DomainsController>({} as DomainsController)
 
 const DomainsControllerStateProvider: React.FC<any> = ({ children }) => {
-  const [state, setState] = useState({} as DomainsController)
+  const controller = 'domains'
+  const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
 
@@ -17,20 +18,10 @@ const DomainsControllerStateProvider: React.FC<any> = ({ children }) => {
     if (mainState.isReady && !Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'domains' }
+        params: { controller }
       })
     }
   }, [dispatch, mainState.isReady, state])
-
-  useEffect(() => {
-    const onUpdate = (newState: DomainsController) => {
-      setState(newState)
-    }
-
-    eventBus.addEventListener('domains', onUpdate)
-
-    return () => eventBus.removeEventListener('domains', onUpdate)
-  }, [])
 
   return (
     <DomainsControllerStateContext.Provider value={useMemo(() => state, [state])}>

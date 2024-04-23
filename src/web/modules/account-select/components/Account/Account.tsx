@@ -80,7 +80,7 @@ const Account = ({
   }
 
   return (
-    <Pressable onPress={selectAccount} {...bindAnim}>
+    <Pressable onPress={selectAccount} {...bindAnim} testID="account">
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <View style={[flexboxStyles.justifyCenter]}>

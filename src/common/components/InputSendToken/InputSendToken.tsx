@@ -25,7 +25,12 @@ const MaxAmount = ({
 
       {maxAmount !== undefined && maxAmount !== null ? (
         <View style={styles.maxAmountValueWrapper}>
-          <Text numberOfLines={1} style={styles.maxAmountValue} ellipsizeMode="tail">
+          <Text
+            testID="max-available-ammount"
+            numberOfLines={1}
+            style={styles.maxAmountValue}
+            ellipsizeMode="tail"
+          >
             <Text fontSize={12}>Available Amount: </Text>
             {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
           </Text>
@@ -74,6 +79,7 @@ const InputSendToken = ({
       <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
       <View style={styles.inputWrapper}>
         <NumberInput
+          testID='amount-field'
           onChangeText={handleOnTokenAmountChange}
           containerStyle={styles.inputContainerStyle}
           value={amount}

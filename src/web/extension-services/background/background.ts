@@ -22,7 +22,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
-import { RELAYER_URL } from '@env'
+import { RELAYER_URL, ENVIRONMENT } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
@@ -69,6 +69,15 @@ async function init() {
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
+  // In the testing environment, we need to slow down app initialization.
+  // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
+  // ensuring that the Controllers are initialized with the storage correctly.
+  if (process.env.IS_TESTING === 'true') {
+    await new Promise((r) => {
+      setTimeout(r, 1000)
+    })
+  }
+
   if (isManifestV3) {
     saveTimestamp()
     // Save the timestamp immediately and then every `SAVE_TIMESTAMP_INTERVAL`
@@ -227,16 +236,33 @@ async function init() {
   function debounceFrontEndEventUpdatesOnSameTick(
     ctrlName: string,
     ctrl: any,
-    stateToLog?: any
+    stateToLog: any,
+    forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
+    const sendUpdate = () => {
+      pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
+      logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
+    }
+
+    /**
+     * Bypasses both background and React batching,
+     * ensuring that the state update is immediately applied at the application level (React/Extension).
+     *
+     * For more info, please refer to:
+     * EventEmitter.forceEmitUpdate() or useControllerState().
+     */
+    if (forceEmit) {
+      sendUpdate()
+      return 'EMITTED'
+    }
+
     if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) return 'DEBOUNCED'
     backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = true
 
     // Debounce multiple emits in the same tick and only execute one of them
     setTimeout(() => {
       if (backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName]) {
-        pm.send('> ui', { method: ctrlName, params: ctrl })
-        logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog || mainCtrl)))
+        sendUpdate()
       }
       backgroundState.ctrlOnUpdateIsDirtyFlags[ctrlName] = false
     }, 0)
@@ -248,8 +274,8 @@ async function init() {
     Initialize the onUpdate callback for the MainController. Once the mainCtrl load is ready,
     initialize the rest of the onUpdate callbacks for the nested controllers of the main controller.
    */
-  mainCtrl.onUpdate(() => {
-    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl)
+  mainCtrl.onUpdate((forceEmit) => {
+    const res = debounceFrontEndEventUpdatesOnSameTick('main', mainCtrl, mainCtrl, forceEmit)
     if (res === 'DEBOUNCED') return
 
     // if the signAccountOp controller is active, reestimate at a set period of time
@@ -273,8 +299,13 @@ async function init() {
         const hasOnUpdateInitialized = controller.onUpdateIds.includes('background')
 
         if (!hasOnUpdateInitialized) {
-          controller?.onUpdate(async () => {
-            const res = debounceFrontEndEventUpdatesOnSameTick(ctrlName, controller)
+          controller?.onUpdate(async (forceEmit?: boolean) => {
+            const res = debounceFrontEndEventUpdatesOnSameTick(
+              ctrlName,
+              controller,
+              mainCtrl,
+              forceEmit
+            )
             if (res === 'DEBOUNCED') return
 
             if (ctrlName === 'keystore') {
@@ -340,8 +371,13 @@ async function init() {
   })
 
   // Broadcast onUpdate for the wallet state controller
-  walletStateCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('walletState', walletStateCtrl, walletStateCtrl)
+  walletStateCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'walletState',
+      walletStateCtrl,
+      walletStateCtrl,
+      forceEmit
+    )
   })
   walletStateCtrl.onError(() => {
     pm.send('> ui-error', {
@@ -351,8 +387,13 @@ async function init() {
   })
 
   // Broadcast onUpdate for the notification controller
-  notificationCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('notification', notificationCtrl, notificationCtrl)
+  notificationCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick(
+      'notification',
+      notificationCtrl,
+      notificationCtrl,
+      forceEmit
+    )
   })
   notificationCtrl.onError(() => {
     pm.send('> ui-error', {
@@ -361,8 +402,8 @@ async function init() {
     })
   })
   // Broadcast onUpdate for the notification controller
-  dappsCtrl.onUpdate(() => {
-    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl)
+  dappsCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl, forceEmit)
   })
   dappsCtrl.onError(() => {
     pm.send('> ui-error', {
@@ -1022,6 +1063,10 @@ async function init() {
 
 // Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
+  // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
+  // and we prefer to skip opening it for the testing.
+  if (process.env.IS_TESTING === 'true') return
+
   if (reason === 'install') {
     setTimeout(() => {
       const extensionURL = browser.runtime.getURL('tab.html')

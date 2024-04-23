@@ -198,6 +198,7 @@ const ViewOnlyScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
+            testID="view-only-button-import"
             textStyle={{ fontSize: 14 }}
             size="large"
             disabled={disabled}

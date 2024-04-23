@@ -64,6 +64,7 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
 
   return (
     <Pressable
+      testID='collectible-picture'
       style={[
         styles.container,
         imageFailed || isLoading

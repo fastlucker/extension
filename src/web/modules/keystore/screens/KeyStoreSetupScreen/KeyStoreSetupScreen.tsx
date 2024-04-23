@@ -99,6 +99,7 @@ const KeyStoreSetupScreen = () => {
         <>
           <BackButton />
           <Button
+            testID="keystore-button-create"
             textStyle={{ fontSize: 14 }}
             size="large"
             hasBottomSpacing={false}

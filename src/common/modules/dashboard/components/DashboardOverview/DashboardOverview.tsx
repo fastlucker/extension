@@ -145,7 +145,10 @@ const DashboardOverview: FC<Props> = ({
                   {!accountPortfolio?.isAllReady ? (
                     <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
                   ) : (
-                    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+                    <View
+                      testID="full-balance"
+                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
+                    >
                       <Text selectable>
                         <Text
                           fontSize={32}

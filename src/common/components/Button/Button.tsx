@@ -35,6 +35,7 @@ export interface Props extends PressableProps {
   forceHoveredStyle?: boolean
   children?: React.ReactNode
   childrenPosition?: 'left' | 'right'
+  testID?: string
 }
 
 const Button = ({
@@ -51,6 +52,7 @@ const Button = ({
   disabledStyle,
   forceHoveredStyle = false,
   childrenPosition = 'right',
+  testID,
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
@@ -150,6 +152,7 @@ const Button = ({
   }
   return (
     <AnimatedPressable
+      testID={testID}
       disabled={disabled}
       style={
         [

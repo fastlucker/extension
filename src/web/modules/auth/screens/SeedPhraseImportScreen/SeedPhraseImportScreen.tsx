@@ -231,6 +231,7 @@ const SeedPhraseImportScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
+            testID="phrase-button-import"
             accessibilityRole="button"
             text={t('Import')}
             size="large"
