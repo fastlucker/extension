@@ -15,7 +15,7 @@ export const ambireSvg =
 export const whitelistedEIP6963Pages = ['https://toros.finance']
 
 // Advanced observing DOM changes on these pages
-export const forceAdvancedObserverPages = ['https://verse.bitcoin.com']
+export const forceReplacementForPages = ['https://verse.bitcoin.com', 'https://app.ib.xyz']
 
 // Disable replacements on pages that contain some of these strings in the URL
 // The script is well optimized but in case the page is with huge DOM there is some small delay on every mouse click
@@ -54,7 +54,9 @@ type UpdateProps = {
 }
 
 export class ConnectButtonReplacementController {
-  public doesWebpageReadOurProvider: boolean = false
+  public doesWebpageReadOurProvider: boolean = false // if true then the webpage is a dApp
+
+  public hasInteractedWithPage: Boolean = false
 
   #defaultWallet: DefaultWallet
 
@@ -75,13 +77,10 @@ export class ConnectButtonReplacementController {
   constructor({ defaultWallet, isEIP6963 }: ConstructProps) {
     this.#defaultWallet = defaultWallet
     this.#isEIP6963 = isEIP6963
-    this.#observerOptions = forceAdvancedObserverPages.includes(window.location.origin)
-      ? { childList: true, subtree: true, attributes: true }
-      : { childList: true }
+    this.#observerOptions = { childList: true, subtree: true, attributes: true }
 
-    this.runReplacementScriptWithShadowRoots = this.runReplacementScriptWithShadowRoots.bind(this)
-    this.runReplacementScriptWithoutShadowRoots =
-      this.runReplacementScriptWithoutShadowRoots.bind(this)
+    this.runReplacementScriptOnObserve = this.runReplacementScriptOnObserve.bind(this)
+    this.runReplacementScriptOnClick = this.runReplacementScriptOnClick.bind(this)
 
     window.addEventListener('beforeunload', this.#cleanup)
     window.addEventListener('unload', this.#cleanup)
@@ -89,6 +88,9 @@ export class ConnectButtonReplacementController {
 
   public update({ defaultWallet, isEIP6963, observerOptions }: UpdateProps) {
     if (defaultWallet) {
+      if (defaultWallet === 'OTHER') {
+        this.#cleanup()
+      }
       this.#defaultWallet = defaultWallet
     }
 
@@ -107,15 +109,12 @@ export class ConnectButtonReplacementController {
 
     this.#initializeReplacementTimeout = setTimeout(() => {
       if (this.#mmOccurrencesOnFirstDOMLoad === null) {
-        this.runReplacementScriptWithShadowRoots()
+        this.runReplacementScriptOnObserve()
       }
     }, 250)
 
     if (!this.#clickListener) {
-      this.#clickListener = document.addEventListener(
-        'click',
-        this.runReplacementScriptWithoutShadowRoots
-      )
+      this.#clickListener = document.addEventListener('click', this.runReplacementScriptOnClick)
     }
     if (!this.#observer) {
       this.#setupObserver(this.#observerOptions)
@@ -451,14 +450,12 @@ export class ConnectButtonReplacementController {
 
   #runReplacementScript(shouldUpdateShadowRoots: boolean = true) {
     if (this.#defaultWallet === 'OTHER') return
+    if (!this.doesWebpageReadOurProvider) return
 
-    if (this.#initializeReplacementTimeout) {
-      clearTimeout(this.#initializeReplacementTimeout)
-    }
+    if (this.#initializeReplacementTimeout) clearTimeout(this.#initializeReplacementTimeout)
 
-    if (shouldUpdateShadowRoots || this.#shadowRoots === null) {
+    if (shouldUpdateShadowRoots || this.#shadowRoots === null)
       this.#shadowRoots = this.#getAllShadowRoots()
-    }
 
     const wordsOccurrencesResult = this.#getVisibleWordsOccurrencesInPage(
       [
@@ -466,13 +463,11 @@ export class ConnectButtonReplacementController {
         ['okx wallet'],
         ['walletconnect', 'wallet connect'],
         ['coinbasewallet', 'coinbase wallet', 'coinbase'],
-        ['trustwallet', 'trust wallet'],
-        ['connect wallet', 'available wallets', 'connect a wallet', 'connect your wallet']
+        ['trustwallet', 'trust wallet']
       ],
       undefined,
       this.#shadowRoots
     )
-
     const mmOccurrences = wordsOccurrencesResult.filter((res) => res.words.includes('metamask'))[0]
     const okxOccurrences = wordsOccurrencesResult.filter((res) =>
       res.words.includes('okx wallet')
@@ -484,9 +479,6 @@ export class ConnectButtonReplacementController {
     const hasMetaMaskInPage = mmOccurrences.count !== 0
     const hasOKXWalletInPage = okxOccurrences.count !== 0
 
-    // probably not a dapp and there is no wallet button to be replaced
-    if (!this.doesWebpageReadOurProvider && !hasMetaMaskInPage && !hasOKXWalletInPage) return
-
     const wcOccurrences = wordsOccurrencesResult.filter((res) =>
       res.words.includes('walletconnect')
     )[0]
@@ -496,11 +488,6 @@ export class ConnectButtonReplacementController {
 
     const hasWalletConnectInPage = wcOccurrences.count !== 0
     const hasCoinbaseWalletInPage = coinbaseOccurrences.count !== 0
-
-    // probably not a dapp and there are no other wallets found like "Wallet Connect" and "Coinbase Wallet"
-    if (!this.doesWebpageReadOurProvider && !hasWalletConnectInPage && !hasCoinbaseWalletInPage) {
-      return
-    }
 
     ;(async () => {
       if (this.#isEIP6963 && !whitelistedEIP6963Pages.includes(window.location.origin)) return
@@ -515,36 +502,10 @@ export class ConnectButtonReplacementController {
         res.words.includes('trustwallet')
       )[0]
 
-      const connectOccurrences = wordsOccurrencesResult.filter((res) =>
-        res.words.includes('connect wallet')
-      )[0]
-
       const hasTrustWalletInPage = trustWalletOccurrences.count !== 0
-      const hasConnectInPage = connectOccurrences.count !== 0
+
       if (!hasMetaMaskInPage && !hasOKXWalletInPage) return
-
-      if (
-        this.doesWebpageReadOurProvider &&
-        !(
-          hasWalletConnectInPage ||
-          hasCoinbaseWalletInPage ||
-          hasTrustWalletInPage ||
-          hasOKXWalletInPage
-        )
-      ) {
-        return
-      }
-
-      if (
-        !this.doesWebpageReadOurProvider &&
-        !(
-          hasConnectInPage &&
-          ((hasWalletConnectInPage && hasCoinbaseWalletInPage) ||
-            (hasCoinbaseWalletInPage && hasTrustWalletInPage) ||
-            (hasTrustWalletInPage && hasWalletConnectInPage) ||
-            hasOKXWalletInPage)
-        )
-      ) {
+      if (!(hasWalletConnectInPage || hasCoinbaseWalletInPage || hasTrustWalletInPage)) {
         return
       }
 
@@ -555,7 +516,8 @@ export class ConnectButtonReplacementController {
       if (hasMetaMaskInPage) {
         if (
           this.#mmOccurrencesOnFirstDOMLoad !== 0 &&
-          this.#mmOccurrencesOnFirstDOMLoad === mmOccurrences.count
+          this.#mmOccurrencesOnFirstDOMLoad === mmOccurrences.count &&
+          !this.hasInteractedWithPage
         )
           return
         mmOccurrences.nodes.forEach((n) => {
@@ -573,7 +535,6 @@ export class ConnectButtonReplacementController {
       //
 
       const hasAmbireInPage = this.#getVisibleWordsOccurrencesInPage([['ambire']])[0].count !== 0
-
       if (!hasMetaMaskInPage && !hasAmbireInPage && hasOKXWalletInPage) {
         okxOccurrences.nodes.forEach((n) => {
           this.#replaceOtherWalletWithAmbireInConnectionModals(
@@ -586,12 +547,13 @@ export class ConnectButtonReplacementController {
     })()
   }
 
-  public runReplacementScriptWithShadowRoots() {
+  public runReplacementScriptOnObserve() {
     this.#runReplacementScript(true)
   }
 
-  public runReplacementScriptWithoutShadowRoots() {
+  public runReplacementScriptOnClick() {
     this.#runReplacementScript(false)
+    this.hasInteractedWithPage = true
   }
 
   #setupObserver(options?: MutationObserverInit) {
@@ -599,7 +561,7 @@ export class ConnectButtonReplacementController {
 
     if (blacklistedPages.some((page) => window.location.hostname.includes(page))) return
 
-    this.#observer = new MutationObserver(this.runReplacementScriptWithShadowRoots)
+    this.#observer = new MutationObserver(this.runReplacementScriptOnObserve)
     this.#observer.observe(document, options)
   }
 
@@ -613,7 +575,7 @@ export class ConnectButtonReplacementController {
   #cleanup() {
     this.#cleanupObserver()
     if (this.#clickListener) {
-      document.removeEventListener('click', this.runReplacementScriptWithoutShadowRoots)
+      document.removeEventListener('click', this.runReplacementScriptOnClick)
     }
   }
 }
