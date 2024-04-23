@@ -1,4 +1,4 @@
-import { sa_bootstrapWithStorage, clickOnElement } from '../functions.js'
+import { bootstrapWithStorage, saParams, clickOnElement } from '../functions.js'
 
 describe('balance', () => {
   let browser
@@ -6,7 +6,7 @@ describe('balance', () => {
   let recorder
 
   beforeEach(async () => {
-    const context = await sa_bootstrapWithStorage('balance')
+    const context = await bootstrapWithStorage('balance', saParams)
 
     browser = context.browser
     page = context.page

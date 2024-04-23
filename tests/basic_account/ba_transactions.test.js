@@ -1,4 +1,10 @@
-import { typeText, clickOnElement, bootstrapWithStorage, confirmTransaction } from '../functions.js'
+import {
+  typeText,
+  clickOnElement,
+  bootstrapWithStorage,
+  baParams,
+  confirmTransaction
+} from '../functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -10,7 +16,7 @@ describe('transactions', () => {
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('transaction')
+    const context = await bootstrapWithStorage('transaction', baParams)
     browser = context.browser
     page = context.page
     recorder = context.recorder

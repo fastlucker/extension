@@ -1,8 +1,9 @@
 import {
   typeText,
   clickOnElement,
-  sa_bootstrapWithStorage,
-  confirmTransaction
+  bootstrapWithStorage,
+  confirmTransaction,
+  saParams
 } from '../functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
@@ -15,7 +16,7 @@ describe('transactions', () => {
   let recorder
 
   beforeEach(async () => {
-    const context = await sa_bootstrapWithStorage('transaction')
+    const context = await bootstrapWithStorage('transaction', saParams)
     browser = context.browser
     page = context.page
     recorder = context.recorder
