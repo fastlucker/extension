@@ -59,6 +59,7 @@ const SigningKeySelect = ({
 
             return (
               <Pressable
+                key={`${key.addr}-${key.type}`}
                 onPress={() => handleChangeSigningKey(key.addr, key.type)}
                 style={({ hovered }: any) => ({
                   backgroundColor: hovered ? theme.secondaryBackground : 'transparent'
