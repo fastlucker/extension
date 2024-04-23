@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react'
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import useRoute from '@common/hooks/useRoute'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -68,7 +69,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           t.networkId === selectedTokenFromUrl.networkId &&
           t.flags.onGasTank === false
       )
-      if (tokenToSelect && Number(tokenToSelect.amount) > 0) {
+      if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
         dispatch({
           type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
           params: { selectedToken: tokenToSelect }
