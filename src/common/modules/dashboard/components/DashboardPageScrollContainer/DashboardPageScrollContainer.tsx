@@ -42,7 +42,8 @@ const DashboardPageScrollContainer: FC<Props> = ({ tab, openTab, ...rest }) => {
 
   const contentContainerStyle = useMemo(
     () => [
-      isPopup ? spacings.phSm : { paddingRight: 2 },
+      isPopup ? spacings.plSm : {},
+      isPopup ? spacings.prTy : { paddingRight: 2 },
       allBanners.length ? spacings.ptTy : spacings.pt0,
       { flexGrow: 1 }
     ],
