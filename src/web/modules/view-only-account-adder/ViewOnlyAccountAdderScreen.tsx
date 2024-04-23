@@ -175,10 +175,11 @@ const ViewOnlyScreen = () => {
     // Navigate when the new accounts and their default preferences are imported,
     // indicating the final step for the view-only account adding flow completes.
     if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
-      setIsLoading(false)
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
+    } else {
+      setIsLoading(false)
     }
   }, [
     accounts,
@@ -205,7 +206,7 @@ const ViewOnlyScreen = () => {
             size="large"
             disabled={disabled}
             hasBottomSpacing={false}
-            text={isSubmitting ? t('Importing...') : t('Import')}
+            text={isLoading ? t('Importing...') : t('Import')}
             onPress={handleSubmit(handleFormSubmit)}
           >
             <View style={spacings.pl}>
