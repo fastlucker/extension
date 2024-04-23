@@ -97,7 +97,7 @@ const DashboardOverview: FC<Props> = ({
   }, [banners, selectedAccount])
 
   return (
-    <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
+    <View style={[spacings.phSm, spacings.mbMi]}>
       <View style={[styles.contentContainer]}>
         <Animated.View
           style={[
