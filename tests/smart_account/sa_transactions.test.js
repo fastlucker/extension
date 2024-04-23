@@ -63,13 +63,10 @@ describe('transactions', () => {
     /* Check the checkbox "Confirm sending to a previously unknown address" */
     await clickOnElement(page, '[data-testid="checkbox"]')
 
+    await clickOnElement(page, '[data-testid="transfer-button-send"]')
+
     /* Click on "Send" button and cofirm transaction */
-    await confirmTransaction(
-      page,
-      extensionRootUrl,
-      browser,
-      '[data-testid="transfer-button-send"]'
-    )
+    await confirmTransaction(page, extensionRootUrl, browser)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -245,9 +242,11 @@ describe('transactions', () => {
     await page.click(swapBtn)
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
-    await recorder.stop()
+    await clickOnElement(page, confirmSwapBtn)
+
+    // await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
+    await confirmTransaction(page, extensionRootUrl, browser)
   })
 })

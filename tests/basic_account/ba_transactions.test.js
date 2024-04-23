@@ -58,14 +58,10 @@ describe('transactions', () => {
     /* Check the checkbox "Confirm sending to a previously unknown address" */
     await clickOnElement(page, '[data-testid="checkbox"]')
 
-    /* Click on "Send" button and cofirm transaction */
-    await confirmTransaction(
-      page,
-      extensionRootUrl,
-      browser,
-      '[data-testid="transfer-button-send"]',
-      'newWindow1'
-    )
+    await clickOnElement(page, '[data-testid="transfer-button-send"]')
+
+    /* Confirm Transaction */
+    await confirmTransaction(page, extensionRootUrl, browser)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -218,8 +214,7 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-
-    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
+    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
@@ -247,9 +242,13 @@ describe('transactions', () => {
     await new Promise((r) => setTimeout(r, 500))
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
-    const confirmSwapBtn = '[data-testid="confirm-swap-button"]'
+    const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
+
+    await clickOnElement(page, confirmSwapBtn)
+
+    // await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
+    await confirmTransaction(page, extensionRootUrl, browser)
   })
 })

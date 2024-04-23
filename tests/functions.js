@@ -328,52 +328,52 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
 }
 
 //----------------------------------------------------------------------------------------------
-export async function confirmTransaction(
-  page,
-  extensionRootUrl,
-  browser,
-  triggerTransactionSelector
-) {
-  const elementToClick = await page.waitForSelector(triggerTransactionSelector)
-  await elementToClick.click()
-
-  await new Promise((r) => setTimeout(r, 1000))
-
-  // Wait for the new page to be created
-  const newTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
+export async function confirmTransaction(page, extensionRootUrl, browser) {
+  const newPagePromise = await new Promise((x) =>
+    browser.once('targetcreated', (target) => x(target.page()))
   )
-  const newPage = await newTarget.page()
+  let newPage1 = await newPagePromise
 
-  newPage.setViewport({
-    width: 1000,
-    height: 1000
+  await newPage1.waitForNavigation()
+
+  await new Promise((r) => setTimeout(r, 2000))
+
+  // Check if the selector exists on the new page and click on it
+  const buttonSignExists = await newPage1.evaluate(() => {
+    return !!document.querySelector('[data-testid="button-sign"]')
   })
 
-  const recorder = new PuppeteerScreenRecorder(newPage, { followNewTab: true })
+  if (buttonSignExists) {
+    // If the selector exists, click on it
+    await newPage1.click('[data-testid="button-sign"]')
 
-  await recorder.start(`./recorder/transactions_notification_window_${Date.now()}.mp4`)
+    const newPagePromise2 = new Promise((x) =>
+      browser.once('targetcreated', (target) => x(target.page()))
+    )
+    newPage1 = await newPagePromise2
 
-  /* Click on "Ape" button */
-  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+    // Wait for the new page to load
+    await newPage1.waitForNavigation()
+  }
+  // Now you are on the new page, you can interact with elements here
+  await newPage1.waitForSelector('[data-testid="fee-ape:"]')
+  await newPage1.click('[data-testid="fee-ape:"]')
 
   /* Click on "Sign" button */
-  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
+  await clickOnElement(newPage1, '[data-testid="transaction-button-sign"]')
 
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(() => {
+  await newPage1.waitForFunction(() => {
     const pageText = document.documentElement.innerText
     const occurrences = (pageText.match(/Timestamp/g) || []).length
     return occurrences >= 2
   })
 
-  const doesFailedExist = await newPage.evaluate(() => {
+  const doesFailedExist = await newPage1.evaluate(() => {
     return document.documentElement.innerText.includes('Failed')
   })
 
   await new Promise((r) => setTimeout(r, 300))
-
-  await recorder.stop()
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 }
