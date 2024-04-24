@@ -158,8 +158,9 @@ const TokenItem = ({
               ]}
             >
               <Text selectable color={theme.warningText} fontSize={14} numberOfLines={1}>
-                {isBalanceIncrease && t(`+${balanceChange} Pending transaction signature`)}
-                {!isBalanceIncrease && t(`-${balanceChange} Pending transaction signature`)}
+                {t(
+                  `${isBalanceIncrease ? '+' : '-'}${balanceChange} Pending transaction signature`
+                )}
               </Text>
             </View>
 
