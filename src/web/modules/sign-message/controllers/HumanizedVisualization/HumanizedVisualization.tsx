@@ -39,7 +39,7 @@ const HumanizedVisualization: FC<{
     <View style={styles.headerContent}>
       {data.map((item) => {
         if (!item) return null
-        const key = `${keccak256(toUtf8Bytes(stringify(item)))}`
+        const key = item.id.toString()
 
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)

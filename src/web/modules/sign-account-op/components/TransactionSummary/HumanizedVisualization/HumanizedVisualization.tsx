@@ -46,13 +46,13 @@ const HumanizedVisualization: FC<Props> = ({
     >
       {data.map((item) => {
         if (!item || item.isHidden) return null
-
+        const key  = item.id.toString()
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
           const isMaxUint256 = item.amount === MaxUint256
           return (
             <View
-              key={item.id.toString()}
+              key={key}
               style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
             >
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
@@ -109,7 +109,7 @@ const HumanizedVisualization: FC<Props> = ({
 
         if (item.type === 'address' && item.address) {
           return (
-            <View key={item.id.toString()} style={{ marginRight }}>
+            <View key={key} style={{ marginRight }}>
               <Address
                 fontSize={textSize}
                 address={item.address}
@@ -123,7 +123,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'nft') {
           return (
             <Text
-              key={item.id.toString()}
+              key={key}
               fontSize={textSize}
               weight="medium"
               appearance="primaryText"
@@ -137,7 +137,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'deadline' && !isHistory)
           return (
             <DeadlineItem
-              key={item.id.toString()}
+              key={key}
               deadline={item.amount!}
               textSize={textSize}
               marginRight={marginRight}
@@ -146,7 +146,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.content) {
           return (
             <Text
-              key={item.id.toString()}
+              key={key}
               style={{ maxWidth: '100%', marginRight }}
               fontSize={textSize}
               weight={
