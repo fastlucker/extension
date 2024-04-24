@@ -83,8 +83,8 @@ const TokenItem = ({
           handleClose={closeBottomSheet}
         />
       </BottomSheet>
-      <View style={[{ flex: 1 }]}>
-        <View style={[flexboxStyles.directionRow, { flex: 1 }]}>
+      <View style={flexboxStyles.flex1}>
+        <View style={[flexboxStyles.directionRow, flexboxStyles.flex1]}>
           <View style={[flexboxStyles.directionRow, { flex: 1.5 }]}>
             <View style={[spacings.mr, flexboxStyles.justifyCenter]}>
               {!!isRewards || !!isVesting ? (
@@ -158,8 +158,8 @@ const TokenItem = ({
               ]}
             >
               <Text selectable color={theme.warningText} fontSize={14} numberOfLines={1}>
-                {isBalanceIncrease && t(`+${balanceChange} pending transaction signature`)}
-                {!isBalanceIncrease && t(`-${balanceChange} pending transaction signature`)}
+                {isBalanceIncrease && t(`+${balanceChange} Pending transaction signature`)}
+                {!isBalanceIncrease && t(`-${balanceChange} Pending transaction signature`)}
               </Text>
             </View>
 
