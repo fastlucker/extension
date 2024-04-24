@@ -46,7 +46,7 @@ const HumanizedVisualization: FC<Props> = ({
     >
       {data.map((item) => {
         if (!item || item.isHidden) return null
-        const key  = item.id.toString()
+        const key = item.id
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
           const isMaxUint256 = item.amount === MaxUint256

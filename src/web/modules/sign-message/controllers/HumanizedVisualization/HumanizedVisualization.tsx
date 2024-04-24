@@ -38,7 +38,7 @@ const HumanizedVisualization: FC<{
     <View style={styles.headerContent}>
       {data.map((item) => {
         if (!item) return null
-        const key = item.id.toString()
+        const key = item.id
 
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
