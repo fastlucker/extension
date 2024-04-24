@@ -11,9 +11,19 @@ import getStyles from './styles'
 const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)
 
+  // Attempt to create a dynamic testID using the label or value if they contain a string.
+  // Otherwise, default to 'undefined', and letting Puppeteer to assert using alternative selectors.
+  const testID = `option-${
+    typeof item.label === 'string'
+      ? item.label.toLowerCase()
+      : typeof item.value === 'string'
+      ? item.value.toLowerCase()
+      : undefined
+  }`
+
   if (!item) return null
   return (
-    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
+    <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]} testID={testID}>
       {!!item?.icon && typeof item?.icon !== 'string' && (
         <View style={spacings.mrTy}>{item.icon}</View>
       )}

@@ -48,17 +48,25 @@ const TokenItem = ({
     }
   })
 
+  const isPending =
+    token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
+
   const {
     balanceFormatted,
     balance,
+    pendingBalance,
+    pendingBalanceFormatted,
+    pendingBalanceUSDFormatted,
     priceUSDFormatted,
     balanceUSDFormatted,
     isVesting,
     networkData,
-    isRewards
+    isRewards,
+    isBalanceIncrease,
+    balanceChange
   } = getTokenDetails(token, networks)
 
-  if ((isRewards || isVesting) && !balance) return null
+  if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
   return (
     <AnimatedPressable
@@ -100,12 +108,27 @@ const TokenItem = ({
           <Text
             selectable
             style={spacings.mrTy}
+            color={isPending ? theme.successText : theme.primaryText}
             fontSize={16}
             weight="number_bold"
             numberOfLines={1}
           >
-            {balanceFormatted} {symbol}
+            {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
+            {isPending && isBalanceIncrease && `(+${balanceChange})`}
+            {isPending && !isBalanceIncrease && `(-${balanceChange})`}
           </Text>
+          {isPending && (
+            <Text
+              selectable
+              style={spacings.mrTy}
+              color={isPending ? theme.successText : theme.primaryText}
+              fontSize={12}
+              weight="number_bold"
+              numberOfLines={1}
+            >
+              onchain: {balanceFormatted}
+            </Text>
+          )}
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             <Text weight="regular" shouldScale={false} fontSize={12}>
               {!!isRewards && t('rewards for claim')}
@@ -123,7 +146,7 @@ const TokenItem = ({
         {priceUSDFormatted}
       </Text>
       <Text selectable fontSize={16} weight="number_bold" style={{ flex: 0.8, textAlign: 'right' }}>
-        {balanceUSDFormatted}
+        {isPending ? pendingBalanceUSDFormatted : balanceUSDFormatted}
       </Text>
     </AnimatedPressable>
   )

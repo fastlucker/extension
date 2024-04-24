@@ -1,18 +1,19 @@
-import { formatUnits, MaxUint256 } from 'ethers'
+import { formatUnits, keccak256, MaxUint256, toUtf8Bytes } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
+import { stringify } from '@ambire-common/libs/richJson/richJson'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
+import formatDecimals from '@common/utils/formatDecimals'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
-import formatDecimals from '@common/utils/formatDecimals'
 import getStyles from './styles'
 
 const visualizeContent = (kind: string, content?: string) => {
@@ -38,12 +39,13 @@ const HumanizedVisualization: FC<{
     <View style={styles.headerContent}>
       {data.map((item) => {
         if (!item) return null
+        const key = `${keccak256(toUtf8Bytes(stringify(item)))}`
 
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
           const isMaxUint256 = item.amount === MaxUint256
           return (
-            <>
+            <React.Fragment key={key}>
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
                 <Text fontSize={16} weight="medium">
                   {isUnlimitedByPermit2 || isMaxUint256 ? (
@@ -70,13 +72,13 @@ const HumanizedVisualization: FC<{
                   {t(' units of unknown token ')}
                 </Text>
               ) : null}
-            </>
+            </React.Fragment>
           )
         }
 
         if (item.type === 'address')
           return (
-            <>
+            <React.Fragment key={key}>
               <Text fontSize={16} weight="medium">
                 {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
               </Text>
@@ -93,12 +95,13 @@ const HumanizedVisualization: FC<{
                   <OpenIcon width={14} height={14} strokeWidth="2" />
                 </AnimatedPressable>
               )}
-            </>
+            </React.Fragment>
           )
 
         if (item.content) {
           return (
             <Text
+              key={key}
               fontSize={16}
               weight={
                 item.type === 'label' ? 'regular' : item.type === 'action' ? 'semiBold' : 'medium'

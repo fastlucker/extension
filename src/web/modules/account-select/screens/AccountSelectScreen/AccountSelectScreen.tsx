@@ -100,6 +100,7 @@ const AccountSelectScreen = () => {
         </ScrollableWrapper>
         <View style={[spacings.ptSm, { width: '100%' }]}>
           <Button
+            testID="button-add-account"
             text={t('Add Account')}
             type="secondary"
             hasBottomSpacing={false}

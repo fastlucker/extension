@@ -33,9 +33,9 @@ if (isExtension) {
 
   pm.connect(portName) // connect to the portMessenger initialized in the background
   // @ts-ignore
-  pm.addListener(pm.ports[0].id, (messageType, { method, params }) => {
+  pm.addListener(pm.ports[0].id, (messageType, { method, params, forceEmit }) => {
     if (messageType === '> ui') {
-      eventBus.emit(method, params)
+      eventBus.emit(method, params, forceEmit)
     }
     if (messageType === '> ui-error') {
       eventBus.emit('error', params)

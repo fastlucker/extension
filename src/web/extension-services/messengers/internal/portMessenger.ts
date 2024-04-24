@@ -20,6 +20,7 @@ type ListenCallbackType = <TMessageType extends MessageType>(
 export type PortMessageType = {
   method: string
   params: any
+  forceEmit?: boolean
 }
 
 /**

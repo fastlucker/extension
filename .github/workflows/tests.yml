@@ -1,0 +1,85 @@
+name: Execute Tests
+
+on:
+  push:
+    branches:
+      - v2
+  pull_request:
+    branches:
+      - v2
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    environment: testing
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Add SSH key to checkout a private repo
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v3
+
+      - name: Install Node.js ⚙️
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install NPM packages ♾️🕳️
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+        run: yarn install
+
+      - name: Git submodules init
+        run: git submodule init
+
+      - name: Git submodules update
+        run: git submodule update
+
+        # The next step is required to run Puppeteer in headful mode in GitHub Actions.
+        # We attempted to configure it in a headless manner,
+        # but it fails right from the start when we attempt to locate the current page of the extension.
+      - name: Configure the display server
+        run: Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
+
+      - name: Puppeteer Tests 🧑‍🔬
+        env:
+          IS_TESTING: 'true'
+          # Its value is based on the above Display server configuration
+          DISPLAY: ':99.0'
+          RELAYER_URL: ${{ secrets.RELAYER_URL }}
+          CONSTANTS_ENDPOINT: ${{ secrets.CONSTANTS_ENDPOINT }}
+          VELCRO_API_ENDPOINT: ${{ secrets.VELCRO_API_ENDPOINT }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
+          BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          BA_PRIVATE_KEY: ${{ secrets.BA_PRIVATE_KEY }}
+          BA_PASSPHRASE: ${{ secrets.BA_PASSPHRASE }}
+          BA_ACCOUNT_PREFERENCES: ${{ secrets.BA_ACCOUNT_PREFERENCES }}
+          BA_ACCOUNTS: ${{ secrets.BA_ACCOUNTS }}
+          BA_IS_DEFAULT_WALLET: ${{ secrets.BA_IS_DEFAULT_WALLET }}
+          BA_KEY_PREFERENCES: ${{ secrets.BA_KEY_PREFERENCES }}
+          BA_KEYSTORE_UID: ${{ secrets.BA_KEYSTORE_UID }}
+          BA_KEYS: ${{ secrets.BA_KEYS }}
+          BA_SECRETS: ${{ secrets.BA_SECRETS }}
+          BA_NETWORK_PREFERENCES: ${{ secrets.BA_NETWORK_PREFERENCES }}
+          BA_NETWORK_WITH_ASSETS: ${{ secrets.BA_NETWORK_WITH_ASSETS }}
+          BA_ONBOARDING_STATE: ${{ secrets.BA_ONBOARDING_STATE }}
+          BA_PERMISSION: ${{ secrets.BA_PERMISSION }}
+          BA_PREVIOUSHINTS: ${{ secrets.BA_PREVIOUSHINTS }}
+          BA_SELECTED_ACCOUNT: ${{ secrets.BA_SELECTED_ACCOUNT }}
+          BA_TERMSTATE: ${{ secrets.BA_TERMSTATE }}
+          BA_TOKEN_ITEMS: ${{ secrets.BA_TOKEN_ITEMS }}
+
+        run: yarn run test:e2e:web
+
+      # Upload the recorded test videos (in case of failure) as Artifact
+      - name: Artifacts - Recordings
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: puppeteer-recordings
+          path: recorder

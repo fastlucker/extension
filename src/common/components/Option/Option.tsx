@@ -18,6 +18,7 @@ interface Props {
   hasLargerBottomSpace?: boolean
   iconProps?: SvgProps
   children?: React.ReactNode
+  testID?: string
 }
 
 const Option = ({
@@ -26,7 +27,8 @@ const Option = ({
   hasLargerBottomSpace,
   text,
   iconProps = {},
-  children
+  children,
+  testID
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
@@ -43,6 +45,7 @@ const Option = ({
       style={[styles.container, hasLargerBottomSpace && spacings.mbXl, animStyle]}
       onPress={onPress}
       {...bindAnim}
+      testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <View style={styles.iconWrapper}>

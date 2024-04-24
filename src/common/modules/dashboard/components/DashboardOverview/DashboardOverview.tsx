@@ -97,7 +97,7 @@ const DashboardOverview: FC<Props> = ({
   }, [banners, selectedAccount])
 
   return (
-    <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
+    <View style={[spacings.phSm, spacings.mbMi]}>
       <View style={[styles.contentContainer]}>
         <Animated.View
           style={[
@@ -145,7 +145,10 @@ const DashboardOverview: FC<Props> = ({
                   {!accountPortfolio?.isAllReady ? (
                     <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
                   ) : (
-                    <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
+                    <View
+                      testID="full-balance"
+                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
+                    >
                       <Text selectable>
                         <Text
                           fontSize={32}
