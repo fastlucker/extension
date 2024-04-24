@@ -9,10 +9,10 @@ import {
 import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
-import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { Storage } from '@ambire-common/interfaces/storage'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
@@ -22,11 +22,12 @@ import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
 import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
+import { isExtension } from '@web/constants/browserapi'
 
 import { parseLogs } from './utils/parseLogs'
 import reproduceCalls, { getSender } from './utils/reproduceCalls'
 
-const REFETCH_TXN_TIME = 3500 // 3.5 seconds
+const REFETCH_TXN_TIME = 4000 // 3.5 seconds
 const REFETCH_RECEIPT_TIME = 5000 // 5 seconds
 const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slower
 
@@ -187,8 +188,8 @@ const useSteps = ({
       .getTransaction(finalTxnId!)
       .then((fetchedTxn: null | TransactionResponse) => {
         if (!fetchedTxn) {
-          // try to refetch 3 times; if it fails, mark it as dropped
-          if (refetchTxnCounter < 3) {
+          // try to refetch 10 times; if it fails, mark it as dropped
+          if (refetchTxnCounter < 10) {
             setTimeout(() => {
               setRefetchTxnCounter(refetchTxnCounter + 1)
             }, REFETCH_TXN_TIME)
@@ -444,7 +445,7 @@ const useSteps = ({
 
     if (network && txnReceipt.from && txn) {
       setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
-      const accountOp = {
+      const accountOp: AccountOp = {
         accountAddr: txnReceipt.from!,
         networkId: network.id,
         signingKeyAddr: txnReceipt.from!, // irrelevant
@@ -454,15 +455,15 @@ const useSteps = ({
         gasLimit: Number(txn.gasLimit),
         signature: '0x', // irrelevant
         gasFeePayment: null,
-        accountOpToExecuteBefore: null,
-        humanizerMeta: humanizerJSON
+        accountOpToExecuteBefore: null
       }
       callsHumanizer(
         accountOp,
         standardOptions.storage,
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
-        standardOptions.emitError
+        standardOptions.emitError,
+        { isExtension }
       ).catch((e) => {
         if (!calls) setCalls([])
         return e

@@ -45,8 +45,8 @@ const HumanizedVisualization: FC<Props> = ({
         }
       ]}
     >
-      {data.map((item, i) => {
-        const key = `${keccak256(toUtf8Bytes(stringify(item)))}-${i}`
+      {data.map((item) => {
+        const key = `${keccak256(toUtf8Bytes(stringify(item)))}`
         if (!item || item.isHidden) return null
 
         if (item.type === 'token') {
@@ -111,7 +111,7 @@ const HumanizedVisualization: FC<Props> = ({
 
         if (item.type === 'address' && item.address) {
           return (
-            <View style={{ marginRight }}>
+            <View key={key} style={{ marginRight }}>
               <Address
                 fontSize={textSize}
                 address={item.address}
@@ -139,7 +139,7 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'deadline' && !isHistory)
           return (
             <DeadlineItem
-            key={key}
+              key={key}
               deadline={item.amount!}
               textSize={textSize}
               marginRight={marginRight}

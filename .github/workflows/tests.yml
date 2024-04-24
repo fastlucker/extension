@@ -47,7 +47,7 @@ jobs:
 
       - name: Puppeteer Tests 🧑‍🔬
         env:
-          ENVIRONMENT: 'testing'
+          IS_TESTING: 'true'
           # Its value is based on the above Display server configuration
           DISPLAY: ':99.0'
           RELAYER_URL: ${{ secrets.RELAYER_URL }}

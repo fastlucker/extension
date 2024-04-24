@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useControllerState from '@web/hooks/useControllerState'
 
 const KeystoreControllerStateContext = createContext<KeystoreController>({} as KeystoreController)
 
 const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
-  const [state, setState] = useState({} as KeystoreController)
+  const controller = 'keystore'
+  const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainState = useMainControllerState()
 
@@ -17,20 +18,10 @@ const KeystoreControllerStateProvider: React.FC<any> = ({ children }) => {
     if (mainState.isReady && !Object.keys(state).length) {
       dispatch({
         type: 'INIT_CONTROLLER_STATE',
-        params: { controller: 'keystore' }
+        params: { controller }
       })
     }
   }, [dispatch, mainState.isReady, state])
-
-  useEffect(() => {
-    const onUpdate = (newState: KeystoreController) => {
-      setState(newState)
-    }
-
-    eventBus.addEventListener('keystore', onUpdate)
-
-    return () => eventBus.removeEventListener('keystore', onUpdate)
-  }, [])
 
   return (
     <KeystoreControllerStateContext.Provider value={useMemo(() => state, [state])}>

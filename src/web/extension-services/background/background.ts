@@ -12,7 +12,6 @@ import {
 } from '@ambire-common/consts/derivation'
 import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
@@ -70,7 +69,10 @@ async function init() {
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
-  if (ENVIRONMENT === 'testing') {
+  // In the testing environment, we need to slow down app initialization.
+  // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
+  // ensuring that the Controllers are initialized with the storage correctly.
+  if (process.env.IS_TESTING === 'true') {
     await new Promise((r) => {
       setTimeout(r, 1000)
     })
@@ -242,6 +244,13 @@ async function init() {
       logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
     }
 
+    /**
+     * Bypasses both background and React batching,
+     * ensuring that the state update is immediately applied at the application level (React/Extension).
+     *
+     * For more info, please refer to:
+     * EventEmitter.forceEmitUpdate() or useControllerState().
+     */
     if (forceEmit) {
       sendUpdate()
       return 'EMITTED'
@@ -1056,7 +1065,7 @@ async function init() {
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
   // It makes Puppeteer tests a bit slow (waiting the get-started tab to be loaded, switching back to the tab under the tests),
   // and we prefer to skip opening it for the testing.
-  if (ENVIRONMENT === 'testing') return
+  if (process.env.IS_TESTING === 'true') return
 
   if (reason === 'install') {
     setTimeout(() => {

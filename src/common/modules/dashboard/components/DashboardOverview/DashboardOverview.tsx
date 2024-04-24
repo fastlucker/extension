@@ -4,9 +4,10 @@ import { Animated, View } from 'react-native'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import FilterIcon from '@common/assets/svg/FilterIcon'
 import RefreshIcon from '@common/assets/svg/RefreshIcon'
+import WarningIcon from '@common/assets/svg/WarningIcon'
 import SkeletonLoader from '@common/components/SkeletonLoader'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import Tooltip from '@common/components/Tooltip'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -14,6 +15,7 @@ import useTheme from '@common/hooks/useTheme'
 import DashboardHeader from '@common/modules/dashboard/components/DashboardHeader'
 import Gradients from '@common/modules/dashboard/components/Gradients/Gradients'
 import Routes from '@common/modules/dashboard/components/Routes'
+import useBanners from '@common/modules/dashboard/hooks/useBanners'
 import { OVERVIEW_CONTENT_MAX_HEIGHT } from '@common/modules/dashboard/screens/DashboardScreen'
 import { DASHBOARD_OVERVIEW_BACKGROUND } from '@common/modules/dashboard/screens/styles'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -50,6 +52,7 @@ const DashboardOverview: FC<Props> = ({
   const { navigate } = useNavigation()
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
+  const banners = useBanners()
   const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
 
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
@@ -83,8 +86,18 @@ const DashboardOverview: FC<Props> = ({
     return Number(selectedAccountPortfolio?.usd) || 0
   }, [accountPortfolio?.totalAmount, filterByNetworkId, selectedAccount, state.latest])
 
+  const isBalanceInaccurate = useMemo(() => {
+    const portfolioRelatedBanners = banners.filter(
+      (banner) =>
+        banner.id === `${selectedAccount}-portfolio-prices-error` ||
+        banner.id === `${selectedAccount}-portfolio-critical-error`
+    )
+
+    return !!portfolioRelatedBanners.length
+  }, [banners, selectedAccount])
+
   return (
-    <View style={[spacings.phSm, spacings.ptSm, spacings.mbMi]}>
+    <View style={[spacings.phSm, spacings.mbMi]}>
       <View style={[styles.contentContainer]}>
         <Animated.View
           style={[
@@ -129,11 +142,14 @@ const DashboardOverview: FC<Props> = ({
             >
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!accountPortfolio?.isAllReady && totalPortfolioAmount === 0 ? (
-                    <SkeletonLoader width={200} height={42} borderRadius={8} />
+                  {!accountPortfolio?.isAllReady ? (
+                    <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
                   ) : (
-                    <>
-                      <Text testID="full-balance" style={spacings.mbTy} selectable>
+                    <View
+                      testID="full-balance"
+                      style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}
+                    >
+                      <Text selectable>
                         <Text
                           fontSize={32}
                           shouldScale={false}
@@ -156,20 +172,27 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      <View style={spacings.mlTy}>
-                        {!accountPortfolio?.isAllReady ? (
-                          <Spinner style={{ width: 16, height: 16 }} />
-                        ) : (
-                          <AnimatedPressable
-                            style={refreshButtonAnimStyle}
-                            onPress={refreshPortfolio}
-                            {...bindRefreshButtonAnim}
-                          >
-                            <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
-                          </AnimatedPressable>
-                        )}
-                      </View>
-                    </>
+                      {isBalanceInaccurate && (
+                        <>
+                          <WarningIcon
+                            color={theme.warningDecorative}
+                            style={spacings.mlMi}
+                            data-tooltip-id="total-balance-warning"
+                            data-tooltip-content={t(
+                              'Total balance may be inaccurate due to missing data.'
+                            )}
+                          />
+                          <Tooltip id="total-balance-warning" />
+                        </>
+                      )}
+                      <AnimatedPressable
+                        style={[spacings.mlTy, refreshButtonAnimStyle]}
+                        onPress={refreshPortfolio}
+                        {...bindRefreshButtonAnim}
+                      >
+                        <RefreshIcon color={theme.primaryBackground} width={16} height={16} />
+                      </AnimatedPressable>
+                    </View>
                   )}
                 </View>
 

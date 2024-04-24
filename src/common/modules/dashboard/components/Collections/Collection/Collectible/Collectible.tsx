@@ -102,6 +102,7 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
                   transform: [{ scale: animStyle.scaleX as number }]
                 }
               ]}
+              resizeMode="contain"
             />
             {isLoading && (
               <View

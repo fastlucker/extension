@@ -8,7 +8,10 @@ import { nanoid } from 'nanoid'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
-import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
+import {
+  ConnectButtonReplacementController,
+  forceReplacementForPages
+} from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
@@ -87,7 +90,7 @@ Object.defineProperty(window, 'defaultWallet', {
   set(value: DefaultWallet) {
     _defaultWallet = value
     connectButtonReplacementCtrl.update({ defaultWallet: _defaultWallet })
-    if (value === 'AMBIRE') {
+    if (value === 'AMBIRE' && forceReplacementForPages.includes(window.location.origin)) {
       connectButtonReplacementCtrl.init()
     }
   }
@@ -407,7 +410,7 @@ export class EthereumProvider extends EventEmitter {
             // Here we validate whether the provided URL is a valid RPC by getting the chainId of the provider
             // eslint-disable-next-line no-await-in-loop
             const chainId = await forwardRpcRequests(url, 'eth_chainId', [])
-            if (chainId) this.dappProviderUrls[chainId] = url
+            if (chainId) this.dappProviderUrls[Number(chainId).toString()] = url
           } catch (error) {
             // silent fail
           }
@@ -421,32 +424,28 @@ export class EthereumProvider extends EventEmitter {
         data.method.startsWith('eth_') &&
         !ETH_RPC_METHODS_AMBIRE_MUST_HANDLE.includes(data.method)
       ) {
-        const numberOfDappProviders = Object.keys(this.dappProviderUrls).length
-        if (numberOfDappProviders) {
+        const providerUrl = this.dappProviderUrls[Number(this.chainId).toString()]
+        if (providerUrl) {
           if (data.method !== 'eth_call') {
             logInfoWithPrefix('[⏩ forwarded request]', data)
           }
+          try {
+            const result = await Promise.race([
+              forwardRpcRequests(providerUrl, data.method, data.params),
+              // Timeouts after 3 secs because sometimes the provider call hangs with no response
+              delayPromise(3000)
+            ])
 
-          const providerUrl =
-            this.dappProviderUrls[this.chainId as string] || Object.values(this.dappProviderUrls)[0]
-          if (providerUrl)
-            try {
-              const result = await Promise.race([
-                forwardRpcRequests(providerUrl, data.method, data.params),
-                // Timeouts after 3 secs because sometimes the provider call hangs with no response
-                delayPromise(3000)
-              ])
+            if (data.method !== 'eth_call')
+              logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
 
-              if (data.method !== 'eth_call')
-                logInfoWithPrefix('[⏩ forwarded request: success]', data.method, result)
-
-              // Otherwise, if no result comes, do not return, fallback to our provider.
-              if (result) return result
-            } catch (err) {
-              // We disregard any errors here since we'll handle the request with our provider regardless of the error
-              if (data.method !== 'eth_call')
-                logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
-            }
+            // Otherwise, if no result comes, do not return, fallback to our provider.
+            if (result) return result
+          } catch (err) {
+            // We disregard any errors here since we'll handle the request with our provider regardless of the error
+            if (data.method !== 'eth_call')
+              logWarnWithPrefix('[⏩ forwarded request: error]', data.method, err)
+          }
         }
       }
 
@@ -608,10 +607,7 @@ const setAmbireProvider = () => {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
                 connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
-
-                connectButtonReplacementCtrl.update({
-                  observerOptions: { childList: true, subtree: true, attributes: true }
-                })
+                connectButtonReplacementCtrl.init()
               }
             }
           }
