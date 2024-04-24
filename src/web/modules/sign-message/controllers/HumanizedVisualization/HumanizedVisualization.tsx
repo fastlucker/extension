@@ -1,11 +1,10 @@
-import { formatUnits, keccak256, MaxUint256, toUtf8Bytes } from 'ethers'
+import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
-import { stringify } from '@ambire-common/libs/richJson/richJson'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
