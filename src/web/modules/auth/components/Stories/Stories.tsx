@@ -13,7 +13,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 
 // @ts-ignore
 import Story6 from './images/story-6.png'
@@ -229,11 +228,6 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
     }
   }, [currentStory, onComplete, STORIES_DATA.length])
 
-  useOnEnterKeyPress({
-    action: moveToNextStory,
-    disabled: currentStory === STORIES_DATA.length - 1 && !agreedWithTerms
-  })
-
   const handleBulletPress = (bulletIndex: number) => {
     if (bulletIndex !== currentStory) setCurrentStory(bulletIndex)
   }
@@ -265,7 +259,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 {currentStory !== 0 && (
                   <Button
-                    testID='stories-button-previous'
+                    testID="stories-button-previous"
                     type="ghost"
                     size="small"
                     text={t('Previous')}
@@ -278,7 +272,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   </Button>
                 )}
                 <Button
-                  testID='stories-button-next'
+                  testID="stories-button-next"
                   type="secondary"
                   size="small"
                   text={currentStory === STORIES_DATA.length - 1 ? t('Got it') : t('Next')}
@@ -286,6 +280,7 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   onPress={moveToNextStory}
                   hasBottomSpacing={false}
                   disabled={currentStory === STORIES_DATA.length - 1 && !agreedWithTerms}
+                  submitOnEnter
                 >
                   {currentStory !== STORIES_DATA.length - 1 && (
                     <RightArrowIcon color={theme.primary} style={spacings.mlSm} />
