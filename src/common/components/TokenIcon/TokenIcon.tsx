@@ -1,10 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { Image, ImageProps, ImageStyle, View } from 'react-native'
+import { Image, ImageProps, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
+import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
@@ -12,29 +15,37 @@ import getStyles from './styles'
 interface Props extends Partial<ImageProps> {
   networkId?: string
   address?: string
+  containerStyle?: ViewStyle
   withContainer?: boolean
+  withNetworkIcon?: boolean
   containerWidth?: number
   containerHeight?: number
   width?: number
   height?: number
-  style?: ImageStyle
+  onGasTank?: boolean
+  networkSize?: number
+  uri?: string
 }
 
 const TokenIcon: React.FC<Props> = ({
   networkId = '',
   address = '',
   withContainer = false,
+  withNetworkIcon = true,
   containerWidth = 34,
   containerHeight = 34,
-  width = 22,
-  height = 22,
-  style = {},
+  containerStyle,
+  width = 20,
+  height = 20,
+  onGasTank = false,
+  networkSize = 14,
   ...props
 }) => {
+  const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [hasError, setHasError] = useState<boolean>(false)
   const { networks } = useSettingsControllerState()
-  const { styles } = useTheme(getStyles)
+
   const network = useMemo(
     () =>
       networks
@@ -49,10 +60,23 @@ const TokenIcon: React.FC<Props> = ({
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
 
-  const containerStyle = useMemo(
-    () =>
-      withContainer ? [styles.container, { width: containerWidth, height: containerHeight }] : {},
-    [containerHeight, containerWidth, withContainer, styles]
+  const allContainerStyle = useMemo(
+    () => [
+      containerStyle,
+      ...(withContainer
+        ? [
+            {
+              width: containerWidth,
+              height: containerHeight,
+              backgroundColor: theme.secondaryBackground,
+              ...common.borderRadiusPrimary,
+              ...flexbox.alignCenter,
+              ...flexbox.justifyCenter
+            }
+          ]
+        : [])
+    ],
+    [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
 
   const setLoadingFinished = useCallback(() => {
@@ -64,7 +88,7 @@ const TokenIcon: React.FC<Props> = ({
   }, [])
 
   return (
-    <View style={containerStyle}>
+    <View style={allContainerStyle}>
       {!!isLoading && !hasError && (
         <View style={styles.loader}>
           <Spinner style={{ width, height }} />
@@ -73,7 +97,7 @@ const TokenIcon: React.FC<Props> = ({
       {!!imageUrl && !hasError && (
         <Image
           source={{ uri: imageUrl }}
-          style={{ width, height, borderRadius: width / 2, ...style }}
+          style={{ width, height, borderRadius: BORDER_RADIUS_PRIMARY }}
           onError={setShowFallbackImage}
           onLoadEnd={setLoadingFinished}
           {...props}
@@ -88,6 +112,23 @@ const TokenIcon: React.FC<Props> = ({
           height={withContainer ? containerHeight : height * 1.3}
         />
       )}
+      {networkId && withNetworkIcon ? (
+        <View
+          style={[
+            styles.networkIconWrapper,
+            !withContainer && {
+              left: -3,
+              top: -3
+            }
+          ]}
+        >
+          <NetworkIcon
+            id={!onGasTank ? networkId : 'gasTank'}
+            size={networkSize}
+            style={styles.networkIcon}
+          />
+        </View>
+      ) : null}
     </View>
   )
 }
