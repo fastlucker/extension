@@ -22,6 +22,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import { randomId } from '@ambire-common/libs/humanizer/utils'
 import getStyles from './styles'
 
 interface Props {
@@ -97,7 +98,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           {
             type: 'token',
             amount: submittedAccountOp.gasFeePayment?.amount,
-            address: submittedAccountOp.gasFeePayment?.inToken
+            address: submittedAccountOp.gasFeePayment?.inToken,
+            id: randomId()
           }
         ]
       )
