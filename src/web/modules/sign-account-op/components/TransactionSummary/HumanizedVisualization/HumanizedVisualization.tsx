@@ -1,11 +1,10 @@
-import { formatUnits, keccak256, MaxUint256, toUtf8Bytes } from 'ethers'
+import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { stringify } from '@ambire-common/libs/richJson/richJson'
 import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -46,9 +45,8 @@ const HumanizedVisualization: FC<Props> = ({
       ]}
     >
       {data.map((item) => {
-        const key = `${keccak256(toUtf8Bytes(stringify(item)))}`
         if (!item || item.isHidden) return null
-
+        const key = item.id
         if (item.type === 'token') {
           const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
           const isMaxUint256 = item.amount === MaxUint256
