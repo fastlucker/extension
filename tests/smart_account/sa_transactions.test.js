@@ -3,20 +3,21 @@ import {
   clickOnElement,
   bootstrapWithStorage,
   confirmTransaction,
+  selectMaticToken,
   saParams
 } from '../functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
 const amountField = '[data-testid="amount-field"]'
 
-describe('transactions', () => {
+describe('sa_transactions', () => {
   let browser
   let page
   let extensionRootUrl
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('transaction', saParams)
+    const context = await bootstrapWithStorage('sa_transactions', saParams)
     browser = context.browser
     page = context.page
     recorder = context.recorder
@@ -30,23 +31,12 @@ describe('transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
-    await new Promise((r) => setTimeout(r, 2000))
-
     /* Click on "Send" button */
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
     await page.waitForSelector(amountField)
 
-    /* Check if selected network is Polygon */
-    const textExists = await page.evaluate(() => {
-      return document.body.innerText.includes('MATIC')
-    })
-
-    if (!textExists) {
-      /* If "MATIC" text does not exist, select network Polygon */
-      await clickOnElement(page, 'xpath///div[contains(text(), "on")]')
-      await clickOnElement(page, 'xpath///div[contains(text(), "MATIC")]')
-    }
+    await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
@@ -75,6 +65,9 @@ describe('transactions', () => {
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector('[data-testid="max-available-ammount"]')
+
+    await selectMaticToken(page)
+
     /* Get the available balance */
     const maxAvailableAmmount = await page.evaluate(() => {
       const balance = document.querySelector('[data-testid="max-available-ammount"]')
@@ -100,9 +93,11 @@ describe('transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send matics to smart contract ', async () => {
-    await new Promise((r) => setTimeout(r, 2000))
-
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+
+    await page.waitForSelector('[data-testid="max-available-ammount"]')
+
+    await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
@@ -215,8 +210,10 @@ describe('transactions', () => {
     const newPage = await newTarget.page()
     await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
+    await new Promise((r) => setTimeout(r, 1000))
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="common-base-USDT"]')
 
@@ -244,8 +241,6 @@ describe('transactions', () => {
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
     await clickOnElement(page, confirmSwapBtn)
-
-    // await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(page, extensionRootUrl, browser)

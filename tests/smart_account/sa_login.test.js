@@ -7,7 +7,7 @@ import {
   typeText
 } from '../functions.js'
 
-describe('login', () => {
+describe('sa_login', () => {
   let browser
   let page
   let extensionRootUrl
@@ -23,7 +23,7 @@ describe('login', () => {
     page = await browser.newPage()
 
     recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/login_${Date.now()}.mp4`)
+    await recorder.start(`./recorder/sa_login_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
@@ -87,7 +87,7 @@ describe('login', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Login into basic account with invalid phrase', async () => {
+  it('(-) Login into smart account with invalid phrase', async () => {
     await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
     await page.waitForSelector('[placeholder="Word 1"]')
@@ -114,7 +114,7 @@ describe('login', () => {
         )
 
         if (isButtonDisabled === 'true') {
-          console.log(`Button is disabled when try to login with phrase ${passphraseWords}`)
+          // console.log(`Button is disabled when try to login with phrase ${passphraseWords}`)
         } else {
           throw new Error('Button is NOT disabled')
         }
@@ -133,7 +133,7 @@ describe('login', () => {
         { timeout: 8000 },
         validateMessage
       )
-      console.log(`ERROR MESSAGE: ${validateMessage} EXIST ON THE PAGE.`)
+      // console.log(`ERROR MESSAGE: ${validateMessage} EXIST ON THE PAGE.`)
     }
 
     /* Try to login with empty phrase fields */
@@ -191,7 +191,7 @@ describe('login', () => {
     /* Select "Add" */
     await clickOnElement(page, '[data-testid="get-started-button-add"]')
 
-    const viewOnlyAddress = '0xC254b41BE9582E45a8Ace62D5ADD3f8092D4ea6c'
+    const viewOnlyAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
     await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
     await new Promise((r) => setTimeout(r, 500))
