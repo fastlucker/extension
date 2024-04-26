@@ -27,7 +27,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -76,8 +75,6 @@ const CreateSeedPhrasePrepareScreen = () => {
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
-
-  useOnEnterKeyPress({ action: handleSubmit, disabled: !allCheckboxesChecked })
 
   const handleCheckboxPress = (id: number) => {
     setCheckboxesState((prevState) => {

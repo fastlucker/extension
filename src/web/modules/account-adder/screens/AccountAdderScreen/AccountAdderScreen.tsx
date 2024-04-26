@@ -16,7 +16,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import AccountsOnPageList from '@web/modules/account-adder/components/AccountsOnPageList'
 import useAccountAdder from '@web/modules/account-adder/hooks/useAccountAdder/useAccountAdder'
 import Stepper from '@web/modules/router/components/Stepper'
@@ -45,8 +44,6 @@ const AccountAdderScreen = () => {
     !accountAdderState.selectedAccounts.length ||
     (mainControllerState.status === 'LOADING' &&
       mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
-
-  useOnEnterKeyPress({ action: onImportReady, disabled: isImportDisabled })
 
   return (
     <TabLayoutContainer

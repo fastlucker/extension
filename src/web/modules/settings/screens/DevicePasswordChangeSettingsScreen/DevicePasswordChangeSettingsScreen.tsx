@@ -10,16 +10,16 @@ import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import useToast from '@common/hooks/useToast'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import useNavigation from '@common/hooks/useNavigation'
 
 const DevicePasswordChangeSettingsScreen = () => {
   const { t } = useTranslation()
@@ -37,7 +37,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     setError,
     getValues,
     trigger,
-    resetField,
+    reset,
     formState: { errors, isSubmitting, isValid }
   } = useForm({
     mode: 'all',
@@ -79,6 +79,7 @@ const DevicePasswordChangeSettingsScreen = () => {
 
   useEffect(() => {
     if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'SUCCESS') {
+      reset()
       openModal()
     }
   }, [openModal, state.latestMethodCall, state.status])
@@ -194,12 +195,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           text={t('Got it')}
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}
-          onPress={() => {
-            closeModal()
-            resetField('password')
-            resetField('newPassword')
-            resetField('confirmNewPassword')
-          }}
+          onPress={() => closeModal()}
         />
       </BottomSheet>
     </View>
