@@ -3,20 +3,21 @@ import {
   clickOnElement,
   bootstrapWithStorage,
   baParams,
-  confirmTransaction
+  confirmTransaction,
+  selectMaticToken
 } from '../functions.js'
 
 const recipientField = '[data-testid="recepient-address-field"]'
 const amountField = '[data-testid="amount-field"]'
 
-describe('transactions', () => {
+describe('ba_transactions', () => {
   let browser
   let page
   let extensionRootUrl
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('transaction', baParams)
+    const context = await bootstrapWithStorage('ba_transactions', baParams)
     browser = context.browser
     page = context.page
     recorder = context.recorder
@@ -25,23 +26,17 @@ describe('transactions', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
-    await new Promise((r) => setTimeout(r, 2000))
-
     /* Click on "Send" button */
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
     await page.waitForSelector(amountField)
 
-    await clickOnElement(page, '[data-testid="tokens-select"]')
-    await clickOnElement(
-      page,
-      '[data-testid="option-0x0000000000000000000000000000000000000000-polygon-matic"]'
-    )
+    await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
@@ -70,6 +65,9 @@ describe('transactions', () => {
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector('[data-testid="max-available-ammount"]')
+
+    await selectMaticToken(page)
+
     /* Get the available balance */
     const maxAvailableAmmount = await page.evaluate(() => {
       const balance = document.querySelector('[data-testid="max-available-ammount"]')
@@ -95,9 +93,11 @@ describe('transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send matics to smart contract ', async () => {
-    await new Promise((r) => setTimeout(r, 2000))
-
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+
+    await page.waitForSelector('[data-testid="max-available-ammount"]')
+
+    await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
@@ -121,7 +121,7 @@ describe('transactions', () => {
 
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
-  it('Send sign message', async () => {
+  it('Send sign message ', async () => {
     /* Allow permissions for read and write in clipboard */
     const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
@@ -139,7 +139,7 @@ describe('transactions', () => {
       (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
-    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
+    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
     /* Type message in the 'Message' field */
     const textMessage = 'text message'
@@ -202,7 +202,7 @@ describe('transactions', () => {
   })
 
   // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
-  it.skip('Make valid swap ', async () => {
+  it('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
@@ -217,8 +217,10 @@ describe('transactions', () => {
     const newPage = await newTarget.page()
     await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
+    await new Promise((r) => setTimeout(r, 1000))
     // Select USDT and USDC tokens for swap
     await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="common-base-USDT"]')
 
@@ -246,8 +248,6 @@ describe('transactions', () => {
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
     await clickOnElement(page, confirmSwapBtn)
-
-    // await recorder.stop()
 
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(page, extensionRootUrl, browser)

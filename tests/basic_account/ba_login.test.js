@@ -7,7 +7,7 @@ import {
   typeText
 } from '../functions.js'
 
-describe('login', () => {
+describe('ba_login', () => {
   let browser
   let page
   let extensionRootUrl
@@ -23,7 +23,7 @@ describe('login', () => {
     page = await browser.newPage()
 
     recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/login_${Date.now()}.mp4`)
+    await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
@@ -147,7 +147,6 @@ describe('login', () => {
         )
 
         if (isButtonDisabled === 'true') {
-          console.log('Button is disabled')
         } else {
           throw new Error('Button is NOT disabled')
         }
@@ -165,13 +164,9 @@ describe('login', () => {
       'Test 1'
     )
     await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-    console.log(
-      'Test 1 passed for privateKey: 0000000000000000000000000000000000000000000000000000000000000000'
-    )
 
     await typeTextAndCheckValidity('', 'Test 2')
     await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-    console.log('Test 2 passed for privateKey: Empty')
 
     await typeTextAndCheckValidity(
       '00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018',
@@ -179,16 +174,10 @@ describe('login', () => {
     )
     await new Promise((r) => setTimeout(r, 1000))
     await page.$eval(enterSeedPhraseField, (el) => (el.value = ''))
-    console.log(
-      'Test 3 passed for privateKey: 00390ce7b96835258b010e25f9196bf4ddbff575b7c102546e9e40780118018'
-    )
 
     await typeTextAndCheckValidity(
       '03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018',
       'Test 4'
-    )
-    console.log(
-      'Test 4 passed for privateKey: 03#90ce7b96835258b019e25f9196bf4ddbff575b7c102546e9e40780118018'
     )
   })
 
@@ -220,7 +209,6 @@ describe('login', () => {
         )
 
         if (isButtonDisabled === 'true') {
-          console.log(`Button is disabled when try to login with phrase ${passphraseWords}`)
         } else {
           throw new Error('Button is NOT disabled')
         }
@@ -239,7 +227,6 @@ describe('login', () => {
         { timeout: 8000 },
         validateMessage
       )
-      console.log(`ERROR MESSAGE: ${validateMessage} EXIST ON THE PAGE.`)
     }
 
     /* Try to login with empty phrase fields */
@@ -323,6 +310,7 @@ describe('login', () => {
     )
     expect(selectedSmartAccount).toContain(accountName2)
   })
+
   //--------------------------------------------------------------------------------------------------------------
   it('add view-only basic account', async () => {
     await new Promise((r) => setTimeout(r, 1000))

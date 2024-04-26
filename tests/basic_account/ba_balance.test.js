@@ -1,12 +1,12 @@
 import { bootstrapWithStorage, baParams, clickOnElement } from '../functions.js'
 
-describe('balance', () => {
+describe('ba_balance', () => {
   let browser
   let page
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('balance', baParams)
+    const context = await bootstrapWithStorage('ba_balance', baParams)
 
     browser = context.browser
     page = context.page
@@ -47,13 +47,10 @@ describe('balance', () => {
     const text = await page.$eval('*', (el) => el.innerText)
 
     expect(text).toMatch(/\bUSDC\b/)
-    console.log('USDC exists on the page')
 
     expect(text).toMatch(/\bETH\b/)
-    console.log('ETH exists on the page')
 
     expect(text).toMatch(/\bWALLET\b/)
-    console.log('WALLET exists on the page')
   })
 
   //--------------------------------------------------------------------------------------------------------------
