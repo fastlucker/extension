@@ -5,7 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { BrowserRouter, HashRouter } from 'react-router-dom'
 
 import { BiometricsProvider } from '@common/contexts/biometricsContext'
-import { ConstantsProvider } from '@common/contexts/constantsContext'
 import { KeyboardProvider } from '@common/contexts/keyboardContext'
 import { LoaderProvider } from '@common/contexts/loaderContext'
 import { NetInfoProvider } from '@common/contexts/netInfoContext'
@@ -66,16 +65,14 @@ const AppInit = () => {
                                               <StorageProvider>
                                                 <KeyboardProvider>
                                                   <NetInfoProvider>
-                                                    <ConstantsProvider>
-                                                      <AuthProvider>
-                                                        <BiometricsProvider>
-                                                          <PrivateModeProvider>
-                                                            <AppRouter />
-                                                          </PrivateModeProvider>
-                                                          <PortalHost name="global" />
-                                                        </BiometricsProvider>
-                                                      </AuthProvider>
-                                                    </ConstantsProvider>
+                                                    <AuthProvider>
+                                                      <BiometricsProvider>
+                                                        <PrivateModeProvider>
+                                                          <AppRouter />
+                                                        </PrivateModeProvider>
+                                                        <PortalHost name="global" />
+                                                      </BiometricsProvider>
+                                                    </AuthProvider>
                                                   </NetInfoProvider>
                                                 </KeyboardProvider>
                                               </StorageProvider>
