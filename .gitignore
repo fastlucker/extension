@@ -504,3 +504,6 @@ credentials.json
 # Mobile injection provider
 /ios/EthereumProvider.js
 /android/app/src/main/assets/EthereumProvider.js
+
+# Puppeteer tests recording
+/recorder

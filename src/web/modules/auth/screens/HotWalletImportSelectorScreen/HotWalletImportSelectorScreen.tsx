@@ -52,6 +52,7 @@ const HotWalletImportSelectorScreen = () => {
           <View style={[flexbox.directionRow]}>
             {options.map((option, index) => (
               <Card
+                testID={option.testID}
                 style={index === 1 ? spacings.mh : {}}
                 key={option.title}
                 title={option.title}

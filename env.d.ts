@@ -58,6 +58,8 @@ declare module '@env' {
      * Sentry is application monitoring and error tracking app
      */
     SENTRY_DSN: string
+
+    ENVIRONMENT: string
   }
 
   export const RELAYER_URL: EnvTypes['RELAYER_URL']
@@ -112,4 +114,6 @@ declare module '@env' {
    * {@link https://stackoverflow.com/a/46739698/1333836}
    */
   export const BROWSER_EXTENSION_PUBLIC_KEY: string
+
+  export const ENVIRONMENT: string
 }

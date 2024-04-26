@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
 
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
+import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
+import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
@@ -17,6 +20,8 @@ interface Props {
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
 }
+
+const { isTab } = getUiType()
 
 const DashboardPages = ({
   accountPortfolio,
@@ -46,7 +51,7 @@ const DashboardPages = ({
   }, [openTab, prevOpenTab, initTab])
 
   return (
-    <>
+    <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
         filterByNetworkId={filterByNetworkId}
         isLoading={!accountPortfolio?.isAllReady}
@@ -63,7 +68,7 @@ const DashboardPages = ({
         initTab={initTab}
         onScroll={onScroll}
       />
-    </>
+    </View>
   )
 }
 

@@ -18,21 +18,26 @@ const TABS: {
   type: TabType
   tabLabel: string
   disabled?: boolean
+  testID?: string
 }[] = [
   {
+    testID: 'tab-tokens',
     type: 'tokens',
     tabLabel: 'Tokens'
   },
   {
+    testID: 'tab-nft',
     type: 'collectibles',
     tabLabel: 'NFT'
   },
   {
+    testID: 'tab-defi',
     type: 'defi',
     tabLabel: 'DeFi',
     disabled: true
   },
   {
+    testID: 'tab-activity',
     type: 'activity',
     tabLabel: 'Activity',
     disabled: true
@@ -44,13 +49,14 @@ const Tabs: React.FC<Props> = ({ openTab, setOpenTab, handleChangeQuery }) => {
 
   return (
     <View style={styles.container}>
-      {TABS.map(({ type, tabLabel, disabled }, tabIndex) => {
+      {TABS.map(({ type, tabLabel, disabled, testID }, tabIndex) => {
         const openTabIndex = TABS.findIndex((t) => t.type === openTab)
         const indexDiff = tabIndex - openTabIndex
 
         return (
           <View key={type} style={[flexbox.directionRow, flexbox.alignCenter]}>
             <Tab
+              testID={testID}
               openTab={openTab}
               tab={type}
               tabLabel={tabLabel}

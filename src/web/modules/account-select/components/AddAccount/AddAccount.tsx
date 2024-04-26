@@ -26,6 +26,7 @@ const AddAccount = () => {
           icon={option.icon}
           onPress={option.onPress}
           hasLargerBottomSpace={option.hasLargerBottomSpace}
+          testID={option.testID}
         />
       ))}
     </View>

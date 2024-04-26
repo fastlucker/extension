@@ -8,7 +8,10 @@ import { nanoid } from 'nanoid'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
-import { ConnectButtonReplacementController } from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
+import {
+  ConnectButtonReplacementController,
+  forceReplacementForPages
+} from '@web/extension-services/inpage/controllers/connectButtonReplacement/connectButtonReplacement'
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
@@ -87,7 +90,7 @@ Object.defineProperty(window, 'defaultWallet', {
   set(value: DefaultWallet) {
     _defaultWallet = value
     connectButtonReplacementCtrl.update({ defaultWallet: _defaultWallet })
-    if (value === 'AMBIRE') {
+    if (value === 'AMBIRE' && forceReplacementForPages.includes(window.location.origin)) {
       connectButtonReplacementCtrl.init()
     }
   }
@@ -604,10 +607,7 @@ const setAmbireProvider = () => {
               const callerPage = stack.split('\n')[2].trim()
               if (callerPage.includes(window.location.hostname)) {
                 connectButtonReplacementCtrl.doesWebpageReadOurProvider = true
-
-                connectButtonReplacementCtrl.update({
-                  observerOptions: { childList: true, subtree: true, attributes: true }
-                })
+                connectButtonReplacementCtrl.init()
               }
             }
           }

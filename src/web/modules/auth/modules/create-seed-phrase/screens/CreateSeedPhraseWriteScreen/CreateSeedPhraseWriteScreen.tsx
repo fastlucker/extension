@@ -21,7 +21,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import CreateSeedPhraseSidebar from '@web/modules/auth/modules/create-seed-phrase/components/CreateSeedPhraseSidebar'
 import Stepper from '@web/modules/router/components/Stepper'
 
@@ -69,8 +68,6 @@ const CreateSeedPhraseWriteScreen = () => {
   useEffect(() => {
     updateStepperState('secure-seed', 'create-seed')
   }, [updateStepperState])
-
-  useOnEnterKeyPress({ action: handleSubmit })
 
   return (
     <TabLayoutContainer

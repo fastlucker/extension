@@ -7,6 +7,7 @@ import useTheme from '@common/hooks/useTheme'
 import flexboxStyles from '@common/styles/utils/flexbox'
 
 import styles from './styles'
+import { StrategiesMetadata } from '@yfi/sdk'
 
 interface Props {
   label?: ReactNode
@@ -45,6 +46,7 @@ const Checkbox = ({
             },
             !!value && { backgroundColor: theme.successDecorative }
           ]}
+          testID='checkbox'
           onPress={onChange}
           activeOpacity={0.6}
           disabled={isDisabled}

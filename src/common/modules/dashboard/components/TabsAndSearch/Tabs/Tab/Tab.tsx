@@ -21,9 +21,18 @@ interface Props {
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   handleChangeQuery: (openTab: TabType) => void
   disabled?: boolean
+  testID?: string
 }
 
-const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }: Props) => {
+const Tab = ({
+  openTab,
+  tab,
+  tabLabel,
+  setOpenTab,
+  handleChangeQuery,
+  disabled,
+  testID
+}: Props) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { selectedAccount } = useMainControllerState()
@@ -33,6 +42,7 @@ const Tab = ({ openTab, tab, tabLabel, setOpenTab, handleChangeQuery, disabled }
 
   return (
     <Pressable
+      testID={testID}
       onPress={() => {
         if (disabled) return
         handleChangeQuery(tab)

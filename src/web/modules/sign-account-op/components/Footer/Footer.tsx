@@ -64,6 +64,7 @@ const Footer = ({
           </Button>
         )}
         <Button
+          testID="transaction-button-sign"
           type="primary"
           disabled={isSignLoading || isViewOnly || !readyToSign}
           text={isSignLoading ? t('Signing...') : t('Sign')}

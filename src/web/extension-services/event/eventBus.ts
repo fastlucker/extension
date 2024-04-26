@@ -1,13 +1,13 @@
-type Listener = (params?: any) => void
+type Listener = (params?: any, forceEmit?: boolean) => void
 
 class EventBus {
   events: Record<string, Listener[]> = {}
 
-  emit = (type: string, params?: any) => {
+  emit = (type: string, params?: any, forceEmit?: boolean) => {
     const listeners = this.events[type]
     if (listeners) {
       listeners.forEach((fn) => {
-        fn(params)
+        fn(params, forceEmit)
       })
     }
   }

@@ -181,6 +181,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
               hasBottomSpacing={false}
               onPress={() => handleActionPress(action)}
               type={isReject ? 'ghost' : 'primary'}
+              submitOnEnter={false}
             />
           )
         })}

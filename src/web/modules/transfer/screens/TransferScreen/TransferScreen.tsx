@@ -91,6 +91,7 @@ const TransferScreen = () => {
         <>
           <BackButton onPress={onBack} />
           <Button
+            testID="transfer-button-send"
             type="primary"
             text={
               userRequest
