@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
@@ -9,16 +9,17 @@ import {
   NotificationController,
   SIGN_METHODS
 } from '@web/extension-services/background/controllers/notification'
-import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { getUiType } from '@web/utils/uiType'
+import useControllerState from '@web/hooks/useControllerState'
 
 const NotificationControllerStateContext = createContext<NotificationController>(
   {} as NotificationController
 )
 
 const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
-  const [state, setState] = useState({} as NotificationController)
+  const controller = 'notification'
+  const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const prevState = usePrevious(state) || ({} as NotificationController)
   const { path } = useRoute()
@@ -28,19 +29,9 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     dispatch({
       type: 'INIT_CONTROLLER_STATE',
-      params: { controller: 'notification' }
+      params: { controller }
     })
   }, [dispatch])
-
-  useEffect(() => {
-    const onUpdate = (newState: NotificationController) => {
-      setState(newState)
-    }
-
-    eventBus.addEventListener('notification', onUpdate)
-
-    return () => eventBus.removeEventListener('notification', onUpdate)
-  }, [])
 
   // after a change in the notification request navigate to SortHat to manage the next screen
   // based on the notification type or if notif request is null to open some of the other internal screens of the wallet

@@ -25,7 +25,6 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import AccountPersonalizeCard from '@web/modules/account-personalize/components/AccountPersonalizeCard'
 import { AccountPersonalizeFormValues } from '@web/modules/account-personalize/components/AccountPersonalizeCard/AccountPersonalizeCard'
@@ -89,8 +88,6 @@ const AccountPersonalizeScreen = () => {
     [navigate, dispatch, settingsCtrl.accountPreferences]
   )
 
-  useOnEnterKeyPress({ action: handleSubmit(handleSave) })
-
   return (
     <TabLayoutContainer
       width="md"
@@ -103,6 +100,7 @@ const AccountPersonalizeScreen = () => {
       footer={
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
           <Button
+            testID="button-save-and-continue"
             size="large"
             onPress={handleSubmit(handleSave)}
             hasBottomSpacing={false}

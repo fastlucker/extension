@@ -1,4 +1,4 @@
-import { ZeroAddress, getAddress } from 'ethers'
+import { getAddress, ZeroAddress } from 'ethers'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -6,6 +6,7 @@ import { View } from 'react-native'
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import BridgeIcon from '@common/assets/svg/BridgeIcon'
 import DepositIcon from '@common/assets/svg/DepositIcon'
 import EarnIcon from '@common/assets/svg/EarnIcon'
@@ -16,20 +17,20 @@ import TopUpIcon from '@common/assets/svg/TopUpIcon'
 import WithdrawIcon from '@common/assets/svg/WithdrawIcon'
 import Text from '@common/components/Text'
 import Toggle from '@common/components/Toggle'
+import TokenIcon from '@common/components/TokenIcon'
 import { BRIDGE_URL } from '@common/constants/externalDAppUrls'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
+import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-import { RELAYER_URL } from '@env'
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
 import getStyles from './styles'
@@ -56,6 +57,7 @@ const TokenDetails = ({
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
   const isGasTank = token?.flags.onGasTank
+  const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
 
   const actions = useMemo(
@@ -66,7 +68,7 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank,
+        isDisabled: isGasTank || isAmountZero,
         strokeWidth: 1.5
       },
       {

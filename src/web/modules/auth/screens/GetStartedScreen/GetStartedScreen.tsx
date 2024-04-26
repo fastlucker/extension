@@ -201,6 +201,7 @@ const GetStartedScreen = () => {
                   onPress={() => handleAuthButtonPress('hw')}
                 />
                 <Card
+                  testID="get-started-button-import"
                   title={t('Import an existing\nhot wallet')}
                   style={{
                     ...flexbox.flex1,
@@ -234,6 +235,7 @@ const GetStartedScreen = () => {
                   buttonText={t('Create')}
                 />
                 <Card
+                  testID="get-started-button-add"
                   title={t('Watch an\naddress')}
                   text={t(
                     'Import an address in view-only mode to see its balance and simulate transactions.'

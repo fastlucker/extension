@@ -134,13 +134,18 @@ const useAddressInput = ({
           udAddress,
           isDomainResolving: false
         })
-        handleRevalidate && handleRevalidate()
       })
-  }, [addToast, debouncedAddress, dispatch, handleRevalidate, networks, setAddressState])
+  }, [addToast, debouncedAddress, dispatch, networks, setAddressState])
 
   useEffect(() => {
     fieldValueRef.current = addressState?.fieldValue
   }, [addressState?.fieldValue])
+
+  useEffect(() => {
+    if (!handleRevalidate) return
+
+    handleRevalidate()
+  }, [handleRevalidate, validation])
 
   const reset = useCallback(() => {
     setAddressState({

@@ -24,6 +24,7 @@ interface Props {
     isExternal: boolean
     disabled?: boolean
     onPress?: () => void
+    testID?: string
   }
   index: number
   routeItemsLength: number
@@ -73,6 +74,7 @@ const RouteItem: FC<Props> = ({ routeItem, index, routeItemsLength }) => {
       {...bindAccountBtnAnim}
     >
       <View
+        testID={routeItem.testID}
         style={{
           width: 44,
           height: 44,

@@ -22,9 +22,8 @@ import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
+import AutoLockOption from '@web/modules/settings/components/AutoLockOption/AutoLockOption'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-
-import AutoLockOption from '../../components/AutoLockOption/AutoLockOption'
 
 const DevicePasswordChangeSettingsScreen = () => {
   const { t } = useTranslation()
@@ -44,7 +43,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     setError,
     getValues,
     trigger,
-    resetField,
+    reset,
     formState: { errors, isSubmitting, isValid }
   } = useForm({
     mode: 'all',
@@ -86,6 +85,7 @@ const DevicePasswordChangeSettingsScreen = () => {
 
   useEffect(() => {
     if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'SUCCESS') {
+      reset()
       openModal()
     }
   }, [openModal, state.latestMethodCall, state.status])
@@ -221,12 +221,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           text={t('Got it')}
           hasBottomSpacing={false}
           style={{ minWidth: 232 }}
-          onPress={() => {
-            closeModal()
-            resetField('password')
-            resetField('newPassword')
-            resetField('confirmNewPassword')
-          }}
+          onPress={() => closeModal()}
         />
       </BottomSheet>
     </>

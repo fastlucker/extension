@@ -25,9 +25,11 @@ interface Props {
   isDisabled?: boolean
   isSecondary?: boolean
   iconProps?: SvgProps
+  testID?: string
 }
 
 const Card: React.FC<Props> = ({
+  testID,
   style,
   text,
   title,
@@ -91,6 +93,7 @@ const Card: React.FC<Props> = ({
       )}
       {!!buttonText && (
         <Button
+          testID={testID}
           disabled={isDisabled}
           style={{ width: '100%' }}
           text={t(buttonText)}
@@ -99,6 +102,7 @@ const Card: React.FC<Props> = ({
           onHoverIn={() => !isDisabled && triggerHovered()}
           hasBottomSpacing={false}
           forceHoveredStyle={isHovered}
+          submitOnEnter={false}
         />
       )}
     </AnimatedPressable>

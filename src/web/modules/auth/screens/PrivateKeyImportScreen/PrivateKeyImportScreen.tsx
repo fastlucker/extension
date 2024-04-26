@@ -22,7 +22,6 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 import Stepper from '@web/modules/router/components/Stepper'
 
 const PrivateKeyImportScreen = () => {
@@ -76,11 +75,6 @@ const PrivateKeyImportScreen = () => {
     })()
   }, [dispatch, handleSubmit])
 
-  useOnEnterKeyPress({
-    action: handleFormSubmit,
-    disabled: !isValid
-  })
-
   const handleValidation = (value: string) => {
     const trimmedValue = value.trim()
 
@@ -106,6 +100,7 @@ const PrivateKeyImportScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
+            testID="phrase-button-import"
             size="large"
             text={t('Import')}
             hasBottomSpacing={false}
@@ -128,6 +123,7 @@ const PrivateKeyImportScreen = () => {
             render={({ field: { onChange, onBlur, value } }) => {
               return (
                 <TextArea
+                  testID="enter-seed-phrase-field"
                   value={value}
                   editable
                   multiline

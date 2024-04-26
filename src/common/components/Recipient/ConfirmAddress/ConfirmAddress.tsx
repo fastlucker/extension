@@ -66,7 +66,11 @@ const ConfirmAddress = ({
             style={spacings.mb0}
             onValueChange={onSWWarningCheckboxClick}
           >
-            <Text fontSize={12} onPress={onSWWarningCheckboxClick}>
+            <Text
+              fontSize={12}
+              onPress={onSWWarningCheckboxClick}
+              testID="confirm-address-checkbox"
+            >
               {
                 t(
                   'I confirm this address is not Binance, Coinbase or another centralized exchange. These platforms do not support {{token}} deposits from smart wallets.',

@@ -53,7 +53,13 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={spacings.mrTy}>
-        <TokenIcon width={20} height={20} networkId={networkId} address={token.address} />
+        <TokenIcon
+          width={20}
+          height={20}
+          networkId={networkId}
+          address={token.address}
+          withNetworkIcon={false}
+        />
       </View>
       <Text selectable fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatDecimals(

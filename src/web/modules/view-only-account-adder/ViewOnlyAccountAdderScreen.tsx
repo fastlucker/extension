@@ -1,5 +1,5 @@
 import { getAddress } from 'ethers'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -63,6 +63,7 @@ const ViewOnlyScreen = () => {
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
+  const [isLoading, setIsLoading] = useState(false)
   const {
     control,
     watch,
@@ -134,12 +135,13 @@ const ViewOnlyScreen = () => {
 
     try {
       const accountsToAdd = await Promise.all(accountsToAddPromises)
-
+      setIsLoading(true)
       return dispatch({
         type: 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS',
         params: { accounts: accountsToAdd }
       })
     } catch (e: any) {
+      setIsLoading(false)
       addToast(
         t(
           `Import unsuccessful. We were unable to fetch the necessary data.${
@@ -176,6 +178,8 @@ const ViewOnlyScreen = () => {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
+    } else {
+      setIsLoading(false)
     }
   }, [
     accounts,
@@ -187,7 +191,7 @@ const ViewOnlyScreen = () => {
     settingsControllerState.accountPreferences
   ])
 
-  const disabled = !isValid || isSubmitting || duplicateAccountsIndexes.length > 0
+  const disabled = !isValid || isSubmitting || isLoading || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -198,11 +202,12 @@ const ViewOnlyScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.getStarted} />
           <Button
+            testID="view-only-button-import"
             textStyle={{ fontSize: 14 }}
             size="large"
             disabled={disabled}
             hasBottomSpacing={false}
-            text={isSubmitting ? t('Importing...') : t('Import')}
+            text={isLoading ? t('Importing...') : t('Import')}
             onPress={handleSubmit(handleFormSubmit)}
           >
             <View style={spacings.pl}>

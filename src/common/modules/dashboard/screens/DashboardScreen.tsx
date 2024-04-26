@@ -6,7 +6,6 @@ import { isWeb } from '@common/config/env'
 import useDebounce from '@common/hooks/useDebounce'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ReceiveModal from '@web/components/ReceiveModal'
@@ -18,14 +17,13 @@ import DashboardOverview from '../components/DashboardOverview'
 import DashboardPages from '../components/DashboardPages'
 import getStyles from './styles'
 
-const { isPopup, isTab } = getUiType()
+const { isPopup } = getUiType()
 
 export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 
 const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
-  const { minWidthSize } = useWindowSize()
   const { accountPortfolio, state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
@@ -80,7 +78,7 @@ const DashboardScreen = () => {
     <>
       <ReceiveModal modalRef={receiveModalRef} handleClose={closeReceiveModal} />
       <View style={styles.container}>
-        <View style={[flexbox.flex1, isTab && minWidthSize('l') && spacings.phSm]}>
+        <View style={[flexbox.flex1, spacings.ptSm]}>
           <DashboardOverview
             openReceiveModal={openReceiveModal}
             animatedOverviewHeight={animatedOverviewHeight}
