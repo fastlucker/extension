@@ -415,6 +415,10 @@ type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
 }
+type SetAutoLockPeriodAction = {
+  type: 'SET_AUTO_LOCK_PERIOD'
+  params: number // in ms
+}
 
 export type Action =
   | InitControllerStateAction
@@ -494,3 +498,4 @@ export type Action =
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
+  | SetAutoLockPeriodAction

@@ -10,22 +10,29 @@ import Input from '@common/components/Input'
 import InputPassword from '@common/components/InputPassword'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
+import useNavigation from '@common/hooks/useNavigation'
+import useTheme from '@common/hooks/useTheme'
+import useToast from '@common/hooks/useToast'
+import useWindowSize from '@common/hooks/useWindowSize'
+import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import { AUTO_LOCK_PERIODS } from '@web/extension-services/background/controllers/wallet-state'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
-import useToast from '@common/hooks/useToast'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import useNavigation from '@common/hooks/useNavigation'
+
+import AutoLockOption from '../../components/AutoLockOption/AutoLockOption'
 
 const DevicePasswordChangeSettingsScreen = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
   const { navigate } = useNavigation()
+  const { maxWidthSize } = useWindowSize()
+  const { theme } = useTheme()
   const state = useKeystoreControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -96,86 +103,106 @@ const DevicePasswordChangeSettingsScreen = () => {
     state.status === 'LOADING' && state.latestMethodCall === 'changeKeystorePassword'
 
   return (
-    <View style={{ ...flexbox.flex1, maxWidth: 440 }}>
-      <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-        {t('Device Password')}
-      </Text>
-
-      <View style={{ flex: 1 }}>
-        <Controller
-          control={control}
-          rules={{ validate: isValidPassword }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              onBlur={onBlur}
-              placeholder={t('Enter current password')}
-              onChangeText={onChange}
-              isValid={isValidPassword(value)}
-              value={value}
-              error={
-                errors.password &&
-                (errors.password.message || t('Please fill in at least 8 characters for password.'))
-              }
-              containerStyle={[spacings.mbTy]}
-              onSubmitEditing={handleChangeKeystorePassword}
-            />
-          )}
-          name="password"
-        />
-        <Controller
-          control={control}
-          rules={{ validate: isValidPassword }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <InputPassword
-              onBlur={onBlur}
-              placeholder={t('Enter new password')}
-              onChangeText={onChange}
-              isValid={isValidPassword(value)}
-              value={value}
-              error={
-                errors.newPassword &&
-                (t('Please fill in at least 8 characters for password.') as string)
-              }
-              containerStyle={[spacings.mbTy]}
-              onSubmitEditing={handleChangeKeystorePassword}
-            />
-          )}
-          name="newPassword"
-        />
-        <Controller
-          control={control}
-          rules={{
-            validate: (value) => newPassword === value
-          }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              onBlur={onBlur}
-              placeholder={t('Repeat new password')}
-              onChangeText={onChange}
-              value={value}
-              isValid={!!value && !errors.newPassword && newPassword === value}
-              validLabel={t('✅ The new passwords match, you are ready to continue')}
-              secureTextEntry
-              error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
-              autoCorrect={false}
-              containerStyle={[spacings.mbXl]}
-              onSubmitEditing={handleChangeKeystorePassword}
-            />
-          )}
-          name="confirmNewPassword"
-        />
-        <Button
-          style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
-          textStyle={{ fontSize: 14 }}
-          hasBottomSpacing={false}
-          disabled={isSubmitting || isChangeKeystorePasswordLoading || !isValid}
-          text={
-            isSubmitting || isChangeKeystorePasswordLoading
-              ? t('Loading...')
-              : t('Change Device Password')
-          }
-          onPress={handleChangeKeystorePassword}
-        />
+    <>
+      <View style={[flexbox.directionRow, flexbox.flex1]}>
+        <View style={{ flex: 1.5 }}>
+          <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
+            {t('Device Password')}
+          </Text>
+          <Controller
+            control={control}
+            rules={{ validate: isValidPassword }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                onBlur={onBlur}
+                placeholder={t('Enter current password')}
+                onChangeText={onChange}
+                isValid={isValidPassword(value)}
+                value={value}
+                error={
+                  errors.password &&
+                  (errors.password.message ||
+                    t('Please fill in at least 8 characters for password.'))
+                }
+                containerStyle={[spacings.mbTy]}
+                onSubmitEditing={handleChangeKeystorePassword}
+              />
+            )}
+            name="password"
+          />
+          <Controller
+            control={control}
+            rules={{ validate: isValidPassword }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputPassword
+                onBlur={onBlur}
+                placeholder={t('Enter new password')}
+                onChangeText={onChange}
+                isValid={isValidPassword(value)}
+                value={value}
+                error={
+                  errors.newPassword &&
+                  (t('Please fill in at least 8 characters for password.') as string)
+                }
+                containerStyle={[spacings.mbTy]}
+                onSubmitEditing={handleChangeKeystorePassword}
+              />
+            )}
+            name="newPassword"
+          />
+          <Controller
+            control={control}
+            rules={{
+              validate: (value) => newPassword === value
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                onBlur={onBlur}
+                placeholder={t('Repeat new password')}
+                onChangeText={onChange}
+                value={value}
+                isValid={!!value && !errors.newPassword && newPassword === value}
+                validLabel={t('✅ The new passwords match, you are ready to continue')}
+                secureTextEntry
+                error={errors.confirmNewPassword && (t("The new passwords don't match.") as string)}
+                autoCorrect={false}
+                containerStyle={[spacings.mbXl]}
+                onSubmitEditing={handleChangeKeystorePassword}
+              />
+            )}
+            name="confirmNewPassword"
+          />
+          <Button
+            style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
+            textStyle={{ fontSize: 14 }}
+            hasBottomSpacing={false}
+            disabled={isSubmitting || isChangeKeystorePasswordLoading || !isValid}
+            text={
+              isSubmitting || isChangeKeystorePasswordLoading
+                ? t('Loading...')
+                : t('Change Device Password')
+            }
+            onPress={handleChangeKeystorePassword}
+          />
+        </View>
+        <View
+          style={[
+            { flex: 1 },
+            maxWidthSize('xl') ? spacings.pl3Xl : spacings.plXl,
+            maxWidthSize('xl') ? spacings.ml3Xl : spacings.mlXl,
+            { borderLeftWidth: 1, borderColor: theme.secondaryBorder }
+          ]}
+        >
+          <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
+            {t('Auto Lock Device')}
+          </Text>
+          <AutoLockOption period={AUTO_LOCK_PERIODS.never} />
+          <AutoLockOption period={AUTO_LOCK_PERIODS._7days} />
+          <AutoLockOption period={AUTO_LOCK_PERIODS._1day} />
+          <AutoLockOption period={AUTO_LOCK_PERIODS._4hours} />
+          <AutoLockOption period={AUTO_LOCK_PERIODS._1hour} />
+          <AutoLockOption period={AUTO_LOCK_PERIODS._10minutes} />
+        </View>
       </View>
       <BottomSheet
         id="device-password-success-modal"
@@ -202,7 +229,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           }}
         />
       </BottomSheet>
-    </View>
+    </>
   )
 }
 

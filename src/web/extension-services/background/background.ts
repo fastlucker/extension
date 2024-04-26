@@ -27,7 +27,10 @@ import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
-import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
+import {
+  AUTO_LOCK_PERIODS,
+  WalletStateController
+} from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -87,6 +90,7 @@ async function init() {
     }
     hasSignAccountOpCtrlInitialized: boolean
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
     reestimateInterval?: ReturnType<typeof setInterval>
     accountStateInterval?: ReturnType<typeof setInterval>
@@ -166,6 +170,17 @@ async function init() {
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       pm.ports.length ? 60000 : 600000
     )
+  }
+
+  function setAutoLockInterval(period: AUTO_LOCK_PERIODS) {
+    if (backgroundState.autoLockIntervalId) clearInterval(backgroundState.autoLockIntervalId)
+
+    if (!period) return
+    if (typeof period !== 'number') return
+
+    if (mainCtrl.keystore.isUnlocked) {
+      backgroundState.autoLockIntervalId = setInterval(() => mainCtrl.keystore.lock(), period)
+    }
   }
 
   setPortfolioFetchInterval() // Call it once to initialize the interval
@@ -283,6 +298,7 @@ async function init() {
                   dappsCtrl.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
                   dappsCtrl.broadcastDappSessionEvent('unlock')
+                  setAutoLockInterval(walletStateCtrl.autoLockPeriod)
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
@@ -914,6 +930,11 @@ async function init() {
               }
               case 'SET_ONBOARDING_STATE': {
                 walletStateCtrl.onboardingState = params
+                break
+              }
+              case 'SET_AUTO_LOCK_PERIOD': {
+                walletStateCtrl.autoLockPeriod = params
+                setAutoLockInterval(params)
                 break
               }
 
