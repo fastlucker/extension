@@ -9,21 +9,21 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
+import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import useWalletStateController from '@web/hooks/useWalletStateController'
 
 type Props = {
-  period: AUTO_LOCK_TIMES
+  time: AUTO_LOCK_TIMES
 }
 
-const AutoLockOption: FC<Props> = ({ period }: Props) => {
+const AutoLockOption: FC<Props> = ({ time }: Props) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const { autoLockPeriod } = useWalletStateController()
+  const { autoLockTime } = useAutoLockStateController()
   const { addToast } = useToast()
-  const isSelected = useMemo(() => autoLockPeriod === period, [autoLockPeriod, period])
+  const isSelected = useMemo(() => autoLockTime === time, [autoLockTime, time])
 
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
@@ -35,20 +35,20 @@ const AutoLockOption: FC<Props> = ({ period }: Props) => {
   })
 
   const getAutoLockLabel = useCallback(() => {
-    if (period === AUTO_LOCK_TIMES._7days) return t('7 days')
-    if (period === AUTO_LOCK_TIMES._1day) return t('1 day')
-    if (period === AUTO_LOCK_TIMES._4hours) return t('4 hours')
-    if (period === AUTO_LOCK_TIMES._1hour) return t('1 hour')
-    if (period === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
+    if (time === AUTO_LOCK_TIMES._7days) return t('7 days')
+    if (time === AUTO_LOCK_TIMES._1day) return t('1 day')
+    if (time === AUTO_LOCK_TIMES._4hours) return t('4 hours')
+    if (time === AUTO_LOCK_TIMES._1hour) return t('1 hour')
+    if (time === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
 
     return t('Never')
-  }, [t, period])
+  }, [t, time])
 
   return (
     <AnimatedPressable
       onPress={() => {
-        dispatch({ type: 'SET_AUTO_LOCK_PERIOD', params: period })
-        addToast(t(`Auto lock period updated to ${getAutoLockLabel()}.`))
+        dispatch({ type: 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME', params: time })
+        addToast(t(`Auto lock time updated to ${getAutoLockLabel()}.`))
       }}
       disabled={!!isSelected}
       style={[

@@ -88,7 +88,7 @@ const DevicePasswordChangeSettingsScreen = () => {
       reset()
       openModal()
     }
-  }, [openModal, state.latestMethodCall, state.status])
+  }, [openModal, state.latestMethodCall, state.status, reset])
 
   const handleChangeKeystorePassword = () => {
     handleSubmit(({ password, newPassword: newPasswordFieldValue }) => {
@@ -196,12 +196,12 @@ const DevicePasswordChangeSettingsScreen = () => {
           <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
             {t('Auto Lock Device')}
           </Text>
-          <AutoLockOption period={AUTO_LOCK_TIMES.never} />
-          <AutoLockOption period={AUTO_LOCK_TIMES._7days} />
-          <AutoLockOption period={AUTO_LOCK_TIMES._1day} />
-          <AutoLockOption period={AUTO_LOCK_TIMES._4hours} />
-          <AutoLockOption period={AUTO_LOCK_TIMES._1hour} />
-          <AutoLockOption period={AUTO_LOCK_TIMES._10minutes} />
+          <AutoLockOption time={AUTO_LOCK_TIMES.never} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._7days} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._1day} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._4hours} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._1hour} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._10minutes} />
         </View>
       </View>
       <BottomSheet

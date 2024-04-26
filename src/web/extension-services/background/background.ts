@@ -22,15 +22,12 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
-import { RELAYER_URL, ENVIRONMENT } from '@env'
+import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
-import {
-  AUTO_LOCK_PERIODS,
-  WalletStateController
-} from '@web/extension-services/background/controllers/wallet-state'
+import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
@@ -183,17 +180,6 @@ async function init() {
     )
   }
 
-  function setAutoLockInterval(period: AUTO_LOCK_PERIODS) {
-    if (backgroundState.autoLockIntervalId) clearInterval(backgroundState.autoLockIntervalId)
-
-    if (!period) return
-    if (typeof period !== 'number') return
-
-    if (mainCtrl.keystore.isUnlocked) {
-      backgroundState.autoLockIntervalId = setInterval(() => mainCtrl.keystore.lock(), period)
-    }
-  }
-
   setPortfolioFetchInterval() // Call it once to initialize the interval
 
   function setActivityInterval(timeout: number) {
@@ -331,7 +317,6 @@ async function init() {
                   dappsCtrl.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
                   dappsCtrl.broadcastDappSessionEvent('unlock')
-                  setAutoLockInterval(walletStateCtrl.autoLockPeriod)
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
@@ -404,6 +389,17 @@ async function init() {
     })
   })
 
+  // Broadcast onUpdate for the auto-lock controller
+  autoLockCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick('autoLock', autoLockCtrl, autoLockCtrl, forceEmit)
+  })
+  autoLockCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'autoLock',
+      params: { errors: autoLockCtrl.emittedErrors, controller: 'autoLock' }
+    })
+  })
+
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick(
@@ -452,6 +448,8 @@ async function init() {
                   pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
                 } else if (params.controller === ('dapps' as any)) {
                   pm.send('> ui', { method: 'dapps', params: dappsCtrl })
+                } else if (params.controller === ('autoLock' as any)) {
+                  pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
                 } else {
                   pm.send('> ui', {
                     method: params.controller,

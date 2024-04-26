@@ -1,5 +1,6 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { isManifestV3 } from '@web/constants/browserapi'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 export const ALARMS_AUTO_LOCK = 'ALARMS_AUTO_LOCK'
 
@@ -13,7 +14,7 @@ export enum AUTO_LOCK_TIMES {
   _10minutes = 10 // 10 minutes
 }
 
-class AutoLockController extends EventEmitter {
+export class AutoLockController extends EventEmitter {
   isReady: boolean = false
 
   timer: ReturnType<typeof setTimeout> | null = null
@@ -33,7 +34,9 @@ class AutoLockController extends EventEmitter {
   #onAutoLock: () => void
 
   constructor(onAutoLock: () => void) {
+    super()
     this.#onAutoLock = onAutoLock
+    this.#init()
   }
 
   async #init(): Promise<void> {
