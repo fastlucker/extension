@@ -8,13 +8,13 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { AUTO_LOCK_PERIODS } from '@web/extension-services/background/controllers/wallet-state'
+import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
 type Props = {
-  period: AUTO_LOCK_PERIODS
+  period: AUTO_LOCK_TIMES
 }
 
 const AutoLockOption: FC<Props> = ({ period }: Props) => {
@@ -35,11 +35,11 @@ const AutoLockOption: FC<Props> = ({ period }: Props) => {
   })
 
   const getAutoLockLabel = useCallback(() => {
-    if (period === AUTO_LOCK_PERIODS._7days) return t('7 days')
-    if (period === AUTO_LOCK_PERIODS._1day) return t('1 day')
-    if (period === AUTO_LOCK_PERIODS._4hours) return t('4 hours')
-    if (period === AUTO_LOCK_PERIODS._1hour) return t('1 hour')
-    if (period === AUTO_LOCK_PERIODS._10minutes) return t('10 minutes')
+    if (period === AUTO_LOCK_TIMES._7days) return t('7 days')
+    if (period === AUTO_LOCK_TIMES._1day) return t('1 day')
+    if (period === AUTO_LOCK_TIMES._4hours) return t('4 hours')
+    if (period === AUTO_LOCK_TIMES._1hour) return t('1 hour')
+    if (period === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
 
     return t('Never')
   }, [t, period])
@@ -47,10 +47,7 @@ const AutoLockOption: FC<Props> = ({ period }: Props) => {
   return (
     <AnimatedPressable
       onPress={() => {
-        dispatch({
-          type: 'SET_AUTO_LOCK_PERIOD',
-          params: period
-        })
+        dispatch({ type: 'SET_AUTO_LOCK_PERIOD', params: period })
         addToast(t(`Auto lock period updated to ${getAutoLockLabel()}.`))
       }}
       disabled={!!isSelected}

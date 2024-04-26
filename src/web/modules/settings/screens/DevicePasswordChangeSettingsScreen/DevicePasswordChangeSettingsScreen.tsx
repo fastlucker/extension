@@ -18,7 +18,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings, { SPACING_XL } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import { AUTO_LOCK_PERIODS } from '@web/extension-services/background/controllers/wallet-state'
+import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import KeyStoreLogo from '@web/modules/keystore/components/KeyStoreLogo'
@@ -196,12 +196,12 @@ const DevicePasswordChangeSettingsScreen = () => {
           <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
             {t('Auto Lock Device')}
           </Text>
-          <AutoLockOption period={AUTO_LOCK_PERIODS.never} />
-          <AutoLockOption period={AUTO_LOCK_PERIODS._7days} />
-          <AutoLockOption period={AUTO_LOCK_PERIODS._1day} />
-          <AutoLockOption period={AUTO_LOCK_PERIODS._4hours} />
-          <AutoLockOption period={AUTO_LOCK_PERIODS._1hour} />
-          <AutoLockOption period={AUTO_LOCK_PERIODS._10minutes} />
+          <AutoLockOption period={AUTO_LOCK_TIMES.never} />
+          <AutoLockOption period={AUTO_LOCK_TIMES._7days} />
+          <AutoLockOption period={AUTO_LOCK_TIMES._1day} />
+          <AutoLockOption period={AUTO_LOCK_TIMES._4hours} />
+          <AutoLockOption period={AUTO_LOCK_TIMES._1hour} />
+          <AutoLockOption period={AUTO_LOCK_TIMES._10minutes} />
         </View>
       </View>
       <BottomSheet

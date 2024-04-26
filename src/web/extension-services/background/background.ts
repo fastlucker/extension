@@ -52,6 +52,8 @@ import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
+import AutoLockController from './controllers/auto-lock'
+
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
 
@@ -155,7 +157,7 @@ async function init() {
   const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl, pm)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
-
+  const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
@@ -932,9 +934,12 @@ async function init() {
                 walletStateCtrl.onboardingState = params
                 break
               }
-              case 'SET_AUTO_LOCK_PERIOD': {
-                walletStateCtrl.autoLockPeriod = params
-                setAutoLockInterval(params)
+              case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
+                autoLockCtrl.setLastActiveTime()
+                break
+              }
+              case 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME': {
+                autoLockCtrl.autoLockTime = params
                 break
               }
 
