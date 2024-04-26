@@ -26,7 +26,7 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 20,
+    slowMo: 30,
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -95,7 +95,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
-//
+
 const baParams = {
   parsedKeystoreAccountsPreferences: JSON.parse(process.env.BA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.BA_ACCOUNTS),
@@ -132,6 +132,8 @@ const saParams = {
   envTermState: process.env.SA_TERMSTATE,
   parsedTokenItems: JSON.parse(process.env.SA_TOKEN_ITEMS)
 }
+
+export { saParams, baParams } // Export the params object
 
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
@@ -206,8 +208,6 @@ export async function bootstrapWithStorage(namespace, params) {
 
   return { browser, extensionRootUrl, page, recorder }
 }
-
-export { saParams, baParams } // Export the params object
 
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
@@ -296,6 +296,15 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     firstSelectedBasicAccount,
     firstSelectedSmartAccount
   }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function selectMaticToken(page) {
+  await clickOnElement(page, '[data-testid="tokens-select"]')
+  await clickOnElement(
+    page,
+    '[data-testid="option-0x0000000000000000000000000000000000000000-polygon-matic"]'
+  )
 }
 
 //----------------------------------------------------------------------------------------------
