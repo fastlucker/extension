@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, View } from 'react-native'
 
@@ -19,11 +19,14 @@ import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -54,7 +57,7 @@ const NavMenu = () => {
   const { hasPasswordSecret } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const walletState = useWalletStateController()
-
+  const autoLockState = useAutoLockStateController()
   const handleLockAmbire = () => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_LOCK'
@@ -71,6 +74,16 @@ const NavMenu = () => {
     }
   }, [navigate])
 
+  const getAutoLockLabel = useCallback(() => {
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._7days) return t('7 days')
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1day) return t('1 day')
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._4hours) return t('4 hours')
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1hour) return t('1 hour')
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
+
+    return t('Never')
+  }, [t, autoLockState.autoLockTime])
+
   return (
     <TabLayoutContainer
       hideFooterInPopup
@@ -80,7 +93,7 @@ const NavMenu = () => {
       header={
         <Header withPopupBackButton mode="custom">
           <View style={[headerStyles.widthContainer, { maxWidth: tabLayoutWidths.xl }]}>
-            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+            <View style={[headerStyles.sideContainer, { width: 180 }]}>
               <HeaderBackButton />
             </View>
             <View style={headerStyles.containerInner}>
@@ -93,19 +106,27 @@ const NavMenu = () => {
                 {t('Menu')}
               </Text>
             </View>
-            <View style={[headerStyles.sideContainer, { width: 130 }]}>
+            <View style={[headerStyles.sideContainer, { width: 180, alignItems: 'flex-end' }]}>
               {hasPasswordSecret && (
-                <Button
-                  text="Lock Ambire"
-                  type="secondary"
-                  size="small"
-                  hasBottomSpacing={false}
-                  childrenPosition="left"
-                  style={{ minHeight: 32, ...spacings.phTy }}
-                  onPress={handleLockAmbire}
-                >
-                  <LockFilledIcon style={spacings.mrTy} color={theme.primary} />
-                </Button>
+                <View style={[flexbox.justifyCenter, flexbox.alignCenter]}>
+                  <Button
+                    text="Lock Ambire"
+                    type="secondary"
+                    size="small"
+                    childrenPosition="left"
+                    style={{ height: 32, ...spacings.phTy, ...spacings.mbMi, maxWidth: 130 }}
+                    textStyle={{ color: theme.infoText }}
+                    onPress={handleLockAmbire}
+                  >
+                    <LockFilledIcon style={spacings.mrTy} color={theme.primary} height={20} />
+                  </Button>
+                  <Text appearance="tertiaryText" fontSize={12} style={text.center}>
+                    {t('Auto lock time:')}{' '}
+                    <Text appearance="tertiaryText" fontSize={12} weight="medium">
+                      {getAutoLockLabel()}
+                    </Text>
+                  </Text>
+                </View>
               )}
             </View>
           </View>
@@ -166,6 +187,7 @@ const NavMenu = () => {
                 {SETTINGS_LINKS.map((link, i) => (
                   <SettingsLink
                     {...link}
+                    key={link.key}
                     isActive={false}
                     initialBackground={theme.primaryBackground}
                     style={{

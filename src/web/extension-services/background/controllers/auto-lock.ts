@@ -66,7 +66,9 @@ export class AutoLockController extends EventEmitter {
         }
       })
     } else {
-      this.timer = setTimeout(() => this.#onAutoLock(), this.autoLockTime * 60 * 1000)
+      this.timer = setTimeout(() => {
+        if (this.autoLockTime) this.#onAutoLock()
+      }, this.autoLockTime * 60 * 1000)
     }
   }
 
