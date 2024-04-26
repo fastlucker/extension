@@ -60,7 +60,13 @@ const HumanizedVisualization: FC<{
               ) : null}
 
               {item.address ? (
-                <TokenIcon width={24} height={24} networkId={networkId} address={item.address} />
+                <TokenIcon
+                  width={24}
+                  height={24}
+                  networkId={networkId}
+                  address={item.address}
+                  withNetworkIcon={false}
+                />
               ) : null}
               {item?.humanizerMeta?.token?.symbol ? (
                 <Text fontSize={16} weight="medium">
