@@ -41,7 +41,7 @@
     "eas:secret:list": "eas secret:list",
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
     "test:e2e:web:old": "jest --config=./src/web/jest.config.js",
-    "test:e2e:web": "yarn build:web:webkit && jest --config=./jest.config.js ./tests/basic_account/",
+    "test:e2e:web": "yarn build:web:webkit && jest --config=./jest.config.js ./tests/",
     "test": "jest --config=./jest.config.js ./tests/"
   },
   "engines": {
