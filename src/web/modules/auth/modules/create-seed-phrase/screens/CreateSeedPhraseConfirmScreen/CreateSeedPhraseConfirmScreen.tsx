@@ -75,13 +75,10 @@ const CreateSeedPhraseConfirmScreen = () => {
   )
 
   useEffect(() => {
-    if (
-      mainControllerState.status === 'SUCCESS' &&
-      mainControllerState.latestMethodCall === 'onAccountAdderSuccess'
-    ) {
+    if (mainControllerState.statuses.onAccountAdderSuccess === 'SUCCESS') {
       completeStep()
     }
-  }, [completeStep, mainControllerState.status, mainControllerState.latestMethodCall, dispatch])
+  }, [completeStep, mainControllerState.statuses.onAccountAdderSuccess, dispatch])
 
   const onSubmit = handleSubmit(() => {
     setIsLoading(true)
