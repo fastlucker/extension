@@ -107,7 +107,7 @@ const DevicePasswordChangeSettingsScreen = () => {
       <View style={[flexbox.directionRow, flexbox.flex1]}>
         <View style={{ flex: 1.5 }}>
           <Text weight="medium" fontSize={20} style={[spacings.mtTy, spacings.mb2Xl]}>
-            {t('Device Password')}
+            {t('Change Device Password')}
           </Text>
           <Controller
             control={control}
@@ -199,7 +199,7 @@ const DevicePasswordChangeSettingsScreen = () => {
           <AutoLockOption time={AUTO_LOCK_TIMES.never} />
           <AutoLockOption time={AUTO_LOCK_TIMES._7days} />
           <AutoLockOption time={AUTO_LOCK_TIMES._1day} />
-          <AutoLockOption time={AUTO_LOCK_TIMES._4hours} />
+          <AutoLockOption time={AUTO_LOCK_TIMES._8hours} />
           <AutoLockOption time={AUTO_LOCK_TIMES._1hour} />
           <AutoLockOption time={AUTO_LOCK_TIMES._10minutes} />
         </View>

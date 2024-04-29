@@ -77,7 +77,7 @@ const NavMenu = () => {
   const getAutoLockLabel = useCallback(() => {
     if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._7days) return t('7 days')
     if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1day) return t('1 day')
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._4hours) return t('4 hours')
+    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._8hours) return t('8 hours')
     if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1hour) return t('1 hour')
     if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
 

@@ -9,7 +9,7 @@ export enum AUTO_LOCK_TIMES {
   never = 0, // never
   _7days = 10080, // 7 days in minutes
   _1day = 1440, // 1 day in minutes
-  _4hours = 240, // 4 hours in minutes
+  _8hours = 480, // 8 hours in minutes
   _1hour = 60, // 1 hour in minutes
   _10minutes = 10 // 10 minutes
 }

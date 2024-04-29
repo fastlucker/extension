@@ -37,7 +37,7 @@ const AutoLockOption: FC<Props> = ({ time }: Props) => {
   const getAutoLockLabel = useCallback(() => {
     if (time === AUTO_LOCK_TIMES._7days) return t('7 days')
     if (time === AUTO_LOCK_TIMES._1day) return t('1 day')
-    if (time === AUTO_LOCK_TIMES._4hours) return t('4 hours')
+    if (time === AUTO_LOCK_TIMES._8hours) return t('8 hours')
     if (time === AUTO_LOCK_TIMES._1hour) return t('1 hour')
     if (time === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
 
