@@ -11,7 +11,7 @@ const useOnEnterKeyPress = ({ action, disabled }: Props) => {
     if (!action) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // It the buttons is not 'Enter', we don't care.
+      // It the button is not 'Enter', we don't care.
       if (e.key !== 'Enter') return
 
       // If the hook is disabled (i.e., if the form is in the process of submitting, or there's a validation error),
