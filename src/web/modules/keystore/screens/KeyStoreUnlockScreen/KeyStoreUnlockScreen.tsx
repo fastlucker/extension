@@ -124,11 +124,11 @@ const KeyStoreUnlockScreen = () => {
                   testID="button-unlock"
                   disabled={
                     isSubmitting ||
-                    keystoreState.status === 'LOADING' ||
+                    keystoreState.statuses.unlockWithSecret === 'LOADING' ||
                     watch('password', '').length < 8
                   }
                   text={
-                    isSubmitting || keystoreState.status === 'LOADING'
+                    isSubmitting || keystoreState.statuses.unlockWithSecret === 'LOADING'
                       ? t('Unlocking...')
                       : t('Unlock')
                   }
