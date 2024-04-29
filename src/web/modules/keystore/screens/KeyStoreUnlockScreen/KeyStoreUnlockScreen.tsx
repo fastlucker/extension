@@ -123,8 +123,9 @@ const KeyStoreUnlockScreen = () => {
       }
     >
       <Container
-        contentContainerStyle={[flexbox.alignCenter, spacings.pv0, { flexGrow: 1 }]}
+        contentContainerStyle={[flexbox.alignCenter, spacings.pv0]}
         wrapperRef={contentContainerRef}
+        withScroll={false}
       >
         <View style={[styles.container, { width: panelSize, height: panelSize }]}>
           <View style={styles.backgroundWrapper}>
