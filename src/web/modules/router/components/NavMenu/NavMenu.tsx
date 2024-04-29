@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, ScrollView, View } from 'react-native'
 
@@ -24,7 +24,7 @@ import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { AUTO_LOCK_TIMES } from '@web/extension-services/background/controllers/auto-lock'
+import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -74,16 +74,6 @@ const NavMenu = () => {
     }
   }, [navigate])
 
-  const getAutoLockLabel = useCallback(() => {
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._7days) return t('7 days')
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1day) return t('1 day')
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._8hours) return t('8 hours')
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._1hour) return t('1 hour')
-    if (autoLockState.autoLockTime === AUTO_LOCK_TIMES._10minutes) return t('10 minutes')
-
-    return t('Never')
-  }, [t, autoLockState.autoLockTime])
-
   return (
     <TabLayoutContainer
       hideFooterInPopup
@@ -122,7 +112,7 @@ const NavMenu = () => {
                   <Text appearance="tertiaryText" fontSize={12} style={text.center}>
                     {t('Auto lock time:')}{' '}
                     <Text appearance="tertiaryText" fontSize={12} weight="medium">
-                      {getAutoLockLabel()}
+                      {getAutoLockLabel(autoLockState.autoLockTime)}
                     </Text>
                   </Text>
                 </View>
