@@ -80,8 +80,8 @@ const Button = ({
       secondary: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.secondaryBackground)}00`,
-          to: theme.secondaryBackground
+          from: `${String(theme.infoBackground)}00`,
+          to: theme.infoBackground
         }
       ],
       danger: [

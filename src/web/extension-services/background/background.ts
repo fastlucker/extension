@@ -316,7 +316,7 @@ async function init() {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   dappsCtrl.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  dappsCtrl.broadcastDappSessionEvent('unlock')
+                  dappsCtrl.broadcastDappSessionEvent('unlock', [mainCtrl.selectedAccount])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
