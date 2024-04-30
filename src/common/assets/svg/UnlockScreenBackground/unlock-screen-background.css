@@ -1,0 +1,4 @@
+#unlock-screen-background {
+  filter: blur(50px);
+  opacity: 0.6;
+}
