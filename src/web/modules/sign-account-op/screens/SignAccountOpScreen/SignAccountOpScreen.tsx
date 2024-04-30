@@ -264,7 +264,8 @@ const SignAccountOpScreen = () => {
   if (
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-      !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+      !!portfolioStatePending?.criticalError?.simulationErrorMsg ||
+      signAccountOpState?.errors.length)
   ) {
     hasSimulationError = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
@@ -277,7 +278,7 @@ const SignAccountOpScreen = () => {
     } else {
       simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
     }
-  } else {
+  } else if (portfolioStatePending?.errors.length) {
     const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
     if (simulationError) {
       if (isHexString(simulationError)) {
@@ -286,6 +287,8 @@ const SignAccountOpScreen = () => {
         simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
       }
     }
+  } else if (signAccountOpState?.errors.length) {
+    simulationErrorMsg = `${simulationErrorMsg}. ${signAccountOpState?.errors[0]}`
   }
 
   const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
@@ -295,7 +298,8 @@ const SignAccountOpScreen = () => {
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !pendingTokens.length &&
     !portfolioStatePending?.errors.length &&
-    !portfolioStatePending?.criticalError
+    !portfolioStatePending?.criticalError &&
+    !signAccountOpState.errors.length
   ) {
     shouldShowNoBalanceChanges = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
