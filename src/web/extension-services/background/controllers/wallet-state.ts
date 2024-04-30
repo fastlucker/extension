@@ -1,6 +1,5 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-
-import { storage } from '../webapi/storage'
+import { storage } from '@web/extension-services/background/webapi/storage'
 
 export class WalletStateController extends EventEmitter {
   isReady: boolean = false

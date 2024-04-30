@@ -458,11 +458,12 @@ const NetworkForm = ({
 
   const handleAddRpcUrl = useCallback(
     async (value: string) => {
-      await validateRpcUrlAndRecalculateFeatures(value, watch('chainId'), 'add')
+      const trimmedVal = value.trim()
+      await validateRpcUrlAndRecalculateFeatures(trimmedVal, watch('chainId'), 'add')
       if (!errors.rpcUrl) {
-        setRpcUrls((p) => [value, ...p])
+        setRpcUrls((p) => [trimmedVal, ...p])
         if (!rpcUrls.length) {
-          handleSelectRpcUrl(value)
+          handleSelectRpcUrl(trimmedVal)
         }
       }
     },
