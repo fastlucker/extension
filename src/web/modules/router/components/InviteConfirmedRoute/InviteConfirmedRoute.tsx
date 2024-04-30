@@ -2,11 +2,11 @@ import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
 import { ROUTES } from '@common/modules/router/constants/common'
-import useInvite from '@web/modules/invite/hooks/useInvite'
-import { INVITE_STATUS } from '@web/modules/invite/hooks/useInvite/types'
+import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
+import useInviteControllerState from '@web/hooks/useInviteControllerState/useInviteControllerState'
 
 const InviteConfirmedRoute = () => {
-  const { inviteStatus } = useInvite()
+  const { inviteStatus } = useInviteControllerState()
 
   // TODO: Figure out if this is needed, maybe while the inviteStatus is not determined yet?
   // returns empty fragment because React Router complains

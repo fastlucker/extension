@@ -10,18 +10,18 @@ import { AUTH_STATUS } from '@common/modules/auth/constants/authStatus'
 import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useInviteControllerState from '@web/hooks/useInviteControllerState/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import useInvite from '@web/modules/invite/hooks/useInvite'
-import { INVITE_STATUS } from '@web/modules/invite/hooks/useInvite/types'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
-  const { inviteStatus } = useInvite()
+  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
   const { isNotification } = getUiType()
   const keystoreState = useKeystoreControllerState()

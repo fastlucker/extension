@@ -50,6 +50,7 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 import AutoLockController from './controllers/auto-lock'
+import { InviteController } from './controllers/invite'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -164,6 +165,7 @@ async function init() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
+  const inviteCtrl = new InviteController()
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
@@ -400,6 +402,17 @@ async function init() {
     })
   })
 
+  // Broadcast onUpdate for the invite controller
+  inviteCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick('invite', inviteCtrl, inviteCtrl, forceEmit)
+  })
+  inviteCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'invite',
+      params: { errors: inviteCtrl.emittedErrors, controller: 'invite' }
+    })
+  })
+
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick(
@@ -450,6 +463,8 @@ async function init() {
                   pm.send('> ui', { method: 'dapps', params: dappsCtrl })
                 } else if (params.controller === ('autoLock' as any)) {
                   pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
+                } else if (params.controller === ('invite' as any)) {
+                  pm.send('> ui', { method: 'invite', params: inviteCtrl })
                 } else {
                   pm.send('> ui', {
                     method: params.controller,
