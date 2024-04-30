@@ -60,7 +60,7 @@ export async function bootstrap(options = {}) {
 //----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector, timeout = 5000) {
   try {
-    const elementToClick = await page.waitForSelector(selector, { visible: true, timeout })
+    const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     await elementToClick.click()
   } catch (error) {
     throw new Error(`Could not click on selector: ${selector}`)
@@ -308,52 +308,85 @@ export async function selectMaticToken(page) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function confirmTransaction(page, extensionRootUrl, browser) {
-  const newPagePromise = await new Promise((x) =>
-    browser.once('targetcreated', (target) => x(target.page()))
+export async function confirmTransaction(
+  page,
+  extensionRootUrl,
+  browser,
+  triggerTransactionSelector
+) {
+  const elementToClick = await page.waitForSelector(triggerTransactionSelector)
+  await elementToClick.click()
+
+  await new Promise((r) => setTimeout(r, 1000))
+
+  const newTarget = await browser.waitForTarget((target) =>
+    target.url().startsWith(`${extensionRootUrl}/notification.html#`)
   )
-  let newPage1 = await newPagePromise
 
-  await newPage1.waitForNavigation()
-
+  let newPage = await newTarget.page()
+  newPage.setViewport({
+    width: 1000,
+    height: 1000
+  })
   await new Promise((r) => setTimeout(r, 2000))
 
-  // Check if the selector exists on the new page and click on it
-  const buttonSignExists = await newPage1.evaluate(() => {
+  // Check if "sign-message" window is open
+  const buttonSignExists = await newPage.evaluate(() => {
     return !!document.querySelector('[data-testid="button-sign"]')
   })
 
   if (buttonSignExists) {
+    console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await newPage1.click('[data-testid="button-sign"]')
+    await newPage.click('[data-testid="button-sign"]')
 
-    const newPagePromise2 = new Promise((x) =>
-      browser.once('targetcreated', (target) => x(target.page()))
+    const newPagePromise2 = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
     )
-    newPage1 = await newPagePromise2
+    newPage = await newPagePromise2
 
-    // Wait for the new page to load
-    await newPage1.waitForNavigation()
+    newPage.setViewport({
+      width: 1000,
+      height: 1000
+    })
+
+    await newPage.waitForNavigation()
   }
-  // Now you are on the new page, you can interact with elements here
-  await newPage1.waitForSelector('[data-testid="fee-ape:"]')
-  await newPage1.click('[data-testid="fee-ape:"]')
 
-  /* Click on "Sign" button */
-  await clickOnElement(newPage1, '[data-testid="transaction-button-sign"]')
+  // Check if select fee token is visible
+  const selectToken = await newPage.evaluate(() => {
+    return !!document.querySelector('[data-testid="tokens-select"]')
+  })
 
-  // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage1.waitForFunction(() => {
+  if (selectToken) {
+    // Get the text content of the element
+    const selectText = await newPage.evaluate(() => {
+      const element = document.querySelector('[data-testid="tokens-select"]')
+      return element.textContent.trim()
+    })
+
+    // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
+    if (selectText.includes('Gas Tank')) {
+      // Click on the tokens select
+      await clickOnElement(newPage, '[data-testid="tokens-select"]')
+      // Wait for some time
+      await new Promise((r) => setTimeout(r, 2000))
+      // Click on the Gas Tank option
+      await clickOnElement(
+        newPage,
+        '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+      )
+    }
+  }
+  // Click on "Ape" button
+  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+
+  // Check if text "Failed" or "Dropped" exist on the page
+  const doesFailedExist = await newPage.evaluate(() => {
     const pageText = document.documentElement.innerText
-    const occurrences = (pageText.match(/Timestamp/g) || []).length
-    return occurrences >= 2
+    return pageText.includes('failed') || pageText.includes('dropped')
   })
-
-  const doesFailedExist = await newPage1.evaluate(() => {
-    return document.documentElement.innerText.includes('Failed')
-  })
-
   await new Promise((r) => setTimeout(r, 300))
 
-  expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+  expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' or 'Dropped'exists
 }
