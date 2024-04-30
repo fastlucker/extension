@@ -92,8 +92,6 @@ const AmbireLogoWithTextMonochrome = ({ width = 160, height = 168, ...rest }: Pr
       <G id="symbol" transform="translate(46.497 0)">
         <G id="right" transform="translate(32.344 39.064)">
           <Path
-            id="Path_3155"
-            data-name="Path 3155"
             d="M541.366,626.628l13.614,28.979a.82.82,0,0,1-.168.9L519,691.111a.4.4,0,0,1-.671-.3V659.02L540.9,637.235a.732.732,0,0,0,.235-.569l.067-10.039c0-.067.134-.067.168,0Z"
             transform="translate(-518.33 -626.543)"
             fill="#fff"
