@@ -11,7 +11,7 @@ const useOnEnterKeyPress = ({ action, disabled }: Props) => {
     if (!action) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // It the button is not 'Enter', we don't care.
+      // If the button is not 'Enter', we don't care.
       if (e.key !== 'Enter') return
 
       // If the hook is disabled (i.e., if the form is in the process of submitting, or there's a validation error),
@@ -27,13 +27,13 @@ const useOnEnterKeyPress = ({ action, disabled }: Props) => {
       const excludedTags = ['BUTTON', 'INPUT']
       const isTagAllowed = !excludedTags.includes(tagName)
 
-      if (isTagAllowed) {
-        e.preventDefault()
-        e.stopPropagation()
+      if (!isTagAllowed) return
 
-        // @ts-ignore
-        action()
-      }
+      e.preventDefault()
+      e.stopPropagation()
+
+      // @ts-ignore
+      action()
     }
 
     window.addEventListener('keydown', handleKeyDown)
