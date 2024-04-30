@@ -15,10 +15,13 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useInvite from '@web/modules/invite/hooks/useInvite'
+import { INVITE_STATUS } from '@web/modules/invite/hooks/useInvite/types'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
+  const { inviteStatus } = useInvite()
   const { navigate } = useNavigation()
   const { isNotification } = getUiType()
   const keystoreState = useKeystoreControllerState()
@@ -36,6 +39,10 @@ const SortHat = () => {
 
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
       return navigate(ROUTES.keyStoreUnlock)
+    }
+
+    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
+      return navigate(ROUTES.inviteVerify)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {

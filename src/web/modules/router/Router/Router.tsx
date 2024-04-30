@@ -12,6 +12,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import { POPUP_WIDTH } from '@web/constants/spacings'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
+import InviteVerifyScreen from '@web/modules/invite/screens/InviteVerifyScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
 import SortHat from '@web/modules/router/components/SortHat'
 import { getUiType } from '@web/utils/uiType'
@@ -55,6 +56,7 @@ const Router = () => {
         <Route index path="/" element={<SortHat />} />
         <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
         <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
+        <Route path={WEB_ROUTES.inviteVerify} element={<InviteVerifyScreen />} />
       </Routes>
       <Suspense fallback={null}>
         <AsyncMainRoute />
