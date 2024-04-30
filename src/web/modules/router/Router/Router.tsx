@@ -14,10 +14,10 @@ import { POPUP_WIDTH } from '@web/constants/spacings'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import InviteVerifyScreen from '@web/modules/invite/screens/InviteVerifyScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
+import InviteConfirmedRoute from '@web/modules/router/components/InviteConfirmedRoute'
+import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import SortHat from '@web/modules/router/components/SortHat'
 import { getUiType } from '@web/utils/uiType'
-
-import PrivateRoute from '../components/PrivateRoute'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
 
@@ -56,8 +56,10 @@ const Router = () => {
     <View style={[flexbox.flex1, isPopup && { maxWidth: POPUP_WIDTH }]}>
       <Routes>
         <Route index path="/" element={<SortHat />} />
-        <Route element={<PrivateRoute />}>
-          <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+        <Route element={<InviteConfirmedRoute />}>
+          <Route element={<PrivateRoute />}>
+            <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
+          </Route>
         </Route>
         <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
         <Route path={WEB_ROUTES.inviteVerify} element={<InviteVerifyScreen />} />
