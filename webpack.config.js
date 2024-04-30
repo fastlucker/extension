@@ -174,6 +174,8 @@ module.exports = async function (env, argv) {
   }
 
   const defaultExpoConfigPlugins = [...config.plugins]
+
+  // override MiniCssExtractPlugin only for prod to serve the css files in the main build directory
   if (config.mode === 'production') {
     const excludeMiniCssExtractPluginPlugin = config.plugins.findIndex(
       (plugin) => plugin.constructor.name === 'MiniCssExtractPlugin'
