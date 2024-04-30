@@ -17,6 +17,7 @@ import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockSc
 import InviteConfirmedRoute from '@web/modules/router/components/InviteConfirmedRoute'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import SortHat from '@web/modules/router/components/SortHat'
+import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
 import { getUiType } from '@web/utils/uiType'
 
 const AsyncMainRoute = lazy(() => import('@web/modules/router/components/MainRoutes'))
@@ -62,7 +63,9 @@ const Router = () => {
           </Route>
         </Route>
         <Route path={WEB_ROUTES.keyStoreUnlock} element={<KeyStoreUnlockScreen />} />
-        <Route path={WEB_ROUTES.inviteVerify} element={<InviteVerifyScreen />} />
+        <Route element={<TabOnlyRoute />}>
+          <Route path={WEB_ROUTES.inviteVerify} element={<InviteVerifyScreen />} />
+        </Route>
       </Routes>
       <Suspense fallback={null}>
         <AsyncMainRoute />
