@@ -103,4 +103,4 @@ const SettingsLink: FC<Props> = ({
   )
 }
 
-export default SettingsLink
+export default React.memo(SettingsLink)
