@@ -136,5 +136,9 @@ export const TabLayoutWrapperMainContent: React.FC<TabLayoutWrapperMainContentPr
     )
   }
 
-  return <View style={[styles.contentContainer, contentContainerStyle]}>{children}</View>
+  return (
+    <View ref={wrapperRef} style={[styles.contentContainer, contentContainerStyle]}>
+      {children}
+    </View>
+  )
 }

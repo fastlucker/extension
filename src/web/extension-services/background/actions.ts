@@ -18,6 +18,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
+import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { Dapp } from './controllers/dapps'
 import { controllersMapping } from './types'
 
@@ -410,10 +411,17 @@ type SetIsDefaultWalletAction = {
   type: 'SET_IS_DEFAULT_WALLET'
   params: { isDefaultWallet: boolean }
 }
-
 type SetOnboardingStateAction = {
   type: 'SET_ONBOARDING_STATE'
   params: { version: string; viewedAt: number }
+}
+
+type AutoLockControllerSetLastActiveTimeAction = {
+  type: 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME'
+}
+type AutoLockControllerSetAutoLockTimeAction = {
+  type: 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME'
+  params: AUTO_LOCK_TIMES
 }
 
 export type Action =
@@ -494,3 +502,5 @@ export type Action =
   | ChangeCurrentDappNetworkAction
   | SetIsDefaultWalletAction
   | SetOnboardingStateAction
+  | AutoLockControllerSetLastActiveTimeAction
+  | AutoLockControllerSetAutoLockTimeAction

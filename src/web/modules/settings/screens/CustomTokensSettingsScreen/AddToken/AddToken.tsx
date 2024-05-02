@@ -14,9 +14,9 @@ import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Select from '@common/components/Select'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
-import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
 import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -261,7 +261,6 @@ const AddToken = () => {
           (!temporaryToken && !tokenTypeEligibility) ||
           !isValidAddress(address) ||
           !network ||
-          
           isSubmitting
         }
         text={t('Add Token')}

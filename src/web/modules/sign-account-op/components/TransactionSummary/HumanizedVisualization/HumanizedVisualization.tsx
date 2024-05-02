@@ -80,7 +80,8 @@ const HumanizedVisualization: FC<Props> = ({
                   height={24 * sizeMultiplierSize}
                   networkId={networkId}
                   address={item.address}
-                  style={{ marginRight: marginRight / 2 }}
+                  withNetworkIcon={false}
+                  containerStyle={{ marginRight: marginRight / 2 }}
                 />
               ) : null}
               {item?.humanizerMeta?.token ? (

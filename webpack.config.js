@@ -9,7 +9,7 @@ const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const expoEnv = require('@expo/webpack-config/env')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
-
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const appJSON = require('./app.json')
 const AssetReplacePlugin = require('./plugins/AssetReplacePlugin')
 
@@ -175,6 +175,16 @@ module.exports = async function (env, argv) {
 
   const defaultExpoConfigPlugins = [...config.plugins]
 
+  // override MiniCssExtractPlugin only for prod to serve the css files in the main build directory
+  if (config.mode === 'production') {
+    const excludeMiniCssExtractPluginPlugin = config.plugins.findIndex(
+      (plugin) => plugin.constructor.name === 'MiniCssExtractPlugin'
+    )
+    if (excludeMiniCssExtractPluginPlugin !== -1) {
+      config.plugins.splice(excludeMiniCssExtractPluginPlugin, 1)
+    }
+    defaultExpoConfigPlugins.push(new MiniCssExtractPlugin()) // default filename: [name].css
+  }
   config.plugins = [
     ...defaultExpoConfigPlugins,
     new NodePolyfillPlugin(),

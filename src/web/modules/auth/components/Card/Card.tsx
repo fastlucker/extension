@@ -102,6 +102,7 @@ const Card: React.FC<Props> = ({
           onHoverIn={() => !isDisabled && triggerHovered()}
           hasBottomSpacing={false}
           forceHoveredStyle={isHovered}
+          submitOnEnter={false}
         />
       )}
     </AnimatedPressable>

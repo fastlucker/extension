@@ -10,6 +10,7 @@ import { SettingsController } from '@ambire-common/controllers/settings/settings
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
@@ -36,6 +37,7 @@ export const controllersMapping = {
   notification: NotificationController,
   dapps: DappsController,
   walletState: WalletStateController,
+  autoLock: AutoLockController,
   ...controllersNestedInMainMapping
 }
 

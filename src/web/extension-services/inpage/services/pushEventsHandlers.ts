@@ -24,9 +24,10 @@ class PushEventHandlers {
     }
   }
 
-  unlock = () => {
+  unlock = (accounts) => {
     this.provider._isUnlocked = true
     this.provider._state.isUnlocked = true
+    this._emit('accountsChanged', accounts)
   }
 
   lock = () => {

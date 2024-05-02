@@ -7,6 +7,7 @@ import spacings from '@common/styles/spacings'
 import textStyles from '@common/styles/utils/text'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import { AnimationValues } from '@web/hooks/useHover/useMultiHover'
+import useOnEnterKeyPress from '@web/hooks/useOnEnterKeyPress'
 
 import getStyles from './styles'
 
@@ -36,6 +37,7 @@ export interface Props extends PressableProps {
   children?: React.ReactNode
   childrenPosition?: 'left' | 'right'
   testID?: string
+  submitOnEnter?: boolean
 }
 
 const Button = ({
@@ -53,9 +55,16 @@ const Button = ({
   forceHoveredStyle = false,
   childrenPosition = 'right',
   testID,
+  submitOnEnter: _submitOnEnter,
   ...rest
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
+  const submitOnEnter = _submitOnEnter ?? type === 'primary'
+
+  useOnEnterKeyPress({
+    action: rest.onPress,
+    disabled: !!disabled || !submitOnEnter
+  })
 
   const buttonColors: {
     [key in ButtonTypes]: AnimationValues[]
@@ -71,8 +80,8 @@ const Button = ({
       secondary: [
         {
           property: 'backgroundColor',
-          from: `${String(theme.secondaryBackground)}00`,
-          to: theme.secondaryBackground
+          from: `${String(theme.infoBackground)}00`,
+          to: theme.infoBackground
         }
       ],
       danger: [

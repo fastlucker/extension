@@ -1,22 +1,27 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
-import colors from '@common/styles/colors'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
-  container: ViewStyle
+  networkIconWrapper: ViewStyle
+  networkIcon: ViewStyle
   loader: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: {
-      backgroundColor: colors.titan_05,
-      overflow: 'hidden',
-      ...common.borderRadiusPrimary,
-      ...flexbox.center
+    networkIconWrapper: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      zIndex: 3,
+      borderWidth: 1,
+      borderColor: theme.secondaryBorder,
+      borderRadius: 12
+    },
+    networkIcon: {
+      backgroundColor: theme.primaryBackground
     },
     loader: {
       position: 'absolute',

@@ -3,7 +3,7 @@ import React from 'react'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
-import TokenIcon from '@common/modules/dashboard/components/TokenIcon'
+import TokenIcon from '@common/components/TokenIcon'
 
 const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
   values.map((value) => ({
