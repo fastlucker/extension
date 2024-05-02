@@ -1,4 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
+import { ethers } from 'ethers'
 
 const puppeteer = require('puppeteer')
 
@@ -58,7 +59,7 @@ export async function bootstrap(options = {}) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function clickOnElement(page, selector, timeout = 5000) {
+export async function clickOnElement(page, selector) {
   try {
     const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
     await elementToClick.click()
@@ -325,8 +326,8 @@ export async function confirmTransaction(
 
   let newPage = await newTarget.page()
   newPage.setViewport({
-    width: 1000,
-    height: 1000
+    width: 1300,
+    height: 700
   })
   await new Promise((r) => setTimeout(r, 2000))
 
@@ -346,8 +347,8 @@ export async function confirmTransaction(
     newPage = await newPagePromise2
 
     newPage.setViewport({
-      width: 1000,
-      height: 1000
+      width: 1300,
+      height: 700
     })
 
     await newPage.waitForNavigation()
@@ -380,13 +381,48 @@ export async function confirmTransaction(
   }
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+  /* Click on "Sign" button */
+  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
 
-  // Check if text "Failed" or "Dropped" exist on the page
+  // Wait for the 'Timestamp' text to appear twice on the page
+  await newPage.waitForFunction(() => {
+    const pageText = document.documentElement.innerText
+    const occurrences = (pageText.match(/Timestamp/g) || []).length
+    return occurrences >= 2
+  })
+
   const doesFailedExist = await newPage.evaluate(() => {
     const pageText = document.documentElement.innerText
     return pageText.includes('failed') || pageText.includes('dropped')
   })
+
   await new Promise((r) => setTimeout(r, 300))
 
-  expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' or 'Dropped'exists
+  expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+
+  const currentURL = await newPage.url()
+
+  // Split the URL by the '=' character and get the transaction hash
+  const parts = currentURL.split('=')
+  const transactionHash = parts[parts.length - 1]
+
+  console.log(`transaction hash is: ${transactionHash}`)
+
+  //  Define the RPC URL for the Polygon network
+  const rpcUrl = 'https://invictus.ambire.com/polygon'
+
+  // Create a provider instance using the JsonRpcProvider
+  const provider = new ethers.JsonRpcProvider(rpcUrl)
+
+  // Get transaction receipt
+  const receipt = await provider.getTransactionReceipt(transactionHash)
+
+  if (receipt.status === 1) {
+  } else {
+    console.log(`Transaction failed! Hash: ${transactionHash}`)
+    expect(receipt.status).to.equal(1) // Assertion to fail the test if transaction failed
+  }
+
+  // Print the transaction receipt
+  // console.log(receipt)
 }
