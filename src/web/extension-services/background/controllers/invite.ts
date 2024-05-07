@@ -7,8 +7,13 @@ export enum INVITE_STATUS {
   VERIFIED = 'VERIFIED'
 }
 
+type Invite = {
+  status: INVITE_STATUS
+  verifiedAt: null | number // timestamp
+}
+
 export class InviteController extends EventEmitter {
-  inviteStatus: INVITE_STATUS = INVITE_STATUS.UNCHECKED
+  status: Invite['status'] = INVITE_STATUS.UNCHECKED
 
   constructor() {
     super()
@@ -18,6 +23,24 @@ export class InviteController extends EventEmitter {
   }
 
   async #init() {
-    this.inviteStatus = await storage.get('inviteStatus', INVITE_STATUS.UNCHECKED)
+    const invite = await storage.get('invite', {
+      status: INVITE_STATUS.UNCHECKED,
+      verifiedAt: null
+    })
+
+    this.status = invite.status
+    this.emitUpdate()
+  }
+
+  verify(code: string) {
+    // TODO: Verify invite code against the Relayer
+    this.status = INVITE_STATUS.VERIFIED
+    this.emitUpdate()
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    storage.set('invite', {
+      status: INVITE_STATUS.VERIFIED,
+      verifiedAt: Date.now()
+    })
   }
 }
