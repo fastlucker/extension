@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react'
-import { Image, View } from 'react-native'
+import { Image, ImageStyle, View, ViewStyle } from 'react-native'
 
 import SkeletonLoader from '@common/components/SkeletonLoader'
+import { SkeletonLoaderProps } from '@common/components/SkeletonLoader/types'
 import useTheme from '@common/hooks/useTheme'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
@@ -10,12 +11,28 @@ type Props = {
   uri?: string
   uris?: string[]
   fallback?: () => any
-  size: number
+  size: ViewStyle['width']
   isRound?: boolean
   iconScale?: number
+  containerStyle?: ViewStyle
+  imageStyle?: ImageStyle
+  skeletonProps?: {
+    appearance?: SkeletonLoaderProps['appearance']
+    lowOpacity?: SkeletonLoaderProps['lowOpacity']
+  }
 }
 
-const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale = 1 }: Props) => {
+const ManifestImage = ({
+  uri,
+  uris = [],
+  fallback,
+  size = 64,
+  isRound,
+  iconScale = 1,
+  containerStyle = {},
+  imageStyle = {},
+  skeletonProps = {}
+}: Props) => {
   const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
@@ -23,7 +40,8 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
     index: 0,
     uri: uri || uris[0]
   })
-  const scaledSize = size * iconScale
+  const scaledSize = typeof size !== 'string' ? size * iconScale : size
+  const roundBorderRadius = typeof scaledSize !== 'string' ? scaledSize / 2 : 50
 
   const onError = useCallback(() => {
     setHasError(true)
@@ -45,8 +63,9 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
         flexboxStyles.justifyCenter,
         commonStyles.borderRadiusPrimary,
         commonStyles.hidden,
-        !!isRound && { borderRadius: 50 },
-        { width: size, height: size }
+        !!isRound && { borderRadius: roundBorderRadius },
+        { width: size, height: size },
+        containerStyle
       ]}
     >
       {isLoading && (
@@ -57,6 +76,7 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
             position: 'absolute',
             zIndex: 3
           }}
+          {...skeletonProps}
         />
       )}
       {!isLoading && hasError && !!fallback && fallback()}
@@ -70,9 +90,11 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
             {
               height: scaledSize,
               width: scaledSize,
-              backgroundColor: theme.primaryBackground
+              backgroundColor: theme.primaryBackground,
+              opacity: isLoading ? 0 : 1
             },
-            !!isRound && { borderRadius: scaledSize / 2 }
+            !!isRound && { borderRadius: roundBorderRadius },
+            imageStyle
           ]}
         />
       )}
