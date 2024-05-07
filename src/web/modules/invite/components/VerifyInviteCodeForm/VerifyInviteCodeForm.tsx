@@ -1,11 +1,14 @@
+import { useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 
 const VerifyInviteCodeForm: React.FC<any> = () => {
+  const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const {
     control,
@@ -20,6 +23,17 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
     }
   })
 
+  const handleFormSubmit = useCallback(
+    () =>
+      handleSubmit(({ code }) => {
+        dispatch({
+          type: 'INVITE_CONTROLLER_VERIFY',
+          params: { code }
+        })
+      })(),
+    [dispatch, handleSubmit]
+  )
+
   return (
     <>
       <Controller
@@ -32,7 +46,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
             placeholder={t('Invite Code')}
             onChangeText={onChange}
             // TODO: v2
-            onSubmitEditing={handleSubmit()}
+            onSubmitEditing={handleFormSubmit}
             value={value}
             autoFocus={isWeb}
             isValid={!errors.code && value.length > 0}
@@ -51,7 +65,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         disabled={!isValid}
         type="primary"
         text={isSubmitting ? t('Validating...') : t('Verify')}
-        onPress={handleSubmit()}
+        onPress={handleFormSubmit}
       />
     </>
   )
