@@ -45,7 +45,6 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
             onBlur={onBlur}
             placeholder={t('Invite Code')}
             onChangeText={onChange}
-            // TODO: v2
             onSubmitEditing={handleFormSubmit}
             value={value}
             autoFocus={isWeb}
@@ -57,12 +56,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
       />
 
       <Button
-        // TODO:
-        // disabled={
-        //   isSubmitting ||
-        //   !watch('code', '')
-        // }
-        disabled={!isValid}
+        disabled={isSubmitting || !isValid}
         type="primary"
         text={isSubmitting ? t('Validating...') : t('Verify')}
         onPress={handleFormSubmit}
