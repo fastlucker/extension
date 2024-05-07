@@ -160,6 +160,7 @@
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.0",
     "react-hook-form": "^7.21.0",
+    "react-idle-timer": "^5.7.2",
     "react-i18next": "^11.14.3",
     "react-native": "0.70.5",
     "react-native-android-location-services-dialog-box": "2.8.2",

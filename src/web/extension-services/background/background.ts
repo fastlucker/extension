@@ -22,7 +22,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
-import { RELAYER_URL, ENVIRONMENT } from '@env'
+import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
@@ -48,6 +48,8 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
+
+import AutoLockController from './controllers/auto-lock'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -96,6 +98,7 @@ async function init() {
     }
     hasSignAccountOpCtrlInitialized: boolean
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
+    autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
     reestimateInterval?: ReturnType<typeof setInterval>
     accountStateInterval?: ReturnType<typeof setInterval>
@@ -160,7 +163,7 @@ async function init() {
   const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl, pm)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
-
+  const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
@@ -313,7 +316,7 @@ async function init() {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   dappsCtrl.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  dappsCtrl.broadcastDappSessionEvent('unlock')
+                  dappsCtrl.broadcastDappSessionEvent('unlock', [mainCtrl.selectedAccount])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
@@ -386,6 +389,17 @@ async function init() {
     })
   })
 
+  // Broadcast onUpdate for the auto-lock controller
+  autoLockCtrl.onUpdate((forceEmit) => {
+    debounceFrontEndEventUpdatesOnSameTick('autoLock', autoLockCtrl, autoLockCtrl, forceEmit)
+  })
+  autoLockCtrl.onError(() => {
+    pm.send('> ui-error', {
+      method: 'autoLock',
+      params: { errors: autoLockCtrl.emittedErrors, controller: 'autoLock' }
+    })
+  })
+
   // Broadcast onUpdate for the notification controller
   notificationCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick(
@@ -434,6 +448,8 @@ async function init() {
                   pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
                 } else if (params.controller === ('dapps' as any)) {
                   pm.send('> ui', { method: 'dapps', params: dappsCtrl })
+                } else if (params.controller === ('autoLock' as any)) {
+                  pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
                 } else {
                   pm.send('> ui', {
                     method: params.controller,
@@ -955,6 +971,14 @@ async function init() {
               }
               case 'SET_ONBOARDING_STATE': {
                 walletStateCtrl.onboardingState = params
+                break
+              }
+              case 'AUTO_LOCK_CONTROLLER_SET_LAST_ACTIVE_TIME': {
+                autoLockCtrl.setLastActiveTime()
+                break
+              }
+              case 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME': {
+                autoLockCtrl.autoLockTime = params
                 break
               }
 

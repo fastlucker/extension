@@ -1,0 +1,3 @@
+import AmbireLogoWithTextMonochrome from './AmbireLogoWithTextMonochrome'
+
+export default AmbireLogoWithTextMonochrome
