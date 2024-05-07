@@ -22,11 +22,11 @@ const getStyles = () =>
       maxWidth: COLLECTIBLE_IMAGE_SIZE + SPACING_SM * 2
     },
     imageContainer: {
-      ...spacings.mbSm,
-      backgroundColor: 'transparent'
+      ...spacings.mbSm
     },
     image: {
-      ...common.borderRadiusPrimary
+      ...common.borderRadiusPrimary,
+      backgroundColor: 'transparent'
     }
   })
 

@@ -6,7 +6,6 @@ import { getUiType } from '@web/utils/uiType'
 
 interface Style {
   container: ViewStyle
-  imageContainer: ViewStyle
   image: ImageStyle
 }
 
@@ -23,11 +22,9 @@ const styles = StyleSheet.create<Style>({
     overflow: 'hidden',
     ...(isTab ? spacings.mrLg : spacings.mrSm)
   },
-  imageContainer: {
-    backgroundColor: 'transparent'
-  },
   image: {
-    borderRadius: BORDER_RADIUS_PRIMARY
+    borderRadius: BORDER_RADIUS_PRIMARY,
+    backgroundColor: 'transparent'
   }
 })
 

@@ -99,7 +99,6 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
               />
             </View>
           )}
-          containerStyle={styles.imageContainer}
           imageStyle={styles.image}
         />
       </Animated.View>
