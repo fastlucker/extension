@@ -13,7 +13,7 @@ type Invite = {
 }
 
 export class InviteController extends EventEmitter {
-  status: Invite['status'] = INVITE_STATUS.UNCHECKED
+  inviteStatus: Invite['status'] = INVITE_STATUS.UNCHECKED
 
   constructor() {
     super()
@@ -28,13 +28,13 @@ export class InviteController extends EventEmitter {
       verifiedAt: null
     })
 
-    this.status = invite.status
+    this.inviteStatus = invite.status
     this.emitUpdate()
   }
 
   verify(code: string) {
     // TODO: Verify invite code against the Relayer
-    this.status = INVITE_STATUS.VERIFIED
+    this.inviteStatus = INVITE_STATUS.VERIFIED
     this.emitUpdate()
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
