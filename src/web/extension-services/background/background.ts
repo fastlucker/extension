@@ -997,6 +997,11 @@ async function init() {
                 break
               }
 
+              case 'INVITE_CONTROLLER_VERIFY': {
+                inviteCtrl.verify(params.code)
+                break
+              }
+
               case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
                 dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
                 dappsCtrl.updateDapp(params, { isConnected: false })
