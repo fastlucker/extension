@@ -53,7 +53,9 @@ export interface NotificationRequest {
   id: number
   screen: string
   winProps?: any
-  params?: any
+  params: {
+    [key: string]: any
+  }
   accountAddr?: string
   networkId?: string
   resolve: (data: any) => void
@@ -321,7 +323,7 @@ export class NotificationController extends EventEmitter {
       const notificationRequest: NotificationRequest = {
         id,
         winProps,
-        params: data?.params,
+        params: data.params || {},
         screen: data.screen,
         resolve: (data) => {
           resolve(data)

@@ -13,45 +13,38 @@ import underline2Camelcase from '@web/utils/underline2Camelcase'
 const lockedOrigins = new Set<string>()
 const connectOrigins = new Set<string>()
 
-const flow = new PromiseFlow<{
-  request: ProviderRequest & {
-    session: Exclude<ProviderRequest, void>
-  }
-  mapMethod: string
-  requestRes: any
-}>()
+const flow = new PromiseFlow<ProviderRequest & { mapMethod: string; requestRes?: any }>()
+
 const flowContext = flow
-  .use(async (ctx, next) => {
+  .use(async (request, next) => {
     const {
       data: { method },
       mainCtrl,
       dappsCtrl
-    } = ctx.request
-    ctx.mapMethod = underline2Camelcase(method)
+    } = request
+
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
-    if (!(providerCtrl as any)[ctx.mapMethod]) {
+    if (!(providerCtrl as any)[request.mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
-        return providerCtrl.ethRpc(ctx.request)
+        return providerCtrl.ethRpc(request)
       }
 
       throw ethErrors.rpc.methodNotFound({
         message: `method [${method}] doesn't has corresponding handler`,
-        data: ctx.request.data
+        data: request.data
       })
     }
 
     return next()
   })
-  .use(async (ctx, next) => {
+  .use(async (request, next) => {
     const {
       mapMethod,
-      request: {
-        session: { origin },
-        mainCtrl,
-        dappsCtrl,
-        notificationCtrl
-      }
-    } = ctx
+      session: { origin },
+      mainCtrl,
+      dappsCtrl,
+      notificationCtrl
+    } = request
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
@@ -60,7 +53,6 @@ const flowContext = flow
         if (lockedOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing unlock. Please wait.')
         }
-        ctx.request.requestedNotificationRequest = true
         lockedOrigins.add(origin)
         try {
           await notificationCtrl.requestNotificationRequest({
@@ -79,24 +71,21 @@ const flowContext = flow
 
     return next()
   })
-  .use(async (ctx, next) => {
+  .use(async (request, next) => {
     // check connect
     const {
-      request: {
-        session: { origin, name, icon },
-        mainCtrl,
-        dappsCtrl,
-        notificationCtrl
-      },
+      session: { origin, name, icon },
+      mainCtrl,
+      dappsCtrl,
+      notificationCtrl,
       mapMethod
-    } = ctx
+    } = request
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       if (!dappsCtrl.hasPermission(origin)) {
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
         }
-        ctx.request.requestedNotificationRequest = true
         connectOrigins.add(origin)
         try {
           await notificationCtrl.requestNotificationRequest({
@@ -122,84 +111,37 @@ const flowContext = flow
 
     return next()
   })
-  .use(async (ctx, next) => {
+  .use(async (request, next) => {
     // check need notification request
     const {
-      request: {
-        data: { method },
-        session: { origin, name, icon },
-        mainCtrl,
-        dappsCtrl,
-        notificationCtrl
-      },
+      data: { method, params },
+      session: { origin, name, icon },
+      mainCtrl,
+      dappsCtrl,
+      notificationCtrl,
       mapMethod
-    } = ctx
+    } = request
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
-    if (requestType && (!condition || !condition(ctx.request))) {
-      ctx.request.requestedNotificationRequest = true
-      ctx.requestRes = await notificationCtrl.requestNotificationRequest({
+    if (requestType && (!condition || !condition(request))) {
+      request.requestRes = await notificationCtrl.requestNotificationRequest({
         screen: requestType,
-        params: {
-          $ctx: ctx?.request?.data?.$ctx,
-          method,
-          data: ctx.request.data.params,
-          session: { origin, name, icon }
-        },
+        params: { method, data: params, session: { origin, name, icon } },
         origin
       })
     }
 
     return next()
   })
-  .use(async (ctx) => {
-    const providerCtrl = new ProviderController(ctx.request.mainCtrl, ctx.request.dappsCtrl)
-    const { requestRes, mapMethod, request } = ctx
+  .use(async (request) => {
+    const providerCtrl = new ProviderController(request.mainCtrl, request.dappsCtrl)
+    const { mapMethod } = request
 
-    // process request
-    const [requestType] = Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
-    const { uiRequestComponent, ...rest } = requestRes || {}
-    const {
-      session: { origin }
-    } = request
-    const requestDefer = Promise.resolve(
-      (providerCtrl as any)[mapMethod]({
-        ...request,
-        requestRes
-      })
-    )
-
-    async function requestNotificationRequestLoop({
-      uiRequestComponent,
-      ...rest
-    }: any): Promise<any> {
-      ctx.request.requestedNotificationRequest = true
-      const res = await ctx.request.notificationCtrl.requestNotificationRequest({
-        screen: uiRequestComponent,
-        params: rest,
-        origin,
-        requestType
-      })
-      if (res.uiRequestComponent) {
-        return await requestNotificationRequestLoop(res)
-      }
-      return res
-    }
-    if (uiRequestComponent) {
-      ctx.request.requestedNotificationRequest = true
-      return await requestNotificationRequestLoop({ uiRequestComponent, ...rest })
-    }
-
-    return requestDefer
+    return Promise.resolve((providerCtrl as any)[mapMethod](request))
   })
   .callback()
 
 export default (request: ProviderRequest) => {
-  const ctx: any = { request: { ...request, requestedNotificationRequest: false } }
-  return flowContext(ctx).finally(() => {
-    if (ctx.request.requestedNotificationRequest) {
-      flow.requestedNotificationRequest = false
-    }
-  })
+  return flowContext({ ...request, mapMethod: underline2Camelcase(request.data.method) })
 }

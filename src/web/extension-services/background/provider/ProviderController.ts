@@ -31,7 +31,6 @@ interface RequestRes {
   account?: any
   extra?: Record<string, any>
   traceId?: string
-  $ctx?: any
   signingTxId?: string
   hash?: string
   error?: string
@@ -145,7 +144,6 @@ export class ProviderController {
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (options: {
     data: {
-      $ctx?: any
       params: any
     }
     session: Session

@@ -7,7 +7,6 @@ export type ProviderRequest<TMethod = string> = {
   data: {
     method: TMethod
     params?: any
-    $ctx?: any
   }
   session: Session
   origin: string
