@@ -8,6 +8,7 @@ import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
+import { randomId } from '@ambire-common/libs/humanizer/utils'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -22,7 +23,6 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import { randomId } from '@ambire-common/libs/humanizer/utils'
 import getStyles from './styles'
 
 interface Props {
@@ -150,14 +150,14 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
   return (
     <View style={[styles.container, style]}>
-      {calls.map((call: IrCall) => {
+      {calls.map((call: IrCall, index) => {
         return (
           <TransactionSummary
             key={call.fromUserRequestId}
             style={styles.summaryItem}
             call={call}
             networkId={submittedAccountOp.networkId}
-            rightIcon={<OpenIcon />}
+            rightIcon={index === 0 ? <OpenIcon /> : null}
             onRightIconPress={handleOpenExplorer}
             isHistory
           />
