@@ -42,8 +42,7 @@ const AccountAdderScreen = () => {
     accountAdderState.accountsLoading ||
     accountAdderState.addAccountsStatus === 'LOADING' ||
     !accountAdderState.selectedAccounts.length ||
-    (mainControllerState.status === 'LOADING' &&
-      mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
+    mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
 
   return (
     <TabLayoutContainer
@@ -66,8 +65,7 @@ const AccountAdderScreen = () => {
             disabled={isImportDisabled}
             text={
               accountAdderState.addAccountsStatus === 'LOADING' ||
-              (mainControllerState.status === 'LOADING' &&
-                mainControllerState.latestMethodCall === 'onAccountAdderSuccess')
+              mainControllerState.statuses.onAccountAdderSuccess === 'LOADING'
                 ? t('Importing...')
                 : !accountAdderState.selectedAccounts.length
                 ? t('Continue')

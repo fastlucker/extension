@@ -44,7 +44,7 @@ const KeyStoreUnlockScreen = () => {
     handleSubmit,
     watch,
     setError,
-    formState: { errors, isSubmitting }
+    formState: { errors }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -54,34 +54,41 @@ const KeyStoreUnlockScreen = () => {
 
   useDisableNavigatingBack()
 
+  const passwordFieldValue = watch('password')
+
   useEffect(() => {
-    if (keystoreState.errorMessage) {
-      setError('password', {
-        message: keystoreState.errorMessage
-      })
-    }
+    if (keystoreState.errorMessage) setError('password', { message: keystoreState.errorMessage })
   }, [keystoreState.errorMessage, setError])
 
   useEffect(() => {
-    if (keystoreState.errorMessage && !watch('password', '').length) {
-      dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
-    }
-  }, [keystoreState.errorMessage, watch, dispatch])
-
-  useEffect(() => {
-    if (keystoreState.isUnlocked) {
-      navigate('/')
-    }
+    if (keystoreState.isUnlocked) navigate('/')
   }, [navigate, keystoreState])
+
+  const disableSubmit = useMemo(
+    () => keystoreState.statuses.unlockWithSecret !== 'INITIAL' || keystoreState.errorMessage,
+    [keystoreState.statuses.unlockWithSecret, keystoreState.errorMessage]
+  )
+
+  const passwordFieldError = useMemo(() => {
+    if (!errors.password) return undefined
+
+    if (passwordFieldValue.length < 8) {
+      return t('Please fill in at least 8 characters for password.')
+    }
+
+    return errors.password.message || t('Invalid password')
+  }, [errors.password, passwordFieldValue.length, t])
 
   const handleUnlock = useCallback(
     ({ password }: { password: string }) => {
+      if (disableSubmit) return
+
       dispatch({
         type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET',
         params: { secretId: 'password', secret: password }
       })
     },
-    [dispatch]
+    [disableSubmit, dispatch]
   )
 
   const panelSize = useMemo(() => {
@@ -182,15 +189,16 @@ const KeyStoreUnlockScreen = () => {
                   onBlur={onBlur}
                   placeholder={t('Enter Your Password')}
                   autoFocus={isWeb}
-                  onChangeText={onChange}
-                  isValid={isValidPassword(value)}
+                  onChangeText={(val: string) => {
+                    onChange(val)
+                    if (keystoreState.errorMessage) {
+                      dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
+                    }
+                  }}
+                  isValid={!errors.password && isValidPassword(value)}
                   value={value}
                   onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
-                  error={
-                    errors.password &&
-                    (errors.password.message ||
-                      t('Please fill in at least 8 characters for password.'))
-                  }
+                  error={passwordFieldError}
                   containerStyle={{ ...spacings.mbLg, width: 342 }}
                 />
               )}
@@ -199,13 +207,11 @@ const KeyStoreUnlockScreen = () => {
             <Button
               testID="button-unlock"
               style={{ width: 342, ...spacings.mbLg }}
-              disabled={
-                isSubmitting ||
-                keystoreState.status === 'LOADING' ||
-                watch('password', '').length < 8
-              }
+              disabled={disableSubmit}
               text={
-                isSubmitting || keystoreState.status === 'LOADING' ? t('Unlocking...') : t('Unlock')
+                keystoreState.statuses.unlockWithSecret === 'LOADING'
+                  ? t('Unlocking...')
+                  : t('Unlock')
               }
               onPress={handleSubmit((data) => handleUnlock(data))}
             />
