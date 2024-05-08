@@ -103,6 +103,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const isLoading = useMemo(
     () =>
       !activityState?.isInitialized ||
+      // Prevents the flashing of old history state
       (activityState.filters?.account && account.addr !== activityState.filters.account) ||
       (activityState.filters?.network && network.id !== activityState.filters.network),
     [
