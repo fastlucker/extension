@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
+import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
@@ -29,6 +30,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import TokenDetailsButton from './Button'
@@ -48,6 +50,7 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
+  const { selectedAccount, accounts } = useMainControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
@@ -59,6 +62,8 @@ const TokenDetails = ({
   const isGasTank = token?.flags.onGasTank
   const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
+  const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
+  const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
 
   const actions = useMemo(
     () => [
@@ -122,14 +127,14 @@ const TokenDetails = ({
             `${RELAYER_URL}/gas-tank/assets`
           )
             .then((r) => r.json())
-            .catch((e) => addToast(t('Error while fetching from relayer'), { type: 'error' }))
+            .catch(() => addToast(t('Error while fetching from relayer'), { type: 'error' }))
           const canTopUp = !!assets.find(
             (a) => getAddress(a.address) === getAddress(address) && a.network === networkId
           )
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !isGasTankFeeToken,
+        isDisabled: !isGasTankFeeToken || !isSmartAccount,
         strokeWidth: 1
       },
       {
