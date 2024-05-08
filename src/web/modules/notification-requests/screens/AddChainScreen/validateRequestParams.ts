@@ -1,4 +1,5 @@
-const validateRequestParams = (method: string, params: { [key: string]: any }) => {
+const validateRequestParams = (method: string | undefined, params: { [key: string]: any }) => {
+  if (!method) return false
   if (!['wallet_addEthereumChain'].includes(method)) return false
 
   if (!params) {

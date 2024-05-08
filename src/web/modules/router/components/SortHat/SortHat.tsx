@@ -43,24 +43,24 @@ const SortHat = () => {
     }
 
     if (isNotification && notificationState.currentNotificationRequest) {
-      if (notificationState.currentNotificationRequest?.screen === 'Unlock') {
+      if (notificationState.currentNotificationRequest.screen === 'Unlock') {
         dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
       }
-      if (notificationState.currentNotificationRequest?.screen === 'DappConnectRequest') {
+      if (notificationState.currentNotificationRequest.screen === 'DappConnectRequest') {
         return navigate(ROUTES.dappConnectRequest)
       }
-      if (notificationState.currentNotificationRequest?.screen === 'AddChain') {
+      if (notificationState.currentNotificationRequest.screen === 'AddChain') {
         return navigate(ROUTES.addChain)
       }
-      if (notificationState.currentNotificationRequest?.screen === 'SendTransaction') {
+      if (notificationState.currentNotificationRequest.screen === 'SendTransaction') {
         if (
           mainState.userRequests.find(
-            (req) => req.id === notificationState.currentNotificationRequest?.id
+            (req) => req.id === notificationState.currentNotificationRequest!.id
           )
         ) {
-          const accountAddr = notificationState.currentNotificationRequest?.accountAddr
+          const accountAddr = notificationState.currentNotificationRequest?.meta?.accountAddr
           const network = networks.find(
-            (n) => n.id === notificationState.currentNotificationRequest?.networkId
+            (n) => n.id === notificationState.currentNotificationRequest?.meta?.networkId
           )
 
           if (accountAddr && network) {
@@ -75,21 +75,21 @@ const SortHat = () => {
         }
       }
       if (
-        ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest?.screen)
+        ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest.screen)
       ) {
         let accountAddr = mainState.selectedAccount
 
         if (
-          notificationState.currentNotificationRequest?.screen === 'SignText' &&
-          notificationState.currentNotificationRequest?.params?.data[1]
+          notificationState.currentNotificationRequest.screen === 'SignText' &&
+          notificationState.currentNotificationRequest?.params?.[1]
         ) {
-          accountAddr = notificationState.currentNotificationRequest?.params?.data[1]
+          accountAddr = notificationState.currentNotificationRequest?.params?.[1]
         }
         if (
-          notificationState.currentNotificationRequest?.screen === 'SignTypedData' &&
-          notificationState.currentNotificationRequest?.params?.data[0]
+          notificationState.currentNotificationRequest.screen === 'SignTypedData' &&
+          notificationState.currentNotificationRequest?.params?.[0]
         ) {
-          accountAddr = notificationState.currentNotificationRequest?.params?.data[0]
+          accountAddr = notificationState.currentNotificationRequest?.params?.[0]
         }
 
         return navigate(ROUTES.signMessage, {
@@ -99,31 +99,31 @@ const SortHat = () => {
         })
       }
 
-      if (notificationState.currentNotificationRequest?.screen === 'WalletWatchAsset') {
+      if (notificationState.currentNotificationRequest.screen === 'WalletWatchAsset') {
         return navigate(ROUTES.watchAsset)
       }
-      if (notificationState.currentNotificationRequest?.screen === 'GetEncryptionPublicKey') {
+      if (notificationState.currentNotificationRequest.screen === 'GetEncryptionPublicKey') {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
-      if (notificationState.currentNotificationRequest?.screen === 'Benzin') {
+      if (notificationState.currentNotificationRequest.screen === 'Benzin') {
         // if userOpHash and custom network, close the window
         // as jiffyscan may not support the network
         const isCustomNetwork = !predefinedNetworks.find(
-          (net) => net.id === notificationState.currentNotificationRequest!.params.networkId
+          (net) => net.id === notificationState.currentNotificationRequest?.meta?.networkId
         )
         if (notificationState.currentNotificationRequest?.params?.userOpHash && isCustomNetwork) {
           window.close()
           return
         }
 
-        let link = `${ROUTES.benzin}?networkId=${notificationState.currentNotificationRequest.params.networkId}&isInternal`
+        let link = `${ROUTES.benzin}?networkId=${notificationState.currentNotificationRequest?.meta?.networkId}&isInternal`
 
-        if (notificationState.currentNotificationRequest?.params?.txnId) {
-          link += `&txnId=${notificationState.currentNotificationRequest?.params?.txnId}`
+        if (notificationState.currentNotificationRequest?.meta?.txnId) {
+          link += `&txnId=${notificationState.currentNotificationRequest?.meta?.txnId}`
         }
 
-        if (notificationState.currentNotificationRequest?.params?.userOpHash) {
-          link += `&userOpHash=${notificationState.currentNotificationRequest?.params?.userOpHash}`
+        if (notificationState.currentNotificationRequest?.meta?.userOpHash) {
+          link += `&userOpHash=${notificationState.currentNotificationRequest?.meta?.userOpHash}`
         }
 
         return navigate(link)

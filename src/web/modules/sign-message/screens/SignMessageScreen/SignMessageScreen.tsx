@@ -154,8 +154,8 @@ const SignMessageScreen = () => {
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
             dapp: {
-              name: currentNotificationRequest?.params?.session?.name,
-              icon: currentNotificationRequest?.params?.session?.icon
+              name: currentNotificationRequest?.session?.name || '',
+              icon: currentNotificationRequest?.session?.icon || ''
             },
             messageToSign: msgToSign,
             accounts: mainState.accounts,
@@ -174,7 +174,7 @@ const SignMessageScreen = () => {
     mainState.accountStates,
     signMessageState.messageToSign?.id,
     signMessageState.messageToSign?.accountAddr,
-    currentNotificationRequest?.params
+    currentNotificationRequest?.session
   ])
 
   useEffect(() => {

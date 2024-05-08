@@ -1,50 +1,51 @@
-/* eslint-disable @typescript-eslint/return-await */
-/* eslint-disable @typescript-eslint/no-shadow */
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
 import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
-import { ProviderRequest } from '@web/extension-services/background/provider/types'
+import {
+  ProviderNeededControllers,
+  ProviderRequest,
+  RequestRes
+} from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
 import underline2Camelcase from '@web/utils/underline2Camelcase'
 
 const lockedOrigins = new Set<string>()
 const connectOrigins = new Set<string>()
 
-const flow = new PromiseFlow<ProviderRequest & { mapMethod: string; requestRes?: any }>()
+const flow = new PromiseFlow<{
+  request: ProviderRequest
+  controllers: ProviderNeededControllers
+  mapMethod: string
+  requestRes?: RequestRes
+}>()
 
 const flowContext = flow
-  .use(async (request, next) => {
-    const {
-      data: { method },
-      mainCtrl,
-      dappsCtrl
-    } = request
-
+  .use(async ({ request, controllers, mapMethod }, next) => {
+    const { mainCtrl, dappsCtrl } = controllers
+    const { method, params } = request
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
-    if (!(providerCtrl as any)[request.mapMethod]) {
+    if (!(providerCtrl as any)[mapMethod]) {
       if (method.startsWith('eth_') || method === 'net_version') {
         return providerCtrl.ethRpc(request)
       }
 
       throw ethErrors.rpc.methodNotFound({
         message: `method [${method}] doesn't has corresponding handler`,
-        data: request.data
+        data: { method, params }
       })
     }
 
     return next()
   })
-  .use(async (request, next) => {
+  .use(async ({ request, controllers, mapMethod }, next) => {
+    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
     const {
-      mapMethod,
-      session: { origin },
-      mainCtrl,
-      dappsCtrl,
-      notificationCtrl
+      session: { origin }
     } = request
+
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
       const isUnlock = mainCtrl.keystore.isReadyToStoreKeys ? mainCtrl.keystore.isUnlocked : true
@@ -55,10 +56,7 @@ const flowContext = flow
         }
         lockedOrigins.add(origin)
         try {
-          await notificationCtrl.requestNotificationRequest({
-            screen: 'Unlock',
-            params: { origin }
-          })
+          await notificationCtrl.requestNotificationRequest({ ...request, screen: 'Unlock' })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -71,14 +69,11 @@ const flowContext = flow
 
     return next()
   })
-  .use(async (request, next) => {
+  .use(async ({ request, controllers, mapMethod }, next) => {
     // check connect
+    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
     const {
-      session: { origin, name, icon },
-      mainCtrl,
-      dappsCtrl,
-      notificationCtrl,
-      mapMethod
+      session: { origin, name, icon }
     } = request
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     if (!Reflect.getMetadata('SAFE', providerCtrl, mapMethod)) {
@@ -86,10 +81,10 @@ const flowContext = flow
         if (connectOrigins.has(origin)) {
           throw ethErrors.rpc.resourceNotFound('Already processing connect. Please wait.')
         }
-        connectOrigins.add(origin)
         try {
+          connectOrigins.add(origin)
           await notificationCtrl.requestNotificationRequest({
-            params: { origin, name, icon },
+            ...request,
             screen: 'DappConnectRequest'
           })
           connectOrigins.delete(origin)
@@ -111,37 +106,33 @@ const flowContext = flow
 
     return next()
   })
-  .use(async (request, next) => {
+  .use(async (props, next) => {
     // check need notification request
-    const {
-      data: { method, params },
-      session: { origin, name, icon },
-      mainCtrl,
-      dappsCtrl,
-      notificationCtrl,
-      mapMethod
-    } = request
+    const { request, controllers, mapMethod } = props
+    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
-    if (requestType && (!condition || !condition(request))) {
-      request.requestRes = await notificationCtrl.requestNotificationRequest({
-        screen: requestType,
-        params: { method, data: params, session: { origin, name, icon } },
-        origin
+    console.log('1')
+    if (requestType && (!condition || !condition(props))) {
+      console.log('2')
+      // eslint-disable-next-line no-param-reassign
+      props.requestRes = await notificationCtrl.requestNotificationRequest({
+        ...request,
+        screen: requestType
       })
     }
 
     return next()
   })
-  .use(async (request) => {
-    const providerCtrl = new ProviderController(request.mainCtrl, request.dappsCtrl)
-    const { mapMethod } = request
+  .use(async ({ request, controllers, mapMethod, requestRes }) => {
+    const { mainCtrl, dappsCtrl } = controllers
+    const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
 
-    return Promise.resolve((providerCtrl as any)[mapMethod](request))
+    return Promise.resolve((providerCtrl as any)[mapMethod]({ ...request, requestRes }))
   })
   .callback()
 
-export default (request: ProviderRequest) => {
-  return flowContext({ ...request, mapMethod: underline2Camelcase(request.data.method) })
+export default (request: ProviderRequest, controllers: ProviderNeededControllers) => {
+  return flowContext({ request, controllers, mapMethod: underline2Camelcase(request.method) })
 }

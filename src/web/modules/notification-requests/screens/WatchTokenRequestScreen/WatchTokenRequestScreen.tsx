@@ -51,8 +51,8 @@ const WatchTokenRequestScreen = () => {
   const portfolio = usePortfolioControllerState()
   const { networks, providers } = useSettingsControllerState()
 
-  const tokenData = state?.currentNotificationRequest?.params?.data?.options
-  const origin = state?.currentNotificationRequest?.params?.session?.origin
+  const tokenData = state?.currentNotificationRequest?.params?.options
+  const origin = state?.currentNotificationRequest?.session?.origin
   const network =
     networks.find((n) => n.explorerUrl === origin) ||
     networks.find((n) => n.id === tokenData?.networkId)
@@ -139,7 +139,6 @@ const WatchTokenRequestScreen = () => {
     const handleEffect = async () => {
       handleSelectNetwork()
       if (tokenNetwork) {
-
         // Check if token is already in portfolio
         const isTokenInHints = await handleTokenIsInPortfolio(
           tokenInPreferences,
@@ -152,12 +151,11 @@ const WatchTokenRequestScreen = () => {
           setShowAlreadyInPortfolioMessage(true)
         }
         if (!temporaryToken) {
-
           // Check if token is eligible to add in portfolio
           if (tokenData && !tokenTypeEligibility) {
             await handleTokenType(tokenNetwork?.id)
           }
-          
+
           if (tokenTypeEligibility && !isTokenInHints && !isTemporaryTokenRequested) {
             setTemporaryTokenRequested(true)
             portfolio.getTemporaryTokens(tokenNetwork?.id, getAddress(tokenData?.address))

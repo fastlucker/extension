@@ -10,8 +10,8 @@ import {
   SIGN_METHODS
 } from '@web/extension-services/background/controllers/notification'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import { getUiType } from '@web/utils/uiType'
 import useControllerState from '@web/hooks/useControllerState'
+import { getUiType } from '@web/utils/uiType'
 
 const NotificationControllerStateContext = createContext<NotificationController>(
   {} as NotificationController
@@ -21,7 +21,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'notification'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const prevState = usePrevious(state) || ({} as NotificationController)
+  const prevState: NotificationController = usePrevious(state) || ({} as NotificationController)
   const { path } = useRoute()
 
   const { navigate } = useNavigation()
@@ -55,8 +55,8 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       !isNotification &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      !SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method) &&
-      state.currentNotificationRequest?.params?.method !== BENZIN_NOTIFICATION_DATA.method
+      !SIGN_METHODS.includes(state.currentNotificationRequest?.method) &&
+      state.currentNotificationRequest?.method !== BENZIN_NOTIFICATION_DATA.method
     ) {
       dispatch({
         type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
@@ -65,7 +65,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [
     dispatch,
-    state.currentNotificationRequest?.params.method,
+    state.currentNotificationRequest?.method,
     state.notificationWindowId,
     state.currentNotificationRequest
   ])
@@ -76,7 +76,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       isPopup &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      SIGN_METHODS.includes(state.currentNotificationRequest?.params?.method)
+      SIGN_METHODS.includes(state.currentNotificationRequest?.method)
     ) {
       dispatch({
         type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
@@ -85,7 +85,7 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [
     dispatch,
-    state.currentNotificationRequest?.params.method,
+    state.currentNotificationRequest?.method,
     state.notificationWindowId,
     state.currentNotificationRequest,
     path

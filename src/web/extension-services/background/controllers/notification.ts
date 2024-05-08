@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-shadow */
 import { ethErrors } from 'eth-rpc-errors'
 
@@ -11,6 +12,7 @@ import { UserNotification } from '@web/extension-services/background/libs/user-n
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 import { PortMessenger } from '@web/extension-services/messengers'
 
+import { ProviderRequest } from '../provider/types'
 import { DappsController } from './dapps'
 
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = ['SendTransaction', 'SignText', 'SignTypedData']
@@ -49,15 +51,13 @@ export const isSignMessageMethod = (method: string) => {
   return ['personal_sign', 'eth_sign'].includes(method)
 }
 
-export interface NotificationRequest {
-  id: number
+type Request = ProviderRequest & {
   screen: string
-  winProps?: any
-  params: {
-    [key: string]: any
-  }
-  accountAddr?: string
-  networkId?: string
+  meta?: { [key: string]: any }
+}
+
+export type NotificationRequest = Request & {
+  id: number
   resolve: (data: any) => void
   reject: (data: any) => void
 }
@@ -111,11 +111,13 @@ export class NotificationController extends EventEmitter {
           const notificationRequestFromUserRequest: NotificationRequest = {
             id: userReq.id,
             screen: getScreenType(userReq.action.kind) as string,
-            params: {
-              method: 'eth_sendTransaction'
+            method: 'eth_sendTransaction',
+            session: { origin, name: '', icon: '' } as ProviderRequest['session'],
+            origin,
+            meta: {
+              accountAddr: userReq.accountAddr,
+              networkId: userReq.networkId
             },
-            accountAddr: userReq.accountAddr,
-            networkId: userReq.networkId,
             resolve: () => {},
             reject: () => {}
           }
@@ -156,7 +158,7 @@ export class NotificationController extends EventEmitter {
       const notificationRequest = this.notificationRequests.find((req) => req.id === notificationId)
       if (notificationRequest && !SIGN_METHODS.includes(notificationRequest?.params?.method)) {
         const windows = await browser.windows.getAll()
-        const existWindow = windows.find((window) => window.id === this.notificationWindowId)
+        const existWindow = windows.find((window: any) => window.id === this.notificationWindowId)
         if (this.notificationWindowId !== null && !!existWindow) {
           const {
             top: cTop,
@@ -182,7 +184,7 @@ export class NotificationController extends EventEmitter {
       if (notificationRequest) {
         this.currentNotificationRequest = notificationRequest
         this.emitUpdate()
-        this.openNotification(notificationRequest.winProps)
+        this.openNotification()
       }
     } catch (e: any) {
       this.emitError({
@@ -210,42 +212,36 @@ export class NotificationController extends EventEmitter {
     }
 
     if (notificationRequest) {
-      notificationRequest?.resolve(data)
+      notificationRequest.resolve(data)
 
-      if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
-        this.#mainCtrl.removeUserRequest(notificationRequest?.id)
+      if (SIGN_METHODS.includes(notificationRequest.method)) {
+        this.#mainCtrl.removeUserRequest(notificationRequest.id)
         this.deleteNotificationRequest(notificationRequest)
         this.currentNotificationRequest = null
-        if (
-          isSignAccountOpMethod(notificationRequest.params?.method) &&
-          data?.hash &&
-          data?.networkId
-        ) {
-          const params = {
-            method: BENZIN_NOTIFICATION_DATA.method,
-            networkId: notificationRequest.networkId,
+        if (isSignAccountOpMethod(notificationRequest.method) && data?.hash && data?.networkId) {
+          const meta = {
+            ...notificationRequest.meta,
             txnId: null,
             userOpHash: null
           }
-          data?.isUserOp ? (params.userOpHash = data.hash) : (params.txnId = data.hash)
+          data?.isUserOp ? (meta.userOpHash = data.hash) : (meta.txnId = data.hash)
           this.requestNotificationRequest(
             {
+              ...notificationRequest,
               screen: BENZIN_NOTIFICATION_DATA.screen,
-              params,
-              resolve: () => {},
-              reject: () => {}
+              method: BENZIN_NOTIFICATION_DATA.method,
+              meta
             },
-            undefined,
             false
           )
 
           return
         }
       } else {
-        const currentOrigin = notificationRequest.params?.session?.origin
+        const currentOrigin = notificationRequest?.origin
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
-        const nextOrigin = nextNotificationRequest?.params?.session?.origin
+        const nextOrigin = nextNotificationRequest?.origin
 
         const shouldOpenNextRequest =
           (nextNotificationRequest &&
@@ -273,12 +269,12 @@ export class NotificationController extends EventEmitter {
       notificationRequest?.reject &&
         notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
 
-      if (SIGN_METHODS.includes(notificationRequest.params?.method)) {
-        this.#mainCtrl.removeUserRequest(notificationRequest?.id)
+      if (SIGN_METHODS.includes(notificationRequest.method)) {
+        this.#mainCtrl.removeUserRequest(notificationRequest.id)
         this.deleteNotificationRequest(notificationRequest)
 
         let nextNotificationUserRequest = null
-        if (isSignAccountOpMethod(notificationRequest?.params?.method)) {
+        if (isSignAccountOpMethod(notificationRequest.method)) {
           const account =
             this.#mainCtrl.accounts.find((a) => a.addr === this.#mainCtrl.selectedAccount) ||
             ({} as Account)
@@ -286,8 +282,8 @@ export class NotificationController extends EventEmitter {
             nextNotificationUserRequest =
               this.notificationRequests.find(
                 (req) =>
-                  req.accountAddr === notificationRequest?.accountAddr &&
-                  req.networkId === notificationRequest?.networkId
+                  req.meta?.accountAddr === notificationRequest?.meta?.accountAddr &&
+                  req.meta?.networkId === notificationRequest?.meta?.networkId
               ) || null
           }
         }
@@ -295,10 +291,7 @@ export class NotificationController extends EventEmitter {
       } else {
         this.deleteNotificationRequest(notificationRequest)
         const nextNotificationRequest = this.notificationRequests[0]
-        if (
-          nextNotificationRequest &&
-          !SIGN_METHODS.includes(nextNotificationRequest?.params?.method)
-        ) {
+        if (nextNotificationRequest && !SIGN_METHODS.includes(nextNotificationRequest.method)) {
           this.currentNotificationRequest = nextNotificationRequest
         } else this.currentNotificationRequest = null
       }
@@ -307,13 +300,9 @@ export class NotificationController extends EventEmitter {
     this.emitUpdate()
   }
 
-  requestNotificationRequest = (
-    data: any,
-    winProps?: any,
-    openNewWindow: boolean = true
-  ): Promise<any> => {
+  requestNotificationRequest = (request: Request, openNewWindow: boolean = true): Promise<any> => {
     // Delete the current notification request if it's a benzin request
-    if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
+    if (this.currentNotificationRequest?.method === BENZIN_NOTIFICATION_DATA.method) {
       this.deleteNotificationRequest(this.currentNotificationRequest)
       this.currentNotificationRequest = null
     }
@@ -321,24 +310,18 @@ export class NotificationController extends EventEmitter {
     return new Promise((resolve, reject) => {
       const id = new Date().getTime()
       const notificationRequest: NotificationRequest = {
+        ...request,
         id,
-        winProps,
-        params: data.params || {},
-        screen: data.screen,
-        resolve: (data) => {
-          resolve(data)
-        },
-        reject: (data) => {
-          reject(data)
-        }
+        resolve: (data) => resolve(data),
+        reject: (data) => reject(data)
       }
 
       if (
-        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(data.screen) &&
+        !QUEUE_REQUESTS_COMPONENTS_WHITELIST.includes(request.screen) &&
         this.notificationWindowId &&
         this.currentNotificationRequest
       ) {
-        if (data.screen === this.currentNotificationRequest.screen) {
+        if (request.screen === this.currentNotificationRequest.screen) {
           this.currentNotificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>())
           this.deleteNotificationRequest(this.currentNotificationRequest)
         } else {
@@ -359,15 +342,17 @@ export class NotificationController extends EventEmitter {
       }
 
       // If account op we add the notification request when we validate the txn params
-      if (!isSignAccountOpMethod(notificationRequest.params?.method)) {
+      if (!isSignAccountOpMethod(notificationRequest.method)) {
         this.notificationRequests = [notificationRequest, ...this.notificationRequests]
       }
       this.currentNotificationRequest = notificationRequest
 
       if (
-        ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(data?.params?.method)
+        ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(
+          notificationRequest.method
+        )
       ) {
-        let chainId = data.params?.data?.[0]?.chainId
+        let chainId = request.params?.[0]?.chainId
         if (typeof chainId === 'string') {
           chainId = Number(chainId)
         }
@@ -379,67 +364,69 @@ export class NotificationController extends EventEmitter {
           return
         }
       }
-      if (isSignMessageMethod(data?.params?.method)) {
+      if (isSignMessageMethod(notificationRequest.method)) {
         const userNotification = new UserNotification(this.#dappsCtrl)
-        const request = userNotification.createSignMessageUserRequest({
+        const userRequest = userNotification.createSignMessageUserRequest({
           id,
-          data: data?.params?.data,
-          origin: data.params?.session?.origin,
+          data: request.params,
+          origin: request.origin,
           selectedAccount: this.#mainCtrl.selectedAccount || '',
           networks: this.#mainCtrl.settings.networks,
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) this.#mainCtrl.addUserRequest(request)
+        if (userRequest) this.#mainCtrl.addUserRequest(userRequest)
         else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
 
-      if (isSignTypedDataMethod(data?.params?.method)) {
+      if (isSignTypedDataMethod(notificationRequest.method)) {
         const userNotification = new UserNotification(this.#dappsCtrl)
-        const request = userNotification.createSignTypedDataUserRequest({
+        const userRequest = userNotification.createSignTypedDataUserRequest({
           id,
-          data: data?.params?.data,
-          origin: data.params?.session?.origin,
+          data: request.params,
+          origin: request.origin,
           selectedAccount: this.#mainCtrl.selectedAccount || '',
           networks: this.#mainCtrl.settings.networks,
           onError: (err) => this.rejectNotificationRequest(err),
           onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
         })
-        if (request) this.#mainCtrl.addUserRequest(request)
+        if (userRequest) this.#mainCtrl.addUserRequest(userRequest)
         else {
           this.rejectNotificationRequest('Invalid request data')
           return
         }
       }
 
-      if (isSignAccountOpMethod(data?.params?.method)) {
-        const txs = data?.params?.data
+      if (isSignAccountOpMethod(notificationRequest.method)) {
+        const txs = request.params
         let success = false
         Object.keys(txs).forEach((key) => {
           const userNotification = new UserNotification(this.#dappsCtrl)
-          const request = userNotification.createAccountOpUserRequest({
+          const userRequest = userNotification.createAccountOpUserRequest({
             id,
             txn: txs[key],
             txs,
-            origin: data.params?.session?.origin,
+            origin: request.origin,
             selectedAccount: this.#mainCtrl.selectedAccount || '',
             networks: this.#mainCtrl.settings.networks,
             onError: (err) => this.rejectNotificationRequest(err),
             onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
           })
-          if (request) {
+          if (userRequest) {
             success = true
-            const accountOpNotificationRequest = {
+            const accountOpNotificationRequest: NotificationRequest = {
               ...notificationRequest,
-              accountAddr: request.accountAddr,
-              networkId: request.networkId
+              meta: {
+                accountAddr: userRequest.accountAddr,
+                networkId: userRequest.networkId
+              }
             }
             this.notificationRequests = [accountOpNotificationRequest, ...this.notificationRequests]
             this.currentNotificationRequest = accountOpNotificationRequest
-            this.#mainCtrl.addUserRequest(request)
+            this.#mainCtrl.addUserRequest(userRequest)
           } else {
             this.notificationRequests = [notificationRequest, ...this.notificationRequests]
             this.rejectNotificationRequest('Invalid request data')
@@ -449,15 +436,15 @@ export class NotificationController extends EventEmitter {
         if (!success) return
       }
       this.emitUpdate()
-      if (openNewWindow) this.openNotification(notificationRequest.winProps)
+      if (openNewWindow) this.openNotification()
     })
   }
 
   rejectAllNotificationRequestsThatAreNotSignRequests = () => {
-    this.notificationRequests.forEach((notificationReq) => {
-      if (!SIGN_METHODS.includes(notificationReq?.params?.method)) {
+    this.notificationRequests.forEach((notificationReq: NotificationRequest) => {
+      if (!SIGN_METHODS.includes(notificationReq.method)) {
         this.rejectNotificationRequest(
-          `User rejected the request: ${notificationReq?.params?.method}`,
+          `User rejected the request: ${notificationReq.method}`,
           notificationReq.id
         )
       }
@@ -466,11 +453,14 @@ export class NotificationController extends EventEmitter {
   }
 
   notifyForClosedUserRequestThatAreStillPending = async () => {
-    if (SIGN_METHODS.includes(this.currentNotificationRequest?.params?.method)) {
-      const title = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+    if (
+      this.currentNotificationRequest &&
+      SIGN_METHODS.includes(this.currentNotificationRequest.method)
+    ) {
+      const title = isSignAccountOpMethod(this.currentNotificationRequest.method)
         ? 'Added Pending Transaction Request'
         : 'Added Pending Message Request'
-      const message = isSignAccountOpMethod(this.currentNotificationRequest?.params?.method)
+      const message = isSignAccountOpMethod(this.currentNotificationRequest.method)
         ? 'Transaction added to your cart. You can add more transactions and sign them all together (thus saving on network fees).'
         : 'The message was added to your cart. You can find all pending requests listed on your Dashboard.'
 
@@ -486,7 +476,7 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  openNotification = async (winProps: any) => {
+  openNotification = async () => {
     // Open on next tick to ensure that state update is emitted to FE before opening the window
     await delayPromise(1)
     if (this.notificationWindowId !== null) {
@@ -494,7 +484,7 @@ export class NotificationController extends EventEmitter {
       this.notificationWindowId = null
       this.emitUpdate()
     }
-    winMgr.openNotification(winProps).then((winId) => {
+    winMgr.openNotification().then((winId) => {
       this.notificationWindowId = winId!
       this.emitUpdate()
     })

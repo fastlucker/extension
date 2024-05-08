@@ -1,8 +1,6 @@
-/* eslint-disable no-promise-executor-return */
-/* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'reflect-metadata'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
@@ -17,31 +15,15 @@ import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { Session } from '@web/extension-services/background/services/session'
 
-interface RequestRes {
-  type?: string
-  address?: string
-  uiRequestComponent?: string
-  isSend?: boolean
-  isSpeedUp?: boolean
-  isCancel?: boolean
-  isSwap?: boolean
-  isGnosis?: boolean
-  account?: any
-  extra?: Record<string, any>
-  traceId?: string
-  signingTxId?: string
-  hash?: string
-  error?: string
-}
+import {
+  ProviderNeededControllers,
+  ProviderRequest,
+  RequestRes,
+  Web3WalletPermission
+} from './types'
 
-interface Web3WalletPermission {
-  // The name of the method corresponding to the permission
-  parentCapability: string
-  // The date the permission was granted, in UNIX epoch time
-  date?: number
-}
+type Request = ProviderRequest & { requestRes: RequestRes }
 
 const handleSignMessage = (requestRes: RequestRes) => {
   if (requestRes) {
@@ -89,11 +71,12 @@ export class ProviderController {
     )
   }
 
-  ethRpc = async (req: any) => {
+  ethRpc = async (request: ProviderRequest) => {
     const {
-      data: { method, params },
+      method,
+      params,
       session: { origin }
-    } = req
+    } = request
 
     const networkId = this.getDappNetwork(origin).id
     const provider = this.mainCtrl.settings.providers[networkId]
@@ -105,7 +88,7 @@ export class ProviderController {
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }: any) => {
+  ethRequestAccounts = async ({ session: { origin } }: Request) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
@@ -117,7 +100,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }: any) => {
+  ethAccounts = async ({ session: { origin } }: Request) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
@@ -125,7 +108,7 @@ export class ProviderController {
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }: any) => {
+  ethCoinbase = async ({ session: { origin } }: Request) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
@@ -134,7 +117,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async ({ session: { origin } }: any) => {
+  ethChainId = async ({ session: { origin } }: Request) => {
     if (this.dappsCtrl.hasPermission(origin)) {
       return toBeHex(this.dappsCtrl.getDapp(origin)?.chainId || 1)
     }
@@ -142,25 +125,16 @@ export class ProviderController {
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
-  ethSendTransaction = async (options: {
-    data: {
-      params: any
-    }
-    session: Session
-    requestRes: RequestRes
-    pushed: boolean
-    result: any
-  }) => {
-    if (options.pushed) return options.result
-
-    const { requestRes } = cloneDeep(options)
+  ethSendTransaction = async (request: Request) => {
+    const { session } = request
+    const { requestRes } = cloneDeep(request)
 
     if (requestRes?.hash) {
       // @erc4337
       // check if the request is erc4337
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
-      const dappNetwork = this.getDappNetwork(options.session.origin)
+      const dappNetwork = this.getDappNetwork(session.origin)
       const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
       const accountState =
         this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
@@ -191,46 +165,54 @@ export class ProviderController {
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  personalSign = async ({ requestRes }: any) => {
+  personalSign = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  ethSign = async ({ requestRes }: any) => {
+  ethSign = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedData = async ({ requestRes }: any) => {
+  ethSignTypedData = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({ requestRes }: any) => {
+  ethSignTypedDataV1 = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({ requestRes }: any) => {
+  ethSignTypedDataV3 = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({ requestRes }: any) => {
+  ethSignTypedDataV4 = async ({ requestRes }: Request) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
-    ({ data, session, mainCtrl, dappsCtrl }: any) => {
-      if (!data.params[0]) {
+    ({
+      request,
+      controllers
+    }: {
+      request: ProviderRequest
+      controllers: ProviderNeededControllers
+    }) => {
+      const { mainCtrl, dappsCtrl } = controllers
+      const { params, session } = request
+      if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
-      if (!data.params[0]?.chainId) {
+      if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
       const dapp = dappsCtrl.getDapp(session.origin)
-      const { chainId } = data.params[0]
+      const { chainId } = params[0]
       const network = mainCtrl.settings.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
@@ -239,24 +221,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletAddEthereumChain = ({
-    data: {
-      params: [chainParams]
-    },
-    session: { origin, name }
-  }: {
-    data: {
-      params: any[]
-    }
-    session: {
-      origin: string
-      name: string
-    }
-    requestRes?: {
-      chain: any
-      rpcUrl: string
-    }
-  }) => {
+  walletAddEthereumChain = ({ params: [chainParams], session: { origin, name } }: Request) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -292,15 +257,23 @@ export class ProviderController {
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
     'AddChain',
-    ({ data, session, mainCtrl, dappsCtrl }: any) => {
-      if (!data.params[0]) {
+    ({
+      request,
+      controllers
+    }: {
+      request: ProviderRequest
+      controllers: ProviderNeededControllers
+    }) => {
+      const { mainCtrl, dappsCtrl } = controllers
+      const { params, session } = request
+      if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
-      if (!data.params[0]?.chainId) {
+      if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
       const dapp = dappsCtrl.getDapp(session.origin)
-      const { chainId } = data.params[0]
+      const { chainId } = params[0]
       const network = mainCtrl.settings.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
@@ -315,12 +288,7 @@ export class ProviderController {
       return true
     }
   ])
-  walletSwitchEthereumChain = ({
-    data: {
-      params: [chainParams]
-    },
-    session: { origin, name }
-  }: any) => {
+  walletSwitchEthereumChain = ({ params: [chainParams], session: { origin, name } }: Request) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -357,11 +325,11 @@ export class ProviderController {
   walletWatchAsset = () => true
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = ({ requestRes }: { requestRes: string }) => ({
+  ethGetEncryptionPublicKey = ({ requestRes }: Request) => ({
     result: requestRes
   })
 
-  walletRequestPermissions = ({ data: { params: permissions } }) => {
+  walletRequestPermissions = ({ params: permissions }: Request) => {
     const result: Web3WalletPermission[] = []
     if (permissions && 'eth_accounts' in permissions[0]) {
       result.push({ parentCapability: 'eth_accounts' })
@@ -370,7 +338,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  walletGetPermissions = ({ session: { origin } }) => {
+  walletGetPermissions = ({ session: { origin } }: Request) => {
     const result: Web3WalletPermission[] = []
     if (this.dappsCtrl.getDapp(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
@@ -378,11 +346,7 @@ export class ProviderController {
     return result
   }
 
-  personalEcRecover = ({
-    data: {
-      params: [data, sig, extra = {}]
-    }
-  }) => {
+  personalEcRecover = ({ params: [data, sig, extra = {}] }: Request) => {
     // TODO:
   }
 

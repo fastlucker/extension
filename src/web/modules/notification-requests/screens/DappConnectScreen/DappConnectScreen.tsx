@@ -103,7 +103,7 @@ const DappConnectScreen = () => {
         </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>
           <ManifestImage
-            uri={state.currentNotificationRequest?.params?.icon}
+            uri={state.currentNotificationRequest?.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
@@ -115,8 +115,8 @@ const DappConnectScreen = () => {
           appearance="secondaryText"
           weight="semiBold"
         >
-          {state.currentNotificationRequest?.params?.origin
-            ? new URL(state.currentNotificationRequest?.params?.origin).hostname
+          {state.currentNotificationRequest?.origin
+            ? new URL(state.currentNotificationRequest.origin).hostname
             : ''}
         </Text>
 
@@ -127,7 +127,7 @@ const DappConnectScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={16} weight="medium" appearance="primary">
-                {state.currentNotificationRequest?.params?.name || ''}
+                {state.currentNotificationRequest?.session?.name || ''}
               </Text>
               <Text fontSize={16} weight="medium">
                 {' is requesting an authorization to communicate with Ambire Wallet'}
@@ -153,13 +153,13 @@ const DappConnectScreen = () => {
                   {'Allow'}{' '}
                 </Text>
                 <ManifestImage
-                  uri={state.currentNotificationRequest?.params?.icon}
+                  uri={state.currentNotificationRequest?.session?.icon}
                   size={24}
                   fallback={() => <ManifestFallbackIcon />}
                 />
                 <Text fontSize={16} weight="semiBold">
                   {' '}
-                  {state.currentNotificationRequest?.params?.name}{' '}
+                  {state.currentNotificationRequest?.session?.name}{' '}
                 </Text>
                 <Text fontSize={16} weight="medium" appearance="secondaryText">
                   to{' '}

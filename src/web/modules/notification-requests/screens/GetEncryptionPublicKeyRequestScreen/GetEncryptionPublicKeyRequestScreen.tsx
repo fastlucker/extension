@@ -38,15 +38,15 @@ const GetEncryptionPublicKeyRequestScreen = () => {
         <Panel>
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage
-              uri={currentNotificationRequest?.params?.session?.icon}
+              uri={currentNotificationRequest?.session?.icon}
               size={64}
               fallback={() => <ManifestFallbackIcon />}
             />
           </View>
 
           <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {currentNotificationRequest?.params?.origin
-              ? new URL(currentNotificationRequest.params.origin).hostname
+            {currentNotificationRequest?.origin
+              ? new URL(currentNotificationRequest.origin).hostname
               : ''}
           </Title>
 

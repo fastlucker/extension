@@ -1067,17 +1067,19 @@ async function init() {
     }
 
     try {
-      const res = await handleProviderRequests({
-        data: {
+      const res = await handleProviderRequests(
+        {
           method,
-          params
+          params,
+          session,
+          origin
         },
-        session,
-        origin,
-        mainCtrl,
-        notificationCtrl,
-        dappsCtrl
-      })
+        {
+          mainCtrl,
+          notificationCtrl,
+          dappsCtrl
+        }
+      )
       return { id, result: res }
     } catch (error: any) {
       return { id, error }

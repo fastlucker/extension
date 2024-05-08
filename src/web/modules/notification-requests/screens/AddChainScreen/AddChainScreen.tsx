@@ -46,18 +46,18 @@ const AddChainScreen = () => {
   const actionButtonPressedRef = useRef(false)
 
   const requestData = useMemo(
-    () => currentNotificationRequest?.params?.data?.[0],
-    [currentNotificationRequest?.params?.data]
+    () => currentNotificationRequest?.params?.[0],
+    [currentNotificationRequest?.params]
   )
 
   const requestMethod = useMemo(
-    () => currentNotificationRequest?.params?.method,
-    [currentNotificationRequest?.params?.method]
+    () => currentNotificationRequest?.method,
+    [currentNotificationRequest?.method]
   )
 
   const requestSession = useMemo(
-    () => currentNotificationRequest?.params?.session,
-    [currentNotificationRequest?.params?.session]
+    () => currentNotificationRequest?.session,
+    [currentNotificationRequest?.session]
   )
 
   useEffect(() => {
@@ -207,7 +207,7 @@ const AddChainScreen = () => {
           <View style={[flexbox.directionRow, flexbox.flex1]}>
             <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <NetworkDetails
-                name={currentNotificationRequest?.params?.data?.[0]?.chainName}
+                name={currentNotificationRequest?.params?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
                 chainId={Number(networkDetails.chainId).toString()}
                 rpcUrls={networkDetails.rpcUrls}
@@ -258,7 +258,7 @@ const AddChainScreen = () => {
               title={t('Invalid Request Params')}
               text={t(
                 `${
-                  currentNotificationRequest?.params?.session?.name || 'The dApp'
+                  currentNotificationRequest?.session?.name || 'The dApp'
                 } provided invalid params for adding a new network.`
               )}
               type="error"
