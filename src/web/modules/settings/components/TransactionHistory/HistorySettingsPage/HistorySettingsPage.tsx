@@ -199,36 +199,36 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           />
         )}
       </View>
-      <View style={[spacings.mbTy]}>
-        {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
-          <View style={[flexbox.directionRow, flexbox.flex1, spacings.phSm]}>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Dapps')}</Text>
+      {!isLoading ? (
+        <>
+          {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
+            <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Dapps')}</Text>
+              </View>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Submitted on')}</Text>
+              </View>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Sign type')}</Text>
+              </View>
+              <View style={{ width: 15, height: 1 }} />
             </View>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Submitted on')}</Text>
-            </View>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Sign type')}</Text>
-            </View>
-            <View style={{ width: 15, height: 1 }} />
-          </View>
-        )}
-      </View>
-      <ScrollableWrapper
-        style={[spacings.mbXl, flexbox.flex1]}
-        {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
-          ? { stickyHeaderIndices: [0] }
-          : {})}
-      >
-        {!isLoading ? (
-          <HistoryComponent page={page} account={account} network={network} />
-        ) : (
-          <View style={[flexbox.flex1, flexbox.center]}>
-            <Spinner />
-          </View>
-        )}
-      </ScrollableWrapper>
+          )}
+          <ScrollableWrapper
+            style={[spacings.mbXl, flexbox.flex1]}
+            {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
+              ? { stickyHeaderIndices: [0] }
+              : {})}
+          >
+            <HistoryComponent page={page} account={account} network={network} />
+          </ScrollableWrapper>
+        </>
+      ) : (
+        <View style={[flexbox.flex1, flexbox.center]}>
+          <Spinner />
+        </View>
+      )}
       <Pagination
         maxPages={Math.ceil(itemsTotal / ITEMS_PER_PAGE)}
         isNextDisabled={goToNextPageDisabled}
