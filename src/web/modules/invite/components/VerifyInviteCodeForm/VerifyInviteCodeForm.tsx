@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
+import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -68,6 +69,9 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         )}
         name="code"
       />
+
+      {/* TODO: Maybe?  */}
+      <Text>{t('Don t have an invite code? Request one now.')}</Text>
 
       <Button
         disabled={isSubmitting || !isValid}
