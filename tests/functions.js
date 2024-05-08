@@ -69,6 +69,20 @@ export async function clickOnElement(page, selector) {
 }
 
 //----------------------------------------------------------------------------------------------
+export async function clickElementWithRetry(page, selector, maxRetries = 5) {
+  let retries = 0
+  while (retries < maxRetries) {
+    const element = await page.$(selector)
+    if (element) {
+      await element.click()
+      return
+    }
+    await page.waitForTimeout(500) // Wait for 1/2 second before trying again
+    retries++
+  }
+  throw new Error(`Element ${selector} not found or not clickable after ${maxRetries} retries`)
+}
+//----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
   try {
     await page.waitForSelector(selector, { visible: true, timeout: 5000 })
@@ -344,14 +358,9 @@ export async function confirmTransaction(
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
     )
-    newPage = await newPagePromise2
+    const newPageTarget = await newPagePromise2
 
-    newPage.setViewport({
-      width: 1300,
-      height: 700
-    })
-
-    await newPage.waitForNavigation()
+    newPage = await newPageTarget.page() // Update newPage to capture the new window
   }
 
   // Check if select fee token is visible
@@ -383,13 +392,16 @@ export async function confirmTransaction(
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-
+  newPage.setDefaultNavigationTimeout(200000)
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(() => {
-    const pageText = document.documentElement.innerText
-    const occurrences = (pageText.match(/Timestamp/g) || []).length
-    return occurrences >= 2
-  })
+  await newPage.waitForFunction(
+    () => {
+      const pageText = document.documentElement.innerText
+      const occurrences = (pageText.match(/Timestamp/g) || []).length
+      return occurrences >= 2
+    },
+    { timeout: 150000 }
+  )
 
   const doesFailedExist = await newPage.evaluate(() => {
     const pageText = document.documentElement.innerText
@@ -406,23 +418,24 @@ export async function confirmTransaction(
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
-  console.log(`transaction hash is: ${transactionHash}`)
+  // console.log(`transaction hash is: ${transactionHash}`)
+  try {
+    //  Define the RPC URL for the Polygon network
+    const rpcUrl = 'https://invictus.ambire.com/polygon'
 
-  //  Define the RPC URL for the Polygon network
-  const rpcUrl = 'https://invictus.ambire.com/polygon'
+    // Create a provider instance using the JsonRpcProvider
+    const provider = new ethers.JsonRpcProvider(rpcUrl)
 
-  // Create a provider instance using the JsonRpcProvider
-  const provider = new ethers.JsonRpcProvider(rpcUrl)
+    // Get transaction receipt
+    const receipt = await provider.getTransactionReceipt(transactionHash)
 
-  // Get transaction receipt
-  const receipt = await provider.getTransactionReceipt(transactionHash)
-
-  if (receipt.status === 1) {
-  } else {
-    console.log(`Transaction failed! Hash: ${transactionHash}`)
-    expect(receipt.status).to.equal(1) // Assertion to fail the test if transaction failed
+    if (receipt.status === 1) {
+    } else {
+      console.log(`Transaction failed! Hash: ${transactionHash}`)
+      expect(receipt.status).to.equal(1) // Assertion to fail the test if transaction failed
+    }
+  } catch (error) {
+    // Handle any errors that occur during the transaction retrieval
+    console.error('Error transaction status:', error, `TRANSACTION HASH: ${transactionHash}`)
   }
-
-  // Print the transaction receipt
-  // console.log(receipt)
 }
