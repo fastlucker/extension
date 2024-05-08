@@ -52,7 +52,7 @@ export class AutoLockController extends EventEmitter {
   }
 
   async #init(): Promise<void> {
-    this.#_autoLockTime = await storage.get('autoLockTime', 0)
+    this.#_autoLockTime = await storage.get('autoLockTime', AUTO_LOCK_TIMES._1day)
 
     this.isReady = true
     this.emitUpdate()

@@ -84,11 +84,11 @@ const DevicePasswordChangeSettingsScreen = () => {
   }, [state.errorMessage, setError])
 
   useEffect(() => {
-    if (state.latestMethodCall === 'changeKeystorePassword' && state.status === 'SUCCESS') {
+    if (state.statuses.changeKeystorePassword === 'SUCCESS') {
       reset()
       openModal()
     }
-  }, [openModal, state.latestMethodCall, state.status, reset])
+  }, [openModal, reset, state.statuses.changeKeystorePassword])
 
   const handleChangeKeystorePassword = () => {
     handleSubmit(({ password, newPassword: newPasswordFieldValue }) => {
@@ -99,8 +99,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     })()
   }
 
-  const isChangeKeystorePasswordLoading =
-    state.status === 'LOADING' && state.latestMethodCall === 'changeKeystorePassword'
+  const isChangeKeystorePasswordLoading = state.statuses.changeKeystorePassword === 'LOADING'
 
   return (
     <>

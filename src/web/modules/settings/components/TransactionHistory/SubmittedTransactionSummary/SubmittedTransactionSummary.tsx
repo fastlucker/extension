@@ -52,7 +52,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       (calls) => {
         setHumanizedCalls(calls)
       },
-      (err: any) => setHumanizerError(err)
+      (err: any) => setHumanizerError(err),
+      { noAsyncOperations: true }
     )
   }, [
     submittedAccountOp,
