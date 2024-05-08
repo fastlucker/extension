@@ -113,14 +113,14 @@ const flowContext = flow
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
-    console.log('1')
     if (requestType && (!condition || !condition(props))) {
-      console.log('2')
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await notificationCtrl.requestNotificationRequest({
         ...request,
         screen: requestType
       })
+
+      console.log('props.requestRes', props.requestRes)
     }
 
     return next()

@@ -208,11 +208,11 @@ type MainControllerTransferUpdateAction = {
 
 type NotificationControllerResolveRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
-  params: { data: any; id?: number }
+  params: { data: any; id?: string }
 }
 type NotificationControllerRejectRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
-  params: { err: string; id?: number }
+  params: { err: string; id?: string }
 }
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'

@@ -4,23 +4,20 @@ import { ethErrors } from 'eth-rpc-errors'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { Account } from '@ambire-common/interfaces/account'
 import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
+import findAccountOpInSignAccountOpsToBeSigned from '@ambire-common/utils/findAccountOpInSignAccountOpsToBeSigned'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { UserNotification } from '@web/extension-services/background/libs/user-notification'
+import { ProviderRequest } from '@web/extension-services/background/provider/types'
 import winMgr, { WINDOW_SIZE } from '@web/extension-services/background/webapi/window'
 import { PortMessenger } from '@web/extension-services/messengers'
 
-import { ProviderRequest } from '../provider/types'
-import { DappsController } from './dapps'
-
 const QUEUE_REQUESTS_COMPONENTS_WHITELIST = ['SendTransaction', 'SignText', 'SignTypedData']
 
-export const BENZIN_NOTIFICATION_DATA = {
-  screen: 'Benzin',
-  method: 'benzin'
-}
+export const BENZIN_NOTIFICATION_DATA = { screen: 'Benzin', method: 'benzin' }
 
 export const SIGN_METHODS = [
   'eth_signTypedData',
@@ -51,13 +48,26 @@ export const isSignMessageMethod = (method: string) => {
   return ['personal_sign', 'eth_sign'].includes(method)
 }
 
+export const getScreenType = (kind: UserRequest['action']['kind']) => {
+  if (kind === 'call') return 'SendTransaction'
+  if (kind === 'message') return 'SignText'
+  if (kind === 'typedMessage') return 'SignTypedData'
+  return undefined
+}
+
+export const getAccountOpId = (accountOp: AccountOp) => {
+  return `${accountOp.accountAddr}-${accountOp.networkId}`
+}
+
 type Request = ProviderRequest & {
   screen: string
   meta?: { [key: string]: any }
 }
 
-export type NotificationRequest = Request & {
-  id: number
+export type NotificationRequest = Request & { id: string }
+
+export type NotificationRequestPromises = {
+  id: string
   resolve: (data: any) => void
   reject: (data: any) => void
 }
@@ -69,19 +79,13 @@ export class NotificationController extends EventEmitter {
 
   #pm: PortMessenger
 
-  _notificationRequests: NotificationRequest[] = []
+  notificationRequests: NotificationRequest[] = []
+
+  notificationRequestPromises: NotificationRequestPromises[] = []
 
   notificationWindowId: null | number = null
 
   currentNotificationRequest: NotificationRequest | null = null
-
-  get notificationRequests() {
-    return this._notificationRequests
-  }
-
-  set notificationRequests(newValue: NotificationRequest[]) {
-    this._notificationRequests = newValue
-  }
 
   constructor(mainCtrl: MainController, dappsCtrl: DappsController, pm: PortMessenger) {
     super()
@@ -98,35 +102,75 @@ export class NotificationController extends EventEmitter {
 
     this.#mainCtrl.onUpdate(() => {
       const notificationRequestsToAdd: NotificationRequest[] = []
-      this.#mainCtrl.userRequests.forEach((userReq: UserRequest) => {
-        const notificationReq = this.notificationRequests.find((req) => req.id === userReq.id)
-        if (!notificationReq) {
-          const getScreenType = (kind: UserRequest['action']['kind']) => {
-            if (kind === 'call') return 'SendTransaction'
-            if (kind === 'message') return 'SignText'
-            if (kind === 'typedMessage') return 'SignTypedData'
-            return undefined
-          }
+      Object.values(this.#mainCtrl.accountOpsToBeSigned).forEach(
+        (accountOpsToBeSignedByNetwork) => {
+          if (accountOpsToBeSignedByNetwork) {
+            Object.values(accountOpsToBeSignedByNetwork).forEach((op) => {
+              if (op?.accountOp) {
+                const notificationReq = this.notificationRequests.find(
+                  (req) => req.id === getAccountOpId(op.accountOp)
+                )
+                const notificationRequestFromUserRequest: NotificationRequest = {
+                  id: getAccountOpId(op.accountOp),
+                  screen: 'SendTransaction',
+                  method: 'eth_sendTransaction',
+                  session: { origin, name: '', icon: '' } as ProviderRequest['session'],
+                  origin,
+                  meta: {
+                    accountAddr: op.accountOp.accountAddr,
+                    networkId: op.accountOp.networkId
+                  },
+                  resolve: () => {},
+                  reject: () => {}
+                }
 
-          const notificationRequestFromUserRequest: NotificationRequest = {
-            id: userReq.id,
-            screen: getScreenType(userReq.action.kind) as string,
-            method: 'eth_sendTransaction',
-            session: { origin, name: '', icon: '' } as ProviderRequest['session'],
-            origin,
-            meta: {
-              accountAddr: userReq.accountAddr,
-              networkId: userReq.networkId
-            },
-            resolve: () => {},
-            reject: () => {}
+                const notificationRequestPromise = this.notificationRequestPromises.find(
+                  (r) => r.id === notificationRequestFromUserRequest.id
+                )
+                if (notificationRequestPromise) {
+                  this.notificationRequestPromises = this.notificationRequestPromises.filter(
+                    (r) => r.id !== notificationRequestFromUserRequest.id
+                  )
+                  notificationRequestsToAdd.push({
+                    ...notificationRequestFromUserRequest,
+                    reject: notificationRequestPromise.reject,
+                    resolve: notificationRequestPromise.resolve
+                  })
+                } else if (!notificationReq) {
+                  notificationRequestsToAdd.push(notificationRequestFromUserRequest)
+                }
+              }
+            })
           }
-          notificationRequestsToAdd.push(notificationRequestFromUserRequest)
         }
-      })
+      )
       if (notificationRequestsToAdd.length) {
         this.notificationRequests = [...notificationRequestsToAdd, ...this.notificationRequests]
         this.openNotificationRequest(this.notificationRequests[0].id)
+      }
+
+      this.notificationRequests.forEach((req) => {
+        if (isSignAccountOpMethod(req.method)) {
+          if (
+            !findAccountOpInSignAccountOpsToBeSigned(
+              this.#mainCtrl.accountOpsToBeSigned,
+              req.meta?.accountAddr,
+              req.meta?.networkId
+            )
+          ) {
+            this.deleteNotificationRequest(req)
+          }
+        }
+      })
+
+      if (
+        SIGN_METHODS.includes(this.currentNotificationRequest?.method as string) &&
+        !this.notificationRequests.find((r) => r.id === this.currentNotificationRequest?.id)
+      ) {
+        const nextNotificationRequest = this.notificationRequests[0]
+        if (nextNotificationRequest && !SIGN_METHODS.includes(nextNotificationRequest.method)) {
+          this.currentNotificationRequest = nextNotificationRequest
+        } else this.currentNotificationRequest = null
       }
     }, 'notification')
   }
@@ -149,7 +193,7 @@ export class NotificationController extends EventEmitter {
     })
   }
 
-  openNotificationRequest = async (notificationId: number) => {
+  openNotificationRequest = async (notificationId: string) => {
     if (this.currentNotificationRequest?.params?.method === BENZIN_NOTIFICATION_DATA.method) {
       this.deleteNotificationRequest(this.currentNotificationRequest)
       this.currentNotificationRequest = null
@@ -164,17 +208,11 @@ export class NotificationController extends EventEmitter {
             top: cTop,
             left: cLeft,
             width
-          } = await browser.windows.getCurrent({
-            windowTypes: ['normal']
-          })
+          } = await browser.windows.getCurrent({ windowTypes: ['normal'] })
 
           const top = cTop
           const left = cLeft! + width! - WINDOW_SIZE.width
-          browser.windows.update(this.notificationWindowId, {
-            focused: true,
-            top,
-            left
-          })
+          browser.windows.update(this.notificationWindowId, { focused: true, top, left })
           return
         }
       }
@@ -187,11 +225,7 @@ export class NotificationController extends EventEmitter {
         this.openNotification()
       }
     } catch (e: any) {
-      this.emitError({
-        level: 'major',
-        message: 'Request opening failed',
-        error: e
-      })
+      this.emitError({ level: 'major', message: 'Request opening failed', error: e })
     }
   }
 
@@ -203,103 +237,6 @@ export class NotificationController extends EventEmitter {
     }
   }
 
-  resolveNotificationRequest = (data: any, requestId?: number) => {
-    let notificationRequest = this.currentNotificationRequest
-
-    if (requestId) {
-      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
-      if (notificationRequestById) notificationRequest = notificationRequestById
-    }
-
-    if (notificationRequest) {
-      notificationRequest.resolve(data)
-
-      if (SIGN_METHODS.includes(notificationRequest.method)) {
-        this.#mainCtrl.removeUserRequest(notificationRequest.id)
-        this.deleteNotificationRequest(notificationRequest)
-        this.currentNotificationRequest = null
-        if (isSignAccountOpMethod(notificationRequest.method) && data?.hash && data?.networkId) {
-          const meta = {
-            ...notificationRequest.meta,
-            txnId: null,
-            userOpHash: null
-          }
-          data?.isUserOp ? (meta.userOpHash = data.hash) : (meta.txnId = data.hash)
-          this.requestNotificationRequest(
-            {
-              ...notificationRequest,
-              screen: BENZIN_NOTIFICATION_DATA.screen,
-              method: BENZIN_NOTIFICATION_DATA.method,
-              meta
-            },
-            false
-          )
-
-          return
-        }
-      } else {
-        const currentOrigin = notificationRequest?.origin
-        this.deleteNotificationRequest(notificationRequest)
-        const nextNotificationRequest = this.notificationRequests[0]
-        const nextOrigin = nextNotificationRequest?.origin
-
-        const shouldOpenNextRequest =
-          (nextNotificationRequest &&
-            !SIGN_METHODS.includes(nextNotificationRequest?.params?.method)) ||
-          (nextNotificationRequest && currentOrigin && nextOrigin && currentOrigin === nextOrigin)
-
-        if (shouldOpenNextRequest) {
-          this.currentNotificationRequest = nextNotificationRequest
-        } else this.currentNotificationRequest = null
-      }
-    }
-    this.emitUpdate()
-  }
-
-  // eslint-disable-next-line default-param-last
-  rejectNotificationRequest = async (err: string = 'Request rejected', requestId?: number) => {
-    let notificationRequest = this.currentNotificationRequest
-
-    if (requestId) {
-      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
-      if (notificationRequestById) notificationRequest = notificationRequestById
-    }
-
-    if (notificationRequest) {
-      notificationRequest?.reject &&
-        notificationRequest?.reject(ethErrors.provider.userRejectedRequest<any>(err))
-
-      if (SIGN_METHODS.includes(notificationRequest.method)) {
-        this.#mainCtrl.removeUserRequest(notificationRequest.id)
-        this.deleteNotificationRequest(notificationRequest)
-
-        let nextNotificationUserRequest = null
-        if (isSignAccountOpMethod(notificationRequest.method)) {
-          const account =
-            this.#mainCtrl.accounts.find((a) => a.addr === this.#mainCtrl.selectedAccount) ||
-            ({} as Account)
-          if (account.creation) {
-            nextNotificationUserRequest =
-              this.notificationRequests.find(
-                (req) =>
-                  req.meta?.accountAddr === notificationRequest?.meta?.accountAddr &&
-                  req.meta?.networkId === notificationRequest?.meta?.networkId
-              ) || null
-          }
-        }
-        this.currentNotificationRequest = nextNotificationUserRequest
-      } else {
-        this.deleteNotificationRequest(notificationRequest)
-        const nextNotificationRequest = this.notificationRequests[0]
-        if (nextNotificationRequest && !SIGN_METHODS.includes(nextNotificationRequest.method)) {
-          this.currentNotificationRequest = nextNotificationRequest
-        } else this.currentNotificationRequest = null
-      }
-    }
-
-    this.emitUpdate()
-  }
-
   requestNotificationRequest = (request: Request, openNewWindow: boolean = true): Promise<any> => {
     // Delete the current notification request if it's a benzin request
     if (this.currentNotificationRequest?.method === BENZIN_NOTIFICATION_DATA.method) {
@@ -308,12 +245,16 @@ export class NotificationController extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
-      const id = new Date().getTime()
-      const notificationRequest: NotificationRequest = {
-        ...request,
+      const id = new Date().getTime().toString()
+      const notificationRequest: NotificationRequest = { ...request, id }
+      const notificationRequestPromise = {
         id,
-        resolve: (data) => resolve(data),
-        reject: (data) => reject(data)
+        resolve: (data: any) => {
+          resolve(data)
+        },
+        reject: (data: any) => {
+          reject(data)
+        }
       }
 
       if (
@@ -340,12 +281,6 @@ export class NotificationController extends EventEmitter {
           )
         }
       }
-
-      // If account op we add the notification request when we validate the txn params
-      if (!isSignAccountOpMethod(notificationRequest.method)) {
-        this.notificationRequests = [notificationRequest, ...this.notificationRequests]
-      }
-      this.currentNotificationRequest = notificationRequest
 
       if (
         ['wallet_switchEthereumChain', 'wallet_addEthereumChain'].includes(
@@ -402,42 +337,130 @@ export class NotificationController extends EventEmitter {
 
       if (isSignAccountOpMethod(notificationRequest.method)) {
         const txs = request.params
-        let success = false
         Object.keys(txs).forEach((key) => {
           const userNotification = new UserNotification(this.#dappsCtrl)
           const userRequest = userNotification.createAccountOpUserRequest({
-            id,
+            id: new Date().getTime(),
             txn: txs[key],
             txs,
             origin: request.origin,
             selectedAccount: this.#mainCtrl.selectedAccount || '',
             networks: this.#mainCtrl.settings.networks,
-            onError: (err) => this.rejectNotificationRequest(err),
-            onSuccess: (data, id) => this.resolveNotificationRequest(data, id)
+            onError: (err) => this.rejectNotificationRequest(err)
           })
           if (userRequest) {
-            success = true
-            const accountOpNotificationRequest: NotificationRequest = {
-              ...notificationRequest,
-              meta: {
-                accountAddr: userRequest.accountAddr,
-                networkId: userRequest.networkId
-              }
-            }
-            this.notificationRequests = [accountOpNotificationRequest, ...this.notificationRequests]
-            this.currentNotificationRequest = accountOpNotificationRequest
             this.#mainCtrl.addUserRequest(userRequest)
-          } else {
-            this.notificationRequests = [notificationRequest, ...this.notificationRequests]
-            this.rejectNotificationRequest('Invalid request data')
+            this.notificationRequestPromises.push({
+              id: `${userRequest.accountAddr}-${userRequest.networkId}`,
+              reject: notificationRequest.reject,
+              resolve: notificationRequest.resolve
+            })
           }
         })
-
-        if (!success) return
       }
-      this.emitUpdate()
-      if (openNewWindow) this.openNotification()
+
+      if (!SIGN_METHODS.includes(notificationRequest.method)) {
+        this.notificationRequests = [notificationRequest, ...this.notificationRequests]
+        this.currentNotificationRequest = notificationRequest
+        this.emitUpdate()
+        if (openNewWindow) this.openNotification()
+      }
     })
+  }
+
+  resolveNotificationRequest = (data: any, requestId?: string) => {
+    let notificationRequest = this.currentNotificationRequest
+
+    if (requestId) {
+      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
+      if (notificationRequestById) notificationRequest = notificationRequestById
+    }
+
+    if (notificationRequest) {
+      notificationRequest.resolve(data)
+
+      if (SIGN_METHODS.includes(notificationRequest.method)) {
+        this.#mainCtrl.removeUserRequest(notificationRequest.id)
+        this.deleteNotificationRequest(notificationRequest)
+        this.currentNotificationRequest = null
+        if (isSignAccountOpMethod(notificationRequest.method) && data?.hash && data?.networkId) {
+          const meta = { ...notificationRequest.meta, txnId: null, userOpHash: null }
+          data?.isUserOp ? (meta.userOpHash = data.hash) : (meta.txnId = data.hash)
+          this.requestNotificationRequest(
+            {
+              ...notificationRequest,
+              screen: BENZIN_NOTIFICATION_DATA.screen,
+              method: BENZIN_NOTIFICATION_DATA.method,
+              meta
+            },
+            false
+          )
+
+          return
+        }
+      } else {
+        const currentOrigin = notificationRequest?.origin
+        this.deleteNotificationRequest(notificationRequest)
+        const nextNotificationRequest = this.notificationRequests[0]
+        const nextOrigin = nextNotificationRequest?.origin
+
+        const shouldOpenNextRequest =
+          (nextNotificationRequest &&
+            !SIGN_METHODS.includes(nextNotificationRequest?.params?.method)) ||
+          (nextNotificationRequest && currentOrigin && nextOrigin && currentOrigin === nextOrigin)
+
+        if (shouldOpenNextRequest) {
+          this.currentNotificationRequest = nextNotificationRequest
+        } else this.currentNotificationRequest = null
+      }
+    }
+    this.emitUpdate()
+  }
+
+  rejectNotificationRequest = async (err: string, requestId?: string) => {
+    let notificationRequest = this.currentNotificationRequest
+
+    if (requestId) {
+      const notificationRequestById = this.notificationRequests.find((req) => req.id === requestId)
+      if (notificationRequestById) notificationRequest = notificationRequestById
+    }
+
+    if (notificationRequest) {
+      this.#rejectRequestPromise(err, notificationRequest.id)
+
+      if (isSignAccountOpMethod(notificationRequest.method)) {
+        const accountOp = findAccountOpInSignAccountOpsToBeSigned(
+          this.#mainCtrl.accountOpsToBeSigned,
+          notificationRequest.meta?.accountAddr,
+          notificationRequest.meta?.networkId
+        )
+
+        if (accountOp)
+          this.#mainCtrl.removeAccountOp(
+            notificationRequest.meta?.accountAddr,
+            notificationRequest.meta?.networkId
+          )
+      } else {
+        this.deleteNotificationRequest(notificationRequest)
+        const nextNotificationRequest = this.notificationRequests[0]
+        if (nextNotificationRequest && !SIGN_METHODS.includes(nextNotificationRequest.method)) {
+          this.currentNotificationRequest = nextNotificationRequest
+        } else this.currentNotificationRequest = null
+      }
+    }
+
+    this.emitUpdate()
+  }
+
+  #rejectRequestPromise(err: string, requestId: string) {
+    this.notificationRequestPromises.forEach((r) => {
+      if (r.id === requestId) {
+        r.reject(ethErrors.provider.userRejectedRequest<any>(err || 'Request rejected'))
+      }
+    })
+    this.notificationRequestPromises = this.notificationRequestPromises.filter(
+      (r) => r.id !== requestId
+    )
   }
 
   rejectAllNotificationRequestsThatAreNotSignRequests = () => {

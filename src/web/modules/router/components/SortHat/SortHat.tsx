@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
+import findAccountOpInSignAccountOpsToBeSigned from '@ambire-common/utils/findAccountOpInSignAccountOpsToBeSigned'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -54,8 +55,10 @@ const SortHat = () => {
       }
       if (notificationState.currentNotificationRequest.screen === 'SendTransaction') {
         if (
-          mainState.userRequests.find(
-            (req) => req.id === notificationState.currentNotificationRequest!.id
+          findAccountOpInSignAccountOpsToBeSigned(
+            mainState.accountOpsToBeSigned,
+            notificationState.currentNotificationRequest?.meta?.accountAddr,
+            notificationState.currentNotificationRequest?.meta?.networkId
           )
         ) {
           const accountAddr = notificationState.currentNotificationRequest?.meta?.accountAddr
@@ -65,10 +68,7 @@ const SortHat = () => {
 
           if (accountAddr && network) {
             return navigate(ROUTES.signAccountOp, {
-              state: {
-                accountAddr: getAddress(accountAddr),
-                network
-              }
+              state: { accountAddr: getAddress(accountAddr), network }
             })
           }
           // TODO: add here some error handling and dispatch dapp request removal
@@ -111,7 +111,7 @@ const SortHat = () => {
         const isCustomNetwork = !predefinedNetworks.find(
           (net) => net.id === notificationState.currentNotificationRequest?.meta?.networkId
         )
-        if (notificationState.currentNotificationRequest?.params?.userOpHash && isCustomNetwork) {
+        if (notificationState.currentNotificationRequest?.meta?.userOpHash && isCustomNetwork) {
           window.close()
           return
         }
@@ -139,8 +139,8 @@ const SortHat = () => {
     notificationState.currentNotificationRequest,
     authStatus,
     keystoreState,
+    mainState.accountOpsToBeSigned,
     mainState.selectedAccount,
-    mainState.userRequests,
     networks,
     navigate,
     dispatch

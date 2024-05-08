@@ -27,6 +27,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { getAccountOpId } from '@web/extension-services/background/controllers/notification'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -130,12 +131,12 @@ const SignAccountOpScreen = () => {
   const handleRejectAccountOp = useCallback(() => {
     if (!signAccountOpState?.accountOp) return
 
-    signAccountOpState.accountOp.calls.forEach((call) => {
-      if (call.fromUserRequestId)
-        dispatch({
-          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
-        })
+    dispatch({
+      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      params: {
+        err: 'User rejected the transaction request',
+        id: getAccountOpId(signAccountOpState.accountOp)
+      }
     })
   }, [dispatch, signAccountOpState?.accountOp])
 

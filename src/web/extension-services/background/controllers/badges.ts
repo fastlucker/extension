@@ -40,7 +40,6 @@ export class BadgesController {
           !blacklistBadgesForBannersWithType.includes(banner.type) &&
           !blacklistBadgesForBannersWithId.includes(banner.id)
       )
-
       this.#bannersCount = infoAndSuccessBanners.length
       this.badgesCount = this._badgesCount
     }, 'badges')
@@ -54,7 +53,7 @@ export class BadgesController {
     // if not a user request add the badge
     const requestsCount = requests.reduce(
       (accumulator: NotificationRequest[], currentItem: NotificationRequest) => {
-        if (!SIGN_METHODS.includes(currentItem?.params?.method)) {
+        if (!SIGN_METHODS.includes(currentItem?.method)) {
           accumulator.push(currentItem)
         }
 
