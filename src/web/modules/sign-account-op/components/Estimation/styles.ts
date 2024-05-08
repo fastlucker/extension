@@ -8,6 +8,8 @@ interface Style {
   selectedFee: ViewStyle
   gasTankContainer: ViewStyle
   gasTankText: TextStyle
+  estimationContainer: ViewStyle
+  estimationScrollView: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -24,6 +26,12 @@ const getStyles = (theme: ThemeProps) =>
     gasTankText: {
       color: colors.greenHaze,
       fontSize: 14
+    },
+    estimationContainer: {
+      ...flexbox.flex1
+    },
+    estimationScrollView: {
+      height: '100%'
     }
   })
 
