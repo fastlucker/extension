@@ -16,6 +16,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
+import { SelectValue } from '@common/components/Select/types'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -29,18 +30,6 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import shortenAddress from '@web/utils/shortenAddress'
-
-type AccountOption = {
-  value: string
-  label: JSX.Element
-  icon: JSX.Element
-}
-
-type NetworkOption = {
-  value: string
-  label: JSX.Element
-  icon: JSX.Element
-}
 
 const ITEMS_PER_PAGE = 10
 
@@ -86,7 +75,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     networks.filter((n) => n.id === 'ethereum')[0]
   )
 
-  const accountsOptions: AccountOption[] = useMemo(() => {
+  const accountsOptions: SelectValue[] = useMemo(() => {
     return mainState.accounts.map((acc) => ({
       value: acc.addr,
       label: (
@@ -101,7 +90,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     }))
   }, [accountPreferences, mainState.accounts, maxWidthSize])
 
-  const networksOptions: NetworkOption[] = useMemo(
+  const networksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => ({
         value: n.id,
@@ -109,6 +98,20 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         icon: <NetworkIcon id={n.id} />
       })),
     [networks]
+  )
+
+  const isLoading = useMemo(
+    () =>
+      !activityState?.isInitialized ||
+      (activityState.filters?.account && account.addr !== activityState.filters.account) ||
+      (activityState.filters?.network && network.id !== activityState.filters.network),
+    [
+      account.addr,
+      activityState.filters?.account,
+      activityState.filters?.network,
+      activityState?.isInitialized,
+      network.id
+    ]
   )
 
   useEffect(() => {
@@ -157,7 +160,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   }, [page, historyType, activityState.isInitialized, dispatch])
 
   const handleSetAccountValue = useCallback(
-    (accountOption: AccountOption) => {
+    (accountOption: SelectValue) => {
       setPage(1)
       setAccount(mainState.accounts.filter((acc) => acc.addr === accountOption.value)[0])
     },
@@ -165,7 +168,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   )
 
   const handleSetNetworkValue = useCallback(
-    (networkOption: NetworkOption) => {
+    (networkOption: SelectValue) => {
       setNetwork(networks.filter((net) => net.id === networkOption.value)[0])
     },
     [networks]
@@ -218,7 +221,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           ? { stickyHeaderIndices: [0] }
           : {})}
       >
-        {activityState.isInitialized ? (
+        {!isLoading ? (
           <HistoryComponent page={page} account={account} network={network} />
         ) : (
           <View style={[flexbox.flex1, flexbox.center]}>
