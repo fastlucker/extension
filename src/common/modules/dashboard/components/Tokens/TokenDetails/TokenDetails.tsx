@@ -311,8 +311,8 @@ const TokenDetails = ({
                 <Text selectable fontSize={20} weight="semiBold" style={spacings.mrSm}>
                   {symbol}
                 </Text>
-                <Text fontSize={16}>{isRewards && t('rewards for claim')}</Text>
-                <Text fontSize={16}>{isVesting && t('claimable early supporters vesting')}</Text>
+                <Text fontSize={16}>{isRewards && t('Claimable rewards')}</Text>
+                <Text fontSize={16}>{isVesting && t('Claimable early supporters vesting')}</Text>
                 <Text fontSize={16}>{!isRewards && !isVesting && t('on ')}</Text>
                 <Text fontSize={16}>{onGasTank && t('Gas Tank')}</Text>
                 <Text fontSize={16}>
