@@ -237,7 +237,15 @@ const Tokens = ({
 
       if (!initTab?.tokens || !item) return null
 
-      return <TokenItem token={item} tokenPreferences={tokenPreferences} />
+      return (
+        <TokenItem
+          token={item}
+          tokenPreferences={tokenPreferences}
+          testID={`token-${item.address}-${item.networkId}${
+            item.flags.onGasTank ? '-gastank' : ''
+          }`}
+        />
+      )
     },
     [
       control,

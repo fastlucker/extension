@@ -22,10 +22,12 @@ import getStyles from './styles'
 
 const TokenItem = ({
   token,
-  tokenPreferences
+  tokenPreferences,
+  testID
 }: {
   token: TokenResult
   tokenPreferences: CustomToken[]
+  testID?: string
 }) => {
   const {
     symbol,
@@ -71,6 +73,7 @@ const TokenItem = ({
       onPress={() => openBottomSheet()}
       style={[styles.container, animStyle]}
       {...bindAnim}
+      testID={testID}
     >
       <BottomSheet
         id={`token-details-${address}`}

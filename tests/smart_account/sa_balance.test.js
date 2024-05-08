@@ -31,8 +31,6 @@ describe('sa_balance', () => {
     let availableAmmountNum = availableAmmount.replace(/\n/g, '')
     availableAmmountNum = availableAmmountNum.split('$')[1]
 
-    console.log(`Balance: ${availableAmmountNum}`)
-
     /* Verify that the balance is bigger than 0 */
     expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0)
   })

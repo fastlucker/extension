@@ -1,6 +1,7 @@
 import {
   typeText,
   clickOnElement,
+  clickElementWithRetry,
   bootstrapWithStorage,
   baParams,
   confirmTransaction,
@@ -69,10 +70,12 @@ describe('ba_transactions', () => {
 
     /* Click on 'connect' button */
     await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
-    await new Promise((r) => setTimeout(r, 2000))
+    // await new Promise((r) => setTimeout(r, 2000))
 
     /* Select 'MetaMask' */
-    await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+    // await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+
+    await clickElementWithRetry(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
 
     // Wait for the new page to be created and click on 'Connect' button
     const newTarget = await browser.waitForTarget(

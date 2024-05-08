@@ -1,6 +1,7 @@
 import {
   typeText,
   clickOnElement,
+  clickElementWithRetry,
   bootstrapWithStorage,
   confirmTransaction,
   selectMaticToken,
@@ -28,7 +29,33 @@ describe('sa_transactions', () => {
     await recorder.stop()
     await browser.close()
   })
+  //--------------------------------------------------------------------------------------------------------------
+  it('Top up gas tank', async () => {
+    // Click on Matic (not Gas Tank token)
+    await clickOnElement(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]'
+    )
+    // Click on "Top Up Gas Tank"
+    await clickOnElement(page, '[data-testid="top-up-button"]')
 
+    await page.waitForFunction(
+      () => {
+        return window.location.href.includes('/transfer')
+      },
+      { timeout: 60000 }
+    )
+
+    await typeText(page, amountField, '0.0001')
+
+    // Click on "Top Up" button and confirm transaction
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      '[data-testid="transfer-button-send"]'
+    )
+  })
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
     /* Click on "Send" button */
@@ -69,9 +96,10 @@ describe('sa_transactions', () => {
     /* Click on 'connect' button */
     await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
 
-    await new Promise((r) => setTimeout(r, 2000))
+    // await new Promise((r) => setTimeout(r, 2000))
     /* Select 'MetaMask' */
-    await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+    // await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+    await clickElementWithRetry(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
 
     // Wait for the new page to be created and click on 'Connect' button
     const newTarget = await browser.waitForTarget(
