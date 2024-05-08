@@ -16,6 +16,7 @@ import NetworkIcon from '@common/components/NetworkIcon'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
+import { SelectValue } from '@common/components/Select/types'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -29,18 +30,6 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import shortenAddress from '@web/utils/shortenAddress'
-
-type AccountOption = {
-  value: string
-  label: JSX.Element
-  icon: JSX.Element
-}
-
-type NetworkOption = {
-  value: string
-  label: JSX.Element
-  icon: JSX.Element
-}
 
 const ITEMS_PER_PAGE = 10
 
@@ -86,7 +75,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     networks.filter((n) => n.id === 'ethereum')[0]
   )
 
-  const accountsOptions: AccountOption[] = useMemo(() => {
+  const accountsOptions: SelectValue[] = useMemo(() => {
     return mainState.accounts.map((acc) => ({
       value: acc.addr,
       label: (
@@ -101,7 +90,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     }))
   }, [accountPreferences, mainState.accounts, maxWidthSize])
 
-  const networksOptions: NetworkOption[] = useMemo(
+  const networksOptions: SelectValue[] = useMemo(
     () =>
       networks.map((n) => ({
         value: n.id,
@@ -109,6 +98,21 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         icon: <NetworkIcon id={n.id} />
       })),
     [networks]
+  )
+
+  const isLoading = useMemo(
+    () =>
+      !activityState?.isInitialized ||
+      // Prevents the flashing of old history state
+      (activityState.filters?.account && account.addr !== activityState.filters.account) ||
+      (activityState.filters?.network && network.id !== activityState.filters.network),
+    [
+      account.addr,
+      activityState.filters?.account,
+      activityState.filters?.network,
+      activityState?.isInitialized,
+      network.id
+    ]
   )
 
   useEffect(() => {
@@ -157,7 +161,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   }, [page, historyType, activityState.isInitialized, dispatch])
 
   const handleSetAccountValue = useCallback(
-    (accountOption: AccountOption) => {
+    (accountOption: SelectValue) => {
       setPage(1)
       setAccount(mainState.accounts.filter((acc) => acc.addr === accountOption.value)[0])
     },
@@ -165,7 +169,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   )
 
   const handleSetNetworkValue = useCallback(
-    (networkOption: NetworkOption) => {
+    (networkOption: SelectValue) => {
       setNetwork(networks.filter((net) => net.id === networkOption.value)[0])
     },
     [networks]
@@ -196,36 +200,36 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
           />
         )}
       </View>
-      <View style={[spacings.mbTy]}>
-        {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
-          <View style={[flexbox.directionRow, flexbox.flex1, spacings.phSm]}>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Dapps')}</Text>
+      {!isLoading ? (
+        <>
+          {historyType === 'messages' && !!activityState?.signedMessages?.items?.length && (
+            <View style={[flexbox.directionRow, spacings.phSm, spacings.mbTy]}>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Dapps')}</Text>
+              </View>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Submitted on')}</Text>
+              </View>
+              <View style={flexbox.flex1}>
+                <Text fontSize={14}>{t('Sign type')}</Text>
+              </View>
+              <View style={{ width: 15, height: 1 }} />
             </View>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Submitted on')}</Text>
-            </View>
-            <View style={flexbox.flex1}>
-              <Text fontSize={14}>{t('Sign type')}</Text>
-            </View>
-            <View style={{ width: 15, height: 1 }} />
-          </View>
-        )}
-      </View>
-      <ScrollableWrapper
-        style={[spacings.mbXl, flexbox.flex1]}
-        {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
-          ? { stickyHeaderIndices: [0] }
-          : {})}
-      >
-        {activityState.isInitialized ? (
-          <HistoryComponent page={page} account={account} network={network} />
-        ) : (
-          <View style={[flexbox.flex1, flexbox.center]}>
-            <Spinner />
-          </View>
-        )}
-      </ScrollableWrapper>
+          )}
+          <ScrollableWrapper
+            style={[spacings.mbXl, flexbox.flex1]}
+            {...(historyType === 'messages' && !!activityState.signedMessages?.items.length
+              ? { stickyHeaderIndices: [0] }
+              : {})}
+          >
+            <HistoryComponent page={page} account={account} network={network} />
+          </ScrollableWrapper>
+        </>
+      ) : (
+        <View style={[flexbox.flex1, flexbox.center]}>
+          <Spinner />
+        </View>
+      )}
       <Pagination
         maxPages={Math.ceil(itemsTotal / ITEMS_PER_PAGE)}
         isNextDisabled={goToNextPageDisabled}
