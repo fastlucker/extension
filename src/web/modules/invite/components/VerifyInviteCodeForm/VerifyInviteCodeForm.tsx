@@ -65,7 +65,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
             value={value}
             autoFocus={isWeb}
             isValid={!errors.code && value.length > 0}
-            error={errors.code && (t('Please fill in an invite code.') as string)}
+            error={errors.code && (t('You need an invite, in order to proceed.') as string)}
           />
         )}
         name="code"
