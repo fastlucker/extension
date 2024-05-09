@@ -5,7 +5,7 @@ import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
-import { isWeb } from '@common/config/env'
+import { isDev, isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
@@ -27,7 +27,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
-      code: ''
+      code: isDev ? process.env.DEFAULT_INVITATION_CODE_DEV ?? '' : ''
     }
   })
 
