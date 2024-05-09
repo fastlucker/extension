@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import AmbireLogoWithTextMonochrome from '@common/assets/svg/AmbireLogoWithTextMonochrome'
 import UnlockScreenBackground from '@common/assets/svg/UnlockScreenBackground'
+import SeparatorWithText from '@common/components/SeparatorWithText'
 import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import { useTranslation } from '@common/config/localization'
@@ -25,7 +26,9 @@ const InviteVerifyScreen = () => {
       backgroundColor={theme.secondaryBackground}
       header={
         <>
-          <Title>Referral Invite</Title>
+          <Title style={styles.title} hasBottomSpacing={false}>
+            {t('Referral Invite')}
+          </Title>
           <View style={styles.headerContainer}>
             <AmbireLogoWithTextMonochrome width={115} height={120} />
             <View style={styles.backgroundSVG}>
@@ -35,9 +38,10 @@ const InviteVerifyScreen = () => {
         </>
       }
     >
-      <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.mbLg}>
+      <TabLayoutWrapperMainContent style={spacings.mb0} contentContainerStyle={spacings.pt0}>
         <View style={styles.container}>
           <VerifyInviteCodeForm />
+          <SeparatorWithText text={t("Don't have one?")} />
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

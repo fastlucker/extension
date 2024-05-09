@@ -4,10 +4,12 @@ import { Controller, useForm } from 'react-hook-form'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
+import Title from '@common/components/Title'
 import { isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
+import spacings from '@common/styles/spacings'
 import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
@@ -51,12 +53,12 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
 
   return (
     <>
+      <Title style={spacings.mtXl}>{t('Enter an invite code')}</Title>
       <Controller
         control={control}
         rules={{ required: true }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
-            label={t('Please insert your invitation code')}
             onBlur={onBlur}
             placeholder={t('Invite Code')}
             onChangeText={onChange}
@@ -69,9 +71,6 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         )}
         name="code"
       />
-
-      {/* TODO: Maybe?  */}
-      <Text>{t('Don t have an invite code? Request one now.')}</Text>
 
       <Button
         disabled={isSubmitting || !isValid}

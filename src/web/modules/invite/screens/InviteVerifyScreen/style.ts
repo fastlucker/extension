@@ -9,6 +9,7 @@ interface Styles {
   container: ViewStyle
   backgroundSVG: ViewStyle
   headerContainer: ViewStyle
+  title: ViewStyle
   // contentContainer: ViewStyle
 }
 
@@ -17,35 +18,42 @@ const getStyles = (theme: ThemeProps) =>
     container: {
       width: 400,
       height: 380,
-      backgroundColor: theme.secondaryBackground,
+      backgroundColor: theme.primaryBackground,
       // TODO:
       // ...flexbox.alignCenter,
-      ...common.borderRadiusPrimary,
       // TODO: Remove?
-      shadowColor: '#14183333',
-      shadowOpacity: 1,
-      shadowOffset: {
-        width: 0,
-        height: 8
-      },
-      shadowRadius: 16,
       marginHorizontal: 'auto',
-      overflow: 'hidden',
-      ...spacings.phXl
+      // overflow: 'hidden',
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: '#CACDE6',
+      ...spacings.phXl,
+      borderBottomLeftRadius: BORDER_RADIUS_PRIMARY,
+      borderBottomRightRadius: BORDER_RADIUS_PRIMARY
     },
     headerContainer: {
       alignSelf: 'center',
       alignItems: 'center',
       justifyContent: 'center',
       width: 400,
-      height: 216,
+      height: 240,
       borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
       borderTopRightRadius: BORDER_RADIUS_PRIMARY,
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
+      borderTopWidth: 1,
+      borderColor: '#CACDE6',
       overflow: 'hidden'
     },
     backgroundSVG: {
       position: 'absolute',
       zIndex: -1
+    },
+    title: {
+      fontSize: 32,
+      textAlign: 'center',
+      ...spacings.mvXl
     }
     // TODO:
     // contentContainer: {
