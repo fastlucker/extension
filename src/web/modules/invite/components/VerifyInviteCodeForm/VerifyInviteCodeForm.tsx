@@ -60,7 +60,6 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
             onBlur={onBlur}
-            placeholder={t('Invite Code')}
             onChangeText={onChange}
             onSubmitEditing={handleFormSubmit}
             value={value}
@@ -75,7 +74,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
       <Button
         disabled={isSubmitting || !isValid}
         type="primary"
-        text={isSubmitting ? t('Validating...') : t('Verify')}
+        text={isSubmitting ? t('Validating...') : t('Continue')}
         onPress={handleFormSubmit}
       />
     </>
