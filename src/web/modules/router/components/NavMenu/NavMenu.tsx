@@ -38,8 +38,8 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
-const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://www.ambire.com/discord'
+export const TWITTER_URL = 'https://twitter.com/AmbireWallet'
+export const DISCORD_URL = 'https://www.ambire.com/discord'
 
 const SOCIAL = [
   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },
