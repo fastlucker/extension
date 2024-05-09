@@ -3,8 +3,8 @@ import React, { createContext, useEffect, useMemo } from 'react'
 
 import { SettingsController } from '@ambire-common/controllers/settings/settings'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const SettingsControllerStateContext = createContext<SettingsController>({} as SettingsController)
 

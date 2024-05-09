@@ -43,7 +43,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { networks, status, latestMethodCall } = useSettingsControllerState()
+  const { networks, statuses } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]
 
@@ -63,7 +63,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   useEffect(() => {
     if (!withRpcUrlSelectBottomSheet) return
 
-    if (status === 'SUCCESS' && latestMethodCall === 'updateNetworkPreferences') {
+    if (statuses.updateNetworkPreferences === 'SUCCESS') {
       addToast(`Successfully switched the RPC URL for ${network?.name}`)
       setTimeout(() => {
         closeBottomSheet()
@@ -71,11 +71,10 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
     }
   }, [
     withRpcUrlSelectBottomSheet,
-    status,
-    latestMethodCall,
     addToast,
     closeBottomSheet,
-    network?.name
+    network?.name,
+    statuses.updateNetworkPreferences
   ])
 
   const handleOpenBottomSheet = useCallback(() => {

@@ -118,8 +118,8 @@ const TokenItem = ({
 
               <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                 <Text weight="regular" shouldScale={false} fontSize={12}>
-                  {!!isRewards && t('rewards for claim')}
-                  {!!isVesting && t('claimable early supporters vestings')}
+                  {!!isRewards && t('Claimable rewards')}
+                  {!!isVesting && t('Claimable early supporters vestings')}
                   {!isRewards && !isVesting && t('on')}{' '}
                 </Text>
                 <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>

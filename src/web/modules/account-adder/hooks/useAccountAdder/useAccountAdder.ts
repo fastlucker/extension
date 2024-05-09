@@ -68,13 +68,10 @@ const useAccountAdder = ({ keySubType }: Props) => {
   )
 
   useEffect(() => {
-    if (
-      mainControllerState.status === 'SUCCESS' &&
-      mainControllerState.latestMethodCall === 'onAccountAdderSuccess'
-    ) {
+    if (mainControllerState.statuses.onAccountAdderSuccess === 'SUCCESS') {
       completeStep()
     }
-  }, [completeStep, mainControllerState.status, mainControllerState.latestMethodCall])
+  }, [completeStep, mainControllerState.statuses.onAccountAdderSuccess])
 
   const onImportReady = useCallback(() => {
     if (!accountAdderState.selectedAccounts.length) return completeStep(false)

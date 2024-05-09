@@ -40,7 +40,7 @@ const AddChainScreen = () => {
   const { currentNotificationRequest } = useNotificationControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
-  const { status, latestMethodCall, networkToAddOrUpdate } = useSettingsControllerState()
+  const { statuses, networkToAddOrUpdate } = useSettingsControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
@@ -106,10 +106,10 @@ const AddChainScreen = () => {
   }, [networkToAddOrUpdate?.info])
 
   useEffect(() => {
-    if (latestMethodCall === 'addCustomNetwork' && status === 'SUCCESS') {
+    if (statuses.addCustomNetwork === 'SUCCESS') {
       dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
     }
-  }, [dispatch, latestMethodCall, status])
+  }, [dispatch, statuses.addCustomNetwork])
 
   const handleDenyButtonPress = useCallback(() => {
     actionButtonPressedRef.current = true
@@ -151,13 +151,11 @@ const AddChainScreen = () => {
           </Button>
           <Button
             text={
-              latestMethodCall === 'addCustomNetwork' && status === 'LOADING'
-                ? t('Adding network...')
-                : t('Add network')
+              statuses.addCustomNetwork === 'LOADING' ? t('Adding network...') : t('Add network')
             }
             disabled={
               !areParamsValid ||
-              (latestMethodCall === 'addCustomNetwork' && status === 'LOADING') ||
+              statuses.addCustomNetwork === 'LOADING' ||
               (features &&
                 (features.some((f) => f.level === 'loading') ||
                   !!features.filter((f) => f.id === 'flagged')[0]))
