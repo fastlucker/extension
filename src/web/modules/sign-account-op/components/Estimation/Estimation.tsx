@@ -54,7 +54,7 @@ const Estimation = ({
   const { minWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
-    if (!signAccountOpState.availableFeeOptions.length)
+    if (!signAccountOpState.availableFeeOptions.length || !hasEstimation || estimationFailed)
       return [
         {
           value: 'no-option',
@@ -116,7 +116,9 @@ const Estimation = ({
   }, [
     signAccountOpState.availableFeeOptions,
     signAccountOpState.accountOp.accountAddr,
-    signAccountOpState.feeSpeeds
+    signAccountOpState.feeSpeeds,
+    hasEstimation,
+    estimationFailed
   ])
 
   const [payValue, setPayValue] = useState(payOptions[0])
