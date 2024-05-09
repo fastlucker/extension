@@ -14,6 +14,12 @@ type Invite = {
   verifiedCode: null | string
 }
 
+/**
+ * As of v4.20.0, an invite verification flow is introduced as a first step upon
+ * extension installation. This flow requires users to provide a valid invite
+ * code before they can use the Ambire extension. This controller manages the
+ * verification of these invite codes and persisting the current invite status.
+ */
 export class InviteController extends EventEmitter {
   #callRelayer: Function
 
@@ -38,6 +44,10 @@ export class InviteController extends EventEmitter {
     this.emitUpdate()
   }
 
+  /**
+   * Verifies an invite code and if verified successfully, persists the invite
+   * status (and some meta information) in the storage.
+   */
   async verify(code: string) {
     try {
       const res = await this.#callRelayer(`/promotions/extension-key/${code}`, 'GET')
