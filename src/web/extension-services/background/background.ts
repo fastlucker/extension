@@ -165,7 +165,7 @@ async function init() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
-  const inviteCtrl = new InviteController()
+  const inviteCtrl = new InviteController({ relayerUrl: RELAYER_URL, fetch })
   backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
   backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 

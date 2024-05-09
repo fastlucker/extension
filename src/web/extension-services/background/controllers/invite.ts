@@ -1,4 +1,5 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { relayerCall } from '@ambire-common/libs/relayerCall/relayerCall'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -13,11 +14,14 @@ type Invite = {
 }
 
 export class InviteController extends EventEmitter {
+  #callRelayer: Function
+
   inviteStatus: Invite['status'] = INVITE_STATUS.UNCHECKED
 
-  constructor() {
+  constructor({ relayerUrl, fetch }: { relayerUrl: string; fetch: Function }) {
     super()
 
+    this.#callRelayer = relayerCall.bind({ url: relayerUrl, fetch })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.#init()
   }
@@ -32,15 +36,19 @@ export class InviteController extends EventEmitter {
     this.emitUpdate()
   }
 
-  verify(code: string) {
-    // TODO: Verify invite code against the Relayer
-    this.inviteStatus = INVITE_STATUS.VERIFIED
-    this.emitUpdate()
+  async verify(code: string) {
+    try {
+      const res = await this.#callRelayer(`/promotions/extension-key/${code}`, 'GET')
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    storage.set('invite', {
-      status: INVITE_STATUS.VERIFIED,
-      verifiedAt: Date.now()
-    })
+      if (!res.success) throw new Error(res.message || "Couldn't verify the invite code")
+
+      this.inviteStatus = INVITE_STATUS.VERIFIED
+      this.emitUpdate()
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      storage.set('invite', { status: INVITE_STATUS.VERIFIED, verifiedAt: Date.now() })
+    } catch (error: any) {
+      this.emitError(error)
+    }
   }
 }
