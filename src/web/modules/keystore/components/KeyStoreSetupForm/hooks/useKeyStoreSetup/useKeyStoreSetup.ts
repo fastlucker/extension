@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+
 import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import useBackgroundService from '@web/hooks/useBackgroundService'
@@ -29,10 +30,10 @@ const useKeyStoreSetup = () => {
   }, [password, trigger, addToast, t, getValues])
 
   useEffect(() => {
-    if (state.latestMethodCall === 'addSecret' && state.status === 'SUCCESS') {
+    if (state.statuses.addSecret === 'SUCCESS') {
       setKeystoreReady(true)
     }
-  }, [state.latestMethodCall, state.status])
+  }, [state.statuses.addSecret])
 
   const handleKeystoreSetup = () => {
     handleSubmit(({ password: passwordFieldValue }) => {
@@ -48,8 +49,7 @@ const useKeyStoreSetup = () => {
     })()
   }
 
-  const isKeystoreSetupLoading =
-    state.status !== 'INITIAL' && state.latestMethodCall === 'addSecret'
+  const isKeystoreSetupLoading = state.statuses.addSecret !== 'INITIAL'
 
   return {
     isKeystoreReady,

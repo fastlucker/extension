@@ -126,22 +126,8 @@ const AccountAdderIntroStepsProvider: React.FC<{
   }, [forceCompleted, introCompleted])
 
   useEffect(() => {
-    const originalConsoleError = console.error
-    // Modify the error logs while this context is initialized because
-    // there is an issue with intro.js logging a warning when used with react hooks
-    console.error = function (...args) {
-      if (
-        typeof args?.[0] === 'string' &&
-        args?.[0]?.startsWith('Warning: useLayoutEffect does nothing on the server')
-      ) {
-        return
-      }
-
-      originalConsoleError.apply(console, args)
-    }
     setShowIntroSteps(false)
     return () => {
-      console.error = originalConsoleError
       setShowIntroSteps(false)
     }
   }, [])

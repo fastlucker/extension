@@ -58,14 +58,26 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
-          <Text appearance="secondaryText" weight="medium" fontSize={fontSize} numberOfLines={1}>
-            {selectedAccountLabel}{' '}
+          <Text
+            appearance="secondaryText"
+            weight="medium"
+            fontSize={fontSize}
+            numberOfLines={1}
+            style={spacings.mrMi}
+          >
+            {selectedAccountLabel}
           </Text>
-          <Text selectable appearance="primaryText" weight="medium" fontSize={fontSize}>
+          <Text
+            selectable
+            appearance="primaryText"
+            weight="medium"
+            fontSize={fontSize}
+            style={spacings.mrMi}
+          >
             ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
             {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
             {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}
-            {maxWidthSize(1150) && selectedAccount}){' '}
+            {maxWidthSize(1150) && selectedAccount})
           </Text>
           <Badge
             type={!account?.creation ? 'warning' : 'success'}
@@ -73,8 +85,13 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
           />
           {!!networkName && !!networkId && (
             <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}>
-              <Text appearance="secondaryText" weight="regular" fontSize={fontSize}>
-                {t('on')}{' '}
+              <Text
+                appearance="secondaryText"
+                weight="regular"
+                fontSize={fontSize}
+                style={spacings.mrMi}
+              >
+                {t('on')}
               </Text>
               <Text
                 appearance="secondaryText"
