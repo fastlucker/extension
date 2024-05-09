@@ -31,7 +31,7 @@ import DappConnectScreen from '@web/modules/notification-requests/screens/DappCo
 import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
 import WatchTokenRequestScreen from '@web/modules/notification-requests/screens/WatchTokenRequestScreen'
 import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
-import InviteConfirmedRoute from '@web/modules/router/components/InviteConfirmedRoute'
+import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import NavMenu from '@web/modules/router/components/NavMenu'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
@@ -62,7 +62,7 @@ const stepperProvider = (
 const MainRoutes = () => {
   return (
     <Routes>
-      <Route element={<InviteConfirmedRoute />}>
+      <Route element={<InviteVerifiedRoute />}>
         <Route element={stepperProvider}>
           <Route path={WEB_ROUTES.noConnection} element={<NoConnectionScreen />} />
           <Route element={<TabOnlyRoute />}>

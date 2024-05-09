@@ -14,7 +14,7 @@ import { POPUP_WIDTH } from '@web/constants/spacings'
 import { ControllersStateLoadedContext } from '@web/contexts/controllersStateLoadedContext'
 import InviteVerifyScreen from '@web/modules/invite/screens/InviteVerifyScreen'
 import KeyStoreUnlockScreen from '@web/modules/keystore/screens/KeyStoreUnlockScreen'
-import InviteConfirmedRoute from '@web/modules/router/components/InviteConfirmedRoute'
+import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import PrivateRoute from '@web/modules/router/components/PrivateRoute'
 import SortHat from '@web/modules/router/components/SortHat'
 import TabOnlyRoute from '@web/modules/router/components/TabOnlyRoute'
@@ -57,7 +57,7 @@ const Router = () => {
     <View style={[flexbox.flex1, isPopup && { maxWidth: POPUP_WIDTH }]}>
       <Routes>
         <Route index path="/" element={<SortHat />} />
-        <Route element={<InviteConfirmedRoute />}>
+        <Route element={<InviteVerifiedRoute />}>
           <Route element={<PrivateRoute />}>
             <Route path={WEB_ROUTES.dashboard} element={<DashboardScreen />} />
           </Route>
