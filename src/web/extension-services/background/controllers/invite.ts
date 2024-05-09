@@ -11,6 +11,7 @@ export enum INVITE_STATUS {
 type Invite = {
   status: INVITE_STATUS
   verifiedAt: null | number // timestamp
+  verifiedCode: null | string
 }
 
 export class InviteController extends EventEmitter {
@@ -29,7 +30,8 @@ export class InviteController extends EventEmitter {
   async #init() {
     const invite = await storage.get('invite', {
       status: INVITE_STATUS.UNCHECKED,
-      verifiedAt: null
+      verifiedAt: null,
+      verifiedCode: null
     })
 
     this.inviteStatus = invite.status
@@ -45,8 +47,9 @@ export class InviteController extends EventEmitter {
       this.inviteStatus = INVITE_STATUS.VERIFIED
       this.emitUpdate()
 
+      const verifiedAt = Date.now()
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      storage.set('invite', { status: INVITE_STATUS.VERIFIED, verifiedAt: Date.now() })
+      storage.set('invite', { status: INVITE_STATUS.VERIFIED, verifiedAt, verifiedCode: code })
     } catch (error: any) {
       this.emitError(error)
     }
