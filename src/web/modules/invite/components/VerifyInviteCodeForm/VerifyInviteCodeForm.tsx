@@ -10,6 +10,7 @@ import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
+import { DEFAULT_INVITATION_CODE_DEV } from '@env'
 import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
@@ -27,7 +28,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
   } = useForm({
     mode: 'all',
     defaultValues: {
-      code: isDev ? process.env.DEFAULT_INVITATION_CODE_DEV ?? '' : ''
+      code: isDev ? DEFAULT_INVITATION_CODE_DEV ?? '' : ''
     }
   })
 
