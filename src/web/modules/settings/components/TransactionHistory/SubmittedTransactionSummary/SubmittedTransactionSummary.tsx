@@ -44,6 +44,11 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     null
   )
 
+  const network = useMemo(
+    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [settingsState.networks, submittedAccountOp.networkId]
+  )
+
   useEffect(() => {
     callsHumanizer(
       submittedAccountOp,
@@ -53,20 +58,16 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         setHumanizedCalls(calls)
       },
       (err: any) => setHumanizerError(err),
-      { noAsyncOperations: true }
+      { noAsyncOperations: true, network }
     )
   }, [
     submittedAccountOp,
     keystoreState.keys,
     mainState.accounts,
     settingsState.accountPreferences,
-    settingsState.keyPreferences
+    settingsState.keyPreferences,
+    network
   ])
-
-  const network = useMemo(
-    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [settingsState.networks, submittedAccountOp.networkId]
-  )
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls
