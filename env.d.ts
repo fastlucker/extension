@@ -61,9 +61,6 @@ declare module '@env' {
 
     ENVIRONMENT: string
 
-    /**
-     * Unlimited-use invitation code for the app, for easy access during development
-     */
     DEFAULT_INVITATION_CODE_DEV: string
   }
 
@@ -122,5 +119,8 @@ declare module '@env' {
 
   export const ENVIRONMENT: string
 
+  /**
+   * Unlimited-use invitation code for the app, for easy access during development
+   */
   export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
 }
