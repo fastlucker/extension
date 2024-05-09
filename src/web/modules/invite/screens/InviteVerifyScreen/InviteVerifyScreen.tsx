@@ -8,7 +8,6 @@ import Text from '@common/components/Text'
 import Title from '@common/components/Title'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
-import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import VerifyInviteCodeForm from '@web/modules/invite/components/VerifyInviteCodeForm'
@@ -46,15 +45,15 @@ const InviteVerifyScreen = () => {
           <SeparatorWithText text={t("Don't have one?")} />
           <Trans>
             <Text>
-              <Text>{'You can join our '}</Text>
-              <Text color={colors.violet} onPress={handleOpenDiscord}>
+              <Text color={theme.secondaryText}>{'You can join our '}</Text>
+              <Text style={styles.link} onPress={handleOpenDiscord}>
                 Discord
               </Text>
-              <Text>{' or check '}</Text>
-              <Text color={colors.violet} onPress={handleOpenTwitter}>
+              <Text color={theme.secondaryText}>{' or check '}</Text>
+              <Text style={styles.link} onPress={handleOpenTwitter}>
                 Twitter
               </Text>
-              <Text>{' for invites.'}</Text>
+              <Text color={theme.secondaryText}>{' for invites.'}</Text>
             </Text>
           </Trans>
         </View>

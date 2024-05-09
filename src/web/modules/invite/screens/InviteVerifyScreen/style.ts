@@ -1,5 +1,6 @@
-import { StyleSheet, ViewStyle } from 'react-native'
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native'
 
+import colors from '@common/styles/colors'
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
@@ -8,7 +9,8 @@ interface Styles {
   container: ViewStyle
   backgroundSVG: ViewStyle
   headerContainer: ViewStyle
-  title: ViewStyle
+  title: TextStyle
+  link: TextStyle
 }
 
 const CARD_WIDTH = 400
@@ -50,6 +52,10 @@ const getStyles = (theme: ThemeProps) =>
       fontSize: 32,
       textAlign: 'center',
       ...spacings.mvXl
+    },
+    link: {
+      color: colors.violet,
+      textDecorationLine: 'underline'
     }
   })
 
