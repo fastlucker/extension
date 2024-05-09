@@ -2,7 +2,6 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 interface Styles {
   errorContainer: ViewStyle
-  spinner: ViewStyle
 }
 
 const getStyles = () =>
@@ -10,9 +9,6 @@ const getStyles = () =>
     errorContainer: {
       marginTop: 'auto',
       paddingTop: 10
-    },
-    spinner: {
-      alignSelf: 'center'
     }
   })
 

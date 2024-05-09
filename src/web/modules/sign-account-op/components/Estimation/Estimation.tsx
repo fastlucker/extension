@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import {
   getFeeSpeedIdentifier,
@@ -16,6 +16,7 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -264,6 +265,11 @@ const Estimation = ({
               />
             )}
           </>
+        )}
+        {!hasEstimation && !estimationFailed && (
+          <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
+            <Spinner style={styles.spinner} />
+          </View>
         )}
         <EstimationWarnings
           hasEstimation={hasEstimation}

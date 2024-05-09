@@ -10,6 +10,7 @@ interface Style {
   gasTankText: TextStyle
   estimationContainer: ViewStyle
   estimationScrollView: ViewStyle
+  spinner: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -32,6 +33,9 @@ const getStyles = (theme: ThemeProps) =>
     },
     estimationScrollView: {
       height: '100%'
+    },
+    spinner: {
+      alignSelf: 'center'
     }
   })
 

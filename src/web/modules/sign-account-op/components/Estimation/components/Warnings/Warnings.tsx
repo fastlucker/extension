@@ -1,15 +1,13 @@
 import React, { FC, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 
 import Alert from '@common/components/Alert'
 import Checkbox from '@common/components/Checkbox'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 
@@ -64,12 +62,6 @@ const EstimationWarnings: FC<Props> = ({
             </Checkbox>
           </View>
         )}
-
-      {!hasEstimation && !estimationFailed && (
-        <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-          <Spinner style={styles.spinner} />
-        </View>
-      )}
 
       {!hasEstimation && !!slowRequest && !signAccountOpState?.errors.length ? (
         <View style={styles.errorContainer}>
