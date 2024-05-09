@@ -2,28 +2,24 @@ import { StyleSheet, ViewStyle } from 'react-native'
 
 import spacings from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
-import flexbox from '@common/styles/utils/flexbox'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 
 interface Styles {
   container: ViewStyle
   backgroundSVG: ViewStyle
   headerContainer: ViewStyle
   title: ViewStyle
-  // contentContainer: ViewStyle
 }
+
+const CARD_WIDTH = 400
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Styles>({
     container: {
-      width: 400,
-      height: 380,
+      width: CARD_WIDTH,
+      minHeight: 380,
       backgroundColor: theme.primaryBackground,
-      // TODO:
-      // ...flexbox.alignCenter,
-      // TODO: Remove?
       marginHorizontal: 'auto',
-      // overflow: 'hidden',
       borderLeftWidth: 1,
       borderRightWidth: 1,
       borderBottomWidth: 1,
@@ -36,8 +32,8 @@ const getStyles = (theme: ThemeProps) =>
       alignSelf: 'center',
       alignItems: 'center',
       justifyContent: 'center',
-      width: 400,
-      height: 240,
+      width: CARD_WIDTH,
+      minHeight: 240,
       borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
       borderTopRightRadius: BORDER_RADIUS_PRIMARY,
       borderLeftWidth: 1,
@@ -55,13 +51,6 @@ const getStyles = (theme: ThemeProps) =>
       textAlign: 'center',
       ...spacings.mvXl
     }
-    // TODO:
-    // contentContainer: {
-    //   paddingVertical: SPACING_XL + SPACING_TY,
-    //   ...spacings.phXl,
-    //   backgroundColor: theme.primaryBackground,
-    //   ...flexbox.flex1
-    // },
   })
 
 export default getStyles

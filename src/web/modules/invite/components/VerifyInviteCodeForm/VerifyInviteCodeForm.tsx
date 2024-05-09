@@ -53,7 +53,9 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
 
   return (
     <>
-      <Title style={spacings.mtXl}>{t('Enter an invite code')}</Title>
+      <Text style={[spacings.mvXl]} fontSize={20} weight="medium">
+        {t('Enter an invite code')}
+      </Text>
       <Controller
         control={control}
         rules={{ required: true }}
