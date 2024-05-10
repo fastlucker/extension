@@ -7,8 +7,8 @@ import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
-const getStyles = (theme: ThemeProps) => ({
-  ...StyleSheet.create({
+const getStyles = (theme: ThemeProps) =>
+  StyleSheet.create({
     container: {
       ...common.borderRadiusPrimary,
       ...common.shadowPrimary,
@@ -37,6 +37,5 @@ const getStyles = (theme: ThemeProps) => ({
       width: 150
     }
   })
-})
 
 export default getStyles
