@@ -1,7 +1,6 @@
 import {
   AbiCoder,
   Block,
-  ethers,
   formatEther,
   JsonRpcProvider,
   keccak256,
