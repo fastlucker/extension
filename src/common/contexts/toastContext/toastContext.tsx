@@ -113,6 +113,7 @@ const ToastProvider = ({ children }: Props) => {
               onPress={() => onToastPress(id, onClick, url)}
               style={styles.toastWrapper}
               key={id}
+              testID={`${type}-${id}`}
             >
               <Alert
                 size={isPopup ? 'sm' : 'md'}

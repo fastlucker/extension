@@ -75,6 +75,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
       />
 
       <Button
+        testID="verify-invite-code-submit"
         disabled={isSubmitting || !isValid}
         type="primary"
         text={isSubmitting ? t('Validating...') : t('Continue')}
