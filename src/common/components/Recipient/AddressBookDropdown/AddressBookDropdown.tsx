@@ -1,15 +1,16 @@
 import React, { FC, useCallback } from 'react'
+import { Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TextInput as NativeInput, View } from 'react-native'
+import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
-import SearchIcon from '@common/assets/svg/SearchIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import Text from '@common/components//Text'
 import AddressBookContact from '@common/components/AddressBookContact'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import Search from '@common/components/Search'
 import { MenuContainer, useSelect } from '@common/components/Select'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
@@ -27,7 +28,12 @@ interface Props {
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
   search: string
-  setSearch: any
+  control: Control<
+    {
+      search: string
+    },
+    any
+  >
   menuProps: ReturnType<typeof useSelect>['menuProps']
 }
 
@@ -47,7 +53,7 @@ const AddressBookDropdown: FC<Props> = ({
   passRef: ref,
   onContactPress,
   search,
-  setSearch,
+  control,
   menuProps
 }) => {
   const { t } = useTranslation()
@@ -82,15 +88,14 @@ const AddressBookDropdown: FC<Props> = ({
   return (
     <MenuContainer menuRef={ref} menuProps={menuProps}>
       <View style={styles.header}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <SearchIcon width={16} height={16} color={theme.secondaryText} />
-          <NativeInput
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-            placeholder={t('Search')}
-          />
-        </View>
+        <Search
+          placeholder={t('Search...')}
+          autoFocus
+          control={control}
+          leftIconStyle={spacings.pl0}
+          containerStyle={spacings.mb0}
+          borderless
+        />
         <AnimatedPressable
           style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
           onPress={onManagePress}

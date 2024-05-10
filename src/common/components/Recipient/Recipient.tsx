@@ -66,7 +66,7 @@ const Recipient: React.FC<Props> = ({
     isMenuOpen: isAddressBookVisible,
     setIsMenuOpen: setIsAddressBookVisible,
     search,
-    setSearch,
+    control,
     toggleMenu: toggleAddressBookMenu,
     menuProps
   } = useSelect()
@@ -104,7 +104,7 @@ const Recipient: React.FC<Props> = ({
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
             search={search}
-            setSearch={setSearch}
+            control={control}
           />
         }
         childrenBeforeButtons={
