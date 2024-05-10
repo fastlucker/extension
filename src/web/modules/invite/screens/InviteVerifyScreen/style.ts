@@ -35,7 +35,7 @@ const getStyles = (theme: ThemeProps) =>
       alignItems: 'center',
       justifyContent: 'center',
       width: CARD_WIDTH,
-      minHeight: 240,
+      minHeight: 215,
       borderTopLeftRadius: BORDER_RADIUS_PRIMARY,
       borderTopRightRadius: BORDER_RADIUS_PRIMARY,
       borderLeftWidth: 1,
