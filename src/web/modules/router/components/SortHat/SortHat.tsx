@@ -3,6 +3,12 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
+import {
+  getNotificationScreen,
+  isSignMessageMethod,
+  isSignTypedDataMethod,
+  methodToScreenMap
+} from '@ambire-common/libs/notification/notification'
 import findAccountOpInSignAccountOpsToBeSigned from '@ambire-common/utils/findAccountOpInSignAccountOpsToBeSigned'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -44,16 +50,17 @@ const SortHat = () => {
     }
 
     if (isNotification && notificationState.currentNotificationRequest) {
-      if (notificationState.currentNotificationRequest.screen === 'Unlock') {
+      const screen = getNotificationScreen(notificationState.currentNotificationRequest.method)
+      if (screen === methodToScreenMap.unlock) {
         dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
       }
-      if (notificationState.currentNotificationRequest.screen === 'DappConnectRequest') {
+      if (screen === methodToScreenMap.dapp_connect) {
         return navigate(ROUTES.dappConnectRequest)
       }
-      if (notificationState.currentNotificationRequest.screen === 'AddChain') {
+      if (screen === methodToScreenMap.wallet_addEthereumChain) {
         return navigate(ROUTES.addChain)
       }
-      if (notificationState.currentNotificationRequest.screen === 'SendTransaction') {
+      if (screen === methodToScreenMap.eth_sendTransaction) {
         if (
           findAccountOpInSignAccountOpsToBeSigned(
             mainState.accountOpsToBeSigned,
@@ -65,7 +72,6 @@ const SortHat = () => {
           const network = networks.find(
             (n) => n.id === notificationState.currentNotificationRequest?.meta?.networkId
           )
-
           if (accountAddr && network) {
             return navigate(ROUTES.signAccountOp, {
               state: { accountAddr: getAddress(accountAddr), network }
@@ -74,19 +80,17 @@ const SortHat = () => {
           // TODO: add here some error handling and dispatch dapp request removal
         }
       }
-      if (
-        ['SignText', 'SignTypedData'].includes(notificationState.currentNotificationRequest.screen)
-      ) {
+      if (screen === methodToScreenMap.eth_sign) {
         let accountAddr = mainState.selectedAccount
 
         if (
-          notificationState.currentNotificationRequest.screen === 'SignText' &&
+          isSignMessageMethod(notificationState.currentNotificationRequest.method) &&
           notificationState.currentNotificationRequest?.params?.[1]
         ) {
           accountAddr = notificationState.currentNotificationRequest?.params?.[1]
         }
         if (
-          notificationState.currentNotificationRequest.screen === 'SignTypedData' &&
+          isSignTypedDataMethod(notificationState.currentNotificationRequest.method) &&
           notificationState.currentNotificationRequest?.params?.[0]
         ) {
           accountAddr = notificationState.currentNotificationRequest?.params?.[0]
@@ -99,13 +103,13 @@ const SortHat = () => {
         })
       }
 
-      if (notificationState.currentNotificationRequest.screen === 'WalletWatchAsset') {
+      if (screen === methodToScreenMap.wallet_watchAsset) {
         return navigate(ROUTES.watchAsset)
       }
-      if (notificationState.currentNotificationRequest.screen === 'GetEncryptionPublicKey') {
+      if (screen === methodToScreenMap.eth_getEncryptionPublicKey) {
         return navigate(ROUTES.getEncryptionPublicKeyRequest)
       }
-      if (notificationState.currentNotificationRequest.screen === 'Benzin') {
+      if (screen === methodToScreenMap.benzin) {
         // if userOpHash and custom network, close the window
         // as jiffyscan may not support the network
         const isCustomNetwork = !predefinedNetworks.find(

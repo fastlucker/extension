@@ -375,6 +375,7 @@ type DappsControllerRemoveDappAction = {
 
 type NotificationControllerFocusCurrentNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
+  params?: string
 }
 type NotificationControllerOpenNotificationRequestAction = {
   type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'

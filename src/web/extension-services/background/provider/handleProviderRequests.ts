@@ -1,12 +1,11 @@
+import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
-import {
-  ProviderNeededControllers,
-  ProviderRequest
-} from '@web/extension-services/background/provider/types'
+import { ProviderNeededControllers } from '@web/extension-services/background/provider/types'
+import { Session } from '@web/extension-services/background/services/session'
 
 const handleProviderRequests = async (
-  request: ProviderRequest,
+  request: DappProviderRequest & { session: Session },
   controllers: ProviderNeededControllers
 ): Promise<any> => {
   const { method, params, session } = request

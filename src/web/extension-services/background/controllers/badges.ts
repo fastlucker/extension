@@ -1,12 +1,10 @@
 import { MainController } from '@ambire-common/controllers/main/main'
+import { NotificationController } from '@ambire-common/controllers/notification/notification'
 import { BannerType } from '@ambire-common/interfaces/banner'
+import { NotificationRequest } from '@ambire-common/interfaces/notification'
+import { isSignMethod } from '@ambire-common/libs/notification/notification'
 import colors from '@common/styles/colors'
 import { browser } from '@web/constants/browserapi'
-import {
-  NotificationController,
-  NotificationRequest,
-  SIGN_METHODS
-} from '@web/extension-services/background/controllers/notification'
 
 export class BadgesController {
   #mainCtrl: MainController
@@ -53,7 +51,7 @@ export class BadgesController {
     // if not a user request add the badge
     const requestsCount = requests.reduce(
       (accumulator: NotificationRequest[], currentItem: NotificationRequest) => {
-        if (!SIGN_METHODS.includes(currentItem?.method)) {
+        if (!isSignMethod(currentItem?.method)) {
           accumulator.push(currentItem)
         }
 

@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo } from 'react'
 
+import { NotificationController } from '@ambire-common/controllers/notification/notification'
+import { isSignMethod } from '@ambire-common/libs/notification/notification'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
-import {
-  BENZIN_NOTIFICATION_DATA,
-  NotificationController,
-  SIGN_METHODS
-} from '@web/extension-services/background/controllers/notification'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -55,11 +52,12 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       !isNotification &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      !SIGN_METHODS.includes(state.currentNotificationRequest?.method) &&
-      state.currentNotificationRequest?.method !== BENZIN_NOTIFICATION_DATA.method
+      !isSignMethod(state.currentNotificationRequest?.method) &&
+      state.currentNotificationRequest?.method !== 'benzin'
     ) {
       dispatch({
-        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
+        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST',
+        params: 'Please resolve your pending request first.'
       })
       window.close()
     }
@@ -76,10 +74,11 @@ const NotificationControllerStateProvider: React.FC<any> = ({ children }) => {
       isPopup &&
       state.notificationWindowId &&
       state.currentNotificationRequest &&
-      SIGN_METHODS.includes(state.currentNotificationRequest?.method)
+      isSignMethod(state.currentNotificationRequest?.method)
     ) {
       dispatch({
-        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
+        type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST',
+        params: 'Please resolve your pending request first.'
       })
       window.close()
     }

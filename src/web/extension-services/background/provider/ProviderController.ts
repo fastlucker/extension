@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
+import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
@@ -16,14 +17,9 @@ import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
 
-import {
-  ProviderNeededControllers,
-  ProviderRequest,
-  RequestRes,
-  Web3WalletPermission
-} from './types'
+import { ProviderNeededControllers, RequestRes, Web3WalletPermission } from './types'
 
-type Request = ProviderRequest & { requestRes: RequestRes }
+type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
 
 const handleSignMessage = (requestRes: RequestRes) => {
   if (requestRes) {
@@ -71,7 +67,7 @@ export class ProviderController {
     )
   }
 
-  ethRpc = async (request: ProviderRequest) => {
+  ethRpc = async (request: DappProviderRequest) => {
     const {
       method,
       params,
@@ -88,7 +84,7 @@ export class ProviderController {
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }: Request) => {
+  ethRequestAccounts = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
@@ -100,7 +96,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }: Request) => {
+  ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
@@ -108,7 +104,7 @@ export class ProviderController {
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }: Request) => {
+  ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
     if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
@@ -117,7 +113,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async ({ session: { origin } }: Request) => {
+  ethChainId = async ({ session: { origin } }: DappProviderRequest) => {
     if (this.dappsCtrl.hasPermission(origin)) {
       return toBeHex(this.dappsCtrl.getDapp(origin)?.chainId || 1)
     }
@@ -125,7 +121,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
-  ethSendTransaction = async (request: Request) => {
+  ethSendTransaction = async (request: ProviderRequest) => {
     const { session } = request
     const { requestRes } = cloneDeep(request)
 
@@ -165,32 +161,32 @@ export class ProviderController {
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  personalSign = async ({ requestRes }: Request) => {
+  personalSign = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  ethSign = async ({ requestRes }: Request) => {
+  ethSign = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedData = async ({ requestRes }: Request) => {
+  ethSignTypedData = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({ requestRes }: Request) => {
+  ethSignTypedDataV1 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({ requestRes }: Request) => {
+  ethSignTypedDataV3 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({ requestRes }: Request) => {
+  ethSignTypedDataV4 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
@@ -221,7 +217,10 @@ export class ProviderController {
       return true
     }
   ])
-  walletAddEthereumChain = ({ params: [chainParams], session: { origin, name } }: Request) => {
+  walletAddEthereumChain = ({
+    params: [chainParams],
+    session: { origin, name }
+  }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -288,7 +287,10 @@ export class ProviderController {
       return true
     }
   ])
-  walletSwitchEthereumChain = ({ params: [chainParams], session: { origin, name } }: Request) => {
+  walletSwitchEthereumChain = ({
+    params: [chainParams],
+    session: { origin, name }
+  }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
@@ -325,11 +327,11 @@ export class ProviderController {
   walletWatchAsset = () => true
 
   @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = ({ requestRes }: Request) => ({
+  ethGetEncryptionPublicKey = ({ requestRes }: ProviderRequest) => ({
     result: requestRes
   })
 
-  walletRequestPermissions = ({ params: permissions }: Request) => {
+  walletRequestPermissions = ({ params: permissions }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
     if (permissions && 'eth_accounts' in permissions[0]) {
       result.push({ parentCapability: 'eth_accounts' })
@@ -338,7 +340,7 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  walletGetPermissions = ({ session: { origin } }: Request) => {
+  walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
     if (this.dappsCtrl.getDapp(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
@@ -346,7 +348,7 @@ export class ProviderController {
     return result
   }
 
-  personalEcRecover = ({ params: [data, sig, extra = {}] }: Request) => {
+  personalEcRecover = ({ params: [data, sig, extra = {}] }: DappProviderRequest) => {
     // TODO:
   }
 

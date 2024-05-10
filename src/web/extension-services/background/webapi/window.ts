@@ -53,7 +53,7 @@ const getScreenWidth = (w: number) => {
 
 // creates a browser new window that is 15% smaller
 // of the current page and is centered in the browser app
-const createFullScreenWindow = async ({ url, ...rest }: any) => {
+const createFullScreenWindow = async (url: string) => {
   let screenWidth = 0
   let screenHeight = 0
 
@@ -104,7 +104,6 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
                 focused: true,
                 url,
                 type: 'popup',
-                ...rest,
                 width: desiredWidth,
                 height: desiredHeight,
                 left: leftPosition <= SPACING ? Math.round(SPACING) : Math.round(leftPosition),
@@ -123,28 +122,27 @@ const createFullScreenWindow = async ({ url, ...rest }: any) => {
   })
 }
 
-const create = async ({ url, ...rest }: any): Promise<number | undefined> => {
-  const win: any = await createFullScreenWindow({ url, ...rest })
+const create = async (url: string): Promise<number> => {
+  const win: any = await createFullScreenWindow(url)
   return win.id
 }
 
 const remove = async (winId: number) => {
-  return browser.windows.remove(winId)
+  await chrome.windows.remove(winId)
 }
 
-const openNotification = ({ route = '', ...rest } = {}): Promise<number | undefined> => {
+const open = async (route?: string): Promise<number> => {
   const url = `notification.html${route ? `#/${route}` : ''}`
-
-  return create({ url, ...rest })
+  return create(url)
 }
 
-const focusNotificationWindow = (windowId: number) => {
-  chrome.windows.update(windowId, { focused: true })
+const focus = async (windowId: number) => {
+  await chrome.windows.update(windowId, { focused: true })
 }
 
 export default {
-  openNotification,
-  focusNotificationWindow,
-  event,
-  remove
+  open,
+  focus,
+  remove,
+  event
 }

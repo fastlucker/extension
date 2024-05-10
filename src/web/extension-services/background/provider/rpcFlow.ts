@@ -2,11 +2,11 @@ import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
 
+import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import {
   ProviderNeededControllers,
-  ProviderRequest,
   RequestRes
 } from '@web/extension-services/background/provider/types'
 import PromiseFlow from '@web/utils/promiseFlow'
@@ -16,11 +16,26 @@ const lockedOrigins = new Set<string>()
 const connectOrigins = new Set<string>()
 
 const flow = new PromiseFlow<{
-  request: ProviderRequest
+  request: DappProviderRequest
   controllers: ProviderNeededControllers
   mapMethod: string
   requestRes?: RequestRes
 }>()
+
+const requestNotification = async (
+  request: DappProviderRequest,
+  buildNotificationRequest: (
+    request: DappProviderRequest,
+    dappPromise: {
+      resolve: (data: any) => void
+      reject: (data: any) => void
+    }
+  ) => void
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    buildNotificationRequest(request, { resolve, reject })
+  })
+}
 
 const flowContext = flow
   .use(async ({ request, controllers, mapMethod }, next) => {
@@ -41,7 +56,7 @@ const flowContext = flow
     return next()
   })
   .use(async ({ request, controllers, mapMethod }, next) => {
-    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
+    const { mainCtrl, dappsCtrl } = controllers
     const {
       session: { origin }
     } = request
@@ -56,7 +71,10 @@ const flowContext = flow
         }
         lockedOrigins.add(origin)
         try {
-          await notificationCtrl.requestNotificationRequest({ ...request, screen: 'Unlock' })
+          await requestNotification(
+            { ...request, method: 'unlock', params: {} },
+            mainCtrl.buildNotificationRequest
+          )
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -71,7 +89,7 @@ const flowContext = flow
   })
   .use(async ({ request, controllers, mapMethod }, next) => {
     // check connect
-    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
+    const { mainCtrl, dappsCtrl } = controllers
     const {
       session: { origin, name, icon }
     } = request
@@ -83,10 +101,10 @@ const flowContext = flow
         }
         try {
           connectOrigins.add(origin)
-          await notificationCtrl.requestNotificationRequest({
-            ...request,
-            screen: 'DappConnectRequest'
-          })
+          await requestNotification(
+            { ...request, method: 'dapp_connect', params: {} },
+            mainCtrl.buildNotificationRequest
+          )
           connectOrigins.delete(origin)
           dappsCtrl.addDapp({
             name,
@@ -109,16 +127,13 @@ const flowContext = flow
   .use(async (props, next) => {
     // check need notification request
     const { request, controllers, mapMethod } = props
-    const { mainCtrl, dappsCtrl, notificationCtrl } = controllers
+    const { mainCtrl, dappsCtrl } = controllers
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
-      props.requestRes = await notificationCtrl.requestNotificationRequest({
-        ...request,
-        screen: requestType
-      })
+      props.requestRes = await createNotification(request, mainCtrl.buildNotificationRequest)
 
       console.log('props.requestRes', props.requestRes)
     }
@@ -133,6 +148,6 @@ const flowContext = flow
   })
   .callback()
 
-export default (request: ProviderRequest, controllers: ProviderNeededControllers) => {
+export default (request: DappProviderRequest, controllers: ProviderNeededControllers) => {
   return flowContext({ request, controllers, mapMethod: underline2Camelcase(request.method) })
 }

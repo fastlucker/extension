@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
+import { getAccountOpId } from '@ambire-common/libs/accountOp/accountOp'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
@@ -27,7 +28,6 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { getAccountOpId } from '@web/extension-services/background/controllers/notification'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -135,7 +135,10 @@ const SignAccountOpScreen = () => {
       type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
       params: {
         err: 'User rejected the transaction request',
-        id: getAccountOpId(signAccountOpState.accountOp)
+        id: getAccountOpId(
+          signAccountOpState.accountOp.accountAddr,
+          signAccountOpState.accountOp.networkId
+        )
       }
     })
   }, [dispatch, signAccountOpState?.accountOp])

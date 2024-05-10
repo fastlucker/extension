@@ -141,51 +141,21 @@ export class UserNotification {
   createAccountOpUserRequest({
     id,
     txn,
-    txs,
-    selectedAccount,
-    origin: dappOrigin,
-    networks,
-    onError
+    network
   }: {
     id: number
     txn: any
-    txs: any
-    origin: string
-    selectedAccount: string
-    networks: NetworkDescriptor[]
-    onError: (msg: string) => void
-    onSuccess: (data: any, id: number) => void
+    network: NetworkDescriptor
   }) {
-    if (txs?.length) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const i in txs) {
-        // eslint-disable-next-line no-param-reassign
-        if (!txs[i].from) txs[i].from = selectedAccount
-      }
-    } else {
-      onError(`No txs request in received params for account: ${selectedAccount}`)
-      return
-    }
-    const network = networks.find(
-      (n) => Number(n.chainId) === Number(this.#dappsCtrl.getDapp(dappOrigin)?.chainId)
-    )
-
-    if (!network) {
-      onError('Unsupported network')
-      return
-    }
-
     const request: UserRequest = {
       id,
       action: {
         kind: 'call',
-        ...{
-          ...txn,
-          value: txn.value ? getBigInt(txn.value) : 0n
-        }
+        ...txn,
+        value: txn.value ? getBigInt(txn.value) : 0n
       },
       networkId: network.id,
-      accountAddr: selectedAccount,
+      accountAddr: txn.from,
       // TODO: ?
       forceNonce: null
     }
