@@ -20,12 +20,7 @@ interface Props {
   isViewOnly: boolean
 }
 
-const EstimationWarnings: FC<Props> = ({
-  hasEstimation,
-  estimationFailed,
-  slowRequest,
-  isViewOnly
-}) => {
+const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isViewOnly }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const signAccountOpState = useSignAccountOpControllerState()
@@ -82,4 +77,4 @@ const EstimationWarnings: FC<Props> = ({
   )
 }
 
-export default EstimationWarnings
+export default Warnings

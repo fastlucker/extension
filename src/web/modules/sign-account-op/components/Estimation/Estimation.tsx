@@ -29,7 +29,7 @@ import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import SectionHeading from '../SectionHeading'
 import AmountInfo from './components/AmountInfo'
-import EstimationWarnings from './components/Warnings'
+import Warnings from './components/Warnings'
 import getStyles from './styles'
 
 type Props = {
@@ -273,7 +273,7 @@ const Estimation = ({
             <Spinner style={styles.spinner} />
           </View>
         )}
-        <EstimationWarnings
+        <Warnings
           hasEstimation={hasEstimation}
           estimationFailed={estimationFailed}
           slowRequest={slowRequest}

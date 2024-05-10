@@ -1,3 +1,3 @@
-import EstimationWarnings from './Warnings'
+import Warnings from './Warnings'
 
-export default EstimationWarnings
+export default Warnings
