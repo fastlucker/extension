@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -11,8 +11,8 @@ import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import AddressInput from '@common/components/AddressInput'
 import { AddressValidation } from '@common/components/AddressInput/AddressInput'
 import { InputProps } from '@common/components/Input'
+import { useSelect } from '@common/components/Select'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
@@ -60,44 +60,32 @@ const Recipient: React.FC<Props> = ({
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { contacts } = useAddressBookControllerState()
-  const [isAddressBookVisible, setIsAddressBookVisible] = useState(false)
-  const addressBookRef = useRef(null)
+  const {
+    selectRef: addressBookSelectRef,
+    menuRef: addressBookMenuRef,
+    isMenuOpen: isAddressBookVisible,
+    setIsMenuOpen: setIsAddressBookVisible,
+    search,
+    setSearch,
+    toggleMenu: toggleAddressBookMenu,
+    menuProps
+  } = useSelect()
+
   const isAddressInAddressBook = contacts.some((contact) => {
     const actualAddress = ensAddress || uDAddress || address
 
     return actualAddress.toLowerCase() === contact.address.toLowerCase()
   })
 
-  const onFocus = () => setIsAddressBookVisible(true)
-
   const setAddressAndCloseAddressBook = (newAddress: string) => {
     setIsAddressBookVisible(false)
     setAddress(newAddress)
   }
 
-  // Close the address book on click outside
-  useEffect(() => {
-    if (!isWeb) return
-    function handleClickOutside(event: MouseEvent) {
-      // @ts-ignore
-      if (addressBookRef.current && !addressBookRef.current?.contains(event.target)) {
-        setIsAddressBookVisible(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      if (!isWeb) return
-
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [addressBookRef])
-
   return (
     <>
       <AddressInput
-        testID='recepient-address-field'
+        testID="recepient-address-field"
         validation={validation}
         containerStyle={styles.inputContainer}
         udAddress={uDAddress}
@@ -107,12 +95,16 @@ const Recipient: React.FC<Props> = ({
         value={address}
         onChangeText={setAddressAndCloseAddressBook}
         disabled={disabled}
-        onFocus={onFocus}
+        onFocus={toggleAddressBookMenu}
+        inputBorderWrapperRef={addressBookSelectRef}
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
-            passRef={addressBookRef}
+            passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
+            menuProps={menuProps}
+            search={search}
+            setSearch={setSearch}
           />
         }
         childrenBeforeButtons={
@@ -126,13 +118,7 @@ const Recipient: React.FC<Props> = ({
         }
         button={isAddressBookVisible ? <UpArrowIcon /> : <DownArrowIcon />}
         buttonProps={{
-          onPress: () => {
-            if (!isAddressBookVisible) {
-              setIsAddressBookVisible(true)
-            }
-            // If the address book is visible and the user clicks on the button
-            // the address book will be closed by the click outside event listener
-          }
+          onPress: toggleAddressBookMenu
         }}
       />
       <View style={styles.inputBottom}>
