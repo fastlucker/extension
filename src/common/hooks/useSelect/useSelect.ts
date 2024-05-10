@@ -7,9 +7,8 @@ import useElementSize from '@common/hooks/useElementSize'
 import useWindowSize from '@common/hooks/useWindowSize'
 import { SPACING } from '@common/styles/spacings'
 
-import { MAX_MENU_HEIGHT } from './styles'
-
-const useSelect = () => {
+const useSelect = (props?: { maxMenuHeight: number }) => {
+  const { maxMenuHeight = 400 } = props || {}
   const selectRef: React.MutableRefObject<any> = useRef(null)
   const menuRef: React.MutableRefObject<any> = useRef(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -49,19 +48,19 @@ const useSelect = () => {
   }, [forceUpdate])
 
   const menuPosition: 'top' | 'bottom' = useMemo(() => {
-    if (!!isMenuOpen && y + height + MAX_MENU_HEIGHT > windowHeight && y - MAX_MENU_HEIGHT > 0)
+    if (!!isMenuOpen && y + height + maxMenuHeight > windowHeight && y - maxMenuHeight > 0)
       return 'top'
 
     return 'bottom'
-  }, [height, isMenuOpen, windowHeight, y])
+  }, [height, isMenuOpen, maxMenuHeight, windowHeight, y])
 
   const maxMenuDynamicHeight = useMemo(() => {
-    if (menuPosition === 'bottom' && y + height + MAX_MENU_HEIGHT > windowHeight) {
+    if (menuPosition === 'bottom' && y + height + maxMenuHeight > windowHeight) {
       return windowHeight - (y + height) - SPACING
     }
 
-    return MAX_MENU_HEIGHT
-  }, [height, menuPosition, windowHeight, y])
+    return maxMenuHeight
+  }, [height, maxMenuHeight, menuPosition, windowHeight, y])
 
   return {
     selectRef,

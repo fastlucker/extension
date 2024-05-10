@@ -7,6 +7,7 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
+import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -16,7 +17,6 @@ import MenuContainer from './MenuContainer'
 import { MenuOption, Option } from './MenuOption'
 import getStyles, { MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
-import useSelect from './useSelect'
 
 const Select = ({
   label,
