@@ -327,7 +327,8 @@ export async function confirmTransaction(
   page,
   extensionRootUrl,
   browser,
-  triggerTransactionSelector
+  triggerTransactionSelector,
+  feeToken
 ) {
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
@@ -382,17 +383,13 @@ export async function confirmTransaction(
       // Wait for some time
       await new Promise((r) => setTimeout(r, 2000))
       // Click on the Gas Tank option
-      await clickOnElement(
-        newPage,
-        '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
-      )
+      await clickOnElement(newPage, feeToken)
     }
   }
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-  newPage.setDefaultNavigationTimeout(200000)
   // Wait for the 'Timestamp' text to appear twice on the page
   await newPage.waitForFunction(
     () => {
@@ -400,7 +397,7 @@ export async function confirmTransaction(
       const occurrences = (pageText.match(/Timestamp/g) || []).length
       return occurrences >= 2
     },
-    { timeout: 150000 }
+    { timeout: 250000 }
   )
 
   const doesFailedExist = await newPage.evaluate(() => {

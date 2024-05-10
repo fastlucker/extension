@@ -60,7 +60,8 @@ describe('ba_transactions', () => {
       page,
       extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]'
+      '[data-testid="transfer-button-send"]',
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
   })
 
@@ -123,7 +124,13 @@ describe('ba_transactions', () => {
     // await clickOnElement(page, confirmSwapBtn)
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      confirmSwapBtn,
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    )
   })
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send matics greater than the available balance ', async () => {

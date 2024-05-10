@@ -1,3 +1,5 @@
+import { ethers } from 'ethers'
+
 import {
   typeText,
   clickOnElement,
@@ -27,35 +29,9 @@ describe('sa_transactions', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
-  //--------------------------------------------------------------------------------------------------------------
-  it('Top up gas tank', async () => {
-    // Click on Matic (not Gas Tank token)
-    await clickOnElement(
-      page,
-      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]'
-    )
-    // Click on "Top Up Gas Tank"
-    await clickOnElement(page, '[data-testid="top-up-button"]')
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/transfer')
-      },
-      { timeout: 60000 }
-    )
-
-    await typeText(page, amountField, '0.0001')
-
-    // Click on "Top Up" button and confirm transaction
-    await confirmTransaction(
-      page,
-      extensionRootUrl,
-      browser,
-      '[data-testid="transfer-button-send"]'
-    )
-  })
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
     /* Click on "Send" button */
@@ -86,7 +62,8 @@ describe('sa_transactions', () => {
       page,
       extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]'
+      '[data-testid="transfer-button-send"]',
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
   })
   //--------------------------------------------------------------------------------------------------------------
@@ -144,8 +121,43 @@ describe('sa_transactions', () => {
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
     /* Click on 'Confirm Swap' button and confirm transaction */
-    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      confirmSwapBtn,
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    )
   })
+  //--------------------------------------------------------------------------------------------------------------
+  it('Top up gas tank', async () => {
+    // Click on Matic (not Gas Tank token)
+    await clickOnElement(
+      page,
+      '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]'
+    )
+    // Click on "Top Up Gas Tank"
+    await clickOnElement(page, '[data-testid="top-up-button"]')
+
+    await page.waitForFunction(
+      () => {
+        return window.location.href.includes('/transfer')
+      },
+      { timeout: 60000 }
+    )
+
+    await typeText(page, amountField, '0.0001')
+
+    // Click on "Top Up" button and confirm transaction
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      '[data-testid="transfer-button-send"]',
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
+    )
+  })
+
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send matics greater than the available balance ', async () => {
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
@@ -277,6 +289,41 @@ describe('sa_transactions', () => {
       },
       {},
       validateMessage
+    )
+  })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it('Pay transaction fee with gas tank', async () => {
+    /* Click on "Send" button */
+    await clickOnElement(page, '[data-testid="dashboard-button-send"]')
+
+    await page.waitForSelector(amountField)
+
+    await selectMaticToken(page)
+
+    /* Type the amount */
+    await typeText(page, amountField, '0.0001')
+
+    /* Type the adress of the recipient  */
+    await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+    )
+    await page.waitForSelector('[data-testid="checkbox"]')
+
+    /* Check the checkbox "I confirm this address is not a Binance wallets...." */
+    await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
+
+    /* Check the checkbox "Confirm sending to a previously unknown address" */
+    await clickOnElement(page, '[data-testid="checkbox"]')
+
+    /* Click on "Send" button and cofirm transaction */
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      '[data-testid="transfer-button-send"]',
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
   })
 })
