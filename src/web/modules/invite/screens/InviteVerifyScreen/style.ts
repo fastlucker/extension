@@ -25,7 +25,7 @@ const getStyles = (theme: ThemeProps) =>
       borderLeftWidth: 1,
       borderRightWidth: 1,
       borderBottomWidth: 1,
-      borderColor: '#CACDE6',
+      borderColor: theme.secondaryBorder,
       ...spacings.phXl,
       borderBottomLeftRadius: BORDER_RADIUS_PRIMARY,
       borderBottomRightRadius: BORDER_RADIUS_PRIMARY
@@ -41,7 +41,7 @@ const getStyles = (theme: ThemeProps) =>
       borderLeftWidth: 1,
       borderRightWidth: 1,
       borderTopWidth: 1,
-      borderColor: '#CACDE6',
+      borderColor: theme.secondaryBorder,
       overflow: 'hidden'
     },
     backgroundSVG: {
