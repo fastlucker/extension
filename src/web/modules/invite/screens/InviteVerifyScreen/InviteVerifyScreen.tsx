@@ -33,7 +33,9 @@ const InviteVerifyScreen = () => {
           <View style={styles.headerContainer}>
             <AmbireLogoWithTextMonochrome width={115} height={120} />
             <View style={styles.backgroundSVG}>
-              <UnlockScreenBackground width={400} height={240} />
+              {/* A little bit larger, because the SVG is rounded at the bottom, */}
+              {/* and this way the rounded part overlaps with the overflow hidden parent */}
+              <UnlockScreenBackground width={410} height={246} />
             </View>
           </View>
         </>
