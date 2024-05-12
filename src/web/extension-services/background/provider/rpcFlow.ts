@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import 'reflect-metadata'
 
 import { ethErrors } from 'eth-rpc-errors'
@@ -21,21 +22,6 @@ const flow = new PromiseFlow<{
   mapMethod: string
   requestRes?: RequestRes
 }>()
-
-const requestNotification = async (
-  request: DappProviderRequest,
-  buildNotificationRequest: (
-    request: DappProviderRequest,
-    dappPromise: {
-      resolve: (data: any) => void
-      reject: (data: any) => void
-    }
-  ) => void
-): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    buildNotificationRequest(request, { resolve, reject })
-  })
-}
 
 const flowContext = flow
   .use(async ({ request, controllers, mapMethod }, next) => {
@@ -71,10 +57,12 @@ const flowContext = flow
         }
         lockedOrigins.add(origin)
         try {
-          await requestNotification(
-            { ...request, method: 'unlock', params: {} },
-            mainCtrl.buildNotificationRequest
-          )
+          await new Promise((resolve, reject) => {
+            mainCtrl.buildNotificationRequest(
+              { ...request, method: 'unlock', params: {} },
+              { resolve, reject }
+            )
+          })
           lockedOrigins.delete(origin)
         } catch (e) {
           lockedOrigins.delete(origin)
@@ -101,10 +89,12 @@ const flowContext = flow
         }
         try {
           connectOrigins.add(origin)
-          await requestNotification(
-            { ...request, method: 'dapp_connect', params: {} },
-            mainCtrl.buildNotificationRequest
-          )
+          await new Promise((resolve, reject) => {
+            mainCtrl.buildNotificationRequest(
+              { ...request, method: 'dapp_connect', params: {} },
+              { resolve, reject }
+            )
+          })
           connectOrigins.delete(origin)
           dappsCtrl.addDapp({
             name,
@@ -133,7 +123,9 @@ const flowContext = flow
       Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
-      props.requestRes = await createNotification(request, mainCtrl.buildNotificationRequest)
+      props.requestRes = await new Promise((resolve, reject) => {
+        mainCtrl.buildNotificationRequest(request, { resolve, reject })
+      })
 
       console.log('props.requestRes', props.requestRes)
     }
