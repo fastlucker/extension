@@ -138,21 +138,23 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('The wallet protection you deserve!')}
+            {t('The wallet security you deserve!')}
           </Text>
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>Built on</Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'Built on '}</Text>
               <Text fontSize={14} weight="semiBold">
-                battle-tested, and audited mutiple times
-              </Text>{' '}
-              <Text fontSize={14}>smart contracts developed by an OG team.</Text>{' '}
+                {'continuously audited '}
+              </Text>
+              <Text fontSize={14}>{'smart contracts by an experienced team, Ambire Wallet '}</Text>
               <Text fontSize={14} weight="semiBold">
-                Keep your funds safe
+                {'keeps your funds safe '}
               </Text>{' '}
-              <Text fontSize={14}>thanks to transaction simulation.</Text>
+              <Text fontSize={14}>
+                with on-chain transaction simulation and hardware wallet support.
+              </Text>
             </Text>
           </Trans>
         )
