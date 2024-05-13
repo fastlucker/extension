@@ -4,7 +4,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export enum INVITE_STATUS {
-  UNCHECKED = 'UNCHECKED',
+  UNVERIFIED = 'UNVERIFIED',
   VERIFIED = 'VERIFIED'
 }
 
@@ -23,7 +23,7 @@ type Invite = {
 export class InviteController extends EventEmitter {
   #callRelayer: Function
 
-  inviteStatus: Invite['status'] = INVITE_STATUS.UNCHECKED
+  inviteStatus: Invite['status'] = INVITE_STATUS.UNVERIFIED
 
   #initialLoadPromise: Promise<void>
 
@@ -36,7 +36,7 @@ export class InviteController extends EventEmitter {
 
   async #load() {
     const invite = await storage.get('invite', {
-      status: INVITE_STATUS.UNCHECKED,
+      status: INVITE_STATUS.UNVERIFIED,
       verifiedAt: null,
       verifiedCode: null
     })
