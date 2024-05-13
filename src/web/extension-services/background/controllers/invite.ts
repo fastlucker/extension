@@ -30,10 +30,10 @@ export class InviteController extends EventEmitter {
 
     this.#callRelayer = relayerCall.bind({ url: relayerUrl, fetch })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.#init()
+    this.#load()
   }
 
-  async #init() {
+  async #load() {
     const invite = await storage.get('invite', {
       status: INVITE_STATUS.UNCHECKED,
       verifiedAt: null,
