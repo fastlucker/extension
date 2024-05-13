@@ -26,19 +26,14 @@ const InviteVerifyScreen = () => {
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
       header={
-        <>
-          <Title style={styles.title} hasBottomSpacing={false}>
-            {t('Referral Invite')}
-          </Title>
-          <View style={styles.headerContainer}>
-            <AmbireLogoWithTextMonochrome width={115} height={120} />
-            <View style={styles.backgroundSVG}>
-              {/* A little bit larger, because the SVG is rounded at the bottom, */}
-              {/* and this way the rounded part overlaps with the overflow hidden parent */}
-              <UnlockScreenBackground width={410} height={246} />
-            </View>
+        <View style={styles.headerContainer}>
+          <AmbireLogoWithTextMonochrome width={115} height={120} />
+          <View style={styles.backgroundSVG}>
+            {/* A little bit larger, because the SVG is rounded at the bottom, */}
+            {/* and this way the rounded part overlaps with the overflow hidden parent */}
+            <UnlockScreenBackground width={410} height={246} />
           </View>
-        </>
+        </View>
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mb0} contentContainerStyle={spacings.pt0}>

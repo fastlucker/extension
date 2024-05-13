@@ -9,7 +9,6 @@ interface Styles {
   container: ViewStyle
   backgroundSVG: ViewStyle
   headerContainer: ViewStyle
-  title: TextStyle
   link: TextStyle
 }
 
@@ -42,16 +41,12 @@ const getStyles = (theme: ThemeProps) =>
       borderRightWidth: 1,
       borderTopWidth: 1,
       borderColor: theme.secondaryBorder,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      ...spacings.mt4Xl
     },
     backgroundSVG: {
       position: 'absolute',
       zIndex: -1
-    },
-    title: {
-      fontSize: 32,
-      textAlign: 'center',
-      ...spacings.mvXl
     },
     link: {
       color: colors.violet,
