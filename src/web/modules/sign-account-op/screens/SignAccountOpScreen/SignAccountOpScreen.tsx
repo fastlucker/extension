@@ -1,4 +1,3 @@
-import { isHexString } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -7,15 +6,9 @@ import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAcco
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
-import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
-import Checkbox from '@common/components/Checkbox'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
-import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
-import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
-import Text from '@common/components/Text/'
-import { Trans, useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
@@ -30,14 +23,13 @@ import {
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
-import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
-import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
+import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
+import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components'
 import { getUiType } from '@web/utils/uiType'
 
@@ -49,15 +41,12 @@ const SignAccountOpScreen = () => {
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
-  const portfolioState = usePortfolioControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
-  const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
-  const [initialSimulationLoaded, setInitialSimulationLoaded] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
@@ -164,17 +153,6 @@ const SignAccountOpScreen = () => {
     return []
   }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
-  const pendingTokens = useMemo(() => {
-    if (signAccountOpState?.accountOp && network) {
-      return calculateTokensPendingState(
-        signAccountOpState?.accountOp.accountAddr,
-        network,
-        portfolioState.state
-      )
-    }
-    return []
-  }, [network, portfolioState.state, signAccountOpState?.accountOp])
-
   useEffect(() => {
     const destroy = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
@@ -216,26 +194,9 @@ const SignAccountOpScreen = () => {
     setIsChooseSignerShown(true)
   }
 
-  const onGasUsedTooHighAgreed = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE',
-      params: { gasUsedTooHighAgreed: !signAccountOpState?.gasUsedTooHighAgreed }
-    })
-  }, [signAccountOpState?.gasUsedTooHighAgreed, dispatch])
-
   const isViewOnly = useMemo(
     () => signAccountOpState?.accountKeyStoreKeys.length === 0,
     [signAccountOpState?.accountKeyStoreKeys]
-  )
-
-  const pendingSendTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'send'),
-    [pendingTokens]
-  )
-
-  const pendingReceiveTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'receive'),
-    [pendingTokens]
   )
 
   if (mainState.signAccOpInitError) {
@@ -255,71 +216,6 @@ const SignAccountOpScreen = () => {
         <Spinner />
       </View>
     )
-  }
-
-  const portfolioStatePending =
-    portfolioState.state.pending[signAccountOpState?.accountOp.accountAddr][network!.id]
-
-  let hasSimulationError = false
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-      !!portfolioStatePending?.criticalError?.simulationErrorMsg ||
-      signAccountOpState?.errors.length)
-  ) {
-    hasSimulationError = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
-
-  let simulationErrorMsg = 'We were unable to simulate the transaction'
-  if (portfolioStatePending?.criticalError) {
-    if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
-      simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-    } else {
-      simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-    }
-  } else if (portfolioStatePending?.errors.length) {
-    const simulationError = portfolioStatePending?.errors.find((err) => err.simulationErrorMsg)
-    if (simulationError) {
-      if (isHexString(simulationError)) {
-        simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
-      } else {
-        simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
-      }
-    }
-  } else if (signAccountOpState?.errors.length) {
-    simulationErrorMsg = `${simulationErrorMsg}. ${signAccountOpState?.errors[0]}`
-  }
-
-  const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
-
-  let shouldShowNoBalanceChanges = false
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    !pendingTokens.length &&
-    !portfolioStatePending?.errors.length &&
-    !portfolioStatePending?.criticalError &&
-    !signAccountOpState.errors.length
-  ) {
-    shouldShowNoBalanceChanges = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
-
-  let shouldShowSimulation = false
-  const isReloading = initialSimulationLoaded && !hasEstimation
-  if (
-    (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
-    !!pendingTokens.length &&
-    !hasSimulationError &&
-    !isReloading
-  ) {
-    shouldShowSimulation = true
-    if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
-  }
-
-  let shouldShowLoader = false
-  if ((!!portfolioStatePending?.isLoading && !initialSimulationLoaded) || isReloading) {
-    shouldShowLoader = true
   }
 
   return (
@@ -353,166 +249,17 @@ const SignAccountOpScreen = () => {
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            <View style={styles.simulationSection}>
-              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-                {t('Simulation results')}
-              </Text>
-              {!!shouldShowSimulation && (
-                <View style={[flexbox.directionRow, flexbox.flex1]}>
-                  {!!pendingSendTokens.length && (
-                    <View
-                      style={[
-                        styles.simulationContainer,
-                        !!pendingReceiveTokens.length && spacings.mrTy
-                      ]}
-                    >
-                      <View style={styles.simulationContainerHeader}>
-                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                          {t('Tokens out')}
-                        </Text>
-                      </View>
-                      <ScrollableWrapper
-                        style={styles.simulationScrollView}
-                        contentContainerStyle={{ flexGrow: 1 }}
-                      >
-                        {pendingSendTokens.map((token, i) => {
-                          return (
-                            <PendingTokenSummary
-                              key={token.address}
-                              token={token}
-                              networkId={network!.id}
-                              hasBottomSpacing={i < pendingTokens.length - 1}
-                            />
-                          )
-                        })}
-                      </ScrollableWrapper>
-                    </View>
-                  )}
-                  {!!pendingReceiveTokens.length && (
-                    <View style={styles.simulationContainer}>
-                      <View style={styles.simulationContainerHeader}>
-                        <Text fontSize={14} appearance="secondaryText" numberOfLines={1}>
-                          {t('Tokens in')}
-                        </Text>
-                      </View>
-                      <ScrollableWrapper
-                        style={styles.simulationScrollView}
-                        contentContainerStyle={{ flexGrow: 1 }}
-                      >
-                        {pendingReceiveTokens.map((token, i) => {
-                          return (
-                            <PendingTokenSummary
-                              key={token.address}
-                              token={token}
-                              networkId={network!.id}
-                              hasBottomSpacing={i < pendingTokens.length - 1}
-                            />
-                          )
-                        })}
-                      </ScrollableWrapper>
-                    </View>
-                  )}
-                </View>
-              )}
-              {!!hasSimulationError && (
-                <View>
-                  <Alert type="error" title={simulationErrorMsg} />
-                </View>
-              )}
-              {!!shouldShowNoBalanceChanges && (
-                <View>
-                  <Alert
-                    type="info"
-                    isTypeLabelHidden
-                    title={
-                      <Trans>
-                        No token balance changes detected. Please{' '}
-                        <Text appearance="infoText" weight="semiBold">
-                          carefully
-                        </Text>{' '}
-                        review the transaction preview below.
-                      </Trans>
-                    }
-                  />
-                </View>
-              )}
-              {shouldShowLoader && (
-                <View style={spacings.mt}>
-                  <Spinner style={styles.spinner} />
-                </View>
-              )}
-            </View>
-            <View style={styles.transactionsContainer}>
-              <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-                {t('Waiting Transactions')}
-              </Text>
-              <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-                {callsToVisualize.map((call, i) => {
-                  return (
-                    <TransactionSummary
-                      key={`${call.fromUserRequestId}+${i}`}
-                      style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-                      call={call}
-                      networkId={network!.id}
-                    />
-                  )
-                })}
-              </ScrollableWrapper>
-            </View>
+            <Simulation network={network} hasEstimation={!!hasEstimation} />
+            <PendingTransactions callsToVisualize={callsToVisualize} network={network} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
-          <View style={styles.estimationContainer}>
-            <Text fontSize={20} weight="medium" style={spacings.mbLg}>
-              {t('Estimation')}
-            </Text>
-            <ScrollableWrapper style={[styles.estimationScrollView]}>
-              {!!hasEstimation && !estimationFailed && (
-                <Estimation signAccountOpState={signAccountOpState} disabled={isSignLoading} />
-              )}
-              {!!hasEstimation &&
-                !estimationFailed &&
-                signAccountOpState.gasUsedTooHigh &&
-                !signAccountOpState?.errors.length && (
-                  <View style={styles.errorContainer}>
-                    <Alert
-                      type="warning"
-                      title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
-                    />
-                    <Checkbox
-                      value={signAccountOpState.gasUsedTooHighAgreed}
-                      onValueChange={onGasUsedTooHighAgreed}
-                      style={spacings.mtSm}
-                    >
-                      <Text fontSize={14} onPress={onGasUsedTooHighAgreed}>
-                        {t('I understand the risks')}
-                      </Text>
-                    </Checkbox>
-                  </View>
-                )}
-
-              {!hasEstimation && !estimationFailed && (
-                <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-                  <Spinner style={styles.spinner} />
-                </View>
-              )}
-
-              {!hasEstimation && !!slowRequest && !signAccountOpState?.errors.length ? (
-                <View style={styles.errorContainer}>
-                  <Alert
-                    type="warning"
-                    title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
-                  />
-                </View>
-              ) : null}
-
-              {!!signAccountOpState?.errors.length && !isViewOnly ? (
-                <View style={styles.errorContainer}>
-                  <Alert type="error" title={signAccountOpState?.errors[0]} />
-                </View>
-              ) : null}
-              {isViewOnly && <NoKeysToSignAlert />}
-            </ScrollableWrapper>
-          </View>
+          <Estimation
+            signAccountOpState={signAccountOpState}
+            disabled={isSignLoading}
+            hasEstimation={!!hasEstimation}
+            slowRequest={slowRequest}
+            isViewOnly={isViewOnly}
+          />
           <HardwareWalletSigningModal
             modalRef={hwModalRef}
             keyType={signAccountOpState.accountOp.signingKeyType}
