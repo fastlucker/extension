@@ -169,20 +169,19 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Create a smart contract wallet and get rewarded for using Ambire!')}
+            {t('Get rewarded for using Smart Accounts!')}
           </Text>
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>
-                The development of Ambire Wallet is governed by $WALLET holders in the WalletDAO.
-                And the best part is that
-              </Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'The development of '}</Text>
               <Text fontSize={14} weight="semiBold">
-                $WALLET is distributed to the community
-              </Text>{' '}
-              <Text fontSize={14}>of Ambire Wallet.</Text>
+                Ambire Wallet is governed by holders of our $WALLET token
+              </Text>
+              <Text fontSize={14}>
+                . You earn $WALLET just by securely holding funds in your Ambire account.
+              </Text>
             </Text>
           </Trans>
         )
