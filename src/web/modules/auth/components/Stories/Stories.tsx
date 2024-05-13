@@ -111,15 +111,21 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Pre-pay gas in any token on any chain!')}
+            {t('Pay and prepay gas in custom tokens on any chain!')}
           </Text>
         ),
         Description: (
-          <Text fontSize={14}>
-            {t(
-              'Keep the same address on any available EVM chain and can add new networks. Create a smart account and pre-pay network fees in stablecoins and custom tokens.'
-            )}
-          </Text>
+          <Trans>
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'With Smart Accounts and the Gas Tank feature, '}</Text>
+              <Text fontSize={14} weight="semiBold">
+                you can pay and prepay gas with stablecoins and custom tokens
+              </Text>
+              <Text fontSize={14}>
+                . Top up on one network and pay on any supported one to save on gas fees.
+              </Text>
+            </Text>
+          </Trans>
         )
       },
       {
