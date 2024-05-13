@@ -61,12 +61,19 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>The first wallet to unlock the</Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'The first '}</Text>
               <Text fontSize={14} weight="semiBold">
-                full power of Account Abstraction
-              </Text>{' '}
-              <Text fontSize={14}>without any compromise on user experience.</Text>
+                {'hybrid self-custodial wallet '}
+              </Text>
+              <Text fontSize={14}>
+                {
+                  'to support Basic (EOAs) and Smart Accounts without compromising user experience. '
+                }
+              </Text>
+              <Text fontSize={14} weight="semiBold">
+                Powered by Account Abstraction.
+              </Text>
             </Text>
           </Trans>
         )
