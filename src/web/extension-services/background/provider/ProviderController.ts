@@ -172,6 +172,7 @@ export class ProviderController {
       let hash = requestRes?.hash
       if (is4337Broadcast) {
         hash = (await bundler.pollTxnHash(hash, network)).transactionHash
+        if (!hash) throw new Error('Transaction failed!')
       }
 
       // delay just for better UX
