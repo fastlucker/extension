@@ -25,12 +25,13 @@ export class InviteController extends EventEmitter {
 
   inviteStatus: Invite['status'] = INVITE_STATUS.UNCHECKED
 
+  #initialLoadPromise: Promise<void>
+
   constructor({ relayerUrl, fetch }: { relayerUrl: string; fetch: Function }) {
     super()
 
     this.#callRelayer = relayerCall.bind({ url: relayerUrl, fetch })
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.#load()
+    this.#initialLoadPromise = this.#load()
   }
 
   async #load() {
@@ -49,6 +50,8 @@ export class InviteController extends EventEmitter {
    * status (and some meta information) in the storage.
    */
   async verify(code: string) {
+    await this.#initialLoadPromise
+
     try {
       const res = await this.#callRelayer(`/promotions/extension-key/${code}`, 'GET')
 
