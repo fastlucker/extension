@@ -93,11 +93,10 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14} weight="semiBold">
-                Ambire works everywhere Metamask works
-              </Text>{' '}
-              <Text fontSize={14}>but with the added superpowers of Account Abstraction!</Text>
+            <Text fontSize={14}>
+              Ambire works like MetaMask, but with the added Smart Accounts, you get features like
+              seedless accounts, transaction batching, transaction simulation, gas abstraction, and
+              more.
             </Text>
           </Trans>
         )
