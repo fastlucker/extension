@@ -210,9 +210,8 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   color={theme.infoDecorative}
                   onPress={() => navigate('terms', { state: { storyIndex: 5 } })}
                 >
-                  Read full Terms of Service
+                  Read full Terms of Service.
                 </Text>
-                <Text fontSize={14}>...</Text>
               </Text>
             </Trans>
             <Checkbox
