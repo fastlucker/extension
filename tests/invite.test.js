@@ -35,12 +35,12 @@ describe('Invite Verification', () => {
   })
 
   it('should immediately redirect to the invite verification route', async () => {
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/invite-verify')
-      },
-      { timeout: 60000 }
-    )
+    // In case of multiple redirects,
+    // the navigation will resolve with the response of the last redirect.
+    await page.waitForNavigation()
+
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/invite-verify')
   })
 
   it('should verify a valid invite code and unlock the extension', async () => {
@@ -49,12 +49,10 @@ describe('Invite Verification', () => {
 
     // Upon successful verification, the extension should redirect to the
     // get-started route, which otherwise is not accessible
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/get-started')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForNavigation()
+
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/get-started')
   })
 
   it('should fire an error toast in case of an invalid invite code', async () => {
