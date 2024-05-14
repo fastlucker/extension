@@ -44,7 +44,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
     () =>
       handleSubmit(({ code }) => {
         dispatch({
-          type: 'MAIN_CONTROLLER_INVITE_VERIFY',
+          type: 'INVITE_CONTROLLER_VERIFY',
           params: { code }
         })
       })(),

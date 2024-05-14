@@ -982,7 +982,7 @@ async function init() {
                 break
               }
 
-              case 'MAIN_CONTROLLER_INVITE_VERIFY': {
+              case 'INVITE_CONTROLLER_VERIFY': {
                 return await mainCtrl.invite.verify(params.code)
               }
 
