@@ -15,7 +15,7 @@ const InviteControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
 
   useEffect(() => {
-    if (!Object.keys(state).length) {
+    if (mainState.isReady && !Object.keys(state).length) {
       dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: CONTROLLER_NAME } })
     }
   }, [dispatch, mainState.isReady, state])
