@@ -17,7 +17,7 @@ describe('Invite Verification', () => {
     page = await browser.newPage()
 
     recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/login_${Date.now()}.mp4`)
+    await recorder.start(`./recorder/invite_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
