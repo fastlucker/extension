@@ -92,6 +92,7 @@ const NetworkDetails = ({
               fontSize={14}
               appearance={value === 'Invalid Chain ID' ? 'errorText' : 'primaryText'}
               numberOfLines={1}
+              selectable
             >
               {value}
             </Text>
@@ -110,12 +111,11 @@ const NetworkDetails = ({
           {t(`RPC URL${sortedRpcUrls.length ? '(s)' : ''}`)}
         </Text>
         <View style={[flexbox.flex1, flexbox.alignEnd]}>
-          {!showAllRpcUrls && (
-            <Text fontSize={14} appearance="primaryText" numberOfLines={1}>
+          {!showAllRpcUrls ? (
+            <Text fontSize={14} appearance="primaryText" numberOfLines={1} selectable>
               {sortedRpcUrls[0]}
             </Text>
-          )}
-          {!!showAllRpcUrls &&
+          ) : (
             sortedRpcUrls.map((rpcUrl: string, i) => (
               <Text
                 key={rpcUrl}
@@ -124,10 +124,12 @@ const NetworkDetails = ({
                 weight={i === 0 ? 'regular' : 'light'}
                 numberOfLines={1}
                 style={i !== sortedRpcUrls.length - 1 && spacings.mbMi}
+                selectable
               >
                 {rpcUrl}
               </Text>
-            ))}
+            ))
+          )}
           {sortedRpcUrls.length > 1 && (
             <Pressable
               style={[spacings.ptMi, flexbox.directionRow, flexbox.alignCenter, spacings.mbMi]}
