@@ -1,17 +1,16 @@
 import { useCallback, useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
+import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
 import Text from '@common/components/Text'
-import Title from '@common/components/Title'
 import { isDev, isWeb } from '@common/config/env'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { DEFAULT_INVITATION_CODE_DEV } from '@env'
-import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 
@@ -45,7 +44,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
     () =>
       handleSubmit(({ code }) => {
         dispatch({
-          type: 'INVITE_CONTROLLER_VERIFY',
+          type: 'MAIN_CONTROLLER_INVITE_VERIFY',
           params: { code }
         })
       })(),

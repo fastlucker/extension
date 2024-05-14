@@ -3,6 +3,7 @@ import { ActivityController } from '@ambire-common/controllers/activity/activity
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
+import { InviteController } from '@ambire-common/controllers/invite/invite'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
@@ -12,7 +13,6 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { InviteController } from '@web/extension-services/background/controllers/invite'
 import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
@@ -27,7 +27,8 @@ export const controllersNestedInMainMapping = {
   transfer: TransferController,
   settings: SettingsController,
   addressBook: AddressBookController,
-  domains: DomainsController
+  domains: DomainsController,
+  invite: InviteController
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
@@ -39,7 +40,6 @@ export const controllersMapping = {
   dapps: DappsController,
   walletState: WalletStateController,
   autoLock: AutoLockController,
-  invite: InviteController,
   ...controllersNestedInMainMapping
 }
 

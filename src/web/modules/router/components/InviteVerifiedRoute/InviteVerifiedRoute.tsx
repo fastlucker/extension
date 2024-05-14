@@ -1,8 +1,8 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
+import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import { ROUTES } from '@common/modules/router/constants/common'
-import { INVITE_STATUS } from '@web/extension-services/background/controllers/invite'
 import useInviteControllerState from '@web/hooks/useInviteControllerState/useInviteControllerState'
 
 const InviteVerifiedRoute = () => {

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo } from 'react'
 
-import { InviteController } from '@web/extension-services/background/controllers/invite'
+import { InviteController } from '@ambire-common/controllers/invite/invite'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const InviteControllerStateContext = createContext<InviteController>({} as InviteController)
 
@@ -11,13 +12,13 @@ const CONTROLLER_NAME = 'invite'
 const InviteControllerStateProvider: React.FC<any> = ({ children }) => {
   const state = useControllerState(CONTROLLER_NAME)
   const { dispatch } = useBackgroundService()
+  const mainState = useMainControllerState()
 
   useEffect(() => {
-    dispatch({
-      type: 'INIT_CONTROLLER_STATE',
-      params: { controller: CONTROLLER_NAME }
-    })
-  }, [dispatch])
+    if (!Object.keys(state).length) {
+      dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller: CONTROLLER_NAME } })
+    }
+  }, [dispatch, mainState.isReady, state])
 
   return (
     <InviteControllerStateContext.Provider value={useMemo(() => state, [state])}>
