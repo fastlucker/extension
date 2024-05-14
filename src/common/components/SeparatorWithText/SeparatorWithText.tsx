@@ -17,11 +17,11 @@ const SeparatorWithText: React.FC<Props> = ({ text }) => {
 
   return (
     <View style={[flexbox.directionRow, flexbox.center, spacings.mvMd]}>
-      <View style={styles.line} />
+      <View style={[styles.line, spacings.mrSm]} />
       <Text fontSize={20} weight="medium" color={theme.secondaryText}>
         {text}
       </Text>
-      <View style={styles.line} />
+      <View style={[styles.line, spacings.mlSm]} />
     </View>
   )
 }
