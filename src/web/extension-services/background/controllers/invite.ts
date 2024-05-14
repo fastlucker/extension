@@ -61,8 +61,11 @@ export class InviteController extends EventEmitter {
       this.emitUpdate()
 
       const verifiedAt = Date.now()
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      storage.set('invite', { status: INVITE_STATUS.VERIFIED, verifiedAt, verifiedCode: code })
+      await storage.set('invite', {
+        status: INVITE_STATUS.VERIFIED,
+        verifiedAt,
+        verifiedCode: code
+      })
     } catch (error: any) {
       this.emitError(error)
     }

@@ -998,8 +998,7 @@ async function init() {
               }
 
               case 'INVITE_CONTROLLER_VERIFY': {
-                inviteCtrl.verify(params.code)
-                break
+                return await inviteCtrl.verify(params.code)
               }
 
               case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
