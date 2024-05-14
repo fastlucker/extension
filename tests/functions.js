@@ -95,6 +95,11 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
+export const INVITE_STORAGE_ITEM = {
+  status: 'VERIFIED',
+  verifiedAt: 1715332416400,
+  verifiedCode: 'dummy-test-code'
+}
 export async function bootstrapWithStorage(namespace) {
   /* Initialize browser and page using bootstrap */
   const context = await bootstrap()
@@ -110,7 +115,7 @@ export async function bootstrapWithStorage(namespace) {
   // Please note the following:
   // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
   // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
-  await page.evaluate(() => {
+  await page.evaluate((invite) => {
     const parsedKeystoreAccountsPreferences = JSON.parse(process.env.BA_ACCOUNT_PREFERENCES)
     const parsedKeystoreAccounts = JSON.parse(process.env.BA_ACCOUNTS)
     const parsedIsDefaultWallet = process.env.BA_IS_DEFAULT_WALLET
@@ -142,9 +147,10 @@ export async function bootstrapWithStorage(namespace) {
       previousHints: parsedPreviousHints,
       selectedAccount: envSelectedAccount,
       termsState: envTermState,
-      tokenIcons: parsedTokenItems
+      tokenIcons: parsedTokenItems,
+      invite
     })
-  })
+  }, JSON.stringify(INVITE_STORAGE_ITEM))
   // Please note the following:
   // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
   // 2. But at the same time, the extension onboarding page is also shown automatically.
