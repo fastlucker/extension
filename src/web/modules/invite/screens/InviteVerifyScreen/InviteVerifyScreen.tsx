@@ -5,13 +5,12 @@ import AmbireLogoWithTextMonochrome from '@common/assets/svg/AmbireLogoWithTextM
 import UnlockScreenBackground from '@common/assets/svg/UnlockScreenBackground'
 import SeparatorWithText from '@common/components/SeparatorWithText'
 import Text from '@common/components/Text'
-import Title from '@common/components/Title'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import { DISCORD_URL, TWITTER_URL } from '@web/constants/social'
 import VerifyInviteCodeForm from '@web/modules/invite/components/VerifyInviteCodeForm'
-import { DISCORD_URL, TWITTER_URL } from '@web/modules/router/components/NavMenu/NavMenu'
 
 import getStyles from './style'
 
