@@ -61,12 +61,19 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>The first wallet to unlock the</Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'The first '}</Text>
               <Text fontSize={14} weight="semiBold">
-                full power of Account Abstraction
-              </Text>{' '}
-              <Text fontSize={14}>without any compromise on user experience.</Text>
+                {'hybrid self-custodial wallet '}
+              </Text>
+              <Text fontSize={14}>
+                {
+                  'to support Basic (EOAs) and Smart Accounts without compromising user experience. '
+                }
+              </Text>
+              <Text fontSize={14} weight="semiBold">
+                Powered by Account Abstraction.
+              </Text>
             </Text>
           </Trans>
         )
@@ -86,11 +93,10 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14} weight="semiBold">
-                Ambire works everywhere Metamask works
-              </Text>{' '}
-              <Text fontSize={14}>but with the added superpowers of Account Abstraction!</Text>
+            <Text fontSize={14}>
+              Ambire works like MetaMask, but with the added Smart Accounts, you get features like
+              seedless accounts, transaction batching, transaction simulation, gas abstraction, and
+              more.
             </Text>
           </Trans>
         )
@@ -105,15 +111,21 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Pre-pay gas in any token on any chain!')}
+            {t('Pay and prepay gas in custom tokens on any chain!')}
           </Text>
         ),
         Description: (
-          <Text fontSize={14}>
-            {t(
-              'Keep the same address on any available EVM chain and can add new networks. Create a smart account and pre-pay network fees in stablecoins and custom tokens.'
-            )}
-          </Text>
+          <Trans>
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'With Smart Accounts and the Gas Tank feature, '}</Text>
+              <Text fontSize={14} weight="semiBold">
+                you can pay and prepay gas with stablecoins and custom tokens
+              </Text>
+              <Text fontSize={14}>
+                . Top up on one network and pay on any supported one to save on gas fees.
+              </Text>
+            </Text>
+          </Trans>
         )
       },
       {
@@ -126,21 +138,23 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('The wallet protection you deserve!')}
+            {t('The wallet security you deserve!')}
           </Text>
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>Built on</Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'Built on '}</Text>
               <Text fontSize={14} weight="semiBold">
-                battle-tested, and audited mutiple times
-              </Text>{' '}
-              <Text fontSize={14}>smart contracts developed by an OG team.</Text>{' '}
+                {'continuously audited '}
+              </Text>
+              <Text fontSize={14}>{'smart contracts by an experienced team, Ambire Wallet '}</Text>
               <Text fontSize={14} weight="semiBold">
-                Keep your funds safe
+                {'keeps your funds safe '}
               </Text>{' '}
-              <Text fontSize={14}>thanks to transaction simulation.</Text>
+              <Text fontSize={14}>
+                with on-chain transaction simulation and hardware wallet support.
+              </Text>
             </Text>
           </Trans>
         )
@@ -155,20 +169,19 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
         ),
         Title: (
           <Text fontSize={20} weight="semiBold" style={spacings.mbSm}>
-            {t('Create a smart contract wallet and get rewarded for using Ambire!')}
+            {t('Get rewarded for using Smart Accounts!')}
           </Text>
         ),
         Description: (
           <Trans>
-            <Text>
-              <Text fontSize={14}>
-                The development of Ambire Wallet is governed by $WALLET holders in the WalletDAO.
-                And the best part is that
-              </Text>{' '}
+            <Text fontSize={14}>
+              <Text fontSize={14}>{'The development of '}</Text>
               <Text fontSize={14} weight="semiBold">
-                $WALLET is distributed to the community
-              </Text>{' '}
-              <Text fontSize={14}>of Ambire Wallet.</Text>
+                Ambire Wallet is governed by holders of our $WALLET token
+              </Text>
+              <Text fontSize={14}>
+                . You earn $WALLET just by securely holding funds in your Ambire account.
+              </Text>
             </Text>
           </Trans>
         )
@@ -197,9 +210,8 @@ const Stories = ({ onComplete }: { onComplete: () => void }) => {
                   color={theme.infoDecorative}
                   onPress={() => navigate('terms', { state: { storyIndex: 5 } })}
                 >
-                  Read full Terms of Service
+                  Read full Terms of Service.
                 </Text>
-                <Text fontSize={14}>...</Text>
               </Text>
             </Trans>
             <Checkbox

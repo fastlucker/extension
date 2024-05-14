@@ -1,6 +1,6 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-import spacings, { SPACING_TY, SPACING_XL } from '@common/styles/spacings'
+import spacings, { SPACING_MI, SPACING_TY, SPACING_XL } from '@common/styles/spacings'
 import { ThemeProps } from '@common/styles/themeConfig'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -39,7 +39,8 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%'
     },
     contentContainer: {
-      paddingVertical: SPACING_XL + SPACING_TY,
+      paddingTop: SPACING_XL + SPACING_TY,
+      paddingBottom: SPACING_XL + SPACING_MI,
       ...spacings.phXl,
       backgroundColor: theme.primaryBackground,
       ...flexbox.flex1

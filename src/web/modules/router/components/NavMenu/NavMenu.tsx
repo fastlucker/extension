@@ -24,6 +24,7 @@ import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
@@ -36,10 +37,6 @@ import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
-
-const TELEGRAM_URL = 'https://t.me/AmbireOfficial'
-const TWITTER_URL = 'https://twitter.com/AmbireWallet'
-const DISCORD_URL = 'https://www.ambire.com/discord'
 
 const SOCIAL = [
   { Icon: TwitterIcon, url: TWITTER_URL, label: 'Twitter' },

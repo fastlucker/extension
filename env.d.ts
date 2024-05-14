@@ -60,6 +60,8 @@ declare module '@env' {
     SENTRY_DSN: string
 
     ENVIRONMENT: string
+
+    DEFAULT_INVITATION_CODE_DEV: string
   }
 
   export const RELAYER_URL: EnvTypes['RELAYER_URL']
@@ -116,4 +118,9 @@ declare module '@env' {
   export const BROWSER_EXTENSION_PUBLIC_KEY: string
 
   export const ENVIRONMENT: string
+
+  /**
+   * Unlimited-use invitation code for the app, for easy access during development
+   */
+  export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
 }

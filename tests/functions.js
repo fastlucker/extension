@@ -110,6 +110,11 @@ export async function typeSeedPhrase(page, seedPhrase) {
 }
 
 //----------------------------------------------------------------------------------------------
+export const INVITE_STORAGE_ITEM = {
+  status: 'VERIFIED',
+  verifiedAt: 1715332416400,
+  verifiedCode: 'dummy-test-code'
+}
 
 const baParams = {
   parsedKeystoreAccountsPreferences: JSON.parse(process.env.BA_ACCOUNT_PREFERENCES),
@@ -126,7 +131,8 @@ const baParams = {
   parsedPreviousHints: JSON.parse(process.env.BA_PREVIOUSHINTS),
   envSelectedAccount: process.env.BA_SELECTED_ACCOUNT,
   envTermState: process.env.BA_TERMSTATE,
-  parsedTokenItems: JSON.parse(process.env.BA_TOKEN_ITEMS)
+  parsedTokenItems: JSON.parse(process.env.BA_TOKEN_ITEMS),
+  invite: JSON.stringify(INVITE_STORAGE_ITEM)
 }
 
 const saParams = {
@@ -145,7 +151,8 @@ const saParams = {
   parsedPreviousHints: JSON.parse(process.env.SA_PREVIOUSHINTS),
   envSelectedAccount: process.env.SA_SELECTED_ACCOUNT,
   envTermState: process.env.SA_TERMSTATE,
-  parsedTokenItems: JSON.parse(process.env.SA_TOKEN_ITEMS)
+  parsedTokenItems: JSON.parse(process.env.SA_TOKEN_ITEMS),
+  invite: JSON.stringify(INVITE_STORAGE_ITEM)
 }
 
 export { saParams, baParams } // Export the params object
@@ -182,7 +189,8 @@ export async function bootstrapWithStorage(namespace, params) {
       parsedPreviousHints,
       envSelectedAccount,
       envTermState,
-      parsedTokenItems
+      parsedTokenItems,
+      invite
     } = params
 
     chrome.storage.local.set({
@@ -200,7 +208,8 @@ export async function bootstrapWithStorage(namespace, params) {
       previousHints: parsedPreviousHints,
       selectedAccount: envSelectedAccount,
       termsState: envTermState,
-      tokenIcons: parsedTokenItems
+      tokenIcons: parsedTokenItems,
+      invite
     })
   }, params)
 

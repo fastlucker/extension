@@ -4,7 +4,8 @@ import {
   setAmbKeyStore,
   finishStoriesAndSelectAccount,
   clickOnElement,
-  typeText
+  typeText,
+  INVITE_STORAGE_ITEM
 } from '../functions.js'
 
 describe('sa_login', () => {
@@ -27,6 +28,13 @@ describe('sa_login', () => {
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
+
+    // Bypass the invite verification step
+    await page.evaluate((invite) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      chrome.storage.local.set({ invite })
+    }, JSON.stringify(INVITE_STORAGE_ITEM))
+
     await new Promise((r) => {
       setTimeout(r, 3000)
     })
