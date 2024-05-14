@@ -29,7 +29,7 @@ describe('sa_transactions', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
