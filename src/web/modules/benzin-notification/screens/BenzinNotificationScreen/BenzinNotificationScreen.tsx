@@ -42,6 +42,8 @@ const BenzinNotificationScreen = () => {
             <Buttons
               handleCopyText={state.handleCopyText}
               handleOpenExplorer={state.handleOpenExplorer}
+              showCopyBtn={state.showCopyBtn}
+              showOpenExplorerBtn={state.showOpenExplorerBtn}
               style={{ ...flexbox.directionRow, ...spacings.mb0 }}
             />
           ) : null}

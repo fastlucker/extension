@@ -42,7 +42,9 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
     stepsState,
     isRenderedInternally,
     handleCopyText,
-    handleOpenExplorer
+    handleOpenExplorer,
+    showCopyBtn,
+    showOpenExplorerBtn
   } = state
 
   const calls = stepsState.calls
@@ -85,7 +87,12 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
             summary={summary}
           />
           {!isRenderedInternally && (
-            <Buttons handleCopyText={handleCopyText} handleOpenExplorer={handleOpenExplorer} />
+            <Buttons
+              handleCopyText={handleCopyText}
+              handleOpenExplorer={handleOpenExplorer}
+              showCopyBtn={showCopyBtn}
+              showOpenExplorerBtn={showOpenExplorerBtn}
+            />
           )}
         </View>
       </ScrollView>

@@ -114,12 +114,21 @@ const useSteps = ({
 
   // if we have a userOpHash only, try to find the txnId
   useEffect(() => {
-    if (!userOpHash || txnId || userOpStatusData.txnId || !network) return
+    if (!userOpHash || txnId || userOpStatusData.status || !network) return
 
     // implement the bundler fetch here, why not
     // and only listen for txIds
     Bundler.getStatusAndTxnId(userOpHash, network)
       .then((bundlerResult) => {
+        if (bundlerResult.status === 'rejected') {
+          setUserOpStatusData({ status: 'rejected', txnId: null })
+          setFinalizedStatus({
+            status: 'rejected',
+            reason: 'Bundler has rejected the user operation'
+          })
+          setActiveStep('finalized')
+          return
+        }
         if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
           setUserOpStatusData({
             status: 'submitted',
