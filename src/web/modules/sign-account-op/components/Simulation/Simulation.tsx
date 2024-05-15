@@ -65,7 +65,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   if (
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-      !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+      !!portfolioStatePending?.criticalError?.simulationErrorMsg ||
+      !!signAccountOpState?.errors.length)
   ) {
     hasSimulationError = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
@@ -94,7 +95,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
     !pendingTokens.length &&
     !portfolioStatePending?.errors.length &&
-    !portfolioStatePending?.criticalError
+    !portfolioStatePending?.criticalError &&
+    !signAccountOpState?.errors.length
   ) {
     shouldShowNoBalanceChanges = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
