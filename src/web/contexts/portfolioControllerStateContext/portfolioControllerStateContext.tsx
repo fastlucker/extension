@@ -9,8 +9,8 @@ import {
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -49,6 +49,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const mainCtrl = useMainControllerState()
+  const account = mainCtrl?.accounts?.find((acc) => acc.addr === mainCtrl.selectedAccount)
+
   const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>({
     tokens: [],
     collections: [],
@@ -95,14 +97,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     const newAccountPortfolio = calculateAccountPortfolio(
       mainCtrl.selectedAccount,
       state,
-      prevAccountPortfolio?.current
+      prevAccountPortfolio?.current,
+      account
     )
 
     if (newAccountPortfolio.isAllReady || !prevAccountPortfolio?.current?.tokens.length) {
       setAccountPortfolio(newAccountPortfolio)
       prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [mainCtrl.selectedAccount, state])
+  }, [mainCtrl.selectedAccount, account, state])
 
   useEffect(() => {
     if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
+import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -11,6 +12,7 @@ import useAuth from '@common/modules/auth/hooks/useAuth'
 import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
@@ -19,6 +21,7 @@ import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
+  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
   const { isNotification } = getUiType()
   const keystoreState = useKeystoreControllerState()
@@ -36,6 +39,10 @@ const SortHat = () => {
 
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
       return navigate(ROUTES.keyStoreUnlock)
+    }
+
+    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
+      return navigate(ROUTES.inviteVerify)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
