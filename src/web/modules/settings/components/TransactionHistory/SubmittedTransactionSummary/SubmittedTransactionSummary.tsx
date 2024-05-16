@@ -23,6 +23,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -151,8 +152,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
 
   return (
     <View style={[styles.container, style]}>
-      {calls.map((call: IrCall, index) => {
-        return (
+      {calls.length ? (
+        calls.map((call: IrCall, index) => (
           <TransactionSummary
             key={call.fromUserRequestId}
             style={styles.summaryItem}
@@ -162,8 +163,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             onRightIconPress={handleOpenExplorer}
             isHistory
           />
-        )
-      })}
+        ))
+      ) : (
+        <SkeletonLoader width="100%" height={50} />
+      )}
       <View style={styles.footer}>
         <View style={styles.footerItem}>
           <Text fontSize={14} appearance="secondaryText" weight="semiBold">
