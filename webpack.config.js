@@ -248,6 +248,7 @@ module.exports = async function (env, argv) {
   if (config.mode === 'production') {
     // @TODO: The extension doesn't work with splitChunks out of the box, so disable it for now
     delete config.optimization.splitChunks
+    config.optimization.minimize = true // optimize bundle by minifying
     config.devtool = false // optimize bundle size for production by removing the source-map
   }
 
@@ -321,8 +322,6 @@ module.exports = async function (env, argv) {
 
     return config
   }
-
-  config.optimization = { minimize: false }
 
   return config
 }
