@@ -1,6 +1,17 @@
 import { Storage } from '@ambire-common/interfaces/storage'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
-import { browser } from '@web/constants/browserapi'
+import { browser, isExtension } from '@web/constants/browserapi'
+
+const benzinaStorage = {
+  get: (key: string, defaultValue: any): any => {
+    const serialized = localStorage.getItem(key)
+    return Promise.resolve(serialized ? parse(serialized) : defaultValue)
+  },
+  set: (key: string, value: any) => {
+    localStorage.setItem(key, stringify(value))
+    return Promise.resolve(null)
+  }
+}
 
 export const get = async (key?: string, defaultValue?: any) => {
   const res = await browser.storage.local.get(null)
@@ -23,10 +34,12 @@ export const set = async (key: string, value: any): Promise<null> => {
   return null
 }
 
-export const storage: Storage = {
-  get,
-  set
-}
+export const storage: Storage = isExtension
+  ? {
+      get,
+      set
+    }
+  : benzinaStorage
 
 export default {
   get,
