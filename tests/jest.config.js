@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 module.exports = {
-  name: 'web',
+  rootDir: '../',
   displayName: 'Browser Extension',
   preset: 'jest-puppeteer',
   roots: ['tests'],
