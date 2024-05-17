@@ -3,7 +3,7 @@ require('dotenv').config()
 
 module.exports = {
   rootDir: '../',
-  displayName: 'Browser Extension',
+  displayName: 'Ambire Extension E2E Tests',
   preset: 'jest-puppeteer',
   roots: ['tests'],
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
