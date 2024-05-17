@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -43,7 +42,6 @@ const SortHat = () => {
     }
 
     if (isActionWindow && actionsState.currentAction) {
-      console.log('actionsState.currentAction', actionsState.currentAction)
       const actionType = actionsState.currentAction.type
       if (actionType === 'unlock') {
         dispatch({
@@ -62,31 +60,14 @@ const SortHat = () => {
 
         const accountAddr = accountOpAction.accountOp.accountAddr
         const network = networks.filter((n) => n.id === accountOpAction.accountOp.networkId)[0]
-        console.log(accountOpAction, getAddress(accountAddr), network)
-        return navigate(ROUTES.signAccountOp, {
-          state: { accountAddr: getAddress(accountAddr), network }
-        })
+
+        return navigate(ROUTES.signAccountOp, { state: { accountAddr, network } })
       }
       if (actionType === 'signMessage') {
-        const accountAddr = mainState.selectedAccount
-
-        // TODO:
-        // if (
-        //   isSignMessageMethod(actionsState.currentNotificationRequest.method) &&
-        //   actionsState.currentNotificationRequest?.params?.[1]
-        // ) {
-        //   accountAddr = actionsState.currentNotificationRequest?.params?.[1]
-        // }
-        // if (
-        //   isSignTypedDataMethod(actionsState.currentNotificationRequest.method) &&
-        //   actionsState.currentNotificationRequest?.params?.[0]
-        // ) {
-        //   accountAddr = actionsState.currentNotificationRequest?.params?.[0]
-        // }
-
         return navigate(ROUTES.signMessage, {
           state: {
-            accountAddr: accountAddr ? getAddress(accountAddr) : accountAddr
+            accountAddr:
+              mainState.messagesToBeSigned[mainState.selectedAccount as string]?.accountAddr
           }
         })
       }
@@ -129,6 +110,7 @@ const SortHat = () => {
     authStatus,
     keystoreState,
     mainState.selectedAccount,
+    mainState.messagesToBeSigned,
     networks,
     navigate,
     dispatch

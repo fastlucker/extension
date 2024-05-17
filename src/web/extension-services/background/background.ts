@@ -744,11 +744,11 @@ async function init() {
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return await mainCtrl.removeUserRequest(params.id)
+                return mainCtrl.removeUserRequest(params.id)
               case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
-                return await mainCtrl.resolveUserRequest(params.data, params.id)
+                return mainCtrl.resolveUserRequest(params.data, params.id)
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
-                return await mainCtrl.rejectUserRequest(params.err, params.id)
+                return mainCtrl.rejectUserRequest(params.err, params.id)
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
                 return mainCtrl.resolveAccountOp(params.data, params.accountAddr, params.networkId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':

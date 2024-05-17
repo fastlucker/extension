@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -51,10 +52,14 @@ const SignMessageScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
-  const { currentNotificationRequest } = useActionsControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
+  const actionState = useActionsControllerState()
+
+  const signMessageAction = useMemo(() => {
+    return actionState.currentAction as SignMessageAction
+  }, [actionState.currentAction])
 
   const networkData: NetworkDescriptor | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
@@ -106,6 +111,7 @@ const SignMessageScreen = () => {
     return () => clearTimeout(timer)
   })
 
+  console.log(params)
   useEffect(() => {
     if (!params?.accountAddr) {
       navigate('/')
@@ -131,9 +137,9 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr] || []
-    if (msgsToBeSigned.length) {
-      if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
+    const msgToBeSigned = mainState.messagesToBeSigned[params!.accountAddr]
+    if (msgToBeSigned) {
+      if (msgToBeSigned.id !== signMessageState.messageToSign?.id) {
         dispatch({
           type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
           params: {
@@ -146,18 +152,14 @@ const SignMessageScreen = () => {
           }
         })
 
-        const msgsToSign =
-          mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
-        // Last message that was pushed to the messagesToBeSigned
-        const msgToSign = msgsToSign[msgsToSign.length - 1]
         dispatch({
           type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
           params: {
             dapp: {
-              name: currentNotificationRequest?.session?.name || '',
-              icon: currentNotificationRequest?.session?.icon || ''
+              name: signMessageAction.userRequest?.session?.name || '',
+              icon: signMessageAction.userRequest?.session?.icon || ''
             },
-            messageToSign: msgToSign,
+            messageToSign: msgToBeSigned,
             accounts: mainState.accounts,
             accountStates: mainState.accountStates
           }
@@ -174,7 +176,7 @@ const SignMessageScreen = () => {
     mainState.accountStates,
     signMessageState.messageToSign?.id,
     signMessageState.messageToSign?.accountAddr,
-    currentNotificationRequest?.session
+    signMessageAction.userRequest?.session
   ])
 
   useEffect(() => {
@@ -210,7 +212,7 @@ const SignMessageScreen = () => {
   const handleReject = () => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: signMessageState.messageToSign?.id }
+      params: { err: t('User rejected the request.'), id: signMessageAction.userRequest.id }
     })
   }
 
