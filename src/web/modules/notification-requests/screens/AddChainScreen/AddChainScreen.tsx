@@ -26,8 +26,8 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import validateRequestParams from '@web/modules/notification-requests/screens/AddChainScreen/validateRequestParams'
 
@@ -37,7 +37,7 @@ const AddChainScreen = () => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useNotificationControllerState()
+  const { currentNotificationRequest } = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
   const { statuses, networkToAddOrUpdate } = useSettingsControllerState()
@@ -107,14 +107,14 @@ const AddChainScreen = () => {
 
   useEffect(() => {
     if (statuses.addCustomNetwork === 'SUCCESS') {
-      dispatch({ type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST', params: { data: null } })
+      dispatch({ type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST', params: { data: null } })
     }
   }, [dispatch, statuses.addCustomNetwork])
 
   const handleDenyButtonPress = useCallback(() => {
     actionButtonPressedRef.current = true
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])

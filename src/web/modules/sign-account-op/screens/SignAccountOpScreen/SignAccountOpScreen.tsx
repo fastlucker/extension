@@ -5,7 +5,6 @@ import { useModalize } from 'react-native-modalize'
 
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { getAccountOpId } from '@ambire-common/libs/accountOp/accountOp'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
@@ -71,6 +70,10 @@ const SignAccountOpScreen = () => {
     mainState.broadcastStatus === 'LOADING'
 
   useEffect(() => {
+    console.log('sssss')
+  }, [])
+
+  useEffect(() => {
     if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
       openHwModal()
       return
@@ -93,9 +96,11 @@ const SignAccountOpScreen = () => {
   }, [hasEstimation, slowRequest])
 
   useEffect(() => {
+    console.log('s 1')
     if (!params?.accountAddr || !params?.network) {
       return
     }
+    console.log('s 2', params)
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
@@ -132,19 +137,17 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState?.accountOp) return
 
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
         err: 'User rejected the transaction request',
-        id: getAccountOpId(
-          signAccountOpState.accountOp.accountAddr,
-          signAccountOpState.accountOp.networkId
-        )
+        accountAddr: signAccountOpState.accountOp.accountAddr,
+        networkId: signAccountOpState.accountOp.networkId
       }
     })
   }, [dispatch, signAccountOpState?.accountOp])
 
   const handleAddToCart = useCallback(() => {
-    if (getUiType().isNotification) {
+    if (getUiType().isActionWindow) {
       window.close()
     } else {
       navigate('/')

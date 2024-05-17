@@ -16,7 +16,7 @@ const BenzinNotificationScreen = () => {
 
   const closeNotification = useCallback(() => {
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: {
         data: {}
       }

@@ -132,7 +132,7 @@ const remove = async (winId: number) => {
 }
 
 const open = async (route?: string): Promise<number> => {
-  const url = `notification.html${route ? `#/${route}` : ''}`
+  const url = `action-window.html${route ? `#/${route}` : ''}`
   return create(url)
 }
 

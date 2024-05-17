@@ -1,7 +1,9 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
+import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 // @ts-ignore
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -22,8 +24,8 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 
 // Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
 const DappConnectScreen = () => {
@@ -32,22 +34,30 @@ const DappConnectScreen = () => {
   const [isAuthorizing, setIsAuthorizing] = useState(false)
 
   const { dispatch } = useBackgroundService()
-  const state = useNotificationControllerState()
+  const state = useActionsControllerState()
+
+  const userAction = useMemo(() => {
+    return state.currentAction as UserRequestAction
+  }, [state.currentAction])
+
+  const userRequest = useMemo(() => {
+    return userAction.userRequest as DappUserRequest
+  }, [userAction.userRequest])
 
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-      params: { err: t('User rejected the request.') }
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      params: { err: t('User rejected the request.'), id: userAction.id }
     })
-  }, [t, dispatch])
+  }, [userAction.id, t, dispatch])
 
   const handleAuthorizeButtonPress = useCallback(() => {
     setIsAuthorizing(true)
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
-      params: { data: null }
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+      params: { data: null, id: userAction.id }
     })
-  }, [dispatch])
+  }, [userAction.id, dispatch])
 
   return (
     <TabLayoutContainer
@@ -103,7 +113,7 @@ const DappConnectScreen = () => {
         </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>
           <ManifestImage
-            uri={state.currentNotificationRequest?.session?.icon}
+            uri={userRequest.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
@@ -115,9 +125,7 @@ const DappConnectScreen = () => {
           appearance="secondaryText"
           weight="semiBold"
         >
-          {state.currentNotificationRequest?.origin
-            ? new URL(state.currentNotificationRequest.origin).hostname
-            : ''}
+          {userRequest.session.origin ? new URL(userRequest.session.origin).hostname : ''}
         </Text>
 
         <View style={flexbox.alignCenter}>
@@ -127,7 +135,7 @@ const DappConnectScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={16} weight="medium" appearance="primary">
-                {state.currentNotificationRequest?.session?.name || ''}
+                {userRequest.session.name || 'Unknown dApp'}
               </Text>
               <Text fontSize={16} weight="medium">
                 {' is requesting an authorization to communicate with Ambire Wallet'}
@@ -153,13 +161,13 @@ const DappConnectScreen = () => {
                   {'Allow'}{' '}
                 </Text>
                 <ManifestImage
-                  uri={state.currentNotificationRequest?.session?.icon}
+                  uri={userRequest.session.icon}
                   size={24}
                   fallback={() => <ManifestFallbackIcon />}
                 />
                 <Text fontSize={16} weight="semiBold">
                   {' '}
-                  {state.currentNotificationRequest?.session?.name}{' '}
+                  {userRequest.session.name}{' '}
                 </Text>
                 <Text fontSize={16} weight="medium" appearance="secondaryText">
                   to{' '}

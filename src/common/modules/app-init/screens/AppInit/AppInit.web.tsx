@@ -19,6 +19,7 @@ import { AuthProvider } from '@common/modules/auth/contexts/authContext'
 import { PortalHost, PortalProvider } from '@gorhom/portal'
 import { isExtension } from '@web/constants/browserapi'
 import { AccountAdderControllerStateProvider } from '@web/contexts/accountAdderControllerStateContext'
+import { ActionsControllerStateProvider } from '@web/contexts/actionsControllerStateContext'
 import { ActivityControllerStateProvider } from '@web/contexts/activityControllerStateContext'
 import { AddressBookControllerStateProvider } from '@web/contexts/addressBookControllerStateContext'
 import { AutoLockControllerStateProvider } from '@web/contexts/autoLockControllerStateContext'
@@ -29,7 +30,6 @@ import { DomainsControllerStateProvider } from '@web/contexts/domainsControllerS
 import { EmailVaultControllerStateProvider } from '@web/contexts/emailVaultControllerStateContext'
 import { KeystoreControllerStateProvider } from '@web/contexts/keystoreControllerStateContext'
 import { MainControllerStateProvider } from '@web/contexts/mainControllerStateContext'
-import { NotificationControllerStateProvider } from '@web/contexts/notificationControllerStateContext'
 import { PortfolioControllerStateProvider } from '@web/contexts/portfolioControllerStateContext'
 import { SettingsControllerStateProvider } from '@web/contexts/settingsControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
@@ -58,7 +58,7 @@ const AppInit = () => {
                             <KeystoreControllerStateProvider>
                               <SignMessageControllerStateProvider>
                                 <ActivityControllerStateProvider>
-                                  <NotificationControllerStateProvider>
+                                  <ActionsControllerStateProvider>
                                     <PortfolioControllerStateProvider>
                                       <EmailVaultControllerStateProvider>
                                         <DappsControllerStateProvider>
@@ -87,7 +87,7 @@ const AppInit = () => {
                                         </DappsControllerStateProvider>
                                       </EmailVaultControllerStateProvider>
                                     </PortfolioControllerStateProvider>
-                                  </NotificationControllerStateProvider>
+                                  </ActionsControllerStateProvider>
                                 </ActivityControllerStateProvider>
                               </SignMessageControllerStateProvider>
                             </KeystoreControllerStateProvider>

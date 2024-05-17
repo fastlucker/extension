@@ -1,11 +1,11 @@
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
-import { NotificationController } from '@ambire-common/controllers/notification/notification'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { SettingsController } from '@ambire-common/controllers/settings/settings'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -24,7 +24,7 @@ export const controllersNestedInMainMapping = {
   emailVault: EmailVaultController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
-  notification: NotificationController,
+  actions: ActionsController,
   settings: SettingsController,
   addressBook: AddressBookController,
   domains: DomainsController

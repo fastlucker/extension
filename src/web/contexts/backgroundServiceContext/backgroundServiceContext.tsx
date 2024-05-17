@@ -25,11 +25,11 @@ if (isExtension) {
   const pm = new PortMessenger()
 
   const isTab = getUiType().isTab
-  const isNotification = getUiType().isNotification
+  const isActionWindow = getUiType().isActionWindow
 
   let portName = 'popup'
   if (isTab) portName = 'tab'
-  if (isNotification) portName = 'notification'
+  if (isActionWindow) portName = 'action-window'
 
   pm.connect(portName) // connect to the portMessenger initialized in the background
   // @ts-ignore
@@ -85,7 +85,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
     const onWarning = (newState: { warnings: string[]; controller: string }) => {
       const lastWarning = newState.warnings[newState.warnings.length - 1]
       if (lastWarning) {
-        if (newState.controller === 'notification' && !getUiType().isNotification) return
+        if (newState.controller === 'notification' && !getUiType().isActionWindow) return
         addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
       }
     }

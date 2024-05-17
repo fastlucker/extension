@@ -14,19 +14,19 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import ManifestImage from '@web/components/ManifestImage'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 
 import styles from './styles'
 
 const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useNotificationControllerState()
+  const { currentNotificationRequest } = useActionsControllerState()
 
   const handleDeny = useCallback(() => {
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])

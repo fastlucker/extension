@@ -28,7 +28,7 @@ interface Props extends TextProps {
   explorerNetworkId?: NetworkDescriptor['id']
 }
 
-const { isNotification } = getUiType()
+const { isActionWindow } = getUiType()
 
 const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest }) => {
   const { t } = useTranslation()
@@ -59,7 +59,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       }
       // Close the notification window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.
-      await openInTab(`${network?.explorerUrl}/address/${address}`, isNotification)
+      await openInTab(`${network?.explorerUrl}/address/${address}`, isActionWindow)
     } catch {
       addToast(t('Failed to open explorer'), {
         type: 'error'

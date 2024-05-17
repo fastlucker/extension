@@ -7,7 +7,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
-const { isNotification } = getUiType()
+const { isActionWindow } = getUiType()
 
 const getAddAccountOptions = ({
   navigate,
@@ -17,7 +17,7 @@ const getAddAccountOptions = ({
   t: (str: string) => string
 }) => {
   const navigateWrapped = (route: string) => {
-    if (isNotification) {
+    if (isActionWindow) {
       openInternalPageInTab(route)
       return
     }

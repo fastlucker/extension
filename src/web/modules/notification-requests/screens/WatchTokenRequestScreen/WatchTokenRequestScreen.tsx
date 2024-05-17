@@ -19,8 +19,8 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import {
@@ -47,7 +47,7 @@ const WatchTokenRequestScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
-  const state = useNotificationControllerState()
+  const state = useActionsControllerState()
   const portfolio = usePortfolioControllerState()
   const { networks, providers } = useSettingsControllerState()
 
@@ -78,7 +78,7 @@ const WatchTokenRequestScreen = () => {
   )
   const handleCancel = useCallback(() => {
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.') }
     })
   }, [t, dispatch])
@@ -196,7 +196,7 @@ const WatchTokenRequestScreen = () => {
 
     await portfolio.updateTokenPreferences(token)
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST',
+      type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null }
     })
   }, [dispatch, tokenData, tokenNetwork, portfolio])

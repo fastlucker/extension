@@ -231,7 +231,6 @@ const SeedPhraseImportScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
-            testID="phrase-button-import"
             accessibilityRole="button"
             text={t('Import')}
             size="large"
@@ -257,7 +256,7 @@ const SeedPhraseImportScreen = () => {
                 numberOfLines={1}
                 style={spacings.mrTy}
               >
-                {t('Enter your seed phrase')}
+                {t('Enter your Seed Phrase')}
               </Text>
             </View>
             <Controller
@@ -270,9 +269,8 @@ const SeedPhraseImportScreen = () => {
                     onChange(e)
                   }}
                   options={SEED_LENGTH_SELECT_OPTIONS}
-                  controlStyle={{ height: 40 }}
+                  selectStyle={{ height: 40 }}
                   value={value}
-                  containerStyle={{ width: 230 }}
                 />
               )}
             />
@@ -280,7 +278,7 @@ const SeedPhraseImportScreen = () => {
           <Alert
             style={spacings.mbLg}
             type="info"
-            title={t('You can paste your entire seed phrase in any field')}
+            title={t('You can paste your entire Seed Phrase in any field')}
           />
           <View style={[flexbox.directionRow, flexbox.wrap]}>
             {fields.map((field, index) => (

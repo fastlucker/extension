@@ -58,7 +58,7 @@ const flowContext = flow
         lockedOrigins.add(origin)
         try {
           await new Promise((resolve, reject) => {
-            mainCtrl.buildNotificationRequest(
+            mainCtrl.buildUserRequest(
               { ...request, method: 'unlock', params: {} },
               { resolve, reject }
             )
@@ -90,7 +90,7 @@ const flowContext = flow
         try {
           connectOrigins.add(origin)
           await new Promise((resolve, reject) => {
-            mainCtrl.buildNotificationRequest(
+            mainCtrl.buildUserRequest(
               { ...request, method: 'dapp_connect', params: {} },
               { resolve, reject }
             )
@@ -124,10 +124,8 @@ const flowContext = flow
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl.buildNotificationRequest(request, { resolve, reject })
+        mainCtrl.buildUserRequest(request, { resolve, reject })
       })
-
-      console.log('props.requestRes', props.requestRes)
     }
 
     return next()

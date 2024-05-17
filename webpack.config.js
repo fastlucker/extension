@@ -226,8 +226,8 @@ module.exports = async function (env, argv) {
           to: 'index.html'
         },
         {
-          from: './src/web/public/notification.html',
-          to: 'notification.html'
+          from: './src/web/public/action-window.html',
+          to: 'action-window.html'
         },
         {
           from: './src/web/public/tab.html',

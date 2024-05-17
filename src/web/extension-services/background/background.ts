@@ -155,7 +155,7 @@ async function init() {
   })
   const walletStateCtrl = new WalletStateController()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(mainCtrl, mainCtrl.notification)
+  const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
 
   function setPortfolioFetchInterval() {
@@ -165,7 +165,7 @@ async function init() {
     // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
     backgroundState.fetchPortfolioIntervalId = setInterval(
       () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
-      // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
+      // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       pm.ports.length ? 60000 : 600000
     )
@@ -391,7 +391,7 @@ async function init() {
     })
   })
 
-  // Broadcast onUpdate for the notification controller
+  // Broadcast onUpdate for the dapps controller
   dappsCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl, forceEmit)
   })
@@ -404,7 +404,7 @@ async function init() {
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
-    if (['popup', 'tab', 'notification'].includes(port.name)) {
+    if (['popup', 'tab', 'action-window'].includes(port.name)) {
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
@@ -745,6 +745,14 @@ async function init() {
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
                 return await mainCtrl.removeUserRequest(params.id)
+              case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
+                return await mainCtrl.resolveUserRequest(params.data, params.id)
+              case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
+                return await mainCtrl.rejectUserRequest(params.err, params.id)
+              case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
+                return mainCtrl.resolveAccountOp(params.data, params.accountAddr, params.networkId)
+              case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
+                return mainCtrl.rejectAccountOp(params.err, params.accountAddr, params.networkId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
                 return mainCtrl.signMessage.init(params)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
@@ -792,22 +800,11 @@ async function init() {
                 return await mainCtrl.transfer.buildUserRequest()
               case 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN':
                 return mainCtrl.transfer.checkIsRecipientAddressUnknown()
-              case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
-                mainCtrl.notification.resolveNotificationRequest(params.data, params.id)
-                break
-              }
-              case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-                mainCtrl.notification.rejectNotificationRequest(params.err, params.id)
-                break
-              }
 
-              case 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST':
-                return mainCtrl.notification.focusCurrentNotificationWindow(params)
-              case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST': {
-                // TODO:
-                // return await mainCtrl.notification.openNotificationRequest(params.id)
-                break
-              }
+              case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
+                return mainCtrl.actions.addToActionsQueue(params)
+              case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
+                return mainCtrl.actions.focusActionWindow(params)
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
                 if (!mainCtrl.selectedAccount) return
@@ -1016,7 +1013,7 @@ async function init() {
         pm.removePort(port.id)
         setPortfolioFetchInterval()
 
-        if (port.name === 'tab' || port.name === 'notification') {
+        if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
@@ -1058,6 +1055,7 @@ async function init() {
       )
       return { id, result: res }
     } catch (error: any) {
+      console.log('err4e', error)
       return { id, error }
     }
   })

@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
@@ -8,7 +9,6 @@ import useDomainsControllerState from '@web/hooks/useDomainsController/useDomain
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
@@ -30,7 +30,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
-  const notificationState = useNotificationControllerState()
+  const actionsState = useActionsControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
   const settingsState = useSettingsControllerState()
@@ -59,10 +59,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(signMessageState).length,
     [signMessageState]
   )
-  const hasNotificationState: boolean = useMemo(
-    () => !!Object.keys(notificationState).length,
-    [notificationState]
-  )
+  const hasactionsState: boolean = useMemo(() => !!Object.keys(actionsState).length, [actionsState])
   const hasPortfolioState: boolean = useMemo(
     () => !!Object.keys(portfolioState).length,
     [portfolioState]
@@ -106,7 +103,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasAccountAdderState &&
       hasKeystoreState &&
       hasSignMessageState &&
-      hasNotificationState &&
+      hasactionsState &&
       hasPortfolioState &&
       hasActivityState &&
       hasSettingsState &&
@@ -126,7 +123,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasAccountAdderState,
     hasKeystoreState,
     hasSignMessageState,
-    hasNotificationState,
+    hasactionsState,
     hasPortfolioState,
     hasActivityState,
     hasSettingsState,

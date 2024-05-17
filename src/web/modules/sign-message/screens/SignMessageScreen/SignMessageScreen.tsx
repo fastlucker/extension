@@ -24,10 +24,10 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
@@ -51,7 +51,7 @@ const SignMessageScreen = () => {
   const { params } = useRoute()
   const { navigate } = useNavigation()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
-  const { currentNotificationRequest } = useNotificationControllerState()
+  const { currentNotificationRequest } = useActionsControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
@@ -178,7 +178,7 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    if (!getUiType().isNotification) return
+    if (!getUiType().isActionWindow) return
     const reset = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
@@ -209,7 +209,7 @@ const SignMessageScreen = () => {
 
   const handleReject = () => {
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: signMessageState.messageToSign?.id }
     })
   }
