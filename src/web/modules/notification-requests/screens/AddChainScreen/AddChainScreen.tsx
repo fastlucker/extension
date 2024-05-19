@@ -3,8 +3,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
+import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
@@ -37,7 +39,7 @@ const AddChainScreen = () => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useActionsControllerState()
+  const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
   const { statuses, networkToAddOrUpdate } = useSettingsControllerState()
@@ -45,24 +47,23 @@ const AddChainScreen = () => {
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
 
-  const requestData = useMemo(
-    () => currentNotificationRequest?.params?.[0],
-    [currentNotificationRequest?.params]
-  )
+  const userAction = useMemo(() => {
+    return state.currentAction as UserRequestAction
+  }, [state.currentAction])
 
-  const requestMethod = useMemo(
-    () => currentNotificationRequest?.method,
-    [currentNotificationRequest?.method]
-  )
+  const userRequest = useMemo(() => {
+    return userAction?.userRequest as DappUserRequest
+  }, [userAction?.userRequest])
 
-  const requestSession = useMemo(
-    () => currentNotificationRequest?.session,
-    [currentNotificationRequest?.session]
-  )
+  const requestData = useMemo(() => userRequest?.action?.params?.[0], [userRequest])
+
+  const requestKind = useMemo(() => userRequest?.action?.kind, [userRequest?.action?.kind])
+
+  const requestSession = useMemo(() => userRequest?.session, [userRequest?.session])
 
   useEffect(() => {
-    setAreParamsValid(validateRequestParams(requestMethod, requestData))
-  }, [requestMethod, requestData])
+    setAreParamsValid(validateRequestParams(requestKind, requestData))
+  }, [requestKind, requestData])
 
   const rpcUrls: string[] = useMemo(() => {
     if (!requestData || !requestData?.rpcUrls) return []
@@ -107,17 +108,20 @@ const AddChainScreen = () => {
 
   useEffect(() => {
     if (statuses.addCustomNetwork === 'SUCCESS') {
-      dispatch({ type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST', params: { data: null } })
+      dispatch({
+        type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+        params: { data: null, id: userAction.id }
+      })
     }
-  }, [dispatch, statuses.addCustomNetwork])
+  }, [dispatch, statuses.addCustomNetwork, userAction.id])
 
   const handleDenyButtonPress = useCallback(() => {
     actionButtonPressedRef.current = true
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.') }
+      params: { err: t('User rejected the request.'), id: userAction.id }
     })
-  }, [t, dispatch])
+  }, [userAction.id, t, dispatch])
 
   const handleAddNetworkButtonPress = useCallback(() => {
     if (!networkDetails) return
@@ -207,7 +211,7 @@ const AddChainScreen = () => {
           <View style={[flexbox.directionRow, flexbox.flex1]}>
             <ScrollableWrapper style={flexbox.flex1} contentContainerStyle={{ flexGrow: 1 }}>
               <NetworkDetails
-                name={currentNotificationRequest?.params?.[0]?.chainName}
+                name={userRequest?.action?.params?.[0]?.chainName}
                 iconUrls={networkDetails?.iconUrls || []}
                 chainId={Number(networkDetails.chainId).toString()}
                 rpcUrls={networkDetails.rpcUrls}
@@ -258,7 +262,7 @@ const AddChainScreen = () => {
               title={t('Invalid Request Params')}
               text={t(
                 `${
-                  currentNotificationRequest?.session?.name || 'The dApp'
+                  userRequest?.session?.name || 'The dApp'
                 } provided invalid params for adding a new network.`
               )}
               type="error"
