@@ -463,7 +463,7 @@ const useSteps = ({
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
         standardOptions.emitError,
-        { isExtension, noAsyncOperations: true }
+        { isExtension }
       ).catch((e) => {
         if (!calls) setCalls([])
         return e
