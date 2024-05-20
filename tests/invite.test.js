@@ -61,7 +61,7 @@ describe('Invite Verification', () => {
   })
 
   it('should fire an error toast in case of an invalid invite code', async () => {
-    await page.type('input', 'дъра-бъра-два-чадъра')
+    await page.type('[data-testid="verify-invite-code-input"]', 'дъра-бъра-два-чадъра')
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
     // Wait for the error toast to appear in the DOM
