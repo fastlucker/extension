@@ -16,7 +16,6 @@ import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text/'
 import { Trans, useTranslation } from '@common/config/localization'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -27,6 +26,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -39,13 +39,12 @@ import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 import SigningKeySelect from '@web/modules/sign-message/components'
-import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
-  const { navigate } = useNavigation()
+  const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
@@ -70,10 +69,6 @@ const SignAccountOpScreen = () => {
     mainState.broadcastStatus === 'LOADING'
 
   useEffect(() => {
-    console.log('sssss')
-  }, [])
-
-  useEffect(() => {
     if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
       openHwModal()
       return
@@ -96,11 +91,9 @@ const SignAccountOpScreen = () => {
   }, [hasEstimation, slowRequest])
 
   useEffect(() => {
-    console.log('s 1')
     if (!params?.accountAddr || !params?.network) {
       return
     }
-    console.log('s 2', params)
 
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
@@ -147,12 +140,11 @@ const SignAccountOpScreen = () => {
   }, [dispatch, signAccountOpState?.accountOp])
 
   const handleAddToCart = useCallback(() => {
-    if (getUiType().isActionWindow) {
-      window.close()
-    } else {
-      navigate('/')
-    }
-  }, [navigate])
+    dispatch({
+      type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE',
+      params: { id: actionsState.currentAction?.id as any }
+    })
+  }, [actionsState.currentAction?.id, dispatch])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []

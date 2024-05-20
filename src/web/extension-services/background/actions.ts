@@ -386,6 +386,10 @@ type ActionsControllerAddToActionsQueue = {
   type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
   params: ActionFromActionsQueue
 }
+type ActionsControllerRemoveFromActionsQueue = {
+  type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
+  params: { id: ActionFromActionsQueue['id'] }
+}
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
 }
@@ -509,6 +513,7 @@ export type Action =
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
   | ActionsControllerAddToActionsQueue
+  | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
   | ActionsControllerOpenFirstPendingAction
   | AddressBookControllerAddContact

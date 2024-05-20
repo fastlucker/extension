@@ -803,8 +803,10 @@ async function init() {
 
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addToActionsQueue(params)
+              case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
+                return mainCtrl.actions.removeFromActionsQueue(params.id)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
-                return mainCtrl.actions.focusActionWindow(params)
+                return mainCtrl.actions.focusActionWindow()
               case 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION':
                 return mainCtrl.actions.openFirstPendingAction()
 
