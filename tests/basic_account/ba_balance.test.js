@@ -1,9 +1,10 @@
-import { bootstrapWithStorage, baParams, clickOnElement } from '../functions.js'
+import { bootstrapWithStorage, baParams, clickOnElement, typeText } from '../functions.js'
 
 describe('ba_balance', () => {
   let browser
   let page
   let recorder
+  let extensionRootUrl
 
   beforeEach(async () => {
     const context = await bootstrapWithStorage('ba_balance', baParams)
@@ -11,6 +12,7 @@ describe('ba_balance', () => {
     browser = context.browser
     page = context.page
     recorder = context.recorder
+    extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
@@ -78,5 +80,46 @@ describe('ba_balance', () => {
     })
 
     expect(modalText).toContain(firstCollectiblesItem)
+  })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it('change password', async () => {
+    await page.goto(`${extensionRootUrl}/tab.html#/settings/device-password-change`, {
+      waitUntil: 'load'
+    })
+    const oldPass = process.env.KEYSTORE_PASS
+    const newPass = 'B1234566'
+    await typeText(page, '[data-testid="enter-current-pass-field"]', oldPass)
+    await typeText(page, '[data-testid="enter-new-pass-field"]', newPass)
+    await typeText(page, '[data-testid="repeat-new-pass-field"]', newPass)
+
+    await clickOnElement(page, '[data-testid="change-device-pass-button"]')
+
+    // Wait for the modal to appear
+    await page.waitForSelector('[data-testid="device-pass-success-modal"]')
+
+    // Click on the element within the modal
+    await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+
+    await typeText(page, '[data-testid="enter-current-pass-field"]', newPass)
+    await typeText(page, '[data-testid="enter-new-pass-field"]', oldPass)
+    await typeText(page, '[data-testid="repeat-new-pass-field"]', oldPass)
+
+    await clickOnElement(page, '[data-testid="change-device-pass-button"]')
+
+    // Wait for the modal to appear
+    await page.waitForSelector('[data-testid="device-pass-success-modal"]')
+
+    // Click on the element within the modal
+    await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+
+    await new Promise((r) => setTimeout(r, 1000))
+
+    const isModalExist = await page.evaluate(() => {
+      // Check if the element "device-pass-success-modal" exists
+      return !!document.querySelector('[data-testid="device-pass-success-modal"]')
+    })
+
+    expect(isModalExist).toBe(false)
   })
 })
