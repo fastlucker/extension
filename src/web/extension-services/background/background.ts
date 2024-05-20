@@ -140,7 +140,15 @@ async function init() {
       trezor: trezorCtrl,
       lattice: latticeCtrl
     } as any,
-    windowManager,
+    windowManager: {
+      ...windowManager,
+      sendWindowMessage: (type: '> ui' | '> ui-error' | '> ui-warning', message: string) => {
+        pm.send(type, {
+          method: 'actions',
+          params: { warnings: [message], controller: 'actions' }
+        })
+      }
+    },
     getDapp: (url: string) => {
       return dappsCtrl.getDapp(url)
     },

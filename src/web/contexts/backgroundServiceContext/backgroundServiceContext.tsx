@@ -86,7 +86,7 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       const lastWarning = newState.warnings[newState.warnings.length - 1]
       if (lastWarning) {
         if (newState.controller === 'actions' && !getUiType().isActionWindow) return
-        addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
+        addToast(lastWarning, { timeout: 5000, type: 'warning', isTypeLabelHidden: true })
       }
     }
 
