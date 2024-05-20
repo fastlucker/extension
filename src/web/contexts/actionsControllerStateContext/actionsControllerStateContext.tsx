@@ -54,13 +54,13 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     const isPopup = getUiType().isPopup
-    if (isPopup && state.numberOfPendingActions > 0 && !state.currentAction) {
+    if (isPopup && state.actionsQueue?.length > 0 && !state.currentAction) {
       dispatch({
         type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
       })
       window.close()
     }
-  }, [dispatch, state.numberOfPendingActions, state.currentAction?.type, state.currentAction, path])
+  }, [dispatch, state.actionsQueue?.length, state.currentAction?.type, state.currentAction, path])
 
   return (
     <ActionsControllerStateContext.Provider value={useMemo(() => state, [state])}>

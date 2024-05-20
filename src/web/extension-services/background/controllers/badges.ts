@@ -22,7 +22,9 @@ export class BadgesController {
     this.#mainCtrl = mainCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      this.badgesCount = this.#mainCtrl.actions.numberOfPendingActions
+      this.badgesCount =
+        this.#mainCtrl.actions.actionsQueue.filter((a) => a.type !== 'accountOp').length +
+        mainCtrl.banners.length
     })
   }
 
