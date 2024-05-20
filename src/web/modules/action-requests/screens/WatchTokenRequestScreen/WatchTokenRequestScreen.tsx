@@ -2,7 +2,9 @@ import { getAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
+import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import CloseIcon from '@common/assets/svg/CloseIcon'
@@ -30,7 +32,7 @@ import {
   getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio,
   selectNetwork
-} from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
+} from '@web/modules/action-requests/screens/WatchTokenRequestScreen/utils'
 
 import Token from './components/Token'
 import TokenHeader from './components/TokenHeader'
@@ -51,8 +53,16 @@ const WatchTokenRequestScreen = () => {
   const portfolio = usePortfolioControllerState()
   const { networks, providers } = useSettingsControllerState()
 
-  const tokenData = state?.currentNotificationRequest?.params?.options
-  const origin = state?.currentNotificationRequest?.session?.origin
+  const userAction = useMemo(() => {
+    return state.currentAction as UserRequestAction
+  }, [state.currentAction])
+
+  const userRequest = useMemo(() => {
+    return userAction.userRequest as DappUserRequest
+  }, [userAction.userRequest])
+
+  const tokenData = userRequest?.action?.params?.options
+  const origin = userRequest?.session?.origin
   const network =
     networks.find((n) => n.explorerUrl === origin) ||
     networks.find((n) => n.id === tokenData?.networkId)
@@ -79,9 +89,9 @@ const WatchTokenRequestScreen = () => {
   const handleCancel = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.') }
+      params: { err: t('User rejected the request.'), id: userAction.id }
     })
-  }, [t, dispatch])
+  }, [userAction.id, t, dispatch])
 
   // Handle the case its already in token preferences
   const tokenInPreferences = useMemo(
@@ -197,9 +207,9 @@ const WatchTokenRequestScreen = () => {
     await portfolio.updateTokenPreferences(token)
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-      params: { data: null }
+      params: { data: null, id: userAction.id }
     })
-  }, [dispatch, tokenData, tokenNetwork, portfolio])
+  }, [dispatch, userAction.id, tokenData, tokenNetwork, portfolio])
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />

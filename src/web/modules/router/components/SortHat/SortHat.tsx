@@ -27,12 +27,15 @@ const SortHat = () => {
   const { dispatch } = useBackgroundService()
   const { networks } = useSettingsControllerState()
 
-  const loadView = useCallback(async () => {
-    if (isActionWindow && !actionsState.currentAction) {
-      window.close()
-      return
-    }
+  useEffect(() => {
+    setTimeout(() => {
+      if (isActionWindow && !actionsState.currentAction) {
+        window.close()
+      }
+    }, 1500)
+  }, [isActionWindow, actionsState.currentAction])
 
+  const loadView = useCallback(async () => {
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
       return navigate(ROUTES.keyStoreUnlock)
     }
@@ -67,7 +70,7 @@ const SortHat = () => {
         return navigate(ROUTES.signMessage, {
           state: {
             accountAddr:
-              mainState.messagesToBeSigned[mainState.selectedAccount as string]?.accountAddr
+              mainState.messagesToBeSigned[mainState.selectedAccount as string].accountAddr
           }
         })
       }

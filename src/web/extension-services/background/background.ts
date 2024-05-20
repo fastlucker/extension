@@ -805,6 +805,8 @@ async function init() {
                 return mainCtrl.actions.addToActionsQueue(params)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
                 return mainCtrl.actions.focusActionWindow(params)
+              case 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION':
+                return mainCtrl.actions.openFirstPendingAction()
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
                 if (!mainCtrl.selectedAccount) return

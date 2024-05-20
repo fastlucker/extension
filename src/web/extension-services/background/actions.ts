@@ -388,7 +388,9 @@ type ActionsControllerAddToActionsQueue = {
 }
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
-  params?: string
+}
+type ActionsControllerOpenFirstPendingAction = {
+  type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
 }
 
 type AddressBookControllerAddContact = {
@@ -508,6 +510,7 @@ export type Action =
   | DappsControllerRemoveDappAction
   | ActionsControllerAddToActionsQueue
   | ActionsControllerFocusActionWindow
+  | ActionsControllerOpenFirstPendingAction
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact

@@ -4,7 +4,6 @@ import 'reflect-metadata'
 import { ethErrors } from 'eth-rpc-errors'
 
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { delayPromise } from '@common/utils/promises'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import {
   ProviderNeededControllers,
@@ -24,6 +23,7 @@ const flow = new PromiseFlow<{
 }>()
 
 const flowContext = flow
+  // validate the provided method
   .use(async ({ request, controllers, mapMethod }, next) => {
     const { mainCtrl, dappsCtrl } = controllers
     const { method, params } = request
@@ -41,6 +41,7 @@ const flowContext = flow
 
     return next()
   })
+  // unlock the wallet before proceeding with the request
   .use(async ({ request, controllers, mapMethod }, next) => {
     const { mainCtrl, dappsCtrl } = controllers
     const {
@@ -68,15 +69,13 @@ const flowContext = flow
           lockedOrigins.delete(origin)
           throw e
         }
-        // awaits the notification ctrl to resolve with this request before continuing with the actual dapp req
-        await delayPromise(350)
       }
     }
 
     return next()
   })
+  // if dApp not connected - prompt connect action window
   .use(async ({ request, controllers, mapMethod }, next) => {
-    // check connect
     const { mainCtrl, dappsCtrl } = controllers
     const {
       session: { origin, name, icon }
@@ -114,8 +113,8 @@ const flowContext = flow
 
     return next()
   })
+  // add the dapp request as a userRequest and action
   .use(async (props, next) => {
-    // check need notification request
     const { request, controllers, mapMethod } = props
     const { mainCtrl, dappsCtrl } = controllers
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)

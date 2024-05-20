@@ -5,7 +5,7 @@ import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { RPCProviders } from '@ambire-common/interfaces/settings'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
-import { TokenData } from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
+import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
 
 const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010'
 

@@ -1,6 +1,8 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 
+import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
+import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -22,14 +24,22 @@ import styles from './styles'
 const GetEncryptionPublicKeyRequestScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
-  const { currentNotificationRequest } = useActionsControllerState()
+  const state = useActionsControllerState()
+
+  const userAction = useMemo(() => {
+    return state.currentAction as UserRequestAction
+  }, [state.currentAction])
+
+  const userRequest = useMemo(() => {
+    return userAction.userRequest as DappUserRequest
+  }, [userAction.userRequest])
 
   const handleDeny = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.') }
+      params: { err: t('User rejected the request.'), id: userAction.id }
     })
-  }, [t, dispatch])
+  }, [userAction.id, t, dispatch])
 
   return (
     <>
@@ -38,16 +48,14 @@ const GetEncryptionPublicKeyRequestScreen = () => {
         <Panel>
           <View style={[spacings.pvSm, flexboxStyles.alignCenter]}>
             <ManifestImage
-              uri={currentNotificationRequest?.session?.icon}
+              uri={userRequest?.session?.icon}
               size={64}
               fallback={() => <ManifestFallbackIcon />}
             />
           </View>
 
           <Title style={[textStyles.center, spacings.phSm, spacings.pbLg]}>
-            {currentNotificationRequest?.origin
-              ? new URL(currentNotificationRequest.origin).hostname
-              : ''}
+            {userRequest?.session?.origin ? new URL(userRequest.session.origin).hostname : ''}
           </Title>
 
           <View>
@@ -57,7 +65,7 @@ const GetEncryptionPublicKeyRequestScreen = () => {
                   {'The dApp '}
                 </Text>
                 <Text fontSize={14} weight="regular" color={colors.heliotrope}>
-                  {currentNotificationRequest?.params?.session?.name || ''}
+                  {userRequest?.session?.name || ''}
                 </Text>
                 <Text fontSize={14} weight="regular">
                   {

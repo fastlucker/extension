@@ -57,7 +57,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       if (!isExtension) {
         await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
       }
-      // Close the notification window if this address is opened in one, otherwise
+      // Close the action-window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.
       await openInTab(`${network?.explorerUrl}/address/${address}`, isActionWindow)
     } catch {

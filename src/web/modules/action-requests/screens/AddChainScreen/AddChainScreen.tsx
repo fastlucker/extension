@@ -31,7 +31,7 @@ import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import validateRequestParams from '@web/modules/notification-requests/screens/AddChainScreen/validateRequestParams'
+import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
 import getStyles from './styles'
 

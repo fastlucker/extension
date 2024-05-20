@@ -143,7 +143,7 @@ export class ProviderController {
       }
 
       // delay just for better UX
-      // when the notification window is closed and the user views the dapp, we wait for the user
+      // when the action-window is closed and the user views the dapp, we wait for the user
       // to see the actual update in the dapp's UI once the request is resolved.
       await delayPromise(400)
       return hash

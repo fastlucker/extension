@@ -2,7 +2,6 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
-import { isSignMethod } from '@ambire-common/libs/actions/actions'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
@@ -16,16 +15,13 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'actions'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const prevState: Ac = usePrevious(state) || ({} as ActionsController)
+  const prevState: ActionsController = usePrevious(state) || ({} as ActionsController)
   const { path } = useRoute()
 
   const { navigate } = useNavigation()
 
   useEffect(() => {
-    dispatch({
-      type: 'INIT_CONTROLLER_STATE',
-      params: { controller }
-    })
+    dispatch({ type: 'INIT_CONTROLLER_STATE', params: { controller } })
   }, [dispatch])
 
   useEffect(() => {
@@ -38,43 +34,32 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
     }
   }, [prevState.currentAction?.id, state.currentAction?.id, navigate])
 
-  // if current window type is popup or tab and
-  // there is an unfocused notification window
-  // reopen it and close the current window
-  // this behavior will happen until the request in the notification window is resolved/rejected
-  // TODO:
-  // useEffect(() => {
-  //   const isActionWindow = getUiType().isActionWindow
-  //   if (
-  //     !isActionWindow &&
-  //     state.notificationWindowId &&
-  //     state.currentAction &&
-  //     !isSignMethod(state.currentAction?.method) &&
-  //     state.currentAction?.method !== 'benzin'
-  //   ) {
-  //     dispatch({
-  //       type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW',
-  //       params: 'Please resolve your pending request first.'
-  //     })
-  //     window.close()
-  //   }
-  // }, [dispatch, state.currentAction?.method, state.notificationWindowId, state.currentAction])
+  // If the popup is opened but there are pending actions,
+  //  first show the actions before allowing the user to proceed to the dashboard screen
+  useEffect(() => {
+    const isActionWindow = getUiType().isActionWindow
+    if (
+      !isActionWindow &&
+      state.actionWindowId &&
+      state.currentAction &&
+      state.currentAction?.type !== 'benzin'
+    ) {
+      dispatch({
+        type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+      })
+      window.close()
+    }
+  }, [dispatch, state.currentAction?.type, state.actionWindowId, state.currentAction])
 
-  // useEffect(() => {
-  //   const isPopup = getUiType().isPopup
-  //   if (
-  //     isPopup &&
-  //     state.notificationWindowId &&
-  //     state.currentAction &&
-  //     isSignMethod(state.currentAction?.method)
-  //   ) {
-  //     dispatch({
-  //       type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW',
-  //       params: 'Please resolve your pending request first.'
-  //     })
-  //     window.close()
-  //   }
-  // }, [dispatch, state.currentAction?.method, state.notificationWindowId, state.currentAction, path])
+  useEffect(() => {
+    const isPopup = getUiType().isPopup
+    if (isPopup && state.numberOfPendingActions > 0 && !state.currentAction) {
+      dispatch({
+        type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
+      })
+      window.close()
+    }
+  }, [dispatch, state.numberOfPendingActions, state.currentAction?.type, state.currentAction, path])
 
   return (
     <ActionsControllerStateContext.Provider value={useMemo(() => state, [state])}>

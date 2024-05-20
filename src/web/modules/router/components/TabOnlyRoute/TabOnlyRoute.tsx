@@ -13,9 +13,9 @@ const TabOnlyRoute = () => {
   const { path, search } = useRoute()
   const state = useActionsControllerState()
 
-  // if the current window is notification and there is a notification request don't open
-  // the route in tab because the dApp that requests the notification request
-  // will loose the session with the wallet and the notification request response won't arrive
+  // if the current window is action-window and there is a action request don't open
+  // the route in tab because the dApp that requests the action request
+  // will loose the session with the wallet and the action request response won't arrive
   if (isActionWindow && state.currentAction) {
     return <Outlet />
   }

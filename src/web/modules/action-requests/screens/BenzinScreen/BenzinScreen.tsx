@@ -8,22 +8,25 @@ import Button from '@common/components/Button'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 
-const BenzinNotificationScreen = () => {
+const BenzinScreen = () => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
+  const actionsState = useActionsControllerState()
 
-  const closeNotification = useCallback(() => {
+  const resolveAction = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: {
-        data: {}
+        data: {},
+        id: actionsState.currentAction?.id
       }
     })
-  }, [dispatch])
+  }, [actionsState.currentAction?.id, dispatch])
 
-  const state = useBenzin({ onOpenExplorer: closeNotification })
+  const state = useBenzin({ onOpenExplorer: resolveAction })
 
   return (
     <TabLayoutContainer
@@ -33,7 +36,7 @@ const BenzinNotificationScreen = () => {
         <>
           <Button
             type="secondary"
-            onPress={closeNotification}
+            onPress={resolveAction}
             style={{ minWidth: 180 }}
             hasBottomSpacing={false}
             text={t('Close')}
@@ -53,4 +56,4 @@ const BenzinNotificationScreen = () => {
   )
 }
 
-export default BenzinNotificationScreen
+export default BenzinScreen
