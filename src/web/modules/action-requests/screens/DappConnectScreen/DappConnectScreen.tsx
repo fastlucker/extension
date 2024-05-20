@@ -41,8 +41,8 @@ const DappConnectScreen = () => {
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction.userRequest as DappUserRequest
-  }, [userAction.userRequest])
+    return userAction?.userRequest as DappUserRequest
+  }, [userAction?.userRequest])
 
   const handleDenyButtonPress = useCallback(() => {
     dispatch({
@@ -113,7 +113,7 @@ const DappConnectScreen = () => {
         </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>
           <ManifestImage
-            uri={userRequest.session?.icon}
+            uri={userRequest?.session?.icon}
             size={64}
             fallback={() => <ManifestFallbackIcon />}
           />
@@ -125,7 +125,7 @@ const DappConnectScreen = () => {
           appearance="secondaryText"
           weight="semiBold"
         >
-          {userRequest.session.origin ? new URL(userRequest.session.origin).hostname : ''}
+          {userRequest?.session.origin ? new URL(userRequest.session.origin).hostname : ''}
         </Text>
 
         <View style={flexbox.alignCenter}>
@@ -135,7 +135,7 @@ const DappConnectScreen = () => {
                 {'The dApp '}
               </Text>
               <Text fontSize={16} weight="medium" appearance="primary">
-                {userRequest.session.name || 'Unknown dApp'}
+                {userRequest?.session?.name || 'Unknown dApp'}
               </Text>
               <Text fontSize={16} weight="medium">
                 {' is requesting an authorization to communicate with Ambire Wallet'}
@@ -161,13 +161,13 @@ const DappConnectScreen = () => {
                   {'Allow'}{' '}
                 </Text>
                 <ManifestImage
-                  uri={userRequest.session.icon}
+                  uri={userRequest?.session?.icon}
                   size={24}
                   fallback={() => <ManifestFallbackIcon />}
                 />
                 <Text fontSize={16} weight="semiBold">
                   {' '}
-                  {userRequest.session.name}{' '}
+                  {userRequest?.session?.name}{' '}
                 </Text>
                 <Text fontSize={16} weight="medium" appearance="secondaryText">
                   to{' '}

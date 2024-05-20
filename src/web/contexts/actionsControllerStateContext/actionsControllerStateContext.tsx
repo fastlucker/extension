@@ -35,11 +35,12 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [prevState.currentAction?.id, state.currentAction?.id, navigate])
 
   // If the popup is opened but there are pending actions,
-  //  first show the actions before allowing the user to proceed to the dashboard screen
+  // first show the actions before allowing the user to proceed to the dashboard screen
   useEffect(() => {
-    const isActionWindow = getUiType().isActionWindow
+    const isPopup = getUiType().isPopup
+
     if (
-      !isActionWindow &&
+      isPopup &&
       state.actionWindowId &&
       state.currentAction &&
       state.currentAction?.type !== 'benzin'

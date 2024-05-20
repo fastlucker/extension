@@ -31,8 +31,8 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction.userRequest as DappUserRequest
-  }, [userAction.userRequest])
+    return userAction?.userRequest as DappUserRequest
+  }, [userAction?.userRequest])
 
   const handleDeny = useCallback(() => {
     dispatch({
