@@ -182,8 +182,6 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     return ITEMS_PER_PAGE * page - itemsTotal >= 0
   }, [itemsTotal, page])
 
-  console.log(activityState, account.addr, network, page, 'activity')
-
   return (
     <>
       <SettingsPageHeader
