@@ -1,50 +1,60 @@
-import React, { useEffect, useState } from 'react'
-import { Image, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
+import { Image, ImageStyle, View, ViewStyle } from 'react-native'
 
-import Spinner from '@common/components/Spinner'
+import SkeletonLoader from '@common/components/SkeletonLoader'
+import { SkeletonLoaderProps } from '@common/components/SkeletonLoader/types'
 import useTheme from '@common/hooks/useTheme'
 import commonStyles from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
-import { checkIfImageExists } from '@common/utils/checkIfImageExists'
 
 type Props = {
   uri?: string
   uris?: string[]
   fallback?: () => any
-  size: number
+  size: ViewStyle['width']
   isRound?: boolean
   iconScale?: number
+  containerStyle?: ViewStyle
+  imageStyle?: ImageStyle
+  skeletonProps?: {
+    appearance?: SkeletonLoaderProps['appearance']
+    lowOpacity?: SkeletonLoaderProps['lowOpacity']
+  }
 }
 
-const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale = 1 }: Props) => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [validUri, setValidUri] = useState('')
+const ManifestImage = ({
+  uri,
+  uris = [],
+  fallback,
+  size = 64,
+  isRound,
+  iconScale = 1,
+  containerStyle = {},
+  imageStyle = {},
+  skeletonProps = {}
+}: Props) => {
   const { theme } = useTheme()
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+  const [currentUri, setCurrentUri] = useState({
+    index: 0,
+    uri: uri || uris[0]
+  })
+  const scaledSize = typeof size !== 'string' ? size * iconScale : size
+  const roundBorderRadius = typeof scaledSize !== 'string' ? scaledSize / 2 : 50
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    ;(async () => {
-      if (uris?.length) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const u of uris) {
-          // eslint-disable-next-line no-await-in-loop
-          const hasLoadedUri = await checkIfImageExists(u)
-          if (hasLoadedUri) {
-            setValidUri(u) // the `hasLoadedUri` handles if `uri` is defined
-            break
-          }
-        }
-      }
+  const onError = useCallback(() => {
+    setHasError(true)
 
-      if (uri) {
-        const hasLoadedUri = await checkIfImageExists(uri)
-        if (hasLoadedUri) {
-          setValidUri(uri as string) // the `hasLoadedUri` handles if `uri` is defined
-        }
-      }
-      setIsLoading(false)
-    })()
-  }, [uri, uris])
+    if (uris.length && uris.length > 1 && currentUri.index < uris.length - 1) {
+      setCurrentUri({
+        index: currentUri.index + 1,
+        uri: uris[currentUri.index + 1]
+      })
+    }
+  }, [currentUri.index, uris])
+
+  const onLoadEnd = useCallback(() => setIsLoading(false), [])
 
   return (
     <View
@@ -53,23 +63,38 @@ const ManifestImage = ({ uri, uris = [], fallback, size = 64, isRound, iconScale
         flexboxStyles.justifyCenter,
         commonStyles.borderRadiusPrimary,
         commonStyles.hidden,
-        !!isRound && { borderRadius: 50 },
-        { width: size, height: size }
+        !!isRound && { borderRadius: roundBorderRadius },
+        { width: size, height: size },
+        containerStyle
       ]}
     >
-      {!!isLoading && <Spinner style={{ width: size * iconScale, height: size * iconScale }} />}
-      {!isLoading && !validUri && !!fallback && fallback()}
-      {!isLoading && !!validUri && (
+      {isLoading && (
+        <SkeletonLoader
+          width={scaledSize}
+          height={scaledSize}
+          style={{
+            position: 'absolute',
+            zIndex: 3
+          }}
+          {...skeletonProps}
+        />
+      )}
+      {!isLoading && hasError && !!fallback && fallback()}
+      {!!currentUri.uri && !hasError && (
         <Image
-          source={{ uri: validUri }}
+          source={{ uri: currentUri.uri }}
+          onError={onError}
+          onLoadEnd={onLoadEnd}
           resizeMode="contain"
           style={[
             {
-              width: size * iconScale,
-              height: size * iconScale,
-              backgroundColor: theme.primaryBackground
+              height: scaledSize,
+              width: scaledSize,
+              backgroundColor: theme.primaryBackground,
+              opacity: isLoading ? 0 : 1
             },
-            !!isRound && { borderRadius: 50 }
+            !!isRound && { borderRadius: roundBorderRadius },
+            imageStyle
           ]}
         />
       )}

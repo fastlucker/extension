@@ -10,14 +10,11 @@ import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
-import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -50,6 +47,7 @@ import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
 
 import AutoLockController from './controllers/auto-lock'
+import { updateHumanizerMetaInStorage } from './webapi/humanizer'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -57,18 +55,6 @@ function saveTimestamp() {
   browser.storage.session.set({ timestamp })
 }
 
-async function init() {
-  const humanizerMetaInStorage: HumanizerMeta = await storage.get(HUMANIZER_META_KEY, {})
-  if (
-    Object.keys(humanizerMetaInStorage).length === 0 ||
-    Object.keys(humanizerMetaInStorage.knownAddresses).length <
-      Object.keys(humanizerJSON.knownAddresses).length ||
-    Object.keys(humanizerMetaInStorage.abis).length < Object.keys(humanizerJSON.abis).length ||
-    Object.keys(humanizerMetaInStorage.abis.NO_ABI).length <
-      Object.keys(humanizerJSON.abis.NO_ABI).length
-  )
-    await storage.set(HUMANIZER_META_KEY, humanizerJSON)
-}
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -87,7 +73,7 @@ async function init() {
     const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
-  await init()
+  await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
     isUnlocked: boolean

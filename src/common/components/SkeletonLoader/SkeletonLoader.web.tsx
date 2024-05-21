@@ -12,7 +12,8 @@ const SkeletonLoader = ({
   height,
   borderRadius = BORDER_RADIUS_PRIMARY,
   style = {},
-  lowOpacity = false
+  lowOpacity = false,
+  appearance
 }: SkeletonLoaderProps & {
   style: React.CSSProperties
 }) => {
@@ -24,7 +25,7 @@ const SkeletonLoader = ({
       style={{
         width,
         height,
-        background: theme.secondaryBackground as any,
+        background: theme[appearance || 'secondaryBackground'] as any,
         borderRadius,
         ...style
       }}

@@ -1,15 +1,17 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback } from 'react'
+import { Control } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { TextInput as NativeInput, View } from 'react-native'
+import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
-import SearchIcon from '@common/assets/svg/SearchIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import Text from '@common/components//Text'
 import AddressBookContact from '@common/components/AddressBookContact'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
+import Search from '@common/components/Search'
+import { MenuContainer, useSelect } from '@common/components/Select'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
@@ -25,6 +27,14 @@ interface Props {
   isVisible: boolean
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
+  search: string
+  control: Control<
+    {
+      search: string
+    },
+    any
+  >
+  menuProps: ReturnType<typeof useSelect>['menuProps']
 }
 
 const TitleRow = ({ title, icon: Icon }: { title: string; icon: FC<SvgProps> }) => (
@@ -38,7 +48,14 @@ const TitleRow = ({ title, icon: Icon }: { title: string; icon: FC<SvgProps> }) 
   </View>
 )
 
-const AddressBookDropdown: FC<Props> = ({ isVisible, passRef: ref, onContactPress }) => {
+const AddressBookDropdown: FC<Props> = ({
+  isVisible,
+  passRef: ref,
+  onContactPress,
+  search,
+  control,
+  menuProps
+}) => {
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
@@ -46,7 +63,6 @@ const AddressBookDropdown: FC<Props> = ({ isVisible, passRef: ref, onContactPres
   const [bindManageBtnAnim, manageBtnAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
-  const [search, setSearch] = useState('')
   const lowercaseSearch = search.toLowerCase()
 
   const onManagePress = useCallback(() => {
@@ -70,17 +86,16 @@ const AddressBookDropdown: FC<Props> = ({ isVisible, passRef: ref, onContactPres
   if (!isVisible) return null
 
   return (
-    <View style={styles.container} ref={ref}>
+    <MenuContainer menuRef={ref} menuProps={menuProps}>
       <View style={styles.header}>
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <SearchIcon width={16} height={16} color={theme.secondaryText} />
-          <NativeInput
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-            placeholder={t('Search')}
-          />
-        </View>
+        <Search
+          placeholder={t('Search...')}
+          autoFocus
+          control={control}
+          leftIconStyle={spacings.pl0}
+          containerStyle={spacings.mb0}
+          borderless
+        />
         <AnimatedPressable
           style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
           onPress={onManagePress}
@@ -135,7 +150,7 @@ const AddressBookDropdown: FC<Props> = ({ isVisible, passRef: ref, onContactPres
           </Text>
         ) : null}
       </ScrollableWrapper>
-    </View>
+    </MenuContainer>
   )
 }
 
