@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback } from 'react'
+import React, { FC, ReactNode, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
@@ -22,6 +22,7 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 interface Props {
   isVisible: boolean
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
   search: string
@@ -59,6 +60,7 @@ const TitleRow = ({
 
 const AddressBookDropdown: FC<Props> = ({
   isVisible,
+  setIsVisible,
   passRef: ref,
   onContactPress,
   search,
@@ -91,11 +93,15 @@ const AddressBookDropdown: FC<Props> = ({
   )
   const manuallyAddedContacts = filteredContacts.filter((contact) => !contact.isWalletAccount)
 
+  useEffect(() => {
+    if (!!search && filteredContacts.length === 0) setIsVisible(false)
+  }, [filteredContacts.length, search, setIsVisible])
+
   // Don't render if the dropdown is not visible or if there are no contacts to show
   // while searching. Otherwise the dropdown will be shown for addresses that aren't in
   // the address book, which isn't desired because we display an error message and that message
   // will be hidden by the dropdown.
-  if (!isVisible || (!!search && filteredContacts.length === 0)) return null
+  if (!isVisible) return null
 
   return (
     <MenuContainer menuRef={ref} menuProps={menuProps}>

@@ -39,6 +39,11 @@ interface Props extends InputProps {
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
+const ADDRESS_BOOK_VISIBLE_VALIDATION = {
+  isError: true, // Don't let the user submit, just in case there is an error
+  message: ''
+}
+
 const Recipient: React.FC<Props> = ({
   setAddress,
   address,
@@ -56,6 +61,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
+  const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -70,8 +76,6 @@ const Recipient: React.FC<Props> = ({
   } = useSelect()
 
   const isAddressInAddressBook = contacts.some((contact) => {
-    const actualAddress = ensAddress || uDAddress || address
-
     return actualAddress.toLowerCase() === contact.address.toLowerCase()
   })
 
@@ -84,7 +88,7 @@ const Recipient: React.FC<Props> = ({
     <>
       <AddressInput
         testID="recepient-address-field"
-        validation={validation}
+        validation={isAddressBookVisible ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
         containerStyle={styles.inputContainer}
         udAddress={uDAddress}
         ensAddress={ensAddress}
@@ -98,10 +102,11 @@ const Recipient: React.FC<Props> = ({
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
+            setIsVisible={setIsAddressBookVisible}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={address}
+            search={actualAddress}
           />
         }
         childrenBeforeButtons={
