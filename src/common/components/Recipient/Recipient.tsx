@@ -65,8 +65,6 @@ const Recipient: React.FC<Props> = ({
     menuRef: addressBookMenuRef,
     isMenuOpen: isAddressBookVisible,
     setIsMenuOpen: setIsAddressBookVisible,
-    search,
-    control,
     toggleMenu: toggleAddressBookMenu,
     menuProps
   } = useSelect()
@@ -93,7 +91,7 @@ const Recipient: React.FC<Props> = ({
         isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
         value={address}
-        onChangeText={setAddressAndCloseAddressBook}
+        onChangeText={setAddress}
         disabled={disabled}
         onFocus={toggleAddressBookMenu}
         inputBorderWrapperRef={addressBookSelectRef}
@@ -103,8 +101,7 @@ const Recipient: React.FC<Props> = ({
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={search}
-            control={control}
+            search={address}
           />
         }
         childrenBeforeButtons={
