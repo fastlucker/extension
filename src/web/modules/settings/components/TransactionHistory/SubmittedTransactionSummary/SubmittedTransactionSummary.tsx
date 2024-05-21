@@ -195,7 +195,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       </View>
     </View>
   ) : (
-    <View style={[{ paddingTop: '5m' }, style]}>
+    <View style={style}>
       <SkeletonLoader width="100%" height={112} />
     </View>
   )
