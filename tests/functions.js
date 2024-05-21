@@ -60,12 +60,8 @@ export async function bootstrap(options = {}) {
 
 //----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector) {
-  try {
-    const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
-    await elementToClick.click()
-  } catch (error) {
-    throw new Error(`Could not click on selector: ${selector}`)
-  }
+  const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
+  await elementToClick.click()
 }
 
 //----------------------------------------------------------------------------------------------
@@ -84,16 +80,11 @@ export async function clickElementWithRetry(page, selector, maxRetries = 5) {
 }
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
-  try {
-    await page.waitForSelector(selector, { visible: true, timeout: 5000 })
-    const whereToType = await page.$(selector)
-    await whereToType.click({ clickCount: 3 })
-    await whereToType.press('Backspace')
-    await whereToType.type(text, { delay: 10 })
-  } catch (error) {
-    throw new Error(`Could not type text: ${text}
-          in the selector: ${selector}`)
-  }
+  await page.waitForSelector(selector, { visible: true, timeout: 5000 })
+  const whereToType = await page.$(selector)
+  await whereToType.click({ clickCount: 3 })
+  await whereToType.press('Backspace')
+  await whereToType.type(text, { delay: 10 })
 }
 
 //----------------------------------------------------------------------------------------------
@@ -227,9 +218,12 @@ export async function bootstrapWithStorage(namespace, params) {
   // 2. Instead, we simply switch back to our tab under testing.
   await page.bringToFront()
   await page.reload()
-
-  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
-
+  // we need to catch the error because in other way recorder will not be returned and test will fail with error
+  try {
+    await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+  } catch (error) {
+    console.log('typeSeedPhrase ERROR: ', error)
+  }
   return { browser, extensionRootUrl, page, recorder }
 }
 
