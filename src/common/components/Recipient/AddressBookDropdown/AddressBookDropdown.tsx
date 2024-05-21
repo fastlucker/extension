@@ -94,13 +94,13 @@ const AddressBookDropdown: FC<Props> = ({
   const manuallyAddedContacts = filteredContacts.filter((contact) => !contact.isWalletAccount)
 
   useEffect(() => {
+    // Don't render if there are no contacts to show
+    // while searching. Otherwise the dropdown will be shown for addresses that aren't in
+    // the address book, which isn't desired because we display an error message and that message
+    // will be hidden by the dropdown.
     if (!!search && filteredContacts.length === 0) setIsVisible(false)
   }, [filteredContacts.length, search, setIsVisible])
 
-  // Don't render if the dropdown is not visible or if there are no contacts to show
-  // while searching. Otherwise the dropdown will be shown for addresses that aren't in
-  // the address book, which isn't desired because we display an error message and that message
-  // will be hidden by the dropdown.
   if (!isVisible) return null
 
   return (
