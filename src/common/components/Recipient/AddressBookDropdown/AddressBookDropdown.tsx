@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
@@ -17,12 +18,12 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 interface Props {
   isVisible: boolean
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
+  filteredContacts: Contact[]
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
   search: string
@@ -61,6 +62,7 @@ const TitleRow = ({
 const AddressBookDropdown: FC<Props> = ({
   isVisible,
   setIsVisible,
+  filteredContacts,
   passRef: ref,
   onContactPress,
   search,
@@ -69,24 +71,13 @@ const AddressBookDropdown: FC<Props> = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { contacts } = useAddressBookControllerState()
   const [bindManageBtnAnim, manageBtnAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
-  const lowercaseSearch = search.toLowerCase()
 
   const onManagePress = useCallback(() => {
     navigate(ROUTES.addressBook)
   }, [navigate])
-
-  const filteredContacts = contacts.filter((contact) => {
-    if (!search) return true
-
-    const lowercaseName = contact.name.toLowerCase()
-    const lowercaseAddress = contact.address.toLowerCase()
-
-    return lowercaseAddress.includes(lowercaseSearch) || lowercaseName.includes(lowercaseSearch)
-  })
 
   const walletAccountsSourcedContacts = filteredContacts.filter(
     (contact) => contact.isWalletAccount

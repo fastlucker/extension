@@ -79,9 +79,32 @@ const Recipient: React.FC<Props> = ({
     return actualAddress.toLowerCase() === contact.address.toLowerCase()
   })
 
+  const filteredContacts = contacts.filter((contact) => {
+    if (!actualAddress) return true
+
+    const lowercaseActualAddress = actualAddress.toLowerCase()
+    const lowercaseName = contact.name.toLowerCase()
+    const lowercaseAddress = contact.address.toLowerCase()
+
+    return (
+      lowercaseAddress.includes(lowercaseActualAddress) ||
+      lowercaseName.includes(lowercaseActualAddress)
+    )
+  })
+
   const setAddressAndCloseAddressBook = (newAddress: string) => {
     setIsAddressBookVisible(false)
     setAddress(newAddress)
+  }
+
+  const visualizeAddressBookDropdown = () => {
+    setIsAddressBookVisible(true)
+  }
+
+  const selectSingleContactResult = () => {
+    if (!isAddressBookVisible || filteredContacts.length !== 1) return
+
+    setAddressAndCloseAddressBook(filteredContacts[0].address)
   }
 
   return (
@@ -97,12 +120,14 @@ const Recipient: React.FC<Props> = ({
         value={address}
         onChangeText={setAddress}
         disabled={disabled}
-        onFocus={toggleAddressBookMenu}
+        onFocus={visualizeAddressBookDropdown}
         inputBorderWrapperRef={addressBookSelectRef}
+        onSubmitEditing={selectSingleContactResult}
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
             setIsVisible={setIsAddressBookVisible}
+            filteredContacts={filteredContacts}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
