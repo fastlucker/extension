@@ -53,7 +53,8 @@ const DashboardOverview: FC<Props> = ({
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
   const banners = useBanners()
-  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
+  const { accountPortfolio, startedLoading, state, refreshPortfolio } =
+    usePortfolioControllerState()
 
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -172,19 +173,20 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {isBalanceInaccurate && (
-                        <>
-                          <WarningIcon
-                            color={theme.warningDecorative}
-                            style={spacings.mlMi}
-                            data-tooltip-id="total-balance-warning"
-                            data-tooltip-content={t(
-                              'Total balance may be inaccurate due to missing data.'
-                            )}
-                          />
-                          <Tooltip id="total-balance-warning" />
-                        </>
-                      )}
+                      {isBalanceInaccurate ||
+                        (!accountPortfolio?.isAllReady && (
+                          <>
+                            <WarningIcon
+                              color={theme.warningDecorative}
+                              style={spacings.mlMi}
+                              data-tooltip-id="total-balance-warning"
+                              data-tooltip-content={t(
+                                'Total balance may be inaccurate due to missing data.'
+                              )}
+                            />
+                            <Tooltip id="total-balance-warning" />
+                          </>
+                        ))}
                       <AnimatedPressable
                         style={[spacings.mlTy, refreshButtonAnimStyle]}
                         onPress={refreshPortfolio}

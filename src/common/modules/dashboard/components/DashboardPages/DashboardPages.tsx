@@ -19,6 +19,7 @@ interface Props {
   filterByNetworkId: NetworkDescriptor['id']
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  startedLoading: null | number
 }
 
 const { isTab } = getUiType()
@@ -27,9 +28,14 @@ const DashboardPages = ({
   accountPortfolio,
   filterByNetworkId,
   tokenPreferences,
-  onScroll
+  onScroll,
+  startedLoading
 }: Props) => {
   const route = useRoute()
+
+  const isLoading = !startedLoading
+    ? !accountPortfolio?.isAllReady
+    : Date.now() - startedLoading < 5000
 
   const [openTab, setOpenTab] = useState(() => {
     const params = new URLSearchParams(route?.search)
@@ -54,7 +60,7 @@ const DashboardPages = ({
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
         filterByNetworkId={filterByNetworkId}
-        isLoading={!accountPortfolio?.isAllReady}
+        isLoading={isLoading}
         tokenPreferences={tokenPreferences}
         openTab={openTab}
         setOpenTab={setOpenTab}
