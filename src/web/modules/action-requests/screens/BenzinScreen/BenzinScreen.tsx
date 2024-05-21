@@ -17,14 +17,15 @@ const BenzinScreen = () => {
   const actionsState = useActionsControllerState()
 
   const resolveAction = useCallback(() => {
+    if (!actionsState.currentAction) return
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: {
         data: {},
-        id: actionsState.currentAction?.id
+        id: actionsState.currentAction.id as number
       }
     })
-  }, [actionsState.currentAction?.id, dispatch])
+  }, [actionsState.currentAction, dispatch])
 
   const state = useBenzin({ onOpenExplorer: resolveAction })
 

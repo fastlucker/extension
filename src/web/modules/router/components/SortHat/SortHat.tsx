@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
+import { AccountOpAction, BenzinAction } from '@ambire-common/controllers/actions/actions'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -84,22 +85,24 @@ const SortHat = () => {
       if (actionType === 'benzin') {
         // if userOpHash and custom network, close the window
         // as jiffyscan may not support the network
-        // TODO:
-        // const isCustomNetwork = !predefinedNetworks.find(
-        //   (net) => net.id === actionsState.currentNotificationRequest?.meta?.networkId
-        // )
-        // if (actionsState.currentNotificationRequest?.meta?.userOpHash && isCustomNetwork) {
-        //   window.close()
-        //   return
-        // }
-        // let link = `${ROUTES.benzin}?networkId=${actionsState.currentNotificationRequest?.meta?.networkId}&isInternal`
-        // if (actionsState.currentNotificationRequest?.meta?.txnId) {
-        //   link += `&txnId=${actionsState.currentNotificationRequest?.meta?.txnId}`
-        // }
-        // if (actionsState.currentNotificationRequest?.meta?.userOpHash) {
-        //   link += `&userOpHash=${actionsState.currentNotificationRequest?.meta?.userOpHash}`
-        // }
-        // return navigate(link)
+
+        const benzinAction = actionsState.currentAction as BenzinAction
+
+        const isCustomNetwork = !predefinedNetworks.find(
+          (net) => net.id === benzinAction.userRequest.meta?.networkId
+        )
+        if (benzinAction.userRequest.meta?.userOpHash && isCustomNetwork) {
+          window.close()
+          return
+        }
+        let link = `${ROUTES.benzin}?networkId=${benzinAction.userRequest.meta?.networkId}&isInternal`
+        if (benzinAction.userRequest.meta?.txnId) {
+          link += `&txnId=${benzinAction.userRequest.meta?.txnId}`
+        }
+        if (benzinAction.userRequest.meta?.userOpHash) {
+          link += `&userOpHash=${benzinAction.userRequest.meta?.userOpHash}`
+        }
+        return navigate(link)
       }
     } else if (params?.openOnboardingCompleted) {
       navigate(ROUTES.onboardingCompleted, { state: { validSession: true } })
