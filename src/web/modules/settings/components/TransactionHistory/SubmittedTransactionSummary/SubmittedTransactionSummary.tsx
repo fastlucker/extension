@@ -150,23 +150,19 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     }
   }, [addToast, network.id, submittedAccountOp.userOpHash, submittedAccountOp.txnId])
 
-  return (
+  return calls.length ? (
     <View style={[styles.container, style]}>
-      {calls.length ? (
-        calls.map((call: IrCall, index) => (
-          <TransactionSummary
-            key={call.fromUserRequestId}
-            style={styles.summaryItem}
-            call={call}
-            networkId={submittedAccountOp.networkId}
-            rightIcon={index === 0 ? <OpenIcon /> : null}
-            onRightIconPress={handleOpenExplorer}
-            isHistory
-          />
-        ))
-      ) : (
-        <SkeletonLoader width="100%" height={50} />
-      )}
+      {calls.map((call: IrCall, index) => (
+        <TransactionSummary
+          key={call.fromUserRequestId}
+          style={styles.summaryItem}
+          call={call}
+          networkId={submittedAccountOp.networkId}
+          rightIcon={index === 0 ? <OpenIcon /> : null}
+          onRightIconPress={handleOpenExplorer}
+          isHistory
+        />
+      ))}
       <View style={styles.footer}>
         <View style={styles.footerItem}>
           <Text fontSize={14} appearance="secondaryText" weight="semiBold">
@@ -197,6 +193,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           </Text>
         </View>
       </View>
+    </View>
+  ) : (
+    <View style={[{ paddingTop: '5m' }, style]}>
+      <SkeletonLoader width="100%" height={112} />
     </View>
   )
 }
