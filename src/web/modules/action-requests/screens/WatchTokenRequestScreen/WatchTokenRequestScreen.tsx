@@ -7,9 +7,7 @@ import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import Alert from '@common/components/Alert/Alert'
-import Button from '@common/components/Button'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -25,6 +23,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
@@ -58,8 +57,8 @@ const WatchTokenRequestScreen = () => {
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction.userRequest as DappUserRequest
-  }, [userAction.userRequest])
+    return userAction?.userRequest as DappUserRequest
+  }, [userAction?.userRequest])
 
   const tokenData = userRequest?.action?.params?.options
   const origin = userRequest?.session?.origin
@@ -232,31 +231,14 @@ const WatchTokenRequestScreen = () => {
         />
       }
       footer={
-        <>
-          <Button
-            text={t('Cancel')}
-            type="danger"
-            hasBottomSpacing={false}
-            style={spacings.phLg}
-            onPress={handleCancel}
-          >
-            <View style={spacings.pl}>
-              <CloseIcon color={theme.errorDecorative} />
-            </View>
-          </Button>
-
-          <Button
-            style={spacings.phLg}
-            hasBottomSpacing={false}
-            onPress={handleAddToken}
-            disabled={
-              isLoading ||
-              showAlreadyInPortfolioMessage ||
-              (!tokenTypeEligibility && !temporaryToken)
-            }
-            text={t('Add token')}
-          />
-        </>
+        <ActionFooter
+          onReject={handleCancel}
+          onResolve={handleAddToken}
+          resolveButtonText={isLoading ? t('Adding token...') : t('Add token')}
+          resolveDisabled={
+            isLoading || showAlreadyInPortfolioMessage || (!tokenTypeEligibility && !temporaryToken)
+          }
+        />
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>

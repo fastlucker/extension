@@ -14,7 +14,7 @@ interface Style {
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    container: { ...flexbox.alignCenter, width: '100%', ...spacings.mb2Xl },
+    container: { ...flexbox.alignCenter, width: '100%', ...spacings.mbXl },
     image: { width: 50, height: 50, ...spacings.mbSm },
     content: {
       ...flexbox.directionRow,
@@ -22,7 +22,7 @@ const getStyles = (theme: ThemeProps) =>
       width: '100%',
       ...flexbox.alignCenter,
       position: 'relative',
-      ...spacings.mb
+      ...spacings.mbXl
     },
     kindOfMessage: {
       backgroundColor: theme.infoBackground,

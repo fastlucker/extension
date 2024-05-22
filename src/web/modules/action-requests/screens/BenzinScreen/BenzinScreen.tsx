@@ -57,4 +57,4 @@ const BenzinScreen = () => {
   )
 }
 
-export default BenzinScreen
+export default React.memo(BenzinScreen)

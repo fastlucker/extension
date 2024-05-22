@@ -8,6 +8,7 @@ import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import ActionsPagination from '@web/modules/action-requests/components/ActionsPagination'
 
 import getStyles from './styles'
 
@@ -35,18 +36,21 @@ const Footer = ({
 
   return (
     <View style={styles.container}>
-      <Button
-        type="danger"
-        text={t('Reject')}
-        onPress={onReject}
-        hasBottomSpacing={false}
-        size="large"
-      >
-        <View style={spacings.plSm}>
-          <CloseIcon color={theme.errorDecorative} />
-        </View>
-      </Button>
-      <View style={[flexbox.directionRow]}>
+      <View style={[isEOA && flexbox.flex1, flexbox.alignStart]}>
+        <Button
+          type="danger"
+          text={t('Reject')}
+          onPress={onReject}
+          hasBottomSpacing={false}
+          size="large"
+        >
+          <View style={spacings.plSm}>
+            <CloseIcon color={theme.errorDecorative} />
+          </View>
+        </Button>
+      </View>
+      <ActionsPagination />
+      <View style={[flexbox.directionRow, isEOA && flexbox.flex1, flexbox.justifyEnd]}>
         {!isEOA && (
           <Button
             type="outline"

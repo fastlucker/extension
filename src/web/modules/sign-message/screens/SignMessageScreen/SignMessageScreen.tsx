@@ -7,9 +7,6 @@ import { useModalize } from 'react-native-modalize'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import CloseIcon from '@common/assets/svg/CloseIcon'
-import Alert from '@common/components/Alert'
-import Button from '@common/components/Button'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
@@ -17,7 +14,6 @@ import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -31,6 +27,7 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
@@ -38,10 +35,8 @@ import { getUiType } from '@web/utils/uiType'
 
 import FallbackVisualization from './FallbackVisualization'
 import Info from './Info'
-import styles from './styles'
 
 const SignMessageScreen = () => {
-  const { theme } = useTheme()
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
@@ -111,7 +106,6 @@ const SignMessageScreen = () => {
     return () => clearTimeout(timer)
   })
 
-  console.log(params)
   useEffect(() => {
     if (!params?.accountAddr) {
       navigate('/')
@@ -304,32 +298,15 @@ const SignMessageScreen = () => {
         />
       }
       footer={
-        <View style={styles.buttonsContainer}>
-          <Button
-            text="Reject"
-            type="danger"
-            size="large"
-            hasBottomSpacing={false}
-            onPress={handleReject}
-          >
-            <View style={spacings.mlSm}>
-              <CloseIcon color={theme.errorDecorative} />
-            </View>
-          </Button>
-
-          {isScrollToBottomForced && !isViewOnly && shouldShowFallback ? (
-            <Alert type="error" text={t('Please, read the entire message before signing it.')} />
-          ) : null}
-          <Button
-            testID="button-sign"
-            text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
-            type="primary"
-            size="large"
-            hasBottomSpacing={false}
-            onPress={onSignButtonClick}
-          />
-        </View>
+        <ActionFooter
+          onReject={handleReject}
+          onResolve={onSignButtonClick}
+          resolveButtonText={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+          resolveDisabled={
+            signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
+          }
+          resolveButtonTestID="button-sign"
+        />
       }
     >
       <SigningKeySelect
@@ -341,10 +318,13 @@ const SignMessageScreen = () => {
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20}>
+          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
             {t('Sign message')}
           </Text>
-          <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          <Info
+            kindOfMessage={signMessageState.messageToSign?.content.kind}
+            isViewOnly={isViewOnly}
+          />
           {visualizeHumanized &&
           // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
           signMessageState.humanReadable &&

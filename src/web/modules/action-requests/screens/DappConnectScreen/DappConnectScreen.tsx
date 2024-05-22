@@ -4,16 +4,12 @@ import { View } from 'react-native'
 
 import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
 import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
-// @ts-ignore
-import CloseIcon from '@common/assets/svg/CloseIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
-import Button from '@common/components/Button'
 import ExpandableCard from '@common/components/ExpandableCard'
 import Label from '@common/components/Label'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
@@ -26,11 +22,11 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 
 // Screen for dApps authorization to connect to extension - will be triggered on dApp connect request
 const DappConnectScreen = () => {
   const { t } = useTranslation()
-  const { theme } = useTheme()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
 
   const { dispatch } = useBackgroundService()
@@ -64,58 +60,24 @@ const DappConnectScreen = () => {
       width="full"
       header={<HeaderAccountAndNetworkInfo />}
       footer={
-        <>
-          <Button
-            text={t('Deny')}
-            type="danger"
-            hasBottomSpacing={false}
-            size="large"
-            onPress={handleDenyButtonPress}
-          >
-            <View style={spacings.pl}>
-              <CloseIcon color={theme.errorDecorative} />
-            </View>
-          </Button>
-          <View
-            style={[
-              flexbox.directionRow,
-              flexbox.alignCenter,
-              flexbox.flex1,
-              spacings.ph,
-              flexbox.justifyCenter
-            ]}
-          >
-            <InfoIcon color={iconColors.primary} style={spacings.mrTy} />
-            <Text
-              fontSize={14}
-              style={textStyles.center}
-              weight="medium"
-              appearance="secondaryText"
-            >
-              {t('Webpage can be disconnected any time from the Ambire extension settings.')}
-            </Text>
-          </View>
-          <Button
-            testID="dapp-connect-button"
-            style={spacings.phLg}
-            size="large"
-            hasBottomSpacing={false}
-            onPress={handleAuthorizeButtonPress}
-            disabled={isAuthorizing}
-            text={isAuthorizing ? t('Connecting...') : t('Connect')}
-          />
-        </>
+        <ActionFooter
+          onReject={handleDenyButtonPress}
+          onResolve={handleAuthorizeButtonPress}
+          resolveButtonText={isAuthorizing ? t('Connecting...') : t('Connect')}
+          resolveDisabled={isAuthorizing}
+          resolveButtonTestID="dapp-connect-button"
+        />
       }
     >
       <TabLayoutWrapperMainContent style={spacings.mbLg}>
-        <Text weight="medium" fontSize={20} style={spacings.mb2Xl}>
+        <Text weight="medium" fontSize={20} style={spacings.mbXl}>
           {t('Connection requested')}
         </Text>
         <View style={[spacings.pvSm, flexbox.alignCenter]}>
           <ManifestImage
             uri={userRequest?.session?.icon}
-            size={64}
-            fallback={() => <ManifestFallbackIcon />}
+            size={50}
+            fallback={() => <ManifestFallbackIcon width={50} height={50} />}
           />
         </View>
 
@@ -142,6 +104,17 @@ const DappConnectScreen = () => {
               </Text>
             </Text>
           </Trans>
+          <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+            <InfoIcon width={20} height={20} color={iconColors.primary} style={spacings.mrTy} />
+            <Text
+              fontSize={14}
+              style={textStyles.center}
+              weight="medium"
+              appearance="secondaryText"
+            >
+              {t('Webpage can be disconnected any time from the Ambire extension settings.')}
+            </Text>
+          </View>
         </View>
         <ExpandableCard
           enableExpand={false}
