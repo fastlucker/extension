@@ -24,6 +24,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -47,6 +48,7 @@ const SignMessageScreen = () => {
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
   const { networks } = useSettingsControllerState()
+  const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { params } = useRoute()
   const { navigate } = useNavigation()
@@ -134,17 +136,11 @@ const SignMessageScreen = () => {
     const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr] || []
     if (msgsToBeSigned.length) {
       if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-          params: {
-            filters: {
-              account:
-                (signMessageState.messageToSign?.accountAddr as string) ||
-                (params!.accountAddr as string),
-              network: networks[0].id
-            }
-          }
-        })
+        if (!activityState.isInitialized) {
+          dispatch({
+            type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+          })
+        }
 
         const msgsToSign =
           mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
@@ -174,7 +170,8 @@ const SignMessageScreen = () => {
     mainState.accountStates,
     signMessageState.messageToSign?.id,
     signMessageState.messageToSign?.accountAddr,
-    currentNotificationRequest?.params
+    currentNotificationRequest?.params,
+    activityState.isInitialized
   ])
 
   useEffect(() => {
