@@ -2,6 +2,7 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { ToastOptions } from '@common/contexts/toastContext'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
@@ -40,8 +41,8 @@ if (isExtension) {
     if (messageType === '> ui-error') {
       eventBus.emit('error', params)
     }
-    if (messageType === '> ui-warning') {
-      eventBus.emit('warning', params)
+    if (messageType === '> ui-toast') {
+      eventBus.emit(method, params)
     }
   })
 
@@ -82,17 +83,12 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   }, [addToast])
 
   useEffect(() => {
-    const onWarning = (newState: { warnings: string[]; controller: string }) => {
-      const lastWarning = newState.warnings[newState.warnings.length - 1]
-      if (lastWarning) {
-        if (newState.controller === 'actions' && !getUiType().isActionWindow) return
-        addToast(lastWarning, { timeout: 5000, type: 'warning', isTypeLabelHidden: true })
-      }
-    }
+    const onAddToast = ({ text, options }: { text: string; options: ToastOptions }) =>
+      addToast(text, options)
 
-    eventBus.addEventListener('warning', onWarning)
+    eventBus.addEventListener('addToast', onAddToast)
 
-    return () => eventBus.removeEventListener('warning', onWarning)
+    return () => eventBus.removeEventListener('addToast', onAddToast)
   }, [addToast])
 
   return (

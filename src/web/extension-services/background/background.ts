@@ -128,11 +128,8 @@ function saveTimestamp() {
     } as any,
     windowManager: {
       ...windowManager,
-      sendWindowMessage: (type: '> ui' | '> ui-error' | '> ui-warning', message: string) => {
-        pm.send(type, {
-          method: 'actions',
-          params: { warnings: [message], controller: 'actions' }
-        })
+      sendWindowToastMessage: (text, options) => {
+        pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
     getDapp: (url: string) => {
