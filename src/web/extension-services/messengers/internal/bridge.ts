@@ -31,11 +31,14 @@ export function setupBridgeMessengerRelay() {
   }
 
   // e.g. inpage -> content script -> background
-  windowMessenger.reply<unknown, unknown>('*', async (payload, { topic, id }) => {
+  windowMessenger.reply<unknown, unknown>('*', async (payload, { topic, id, sender }) => {
     if (!topic) return
 
     const t = topic.replace('> ', '')
-    const response = await tabMessenger.send<unknown, unknown>(t, payload, { id })
+    const response = await tabMessenger.send<unknown, unknown>(t, payload, {
+      id,
+      tabId: sender.tab?.id
+    })
     return response
   })
 

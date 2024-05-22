@@ -7,26 +7,6 @@ import {
 import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 
-// Prevent the Ambire extension tab to be the last tab returned by the getActiveTabs func
-let activeTab: chrome.tabs.Tab
-
-function getActiveTabs() {
-  if (!chrome.tabs) return Promise.resolve([])
-
-  return new Promise((resolve: (v: [chrome.tabs.Tab]) => void) => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
-      if (!tab?.url?.startsWith('http') && activeTab) {
-        resolve([activeTab])
-        return
-      }
-
-      activeTab = tab
-
-      resolve([tab])
-    })
-  })
-}
-
 function sendMessage<TPayload>(message: SendMessage<TPayload>, { tabId }: { tabId?: number } = {}) {
   if (!tabId) {
     chrome?.runtime?.sendMessage?.(message)
@@ -53,13 +33,7 @@ export const tabMessenger = createMessenger({
     { id, tabId }: { id?: number | string; tabId?: number } = {}
   ) {
     if (topic.includes('broadcast')) {
-      if (tabId) {
-        sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
-      } else {
-        getActiveTabs().then(([tab]) => {
-          sendMessage({ topic: `> ${topic}`, payload, id }, { tabId: tab?.id })
-        })
-      }
+      sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
       return Promise.resolve(null) as any
     }
 
@@ -81,9 +55,7 @@ export const tabMessenger = createMessenger({
       }
       chrome.runtime.onMessage?.addListener(listener)
 
-      getActiveTabs().then(([tab]) => {
-        sendMessage({ topic: `> ${topic}`, payload, id }, { tabId: tab?.id })
-      })
+      sendMessage({ topic: `> ${topic}`, payload, id }, { tabId })
     })
   },
   reply<TPayload, TResponse>(topic: string, callback: CallbackFunction<TPayload, TResponse>) {
@@ -105,8 +77,6 @@ export const tabMessenger = createMessenger({
       }
       const repliedTopic = message.topic.replace('>', '<')
 
-      const [tab] = await getActiveTabs()
-
       try {
         const response = await callback(message.payload, {
           id: message.id,
@@ -119,7 +89,7 @@ export const tabMessenger = createMessenger({
             payload: { response },
             id: message.id
           },
-          { tabId: tab?.id }
+          { tabId: sender.tab?.id }
         )
       } catch (error_) {
         // Errors do not serialize properly over `chrome.runtime.sendMessage`, so
@@ -136,7 +106,7 @@ export const tabMessenger = createMessenger({
             id: message.id
           },
           {
-            tabId: tab?.id
+            tabId: sender.tab?.id
           }
         )
       }
