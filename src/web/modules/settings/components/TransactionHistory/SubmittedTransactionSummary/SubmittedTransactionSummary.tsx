@@ -170,7 +170,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             {t('Fee')}:{' '}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {feeFormattedValue || <SkeletonLoader width={40} height={21} />}
+            {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
           </Text>
         </View>
         <View style={styles.footerItem}>
