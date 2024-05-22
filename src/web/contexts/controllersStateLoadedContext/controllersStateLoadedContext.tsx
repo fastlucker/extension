@@ -7,6 +7,7 @@ import useAddressBookControllerState from '@web/hooks/useAddressBookControllerSt
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
+import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -38,6 +39,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const { state: dappsState } = useDappsControllerState()
   const addressBookState = useAddressBookControllerState()
   const domainsControllerState = useDomainsControllerState()
+  const inviteControllerState = useInviteControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -88,6 +90,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(addressBookState).length,
     [addressBookState]
   )
+  const hasInviteState: boolean = useMemo(
+    () => !!Object.keys(inviteControllerState).length,
+    [inviteControllerState]
+  )
 
   useEffect(() => {
     if (areControllerStatesLoaded) return
@@ -110,7 +116,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasEmailVaultState &&
       hasDappsState &&
       hasDomainsState &&
-      hasAddressBookState
+      hasAddressBookState &&
+      hasInviteState
     ) {
       clearTimeout(timeout)
       setAreControllerStatesLoaded(true)
@@ -131,7 +138,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasDappsState,
     areControllerStatesLoaded,
     hasDomainsState,
-    hasAddressBookState
+    hasAddressBookState,
+    hasInviteState
   ])
 
   return (

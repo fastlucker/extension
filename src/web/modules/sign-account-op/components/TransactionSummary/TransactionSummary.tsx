@@ -97,7 +97,7 @@ const TransactionSummary = ({
               {rightIcon}
             </TouchableOpacity>
           )}
-          {!!call.fromUserRequestId && !rightIcon && (
+          {!!call.fromUserRequestId && !rightIcon && !isHistory && (
             <AnimatedPressable
               style={deleteIconAnimStyle}
               onPress={handleRemoveCall}

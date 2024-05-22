@@ -1,10 +1,6 @@
 import { Storage } from '@ambire-common/interfaces/storage'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { browser, isExtension } from '@web/constants/browserapi'
-import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
-
-localStorage.setItem(HUMANIZER_META_KEY, stringify(humanizerInfo))
 
 const benzinaStorage = {
   get: (key: string, defaultValue: any): any => {

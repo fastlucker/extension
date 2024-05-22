@@ -10,14 +10,11 @@ import {
   BIP44_STANDARD_DERIVATION_TEMPLATE,
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
-import humanizerJSON from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
-import { HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
-import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
@@ -31,6 +28,7 @@ import { WalletStateController } from '@web/extension-services/background/contro
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
+import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -56,18 +54,6 @@ function saveTimestamp() {
   browser.storage.session.set({ timestamp })
 }
 
-async function init() {
-  const humanizerMetaInStorage: HumanizerMeta = await storage.get(HUMANIZER_META_KEY, {})
-  if (
-    Object.keys(humanizerMetaInStorage).length === 0 ||
-    Object.keys(humanizerMetaInStorage.knownAddresses).length <
-      Object.keys(humanizerJSON.knownAddresses).length ||
-    Object.keys(humanizerMetaInStorage.abis).length < Object.keys(humanizerJSON.abis).length ||
-    Object.keys(humanizerMetaInStorage.abis.NO_ABI).length <
-      Object.keys(humanizerJSON.abis.NO_ABI).length
-  )
-    await storage.set(HUMANIZER_META_KEY, humanizerJSON)
-}
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -86,7 +72,7 @@ async function init() {
     const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000
     setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS)
   }
-  await init()
+  await updateHumanizerMetaInStorage(storage)
 
   const backgroundState: {
     isUnlocked: boolean
@@ -758,7 +744,11 @@ async function init() {
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
                 return mainCtrl.rejectUserRequest(params.err, params.id)
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-                return mainCtrl.resolveAccountOp(params.data, params.accountAddr, params.networkId)
+                return await mainCtrl.resolveAccountOp(
+                  params.data,
+                  params.accountAddr,
+                  params.networkId
+                )
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOp(params.err, params.accountAddr, params.networkId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
@@ -966,6 +956,10 @@ async function init() {
               case 'AUTO_LOCK_CONTROLLER_SET_AUTO_LOCK_TIME': {
                 autoLockCtrl.autoLockTime = params
                 break
+              }
+
+              case 'INVITE_CONTROLLER_VERIFY': {
+                return await mainCtrl.invite.verify(params.code)
               }
 
               case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {

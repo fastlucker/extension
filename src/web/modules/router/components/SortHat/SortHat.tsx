@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { AccountOpAction, BenzinAction } from '@ambire-common/controllers/actions/actions'
+import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -12,6 +13,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
@@ -19,6 +21,7 @@ import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
+  const { inviteStatus } = useInviteControllerState()
   const { navigate } = useNavigation()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
@@ -39,6 +42,10 @@ const SortHat = () => {
   const loadView = useCallback(async () => {
     if (keystoreState.isReadyToStoreKeys && !keystoreState.isUnlocked) {
       return navigate(ROUTES.keyStoreUnlock)
+    }
+
+    if (inviteStatus !== INVITE_STATUS.VERIFIED) {
+      return navigate(ROUTES.inviteVerify)
     }
 
     if (authStatus === AUTH_STATUS.NOT_AUTHENTICATED) {
@@ -115,6 +122,7 @@ const SortHat = () => {
     actionsState.currentAction,
     authStatus,
     keystoreState,
+    inviteStatus,
     mainState.selectedAccount,
     mainState.messagesToBeSigned,
     networks,

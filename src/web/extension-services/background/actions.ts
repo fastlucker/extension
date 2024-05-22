@@ -440,6 +440,11 @@ type AutoLockControllerSetAutoLockTimeAction = {
   params: AUTO_LOCK_TIMES
 }
 
+type InviteControllerVerifyAction = {
+  type: 'INVITE_CONTROLLER_VERIFY'
+  params: { code: string }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -524,3 +529,4 @@ export type Action =
   | SetOnboardingStateAction
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
+  | InviteControllerVerifyAction

@@ -8,6 +8,7 @@ import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
+import { randomId } from '@ambire-common/libs/humanizer/utils'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -22,7 +23,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import { randomId } from '@ambire-common/libs/humanizer/utils'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -44,6 +45,11 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     null
   )
 
+  const network = useMemo(
+    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [settingsState.networks, submittedAccountOp.networkId]
+  )
+
   useEffect(() => {
     callsHumanizer(
       submittedAccountOp,
@@ -53,20 +59,16 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         setHumanizedCalls(calls)
       },
       (err: any) => setHumanizerError(err),
-      { noAsyncOperations: true }
+      { noAsyncOperations: true, network }
     )
   }, [
     submittedAccountOp,
     keystoreState.keys,
     mainState.accounts,
     settingsState.accountPreferences,
-    settingsState.keyPreferences
+    settingsState.keyPreferences,
+    network
   ])
-
-  const network = useMemo(
-    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [settingsState.networks, submittedAccountOp.networkId]
-  )
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls
@@ -148,21 +150,19 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     }
   }, [addToast, network.id, submittedAccountOp.userOpHash, submittedAccountOp.txnId])
 
-  return (
+  return calls.length ? (
     <View style={[styles.container, style]}>
-      {calls.map((call: IrCall) => {
-        return (
-          <TransactionSummary
-            key={call.fromUserRequestId}
-            style={styles.summaryItem}
-            call={call}
-            networkId={submittedAccountOp.networkId}
-            rightIcon={<OpenIcon />}
-            onRightIconPress={handleOpenExplorer}
-            isHistory
-          />
-        )
-      })}
+      {calls.map((call: IrCall, index) => (
+        <TransactionSummary
+          key={call.fromUserRequestId}
+          style={styles.summaryItem}
+          call={call}
+          networkId={submittedAccountOp.networkId}
+          rightIcon={index === 0 ? <OpenIcon /> : null}
+          onRightIconPress={handleOpenExplorer}
+          isHistory
+        />
+      ))}
       <View style={styles.footer}>
         <View style={styles.footerItem}>
           <Text fontSize={14} appearance="secondaryText" weight="semiBold">
@@ -193,6 +193,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           </Text>
         </View>
       </View>
+    </View>
+  ) : (
+    <View style={style}>
+      <SkeletonLoader width="100%" height={112} />
     </View>
   )
 }
