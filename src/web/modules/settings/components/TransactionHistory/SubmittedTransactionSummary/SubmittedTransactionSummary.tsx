@@ -104,7 +104,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             address: submittedAccountOp.gasFeePayment?.inToken,
             id: randomId()
           }
-        ]
+        ],
+        { network }
       )
       setSubmittedAccountOpFee(res?.[0]?.[0])
     })()
