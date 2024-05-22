@@ -770,7 +770,8 @@ function saveTimestamp() {
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init({
-                  filters: params.filters
+                  selectedAccount: mainCtrl.selectedAccount,
+                  filters: params?.filters
                 })
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
                 return mainCtrl.activity.setFilters(params.filters)

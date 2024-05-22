@@ -171,7 +171,9 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params: { filters: Filters }
+  params?: {
+    filters?: Filters
+  }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
