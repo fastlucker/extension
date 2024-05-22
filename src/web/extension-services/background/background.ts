@@ -1061,7 +1061,6 @@ function saveTimestamp() {
       )
       return { id, result: res }
     } catch (error: any) {
-      console.log('err4e', error)
       return { id, error }
     }
   })
