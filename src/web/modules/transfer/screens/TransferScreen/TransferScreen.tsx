@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
@@ -32,10 +32,10 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
+import useUpdateTransferControllerState from '@web/modules/transfer/hooks/useUpdateTransferControllerState'
+import useUpdateTransferLocalState from '@web/modules/transfer/hooks/useUpdateTransferLocalState'
+import getSendFormValidation from '@web/modules/transfer/utils/validateSendForm'
 
-import useUpdateTransferControllerState from '../../hooks/useUpdateTransferControllerState'
-import useUpdateTransferLocalState from '../../hooks/useUpdateTransferLocalState'
-import getSendFormValidation from '../../utils/validateSendForm'
 import getStyles from './styles'
 
 const TransferScreen = () => {
@@ -119,29 +119,22 @@ const TransferScreen = () => {
     navigate(ROUTES.dashboard)
   }, [navigate, dispatch])
 
-  useEffect(() => {
-    if (state.userRequest) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-        params: state.userRequest
-      })
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-      })
-      setLocalAmount('')
-      setLocalAddressState({
-        fieldValue: '',
-        ensAddress: '',
-        udAddress: '',
-        isDomainResolving: false
-      })
-    }
-  }, [dispatch, state.userRequest])
-
   const sendTransaction = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
     })
+    // @TODO - Replace with withStatus
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
+    })
+    setLocalAmount('')
+    setLocalAddressState({
+      fieldValue: '',
+      ensAddress: '',
+      udAddress: '',
+      isDomainResolving: false
+    })
+    // @TODO - End of Replace with withStatus
   }, [dispatch])
 
   // Local state --- > Controller state updates on state change
