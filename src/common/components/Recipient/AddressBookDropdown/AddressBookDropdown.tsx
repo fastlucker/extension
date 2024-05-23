@@ -1,112 +1,101 @@
-import React, { FC, useCallback } from 'react'
-import { Control } from 'react-hook-form'
+import React, { FC, ReactNode, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import Text from '@common/components//Text'
 import AddressBookContact from '@common/components/AddressBookContact'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Search from '@common/components/Search'
-import { MenuContainer, useSelect } from '@common/components/Select'
+import { MenuContainer } from '@common/components/Select'
 import useNavigation from '@common/hooks/useNavigation'
+import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-
-import getStyles from './styles'
 
 interface Props {
   isVisible: boolean
+  setIsVisible: React.Dispatch<React.SetStateAction<boolean>>
+  filteredContacts: Contact[]
   passRef: React.RefObject<View>
   onContactPress: (address: string) => void
   search: string
-  control: Control<
-    {
-      search: string
-    },
-    any
-  >
   menuProps: ReturnType<typeof useSelect>['menuProps']
 }
 
-const TitleRow = ({ title, icon: Icon }: { title: string; icon: FC<SvgProps> }) => (
+const TitleRow = ({
+  title,
+  icon: Icon,
+  children
+}: {
+  title: string
+  icon: FC<SvgProps>
+  children?: ReactNode
+}) => (
   <View
-    style={[flexbox.directionRow, flexbox.alignCenter, spacings.pt, spacings.phSm, spacings.mbTy]}
+    style={[
+      flexbox.directionRow,
+      flexbox.alignCenter,
+      flexbox.justifySpaceBetween,
+      spacings.pt,
+      spacings.phSm,
+      spacings.mbTy
+    ]}
   >
-    <Icon width={16} height={16} />
-    <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mlTy}>
-      {title}
-    </Text>
+    <View style={[flexbox.directionRow, flexbox.alignCenter]}>
+      <Icon width={16} height={16} />
+      <Text fontSize={14} appearance="secondaryText" weight="medium" style={spacings.mlTy}>
+        {title}
+      </Text>
+    </View>
+    {children}
   </View>
 )
 
 const AddressBookDropdown: FC<Props> = ({
   isVisible,
+  setIsVisible,
+  filteredContacts,
   passRef: ref,
   onContactPress,
   search,
-  control,
   menuProps
 }) => {
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { contacts } = useAddressBookControllerState()
   const [bindManageBtnAnim, manageBtnAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
-  const lowercaseSearch = search.toLowerCase()
 
   const onManagePress = useCallback(() => {
     navigate(ROUTES.addressBook)
   }, [navigate])
-
-  const filteredContacts = contacts.filter((contact) => {
-    if (!search) return true
-
-    const lowercaseName = contact.name.toLowerCase()
-    const lowercaseAddress = contact.address.toLowerCase()
-
-    return lowercaseAddress.includes(lowercaseSearch) || lowercaseName.includes(lowercaseSearch)
-  })
 
   const walletAccountsSourcedContacts = filteredContacts.filter(
     (contact) => contact.isWalletAccount
   )
   const manuallyAddedContacts = filteredContacts.filter((contact) => !contact.isWalletAccount)
 
+  useEffect(() => {
+    // Don't render if there are no contacts to show
+    // while searching. Otherwise the dropdown will be shown for addresses that aren't in
+    // the address book, which isn't desired because we display an error message and that message
+    // will be hidden by the dropdown.
+    if (!!search && filteredContacts.length === 0) setIsVisible(false)
+  }, [filteredContacts.length, search, setIsVisible])
+
   if (!isVisible) return null
 
   return (
     <MenuContainer menuRef={ref} menuProps={menuProps}>
-      <View style={styles.header}>
-        <Search
-          placeholder={t('Search...')}
-          autoFocus
-          control={control}
-          leftIconStyle={spacings.pl0}
-          containerStyle={spacings.mb0}
-          borderless
-        />
-        <AnimatedPressable
-          style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
-          onPress={onManagePress}
-          {...bindManageBtnAnim}
-        >
-          <SettingsIcon width={18} height={18} color={theme.secondaryText} />
-          <Text fontSize={14} style={spacings.mlMi} appearance="secondaryText">
-            {t('Manage Contacts')}
-          </Text>
-        </AnimatedPressable>
-      </View>
       <ScrollableWrapper style={{ maxHeight: 300 }}>
         {walletAccountsSourcedContacts.length > 0 ? (
           <>
@@ -126,7 +115,18 @@ const AddressBookDropdown: FC<Props> = ({
         ) : null}
         {manuallyAddedContacts.length > 0 ? (
           <>
-            <TitleRow title={t('Contacts')} icon={AccountsFilledIcon} />
+            <TitleRow title={t('Contacts')} icon={AccountsFilledIcon}>
+              <AnimatedPressable
+                style={[flexbox.directionRow, flexbox.alignCenter, manageBtnAnimStyle]}
+                onPress={onManagePress}
+                {...bindManageBtnAnim}
+              >
+                <SettingsIcon width={18} height={18} color={theme.secondaryText} />
+                <Text fontSize={14} style={spacings.mlMi} appearance="secondaryText">
+                  {t('Manage Contacts')}
+                </Text>
+              </AnimatedPressable>
+            </TitleRow>
             {manuallyAddedContacts.map((contact) => (
               <AddressBookContact
                 key={contact.address}

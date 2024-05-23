@@ -148,7 +148,7 @@ describe('login', () => {
         })
         /* Check whether button is disabled */
         const isButtonDisabled = await page.$eval(
-          '[data-testid="phrase-button-import"]',
+          '[data-testid="import-button"]',
           (button) => {
             return button.getAttribute('aria-disabled')
           }
@@ -221,7 +221,7 @@ describe('login', () => {
 
         /* Check whether button is disabled */
         const isButtonDisabled = await page.$eval(
-          '[data-testid="phrase-button-import"]',
+          '[data-testid="import-button"]',
           (button) => {
             return button.getAttribute('aria-disabled')
           }

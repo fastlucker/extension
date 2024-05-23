@@ -100,7 +100,7 @@ const PrivateKeyImportScreen = () => {
         <>
           <BackButton fallbackBackRoute={ROUTES.dashboard} />
           <Button
-            testID="phrase-button-import"
+            testID="import-button"
             size="large"
             text={t('Import')}
             hasBottomSpacing={false}

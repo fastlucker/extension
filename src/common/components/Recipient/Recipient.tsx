@@ -39,6 +39,11 @@ interface Props extends InputProps {
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
+const ADDRESS_BOOK_VISIBLE_VALIDATION = {
+  isError: true, // Don't let the user submit, just in case there is an error
+  message: ''
+}
+
 const Recipient: React.FC<Props> = ({
   setAddress,
   address,
@@ -56,6 +61,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
+  const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -65,16 +71,25 @@ const Recipient: React.FC<Props> = ({
     menuRef: addressBookMenuRef,
     isMenuOpen: isAddressBookVisible,
     setIsMenuOpen: setIsAddressBookVisible,
-    search,
-    control,
     toggleMenu: toggleAddressBookMenu,
     menuProps
   } = useSelect()
 
   const isAddressInAddressBook = contacts.some((contact) => {
-    const actualAddress = ensAddress || uDAddress || address
-
     return actualAddress.toLowerCase() === contact.address.toLowerCase()
+  })
+
+  const filteredContacts = contacts.filter((contact) => {
+    if (!actualAddress) return true
+
+    const lowercaseActualAddress = actualAddress.toLowerCase()
+    const lowercaseName = contact.name.toLowerCase()
+    const lowercaseAddress = contact.address.toLowerCase()
+
+    return (
+      lowercaseAddress.includes(lowercaseActualAddress) ||
+      lowercaseName.includes(lowercaseActualAddress)
+    )
   })
 
   const setAddressAndCloseAddressBook = (newAddress: string) => {
@@ -82,29 +97,41 @@ const Recipient: React.FC<Props> = ({
     setAddress(newAddress)
   }
 
+  const visualizeAddressBookDropdown = () => {
+    setIsAddressBookVisible(true)
+  }
+
+  const selectSingleContactResult = () => {
+    if (!isAddressBookVisible || filteredContacts.length !== 1) return
+
+    setAddressAndCloseAddressBook(filteredContacts[0].address)
+  }
+
   return (
     <>
       <AddressInput
         testID="recepient-address-field"
-        validation={validation}
+        validation={isAddressBookVisible ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
         containerStyle={styles.inputContainer}
         udAddress={uDAddress}
         ensAddress={ensAddress}
         isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
         value={address}
-        onChangeText={setAddressAndCloseAddressBook}
+        onChangeText={setAddress}
         disabled={disabled}
-        onFocus={toggleAddressBookMenu}
+        onFocus={visualizeAddressBookDropdown}
         inputBorderWrapperRef={addressBookSelectRef}
+        onSubmitEditing={selectSingleContactResult}
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
+            setIsVisible={setIsAddressBookVisible}
+            filteredContacts={filteredContacts}
             passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
             menuProps={menuProps}
-            search={search}
-            control={control}
+            search={actualAddress}
           />
         }
         childrenBeforeButtons={
