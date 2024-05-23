@@ -105,12 +105,15 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       !activityState?.isInitialized ||
       // Prevents the flashing of old history state
       (activityState.filters?.account && account.addr !== activityState.filters.account) ||
-      (activityState.filters?.network && network.id !== activityState.filters.network),
+      (activityState.filters?.network && network.id !== activityState.filters.network) ||
+      // Transactions history must always have a network filter. If it doesn't, it means it's still loading
+      (historyType === 'transactions' && !activityState.filters?.network),
     [
       account.addr,
       activityState.filters?.account,
       activityState.filters?.network,
       activityState?.isInitialized,
+      historyType,
       network.id
     ]
   )
