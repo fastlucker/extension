@@ -21,14 +21,16 @@ import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
+import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
+import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
 import {
   getDefaultAccountPreferences,
@@ -45,9 +47,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-
-import AutoLockController from './controllers/auto-lock'
-import { updateHumanizerMetaInStorage } from './webapi/humanizer'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -89,8 +88,6 @@ function saveTimestamp() {
     reestimateInterval?: ReturnType<typeof setInterval>
     accountStateInterval?: ReturnType<typeof setInterval>
     selectedAccountStateInterval?: number
-    onResoleDappNotificationRequest?: (data: any, id?: number) => void
-    onRejectDappNotificationRequest?: (data: any, id?: number) => void
   } = {
     /**
       ctrlOnUpdateIsDirtyFlags will be set to true for a given ctrl when it receives an update in the ctrl.onUpdate callback.
@@ -109,6 +106,8 @@ function saveTimestamp() {
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
+  const dappsCtrl = new DappsController(storage)
+
   const mainCtrl = new MainController({
     storage,
     // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
@@ -121,19 +120,20 @@ function saveTimestamp() {
       ledger: LedgerSigner,
       trezor: TrezorSigner,
       lattice: LatticeSigner
-    },
+    } as any,
     externalSignerControllers: {
       ledger: ledgerCtrl,
       trezor: trezorCtrl,
       lattice: latticeCtrl
+    } as any,
+    windowManager: {
+      ...windowManager,
+      sendWindowToastMessage: (text, options) => {
+        pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
+      }
     },
-    onResolveDappRequest: (data, id) => {
-      !!backgroundState.onResoleDappNotificationRequest &&
-        backgroundState.onResoleDappNotificationRequest(data, id)
-    },
-    onRejectDappRequest: (err, id) => {
-      !!backgroundState.onRejectDappNotificationRequest &&
-        backgroundState.onRejectDappNotificationRequest(err, id)
+    getDapp: (url: string) => {
+      return dappsCtrl.getDapp(url)
     },
     onUpdateDappSelectedAccount: (accountAddr) => {
       const account = accountAddr ? [accountAddr] : []
@@ -145,13 +145,9 @@ function saveTimestamp() {
     }
   })
   const walletStateCtrl = new WalletStateController()
-  const dappsCtrl = new DappsController(storage)
-  const notificationCtrl = new NotificationController(mainCtrl, dappsCtrl, pm)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const badgesCtrl = new BadgesController(mainCtrl, notificationCtrl)
+  const badgesCtrl = new BadgesController(mainCtrl)
   const autoLockCtrl = new AutoLockController(() => mainCtrl.keystore.lock())
-  backgroundState.onResoleDappNotificationRequest = notificationCtrl.resolveNotificationRequest
-  backgroundState.onRejectDappNotificationRequest = notificationCtrl.rejectNotificationRequest
 
   function setPortfolioFetchInterval() {
     !!backgroundState.fetchPortfolioIntervalId &&
@@ -160,7 +156,7 @@ function saveTimestamp() {
     // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
     backgroundState.fetchPortfolioIntervalId = setInterval(
       () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
-      // In the case we have an active extension (opened tab, popup, notification), we want to run the interval frequently (1 minute).
+      // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       pm.ports.length ? 60000 : 600000
     )
@@ -386,35 +382,20 @@ function saveTimestamp() {
     })
   })
 
-  // Broadcast onUpdate for the notification controller
-  notificationCtrl.onUpdate((forceEmit) => {
-    debounceFrontEndEventUpdatesOnSameTick(
-      'notification',
-      notificationCtrl,
-      notificationCtrl,
-      forceEmit
-    )
-  })
-  notificationCtrl.onError(() => {
-    pm.send('> ui-error', {
-      method: 'notification',
-      params: { errors: notificationCtrl.emittedErrors, controller: 'notification' }
-    })
-  })
-  // Broadcast onUpdate for the notification controller
+  // Broadcast onUpdate for the dapps controller
   dappsCtrl.onUpdate((forceEmit) => {
     debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl, forceEmit)
   })
   dappsCtrl.onError(() => {
     pm.send('> ui-error', {
       method: 'dapps',
-      params: { errors: notificationCtrl.emittedErrors, controller: 'dapps' }
+      params: { errors: dappsCtrl.emittedErrors, controller: 'dapps' }
     })
   })
 
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
-    if (['popup', 'tab', 'notification'].includes(port.name)) {
+    if (['popup', 'tab', 'action-window'].includes(port.name)) {
       // eslint-disable-next-line no-param-reassign
       port.id = nanoid()
       pm.addPort(port)
@@ -428,8 +409,6 @@ function saveTimestamp() {
               case 'INIT_CONTROLLER_STATE': {
                 if (params.controller === ('main' as any)) {
                   pm.send('> ui', { method: 'main', params: mainCtrl })
-                } else if (params.controller === ('notification' as any)) {
-                  pm.send('> ui', { method: 'notification', params: notificationCtrl })
                 } else if (params.controller === ('walletState' as any)) {
                   pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
                 } else if (params.controller === ('dapps' as any)) {
@@ -757,6 +736,18 @@ function saveTimestamp() {
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
                 return await mainCtrl.removeUserRequest(params.id)
+              case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
+                return mainCtrl.resolveUserRequest(params.data, params.id)
+              case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
+                return mainCtrl.rejectUserRequest(params.err, params.id)
+              case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
+                return await mainCtrl.resolveAccountOp(
+                  params.data,
+                  params.accountAddr,
+                  params.networkId
+                )
+              case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
+                return mainCtrl.rejectAccountOp(params.err, params.accountAddr, params.networkId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
                 return mainCtrl.signMessage.init(params)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
@@ -802,19 +793,14 @@ function saveTimestamp() {
                 return mainCtrl.transfer.resetForm()
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
-              case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
-                notificationCtrl.resolveNotificationRequest(params.data, params.id)
-                break
-              }
-              case 'NOTIFICATION_CONTROLLER_REJECT_REQUEST': {
-                notificationCtrl.rejectNotificationRequest(params.err, params.id)
-                break
-              }
-
-              case 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST':
-                return notificationCtrl.focusCurrentNotificationWindow()
-              case 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST':
-                return await notificationCtrl.openNotificationRequest(params.id)
+              case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
+                return mainCtrl.actions.addToActionsQueue(params)
+              case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
+                return mainCtrl.actions.removeFromActionsQueue(params.id)
+              case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
+                return mainCtrl.actions.focusActionWindow()
+              case 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION':
+                return mainCtrl.actions.openFirstPendingAction()
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
                 if (!mainCtrl.selectedAccount) return
@@ -1027,7 +1013,7 @@ function saveTimestamp() {
         pm.removePort(port.id)
         setPortfolioFetchInterval()
 
-        if (port.name === 'tab' || port.name === 'notification') {
+        if (port.name === 'tab' || port.name === 'action-window') {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           ledgerCtrl.cleanUp()
           trezorCtrl.cleanUp()
@@ -1055,17 +1041,18 @@ function saveTimestamp() {
     }
 
     try {
-      const res = await handleProviderRequests({
-        data: {
+      const res = await handleProviderRequests(
+        {
           method,
-          params
+          params,
+          session,
+          origin
         },
-        session,
-        origin,
-        mainCtrl,
-        notificationCtrl,
-        dappsCtrl
-      })
+        {
+          mainCtrl,
+          dappsCtrl
+        }
+      )
       return { id, result: res }
     } catch (error: any) {
       return { id, error }

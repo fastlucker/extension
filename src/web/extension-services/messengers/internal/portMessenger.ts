@@ -5,9 +5,9 @@ import { Action as ActionType } from '@web/extension-services/background/actions
 
 export type Port = chrome.runtime.Port & { id: string }
 
-type MessageType = '> ui' | '> ui-error' | '> ui-warning' | '> background'
+type MessageType = '> ui' | '> ui-error' | '> ui-toast' | '> background'
 
-type SendType = <TMessageType extends MessageType>(
+export type SendType = <TMessageType extends MessageType>(
   type: MessageType,
   message: TMessageType extends '> background' ? ActionType : PortMessageType
 ) => void

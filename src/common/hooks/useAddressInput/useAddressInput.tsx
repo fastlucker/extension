@@ -135,7 +135,8 @@ const useAddressInput = ({
     if (!trimmedAddress || !canBeEnsOrUd) {
       setAddressState({
         ensAddress: '',
-        udAddress: ''
+        udAddress: '',
+        isDomainResolving: false
       })
       return
     }

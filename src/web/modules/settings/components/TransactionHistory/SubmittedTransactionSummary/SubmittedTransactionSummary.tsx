@@ -77,7 +77,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   }, [humanizedCalls, humanizerError, submittedAccountOp.calls])
 
   const feeFormattedValue = useMemo(() => {
-    if (!submittedAccountOpFee || !submittedAccountOp.gasFeePayment?.amount) return 'Unknown amount'
+    if (!submittedAccountOpFee || !submittedAccountOp.gasFeePayment?.amount) return null
 
     const fee = parseFloat(
       formatUnits(
@@ -104,7 +104,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             address: submittedAccountOp.gasFeePayment?.inToken,
             id: randomId()
           }
-        ]
+        ],
+        { network }
       )
       setSubmittedAccountOpFee(res?.[0]?.[0])
     })()
@@ -169,7 +170,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             {t('Fee')}:{' '}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {feeFormattedValue}
+            {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
           </Text>
         </View>
         <View style={styles.footerItem}>

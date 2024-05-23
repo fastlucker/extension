@@ -11,7 +11,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getUiType } from '@web/utils/uiType'
 
-const { isPopup, isNotification } = getUiType()
+const { isPopup, isActionWindow } = getUiType()
 
 const HeaderBackButton = ({
   hideInPopup = false,
@@ -28,7 +28,7 @@ const HeaderBackButton = ({
   const { t } = useTranslation()
 
   const showBackButtonInPopup = isPopup && !hideInPopup
-  const navigationEnabled = !isNotification
+  const navigationEnabled = !isActionWindow
 
   const canGoBack =
     !!params?.prevRoute?.key &&
