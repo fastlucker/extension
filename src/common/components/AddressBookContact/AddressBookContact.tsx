@@ -28,6 +28,7 @@ interface Props {
   isEditable?: boolean
   onPress?: () => void
   style?: ViewStyle
+  testID?: string
 }
 
 const AddressBookContact: FC<Props> = ({
@@ -36,6 +37,7 @@ const AddressBookContact: FC<Props> = ({
   isManageable,
   isEditable,
   onPress,
+  testID,
   style = {}
 }) => {
   const ContainerElement = onPress ? AnimatedPressable : View
@@ -99,6 +101,7 @@ const AddressBookContact: FC<Props> = ({
       ]}
       onPress={onPress}
       {...(onPress ? bindAnim : {})}
+      testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
         <View>
