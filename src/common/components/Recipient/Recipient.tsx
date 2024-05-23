@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -28,9 +28,9 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
-  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
-  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   validation: AddressValidation
   isRecipientDomainResolving: boolean

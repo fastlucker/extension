@@ -802,8 +802,6 @@ function saveTimestamp() {
                 return mainCtrl.transfer.resetForm()
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
-              case 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN':
-                return mainCtrl.transfer.checkIsRecipientAddressUnknown()
               case 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST': {
                 notificationCtrl.resolveNotificationRequest(params.data, params.id)
                 break

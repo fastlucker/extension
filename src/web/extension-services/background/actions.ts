@@ -197,10 +197,6 @@ type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
 }
 
-type TransferControllerCheckIsRecipientAddressUnknownAction = {
-  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
-}
-
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: TransferUpdate
