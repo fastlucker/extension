@@ -2,6 +2,7 @@ import React, { FC, useCallback } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
+import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Alert from '@common/components/Alert'
 import Text from '@common/components/Text'
@@ -21,7 +22,7 @@ interface Props {
 const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
-  const { dapp } = useSignMessageControllerState()
+  const { dapp, messageToSign } = useSignMessageControllerState()
 
   const renderMessageTypeBadge = useCallback(
     (isHidden?: boolean) => {
@@ -50,14 +51,32 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
         {renderMessageTypeBadge(true)}
         <View style={[flexbox.flex1, spacings.phLg]}>
           <Trans values={{ name: dapp?.name || 'The dApp' }}>
-            <Text style={text.center}>
-              <Text fontSize={20} appearance="secondaryText" weight="semiBold">
-                {'{{name}} '}
+            {(!messageToSign || messageToSign.id !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+              <Text style={text.center}>
+                <Text fontSize={20} appearance="secondaryText" weight="semiBold">
+                  {'{{name}} '}
+                </Text>
+                <Text fontSize={20} appearance="secondaryText">
+                  {t('is requesting your signature')}.
+                </Text>
               </Text>
-              <Text fontSize={20} appearance="secondaryText">
-                {t('is requesting your signature')}.
+            )}
+            {(!messageToSign || messageToSign.id === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+              <Text style={text.center}>
+                <View style={spacings.mb}>
+                  <Text fontSize={24} appearance="secondaryText">
+                    {t('Entry point authorization')}
+                  </Text>
+                </View>
+                <View>
+                  <Text fontSize={16} appearance="secondaryText">
+                    {t(
+                      'This is your first smart account transaction. In order to proceed, you must grant privileges to a smart contract called "Entry point". The Entry point is responsible for safely executing smart account transactions. This is a normal procedure and we ask all our smart account users to grant these privileges. If you still have any doubts, please contact support'
+                    )}
+                  </Text>
+                </View>
               </Text>
-            </Text>
+            )}
           </Trans>
         </View>
         {renderMessageTypeBadge()}
