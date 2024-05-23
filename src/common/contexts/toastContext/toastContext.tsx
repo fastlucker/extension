@@ -17,7 +17,7 @@ interface Props {
   children: React.ReactNode | React.ReactNode[]
 }
 
-interface Options {
+export interface ToastOptions {
   timeout?: number
   type?: 'error' | 'success' | 'info' | 'warning'
   sticky?: boolean
@@ -25,7 +25,7 @@ interface Options {
   isTypeLabelHidden?: boolean
 }
 
-interface Toast extends Options {
+interface Toast extends ToastOptions {
   id: number
   text: string
   url?: string
@@ -39,7 +39,7 @@ const { isPopup } = getUiType()
 const ADDITIONAL_TOP_SPACING_MOBILE = SPACING_TY
 
 const ToastContext = React.createContext<{
-  addToast: (text: string, options?: Options) => number
+  addToast: (text: string, options?: ToastOptions) => number
   removeToast: (id: number) => void
 }>({
   addToast: () => -1,
@@ -64,7 +64,7 @@ const ToastProvider = ({ children }: Props) => {
   }, [])
 
   const addToast = useCallback(
-    (text: string, options?: Options) => {
+    (text: string, options?: ToastOptions) => {
       const toast = {
         id: nextToastId++,
         text,

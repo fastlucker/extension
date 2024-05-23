@@ -6,6 +6,7 @@ import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
+import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -181,7 +182,9 @@ const SendForm = ({
   }, [updateTransferCtrlProperty])
 
   return (
-    <View style={[styles.container, isTopUp ? styles.topUpContainer : {}]}>
+    <ScrollableWrapper
+      contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
+    >
       <Select
         setValue={({ value }) => handleChangeToken(value)}
         label={t('Select Token')}
@@ -222,7 +225,7 @@ const SendForm = ({
           />
         )}
       </View>
-    </View>
+    </ScrollableWrapper>
   )
 }
 

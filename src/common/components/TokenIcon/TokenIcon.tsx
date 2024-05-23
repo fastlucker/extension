@@ -4,12 +4,12 @@ import { Image, ImageProps, View, ViewStyle } from 'react-native'
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
-import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
+import SkeletonLoader from '../SkeletonLoader'
 import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
@@ -90,9 +90,12 @@ const TokenIcon: React.FC<Props> = ({
   return (
     <View style={allContainerStyle}>
       {!!isLoading && !hasError && (
-        <View style={styles.loader}>
-          <Spinner style={{ width, height }} />
-        </View>
+        <SkeletonLoader
+          width={width}
+          height={height}
+          style={styles.loader}
+          appearance="primaryBackground"
+        />
       )}
       {!!imageUrl && !hasError && (
         <Image

@@ -23,12 +23,8 @@ const styles = StyleSheet.create<Style>({
     ...(isTab ? spacings.mrLg : spacings.mrSm)
   },
   image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-    left: 0,
-    top: 0
+    borderRadius: BORDER_RADIUS_PRIMARY,
+    backgroundColor: 'transparent'
   }
 })
 

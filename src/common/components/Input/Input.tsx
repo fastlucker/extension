@@ -34,6 +34,7 @@ export interface InputProps extends TextInputProps {
   disabled?: boolean
   containerStyle?: ViewStyle | ViewStyle[]
   inputStyle?: ViewStyle | ViewStyle[]
+  inputBorderWrapperRef?: React.RefObject<View>
   nativeInputStyle?: ViewStyle & TextStyle
   borderWrapperStyle?: ViewStyle
   inputWrapperStyle?: ViewStyle | ViewStyle[]
@@ -74,6 +75,7 @@ const Input = ({
   childrenBelowInput,
   tooltip,
   borderless,
+  inputBorderWrapperRef,
   ...rest
 }: InputProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -140,7 +142,7 @@ const Input = ({
         </Text>
       )}
       <View style={{ zIndex: 10 }}>
-        <View style={borderWrapperStyles}>
+        <View style={borderWrapperStyles} ref={inputBorderWrapperRef}>
           <View style={inputWrapperStyles}>
             {!!leftIcon && <View style={[styles.leftIcon, leftIconStyle]}>{leftIcon()}</View>}
             {/* TextInput doesn't support border styles so we wrap it in a View */}
