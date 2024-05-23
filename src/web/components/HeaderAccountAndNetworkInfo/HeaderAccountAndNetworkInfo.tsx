@@ -41,7 +41,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
   const { minWidthSize, maxWidthSize } = useWindowSize()
 
-  const isNotification = getUiType().isNotification
+  const isActionWindow = getUiType().isActionWindow
 
   const fontSize = useMemo(() => {
     return maxWidthSize(750) ? 16 : 14
@@ -54,7 +54,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   return (
     <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>
       <View
-        style={[headerStyles.widthContainer, !isNotification && { maxWidth: tabLayoutWidths.xl }]}
+        style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
           <Avatar pfp={selectedAccountPref?.pfp} />
