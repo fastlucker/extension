@@ -69,7 +69,7 @@ const TransferScreen = () => {
       isDomainResolving: false
     }
   )
-  // Local state --- > Controller state on initialization and tab focus
+  // Local state < --- Controller state on initialization and tab focus
   const { isUpdatingLocalState } = useUpdateTransferLocalState({
     isInitialized: state.isInitialized,
     setLocalAmount,
