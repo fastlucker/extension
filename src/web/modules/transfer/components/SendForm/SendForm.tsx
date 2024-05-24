@@ -148,8 +148,9 @@ const SendForm = ({
           selectedToken: tokenToSelect
         }
       })
+      setLocalAmount('')
     },
-    [dispatch, tokens]
+    [dispatch, setLocalAmount, tokens]
   )
 
   const setLocalAddressFieldValue = useCallback(
