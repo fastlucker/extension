@@ -79,13 +79,15 @@ const getSendFormValidation = ({
   contacts,
   isTopUp,
   humanizerInfo,
-  isRecipientAddressUnknownAgreed
+  isRecipientAddressUnknownAgreed,
+  isSWWarningAgreed
 }: {
   addressState: AddressState
   selectedAccount: AccountId | null
   selectedToken: TransferController['selectedToken']
   amount: TransferController['amount']
   isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
+  isSWWarningAgreed: TransferController['isSWWarningAgreed']
   networks: NetworkDescriptor[]
   contacts: Contacts
   isTopUp: boolean
@@ -137,7 +139,9 @@ const getSendFormValidation = ({
     isRecipientHumanizerKnownTokenOrSmartContract,
     isUDAddress,
     isEnsAddress,
-    addressState.isDomainResolving
+    addressState.isDomainResolving,
+    isSWWarningVisible,
+    isSWWarningAgreed
   )
 
   // Validate the amount
@@ -152,5 +156,27 @@ const getSendFormValidation = ({
     isSWWarningVisible
   }
 }
+
+const getIsFormDisabled = ({
+  userRequest,
+  isTopUp,
+  isAddressValid,
+  isAmountValid,
+  isSmartAccount
+}: {
+  userRequest: TransferController['userRequest']
+  isTopUp: boolean
+  isAddressValid: boolean
+  isAmountValid: boolean
+  isSmartAccount: boolean
+}) => {
+  if (userRequest) return false
+
+  if (isTopUp) return !isSmartAccount || !isAmountValid
+
+  return !isAddressValid || !isAmountValid
+}
+
+export { getIsFormDisabled }
 
 export default getSendFormValidation

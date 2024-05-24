@@ -34,7 +34,9 @@ import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 import useUpdateTransferControllerState from '@web/modules/transfer/hooks/useUpdateTransferControllerState'
 import useUpdateTransferLocalState from '@web/modules/transfer/hooks/useUpdateTransferLocalState'
-import getSendFormValidation from '@web/modules/transfer/utils/validateSendForm'
+import getSendFormValidation, {
+  getIsFormDisabled
+} from '@web/modules/transfer/utils/validateSendForm'
 
 import getStyles from './styles'
 
@@ -87,6 +89,7 @@ const TransferScreen = () => {
     amount: localAmount,
     selectedToken: state.selectedToken,
     isRecipientAddressUnknownAgreed: state.isRecipientAddressUnknownAgreed,
+    isSWWarningAgreed: state.isSWWarningAgreed,
     networks,
     contacts,
     isTopUp,
@@ -169,14 +172,14 @@ const TransferScreen = () => {
             onPress={sendTransaction}
             hasBottomSpacing={false}
             size="large"
-            disabled={
-              !!userRequest ||
-              // No need for recipient address validation for top up
-              (!isTopUp &&
-                (addressInputState.validation.isError || localAddressState.isDomainResolving)) ||
-              (isTopUp && !isSmartAccount) ||
-              !validationFormMsgs.amount.success
-            }
+            disabled={getIsFormDisabled({
+              userRequest,
+              isTopUp,
+              isAmountValid: validationFormMsgs.amount.success,
+              isAddressValid:
+                !addressInputState.validation.isError && !localAddressState.isDomainResolving,
+              isSmartAccount
+            })}
           >
             <View style={spacings.plTy}>
               {isTopUp ? (
