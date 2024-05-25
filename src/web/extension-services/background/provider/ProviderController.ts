@@ -2,7 +2,7 @@
 import 'reflect-metadata'
 
 import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
-import { toBeHex } from 'ethers'
+import { hexlify, toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
@@ -253,6 +253,29 @@ export class ProviderController {
     )
 
     return null
+  }
+
+  // explain to the dapp what features the wallet has for the selected account
+  walletGetCapabilities = async (data: any) => {
+    if (!this.dappsCtrl.hasPermission(data.session.origin) || !this.isUnlocked) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    console.log(data)
+    if (!this.mainCtrl.selectedAccount) {
+      throw ethErrors.provider.unauthorized()
+    }
+
+    const account = this.mainCtrl.accounts.find((acc) => acc.addr === this.mainCtrl.selectedAccount)
+    const isV2 = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount].ethereum.isV2
+
+    return this.mainCtrl.settings.networks.map((network) => ({
+      [toBeHex(network.chainId)]: {
+        paymasterService: {
+          supported: isV2 && network.erc4337.enabled
+        }
+      }
+    }))
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
