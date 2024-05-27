@@ -147,12 +147,9 @@ describe('ba_login', () => {
           return element.find((item) => item.textContent === 'Invalid private key.').textContent
         })
         /* Check whether button is disabled */
-        const isButtonDisabled = await page.$eval(
-          '[data-testid="import-button"]',
-          (button) => {
-            return button.getAttribute('aria-disabled')
-          }
-        )
+        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+          return button.getAttribute('aria-disabled')
+        })
 
         if (isButtonDisabled === 'true') {
         } else {
@@ -209,12 +206,9 @@ describe('ba_login', () => {
         }
 
         /* Check whether button is disabled */
-        const isButtonDisabled = await page.$eval(
-          '[data-testid="import-button"]',
-          (button) => {
-            return button.getAttribute('aria-disabled')
-          }
-        )
+        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+          return button.getAttribute('aria-disabled')
+        })
 
         if (isButtonDisabled === 'true') {
         } else {
@@ -348,7 +342,7 @@ describe('ba_login', () => {
 
     const viewOnlyAddress = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
 
-    await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+    await typeText(page, '[data-testid="address-ens-field"]', viewOnlyAddress)
     await new Promise((r) => setTimeout(r, 500))
 
     /* Click on "Import View-Only Accounts" button */

@@ -114,12 +114,9 @@ describe('sa_login', () => {
         }
 
         /* Check whether button is disabled */
-        const isButtonDisabled = await page.$eval(
-          '[data-testid="import-button"]',
-          (button) => {
-            return button.getAttribute('aria-disabled')
-          }
-        )
+        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+          return button.getAttribute('aria-disabled')
+        })
 
         if (isButtonDisabled === 'true') {
           // console.log(`Button is disabled when try to login with phrase ${passphraseWords}`)
@@ -201,7 +198,7 @@ describe('sa_login', () => {
 
     const viewOnlyAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
 
-    await typeText(page, '[data-testid="view-only-address-field"]', viewOnlyAddress)
+    await typeText(page, '[data-testid="address-ens-field"]', viewOnlyAddress)
     await new Promise((r) => setTimeout(r, 500))
 
     /* Click on "Import View-Only Accounts" button */

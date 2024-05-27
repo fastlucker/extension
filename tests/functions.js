@@ -338,11 +338,9 @@ export async function confirmTransaction(
 
   await new Promise((r) => setTimeout(r, 1000))
 
-  // Wait for the new page to be created
-  const newTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
+  const newTarget = await browser.waitForTarget((target) =>
+    target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-
   let newPage = await newTarget.page()
   newPage.setViewport({
     width: 1300,
@@ -361,7 +359,7 @@ export async function confirmTransaction(
     await newPage.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
     )
     const newPageTarget = await newPagePromise2
 

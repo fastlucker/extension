@@ -110,7 +110,6 @@ const Recipient: React.FC<Props> = ({
   return (
     <>
       <AddressInput
-        testID="recepient-address-field"
         validation={isAddressBookVisible ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
         containerStyle={styles.inputContainer}
         udAddress={uDAddress}

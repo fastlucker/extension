@@ -122,4 +122,32 @@ describe('sa_balance', () => {
 
     expect(isModalExist).toBe(false)
   })
+
+  //--------------------------------------------------------------------------------------------------------------
+  it('Add contact in address book', async () => {
+    await page.goto(`${extensionRootUrl}/tab.html#/settings/address-book`, {
+      waitUntil: 'load'
+    })
+
+    const addName = 'First Address'
+    const addAddress = '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C'
+    // 0xC254b41be9582...          dD3F8092D4ea6C
+
+    await typeText(page, '[data-testid="contact-name-field"]', addName)
+    await typeText(page, '[data-testid="address-ens-field"]', addAddress)
+
+    await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
+
+    await page.waitForSelector('[data-testid="name-first-address"]')
+
+    const addressContent = await page.evaluate(() => {
+      const element = document.querySelector('[data-testid="name-first-address"]') // Replace with your actual selector
+      return element.outerHTML
+    })
+
+    // Ensure the element contains both the name and address
+    expect(addressContent).toContain(addName)
+    expect(addressContent).toContain(addAddress.substring(0, 15))
+    expect(addressContent).toContain(addAddress.substring(addAddress.length - 14))
+  })
 })
