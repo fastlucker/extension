@@ -11,6 +11,7 @@ import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
+import { getRpcProvider } from '@ambire-common/services/provider'
 import { APP_VERSION } from '@common/config/env'
 import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
@@ -287,60 +288,9 @@ export class ProviderController {
     return capabilities
   }
 
+  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
-    if (!data.params || !data.params.length) {
-      throw ethErrors.rpc.invalidParams('params is required but got []')
-    }
-
-    const sendCallsParams = data.params[0]
-    if (!sendCallsParams.calls || !sendCallsParams.calls.length) {
-      throw ethErrors.rpc.invalidParams('no calls passed')
-    }
-    if (!sendCallsParams.chainId) {
-      throw ethErrors.rpc.invalidParams('no chainId passed')
-    }
-    if (!sendCallsParams.from) {
-      throw ethErrors.rpc.invalidParams('from address not passed')
-    }
-    if (getAddress(sendCallsParams.from) !== getAddress(this.mainCtrl.selectedAccount as string)) {
-      throw ethErrors.rpc.invalidParams('passed address is not the currently selected account')
-    }
-    const network = this.mainCtrl.settings.networks.find(
-      (net) => net.chainId === BigInt(sendCallsParams.chainId)
-    )
-    if (!network) {
-      throw ethErrors.rpc.invalidParams('unsupported network')
-    }
-    const state = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount as string]
-    if (!state) {
-      throw ethErrors.rpc.invalidParams(
-        `account with address ${this.mainCtrl.selectedAccount} does not exist`
-      )
-    }
-    if (state[network.id].isEOA) {
-      throw ethErrors.rpc.invalidParams('batching is not supported for EOAs ')
-    }
-
-    const id = new Date().getTime()
-    const calls = sendCallsParams.calls.map((call: any) => ({
-      to: call.to,
-      value: call.value ?? 0n,
-      data: call.data ?? '0x'
-    }))
-    const userReq: SignUserRequest = {
-      id,
-      meta: {
-        isSignAction: true,
-        networkId: network.id,
-        accountAddr: sendCallsParams.from
-      },
-      action: {
-        kind: 'call' as const,
-        txns: calls
-      }
-    }
-    this.mainCtrl.addUserRequest(userReq)
-    return id
+    if (data.requestRes && data.requestRes.hash) return data.requestRes.hash
   }
 
   walletGetCallsStatus = async (data: any) => {
@@ -351,15 +301,28 @@ export class ProviderController {
     const id = data.params[0]
     if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
 
-    const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
-    if (userReq)
+    const dappNetwork = this.getDappNetwork(data.session.origin)
+    const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+    const accountState =
+      this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]!
+    if (!accountState) throw ethErrors.rpc.invalidParams('account state not found')
+    const txnId = isErc4337Broadcast(network, accountState)
+      ? (await bundler.pollTxnHash(id, network)).transactionHash
+      : id
+    if (!txnId) return undefined
+
+    const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
+    const receipt = await provider.getTransactionReceipt(txnId)
+    if (!receipt) {
       return {
         status: 'PENDING'
       }
+    }
 
-    // TODO: figure out how to return a confirmed
-
-    // if the user rejects, do not return anything
+    return {
+      status: 'CONFIRMED',
+      receipts: [receipt]
+    }
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
