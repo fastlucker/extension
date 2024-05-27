@@ -152,9 +152,6 @@ const SignAccountOpScreen = () => {
     return []
   }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
 
-  console.log('calls to visualize')
-  console.log(callsToVisualize)
-
   useEffect(() => {
     const destroy = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
