@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from 'react'
 import { Animated, Pressable, View } from 'react-native'
-
+import { NFT_CDN_URL } from '@env'
 import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
@@ -10,6 +10,8 @@ import ImageIcon from '@web/assets/svg/ImageIcon'
 import ManifestImage from '@web/components/ManifestImage'
 import { useCustomHover } from '@web/hooks/useHover'
 
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import { networks } from '@ambire-common/consts/networks'
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
 type Props = CollectibleType & {
@@ -34,30 +36,13 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
       to: 1.15
     }
   })
+  const { networks: settingsNetworks } = useSettingsControllerState()
+  const useNetworks = settingsNetworks ?? networks
+  const network = useNetworks.find((n) => n.id === collectionData.networkId)
 
-  const imageUrl = useMemo(() => {
-    // Ambire's NFT CDN can't handle base64 json data
-    if (url.startsWith('data:application')) {
-      try {
-        // Convert base64 to json
-        const json = Buffer.from(url.substring(29), 'base64').toString()
-        const result = JSON.parse(json)
-
-        // Add a proxy if the image is IPFS
-        if (result.image.startsWith('ipfs://')) {
-          return `https://ipfs.io/ipfs/${result.image.substring(7)}`
-        }
-
-        return result.image
-      } catch {
-        // imageFailed will be set by the onError event
-        return ''
-      }
-    }
-
-    // Resolves to an image from a JSON source
-    return `https://nftcdn.ambire.com/proxy?url=${url}`
-  }, [url])
+  const imageUrl = `${NFT_CDN_URL || 'https://nftcdn.ambire.com'}/proxy?rpc=${
+    network?.rpcUrls[0]
+  }&contract=${collectionData.address}&id=${id}`
 
   return (
     <Pressable
