@@ -1,17 +1,9 @@
 import { MainController } from '@ambire-common/controllers/main/main'
-import { BannerType } from '@ambire-common/interfaces/banner'
 import colors from '@common/styles/colors'
 import { browser } from '@web/constants/browserapi'
-import {
-  NotificationController,
-  NotificationRequest,
-  SIGN_METHODS
-} from '@web/extension-services/background/controllers/notification'
 
 export class BadgesController {
   #mainCtrl: MainController
-
-  #notificationCtrl: NotificationController
 
   #bannersCount: number = 0
 
@@ -26,44 +18,15 @@ export class BadgesController {
     this.setBadges(this.badgesCount)
   }
 
-  constructor(mainCtrl: MainController, notificationCtrl: NotificationController) {
+  constructor(mainCtrl: MainController) {
     this.#mainCtrl = mainCtrl
-    this.#notificationCtrl = notificationCtrl
 
     this.#mainCtrl.onUpdate(() => {
-      const blacklistBadgesForBannersWithId: (number | string)[] = ['keystore-secret-backup']
-      const blacklistBadgesForBannersWithType: BannerType[] = ['error', 'warning']
-
-      const banners = this.#mainCtrl?.banners || []
-      const infoAndSuccessBanners = banners.filter(
-        (banner) =>
-          !blacklistBadgesForBannersWithType.includes(banner.type) &&
-          !blacklistBadgesForBannersWithId.includes(banner.id)
-      )
-
-      this.#bannersCount = infoAndSuccessBanners.length
-      this.badgesCount = this._badgesCount
-    }, 'badges')
-
-    this.#notificationCtrl.onUpdate(() => {
-      this.setBadgesCount(this.#notificationCtrl.notificationRequests)
+      this.badgesCount =
+        this.#mainCtrl.actions.actionsQueue.filter(
+          (a) => a.type !== 'accountOp' && a.type !== 'benzin'
+        ).length + mainCtrl.banners.length
     })
-  }
-
-  setBadgesCount = (requests: NotificationRequest[]) => {
-    // if not a user request add the badge
-    const requestsCount = requests.reduce(
-      (accumulator: NotificationRequest[], currentItem: NotificationRequest) => {
-        if (!SIGN_METHODS.includes(currentItem?.params?.method)) {
-          accumulator.push(currentItem)
-        }
-
-        return accumulator
-      },
-      []
-    ).length
-
-    this.badgesCount = requestsCount
   }
 
   setBadges = (badgesCount: number) => {

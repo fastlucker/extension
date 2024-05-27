@@ -1,27 +1,27 @@
 import { isWeb } from '@common/config/env'
 import { isExtension } from '@web/constants/browserapi'
 
-type UiType = 'tab' | 'notification' | 'index'
+type UiType = 'index' | 'tab' | 'action-window'
 
 const UI_TYPE: { [key: string]: UiType } = {
   Tab: 'tab',
   Popup: 'index',
-  Notification: 'notification'
+  ActionWindow: 'action-window'
 }
 
 type UiTypeCheck = {
   isTab: boolean
-  isNotification: boolean
+  isActionWindow: boolean
   isPopup: boolean
 }
 
 export const getUiType = (): UiTypeCheck => {
   if (!isWeb) {
-    return { isNotification: false, isPopup: false, isTab: false }
+    return { isActionWindow: false, isPopup: false, isTab: false }
   }
 
   if (isWeb && !isExtension) {
-    return { isNotification: false, isPopup: false, isTab: true }
+    return { isActionWindow: false, isPopup: false, isTab: true }
   }
 
   const { pathname } = window.location

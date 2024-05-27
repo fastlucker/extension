@@ -208,7 +208,7 @@ describe('ba_transactions', () => {
 
     // Wait for the new page to be created and click on 'Connect' button
     const newTarget = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
     await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
@@ -223,7 +223,7 @@ describe('ba_transactions', () => {
 
     // Wait for the new window to be created and switch to it
     const newTarget2 = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
     )
     const newPage2 = await newTarget2.page()
 
@@ -270,5 +270,54 @@ describe('ba_transactions', () => {
       {},
       validateMessage
     )
+  })
+
+  // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
+  it.skip('Make valid swap ', async () => {
+    await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
+
+    /* Click on 'connect' button */
+    await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
+    /* Select 'MetaMask' */
+    await clickOnElement(page, '[data-testid="wallet-option-EIP_6963_INJECTED"]')
+
+    // Wait for the new page to be created and click on 'Connect' button
+    const newTarget = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
+    )
+    const newPage = await newTarget.page()
+
+    await newPage.$eval('[data-testid="dapp-connect-button"]', (button) => button.click())
+
+    // Select USDT and USDC tokens for swap
+    await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
+    await new Promise((r) => setTimeout(r, 1000))
+    await clickOnElement(page, '[data-testid="common-base-USDT"]')
+
+    await page.waitForSelector('[data-testid="common-base-USDT"]', {
+      hidden: true,
+      timeout: 3000
+    })
+
+    // Click on 'Select token' and select 'USDC' token
+    await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
+
+    // await new Promise((r) => setTimeout(r, 500))
+    await clickOnElement(page, '[data-testid="common-base-USDC"]')
+    // wait until elemenent is not displayed
+    await page.waitForSelector('[data-testid="common-base-USDC"]', {
+      hidden: true,
+      timeout: 3000
+    })
+    await typeText(page, '#swap-currency-output', '0.0001')
+
+    const swapBtn = '[data-testid="swap-button"]:not([disabled])'
+    await new Promise((r) => setTimeout(r, 500))
+    await page.waitForSelector(swapBtn)
+    await page.click(swapBtn)
+    const confirmSwapBtn = '[data-testid="confirm-swap-button"]'
+
+    /* Click on 'Confirm Swap' button and confirm transaction */
+    await confirmTransaction(page, extensionRootUrl, browser, confirmSwapBtn)
   })
 })

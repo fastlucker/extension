@@ -1,4 +1,5 @@
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
@@ -13,7 +14,6 @@ import { SignMessageController } from '@ambire-common/controllers/signMessage/si
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { NotificationController } from '@web/extension-services/background/controllers/notification'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
@@ -25,6 +25,7 @@ export const controllersNestedInMainMapping = {
   emailVault: EmailVaultController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
+  actions: ActionsController,
   settings: SettingsController,
   addressBook: AddressBookController,
   domains: DomainsController,
@@ -36,7 +37,6 @@ export const controllersNestedInMainMapping = {
 }
 export const controllersMapping = {
   main: MainController,
-  notification: NotificationController,
   dapps: DappsController,
   walletState: WalletStateController,
   autoLock: AutoLockController,

@@ -7,7 +7,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import { openInternalPageInTab } from '@web/extension-services/background/webapi/tab'
 import { getUiType } from '@web/utils/uiType'
 
-const { isNotification, isPopup } = getUiType()
+const { isActionWindow, isPopup } = getUiType()
 
 const getAddKeyOptions = ({
   navigate,
@@ -21,7 +21,7 @@ const getAddKeyOptions = ({
   const navigateWrapped = (route: string, flow: StepperFlow, keystoreRequired: boolean = true) => {
     const nextRoute = keystoreRequired && !isKeystoreSetup ? ROUTES.keyStoreSetup : route
 
-    if (isNotification) {
+    if (isActionWindow) {
       openInternalPageInTab(`${nextRoute}?flow=${flow}`)
       return
     }

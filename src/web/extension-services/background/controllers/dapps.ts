@@ -1,18 +1,9 @@
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Storage } from '@ambire-common/interfaces/storage'
 import predefinedDapps from '@common/constants/dappCatalog.json'
 import { browser } from '@web/constants/browserapi'
 import { Session, SessionProp } from '@web/extension-services/background/services/session'
-
-export type Dapp = {
-  name: string
-  description: string
-  url: string
-  icon: string | null
-  isConnected: boolean
-  chainId: number
-  favorite: boolean
-}
 
 export class DappsController extends EventEmitter {
   dappsSessionMap: Map<string, Session>
