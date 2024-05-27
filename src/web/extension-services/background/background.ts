@@ -47,6 +47,7 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
+import { createRecurringTimeout } from '@common/utils/timeout'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -85,7 +86,7 @@ function saveTimestamp() {
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
-    reestimateInterval?: ReturnType<typeof setInterval>
+    reestimateTimeout?: { start: any; stop: any }
     accountStateInterval?: ReturnType<typeof setInterval>
     selectedAccountStateInterval?: number
   } = {
@@ -207,15 +208,15 @@ function saveTimestamp() {
 
   setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
 
-  function setReestimateInterval(accountOp: AccountOp) {
-    !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
-
+  function createReestimateRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
-    backgroundState.reestimateInterval = setInterval(async () => {
-      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
-    }, time)
+
+    return createRecurringTimeout(
+      () => mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId),
+      time
+    )
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -225,7 +226,11 @@ function saveTimestamp() {
     forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
     const sendUpdate = () => {
-      pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
+      pm.send('> ui', {
+        method: ctrlName,
+        params: ctrlName === 'main' ? { ...ctrl, portfolio: null } : ctrl,
+        forceEmit
+      })
       logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
     }
 
@@ -266,9 +271,14 @@ function saveTimestamp() {
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
       if (mainCtrl.signAccountOp) {
-        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+        backgroundState.reestimateTimeout && backgroundState.reestimateTimeout.stop()
+
+        backgroundState.reestimateTimeout = createReestimateRecurringTimeout(
+          mainCtrl.signAccountOp.accountOp
+        )
+        backgroundState.reestimateTimeout.start()
       } else {
-        !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
+        backgroundState.reestimateTimeout && backgroundState.reestimateTimeout.stop()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
