@@ -2,12 +2,13 @@
 import 'reflect-metadata'
 
 import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
-import { hexlify, toBeHex } from 'ethers'
+import { getAddress, toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
+import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
@@ -261,21 +262,84 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    console.log(data)
-    if (!this.mainCtrl.selectedAccount) {
-      throw ethErrors.provider.unauthorized()
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
     }
 
-    const account = this.mainCtrl.accounts.find((acc) => acc.addr === this.mainCtrl.selectedAccount)
-    const isV2 = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount].ethereum.isV2
+    const accountAddr = data.params[0]
+    const state = this.mainCtrl.accountStates[accountAddr]
+    if (!state) {
+      throw ethErrors.rpc.invalidParams(`account with address ${accountAddr} does not exist`)
+    }
 
-    return this.mainCtrl.settings.networks.map((network) => ({
-      [toBeHex(network.chainId)]: {
+    const capabilities: any = {}
+    this.mainCtrl.settings.networks.forEach((network) => {
+      capabilities[toBeHex(network.chainId)] = {
+        atomicBatch: {
+          supported: !this.mainCtrl.accountStates[accountAddr][network.id].isEOA
+        },
         paymasterService: {
-          supported: isV2 && network.erc4337.enabled
+          supported:
+            this.mainCtrl.accountStates[accountAddr][network.id].isV2 && network.erc4337.enabled
         }
       }
+    })
+    return capabilities
+  }
+
+  walletSendCalls = async (data: any) => {
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const sendCallsParams = data.params[0]
+    if (!sendCallsParams.calls || !sendCallsParams.calls.length) {
+      throw ethErrors.rpc.invalidParams('no calls passed')
+    }
+    if (!sendCallsParams.chainId) {
+      throw ethErrors.rpc.invalidParams('no chainId passed')
+    }
+    if (!sendCallsParams.from) {
+      throw ethErrors.rpc.invalidParams('from address not passed')
+    }
+    if (getAddress(sendCallsParams.from) !== getAddress(this.mainCtrl.selectedAccount as string)) {
+      throw ethErrors.rpc.invalidParams('passed address is not the currently selected account')
+    }
+    const network = this.mainCtrl.settings.networks.find(
+      (net) => net.chainId === BigInt(sendCallsParams.chainId)
+    )
+    if (!network) {
+      throw ethErrors.rpc.invalidParams('unsupported network')
+    }
+    const state = this.mainCtrl.accountStates[this.mainCtrl.selectedAccount as string]
+    if (!state) {
+      throw ethErrors.rpc.invalidParams(
+        `account with address ${this.mainCtrl.selectedAccount} does not exist`
+      )
+    }
+    if (state[network.id].isEOA) {
+      throw ethErrors.rpc.invalidParams('batching is not supported for EOAs ')
+    }
+
+    const id = new Date().getTime()
+    const calls = sendCallsParams.calls.map((call: any) => ({
+      to: call.to,
+      value: call.value ?? 0n,
+      data: call.data ?? '0x'
     }))
+    const userReq: SignUserRequest = {
+      id,
+      meta: {
+        isSignAction: true,
+        networkId: network.id,
+        accountAddr: sendCallsParams.from
+      },
+      action: {
+        kind: 'call' as const,
+        txns: calls
+      }
+    }
+    this.mainCtrl.addUserRequest(userReq)
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [
