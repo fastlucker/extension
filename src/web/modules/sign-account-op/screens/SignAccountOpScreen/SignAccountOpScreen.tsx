@@ -139,7 +139,18 @@ const SignAccountOpScreen = () => {
     if (!signAccountOpState?.accountOp) return []
 
     if (signAccountOpState.accountOp?.calls?.length) {
-      return signAccountOpState.accountOp.calls
+      // remove duplicate fromUserRequestId from calls.
+      // until recently, we used only eth_sendTxn and having two calls with
+      // the same fromUserRequestId was not possible - it was the humanizer
+      // that instead made one call into many human readable subcalls.
+      // but with wallet_sendCalls now we can have multiple accountOp.calls
+      // from the same fromUserRequestId. That made the humanizer show duplicates
+      // of each call. This fixes it.
+      return [
+        ...new Map(
+          signAccountOpState.accountOp.calls.map((call) => [call.fromUserRequestId, call])
+        ).values()
+      ]
         .map((opCall) => {
           const found: IrCall[] = (signAccountOpState.humanReadable || []).filter(
             (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
