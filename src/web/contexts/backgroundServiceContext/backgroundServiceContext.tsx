@@ -4,7 +4,6 @@ import React, { createContext, useEffect, useMemo } from 'react'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { ToastOptions } from '@common/contexts/toastContext'
 import useToast from '@common/hooks/useToast'
-import { delayPromise } from '@common/utils/promises'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
@@ -60,7 +59,7 @@ if (isExtension) {
 
     setTimeout(() => {
       if (!backgroundReady) connectPort()
-    }, 100)
+    }, 150)
   }
 
   connectPort()
