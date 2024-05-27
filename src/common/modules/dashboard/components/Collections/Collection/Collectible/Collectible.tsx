@@ -1,7 +1,6 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 import { NFT_CDN_URL } from '@env'
-import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
@@ -14,7 +13,7 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { networks } from '@ambire-common/consts/networks'
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
-type Props = CollectibleType & {
+type Props = { id: bigint } & {
   collectionData: {
     name: string
     address: string
@@ -27,7 +26,7 @@ type Props = CollectibleType & {
   openCollectibleModal: (collectible: SelectedCollectible) => void
 }
 
-const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal }) => {
+const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
