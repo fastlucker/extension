@@ -31,13 +31,11 @@ export function setupBridgeMessengerRelay() {
   }
 
   // e.g. inpage -> content script -> background
-  windowMessenger.reply('*', async (payload, { topic, id, sender }) => {
+  windowMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
 
     const t = topic.replace('> ', '')
-    // FIXME: Is there an use-case for this being defined?
-    const tabId = sender.tab?.id
-    const response = await tabMessenger.send(t, payload, { id, tabId })
+    const response = await tabMessenger.send(t, payload, { id })
 
     return response
   })
