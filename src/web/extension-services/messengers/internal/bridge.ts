@@ -31,23 +31,24 @@ export function setupBridgeMessengerRelay() {
   }
 
   // e.g. inpage -> content script -> background
-  windowMessenger.reply<unknown, unknown>('*', async (payload, { topic, id, sender }) => {
+  windowMessenger.reply('*', async (payload, { topic, id, sender }) => {
     if (!topic) return
 
     const t = topic.replace('> ', '')
-    const response = await tabMessenger.send<unknown, unknown>(t, payload, {
-      id,
-      tabId: sender.tab?.id
-    })
+    // FIXME: Is there an use-case for this being defined?
+    const tabId = sender.tab?.id
+    const response = await tabMessenger.send(t, payload, { id, tabId })
+
     return response
   })
 
   // e.g. background -> content script -> inpage
-  tabMessenger.reply<unknown, unknown>('*', async (payload, { topic, id }) => {
+  tabMessenger.reply('*', async (payload, { topic, id }) => {
     if (!topic) return
 
-    const t: string = topic.replace('> ', '')
-    const response = await windowMessenger.send<unknown, unknown>(t, payload, { id })
+    const t = topic.replace('> ', '')
+    const response = await windowMessenger.send(t, payload, { id })
+
     return response
   })
 }
