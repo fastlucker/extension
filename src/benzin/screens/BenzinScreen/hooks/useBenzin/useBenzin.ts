@@ -57,7 +57,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   useEffect(() => {
     if (!network?.rpcUrls) return
 
-    setProvider(getRpcProvider(network.rpcUrls, network.chainId))
+    setProvider(getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl))
 
     return () => {
       setProvider((prev) => {
@@ -66,7 +66,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         return null
       })
     }
-  }, [network?.rpcUrls, network?.chainId])
+  }, [network?.rpcUrls, network?.chainId, network?.selectedRpcUrl])
 
   const stepsState = useSteps({
     txnId,
