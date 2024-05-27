@@ -340,6 +340,26 @@ export class ProviderController {
       }
     }
     this.mainCtrl.addUserRequest(userReq)
+    return id
+  }
+
+  walletGetCallsStatus = async (data: any) => {
+    if (!data.params || !data.params.length) {
+      throw ethErrors.rpc.invalidParams('params is required but got []')
+    }
+
+    const id = data.params[0]
+    if (!id) throw ethErrors.rpc.invalidParams('no identifier passed')
+
+    const userReq = this.mainCtrl.userRequests.find((req) => req.id === id)
+    if (userReq)
+      return {
+        status: 'PENDING'
+      }
+
+    // TODO: figure out how to return a confirmed
+
+    // if the user rejects, do not return anything
   }
 
   @Reflect.metadata('NOTIFICATION_REQUEST', [

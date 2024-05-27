@@ -70,7 +70,8 @@ export const SAFE_RPC_METHODS = [
   'wallet_getPermissions',
   'net_version',
   'wallet_getCapabilities',
-  'wallet_sendCalls'
+  'wallet_sendCalls',
+  'wallet_getCallsStatus'
 ]
 
 export const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = [
@@ -87,5 +88,6 @@ export const ETH_RPC_METHODS_AMBIRE_MUST_HANDLE = [
   'eth_signTypedData_v3',
   'eth_signTypedData_v4',
   'wallet_getCapabilities',
-  'wallet_sendCalls'
+  'wallet_sendCalls',
+  'wallet_getCallsStatus'
 ]
