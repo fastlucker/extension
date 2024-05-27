@@ -7,12 +7,15 @@ import {
 import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 
+/**
+ * Send a message to either a specific tab or to the runtime. Needed since we
+ * want to communicate between different parts of the extension,
+ * like between a content script and the background script.
+ */
 function sendMessage<TPayload>(message: SendMessage<TPayload>, { tabId }: { tabId?: number } = {}) {
-  if (!tabId) {
-    chrome?.runtime?.sendMessage?.(message)
-  } else {
-    chrome.tabs?.sendMessage(tabId, message)
-  }
+  if (typeof tabId === 'undefined') return chrome?.runtime?.sendMessage?.(message)
+
+  return chrome.tabs?.sendMessage?.(tabId, message)
 }
 
 /**
