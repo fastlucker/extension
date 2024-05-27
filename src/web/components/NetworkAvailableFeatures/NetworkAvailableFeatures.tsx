@@ -8,7 +8,7 @@ import { View } from 'react-native'
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelper.json'
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
 import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
-import { UserRequest } from '@ambire-common/interfaces/userRequest'
+import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import CheckIcon from '@common/assets/svg/CheckIcon'
@@ -119,11 +119,13 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       data: singletonInterface.encodeFunctionData('deploy', [bytecode, salt])
     }
 
-    const userRequest: UserRequest = {
+    const userRequest: SignUserRequest = {
       id: new Date().getTime(),
-      networkId: selectedNetwork.id,
-      accountAddr: selectedAccount as string,
-      forceNonce: null,
+      meta: {
+        isSignAction: true,
+        networkId: selectedNetwork.id,
+        accountAddr: selectedAccount as string
+      },
       action: txn
     }
 

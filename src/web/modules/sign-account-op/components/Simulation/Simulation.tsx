@@ -96,7 +96,8 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     !pendingTokens.length &&
     !portfolioStatePending?.errors.length &&
     !portfolioStatePending?.criticalError &&
-    !signAccountOpState?.errors.length
+    !signAccountOpState?.errors.length &&
+    signAccountOpState?.isInitialized
   ) {
     shouldShowNoBalanceChanges = true
     if (!initialSimulationLoaded) setInitialSimulationLoaded(true)
