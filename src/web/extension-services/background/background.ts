@@ -246,6 +246,9 @@ function stateDebug(event: string, stateToLog: object) {
     const sendUpdate = () => {
       pm.send('> ui', {
         method: ctrlName,
+        // We are removing the portfolio to avoid the CPU-intensive task of parsing + stringifying.
+        // The portfolio controller is particularly resource-heavy. Additionally, we should access the portfolio
+        // directly from its contexts instead of through the main, which applies to other nested controllers as well.
         params: ctrlName === 'main' ? { ...ctrl, portfolio: null } : ctrl,
         forceEmit
       })
