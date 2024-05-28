@@ -188,7 +188,9 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params: { filters: Filters }
+  params?: {
+    filters?: Filters
+  }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -212,10 +214,6 @@ type MainControllerTransferResetAction = {
 
 type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
-}
-
-type TransferControllerCheckIsRecipientAddressUnknownAction = {
-  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
 }
 
 type MainControllerTransferUpdateAction = {

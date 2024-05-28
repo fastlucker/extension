@@ -214,7 +214,7 @@ function saveTimestamp() {
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
     backgroundState.reestimateInterval = setInterval(async () => {
-      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+      mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(accountOp.accountAddr, accountOp.networkId)
     }, time)
   }
 
@@ -735,7 +735,7 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return mainCtrl.removeUserRequest(params.id)
+                return await mainCtrl.removeUserRequest(params.id)
               case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
                 return mainCtrl.resolveUserRequest(params.data, params.id)
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
@@ -761,7 +761,8 @@ function saveTimestamp() {
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init({
-                  filters: params.filters
+                  selectedAccount: mainCtrl.selectedAccount,
+                  filters: params?.filters
                 })
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
                 return mainCtrl.activity.setFilters(params.filters)
@@ -782,7 +783,7 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-                return await mainCtrl.reestimateAndUpdatePrices(
+                return await mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(
                   params.accountAddr,
                   params.networkId
                 )
@@ -793,9 +794,6 @@ function saveTimestamp() {
                 return mainCtrl.transfer.resetForm()
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
-              case 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN':
-                return mainCtrl.transfer.checkIsRecipientAddressUnknown()
-
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addToActionsQueue(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

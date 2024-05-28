@@ -79,7 +79,7 @@ const InputSendToken = ({
       <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
       <View style={styles.inputWrapper}>
         <NumberInput
-          testID='amount-field'
+          testID="amount-field"
           onChangeText={handleOnTokenAmountChange}
           containerStyle={styles.inputContainerStyle}
           value={amount}
