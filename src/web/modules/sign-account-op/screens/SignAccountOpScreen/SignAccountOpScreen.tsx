@@ -94,22 +94,12 @@ const SignAccountOpScreen = () => {
   }, [params, dispatch])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
+    if (!params?.accountAddr || !params?.network || activityState.isInitialized) return
 
-    if (!activityState.isInitialized) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-        params: {
-          filters: {
-            account: params.accountAddr,
-            network: params.network.id
-          }
-        }
-      })
-    }
-  }, [activityState.isInitialized, dispatch, params])
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+    })
+  }, [activityState.isInitialized, dispatch, mainState.selectedAccount, params])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
