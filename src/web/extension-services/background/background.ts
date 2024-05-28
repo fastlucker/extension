@@ -214,7 +214,7 @@ function saveTimestamp() {
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
     backgroundState.reestimateInterval = setInterval(async () => {
-      mainCtrl.reestimateAndUpdatePrices(accountOp.accountAddr, accountOp.networkId)
+      mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(accountOp.accountAddr, accountOp.networkId)
     }, time)
   }
 
@@ -761,7 +761,8 @@ function saveTimestamp() {
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init({
-                  filters: params.filters
+                  selectedAccount: mainCtrl.selectedAccount,
+                  filters: params?.filters
                 })
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
                 return mainCtrl.activity.setFilters(params.filters)
@@ -782,7 +783,7 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-                return await mainCtrl.reestimateAndUpdatePrices(
+                return await mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(
                   params.accountAddr,
                   params.networkId
                 )

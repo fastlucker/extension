@@ -135,15 +135,7 @@ const SignMessageScreen = () => {
     if (msgToBeSigned) {
       if (msgToBeSigned.id !== signMessageState.messageToSign?.id) {
         dispatch({
-          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-          params: {
-            filters: {
-              account:
-                (signMessageState.messageToSign?.accountAddr as string) ||
-                (params!.accountAddr as string),
-              network: networks[0].id
-            }
-          }
+          type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
         })
 
         dispatch({
