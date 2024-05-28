@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
@@ -79,19 +80,18 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, slowRequest])
 
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
+  const accountOpAction = useMemo(() => {
+    return actionsState.currentAction as AccountOpAction
+  }, [actionsState.currentAction])
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
-      params: {
-        accountAddr: params?.accountAddr,
-        networkId: params?.network?.id
-      }
-    })
-  }, [params, dispatch])
+  useEffect(() => {
+    if (accountOpAction.id) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+        params: { actionId: accountOpAction.id }
+      })
+    }
+  }, [accountOpAction.id, dispatch])
 
   useEffect(() => {
     if (!params?.accountAddr || !params?.network) {
@@ -116,24 +116,18 @@ const SignAccountOpScreen = () => {
   }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
-    if (!signAccountOpState?.accountOp) return
-
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
         err: 'User rejected the transaction request',
-        accountAddr: signAccountOpState.accountOp.accountAddr,
-        networkId: signAccountOpState.accountOp.networkId
+        actionId: accountOpAction.id
       }
     })
-  }, [dispatch, signAccountOpState?.accountOp])
+  }, [dispatch, accountOpAction.id])
 
   const handleAddToCart = useCallback(() => {
-    dispatch({
-      type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE',
-      params: { id: actionsState.currentAction?.id as any }
-    })
-  }, [actionsState.currentAction?.id, dispatch])
+    window.close()
+  }, [])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []

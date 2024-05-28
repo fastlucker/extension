@@ -23,7 +23,7 @@ export class BadgesController {
 
     this.#mainCtrl.onUpdate(() => {
       this.badgesCount =
-        this.#mainCtrl.actions.actionsQueue.filter(
+        this.#mainCtrl.actions.visibleActionsQueue.filter(
           (a) => a.type !== 'accountOp' && a.type !== 'benzin'
         ).length + mainCtrl.banners.length
     })
