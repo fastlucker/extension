@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { AddressState } from '@ambire-common/interfaces/domains'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
+import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -11,8 +13,10 @@ import Select from '@common/components/Select'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
-import usePrevious from '@common/hooks/usePrevious'
+import useRoute from '@common/hooks/useRoute'
+import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 
@@ -69,64 +73,66 @@ const getSelectProps = ({
   }
 }
 const SendForm = ({
+  isUpdatingLocalState,
   addressInputState,
   state,
+  localAmount,
+  setLocalAmount,
+  localAddressState,
+  setLocalAddressState,
   isAllReady = false,
-  isSmartAccount = false
+  isSmartAccount = false,
+  amountErrorMessage,
+  isRecipientAddressUnknown,
+  isSWWarningVisible,
+  isRecipientHumanizerKnownTokenOrSmartContract
 }: {
+  isUpdatingLocalState: boolean
   addressInputState: ReturnType<typeof useAddressInput>
-  state: TransferControllerState
+  state: TransferController
+  localAmount: string
+  setLocalAmount: React.Dispatch<React.SetStateAction<string>>
+  localAddressState: AddressState
+  setLocalAddressState: React.Dispatch<React.SetStateAction<AddressState>>
   isSmartAccount: boolean
   isAllReady?: boolean
+  amountErrorMessage: string
+  isRecipientAddressUnknown: boolean
+  isSWWarningVisible: boolean
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
 }) => {
   const { dispatch } = useBackgroundService()
-  const { validation, setFieldValue } = addressInputState
-  const {
-    amount,
-    maxAmount,
-    selectedToken,
-    addressState,
-    isRecipientAddressUnknown,
-    isRecipientHumanizerKnownTokenOrSmartContract,
-    tokens,
-    validationFormMsgs,
-    isSWWarningVisible,
-    isSWWarningAgreed,
-    isRecipientAddressUnknownAgreed,
-    isTopUp
-  } = state
-
+  const { validation } = addressInputState
+  const { maxAmount, selectedToken, isSWWarningAgreed, isRecipientAddressUnknownAgreed, isTopUp } =
+    state
   const { t } = useTranslation()
   const { networks } = useSettingsControllerState()
-  const token = `${selectedToken?.address}-${selectedToken?.networkId}-${selectedToken?.symbol}`
+  const { accountPortfolio } = usePortfolioControllerState()
+  const { search } = useRoute()
+
+  const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
+
+  const tokens = useMemo(
+    () =>
+      accountPortfolio?.tokens.filter(
+        (token) => Number(getTokenAmount(token)) > 0 && !token.flags.onGasTank
+      ) || [],
+    [accountPortfolio]
+  )
+
   const {
     value: tokenSelectValue,
     options,
     tokenSelectDisabled,
     amountSelectDisabled
-  } = getSelectProps({ tokens, token, isTopUp, networks })
+  } = getSelectProps({
+    tokens,
+    token: `${selectedToken?.address}-${selectedToken?.networkId}-${selectedToken?.symbol}`,
+    isTopUp,
+    networks
+  })
 
   const disableForm = (!isSmartAccount && isTopUp) || !tokens.length
-
-  const prevAmount = usePrevious(amount)
-  // duplicating the value from the controller to the react
-  // state resolves an issue with the cursor positioning in the field
-  const [amountFieldValue, setAmountFieldValue] = useState(amount)
-
-  useEffect(() => {
-    if (prevAmount !== amount) if (amountFieldValue !== amount) setAmountFieldValue(amount)
-  }, [amount, amountFieldValue, prevAmount])
-
-  const prevAddressValue = usePrevious(addressState.fieldValue)
-  // duplicating the value from the controller to the react
-  // state resolves an issue with the cursor positioning in the field
-  const [addressFieldValue, setAddressFieldValue] = useState(addressState.fieldValue)
-
-  useEffect(() => {
-    if (prevAddressValue !== addressState.fieldValue)
-      if (addressFieldValue !== addressState.fieldValue)
-        setAddressFieldValue(addressState.fieldValue)
-  }, [addressState.fieldValue, addressFieldValue, prevAddressValue])
 
   const handleChangeToken = useCallback(
     (value: string) => {
@@ -142,48 +148,69 @@ const SendForm = ({
           selectedToken: tokenToSelect
         }
       })
+      setLocalAmount('')
     },
-    [dispatch, tokens]
+    [dispatch, setLocalAmount, tokens]
   )
 
-  const updateTransferCtrlProperty = useCallback(
-    (key: string, value: string | boolean) =>
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-        params: {
-          [key]: value
-        }
-      }),
-    [dispatch]
-  )
-
-  const onAmountChange = useCallback(
-    (newAmount: string) => {
-      setAmountFieldValue(newAmount)
-      updateTransferCtrlProperty('amount', newAmount)
+  const setLocalAddressFieldValue = useCallback(
+    (value: string) => {
+      setLocalAddressState((prev) => ({
+        ...prev,
+        fieldValue: value
+      }))
     },
-    [updateTransferCtrlProperty]
-  )
-
-  const onAddressChange = useCallback(
-    (newAddressValue: string) => {
-      setAddressFieldValue(newAddressValue)
-      setFieldValue(newAddressValue)
-    },
-    [setFieldValue]
+    [setLocalAddressState]
   )
 
   const setMaxAmount = useCallback(() => {
-    updateTransferCtrlProperty('amount', maxAmount)
-  }, [updateTransferCtrlProperty, maxAmount])
+    setLocalAmount(maxAmount)
+  }, [maxAmount, setLocalAmount])
 
   const onRecipientAddressUnknownCheckboxClick = useCallback(() => {
-    updateTransferCtrlProperty('isRecipientAddressUnknownAgreed', true)
-  }, [updateTransferCtrlProperty])
+    dispatch({
+      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+      params: {
+        isRecipientAddressUnknownAgreed: true
+      }
+    })
+  }, [dispatch])
+
+  useEffect(() => {
+    if (tokens?.length && !state.selectedToken) {
+      let tokenToSelect = tokens[0]
+
+      if (selectedTokenFromUrl) {
+        const correspondingToken = tokens.find(
+          (token) =>
+            token.address === selectedTokenFromUrl.addr &&
+            token.networkId === selectedTokenFromUrl.networkId &&
+            token.flags.onGasTank === false
+        )
+
+        if (correspondingToken) {
+          tokenToSelect = correspondingToken
+        }
+      }
+
+      if (tokenToSelect && getTokenAmount(tokenToSelect) > 0) {
+        dispatch({
+          type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
+          params: { selectedToken: tokenToSelect }
+        })
+      }
+    }
+  }, [tokens, selectedTokenFromUrl, state.selectedToken, dispatch])
 
   return (
     <ScrollableWrapper
-      contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
+      contentContainerStyle={[
+        styles.container,
+        isTopUp ? styles.topUpContainer : {},
+        {
+          opacity: isUpdatingLocalState ? 0 : 1
+        }
+      ]}
     >
       <Select
         setValue={({ value }) => handleChangeToken(value)}
@@ -194,10 +221,10 @@ const SendForm = ({
         containerStyle={styles.tokenSelect}
       />
       <InputSendToken
-        amount={amountFieldValue}
+        amount={localAmount}
+        onAmountChange={setLocalAmount}
         selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
-        errorMessage={validationFormMsgs?.amount.message}
-        onAmountChange={onAmountChange}
+        errorMessage={amountErrorMessage}
         setMaxAmount={setMaxAmount}
         maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
         disabled={disableForm}
@@ -206,17 +233,17 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
-            setAddress={onAddressChange}
+            address={localAddressState.fieldValue}
+            setAddress={setLocalAddressFieldValue}
             validation={validation}
-            address={addressFieldValue}
-            uDAddress={addressState.udAddress}
-            ensAddress={addressState.ensAddress}
-            addressValidationMsg={validationFormMsgs?.recipientAddress.message}
+            uDAddress={localAddressState.udAddress}
+            ensAddress={localAddressState.ensAddress}
+            addressValidationMsg={validation.message}
             isRecipientHumanizerKnownTokenOrSmartContract={
               isRecipientHumanizerKnownTokenOrSmartContract
             }
             isRecipientAddressUnknown={isRecipientAddressUnknown}
-            isRecipientDomainResolving={addressState.isDomainResolving}
+            isRecipientDomainResolving={localAddressState.isDomainResolving}
             isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
             onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
             isSWWarningVisible={isSWWarningVisible}

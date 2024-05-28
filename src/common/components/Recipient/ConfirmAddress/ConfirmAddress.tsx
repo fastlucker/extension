@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
@@ -12,9 +12,9 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 
 type Props = {
   onAddToAddressBook: () => any
-  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
-  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
-  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
+  isRecipientAddressUnknown: boolean
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   addressValidationMsg: string
   isSWWarningVisible: boolean
