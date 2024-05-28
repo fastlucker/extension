@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { networks } from '@ambire-common/consts/networks'
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
@@ -38,8 +38,8 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
     }
   })
   const { networks: settingsNetworks } = useSettingsControllerState()
-  const useNetworks = settingsNetworks ?? networks
-  const network = useNetworks.find((n) => n.id === collectionData.networkId)
+  const networks = settingsNetworks ?? constantNetworks
+  const network = networks.find((n) => n.id === collectionData.networkId)
 
   const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${collectionData.address}&id=${id}`
 
