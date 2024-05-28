@@ -55,6 +55,19 @@ function saveTimestamp() {
   browser.storage.session.set({ timestamp })
 }
 
+function stateDebug(event: string, stateToLog: object) {
+  // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
+  // This is especially true for the main controller, which includes all sub-controller states.
+  // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
+  // can take over 100ms to execute. With multiple consecutive updates, this can add up to over a second,
+  // causing the extension to slow down or freeze.
+  // Instead of logging with `logInfoWithPrefix` in production, we rely on EventEmitter.emitError() to log individual errors
+  // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
+  if (process.env.APP_ENV === 'production') return
+
+  logInfoWithPrefix(event, parse(stringify(stateToLog)))
+}
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -235,7 +248,7 @@ function saveTimestamp() {
         params: ctrlName === 'main' ? { ...ctrl, portfolio: null } : ctrl,
         forceEmit
       })
-      logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
+      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
     }
 
     /**
@@ -340,7 +353,7 @@ function saveTimestamp() {
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl)
             pm.send('> ui-error', {
               method: ctrlName,
               params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
@@ -362,7 +375,7 @@ function saveTimestamp() {
     }
   }, 'background')
   mainCtrl.onError(() => {
-    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
+    stateDebug('onError (main ctrl)', mainCtrl)
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
