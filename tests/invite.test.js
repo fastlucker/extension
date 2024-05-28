@@ -42,7 +42,7 @@ describe('Invite Verification', () => {
   it('should verify a valid invite code and unlock the extension', async () => {
     await page.type(
       '[data-testid="verify-invite-code-input"]',
-      process.env.DEFAULT_INVITATION_CODE_DEV.toString()
+      process.env.DEFAULT_INVITATION_CODE_DEV
     )
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
