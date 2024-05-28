@@ -99,7 +99,8 @@ function stateDebug(event: string, stateToLog: object) {
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
-    reestimateTimeout?: { start: any; stop: any }
+    gasPriceTimeout?: { start: any; stop: any }
+    estimateTimeout?: { start: any; stop: any }
     accountStateInterval?: ReturnType<typeof setInterval>
     selectedAccountStateInterval?: number
   } = {
@@ -221,19 +222,19 @@ function stateDebug(event: string, stateToLog: object) {
 
   setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
 
-  function createReestimateRecurringTimeout(accountOp: AccountOp) {
+  function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
     return createRecurringTimeout(
-      () =>
-        mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(
-          accountOp.accountAddr,
-          accountOp.networkId
-        ),
+      () => mainCtrl.updateSignAccountOpGasPrice(accountOp.networkId),
       time
     )
+  }
+
+  function createEstimateRecurringTimeout() {
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 12000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -288,14 +289,19 @@ function stateDebug(event: string, stateToLog: object) {
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
       if (mainCtrl.signAccountOp) {
-        backgroundState.reestimateTimeout && backgroundState.reestimateTimeout.stop()
+        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
+        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
 
-        backgroundState.reestimateTimeout = createReestimateRecurringTimeout(
+        backgroundState.gasPriceTimeout = createGasPriceRecurringTimeout(
           mainCtrl.signAccountOp.accountOp
         )
-        backgroundState.reestimateTimeout.start()
+        backgroundState.gasPriceTimeout.start()
+
+        backgroundState.estimateTimeout = createEstimateRecurringTimeout()
+        backgroundState.estimateTimeout.start()
       } else {
-        backgroundState.reestimateTimeout && backgroundState.reestimateTimeout.stop()
+        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
+        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
@@ -809,12 +815,6 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.initSignAccOp(params.accountAddr, params.networkId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-                return await mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(
-                  params.accountAddr,
-                  params.networkId
-                )
-
               case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
                 return mainCtrl.transfer.update(params)
               case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
