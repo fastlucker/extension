@@ -1,19 +1,21 @@
 import React, { FC } from 'react'
 import { Animated, Pressable, View } from 'react-native'
-import { NFT_CDN_URL } from '@env'
+
+import { networks } from '@ambire-common/consts/networks'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
 import flexbox from '@common/styles/utils/flexbox'
+import { NFT_CDN_URL } from '@env'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import ManifestImage from '@web/components/ManifestImage'
 import { useCustomHover } from '@web/hooks/useHover'
-
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { networks } from '@ambire-common/consts/networks'
+
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
-type Props = { id: bigint } & {
+type Props = {
+  id: bigint
   collectionData: {
     name: string
     address: string
@@ -39,9 +41,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
   const useNetworks = settingsNetworks ?? networks
   const network = useNetworks.find((n) => n.id === collectionData.networkId)
 
-  const imageUrl = `${NFT_CDN_URL || 'https://nftcdn.ambire.com'}/proxy?rpc=${
-    network?.rpcUrls[0]
-  }&contract=${collectionData.address}&id=${id}`
+  const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${collectionData.address}&id=${id}`
 
   return (
     <Pressable
