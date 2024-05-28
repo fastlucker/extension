@@ -104,18 +104,6 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [dispatch, mainState.isReady, state])
 
   useEffect(() => {
-    if (state.userRequest) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
-        params: state.userRequest
-      })
-      dispatch({
-        type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-      })
-    }
-  }, [dispatch, state.userRequest])
-
-  useEffect(() => {
     const onUpdate = (newState: TransferControllerState) => {
       setState(newState)
     }

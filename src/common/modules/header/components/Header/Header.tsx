@@ -29,7 +29,7 @@ interface Props {
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
 }
 
-const { isTab, isNotification } = getUiType()
+const { isTab, isActionWindow } = getUiType()
 
 const Header = ({
   mode = 'title',
@@ -63,7 +63,7 @@ const Header = ({
   }, [])
 
   const paddingHorizontalStyle = useMemo(() => {
-    if (isTab || isNotification) {
+    if (isTab || isActionWindow) {
       return {
         paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
       }

@@ -2,12 +2,14 @@
 import React, { createContext, useEffect, useMemo } from 'react'
 
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { ToastOptions } from '@common/contexts/toastContext'
 import useToast from '@common/hooks/useToast'
 import { isExtension } from '@web/constants/browserapi'
 import {
   backgroundServiceContextDefaults,
   BackgroundServiceContextReturnType
 } from '@web/contexts/backgroundServiceContext/types'
+import { Action } from '@web/extension-services/background/actions'
 import eventBus from '@web/extension-services/event/eventBus'
 import { PortMessenger } from '@web/extension-services/messengers'
 import { getUiType } from '@web/utils/uiType'
@@ -23,27 +25,44 @@ let dispatch: BackgroundServiceContextReturnType['dispatch']
 // actions to the background for further processing.
 if (isExtension) {
   const pm = new PortMessenger()
+  let backgroundReady: boolean = false
+  const actionsBeforeBackgroundReady: Action[] = []
 
   const isTab = getUiType().isTab
-  const isNotification = getUiType().isNotification
+  const isActionWindow = getUiType().isActionWindow
 
   let portName = 'popup'
   if (isTab) portName = 'tab'
-  if (isNotification) portName = 'notification'
+  if (isActionWindow) portName = 'action-window'
 
-  pm.connect(portName) // connect to the portMessenger initialized in the background
-  // @ts-ignore
-  pm.addListener(pm.ports[0].id, (messageType, { method, params, forceEmit }) => {
-    if (messageType === '> ui') {
-      eventBus.emit(method, params, forceEmit)
-    }
-    if (messageType === '> ui-error') {
-      eventBus.emit('error', params)
-    }
-    if (messageType === '> ui-warning') {
-      eventBus.emit('warning', params)
-    }
-  })
+  const connectPort = () => {
+    pm.connect(portName)
+    // connect to the portMessenger initialized in the background
+    // @ts-ignore
+    pm.addListener(pm.ports[0].id, (messageType, { method, params, forceEmit }) => {
+      if (method === 'portReady') {
+        backgroundReady = true
+        actionsBeforeBackgroundReady.forEach((a) => dispatch(a))
+        actionsBeforeBackgroundReady.length = 0
+        return
+      }
+      if (messageType === '> ui') {
+        eventBus.emit(method, params, forceEmit)
+      }
+      if (messageType === '> ui-error') {
+        eventBus.emit('error', params)
+      }
+      if (messageType === '> ui-toast') {
+        eventBus.emit(method, params)
+      }
+    })
+
+    setTimeout(() => {
+      if (!backgroundReady) connectPort()
+    }, 150)
+  }
+
+  connectPort()
 
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
@@ -52,7 +71,11 @@ if (isExtension) {
     // from all opened extension instances, leading to some unpredictable behaviors of the state.
     if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
-    pm.send('> background', action)
+    if (!backgroundReady) {
+      actionsBeforeBackgroundReady.push(action)
+    } else {
+      pm.send('> background', action)
+    }
   }
 }
 
@@ -82,17 +105,12 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
   }, [addToast])
 
   useEffect(() => {
-    const onWarning = (newState: { warnings: string[]; controller: string }) => {
-      const lastWarning = newState.warnings[newState.warnings.length - 1]
-      if (lastWarning) {
-        if (newState.controller === 'notification' && !getUiType().isNotification) return
-        addToast(lastWarning, { timeout: 4000, type: 'warning', isTypeLabelHidden: true })
-      }
-    }
+    const onAddToast = ({ text, options }: { text: string; options: ToastOptions }) =>
+      addToast(text, options)
 
-    eventBus.addEventListener('warning', onWarning)
+    eventBus.addEventListener('addToast', onAddToast)
 
-    return () => eventBus.removeEventListener('warning', onWarning)
+    return () => eventBus.removeEventListener('addToast', onAddToast)
   }, [addToast])
 
   return (

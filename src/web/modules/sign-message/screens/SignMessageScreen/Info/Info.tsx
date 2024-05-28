@@ -3,6 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Image, View } from 'react-native'
 
 import InfoIcon from '@common/assets/svg/InfoIcon'
+import Alert from '@common/components/Alert'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
@@ -14,9 +15,10 @@ import getStyles from './styles'
 
 interface Props {
   kindOfMessage?: 'typedMessage' | 'message'
+  isViewOnly?: boolean
 }
 
-const Info: FC<Props> = ({ kindOfMessage }) => {
+const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const { dapp } = useSignMessageControllerState()
@@ -60,6 +62,9 @@ const Info: FC<Props> = ({ kindOfMessage }) => {
         </View>
         {renderMessageTypeBadge()}
       </View>
+      {!isViewOnly && (
+        <Alert type="warning" text={t('Please, read the entire message before signing it.')} />
+      )}
     </View>
   )
 }

@@ -9,6 +9,11 @@ import { TransferControllerStateProvider } from '@web/contexts/transferControlle
 import AccountAdderScreen from '@web/modules/account-adder/screens/AccountAdderScreen'
 import AccountPersonalizeScreen from '@web/modules/account-personalize/screens/AccountPersonalizeScreen'
 import AccountSelectScreen from '@web/modules/account-select/screens/AccountSelectScreen'
+import AddChainScreen from '@web/modules/action-requests/screens/AddChainScreen'
+import BenzinScreen from '@web/modules/action-requests/screens/BenzinScreen'
+import DappConnectScreen from '@web/modules/action-requests/screens/DappConnectScreen'
+import GetEncryptionPublicKeyRequestScreen from '@web/modules/action-requests/screens/GetEncryptionPublicKeyRequestScreen'
+import WatchTokenRequestScreen from '@web/modules/action-requests/screens/WatchTokenRequestScreen'
 import CreateSeedPhraseConfirmScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseConfirmScreen'
 import CreateSeedPhrasePrepareScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhrasePrepareScreen'
 import CreateSeedPhraseWriteScreen from '@web/modules/auth/modules/create-seed-phrase/screens/CreateSeedPhraseWriteScreen'
@@ -20,16 +25,11 @@ import HotWalletCreateSelectorScreen from '@web/modules/auth/screens/HotWalletCr
 import HotWalletImportSelectorScreen from '@web/modules/auth/screens/HotWalletImportSelectorScreen'
 import PrivateKeyImportScreen from '@web/modules/auth/screens/PrivateKeyImportScreen'
 import SeedPhraseImportScreen from '@web/modules/auth/screens/SeedPhraseImportScreen'
-import BenzinNotificationScreen from '@web/modules/benzin-notification/screens/BenzinNotificationScreen'
 import DappCatalogScreen from '@web/modules/dapp-catalog/screens/DappCatalogScreen'
 import HardwareWalletSelectorScreen from '@web/modules/hardware-wallet/screens/HardwareWalletSelectorScreen'
 import KeyStoreResetScreen from '@web/modules/keystore/screens/KeyStoreResetScreen/KeyStoreResetScreen'
 import KeyStoreSetupScreen from '@web/modules/keystore/screens/KeyStoreSetupScreen'
 import NetworksScreen from '@web/modules/networks/screens'
-import AddChainScreen from '@web/modules/notification-requests/screens/AddChainScreen'
-import DappConnectScreen from '@web/modules/notification-requests/screens/DappConnectScreen'
-import GetEncryptionPublicKeyRequestScreen from '@web/modules/notification-requests/screens/GetEncryptionPublicKeyRequestScreen'
-import WatchTokenRequestScreen from '@web/modules/notification-requests/screens/WatchTokenRequestScreen'
 import OnBoardingCompletedScreen from '@web/modules/onboarding/screens/OnBoardingCompletedScreen'
 import InviteVerifiedRoute from '@web/modules/router/components/InviteVerifiedRoute'
 import NavMenu from '@web/modules/router/components/NavMenu'
@@ -158,7 +158,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
-          <Route path={WEB_ROUTES.benzin} element={<BenzinNotificationScreen />} />
+          <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
 
           <Route path={WEB_ROUTES.dappConnectRequest} element={<DappConnectScreen />} />
           <Route path={WEB_ROUTES.addChain} element={<AddChainScreen />} />

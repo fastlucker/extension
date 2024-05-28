@@ -1,7 +1,6 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { ThemeProps } from '@common/styles/themeConfig'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
   networkIconWrapper: ViewStyle
@@ -23,16 +22,7 @@ const getStyles = (theme: ThemeProps) =>
     networkIcon: {
       backgroundColor: theme.primaryBackground
     },
-    loader: {
-      position: 'absolute',
-      margin: 'auto',
-      width: '100%',
-      height: '100%',
-      ...flexbox.alignCenter,
-      ...flexbox.justifyCenter,
-      zIndex: 2,
-      backgroundColor: theme.secondaryBackground
-    }
+    loader: { position: 'absolute', zIndex: 2 }
   })
 
 export default getStyles

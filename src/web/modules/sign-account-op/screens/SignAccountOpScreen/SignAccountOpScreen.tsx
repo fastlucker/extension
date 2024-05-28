@@ -9,7 +9,6 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
-import useNavigation from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -20,6 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -31,13 +31,12 @@ import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
 import SigningKeySelect from '@web/modules/sign-message/components'
-import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
   const { params } = useRoute()
-  const { navigate } = useNavigation()
+  const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
@@ -95,22 +94,12 @@ const SignAccountOpScreen = () => {
   }, [params, dispatch])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
+    if (!params?.accountAddr || !params?.network || activityState.isInitialized) return
 
-    if (!activityState.isInitialized) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-        params: {
-          filters: {
-            account: params.accountAddr,
-            network: params.network.id
-          }
-        }
-      })
-    }
-  }, [activityState.isInitialized, dispatch, params])
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
+    })
+  }, [activityState.isInitialized, dispatch, mainState.selectedAccount, params])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
@@ -119,22 +108,22 @@ const SignAccountOpScreen = () => {
   const handleRejectAccountOp = useCallback(() => {
     if (!signAccountOpState?.accountOp) return
 
-    signAccountOpState.accountOp.calls.forEach((call) => {
-      if (call.fromUserRequestId)
-        dispatch({
-          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
-        })
+    dispatch({
+      type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
+      params: {
+        err: 'User rejected the transaction request',
+        accountAddr: signAccountOpState.accountOp.accountAddr,
+        networkId: signAccountOpState.accountOp.networkId
+      }
     })
   }, [dispatch, signAccountOpState?.accountOp])
 
   const handleAddToCart = useCallback(() => {
-    if (getUiType().isNotification) {
-      window.close()
-    } else {
-      navigate('/')
-    }
-  }, [navigate])
+    dispatch({
+      type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE',
+      params: { id: actionsState.currentAction?.id as any }
+    })
+  }, [actionsState.currentAction?.id, dispatch])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []

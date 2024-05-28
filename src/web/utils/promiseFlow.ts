@@ -2,7 +2,7 @@ import compose from 'koa-compose'
 
 type ContextType = Record<string, any>
 type FlowTask<T extends Record<string, any> = Record<string, any>, U = any> = (
-  ctx: T,
+  request: T,
   next: () => U
 ) => U
 
