@@ -214,7 +214,11 @@ function saveTimestamp() {
     const time = currentNetwork.reestimateOn ?? 12000
 
     return createRecurringTimeout(
-      () => mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(accountOp.accountAddr, accountOp.networkId),
+      () =>
+        mainCtrl.reestimateSignAccountOpAndUpdateGasPrices(
+          accountOp.accountAddr,
+          accountOp.networkId
+        ),
       time
     )
   }
@@ -745,7 +749,7 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return await mainCtrl.removeUserRequest(params.id)
+                return mainCtrl.removeUserRequest(params.id)
               case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
                 return mainCtrl.resolveUserRequest(params.data, params.id)
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
