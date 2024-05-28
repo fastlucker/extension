@@ -35,10 +35,6 @@ describe('Invite Verification', () => {
   })
 
   it('should immediately redirect to the invite verification route', async () => {
-    // In case of multiple redirects,
-    // the navigation will resolve with the response of the last redirect.
-    await page.waitForNavigation()
-
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/invite-verify')
   })
