@@ -297,7 +297,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   /* Click on Import button. */
-  await clickOnElement(page, '[data-testid="phrase-button-import"]')
+  await clickOnElement(page, '[data-testid="import-button"]')
 
   await new Promise((r) => setTimeout(r, 2000))
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
@@ -348,7 +348,7 @@ export async function confirmTransaction(
 
   // Wait for the new page to be created
   const newTarget = await browser.waitForTarget(
-    (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-account-op`
+    (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
   )
   const newPage = await newTarget.page()
 

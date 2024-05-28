@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
+
 import { ControllersMappingType } from '@web/extension-services/background/types'
 import eventBus from '@web/extension-services/event/eventBus'
 
@@ -35,7 +36,7 @@ export default function useControllerState<K extends keyof ControllersMappingTyp
     eventBus.addEventListener(controllerName, onUpdate)
 
     return () => eventBus.removeEventListener(controllerName, onUpdate)
-  }, [])
+  }, [controllerName])
 
   return state
 }
