@@ -57,8 +57,8 @@ const TransactionSummary = ({
 
   const handleRemoveCall = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST',
-      params: { id: call.fromUserRequestId as number }
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      params: { err: 'User rejected the request.', id: call.fromUserRequestId as number }
     })
   }, [call.fromUserRequestId, dispatch])
 

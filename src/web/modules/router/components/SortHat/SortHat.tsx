@@ -98,7 +98,10 @@ const SortHat = () => {
           (net) => net.id === benzinAction.userRequest.meta?.networkId
         )
         if (benzinAction.userRequest.meta?.userOpHash && isCustomNetwork) {
-          window.close()
+          dispatch({
+            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+            params: { data: {}, id: benzinAction.id as number }
+          })
           return
         }
         let link = `${ROUTES.benzin}?networkId=${benzinAction.userRequest.meta?.networkId}&isInternal`
