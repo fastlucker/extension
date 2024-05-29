@@ -141,11 +141,10 @@ const SignMessageScreen = () => {
           icon: signMessageAction.userRequest?.session?.icon || ''
         },
         messageToSign: {
-          id: signMessageAction.id,
           accountAddr: signMessageAction.userRequest.meta.accountAddr,
           networkId: signMessageAction.userRequest.meta.networkId,
           content: signMessageAction.userRequest.action as PlainTextMessage | TypedMessage,
-          fromUserRequestId: signMessageAction.id,
+          fromActionId: signMessageAction.id,
           signature: null
         },
         accounts: mainState.accounts,
