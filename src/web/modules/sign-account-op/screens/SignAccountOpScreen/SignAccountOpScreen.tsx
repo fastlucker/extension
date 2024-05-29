@@ -10,7 +10,6 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -36,7 +35,6 @@ import SigningKeySelect from '@web/modules/sign-message/components'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
-  const { params } = useRoute()
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
@@ -94,22 +92,20 @@ const SignAccountOpScreen = () => {
   }, [accountOpAction.id, dispatch])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
+    if (!accountOpAction) return
 
     if (!activityState.isInitialized) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
         params: {
           filters: {
-            account: params.accountAddr,
-            network: params.network.id
+            account: accountOpAction.accountOp.accountAddr,
+            network: accountOpAction.accountOp.networkId
           }
         }
       })
     }
-  }, [activityState.isInitialized, dispatch, params])
+  }, [activityState.isInitialized, accountOpAction, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
@@ -119,7 +115,7 @@ const SignAccountOpScreen = () => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
-        err: 'User rejected the transaction request',
+        err: 'User rejected the transaction request.',
         actionId: accountOpAction.id
       }
     })

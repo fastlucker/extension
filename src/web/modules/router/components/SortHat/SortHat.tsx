@@ -14,8 +14,6 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
@@ -25,16 +23,12 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const mainState = useMainControllerState()
   const { params } = useRoute()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     setTimeout(() => {
-      if (isActionWindow && !actionsState.currentAction) {
-        window.close()
-      }
+      if (isActionWindow && !actionsState.currentAction) window.close()
     }, 1500)
   }, [isActionWindow, actionsState.currentAction])
 
@@ -74,22 +68,9 @@ const SortHat = () => {
           return navigate(ROUTES.getEncryptionPublicKeyRequest)
         }
       }
+      if (actionType === 'accountOp') return navigate(ROUTES.signAccountOp)
 
-      if (actionType === 'accountOp') {
-        const accountOpAction = actionsState.currentAction
-        const accountAddr = accountOpAction.accountOp.accountAddr
-        const network = networks.filter((n) => n.id === accountOpAction.accountOp.networkId)[0]
-        return navigate(ROUTES.signAccountOp, { state: { accountAddr, network } })
-      }
-
-      if (actionType === 'signMessage') {
-        return navigate(ROUTES.signMessage, {
-          state: {
-            accountAddr:
-              mainState.messagesToBeSigned[mainState.selectedAccount as string].accountAddr
-          }
-        })
-      }
+      if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
       if (actionType === 'benzin') {
         // if userOpHash and custom network, close the window as jiffyscan may not support the network
@@ -125,9 +106,6 @@ const SortHat = () => {
     authStatus,
     keystoreState,
     inviteStatus,
-    mainState.selectedAccount,
-    mainState.messagesToBeSigned,
-    networks,
     navigate,
     dispatch
   ])
