@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
-import { AccountOpAction, BenzinAction } from '@ambire-common/controllers/actions/actions'
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -54,26 +53,35 @@ const SortHat = () => {
 
     if (isActionWindow && actionsState.currentAction) {
       const actionType = actionsState.currentAction.type
-      if (actionType === 'unlock') {
-        dispatch({
-          type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-          params: { data: null, id: actionsState.currentAction.id }
-        })
+      if (actionType === 'dappRequest') {
+        const action = actionsState.currentAction
+        if (action.userRequest.action.kind === 'unlock') {
+          dispatch({
+            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+            params: { data: null, id: actionsState.currentAction.id }
+          })
+        }
+        if (action.userRequest.action.kind === 'dappConnect') {
+          return navigate(ROUTES.dappConnectRequest)
+        }
+        if (action.userRequest.action.kind === 'walletAddEthereumChain') {
+          return navigate(ROUTES.addChain)
+        }
+        if (action.userRequest.action.kind === 'walletWatchAsset') {
+          return navigate(ROUTES.watchAsset)
+        }
+        if (action.userRequest.action.kind === 'ethGetEncryptionPublicKey') {
+          return navigate(ROUTES.getEncryptionPublicKeyRequest)
+        }
       }
-      if (actionType === 'dappConnect') {
-        return navigate(ROUTES.dappConnectRequest)
-      }
-      if (actionType === 'walletAddEthereumChain') {
-        return navigate(ROUTES.addChain)
-      }
-      if (actionType === 'accountOp') {
-        const accountOpAction = actionsState.currentAction as AccountOpAction
 
+      if (actionType === 'accountOp') {
+        const accountOpAction = actionsState.currentAction
         const accountAddr = accountOpAction.accountOp.accountAddr
         const network = networks.filter((n) => n.id === accountOpAction.accountOp.networkId)[0]
-
         return navigate(ROUTES.signAccountOp, { state: { accountAddr, network } })
       }
+
       if (actionType === 'signMessage') {
         return navigate(ROUTES.signMessage, {
           state: {
@@ -83,18 +91,9 @@ const SortHat = () => {
         })
       }
 
-      if (actionType === 'walletWatchAsset') {
-        return navigate(ROUTES.watchAsset)
-      }
-      if (actionType === 'ethGetEncryptionPublicKey') {
-        return navigate(ROUTES.getEncryptionPublicKeyRequest)
-      }
       if (actionType === 'benzin') {
-        // if userOpHash and custom network, close the window
-        // as jiffyscan may not support the network
-
-        const benzinAction = actionsState.currentAction as BenzinAction
-
+        // if userOpHash and custom network, close the window as jiffyscan may not support the network
+        const benzinAction = actionsState.currentAction
         const isCustomNetwork = !predefinedNetworks.find(
           (net) => net.id === benzinAction.userRequest.meta?.networkId
         )
