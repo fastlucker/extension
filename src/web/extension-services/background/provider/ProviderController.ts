@@ -165,11 +165,6 @@ export class ProviderController {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  ethSign = async ({ requestRes }: ProviderRequest) => {
-    return handleSignMessage(requestRes)
-  }
-
   @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
   ethSignTypedData = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
