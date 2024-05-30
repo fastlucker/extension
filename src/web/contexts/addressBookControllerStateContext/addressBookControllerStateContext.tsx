@@ -2,8 +2,8 @@ import React, { createContext, useEffect, useMemo } from 'react'
 
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 const AddressBookControllerStateContext = createContext<AddressBookController>(
   {} as AddressBookController
@@ -23,12 +23,6 @@ const AddressBookControllerStateProvider: React.FC<any> = ({ children }) => {
       })
     }
   }, [dispatch, mainState.isReady, state])
-
-  useEffect(() => {
-    dispatch({
-      type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
-    })
-  }, [state?.contacts?.length, dispatch])
 
   return (
     <AddressBookControllerStateContext.Provider value={useMemo(() => state, [state])}>

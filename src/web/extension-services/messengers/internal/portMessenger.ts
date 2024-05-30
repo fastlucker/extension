@@ -42,6 +42,7 @@ export class PortMessenger {
 
   addPort(port: Port) {
     this.ports = [...this.ports, port]
+    this.send('> ui', { method: 'portReady', params: {} })
   }
 
   removePort(portId: string) {

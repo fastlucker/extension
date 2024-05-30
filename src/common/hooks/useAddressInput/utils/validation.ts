@@ -3,6 +3,7 @@ import { getAddress } from 'ethers'
 import { isValidAddress } from '@ambire-common/services/address'
 
 type AddressInputValidation = {
+  debouncedAddress: string
   address: string
   isRecipientDomainResolving: boolean
   isValidUDomain: boolean
@@ -12,6 +13,7 @@ type AddressInputValidation = {
 }
 
 const getAddressInputValidation = ({
+  debouncedAddress,
   address,
   isRecipientDomainResolving,
   isValidUDomain,
@@ -75,7 +77,7 @@ const getAddressInputValidation = ({
       }
     }
   }
-  if (address && !isValidAddress(address)) {
+  if (address && !isValidAddress(address) && address === debouncedAddress) {
     return {
       message: 'Please enter a valid address or ENS/UD domain',
       isError: true
