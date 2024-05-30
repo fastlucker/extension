@@ -189,7 +189,7 @@ const Tokens = ({
   }, [navigate])
 
   const renderItem = useCallback(
-    ({ item }: any) => {
+    ({ item, index }: any) => {
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
@@ -232,20 +232,36 @@ const Tokens = ({
           </View>
         )
 
+      if (item === 'footer') {
+        return accountPortfolio?.isAllReady &&
+          // A trick to render the button once all tokens have been rendered. Otherwise
+          // there will be layout shifts
+          index === sortedTokens.length + 3 ? (
+          <Button
+            type="secondary"
+            text={t('+ Add Custom Token')}
+            onPress={navigateToAddCustomToken}
+            style={spacings.mtSm}
+          />
+        ) : null
+      }
+
       if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
 
       return <TokenItem token={item} tokenPreferences={tokenPreferences} />
     },
     [
-      control,
+      sortedTokens.length,
       initTab?.tokens,
-      openTab,
-      searchValue,
-      setOpenTab,
-      t,
-      theme.primaryBackground,
       tokenPreferences,
-      sortedTokens.length
+      theme.primaryBackground,
+      openTab,
+      setOpenTab,
+      control,
+      t,
+      searchValue,
+      accountPortfolio?.isAllReady,
+      navigateToAddCustomToken
     ]
   )
 
@@ -274,21 +290,12 @@ const Tokens = ({
         'header',
         ...(initTab?.tokens ? sortedTokens : []),
         !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
-        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
+        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        'footer'
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListFooterComponent={
-        accountPortfolio?.isAllReady ? (
-          <Button
-            type="secondary"
-            text={t('+ Add Custom Token')}
-            onPress={navigateToAddCustomToken}
-          />
-        ) : null
-      }
-      ListFooterComponentStyle={spacings.ptSm}
-      onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
+      onEndReachedThreshold={isPopup ? 5 : 2.5}
       initialNumToRender={isPopup ? 10 : 20}
       windowSize={9} // Larger values can cause performance issues.
       onScroll={onScroll}
