@@ -2,9 +2,8 @@ import { getAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
+import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import Alert from '@common/components/Alert/Alert'
@@ -52,13 +51,13 @@ const WatchTokenRequestScreen = () => {
   const portfolio = usePortfolioControllerState()
   const { networks, providers } = useSettingsControllerState()
 
-  const userAction = useMemo(() => {
-    return state.currentAction as UserRequestAction
+  const dappAction = useMemo(() => {
+    return state.currentAction as DappRequestAction
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction?.userRequest as DappUserRequest
-  }, [userAction?.userRequest])
+    return dappAction?.userRequest
+  }, [dappAction?.userRequest])
 
   const tokenData = userRequest?.action?.params?.options
   const origin = userRequest?.session?.origin
@@ -88,9 +87,9 @@ const WatchTokenRequestScreen = () => {
   const handleCancel = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: userAction.id }
+      params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [userAction.id, t, dispatch])
+  }, [dappAction.id, t, dispatch])
 
   // Handle the case its already in token preferences
   const tokenInPreferences = useMemo(
@@ -206,9 +205,9 @@ const WatchTokenRequestScreen = () => {
     await portfolio.updateTokenPreferences(token)
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-      params: { data: null, id: userAction.id }
+      params: { data: null, id: dappAction.id }
     })
-  }, [dispatch, userAction.id, tokenData, tokenNetwork, portfolio])
+  }, [dispatch, dappAction.id, tokenData, tokenNetwork, portfolio])
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />
