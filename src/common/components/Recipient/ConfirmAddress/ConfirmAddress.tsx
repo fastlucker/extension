@@ -19,6 +19,7 @@ type Props = {
   addressValidationMsg: string
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  isRecipientAddressSameAsSender: boolean
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
@@ -31,6 +32,7 @@ const ConfirmAddress = ({
   addressValidationMsg,
   isSWWarningVisible,
   isSWWarningAgreed,
+  isRecipientAddressSameAsSender,
   selectedTokenSymbol
 }: Props) => {
   const { dispatch } = useBackgroundService()
@@ -50,6 +52,7 @@ const ConfirmAddress = ({
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
+    !isRecipientAddressSameAsSender &&
     addressValidationMsg !== 'Invalid address.' ? (
     <>
       <View style={spacings.mbMd}>
