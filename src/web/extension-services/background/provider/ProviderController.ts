@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'reflect-metadata'
 
-import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
+import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
@@ -279,10 +279,11 @@ export class ProviderController {
       if (!dapp?.isConnected) return false
 
       if (!network) {
-        throw new EthereumProviderError(
-          4902,
-          'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
-        ).serialize()
+        throw ethErrors.provider.custom({
+          code: 4902,
+          message:
+            'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
+        })
       }
       return true
     }

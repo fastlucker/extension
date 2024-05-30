@@ -465,12 +465,17 @@ export class EthereumProvider extends EventEmitter {
 
       if (response.id !== id) return
       if (response.error) {
+        const error =
+          (response.error as any)?.code && response.error?.message
+            ? response.error
+            : serializeError(response.error)
+
         if (data.method !== 'eth_call') {
-          logInfoWithPrefix('[request: error]', data.method, serializeError(response.error))
+          logInfoWithPrefix('[request: error]', data.method, error)
         }
 
         // eslint-disable-next-line @typescript-eslint/no-throw-literal
-        throw serializeError(response.error)
+        throw error
       }
 
       logInfoWithPrefix('[request: success]', data.method, response.result)

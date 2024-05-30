@@ -793,7 +793,6 @@ function saveTimestamp() {
                 return mainCtrl.actions.removeAction(params.id)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
                 return mainCtrl.actions.focusActionWindow()
-
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
                 return mainCtrl.actions.setCurrentActionById(params.actionId)
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
@@ -1052,7 +1051,13 @@ function saveTimestamp() {
       )
       return { id, result: res }
     } catch (error: any) {
-      return { id, error }
+      let errorRes
+      try {
+        errorRes = error.serialize()
+      } catch (e) {
+        errorRes = error
+      }
+      return { id, error: errorRes }
     }
   })
 })()
