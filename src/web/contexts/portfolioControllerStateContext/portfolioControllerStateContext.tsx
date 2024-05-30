@@ -57,7 +57,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     totalAmount: 0,
     isAllReady: false
   })
-  const [startedLoading, setStartedLoading] = useState(null)
+  const [startedLoading, setStartedLoading] = useState<number | null>(null)
   const prevAccountPortfolio = useRef<AccountPortfolio>({
     tokens: [],
     collections: [],
@@ -108,19 +108,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainCtrl.selectedAccount, account, state])
 
   useEffect(() => {
-    if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {
-      Object.values(state?.latest[mainCtrl.selectedAccount as string] || {}).forEach(
-        (network: any) => {
-          if (
-            network?.result?.updateStarted &&
-            (!startedLoading || network?.result?.updateStarted < startedLoading)
-          ) {
-            setStartedLoading(network.result.updateStarted)
-          }
-        }
-      )
+    if (startedLoading && accountPortfolio.isAllReady) {
+      setStartedLoading(null)
+      return
     }
-  }, [state?.latest, mainCtrl.selectedAccount, startedLoading])
+
+    if (!startedLoading && !accountPortfolio.isAllReady) {
+      setStartedLoading(Date.now())
+    }
+  }, [startedLoading, accountPortfolio.isAllReady])
 
   const updateAdditionalHints = useCallback(
     (tokenIds: string[]) => {
