@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TouchableOpacity, View } from 'react-native'
 
@@ -30,7 +30,11 @@ import { getUiType } from '@web/utils/uiType'
 import getStyles from './styles'
 
 const FOOTER_BUTTON_HIT_SLOP = { top: 10, bottom: 15 }
+
 const isPopup = getUiType().isPopup
+
+const Container = isPopup ? View : TabLayoutWrapperMainContent
+
 const KeyStoreUnlockScreen = () => {
   const contentContainerRef = useRef(null)
   const { t } = useTranslation()
@@ -65,7 +69,7 @@ const KeyStoreUnlockScreen = () => {
   }, [navigate, keystoreState])
 
   const disableSubmit = useMemo(
-    () => keystoreState.statuses.unlockWithSecret !== 'INITIAL' || keystoreState.errorMessage,
+    () => keystoreState.statuses.unlockWithSecret !== 'INITIAL' || !!keystoreState.errorMessage,
     [keystoreState.statuses.unlockWithSecret, keystoreState.errorMessage]
   )
 
@@ -98,8 +102,6 @@ const KeyStoreUnlockScreen = () => {
 
     return height - 2 * SPACING
   }, [height])
-
-  const Container = isPopup ? Fragment : TabLayoutWrapperMainContent
 
   return (
     <TabLayoutContainer

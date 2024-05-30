@@ -22,10 +22,10 @@ const NumberInput = ({ onChangeText, precision, disabled, allowHex, ...rest }: P
       if (afterDecimals && afterDecimals.length > precision) return
 
       const isValid = allowHex
-        ? /^[0-9]+\.{0,1}[0-9]*$/g.test(value.trim()) ||
+        ? /^[0-9]*\.{0,1}[0-9]*$/g.test(value.trim()) ||
           value.startsWith('0x') ||
           (value.startsWith('0x') && /^[0-9a-fA-F]+$/.test(value.trim()))
-        : /^[0-9]+\.{0,1}[0-9]*$/g.test(value.trim())
+        : /^[0-9]*\.{0,1}[0-9]*$/g.test(value.trim())
 
       isValid && onChangeText(value.trim())
       // eslint-disable-next-line no-empty

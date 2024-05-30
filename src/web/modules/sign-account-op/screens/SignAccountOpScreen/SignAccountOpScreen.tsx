@@ -83,13 +83,13 @@ const SignAccountOpScreen = () => {
   }, [actionsState.currentAction])
 
   useEffect(() => {
-    if (accountOpAction.id) {
+    if (accountOpAction?.id) {
       dispatch({
         type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
         params: { actionId: accountOpAction.id }
       })
     }
-  }, [accountOpAction.id, dispatch])
+  }, [accountOpAction?.id, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
