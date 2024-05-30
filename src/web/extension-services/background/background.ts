@@ -249,7 +249,8 @@ function stateDebug(event: string, stateToLog: object) {
         // We are removing the portfolio to avoid the CPU-intensive task of parsing + stringifying.
         // The portfolio controller is particularly resource-heavy. Additionally, we should access the portfolio
         // directly from its contexts instead of through the main, which applies to other nested controllers as well.
-        params: ctrlName === 'main' ? { ...ctrl, portfolio: null } : ctrl,
+        // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
+        params: ctrlName === 'main' ? { ...ctrl.toJSON(), portfolio: null } : ctrl,
         forceEmit
       })
       stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
