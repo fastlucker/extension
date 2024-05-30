@@ -9,7 +9,6 @@ import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -24,13 +23,13 @@ import DashboardBanners from '../DashboardBanners'
 import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
 import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
+import Skeleton from './Skeleton/Skeleton'
 import TokenItem from './TokenItem'
 
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
   filterByNetworkId: NetworkDescriptor['id']
-  isLoading: boolean
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -57,7 +56,6 @@ const calculateTokenBalance = (token: TokenResult) => {
 const { isPopup } = getUiType()
 
 const Tokens = ({
-  isLoading,
   filterByNetworkId,
   tokenPreferences,
   openTab,
@@ -219,36 +217,35 @@ const Tokens = ({
       if (item === 'empty') {
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
-            {searchValue ? (
-              <Text fontSize={16} weight="medium">
-                {t('No tokens found')}
-              </Text>
-            ) : (
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
-                  {isLoading ? t('Looking for tokens') : t('No tokens yet')}
-                </Text>
-                {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
-              </View>
-            )}
+            <Text fontSize={16} weight="medium">
+              {searchValue ? t('No tokens found') : t('No tokens yet')}
+            </Text>
           </View>
         )
       }
 
-      if (!initTab?.tokens || !item) return null
+      if (item === 'skeleton')
+        return (
+          <View style={spacings.ptTy}>
+            {/* Display more skeleton items if there are no tokens */}
+            <Skeleton amount={sortedTokens.length ? 3 : 5} withHeader={false} />
+          </View>
+        )
+
+      if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
 
       return <TokenItem token={item} tokenPreferences={tokenPreferences} />
     },
     [
       control,
       initTab?.tokens,
-      isLoading,
       openTab,
       searchValue,
       setOpenTab,
       t,
       theme.primaryBackground,
-      tokenPreferences
+      tokenPreferences,
+      sortedTokens.length
     ]
   )
 
@@ -276,7 +273,8 @@ const Tokens = ({
       data={[
         'header',
         ...(initTab?.tokens ? sortedTokens : []),
-        !sortedTokens.length ? 'empty' : ''
+        !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
+        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
