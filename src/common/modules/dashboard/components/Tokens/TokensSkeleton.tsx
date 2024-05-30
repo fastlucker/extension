@@ -4,7 +4,13 @@ import { View } from 'react-native'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import spacings from '@common/styles/spacings'
 
-const Skeleton = ({ withHeader = true, amount = 5 }: { withHeader?: boolean; amount?: number }) => {
+const TokensSkeleton = ({
+  withHeader = true,
+  amount = 5
+}: {
+  withHeader?: boolean
+  amount?: number
+}) => {
   // Needed so react keys are generated outside of the return statement
   const skeletonItems = Array.from({ length: amount }, (_, index) => {
     return {
@@ -22,4 +28,4 @@ const Skeleton = ({ withHeader = true, amount = 5 }: { withHeader?: boolean; amo
   )
 }
 
-export default React.memo(Skeleton)
+export default React.memo(TokensSkeleton)

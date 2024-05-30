@@ -23,8 +23,8 @@ import DashboardBanners from '../DashboardBanners'
 import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
 import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
-import Skeleton from './Skeleton/Skeleton'
 import TokenItem from './TokenItem'
+import Skeleton from './TokensSkeleton'
 
 interface Props {
   openTab: TabType
