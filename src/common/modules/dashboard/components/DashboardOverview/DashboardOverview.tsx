@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -55,13 +55,13 @@ const DashboardOverview: FC<Props> = ({
   const banners = useBanners()
   const { accountPortfolio, startedLoading, state, refreshPortfolio } =
     usePortfolioControllerState()
-
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
+  const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -96,6 +96,35 @@ const DashboardOverview: FC<Props> = ({
 
     return !!portfolioRelatedBanners.length
   }, [banners, selectedAccount])
+
+  useEffect(() => {
+    if (!startedLoading) {
+      setIsLoadingTakingTooLong(false)
+      return
+    }
+
+    const checkIsLoadingTakingTooLong = () => {
+      const takesMoreThan5Seconds = Date.now() - startedLoading > 5000
+
+      setIsLoadingTakingTooLong(takesMoreThan5Seconds)
+    }
+
+    checkIsLoadingTakingTooLong()
+
+    const interval = setInterval(() => {
+      if (accountPortfolio?.isAllReady) {
+        clearInterval(interval)
+        setIsLoadingTakingTooLong(false)
+        return
+      }
+
+      checkIsLoadingTakingTooLong()
+    }, 500)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [accountPortfolio?.isAllReady, startedLoading])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -144,7 +173,20 @@ const DashboardOverview: FC<Props> = ({
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
+                    <>
+                      <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
+                      {!!isLoadingTakingTooLong && (
+                        <>
+                          <WarningIcon
+                            color={theme.warningDecorative}
+                            style={spacings.mlMi}
+                            data-tooltip-id="loading-warning"
+                            data-tooltip-content={t('Loading all networks is taking too long.')}
+                          />
+                          <Tooltip id="loading-warning" />
+                        </>
+                      )}
+                    </>
                   ) : (
                     <View
                       testID="full-balance"
@@ -173,20 +215,19 @@ const DashboardOverview: FC<Props> = ({
                           {formatDecimals(totalPortfolioAmount).split('.')[1]}
                         </Text>
                       </Text>
-                      {isBalanceInaccurate ||
-                        (!accountPortfolio?.isAllReady && (
-                          <>
-                            <WarningIcon
-                              color={theme.warningDecorative}
-                              style={spacings.mlMi}
-                              data-tooltip-id="total-balance-warning"
-                              data-tooltip-content={t(
-                                'Total balance may be inaccurate due to missing data.'
-                              )}
-                            />
-                            <Tooltip id="total-balance-warning" />
-                          </>
-                        ))}
+                      {isBalanceInaccurate && (
+                        <>
+                          <WarningIcon
+                            color={theme.warningDecorative}
+                            style={spacings.mlMi}
+                            data-tooltip-id="total-balance-warning"
+                            data-tooltip-content={t(
+                              'Total balance may be inaccurate due to missing data.'
+                            )}
+                          />
+                          <Tooltip id="total-balance-warning" />
+                        </>
+                      )}
                       <AnimatedPressable
                         style={[spacings.mlTy, refreshButtonAnimStyle]}
                         onPress={refreshPortfolio}
