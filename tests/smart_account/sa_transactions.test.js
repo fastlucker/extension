@@ -143,7 +143,7 @@ describe('transactions', () => {
 
     // Wait for the new page to be created and click on 'Connect' button
     const newTarget = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
     await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
@@ -158,7 +158,7 @@ describe('transactions', () => {
 
     // Wait for the new window to be created and switch to it
     const newTarget2 = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/sign-message`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
     )
     const newPage2 = await newTarget2.page()
     /* Click on "Sign" button */
@@ -212,7 +212,7 @@ describe('transactions', () => {
 
     // Wait for the new page to be created and click on 'Connect' button
     const newTarget = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/notification.html#/dapp-connect-request`
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
     )
     const newPage = await newTarget.page()
     await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')

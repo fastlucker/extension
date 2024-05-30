@@ -23,6 +23,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -76,7 +77,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   }, [humanizedCalls, humanizerError, submittedAccountOp.calls])
 
   const feeFormattedValue = useMemo(() => {
-    if (!submittedAccountOpFee || !submittedAccountOp.gasFeePayment?.amount) return 'Unknown amount'
+    if (!submittedAccountOpFee || !submittedAccountOp.gasFeePayment?.amount) return null
 
     const fee = parseFloat(
       formatUnits(
@@ -103,7 +104,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             address: submittedAccountOp.gasFeePayment?.inToken,
             id: randomId()
           }
-        ]
+        ],
+        { network }
       )
       setSubmittedAccountOpFee(res?.[0]?.[0])
     })()
@@ -149,28 +151,26 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     }
   }, [addToast, network.id, submittedAccountOp.userOpHash, submittedAccountOp.txnId])
 
-  return (
+  return calls.length ? (
     <View style={[styles.container, style]}>
-      {calls.map((call: IrCall, index) => {
-        return (
-          <TransactionSummary
-            key={call.fromUserRequestId}
-            style={styles.summaryItem}
-            call={call}
-            networkId={submittedAccountOp.networkId}
-            rightIcon={index === 0 ? <OpenIcon /> : null}
-            onRightIconPress={handleOpenExplorer}
-            isHistory
-          />
-        )
-      })}
+      {calls.map((call: IrCall, index) => (
+        <TransactionSummary
+          key={call.fromUserRequestId}
+          style={styles.summaryItem}
+          call={call}
+          networkId={submittedAccountOp.networkId}
+          rightIcon={index === 0 ? <OpenIcon /> : null}
+          onRightIconPress={handleOpenExplorer}
+          isHistory
+        />
+      ))}
       <View style={styles.footer}>
         <View style={styles.footerItem}>
           <Text fontSize={14} appearance="secondaryText" weight="semiBold">
             {t('Fee')}:{' '}
           </Text>
           <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {feeFormattedValue}
+            {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
           </Text>
         </View>
         <View style={styles.footerItem}>
@@ -194,6 +194,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           </Text>
         </View>
       </View>
+    </View>
+  ) : (
+    <View style={style}>
+      <SkeletonLoader width="100%" height={112} />
     </View>
   )
 }

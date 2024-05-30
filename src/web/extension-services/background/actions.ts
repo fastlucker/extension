@@ -1,7 +1,9 @@
+import { Action as ActionFromActionsQueue } from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
+import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
 import {
@@ -19,7 +21,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
-import { Dapp } from './controllers/dapps'
 import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
@@ -143,6 +144,22 @@ type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
 }
+type MainControllerResolveUserRequestAction = {
+  type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST'
+  params: { data: any; id: UserRequest['id'] }
+}
+type MainControllerRejectUserRequestAction = {
+  type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
+  params: { err: string; id: UserRequest['id'] }
+}
+type MainControllerResolveAccountOpAction = {
+  type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
+  params: { data: any; accountAddr: string; networkId: string }
+}
+type MainControllerRejectAccountOpAction = {
+  type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
+  params: { err: string; accountAddr: string; networkId: string }
+}
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
   params: {
@@ -171,7 +188,9 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params: { filters: Filters }
+  params?: {
+    filters?: Filters
+  }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -197,23 +216,11 @@ type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
 }
 
-type TransferControllerCheckIsRecipientAddressUnknownAction = {
-  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
-}
-
 type MainControllerTransferUpdateAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
   params: TransferUpdate
 }
 
-type NotificationControllerResolveRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
-  params: { data: any; id?: number }
-}
-type NotificationControllerRejectRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
-  params: { err: string; id?: number }
-}
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
@@ -373,12 +380,19 @@ type DappsControllerRemoveDappAction = {
   params: Dapp['url']
 }
 
-type NotificationControllerFocusCurrentNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
+type ActionsControllerAddToActionsQueue = {
+  type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
+  params: ActionFromActionsQueue
 }
-type NotificationControllerOpenNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
-  params: { id: number }
+type ActionsControllerRemoveFromActionsQueue = {
+  type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
+  params: { id: ActionFromActionsQueue['id'] }
+}
+type ActionsControllerFocusActionWindow = {
+  type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+}
+type ActionsControllerOpenFirstPendingAction = {
+  type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
 }
 
 type AddressBookControllerAddContact = {
@@ -453,6 +467,10 @@ export type Action =
   | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
   | MainControllerRemoveUserRequestAction
+  | MainControllerResolveUserRequestAction
+  | MainControllerRejectUserRequestAction
+  | MainControllerResolveAccountOpAction
+  | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
@@ -473,8 +491,6 @@ export type Action =
   | MainControllerTransferBuildUserRequestAction
   | TransferControllerCheckIsRecipientAddressUnknownAction
   | MainControllerTransferUpdateAction
-  | NotificationControllerResolveRequestAction
-  | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
@@ -499,8 +515,10 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
-  | NotificationControllerFocusCurrentNotificationRequestAction
-  | NotificationControllerOpenNotificationRequestAction
+  | ActionsControllerAddToActionsQueue
+  | ActionsControllerRemoveFromActionsQueue
+  | ActionsControllerFocusActionWindow
+  | ActionsControllerOpenFirstPendingAction
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact
