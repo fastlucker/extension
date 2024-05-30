@@ -735,7 +735,7 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return mainCtrl.removeUserRequest(params.id)
+                return await mainCtrl.removeUserRequest(params.id)
               case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
                 return mainCtrl.resolveUserRequest(params.data, params.id)
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
@@ -760,7 +760,10 @@ function saveTimestamp() {
               case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-                return mainCtrl.activity.init({ filters: params.filters })
+                return mainCtrl.activity.init({
+                  selectedAccount: mainCtrl.selectedAccount,
+                  filters: params?.filters
+                })
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
                 return mainCtrl.activity.setFilters(params.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
@@ -791,9 +794,6 @@ function saveTimestamp() {
                 return mainCtrl.transfer.resetForm()
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
-              case 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN':
-                return mainCtrl.transfer.checkIsRecipientAddressUnknown()
-
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addToActionsQueue(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

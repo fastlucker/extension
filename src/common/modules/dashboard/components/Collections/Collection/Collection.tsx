@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { Collectible as CollectibleInterface } from '@ambire-common/libs/portfolio/interfaces'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
@@ -20,7 +19,7 @@ interface Props {
   address: string
   name: string
   networkId: NetworkIconIdType
-  collectibles: CollectibleInterface[]
+  collectibles: bigint[]
   priceIn: {
     baseCurrency: string
     price: number
@@ -63,7 +62,7 @@ const Collection: FC<Props> = ({
   return (
     <View style={styles.container}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pbTy]}>
-        <Text testID='collection-item' fontSize={isTab ? 16 : 14} weight="medium">
+        <Text testID="collection-item" fontSize={isTab ? 16 : 14} weight="medium">
           {name}
         </Text>
         <Text style={spacings.mlTy} fontSize={isTab ? 16 : 14} appearance="secondaryText">
@@ -90,9 +89,8 @@ const Collection: FC<Props> = ({
       <View style={[flexbox.directionRow]}>
         {collectibles.map((collectible) => (
           <Collectible
-            key={collectible.url + collectible.id}
-            url={collectible.url}
-            id={collectible.id}
+            key={address + collectible}
+            id={collectible}
             collectionData={{
               name,
               address,
