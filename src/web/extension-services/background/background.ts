@@ -234,7 +234,7 @@ function stateDebug(event: string, stateToLog: object) {
   }
 
   function createEstimateRecurringTimeout() {
-    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 12000)
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 60000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
