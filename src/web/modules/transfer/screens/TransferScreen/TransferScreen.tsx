@@ -11,7 +11,7 @@ import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
-import Spinner from '@common/components/Spinner'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useNavigation from '@common/hooks/useNavigation'
@@ -169,9 +169,12 @@ const TransferScreen = () => {
             )}
           </Panel>
         ) : (
-          <View style={styles.spinnerContainer}>
-            <Spinner />
-          </View>
+          <SkeletonLoader
+            width={640}
+            height={420}
+            appearance="primaryBackground"
+            style={{ marginLeft: 'auto', marginRight: 'auto' }}
+          />
         )}
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

@@ -5,6 +5,7 @@ import { TransferController } from '@ambire-common/controllers/transfer/transfer
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
+import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -116,7 +117,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     <TransferControllerStateContext.Provider
       value={useMemo(() => ({ state, transferCtrl, tokens }), [state, transferCtrl, tokens])}
     >
-      {Object.keys(state).length && state?.isInitialized && children}
+      {Object.keys(state).length ? children : <Spinner />}
     </TransferControllerStateContext.Provider>
   )
 }
