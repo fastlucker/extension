@@ -49,6 +49,8 @@ const SignMessageScreen = () => {
   const actionState = useActionsControllerState()
 
   const signMessageAction = useMemo(() => {
+    if (actionState.currentAction?.type !== 'signMessage') return undefined
+
     return actionState.currentAction as SignMessageAction
   }, [actionState.currentAction])
 
@@ -157,10 +159,7 @@ const SignMessageScreen = () => {
     signMessageAction,
     mainState.selectedAccount,
     mainState.accounts,
-    mainState.accountStates,
-    signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr,
-    signMessageAction.userRequest?.session
+    mainState.accountStates
   ])
 
   useEffect(() => {
