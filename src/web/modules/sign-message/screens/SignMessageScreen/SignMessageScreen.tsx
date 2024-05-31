@@ -54,6 +54,14 @@ const SignMessageScreen = () => {
     return actionState.currentAction as SignMessageAction
   }, [actionState.currentAction])
 
+  const userRequest = useMemo(() => {
+    if (!signMessageAction) return undefined
+    if (!['typedMessage', 'message'].includes(signMessageAction.userRequest.action.kind))
+      return undefined
+
+    return signMessageAction.userRequest
+  }, [signMessageAction])
+
   const networkData: NetworkDescriptor | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
@@ -123,14 +131,14 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    if (!signMessageAction) return
+    if (!userRequest || !signMessageAction) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
       params: {
         filters: {
-          account: signMessageAction.userRequest.meta.accountAddr,
-          network: signMessageAction.userRequest.meta.networkId
+          account: userRequest.meta.accountAddr,
+          network: userRequest.meta.networkId
         }
       }
     })
@@ -139,13 +147,13 @@ const SignMessageScreen = () => {
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
       params: {
         dapp: {
-          name: signMessageAction.userRequest?.session?.name || '',
-          icon: signMessageAction.userRequest?.session?.icon || ''
+          name: userRequest?.session?.name || '',
+          icon: userRequest?.session?.icon || ''
         },
         messageToSign: {
-          accountAddr: signMessageAction.userRequest.meta.accountAddr,
-          networkId: signMessageAction.userRequest.meta.networkId,
-          content: signMessageAction.userRequest.action as PlainTextMessage | TypedMessage,
+          accountAddr: userRequest.meta.accountAddr,
+          networkId: userRequest.meta.networkId,
+          content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
         },
@@ -156,6 +164,7 @@ const SignMessageScreen = () => {
   }, [
     dispatch,
     networks,
+    userRequest,
     signMessageAction,
     mainState.selectedAccount,
     mainState.accounts,
@@ -193,9 +202,11 @@ const SignMessageScreen = () => {
   )
 
   const handleReject = () => {
+    if (!signMessageAction || !userRequest) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: signMessageAction.userRequest.id }
+      params: { err: t('User rejected the request.'), id: userRequest.id }
     })
   }
 
