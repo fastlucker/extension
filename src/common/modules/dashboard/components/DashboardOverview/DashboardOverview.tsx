@@ -53,7 +53,7 @@ const DashboardOverview: FC<Props> = ({
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
   const banners = useBanners()
-  const { accountPortfolio, startedLoading, state, refreshPortfolio } =
+  const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -97,14 +97,16 @@ const DashboardOverview: FC<Props> = ({
     return !!portfolioRelatedBanners.length
   }, [banners, selectedAccount])
 
+  // Compare the current timestamp with the timestamp when the loading started
+  // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
   useEffect(() => {
-    if (!startedLoading) {
+    if (!startedLoadingAtTimestamp) {
       setIsLoadingTakingTooLong(false)
       return
     }
 
     const checkIsLoadingTakingTooLong = () => {
-      const takesMoreThan5Seconds = Date.now() - startedLoading > 5000
+      const takesMoreThan5Seconds = Date.now() - startedLoadingAtTimestamp > 5000
 
       setIsLoadingTakingTooLong(takesMoreThan5Seconds)
     }
@@ -124,7 +126,7 @@ const DashboardOverview: FC<Props> = ({
     return () => {
       clearInterval(interval)
     }
-  }, [accountPortfolio?.isAllReady, startedLoading])
+  }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>

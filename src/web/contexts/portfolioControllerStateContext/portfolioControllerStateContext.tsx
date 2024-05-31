@@ -22,7 +22,7 @@ export interface AccountPortfolio {
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
-  startedLoading: null | number
+  startedLoadingAtTimestamp: null | number
   refreshPortfolio: () => void
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
@@ -36,7 +36,7 @@ const PortfolioControllerStateContext = createContext<{
     isAllReady: false
   },
   state: {} as any,
-  startedLoading: null,
+  startedLoadingAtTimestamp: null,
   refreshPortfolio: () => {},
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
@@ -57,7 +57,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     totalAmount: 0,
     isAllReady: false
   })
-  const [startedLoading, setStartedLoading] = useState<number | null>(null)
+  const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
   const prevAccountPortfolio = useRef<AccountPortfolio>({
     tokens: [],
     collections: [],
@@ -88,7 +88,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       totalAmount: 0,
       isAllReady: false
     }
-    setStartedLoading(null)
+    setStartedLoadingAtTimestamp(null)
   }, [mainCtrl.selectedAccount])
 
   useEffect(() => {
@@ -108,15 +108,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainCtrl.selectedAccount, account, state])
 
   useEffect(() => {
-    if (startedLoading && accountPortfolio.isAllReady) {
-      setStartedLoading(null)
+    if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
+      setStartedLoadingAtTimestamp(null)
       return
     }
 
-    if (!startedLoading && !accountPortfolio.isAllReady) {
-      setStartedLoading(Date.now())
+    if (!startedLoadingAtTimestamp && !accountPortfolio.isAllReady) {
+      setStartedLoadingAtTimestamp(Date.now())
     }
-  }, [startedLoading, accountPortfolio.isAllReady])
+  }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
 
   const updateAdditionalHints = useCallback(
     (tokenIds: string[]) => {
@@ -197,7 +197,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           state,
           accountPortfolio,
           refreshPortfolio,
-          startedLoading,
+          startedLoadingAtTimestamp,
           updateTokenPreferences,
           updateAdditionalHints,
           removeTokenPreferences,
@@ -207,7 +207,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         [
           state,
           accountPortfolio,
-          startedLoading,
+          startedLoadingAtTimestamp,
           refreshPortfolio,
           updateTokenPreferences,
           updateAdditionalHints,
