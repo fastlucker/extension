@@ -32,27 +32,36 @@ const DappConnectScreen = () => {
   const state = useActionsControllerState()
 
   const dappAction = useMemo(() => {
+    if (state.currentAction?.type !== 'dappRequest') return undefined
+
     return state.currentAction as DappRequestAction
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return dappAction?.userRequest
-  }, [dappAction?.userRequest])
+    if (!dappAction) return undefined
+    if (dappAction.userRequest.action.kind !== 'dappConnect') return undefined
+
+    return dappAction.userRequest
+  }, [dappAction])
 
   const handleDenyButtonPress = useCallback(() => {
+    if (!dappAction) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [dappAction.id, t, dispatch])
+  }, [dappAction, t, dispatch])
 
   const handleAuthorizeButtonPress = useCallback(() => {
+    if (!dappAction) return
+
     setIsAuthorizing(true)
     dispatch({
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dappAction.id }
     })
-  }, [dappAction.id, dispatch])
+  }, [dappAction, dispatch])
 
   return (
     <TabLayoutContainer
