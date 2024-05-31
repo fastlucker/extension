@@ -11,7 +11,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import commonWebStyles from '@web/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
-import TokensSkeleton from '../../components/Tokens/Skeleton'
+import TokensSkeleton from '../../components/Tokens/TokensSkeleton'
 import useBanners from '../../hooks/useBanners'
 import getStyles from '../styles'
 

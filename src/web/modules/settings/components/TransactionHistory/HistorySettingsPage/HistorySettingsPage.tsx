@@ -110,8 +110,8 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       (historyType === 'transactions' && !activityState.filters?.network),
     [
       account.addr,
-      activityState.filters?.account,
-      activityState.filters?.network,
+      activityState?.filters?.account,
+      activityState?.filters?.network,
       activityState?.isInitialized,
       historyType,
       network.id
@@ -119,7 +119,13 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   )
 
   useEffect(() => {
-    if (!account || !activityState.isInitialized) return
+    if (
+      !account ||
+      !activityState.isInitialized ||
+      (activityState?.filters?.account === account.addr &&
+        activityState?.filters?.network === network.id)
+    )
+      return
 
     dispatch({
       type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS',
@@ -130,7 +136,14 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         }
       }
     })
-  }, [dispatch, account, network, activityState.isInitialized])
+  }, [
+    dispatch,
+    account,
+    network,
+    activityState.isInitialized,
+    activityState?.filters?.account,
+    activityState?.filters?.network
+  ])
 
   useEffect(() => {
     if (activityState.isInitialized || !account) return
@@ -144,7 +157,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         }
       }
     })
-  }, [dispatch, account, network, activityState.isInitialized])
+  }, [dispatch, account, network, activityState.isInitialized, mainState.selectedAccount])
 
   useEffect(() => {
     if (!activityState.isInitialized) return

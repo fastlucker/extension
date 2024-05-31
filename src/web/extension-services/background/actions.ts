@@ -1,8 +1,11 @@
-import { Action as ActionFromActionsQueue } from '@ambire-common/controllers/actions/actions'
+import {
+  AccountOpAction,
+  Action as ActionFromActionsQueue
+} from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
+import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
@@ -154,11 +157,11 @@ type MainControllerRejectUserRequestAction = {
 }
 type MainControllerResolveAccountOpAction = {
   type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
-  params: { data: any; accountAddr: string; networkId: string }
+  params: { data: any; actionId: AccountOpAction['id'] }
 }
 type MainControllerRejectAccountOpAction = {
   type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
-  params: { err: string; accountAddr: string; networkId: string }
+  params: { err: string; actionId: AccountOpAction['id'] }
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -188,7 +191,9 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params: { filters: Filters }
+  params?: {
+    filters?: Filters
+  }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -212,10 +217,6 @@ type MainControllerTransferResetAction = {
 
 type MainControllerTransferBuildUserRequestAction = {
   type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
-}
-
-type TransferControllerCheckIsRecipientAddressUnknownAction = {
-  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
 }
 
 type MainControllerTransferUpdateAction = {
@@ -259,20 +260,15 @@ type PortfolioControllerCheckToken = {
   }
 }
 type MainControllerSignAccountOpInitAction = {
-  params: {
-    accountAddr: AccountId
-    networkId: NetworkId
-  }
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT'
+  params: {
+    actionId: AccountOpAction['id']
+  }
 }
 type MainControllerSignAccountOpDestroyAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY'
 }
 type MainControllerSignAccountOpEstimateAction = {
-  params: {
-    accountAddr: AccountId
-    networkId: NetworkId
-  }
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE'
 }
 type MainControllerSignAccountOpUpdateMainDepsAction = {
@@ -393,8 +389,23 @@ type ActionsControllerRemoveFromActionsQueue = {
 type ActionsControllerFocusActionWindow = {
   type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
 }
-type ActionsControllerOpenFirstPendingAction = {
-  type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
+
+type ActionsControllerMakeAllActionsActive = {
+  type: 'ACTIONS_CONTROLLER_MAKE_ALL_ACTIONS_ACTIVE'
+}
+
+type ActionsControllerSetCurrentActionById = {
+  type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID'
+  params: {
+    actionId: ActionFromActionsQueue['id']
+  }
+}
+
+type ActionsControllerSetCurrentActionByIndex = {
+  type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX'
+  params: {
+    index: number
+  }
 }
 
 type AddressBookControllerAddContact = {
@@ -520,7 +531,9 @@ export type Action =
   | ActionsControllerAddToActionsQueue
   | ActionsControllerRemoveFromActionsQueue
   | ActionsControllerFocusActionWindow
-  | ActionsControllerOpenFirstPendingAction
+  | ActionsControllerMakeAllActionsActive
+  | ActionsControllerSetCurrentActionById
+  | ActionsControllerSetCurrentActionByIndex
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact

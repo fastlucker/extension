@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -16,6 +16,7 @@ import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import AddContactBottomSheet from './AddContactBottomSheet'
 import AddressBookDropdown from './AddressBookDropdown'
@@ -28,9 +29,9 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
-  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
-  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   validation: AddressValidation
   isRecipientDomainResolving: boolean
@@ -61,6 +62,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
+  const { selectedAccount } = useMainControllerState()
   const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
@@ -167,6 +169,7 @@ const Recipient: React.FC<Props> = ({
           }
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          isRecipientAddressSameAsSender={actualAddress === selectedAccount}
           addressValidationMsg={addressValidationMsg}
           onAddToAddressBook={openBottomSheet}
           isSWWarningVisible={isSWWarningVisible}

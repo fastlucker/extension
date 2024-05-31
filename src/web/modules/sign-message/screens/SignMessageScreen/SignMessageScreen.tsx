@@ -7,13 +7,12 @@ import { useModalize } from 'react-native-modalize'
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -31,10 +30,9 @@ import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
+import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
+import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import { getUiType } from '@web/utils/uiType'
-
-import FallbackVisualization from './FallbackVisualization'
-import Info from './Info'
 
 const SignMessageScreen = () => {
   const { t } = useTranslation()
@@ -44,8 +42,6 @@ const SignMessageScreen = () => {
   const mainState = useMainControllerState()
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const { params } = useRoute()
-  const { navigate } = useNavigation()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -53,8 +49,18 @@ const SignMessageScreen = () => {
   const actionState = useActionsControllerState()
 
   const signMessageAction = useMemo(() => {
+    if (actionState.currentAction?.type !== 'signMessage') return undefined
+
     return actionState.currentAction as SignMessageAction
   }, [actionState.currentAction])
+
+  const userRequest = useMemo(() => {
+    if (!signMessageAction) return undefined
+    if (!['typedMessage', 'message'].includes(signMessageAction.userRequest.action.kind))
+      return undefined
+
+    return signMessageAction.userRequest
+  }, [signMessageAction])
 
   const networkData: NetworkDescriptor | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
@@ -107,12 +113,6 @@ const SignMessageScreen = () => {
   })
 
   useEffect(() => {
-    if (!params?.accountAddr) {
-      navigate('/')
-    }
-  }, [params?.accountAddr, navigate])
-
-  useEffect(() => {
     if (
       prevSignMessageState.status === 'LOADING' &&
       signMessageState.status === 'DONE' &&
@@ -131,46 +131,44 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    const msgToBeSigned = mainState.messagesToBeSigned[params!.accountAddr]
-    if (msgToBeSigned) {
-      if (msgToBeSigned.id !== signMessageState.messageToSign?.id) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-          params: {
-            filters: {
-              account:
-                (signMessageState.messageToSign?.accountAddr as string) ||
-                (params!.accountAddr as string),
-              network: networks[0].id
-            }
-          }
-        })
+    if (!userRequest || !signMessageAction) return
 
-        dispatch({
-          type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
-          params: {
-            dapp: {
-              name: signMessageAction.userRequest?.session?.name || '',
-              icon: signMessageAction.userRequest?.session?.icon || ''
-            },
-            messageToSign: msgToBeSigned,
-            accounts: mainState.accounts,
-            accountStates: mainState.accountStates
-          }
-        })
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+      params: {
+        filters: {
+          account: userRequest.meta.accountAddr,
+          network: userRequest.meta.networkId
+        }
       }
-    }
+    })
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
+      params: {
+        dapp: {
+          name: userRequest?.session?.name || '',
+          icon: userRequest?.session?.icon || ''
+        },
+        messageToSign: {
+          accountAddr: userRequest.meta.accountAddr,
+          networkId: userRequest.meta.networkId,
+          content: userRequest.action as PlainTextMessage | TypedMessage,
+          fromActionId: signMessageAction.id,
+          signature: null
+        },
+        accounts: mainState.accounts,
+        accountStates: mainState.accountStates
+      }
+    })
   }, [
     dispatch,
-    params,
     networks,
-    mainState.messagesToBeSigned,
+    userRequest,
+    signMessageAction,
     mainState.selectedAccount,
     mainState.accounts,
-    mainState.accountStates,
-    signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr,
-    signMessageAction.userRequest?.session
+    mainState.accountStates
   ])
 
   useEffect(() => {
@@ -204,9 +202,11 @@ const SignMessageScreen = () => {
   )
 
   const handleReject = () => {
+    if (!signMessageAction || !userRequest) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: signMessageAction.userRequest.id }
+      params: { err: t('User rejected the request.'), id: userRequest.id }
     })
   }
 

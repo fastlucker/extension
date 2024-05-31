@@ -51,7 +51,8 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
         {renderMessageTypeBadge(true)}
         <View style={[flexbox.flex1, spacings.phLg]}>
           <Trans values={{ name: dapp?.name || 'The dApp' }}>
-            {(!messageToSign || messageToSign.id !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+            {(!messageToSign ||
+              messageToSign.fromActionId !== ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
               <Text style={text.center}>
                 <Text fontSize={20} appearance="secondaryText" weight="semiBold">
                   {'{{name}} '}
@@ -61,7 +62,8 @@ const Info: FC<Props> = ({ kindOfMessage, isViewOnly }) => {
                 </Text>
               </Text>
             )}
-            {(!messageToSign || messageToSign.id === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
+            {(!messageToSign ||
+              messageToSign.fromActionId === ENTRY_POINT_AUTHORIZATION_REQUEST_ID) && (
               <Text style={text.center}>
                 <View style={spacings.mb}>
                   <Text fontSize={24} appearance="secondaryText">
