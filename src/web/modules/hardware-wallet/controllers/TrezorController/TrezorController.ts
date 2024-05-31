@@ -3,6 +3,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import trezorConnect, { TrezorConnect } from '@trezor/connect-web'
 
@@ -83,7 +84,12 @@ class TrezorController implements ExternalSignerController {
       })
 
       if (!response.success) {
-        throw new Error(response.payload.error || 'Failed to unlock Trezor for unknown reason.')
+        throw new Error(
+          getMessageFromTrezorErrorCode(
+            response.payload.code,
+            response.payload.error || 'Failed to unlock Trezor for unknown reason.'
+          )
+        )
       }
 
       this.unlockedPath = response.payload.serializedPath
