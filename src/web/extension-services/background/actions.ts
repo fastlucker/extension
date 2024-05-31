@@ -15,7 +15,6 @@ import {
   KeyPreferences,
   NetworkPreference
 } from '@ambire-common/interfaces/settings'
-import { TransferUpdate } from '@ambire-common/interfaces/transfer'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -217,19 +216,6 @@ type MainControllerActivitySetSignedMessagesPaginationAction = {
 }
 type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
-}
-
-type MainControllerTransferResetAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-}
-
-type MainControllerTransferBuildUserRequestAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
-}
-
-type MainControllerTransferUpdateAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
-  params: TransferUpdate
 }
 
 type MainControllerUpdateSelectedAccount = {
@@ -509,9 +495,6 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerTransferResetAction
-  | MainControllerTransferBuildUserRequestAction
-  | MainControllerTransferUpdateAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
