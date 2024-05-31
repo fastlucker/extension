@@ -108,7 +108,7 @@ const TransferScreen = () => {
             onPress={sendTransaction}
             hasBottomSpacing={false}
             size="large"
-            disabled={!isFormValid}
+            disabled={!isFormValid || addressInputState.validation.isError}
           >
             <View style={spacings.plTy}>
               {isTopUp ? (
