@@ -71,34 +71,25 @@ class TrezorController implements ExternalSignerController {
       return 'ALREADY_UNLOCKED'
     }
 
-    try {
-      const response = await this.walletSDK.ethereumGetAddress({
-        path: pathToUnlock,
-        // Do not use this validation option, because if the expected key is not
-        // on this path, the Trezor displays a not very user friendly error
-        // "Addresses do not match" in the Trezor popup. That might cause
-        // confusion. And we can't display a better message until the user
-        // closes the Trezor popup and we get the response from the Trezor.
-        // address: expectedKeyOnThisPath,
-        showOnTrezor: false // prioritize having less steps for the user
-      })
+    const response = await this.walletSDK.ethereumGetAddress({
+      path: pathToUnlock,
+      // Do not use this validation option, because if the expected key is not
+      // on this path, the Trezor displays a not very user friendly error
+      // "Addresses do not match" in the Trezor popup. That might cause
+      // confusion. And we can't display a better message until the user
+      // closes the Trezor popup and we get the response from the Trezor.
+      // address: expectedKeyOnThisPath,
+      showOnTrezor: false // prioritize having less steps for the user
+    })
 
-      if (!response.success) {
-        throw new Error(
-          getMessageFromTrezorErrorCode(
-            response.payload.code,
-            response.payload.error || 'Failed to unlock Trezor for unknown reason.'
-          )
-        )
-      }
-
-      this.unlockedPath = response.payload.serializedPath
-      this.unlockedPathKeyAddr = response.payload.address
-
-      return 'JUST_UNLOCKED'
-    } catch (e: any) {
-      throw new Error(e?.message || e?.toString() || 'Failed to unlock Trezor for unknown reason.')
+    if (!response.success) {
+      throw new Error(getMessageFromTrezorErrorCode(response.payload.code, response.payload.error))
     }
+
+    this.unlockedPath = response.payload.serializedPath
+    this.unlockedPathKeyAddr = response.payload.address
+
+    return 'JUST_UNLOCKED'
   }
 }
 
