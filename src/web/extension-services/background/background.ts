@@ -228,7 +228,7 @@ function stateDebug(event: string, stateToLog: object) {
     const time = currentNetwork.reestimateOn ?? 12000
 
     return createRecurringTimeout(
-      () => mainCtrl.updateSignAccountOpGasPrice(accountOp.networkId),
+      () => mainCtrl.updateSignAccountOpGasPrice(),
       time
     )
   }
@@ -778,13 +778,9 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
                 return mainCtrl.rejectUserRequest(params.err, params.id)
               case 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP':
-                return await mainCtrl.resolveAccountOp(
-                  params.data,
-                  params.accountAddr,
-                  params.networkId
-                )
+                return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
-                return mainCtrl.rejectAccountOp(params.err, params.accountAddr, params.networkId)
+                return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
                 return mainCtrl.signMessage.init(params)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
@@ -816,7 +812,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl?.signAccountOp?.sign()
               }
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT':
-                return mainCtrl.initSignAccOp(params.accountAddr, params.networkId)
+                return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
               case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
@@ -826,13 +822,15 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
                 return await mainCtrl.transfer.buildUserRequest()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
-                return mainCtrl.actions.addToActionsQueue(params)
+                return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
-                return mainCtrl.actions.removeFromActionsQueue(params.id)
+                return mainCtrl.actions.removeAction(params.id)
               case 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW':
                 return mainCtrl.actions.focusActionWindow()
-              case 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION':
-                return mainCtrl.actions.openFirstPendingAction()
+              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID':
+                return mainCtrl.actions.setCurrentActionById(params.actionId)
+              case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
+                return mainCtrl.actions.setCurrentActionByIndex(params.index)
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
                 if (!mainCtrl.selectedAccount) return
@@ -1087,7 +1085,13 @@ function stateDebug(event: string, stateToLog: object) {
       )
       return { id, result: res }
     } catch (error: any) {
-      return { id, error }
+      let errorRes
+      try {
+        errorRes = error.serialize()
+      } catch (e) {
+        errorRes = error
+      }
+      return { id, error: errorRes }
     }
   })
 })()
