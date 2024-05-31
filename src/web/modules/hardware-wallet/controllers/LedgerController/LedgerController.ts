@@ -3,6 +3,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { ExternalSignerController } from '@ambire-common/interfaces/keystore'
+import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import Eth, { ledgerService } from '@ledgerhq/hw-app-eth'
 import Transport from '@ledgerhq/hw-transport'
@@ -89,9 +90,7 @@ class LedgerController implements ExternalSignerController {
         this.deviceId = this.transport.device.productId.toString()
       }
     } catch (e: any) {
-      throw new Error(
-        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
-      )
+      throw new Error(normalizeLedgerMessage(e?.message))
     }
   }
 
@@ -110,9 +109,7 @@ class LedgerController implements ExternalSignerController {
     }
 
     if (!this.walletSDK) {
-      throw new Error(
-        'Could not establish connection with your Ledger device. Please make sure it is connected via USB.'
-      )
+      throw new Error(normalizeLedgerMessage()) // no message, indicating no connection
     }
 
     try {
@@ -125,11 +122,7 @@ class LedgerController implements ExternalSignerController {
 
       return 'JUST_UNLOCKED'
     } catch (error: any) {
-      const message = error?.message || error?.toString() || 'Ledger device: no response.'
-
-      throw new Error(
-        `Could not connect to your Ledger device. Please make sure it is connected, unlocked and running the Ethereum app. \n${message}`
-      )
+      throw new Error(normalizeLedgerMessage(error?.message))
     }
   }
 
