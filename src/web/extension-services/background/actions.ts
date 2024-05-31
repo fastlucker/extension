@@ -143,6 +143,14 @@ type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
 }
+type MainControllerBuildTransferUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
+  params: {
+    amount: string
+    selectedToken: TokenResult
+    recipientAddress: string
+  }
+}
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
@@ -479,6 +487,7 @@ export type Action =
   | MainControllerAddAccounts
   | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
+  | MainControllerBuildTransferUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
@@ -502,7 +511,6 @@ export type Action =
   | MainControllerSignAccountOpUpdateAction
   | MainControllerTransferResetAction
   | MainControllerTransferBuildUserRequestAction
-  | TransferControllerCheckIsRecipientAddressUnknownAction
   | MainControllerTransferUpdateAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
