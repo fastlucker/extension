@@ -56,7 +56,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     transferCtrl.onUpdate(() => {
       setState(transferCtrl.toJSON())
     })
-  })
+  }, [transferCtrl])
 
   useEffect(() => {
     if (!mainState.selectedAccount) return
