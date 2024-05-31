@@ -8,10 +8,12 @@ import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useRoute from '@common/hooks/useRoute'
+import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
@@ -71,7 +73,6 @@ const getSelectProps = ({
 }
 const SendForm = ({
   addressInputState,
-  isAllReady = false,
   isSmartAccount = false,
   amountErrorMessage,
   isRecipientAddressUnknown,
@@ -80,7 +81,6 @@ const SendForm = ({
 }: {
   addressInputState: ReturnType<typeof useAddressInput>
   isSmartAccount: boolean
-  isAllReady?: boolean
   amountErrorMessage: string
   isRecipientAddressUnknown: boolean
   isSWWarningVisible: boolean
@@ -181,18 +181,27 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      <Select
-        setValue={({ value }) => handleChangeToken(value as string)}
-        label={t('Select Token')}
-        options={options}
-        value={tokenSelectValue}
-        disabled={tokenSelectDisabled || disableForm}
-        containerStyle={styles.tokenSelect}
-      />
+      {!state.selectedToken && tokens.length ? (
+        <View>
+          <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
+            {t('Select Token')}
+          </Text>
+          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
+        </View>
+      ) : (
+        <Select
+          setValue={({ value }) => handleChangeToken(value as string)}
+          label={t('Select Token')}
+          options={options}
+          value={tokenSelectValue}
+          disabled={tokenSelectDisabled || disableForm}
+          containerStyle={styles.tokenSelect}
+        />
+      )}
       <InputSendToken
         amount={amount}
         onAmountChange={setAmount}
-        selectedTokenSymbol={isAllReady ? selectedToken?.symbol || t('Unknown') : ''}
+        selectedTokenSymbol={selectedToken?.symbol || ''}
         errorMessage={amountErrorMessage}
         setMaxAmount={setMaxAmount}
         maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}

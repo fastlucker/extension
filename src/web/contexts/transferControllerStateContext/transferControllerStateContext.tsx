@@ -87,6 +87,31 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     })
   }, [selectedTokenFromUrl?.isTopUp, transferCtrl])
 
+  // If the user sends the max amount of a token it will disappear from the list of tokens
+  // and we need to select another token
+  useEffect(() => {
+    if (!state.selectedToken?.address) return
+
+    const isSelectedTokenInTokens = tokens.find(
+      (token) =>
+        token.address === state.selectedToken?.address &&
+        token.networkId === state.selectedToken?.networkId &&
+        token.flags.rewardsType === state.selectedToken?.flags.rewardsType
+    )
+
+    if (isSelectedTokenInTokens) return
+
+    transferCtrl.update({
+      selectedToken: tokens[0]
+    })
+  }, [
+    state.selectedToken?.address,
+    state.selectedToken?.flags.rewardsType,
+    state.selectedToken?.networkId,
+    tokens,
+    transferCtrl
+  ])
+
   return (
     <TransferControllerStateContext.Provider
       value={useMemo(() => ({ state, transferCtrl, tokens }), [state, transferCtrl, tokens])}

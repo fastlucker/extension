@@ -28,7 +28,6 @@ import {
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
@@ -47,7 +46,6 @@ const TransferScreen = () => {
     isRecipientAddressUnknown,
     isFormValid
   } = state
-  const { accountPortfolio } = usePortfolioControllerState()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
@@ -130,7 +128,6 @@ const TransferScreen = () => {
           >
             <SendForm
               addressInputState={addressInputState}
-              isAllReady={accountPortfolio?.isAllReady}
               isSmartAccount={isSmartAccount}
               amountErrorMessage={validationFormMsgs.amount.message || ''}
               isRecipientAddressUnknown={isRecipientAddressUnknown}
