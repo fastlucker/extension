@@ -120,7 +120,7 @@ export class ProviderController {
     return toBeHex(1)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (request: ProviderRequest) => {
     const { session } = request
     const { requestRes } = cloneDeep(request)
@@ -160,32 +160,32 @@ export class ProviderController {
     return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignText', false])
   personalSign = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedData = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV1 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV3 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV4 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
     ({
       request,
@@ -249,7 +249,7 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
     ({
       request,
@@ -319,10 +319,10 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['WalletWatchAsset', false])
+  @Reflect.metadata('ACTION_REQUEST', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
+  @Reflect.metadata('ACTION_REQUEST', ['GetEncryptionPublicKey', false])
   ethGetEncryptionPublicKey = ({ requestRes }: ProviderRequest) => ({
     result: requestRes
   })
