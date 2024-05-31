@@ -7,7 +7,9 @@ import TokenIcon from '@common/components/TokenIcon'
 
 const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
   values.map((value) => ({
-    value: `${value.address}-${value.networkId}-${value.symbol}`,
+    value: `${value.address}-${value.networkId}-${value.symbol}${
+      value.flags.rewardsType ? '-rewards' : ''
+    }`,
     label: (
       <Text numberOfLines={1}>
         <Text fontSize={16} weight="medium">
