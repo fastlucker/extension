@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { AccountOpAction, BenzinAction } from '@ambire-common/controllers/actions/actions'
+import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -14,8 +14,6 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 const SortHat = () => {
@@ -25,16 +23,12 @@ const SortHat = () => {
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
-  const mainState = useMainControllerState()
   const { params } = useRoute()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
 
   useEffect(() => {
     setTimeout(() => {
-      if (isActionWindow && !actionsState.currentAction) {
-        window.close()
-      }
+      if (isActionWindow && !actionsState.currentAction) window.close()
     }, 1500)
   }, [isActionWindow, actionsState.currentAction])
 
@@ -53,46 +47,44 @@ const SortHat = () => {
 
     if (isActionWindow && actionsState.currentAction) {
       const actionType = actionsState.currentAction.type
-      if (actionType === 'unlock') {
-        dispatch({
-          type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-          params: { data: null, id: actionsState.currentAction.id }
-        })
+      if (actionType === 'dappRequest') {
+        const action = actionsState.currentAction
+        if (action.userRequest.action.kind === 'unlock') {
+          dispatch({
+            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+            params: { data: null, id: actionsState.currentAction.id }
+          })
+        }
+        if (action.userRequest.action.kind === 'dappConnect') {
+          return navigate(ROUTES.dappConnectRequest)
+        }
+        if (action.userRequest.action.kind === 'walletAddEthereumChain') {
+          return navigate(ROUTES.addChain)
+        }
+        if (action.userRequest.action.kind === 'walletWatchAsset') {
+          return navigate(ROUTES.watchAsset)
+        }
+        if (action.userRequest.action.kind === 'ethGetEncryptionPublicKey') {
+          return navigate(ROUTES.getEncryptionPublicKeyRequest)
+        }
       }
-      if (actionType === 'dappConnect') {
-        return navigate(ROUTES.dappConnectRequest)
-      }
-      if (actionType === 'walletAddEthereumChain') {
-        return navigate(ROUTES.addChain)
-      }
-      if (actionType === 'accountOp') {
-        const accountOpAction = actionsState.currentAction as AccountOpAction
+      if (actionType === 'accountOp') return navigate(ROUTES.signAccountOp)
 
-        const accountAddr = accountOpAction.accountOp.accountAddr
-        const network = networks.filter((n) => n.id === accountOpAction.accountOp.networkId)[0]
+      if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
-        return navigate(ROUTES.signAccountOp, { state: { accountAddr, network } })
-      }
-      if (actionType === 'signMessage') {
-        return navigate(ROUTES.signMessage, {
-          state: {
-            accountAddr:
-              mainState.messagesToBeSigned[mainState.selectedAccount as string].accountAddr
-          }
-        })
-      }
-
-      if (actionType === 'walletWatchAsset') {
-        return navigate(ROUTES.watchAsset)
-      }
-      if (actionType === 'ethGetEncryptionPublicKey') {
-        return navigate(ROUTES.getEncryptionPublicKeyRequest)
-      }
       if (actionType === 'benzin') {
-        // if userOpHash and custom network, close the window
-        // as jiffyscan may not support the network
-
-        const benzinAction = actionsState.currentAction as BenzinAction
+        // if userOpHash and custom network, close the window as jiffyscan may not support the network
+        const benzinAction = actionsState.currentAction
+        const isCustomNetwork = !predefinedNetworks.find(
+          (net) => net.id === benzinAction.userRequest.meta?.networkId
+        )
+        if (benzinAction.userRequest.meta?.userOpHash && isCustomNetwork) {
+          dispatch({
+            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
+            params: { data: {}, id: benzinAction.id as number }
+          })
+          return
+        }
         let link = `${ROUTES.benzin}?networkId=${benzinAction.userRequest.meta?.networkId}&isInternal`
         if (benzinAction.userRequest.meta?.txnId) {
           link += `&txnId=${benzinAction.userRequest.meta?.txnId}`
@@ -114,9 +106,6 @@ const SortHat = () => {
     authStatus,
     keystoreState,
     inviteStatus,
-    mainState.selectedAccount,
-    mainState.messagesToBeSigned,
-    networks,
     navigate,
     dispatch
   ])

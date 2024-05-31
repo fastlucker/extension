@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'reflect-metadata'
 
-import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
+import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
@@ -120,7 +120,7 @@ export class ProviderController {
     return toBeHex(1)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   ethSendTransaction = async (request: ProviderRequest) => {
     const { session } = request
     const { requestRes } = cloneDeep(request)
@@ -161,37 +161,32 @@ export class ProviderController {
     return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignText', false])
   personalSign = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  ethSign = async ({ requestRes }: ProviderRequest) => {
-    return handleSignMessage(requestRes)
-  }
-
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedData = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV1 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV3 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
   ethSignTypedDataV4 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
     ({
       request,
@@ -255,7 +250,7 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
     ({
       request,
@@ -280,10 +275,11 @@ export class ProviderController {
       if (!dapp?.isConnected) return false
 
       if (!network) {
-        throw new EthereumProviderError(
-          4902,
-          'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
-        ).serialize()
+        throw ethErrors.provider.custom({
+          code: 4902,
+          message:
+            'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
+        })
       }
       return true
     }
@@ -324,10 +320,10 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['WalletWatchAsset', false])
+  @Reflect.metadata('ACTION_REQUEST', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
+  @Reflect.metadata('ACTION_REQUEST', ['GetEncryptionPublicKey', false])
   ethGetEncryptionPublicKey = ({ requestRes }: ProviderRequest) => ({
     result: requestRes
   })

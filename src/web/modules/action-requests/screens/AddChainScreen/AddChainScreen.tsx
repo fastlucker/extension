@@ -3,10 +3,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
+import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
-import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
@@ -46,13 +45,13 @@ const AddChainScreen = () => {
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)
 
-  const userAction = useMemo(() => {
-    return state.currentAction as UserRequestAction
+  const dappAction = useMemo(() => {
+    return state.currentAction as DappRequestAction
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction?.userRequest as DappUserRequest
-  }, [userAction?.userRequest])
+    return dappAction?.userRequest
+  }, [dappAction?.userRequest])
 
   const requestData = useMemo(() => userRequest?.action?.params?.[0], [userRequest])
 
@@ -109,18 +108,18 @@ const AddChainScreen = () => {
     if (statuses.addCustomNetwork === 'SUCCESS') {
       dispatch({
         type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-        params: { data: null, id: userAction.id }
+        params: { data: null, id: dappAction.id }
       })
     }
-  }, [dispatch, statuses.addCustomNetwork, userAction.id])
+  }, [dispatch, statuses.addCustomNetwork, dappAction.id])
 
   const handleDenyButtonPress = useCallback(() => {
     actionButtonPressedRef.current = true
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: userAction.id }
+      params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [userAction.id, t, dispatch])
+  }, [dappAction.id, t, dispatch])
 
   const handleAddNetworkButtonPress = useCallback(() => {
     if (!networkDetails) return
