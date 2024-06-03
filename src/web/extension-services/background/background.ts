@@ -19,6 +19,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
+import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -47,7 +48,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-import { createRecurringTimeout } from '@common/utils/timeout'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -227,10 +227,7 @@ function stateDebug(event: string, stateToLog: object) {
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
-    return createRecurringTimeout(
-      () => mainCtrl.updateSignAccountOpGasPrice(),
-      time
-    )
+    return createRecurringTimeout(() => mainCtrl.updateSignAccountOpGasPrice(), time)
   }
 
   function createEstimateRecurringTimeout() {
@@ -831,6 +828,8 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.actions.setCurrentActionById(params.actionId)
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
                 return mainCtrl.actions.setCurrentActionByIndex(params.index)
+              case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
+                return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
                 if (!mainCtrl.selectedAccount) return
