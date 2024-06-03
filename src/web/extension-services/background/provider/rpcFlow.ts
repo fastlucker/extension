@@ -119,7 +119,7 @@ const flowContext = flow
     const { mainCtrl, dappsCtrl } = controllers
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
-      Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
+      Reflect.getMetadata('ACTION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {

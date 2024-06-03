@@ -20,7 +20,8 @@ const styles = StyleSheet.create<Style>({
     height: COLLECTIBLE_SIZE,
     borderRadius: BORDER_RADIUS_PRIMARY,
     overflow: 'hidden',
-    ...(isTab ? spacings.mrLg : spacings.mrSm)
+    ...(isTab ? spacings.mrLg : spacings.mrSm),
+    ...(isTab ? spacings.mbSm : spacings.mbTy)
   },
   image: {
     borderRadius: BORDER_RADIUS_PRIMARY,

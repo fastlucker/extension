@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
@@ -9,7 +10,6 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -35,7 +35,6 @@ import SigningKeySelect from '@web/modules/sign-message/components'
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
-  const { params } = useRoute()
   const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
@@ -79,51 +78,55 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, slowRequest])
 
+  const accountOpAction = useMemo(() => {
+    if (actionsState.currentAction?.type !== 'accountOp') return undefined
+    return actionsState.currentAction as AccountOpAction
+  }, [actionsState.currentAction])
+
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
+    if (accountOpAction?.id) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+        params: { actionId: accountOpAction.id }
+      })
     }
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
-      params: {
-        accountAddr: params?.accountAddr,
-        networkId: params?.network?.id
-      }
-    })
-  }, [params, dispatch])
+  }, [accountOpAction?.id, dispatch])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network || activityState.isInitialized) return
+    if (!accountOpAction) return
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-    })
-  }, [activityState.isInitialized, dispatch, mainState.selectedAccount, params])
+    if (!activityState.isInitialized) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+        params: {
+          filters: {
+            account: accountOpAction.accountOp.accountAddr,
+            network: accountOpAction.accountOp.networkId
+          }
+        }
+      })
+    }
+  }, [activityState.isInitialized, accountOpAction, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
   }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
-    if (!signAccountOpState?.accountOp) return
+    if (!accountOpAction) return
 
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
-        err: 'User rejected the transaction request',
-        accountAddr: signAccountOpState.accountOp.accountAddr,
-        networkId: signAccountOpState.accountOp.networkId
+        err: 'User rejected the transaction request.',
+        actionId: accountOpAction.id
       }
     })
-  }, [dispatch, signAccountOpState?.accountOp])
+  }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
-    dispatch({
-      type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE',
-      params: { id: actionsState.currentAction?.id as any }
-    })
-  }, [actionsState.currentAction?.id, dispatch])
+    window.close()
+  }, [])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []
