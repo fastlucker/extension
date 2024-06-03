@@ -6,6 +6,7 @@ import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 
+import SkeletonLoader from '../SkeletonLoader'
 import styles from './styles'
 
 const MaxAmount = ({
@@ -23,20 +24,23 @@ const MaxAmount = ({
         {t('Enter Amount')}
       </Text>
 
-      {maxAmount !== undefined && maxAmount !== null ? (
-        <View style={styles.maxAmountValueWrapper}>
-          <Text
-            testID="max-available-ammount"
-            numberOfLines={1}
-            style={styles.maxAmountValue}
-            ellipsizeMode="tail"
-          >
-            <Text fontSize={12}>Available Amount: </Text>
-            {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
-          </Text>
-          {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
-        </View>
-      ) : null}
+      {maxAmount !== null &&
+        (selectedTokenSymbol ? (
+          <View style={styles.maxAmountValueWrapper}>
+            <Text
+              testID="max-available-ammount"
+              numberOfLines={1}
+              style={styles.maxAmountValue}
+              ellipsizeMode="tail"
+            >
+              <Text fontSize={12}>Available Amount: </Text>
+              {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+            </Text>
+            {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
+          </View>
+        ) : (
+          <SkeletonLoader height={22} width={100} />
+        ))}
     </View>
   )
 }
