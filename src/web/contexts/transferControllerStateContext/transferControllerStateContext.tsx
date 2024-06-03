@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { View } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
@@ -7,6 +8,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
+import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
@@ -40,10 +42,10 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const [state, setState] = useState<TransferController>({} as TransferController)
   const { accountPortfolio } = usePortfolioControllerState()
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
+  const transferCtrlRef = useRef<TransferController | null>(null)
+  const transferCtrl = transferCtrlRef.current
 
-  const transferCtrl = useMemo(() => {
-    return new TransferController()
-  }, [])
+  const forceUpdate = useCallback(() => setState({} as TransferController), [])
 
   const tokens = useMemo(
     () =>
@@ -54,12 +56,27 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   )
 
   useEffect(() => {
+    // Don't reinit the controller if it already exists. Only update its properties
+    if (transferCtrl) return
+
+    transferCtrlRef.current = new TransferController(
+      humanizerInfo as HumanizerMeta,
+      mainState.selectedAccount || '',
+      networks
+    )
+    forceUpdate()
+  }, [forceUpdate, mainState.selectedAccount, networks, transferCtrl])
+
+  useEffect(() => {
+    if (!transferCtrl) return
     transferCtrl.onUpdate(() => {
+      console.log('update')
       setState(transferCtrl.toJSON())
     })
   }, [transferCtrl])
 
   useEffect(() => {
+    if (!transferCtrl) return
     if (!mainState.selectedAccount) return
 
     transferCtrl.update({
@@ -68,24 +85,28 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainState.selectedAccount, transferCtrl])
 
   useEffect(() => {
+    if (!transferCtrl) return
     transferCtrl.update({
       networks
     })
   }, [transferCtrl, networks])
 
   useEffect(() => {
+    if (!transferCtrl) return
     transferCtrl.update({
       contacts
     })
   }, [contacts, transferCtrl])
 
   useEffect(() => {
+    if (!transferCtrl) return
     transferCtrl.update({
       humanizerInfo: humanizerInfo as HumanizerMeta
     })
   }, [transferCtrl])
 
   useEffect(() => {
+    if (!transferCtrl) return
     const selectedTokenData = tokens.find(
       (token) =>
         token.address === selectedTokenFromUrl?.addr &&
@@ -98,6 +119,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [selectedTokenFromUrl?.addr, selectedTokenFromUrl?.networkId, tokens, transferCtrl])
 
   useEffect(() => {
+    if (!transferCtrl) return
     transferCtrl.update({
       isTopUp: !!selectedTokenFromUrl?.isTopUp
     })
@@ -106,7 +128,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   // If the user sends the max amount of a token it will disappear from the list of tokens
   // and we need to select another token
   useEffect(() => {
-    if (!state.selectedToken?.address) return
+    if (!state.selectedToken?.address || !transferCtrl) return
 
     const isSelectedTokenInTokens = tokens.find(
       (token) =>
@@ -130,9 +152,19 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   return (
     <TransferControllerStateContext.Provider
-      value={useMemo(() => ({ state, transferCtrl, tokens }), [state, transferCtrl, tokens])}
+      value={useMemo(
+        // Typecasting to TransferController is safe because children are rendered only when state is not empty
+        () => ({ state, transferCtrl: transferCtrl as TransferController, tokens }),
+        [state, transferCtrl, tokens]
+      )}
     >
-      {Object.keys(state).length ? children : <Spinner />}
+      {Object.keys(state).length ? (
+        children
+      ) : (
+        <View style={[flexbox.flex1, flexbox.center]}>
+          <Spinner />
+        </View>
+      )}
     </TransferControllerStateContext.Provider>
   )
 }
