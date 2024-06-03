@@ -49,9 +49,37 @@ const configuredDappRpcUrls: string[] = []
       fetchBody = config.body
     }
     if (typeof resource === 'object' && (resource as Request)?.body) {
-      const response = new Response((resource as Request).body)
+      const {
+        url,
+        body,
+        method,
+        headers,
+        mode,
+        credentials,
+        cache,
+        redirect,
+        referrer,
+        integrity,
+        keepalive,
+        signal
+      } = resource as Request
+      const res = new Response(body)
       fetchURL = (resource as Request).url
-      fetchBody = await response.text()
+      fetchBody = await res.text()
+
+      args[0] = new Request(url, {
+        method,
+        headers,
+        body: fetchBody,
+        mode,
+        credentials,
+        cache,
+        redirect,
+        referrer,
+        integrity,
+        keepalive,
+        signal
+      })
     }
 
     if (!!fetchURL && !!fetchBody) {
@@ -72,7 +100,8 @@ const configuredDappRpcUrls: string[] = []
       }
     }
 
-    return originalFetch(resource as string, config)
+    // @ts-ignore
+    return originalFetch(...args)
   }
 })()
 
