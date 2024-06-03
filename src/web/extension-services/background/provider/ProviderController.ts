@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'reflect-metadata'
 
-import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
-import { getAddress, toBeHex } from 'ethers'
+import { ethErrors } from 'eth-rpc-errors'
+import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -283,7 +282,7 @@ export class ProviderController {
     return capabilities
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
+  @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
   walletSendCalls = async (data: any) => {
     if (data.requestRes && data.requestRes.hash) return data.requestRes.hash
   }
