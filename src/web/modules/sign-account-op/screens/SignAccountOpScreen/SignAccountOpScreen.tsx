@@ -79,6 +79,7 @@ const SignAccountOpScreen = () => {
   }, [hasEstimation, slowRequest])
 
   const accountOpAction = useMemo(() => {
+    if (actionsState.currentAction?.type !== 'accountOp') return undefined
     return actionsState.currentAction as AccountOpAction
   }, [actionsState.currentAction])
 
@@ -112,6 +113,8 @@ const SignAccountOpScreen = () => {
   }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
+    if (!accountOpAction) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
       params: {
@@ -119,7 +122,7 @@ const SignAccountOpScreen = () => {
         actionId: accountOpAction.id
       }
     })
-  }, [dispatch, accountOpAction.id])
+  }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
     window.close()
