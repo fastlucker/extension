@@ -49,9 +49,11 @@ const configuredDappRpcUrls: string[] = []
       fetchBody = config.body
     }
     if (typeof resource === 'object' && (resource as Request)?.body) {
-      const response = new Response((resource as Request).body)
-      fetchURL = (resource as Request).url
-      fetchBody = await response.text()
+      const reqClone = (resource as Request).clone()
+      if (reqClone.body) {
+        fetchURL = reqClone.url
+        fetchBody = await new Response(reqClone.body).text()
+      }
     }
 
     if (!!fetchURL && !!fetchBody) {
@@ -72,7 +74,8 @@ const configuredDappRpcUrls: string[] = []
       }
     }
 
-    return originalFetch(resource as string, config)
+    // @ts-ignore
+    return originalFetch(...args)
   }
 })()
 
