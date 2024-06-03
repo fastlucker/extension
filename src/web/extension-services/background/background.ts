@@ -766,6 +766,12 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
+                return await mainCtrl.buildTransferUserRequest(
+                  params.amount,
+                  params.recipientAddress,
+                  params.selectedToken
+                )
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
@@ -812,12 +818,6 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
-              case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
-                return mainCtrl.transfer.update(params)
-              case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
-                return mainCtrl.transfer.resetForm()
-              case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
-                return await mainCtrl.transfer.buildUserRequest()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':
