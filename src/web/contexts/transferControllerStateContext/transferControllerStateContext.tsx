@@ -63,12 +63,27 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     if (!mainState.selectedAccount) return
 
     transferCtrl.update({
-      selectedAccount: mainState.selectedAccount,
-      networks,
-      contacts,
+      selectedAccount: mainState.selectedAccount
+    })
+  }, [mainState.selectedAccount, transferCtrl])
+
+  useEffect(() => {
+    transferCtrl.update({
+      networks
+    })
+  }, [transferCtrl, networks])
+
+  useEffect(() => {
+    transferCtrl.update({
+      contacts
+    })
+  }, [contacts, transferCtrl])
+
+  useEffect(() => {
+    transferCtrl.update({
       humanizerInfo: humanizerInfo as HumanizerMeta
     })
-  }, [contacts, mainState.selectedAccount, networks, selectedTokenFromUrl, transferCtrl])
+  }, [transferCtrl])
 
   useEffect(() => {
     const selectedTokenData = tokens.find(
