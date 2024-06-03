@@ -262,9 +262,6 @@ type MainControllerSignAccountOpInitAction = {
 type MainControllerSignAccountOpDestroyAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY'
 }
-type MainControllerSignAccountOpEstimateAction = {
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE'
-}
 type MainControllerSignAccountOpUpdateMainDepsAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
@@ -491,7 +488,6 @@ export type Action =
   | MainControllerActivityResetAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
-  | MainControllerSignAccountOpEstimateAction
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
