@@ -76,7 +76,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   if (portfolioStatePending?.criticalError) {
     if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
       simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
-    } else {
+    } else if (portfolioStatePending?.criticalError.simulationErrorMsg) {
       simulationErrorMsg = `${simulationErrorMsg}: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
     }
   } else {
@@ -84,7 +84,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     if (simulationError) {
       if (isHexString(simulationError)) {
         simulationErrorMsg = `${simulationErrorMsg}. Please report this error to our team: ${simulationError.simulationErrorMsg}`
-      } else {
+      } else if (simulationError.simulationErrorMsg) {
         simulationErrorMsg = `${simulationErrorMsg}: ${simulationError.simulationErrorMsg}`
       }
     }
