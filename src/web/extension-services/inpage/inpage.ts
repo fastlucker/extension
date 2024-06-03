@@ -42,21 +42,32 @@ const configuredDappRpcUrls: string[] = []
   const originalFetch = window.fetch.bind(window)
   window.fetch = async function (...args) {
     const [resource, config] = args
-    if (config && config?.body) {
-      const { body } = config
+    let fetchURL: string = ''
+    let fetchBody: any
+    if (typeof resource === 'string' && config && config?.body) {
+      fetchURL = resource
+      fetchBody = config.body
+    }
+    if (typeof resource === 'object' && (resource as Request)?.body) {
+      const response = new Response((resource as Request).body)
+      fetchURL = (resource as Request).url
+      fetchBody = await response.text()
+    }
+
+    if (!!fetchURL && !!fetchBody) {
       // if the dapp uses ethers the body of the requests to the RPC will be Uint8Array
-      if (body instanceof Uint8Array) {
-        if (!foundDappRpcUrls.includes(resource as string))
-          foundDappRpcUrls.push(resource as string) // store potential RPC URL
+      if (fetchBody instanceof Uint8Array) {
+        if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store potential RPC URL
       } else {
         try {
-          const bodyObj: any = JSON.parse(body as any)
-          if (bodyObj.jsonrpc) {
-            if (!foundDappRpcUrls.includes(resource as string))
-              foundDappRpcUrls.push(resource as string) // store the potential RPC URL
+          const fetchBodyObject: any = JSON.parse(fetchBody as any)
+          if (fetchBodyObject.jsonrpc) {
+            if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store the potential RPC URL
           }
         } catch (error) {
-          // silent fail
+          if (fetchBody?.jsonrpc) {
+            if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store the potential RPC URL
+          }
         }
       }
     }
@@ -401,6 +412,7 @@ export class EthereumProvider extends EventEmitter {
     // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
     ;(async () => {
       // eslint-disable-next-line no-restricted-syntax
+      console.log(foundDappRpcUrls)
       for (const url of foundDappRpcUrls.filter((u) => !u.startsWith('wss'))) {
         if (
           !Object.values(this.dappProviderUrls).find((u) => u === url) &&
