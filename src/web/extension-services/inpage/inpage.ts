@@ -412,7 +412,6 @@ export class EthereumProvider extends EventEmitter {
     // store in the EthereumProvider state the valid RPC URLs of the connected dapp to use them for forwarding
     ;(async () => {
       // eslint-disable-next-line no-restricted-syntax
-      console.log(foundDappRpcUrls)
       for (const url of foundDappRpcUrls.filter((u) => !u.startsWith('wss'))) {
         if (
           !Object.values(this.dappProviderUrls).find((u) => u === url) &&
