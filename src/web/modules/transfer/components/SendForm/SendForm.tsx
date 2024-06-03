@@ -18,6 +18,7 @@ import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
+import { getTokenId } from '@web/utils/token'
 
 import styles from './styles'
 
@@ -32,11 +33,6 @@ const NO_TOKENS_ITEMS = [
     icon: null
   }
 ]
-
-const getTokenAddressAndNetworkFromId = (id: string) => {
-  const [address, networkId, symbol] = id.split('-')
-  return [address, networkId, symbol]
-}
 
 const getSelectProps = ({
   tokens,
@@ -110,7 +106,7 @@ const SendForm = ({
     amountSelectDisabled
   } = getSelectProps({
     tokens,
-    token: `${selectedToken?.address}-${selectedToken?.networkId}-${selectedToken?.symbol}`,
+    token: selectedToken ? getTokenId(selectedToken) : '',
     isTopUp,
     networks
   })
@@ -119,12 +115,8 @@ const SendForm = ({
 
   const handleChangeToken = useCallback(
     (value: string) => {
-      const tokenToSelect = tokens.find(
-        (tokenRes: TokenResult) =>
-          tokenRes.address === getTokenAddressAndNetworkFromId(value)[0] &&
-          tokenRes.networkId === getTokenAddressAndNetworkFromId(value)[1] &&
-          tokenRes.symbol === getTokenAddressAndNetworkFromId(value)[2]
-      )
+      const tokenToSelect = tokens.find((tokenRes: TokenResult) => getTokenId(tokenRes) === value)
+
       transferCtrl.update({ selectedToken: tokenToSelect, amount: '' })
     },
     [tokens, transferCtrl]
