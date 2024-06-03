@@ -49,37 +49,11 @@ const configuredDappRpcUrls: string[] = []
       fetchBody = config.body
     }
     if (typeof resource === 'object' && (resource as Request)?.body) {
-      const {
-        url,
-        body,
-        method,
-        headers,
-        mode,
-        credentials,
-        cache,
-        redirect,
-        referrer,
-        integrity,
-        keepalive,
-        signal
-      } = resource as Request
-      const res = new Response(body)
-      fetchURL = (resource as Request).url
-      fetchBody = await res.text()
-
-      args[0] = new Request(url, {
-        method,
-        headers,
-        body: fetchBody,
-        mode,
-        credentials,
-        cache,
-        redirect,
-        referrer,
-        integrity,
-        keepalive,
-        signal
-      })
+      const reqClone = (resource as Request).clone()
+      if (reqClone.body) {
+        fetchURL = reqClone.url
+        fetchBody = await new Response(reqClone.body).text()
+      }
     }
 
     if (!!fetchURL && !!fetchBody) {
