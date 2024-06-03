@@ -52,12 +52,17 @@ const WatchTokenRequestScreen = () => {
   const { networks, providers } = useSettingsControllerState()
 
   const dappAction = useMemo(() => {
+    if (state.currentAction?.type !== 'dappRequest') return undefined
+
     return state.currentAction as DappRequestAction
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return dappAction?.userRequest
-  }, [dappAction?.userRequest])
+    if (!dappAction) return undefined
+    if (dappAction.userRequest.action.kind !== 'walletWatchAsset') return undefined
+
+    return dappAction.userRequest
+  }, [dappAction])
 
   const tokenData = userRequest?.action?.params?.options
   const origin = userRequest?.session?.origin
@@ -85,11 +90,13 @@ const WatchTokenRequestScreen = () => {
     [portfolio, tokenData, tokenNetwork]
   )
   const handleCancel = useCallback(() => {
+    if (!dappAction) return
+
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
       params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [dappAction.id, t, dispatch])
+  }, [dappAction, t, dispatch])
 
   // Handle the case its already in token preferences
   const tokenInPreferences = useMemo(
@@ -192,6 +199,7 @@ const WatchTokenRequestScreen = () => {
   ])
 
   const handleAddToken = useCallback(async () => {
+    if (!dappAction) return
     if (!tokenNetwork?.id) return
     const token: CustomToken = {
       address: getAddress(tokenData.address),
@@ -207,7 +215,7 @@ const WatchTokenRequestScreen = () => {
       type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
       params: { data: null, id: dappAction.id }
     })
-  }, [dispatch, dappAction.id, tokenData, tokenNetwork, portfolio])
+  }, [dispatch, dappAction, tokenData, tokenNetwork, portfolio])
 
   if (networkWithFailedRPC && networkWithFailedRPC?.length > 0 && !!temporaryToken) {
     return <Alert type="error" title={t('This network RPC is failing')} />
