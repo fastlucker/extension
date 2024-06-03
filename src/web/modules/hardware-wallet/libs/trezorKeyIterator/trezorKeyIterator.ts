@@ -3,6 +3,8 @@ import { KeyIterator as KeyIteratorInterface } from '@ambire-common/interfaces/k
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { TrezorConnect } from '@web/modules/hardware-wallet/controllers/TrezorController'
 
+const PREFETCH_ADDRESSES_COUNT = 20 // enough to cover the next 4 pages (5 addresses per page)
+
 interface KeyIteratorProps {
   walletSDK: TrezorConnect
 }
@@ -32,7 +34,13 @@ class TrezorKeyIterator implements KeyIteratorInterface {
   ) {
     if (!this.walletSDK) throw new Error('trezorKeyIterator: walletSDK not initialized')
 
+    // Prefetch only when the first address is requested and the range is more
+    // than 1. This will be the most common case, covering up to the first
+    // a couple of pages (depending on the PREFETCH_ADDRESSES_COUNT).
+    // If user requests pages beyond that, whatever. Do not prefetch further.
+    const shouldPrefetch = fromToArr.some(({ from, to }) => from === 0 && to > 1)
     const addrBundleToBeRequested: { path: string; showOnTrezor: boolean }[] = []
+    const addrBundleToBePrefetched: { path: string; showOnTrezor: boolean }[] = []
     fromToArr.forEach(({ from, to }) => {
       if ((!from && from !== 0) || (!to && to !== 0) || !hdPathTemplate)
         throw new Error('trezorKeyIterator: invalid or missing arguments')
@@ -41,6 +49,14 @@ class TrezorKeyIterator implements KeyIteratorInterface {
         const path = getHdPathFromTemplate(hdPathTemplate, i)
         addrBundleToBeRequested.push({ path, showOnTrezor: false })
       }
+
+      if (shouldPrefetch) {
+        const next = to + 1
+        for (let i = next; i <= next + PREFETCH_ADDRESSES_COUNT; i++) {
+          const path = getHdPathFromTemplate(hdPathTemplate, i)
+          addrBundleToBePrefetched.push({ path, showOnTrezor: false })
+        }
+      }
     })
 
     const areAllAddressesInCache = addrBundleToBeRequested.every(({ path }) => this.cache[path])
@@ -48,7 +64,10 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       return addrBundleToBeRequested.map(({ path }) => this.cache[path])
     }
 
-    const res = await this.walletSDK.ethereumGetAddress({ bundle: addrBundleToBeRequested })
+    const res = await this.walletSDK.ethereumGetAddress({
+      // Combine both in 1 request, so that only 1 popup window is opened
+      bundle: [...addrBundleToBeRequested, ...addrBundleToBePrefetched]
+    })
 
     if (!res.success) throw new Error('trezorKeyIterator: failed to retrieve keys')
 
@@ -57,7 +76,9 @@ class TrezorKeyIterator implements KeyIteratorInterface {
       this.cache[serializedPath] = address
     })
 
-    return res.payload.map(({ address }) => address)
+    // Return back the the first half of the response (that was originally requested),
+    // since the second half was just a prefetch.
+    return res.payload.slice(0, addrBundleToBeRequested.length).map(({ address }) => address)
   }
 }
 
