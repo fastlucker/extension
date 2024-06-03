@@ -55,6 +55,7 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
       />
 
       <Collections
+        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}
         initTab={initTab}
