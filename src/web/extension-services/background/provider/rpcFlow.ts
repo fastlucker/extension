@@ -59,7 +59,7 @@ const flowContext = flow
         lockedOrigins.add(origin)
         try {
           await new Promise((resolve, reject) => {
-            mainCtrl.buildUserRequest(
+            mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'unlock', params: {} },
               { resolve, reject }
             )
@@ -89,7 +89,7 @@ const flowContext = flow
         try {
           connectOrigins.add(origin)
           await new Promise((resolve, reject) => {
-            mainCtrl.buildUserRequest(
+            mainCtrl.buildUserRequestFromDAppRequest(
               { ...request, method: 'dapp_connect', params: {} },
               { resolve, reject }
             )
@@ -119,11 +119,11 @@ const flowContext = flow
     const { mainCtrl, dappsCtrl } = controllers
     const providerCtrl = new ProviderController(mainCtrl, dappsCtrl)
     const [requestType, condition] =
-      Reflect.getMetadata('NOTIFICATION_REQUEST', providerCtrl, mapMethod) || []
+      Reflect.getMetadata('ACTION_REQUEST', providerCtrl, mapMethod) || []
     if (requestType && (!condition || !condition(props))) {
       // eslint-disable-next-line no-param-reassign
       props.requestRes = await new Promise((resolve, reject) => {
-        mainCtrl.buildUserRequest(request, { resolve, reject })
+        mainCtrl.buildUserRequestFromDAppRequest(request, { resolve, reject })
       })
     }
 

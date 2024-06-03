@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { UserRequestAction } from '@ambire-common/controllers/actions/actions'
-import { DappUserRequest } from '@ambire-common/interfaces/userRequest'
+import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -26,20 +25,20 @@ const GetEncryptionPublicKeyRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
 
-  const userAction = useMemo(() => {
-    return state.currentAction as UserRequestAction
+  const dappAction = useMemo(() => {
+    return state.currentAction as DappRequestAction
   }, [state.currentAction])
 
   const userRequest = useMemo(() => {
-    return userAction?.userRequest as DappUserRequest
-  }, [userAction?.userRequest])
+    return dappAction?.userRequest
+  }, [dappAction?.userRequest])
 
   const handleDeny = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
-      params: { err: t('User rejected the request.'), id: userAction.id }
+      params: { err: t('User rejected the request.'), id: dappAction.id }
     })
-  }, [userAction.id, t, dispatch])
+  }, [dappAction.id, t, dispatch])
 
   return (
     <>

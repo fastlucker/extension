@@ -4,7 +4,6 @@ import React, { createContext, useEffect, useMemo } from 'react'
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useRoute from '@common/hooks/useRoute'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -16,7 +15,6 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
   const prevState: ActionsController = usePrevious(state) || ({} as ActionsController)
-  const { path } = useRoute()
 
   const { navigate } = useNavigation()
 
@@ -45,22 +43,10 @@ const ActionsControllerStateProvider: React.FC<any> = ({ children }) => {
       state.currentAction &&
       state.currentAction?.type !== 'benzin'
     ) {
-      dispatch({
-        type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
-      })
+      dispatch({ type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW' })
       window.close()
     }
   }, [dispatch, state.currentAction?.type, state.actionWindowId, state.currentAction])
-
-  useEffect(() => {
-    const isPopup = getUiType().isPopup
-    if (isPopup && state.actionsQueue?.length > 0 && !state.currentAction) {
-      dispatch({
-        type: 'ACTIONS_CONTROLLER_OPEN_FIRST_PENDING_ACTION'
-      })
-      window.close()
-    }
-  }, [dispatch, state.actionsQueue?.length, state.currentAction?.type, state.currentAction, path])
 
   return (
     <ActionsControllerStateContext.Provider value={useMemo(() => state, [state])}>

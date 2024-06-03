@@ -86,7 +86,7 @@ const Collection: FC<Props> = ({
           {priceIn && priceIn.length ? ` / Floor Price: ${formatCollectiblePrice(priceIn[0])}` : ''}
         </Text>
       </View>
-      <View style={[flexbox.directionRow]}>
+      <View style={[flexbox.directionRow, flexbox.wrap]}>
         {collectibles.map((collectible) => (
           <Collectible
             key={address + collectible}

@@ -91,7 +91,9 @@ const BackgroundServiceProvider: React.FC<any> = ({ children }) => {
       const lastError = newState.errors[newState.errors.length - 1]
       if (lastError) {
         if (lastError.level !== 'silent')
-          addToast(lastError.message, { timeout: 4000, type: 'error' })
+          // Most of the errors incoming are descriptive and tend to be long,
+          // so keep a longer timeout to give the user enough time to read them.
+          addToast(lastError.message, { timeout: 12000, type: 'error' })
 
         console.error(
           `Error in ${newState.controller} controller. Inspect background page to see the full stack trace.`

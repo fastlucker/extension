@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { AccountId } from '@ambire-common/interfaces/account'
 import { Banner as BannerInterface } from '@ambire-common/interfaces/banner'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -22,6 +23,8 @@ export default function useBanners(): BannerInterface[] {
   } = usePortfolioControllerState()
   const { banners: activityBanners = [] } = useActivityControllerState()
   const { banners: emailVaultBanners = [] } = useEmailVaultControllerState()
+  const { banners: actionBanners = [] } = useActionsControllerState()
+
   const [innerBanners, setInnerBanners] = useState<BannerInterface[]>([])
   const walletState = useWalletStateController()
 
@@ -54,6 +57,7 @@ export default function useBanners(): BannerInterface[] {
     return [
       ...innerBanners,
       ...state.banners,
+      ...actionBanners,
       ...getCurrentAccountBanners(portfolioBanners, state.selectedAccount),
       ...activityBanners,
       ...getCurrentAccountBanners(emailVaultBanners, state.selectedAccount)
@@ -64,6 +68,7 @@ export default function useBanners(): BannerInterface[] {
     innerBanners,
     portfolioBanners,
     state.banners,
+    actionBanners,
     state.selectedAccount
   ])
 

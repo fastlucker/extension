@@ -14,7 +14,7 @@ const getStyles = (theme: ThemeProps) =>
       backgroundColor: theme.secondaryBackground,
       borderRadius: BORDER_RADIUS_PRIMARY,
       ...spacings.phSm,
-      ...spacings.pvSm,
+      ...spacings.ptSm,
       ...spacings.mbSm
     }
   })

@@ -16,6 +16,7 @@ import { getUiType } from '@web/utils/uiType'
 import CollectibleModal from './CollectibleModal'
 import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
+import CollectionsSkeleton from './CollectionsSkeleton'
 import styles from './styles'
 
 interface Props {
@@ -86,7 +87,11 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
         )
       }
 
-      if (!initTab?.collectibles || !item) return null
+      if (item === 'skeleton') {
+        return <CollectionsSkeleton amount={filteredPortfolioCollections.length ? 3 : 5} />
+      }
+
+      if (!initTab?.collectibles || !item || item === 'keep-this-to-avoid-key-warning') return null
 
       const { name, address, networkId, collectibles, priceIn } = item
 
@@ -104,6 +109,7 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
     },
     [
       control,
+      filteredPortfolioCollections.length,
       initTab?.collectibles,
       openCollectibleModal,
       openTab,
@@ -138,7 +144,8 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
         data={[
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
-          !filteredPortfolioCollections.length ? 'empty' : ''
+          !filteredPortfolioCollections.length && accountPortfolio?.isAllReady ? 'empty' : '',
+          !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

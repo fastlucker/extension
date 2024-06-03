@@ -7,8 +7,8 @@ import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
 type Props = {
   onAddToAddressBook: () => any
@@ -19,6 +19,7 @@ type Props = {
   addressValidationMsg: string
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  isRecipientAddressSameAsSender: boolean
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
@@ -31,25 +32,24 @@ const ConfirmAddress = ({
   addressValidationMsg,
   isSWWarningVisible,
   isSWWarningAgreed,
+  isRecipientAddressSameAsSender,
   selectedTokenSymbol
 }: Props) => {
-  const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const { transferCtrl } = useTransferControllerState()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
 
   const onSWWarningCheckboxClick = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        isSWWarningAgreed: true
-      }
+    transferCtrl.update({
+      isSWWarningAgreed: true
     })
-  }, [dispatch])
+  }, [transferCtrl])
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
+    !isRecipientAddressSameAsSender &&
     addressValidationMsg !== 'Invalid address.' ? (
     <>
       <View style={spacings.mbMd}>
