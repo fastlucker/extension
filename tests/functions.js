@@ -217,7 +217,7 @@ export async function bootstrapWithStorage(namespace, params) {
   // 1. We are no longer closing any tabs.
   // 2. Instead, we simply switch back to our tab under testing.
   await page.bringToFront()
-  await page.reload()
+  // await page.reload()
   // we need to catch the error because in other way recorder will not be returned and test will fail with error
   try {
     await typeSeedPhrase(page, process.env.KEYSTORE_PASS)

@@ -39,7 +39,7 @@ describe('ba_login', () => {
       setTimeout(r, 3000)
     })
     await page.bringToFront()
-    await page.reload()
+    // await page.reload()
   })
 
   afterEach(async () => {

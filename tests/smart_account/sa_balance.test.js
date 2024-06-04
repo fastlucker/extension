@@ -17,7 +17,7 @@ describe('sa_balance', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ describe('sa_balance', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Add contact in address book', async () => {
+  it('add contact in address book', async () => {
     await page.goto(`${extensionRootUrl}/tab.html#/settings/address-book`, {
       waitUntil: 'load'
     })
