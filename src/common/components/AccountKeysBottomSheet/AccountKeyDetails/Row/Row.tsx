@@ -12,9 +12,10 @@ interface Props {
   rowKey: string
   value: string
   tooltip?: string
+  suffix?: string
 }
 
-const Row: FC<Props> = ({ rowKey, value, tooltip }) => {
+const Row: FC<Props> = ({ rowKey, value, tooltip, suffix }) => {
   const { theme } = useTheme()
   return (
     <View style={[flexbox.directionRow, flexbox.justifySpaceBetween, spacings.mbMi]}>
@@ -24,7 +25,8 @@ const Row: FC<Props> = ({ rowKey, value, tooltip }) => {
         weight="semiBold"
         style={{
           // @ts-ignore missing in the types, but React Native Web supports it
-          wordBreak: 'break-all'
+          wordBreak: 'break-all',
+          textAlign: 'right'
         }}
       >
         {value}
@@ -39,6 +41,11 @@ const Row: FC<Props> = ({ rowKey, value, tooltip }) => {
             />
             <Tooltip id={`tooltip-for-${rowKey}`} />
           </>
+        )}
+        {suffix && (
+          <Text fontSize={14} color={theme.infoDecorative} weight="semiBold">
+            {suffix}
+          </Text>
         )}
       </Text>
     </View>
