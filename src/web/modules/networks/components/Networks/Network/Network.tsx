@@ -7,6 +7,7 @@ import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation/useNavigation.web'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -33,6 +34,7 @@ const Network: FC<Props> = ({
 }) => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
+  const { state } = useRoute()
   const { networks } = useSettingsControllerState()
   const { selectedAccount } = useMainControllerState()
   const portfolioControllerState = usePortfolioControllerState()
@@ -69,7 +71,7 @@ const Network: FC<Props> = ({
   )
 
   const navigateAndFilterDashboard = () => {
-    navigate(WEB_ROUTES.dashboard, {
+    navigate(`${WEB_ROUTES.dashboard}${state.prevTab ? `?${state.prevTab}` : ''}`, {
       state: {
         filterByNetworkId: networkId
       }

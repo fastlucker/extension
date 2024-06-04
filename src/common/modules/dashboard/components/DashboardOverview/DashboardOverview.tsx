@@ -246,7 +246,8 @@ const DashboardOverview: FC<Props> = ({
                   onPress={() => {
                     navigate(WEB_ROUTES.networks, {
                       state: {
-                        filterByNetworkId
+                        filterByNetworkId,
+                        prevTab: window.location.hash.split('?')[1] || ''
                       }
                     })
                   }}

@@ -5,9 +5,11 @@ import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 
+import { getTokenId } from './token'
+
 const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
   values.map((value) => ({
-    value: `${value.address}-${value.networkId}-${value.symbol}`,
+    value: getTokenId(value),
     label: (
       <Text numberOfLines={1}>
         <Text fontSize={16} weight="medium">
