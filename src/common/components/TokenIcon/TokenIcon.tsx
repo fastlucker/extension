@@ -10,6 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import SkeletonLoader from '../SkeletonLoader'
+import { SkeletonLoaderProps } from '../SkeletonLoader/types'
 import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
@@ -25,6 +26,7 @@ interface Props extends Partial<ImageProps> {
   onGasTank?: boolean
   networkSize?: number
   uri?: string
+  skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
 const TokenIcon: React.FC<Props> = ({
@@ -39,6 +41,7 @@ const TokenIcon: React.FC<Props> = ({
   height = 20,
   onGasTank = false,
   networkSize = 14,
+  skeletonAppearance = 'primaryBackground',
   ...props
 }) => {
   const { theme, styles } = useTheme(getStyles)
@@ -94,7 +97,7 @@ const TokenIcon: React.FC<Props> = ({
           width={width}
           height={height}
           style={styles.loader}
-          appearance="primaryBackground"
+          appearance={skeletonAppearance}
         />
       )}
       {!!imageUrl && !hasError && (

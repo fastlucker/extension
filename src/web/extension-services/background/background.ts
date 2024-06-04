@@ -19,6 +19,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
+import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -54,6 +55,19 @@ function saveTimestamp() {
   browser.storage.session.set({ timestamp })
 }
 
+function stateDebug(event: string, stateToLog: object) {
+  // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
+  // This is especially true for the main controller, which includes all sub-controller states.
+  // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
+  // can take over 100ms to execute. With multiple consecutive updates, this can add up to over a second,
+  // causing the extension to slow down or freeze.
+  // Instead of logging with `logInfoWithPrefix` in production, we rely on EventEmitter.emitError() to log individual errors
+  // (instead of the entire state) to the user console, which aids in debugging without significant performance costs.
+  if (process.env.APP_ENV === 'production') return
+
+  logInfoWithPrefix(event, parse(stringify(stateToLog)))
+}
+
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
@@ -85,7 +99,8 @@ function saveTimestamp() {
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
     autoLockIntervalId?: ReturnType<typeof setInterval>
     activityIntervalId?: ReturnType<typeof setInterval>
-    reestimateInterval?: ReturnType<typeof setInterval>
+    gasPriceTimeout?: { start: any; stop: any }
+    estimateTimeout?: { start: any; stop: any }
     accountStateInterval?: ReturnType<typeof setInterval>
     selectedAccountStateInterval?: number
   } = {
@@ -207,15 +222,16 @@ function saveTimestamp() {
 
   setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
 
-  function setReestimateInterval(accountOp: AccountOp) {
-    !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
-
+  function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
-    backgroundState.reestimateInterval = setInterval(async () => {
-      mainCtrl.reestimateSignAccountOpAndUpdateGasPrices()
-    }, time)
+
+    return createRecurringTimeout(() => mainCtrl.updateSignAccountOpGasPrice(), time)
+  }
+
+  function createEstimateRecurringTimeout() {
+    return createRecurringTimeout(() => mainCtrl.estimateSignAccountOp(), 60000)
   }
 
   function debounceFrontEndEventUpdatesOnSameTick(
@@ -225,8 +241,16 @@ function saveTimestamp() {
     forceEmit?: boolean
   ): 'DEBOUNCED' | 'EMITTED' {
     const sendUpdate = () => {
-      pm.send('> ui', { method: ctrlName, params: ctrl, forceEmit })
-      logInfoWithPrefix(`onUpdate (${ctrlName} ctrl)`, parse(stringify(stateToLog)))
+      pm.send('> ui', {
+        method: ctrlName,
+        // We are removing the portfolio to avoid the CPU-intensive task of parsing + stringifying.
+        // The portfolio controller is particularly resource-heavy. Additionally, we should access the portfolio
+        // directly from its contexts instead of through the main, which applies to other nested controllers as well.
+        // Keep in mind: if we just spread `ctrl` instead of calling `ctrl.toJSON()`, the getters won't be included.
+        params: ctrlName === 'main' ? { ...ctrl.toJSON(), portfolio: null } : ctrl,
+        forceEmit
+      })
+      stateDebug(`onUpdate (${ctrlName} ctrl)`, stateToLog)
     }
 
     /**
@@ -266,9 +290,19 @@ function saveTimestamp() {
     // if the signAccountOp controller is active, reestimate at a set period of time
     if (backgroundState.hasSignAccountOpCtrlInitialized !== !!mainCtrl.signAccountOp) {
       if (mainCtrl.signAccountOp) {
-        setReestimateInterval(mainCtrl.signAccountOp.accountOp)
+        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
+        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
+
+        backgroundState.gasPriceTimeout = createGasPriceRecurringTimeout(
+          mainCtrl.signAccountOp.accountOp
+        )
+        backgroundState.gasPriceTimeout.start()
+
+        backgroundState.estimateTimeout = createEstimateRecurringTimeout()
+        backgroundState.estimateTimeout.start()
       } else {
-        !!backgroundState.reestimateInterval && clearInterval(backgroundState.reestimateInterval)
+        backgroundState.gasPriceTimeout && backgroundState.gasPriceTimeout.stop()
+        backgroundState.estimateTimeout && backgroundState.estimateTimeout.stop()
       }
 
       backgroundState.hasSignAccountOpCtrlInitialized = !!mainCtrl.signAccountOp
@@ -326,7 +360,7 @@ function saveTimestamp() {
 
         if (!hasOnErrorInitialized) {
           ;(mainCtrl as any)[ctrlName]?.onError(() => {
-            logInfoWithPrefix(`onError (${ctrlName} ctrl)`, parse(stringify(mainCtrl)))
+            stateDebug(`onError (${ctrlName} ctrl)`, mainCtrl)
             pm.send('> ui-error', {
               method: ctrlName,
               params: { errors: (mainCtrl as any)[ctrlName].emittedErrors, controller: ctrlName }
@@ -348,7 +382,7 @@ function saveTimestamp() {
     }
   }, 'background')
   mainCtrl.onError(() => {
-    logInfoWithPrefix('onError (main ctrl)', parse(stringify(mainCtrl)))
+    stateDebug('onError (main ctrl)', mainCtrl)
     pm.send('> ui-error', {
       method: 'main',
       params: { errors: mainCtrl.emittedErrors, controller: 'main' }
@@ -732,10 +766,16 @@ function saveTimestamp() {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
+                return await mainCtrl.buildTransferUserRequest(
+                  params.amount,
+                  params.recipientAddress,
+                  params.selectedToken
+                )
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
-                return await mainCtrl.removeUserRequest(params.id)
+                return mainCtrl.removeUserRequest(params.id)
               case 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST':
                 return mainCtrl.resolveUserRequest(params.data, params.id)
               case 'MAIN_CONTROLLER_REJECT_USER_REQUEST':
@@ -778,15 +818,6 @@ function saveTimestamp() {
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
-              case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE':
-                return await mainCtrl.reestimateSignAccountOpAndUpdateGasPrices()
-
-              case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
-                return mainCtrl.transfer.update(params)
-              case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
-                return mainCtrl.transfer.resetForm()
-              case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
-                return await mainCtrl.transfer.buildUserRequest()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

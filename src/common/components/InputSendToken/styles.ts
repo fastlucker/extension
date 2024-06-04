@@ -17,6 +17,7 @@ interface Style {
 const styles = StyleSheet.create<Style>({
   maxAmount: {
     ...flexbox.directionRow,
+    ...flexbox.justifySpaceBetween,
     ...spacings.mbMi
   },
   maxAmountLabel: {

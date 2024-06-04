@@ -27,7 +27,7 @@ const PayOption = ({
   const { maxWidthSize } = useWindowSize()
   const isL = maxWidthSize('l')
   const accountPref = settingsCtrl.accountPreferences[feeOption.paidBy]
-
+  const iconSize = isL ? 20 : 16
   const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
   const disabledStyle = disabled ? { opacity: 0.5 } : {}
 
@@ -82,14 +82,17 @@ const PayOption = ({
           ]}
         >
           <TokenIcon
-            containerHeight={isL ? 32 : 24}
-            containerWidth={isL ? 32 : 24}
-            width={isL ? 20 : 16}
-            height={isL ? 20 : 16}
+            containerStyle={{
+              width: iconSize,
+              height: iconSize
+            }}
+            width={iconSize}
+            height={iconSize}
             networkSize={10}
             address={feeOption.token.address}
             networkId={feeOption.token.networkId}
             onGasTank={feeOption.token.flags.onGasTank}
+            skeletonAppearance="secondaryBackground"
           />
           <Text weight="medium" numberOfLines={1} style={spacings.mlMi} fontSize={isL ? 14 : 12}>
             {feeOption.token.symbol}
@@ -107,13 +110,13 @@ const PayOption = ({
             weight="medium"
             style={{ textAlign: 'right' }}
           >
+            {disabledReason && (
+              <Text fontSize={10} appearance="errorText" weight="semiBold">
+                ({disabledReason}){' '}
+              </Text>
+            )}
             {t('Fee token')}
           </Text>
-          {disabledReason && (
-            <Text fontSize={10} appearance="errorText" weight="semiBold">
-              {disabledReason}
-            </Text>
-          )}
         </View>
       </View>
     </View>

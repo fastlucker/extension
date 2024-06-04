@@ -42,26 +42,42 @@ const configuredDappRpcUrls: string[] = []
   const originalFetch = window.fetch.bind(window)
   window.fetch = async function (...args) {
     const [resource, config] = args
-    if (config && config?.body) {
-      const { body } = config
+    let fetchURL: string = ''
+    let fetchBody: any
+    if (typeof resource === 'string' && config && config?.body) {
+      fetchURL = resource
+      fetchBody = config.body
+    }
+    if (typeof resource === 'object' && (resource as Request)?.body) {
+      // Avoid reading the body from the original fetch request, as the Request object has a 'bodyUsed' property that prevents multiple reads of the body.
+      // To work around this, clone the original Request, read the body from the clone, and leave the original request intact for the webpage to read
+      const reqClone = (resource as Request).clone()
+      if (reqClone.body) {
+        fetchURL = reqClone.url
+        fetchBody = await new Response(reqClone.body).text()
+      }
+    }
+
+    if (!!fetchURL && !!fetchBody) {
       // if the dapp uses ethers the body of the requests to the RPC will be Uint8Array
-      if (body instanceof Uint8Array) {
-        if (!foundDappRpcUrls.includes(resource as string))
-          foundDappRpcUrls.push(resource as string) // store potential RPC URL
+      if (fetchBody instanceof Uint8Array) {
+        if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store potential RPC URL
       } else {
         try {
-          const bodyObj: any = JSON.parse(body as any)
-          if (bodyObj.jsonrpc) {
-            if (!foundDappRpcUrls.includes(resource as string))
-              foundDappRpcUrls.push(resource as string) // store the potential RPC URL
+          const fetchBodyObject: any = JSON.parse(fetchBody as any)
+          if (fetchBodyObject.jsonrpc) {
+            if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store the potential RPC URL
           }
         } catch (error) {
-          // silent fail
+          if (fetchBody?.jsonrpc) {
+            if (!foundDappRpcUrls.includes(fetchURL)) foundDappRpcUrls.push(fetchURL) // store the potential RPC URL
+          }
         }
       }
     }
 
-    return originalFetch(resource as string, config)
+    // @ts-ignore
+    return originalFetch(...args)
   }
 })()
 
