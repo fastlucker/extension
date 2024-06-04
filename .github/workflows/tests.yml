@@ -88,6 +88,7 @@ jobs:
           SA_SELECTED_ACCOUNT: ${{ secrets.SA_SELECTED_ACCOUNT }}
           SA_TERMSTATE: ${{ secrets.SA_TERMSTATE }}
           SA_TOKEN_ITEMS: ${{ secrets.SA_TOKEN_ITEMS }}
+          SA_NETWORK_WITH_ASSETS: ${{ secrets.SA_NETWORK_WITH_ASSETS }}
 
         run: yarn run test:e2e:web
 
