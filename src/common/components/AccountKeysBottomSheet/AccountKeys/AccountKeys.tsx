@@ -39,7 +39,7 @@ const AccountKeys: FC<Props> = ({
         addr: key.addr,
         type: key.type,
         label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label,
-        meta: key.meta
+        dedicatedToOneSA: key.dedicatedToOneSA
       }))
       .sort((a, b) => {
         const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
@@ -54,7 +54,8 @@ const AccountKeys: FC<Props> = ({
       }),
     ...notImportedAccountKeys.map((keyAddr) => ({
       isImported: false,
-      addr: keyAddr
+      addr: keyAddr,
+      dedicatedToOneSA: false
     }))
   ]
 
@@ -73,18 +74,19 @@ const AccountKeys: FC<Props> = ({
           }
         ]}
       >
-        {accountKeys.map(({ type, addr, label, isImported, meta }, index) => {
+        {accountKeys.map(({ type, addr, label, isImported, meta, dedicatedToOneSA }, index) => {
           const isLast = index === accountKeys.length - 1
           const accountKeyProps = { label, addr, type, isLast, isImported }
 
           const handleOnKeyDetailsPress = () => {
-            setCurrentKeyDetails({ type, addr, label, isImported, meta })
+            setCurrentKeyDetails({ type, addr, label, isImported, meta, dedicatedToOneSA })
           }
 
           return (
             <AccountKey
               key={addr + type}
               meta={meta}
+              dedicatedToOneSA={dedicatedToOneSA}
               {...accountKeyProps}
               // TODO: Handle opening internal key details
               handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}

@@ -26,6 +26,7 @@ import { getUiType } from '@web/utils/uiType'
 export type AccountKeyType = {
   isImported: boolean
   addr: Key['addr']
+  dedicatedToOneSA: Key['dedicatedToOneSA']
   type?: Key['type']
   meta?: Key['meta']
   label?: string
@@ -52,6 +53,7 @@ const AccountKey: React.FC<Props> = ({
   label,
   addr,
   meta,
+  dedicatedToOneSA,
   isLast = false,
   type,
   isImported,
@@ -98,7 +100,9 @@ const AccountKey: React.FC<Props> = ({
     addToast(t('Key label updated'), { type: 'success' })
   }
 
-  const derivedForSmartAccountKeyOnly = isDerivedForSmartAccountKeyOnly(meta?.index)
+  // TODO: Use only the dedicatedToOneSA flag
+  const derivedForSmartAccountKeyOnly =
+    isDerivedForSmartAccountKeyOnly(meta?.index) || dedicatedToOneSA
   const shortAddr = shortenAddress(addr, 13)
 
   return (
@@ -146,7 +150,7 @@ const AccountKey: React.FC<Props> = ({
           weight={derivedForSmartAccountKeyOnly ? 'semiBold' : 'regular'}
           style={label || isImported ? spacings.mlTy : {}}
         >
-          {isDerivedForSmartAccountKeyOnly(meta?.index)
+          {derivedForSmartAccountKeyOnly
             ? t('(Dedicated key: {{shortAddr}})', { shortAddr })
             : label
             ? `(${shortAddr})`
