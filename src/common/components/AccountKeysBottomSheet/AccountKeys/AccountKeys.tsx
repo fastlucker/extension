@@ -84,6 +84,7 @@ const AccountKeys: FC<Props> = ({
           return (
             <AccountKey
               key={addr + type}
+              meta={meta}
               {...accountKeyProps}
               // TODO: Handle opening internal key details
               handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}

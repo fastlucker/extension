@@ -11,6 +11,7 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '@web/modules/hardware-wallet/constants/names'
+import shortenAddress from '@web/utils/shortenAddress'
 
 import Row from './Row'
 import getStyles from './styles'
@@ -49,15 +50,22 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         value: meta?.hdPathTemplate
           ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
           : '-',
-        tooltip:
-          typeof meta?.index === 'number' && isDerivedForSmartAccountKeyOnly(meta?.index)
-            ? t(
-                `Ambire smart account keys use a derived address by an offset of ${SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET}.`
-              )
-            : undefined
+        // TODO: Different note for private key
+        tooltip: isDerivedForSmartAccountKeyOnly(meta?.index)
+          ? t(
+              'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
+              {
+                addr: shortenAddress(details.addr, 13),
+                offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+              }
+            )
+          : undefined,
+        suffix: isDerivedForSmartAccountKeyOnly(meta?.index)
+          ? '\n(dedicated key with different derivation)'
+          : ''
       }
     ]
-  }, [t, type, meta?.deviceId, meta?.deviceModel, meta?.hdPathTemplate, meta?.index])
+  }, [type, t, meta?.deviceModel, meta?.deviceId, meta?.hdPathTemplate, meta?.index, details.addr])
 
   return (
     <View>
@@ -68,8 +76,8 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
       <View style={styles.container}>
         <AccountKey {...details} />
         <View style={[spacings.phSm, spacings.pvSm, spacings.mtMi]}>
-          {metaDetails.map(({ key, value, tooltip }) => (
-            <Row key={key} rowKey={key} value={value} tooltip={tooltip} />
+          {metaDetails.map(({ key, value, tooltip, suffix }) => (
+            <Row key={key} rowKey={key} value={value} tooltip={tooltip} suffix={suffix} />
           ))}
         </View>
       </View>

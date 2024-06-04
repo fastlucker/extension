@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
+import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
@@ -50,6 +51,7 @@ const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
 const AccountKey: React.FC<Props> = ({
   label,
   addr,
+  meta,
   isLast = false,
   type,
   isImported,
@@ -96,6 +98,9 @@ const AccountKey: React.FC<Props> = ({
     addToast(t('Key label updated'), { type: 'success' })
   }
 
+  const derivedForSmartAccountKeyOnly = isDerivedForSmartAccountKeyOnly(meta?.index)
+  const shortAddr = shortenAddress(addr, 13)
+
   return (
     <View
       style={[
@@ -135,8 +140,17 @@ const AccountKey: React.FC<Props> = ({
             </Text>
           )}
         </View>
-        <Text fontSize={fontSize} style={label || isImported ? spacings.mlTy : {}}>
-          {label ? `(${shortenAddress(addr, 13)})` : addr}
+        <Text
+          color={derivedForSmartAccountKeyOnly ? theme.infoDecorative : theme.primaryText}
+          fontSize={fontSize}
+          weight={derivedForSmartAccountKeyOnly ? 'semiBold' : 'regular'}
+          style={label || isImported ? spacings.mlTy : {}}
+        >
+          {isDerivedForSmartAccountKeyOnly(meta?.index)
+            ? t('(Dedicated key: {{shortAddr}})', { shortAddr })
+            : label
+            ? `(${shortAddr})`
+            : addr}
         </Text>
         <AnimatedPressable
           style={[spacings.mlTy, copyIconAnimStyle]}
