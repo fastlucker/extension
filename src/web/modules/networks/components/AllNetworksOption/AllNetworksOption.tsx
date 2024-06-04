@@ -5,6 +5,7 @@ import { View } from 'react-native'
 import NetworksIcon from '@common/assets/svg/NetworksIcon'
 import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
+import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
@@ -21,6 +22,7 @@ interface Props {
 const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
+  const { state } = useRoute()
   const { theme, styles } = useTheme(getStyles)
   const portfolioControllerState = usePortfolioControllerState()
   const [bindAnim, animStyle] = useMultiHover({
@@ -42,7 +44,7 @@ const AllNetworksOption: FC<Props> = ({ filterByNetworkId }) => {
   return (
     <AnimatedPressable
       onPress={() => {
-        navigate(WEB_ROUTES.dashboard, {
+        navigate(`${WEB_ROUTES.dashboard}${state.prevTab ? `?${state.prevTab}` : ''}`, {
           state: {
             filterByNetworkId: null
           }

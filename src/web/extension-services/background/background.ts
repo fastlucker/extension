@@ -19,6 +19,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
+import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
@@ -47,7 +48,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-import { createRecurringTimeout } from '@common/utils/timeout'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -227,10 +227,7 @@ function stateDebug(event: string, stateToLog: object) {
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
-    return createRecurringTimeout(
-      () => mainCtrl.updateSignAccountOpGasPrice(),
-      time
-    )
+    return createRecurringTimeout(() => mainCtrl.updateSignAccountOpGasPrice(), time)
   }
 
   function createEstimateRecurringTimeout() {
@@ -769,6 +766,12 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
+                return await mainCtrl.buildTransferUserRequest(
+                  params.amount,
+                  params.recipientAddress,
+                  params.selectedToken
+                )
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':
@@ -815,12 +818,6 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.initSignAccOp(params.actionId)
               case 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY':
                 return mainCtrl.destroySignAccOp()
-              case 'MAIN_CONTROLLER_TRANSFER_UPDATE':
-                return mainCtrl.transfer.update(params)
-              case 'MAIN_CONTROLLER_TRANSFER_RESET_FORM':
-                return mainCtrl.transfer.resetForm()
-              case 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST':
-                return await mainCtrl.transfer.buildUserRequest()
               case 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE':
                 return mainCtrl.actions.addOrUpdateAction(params)
               case 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE':

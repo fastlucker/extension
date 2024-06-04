@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -25,12 +26,13 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
+  filterByNetworkId: NetworkDescriptor['id']
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
+const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, filterByNetworkId }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -58,15 +60,23 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || []).filter(({ name, address }) => {
-        if (!searchValue) return true
+      (accountPortfolio?.collections || []).filter(({ name, address, networkId }) => {
+        let isMatchingNetwork = true
+        let isMatchingSearch = true
 
-        return (
-          name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          address.toLowerCase().includes(searchValue.toLowerCase())
-        )
+        if (filterByNetworkId) {
+          isMatchingNetwork = networkId === filterByNetworkId
+        }
+
+        if (searchValue) {
+          isMatchingSearch =
+            name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            address.toLowerCase().includes(searchValue.toLowerCase())
+        }
+
+        return isMatchingNetwork && isMatchingSearch
       }),
-    [accountPortfolio?.collections, searchValue]
+    [accountPortfolio?.collections, filterByNetworkId, searchValue]
   )
 
   const renderItem = useCallback(
@@ -82,7 +92,11 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-            {t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue && !filterByNetworkId && t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue &&
+              filterByNetworkId &&
+              t("You don't have any collectibles (NFTs) on this network")}
+            {searchValue && t('No collectibles (NFTs) found')}
           </Text>
         )
       }
@@ -109,10 +123,12 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
     },
     [
       control,
+      filterByNetworkId,
       filteredPortfolioCollections.length,
       initTab?.collectibles,
       openCollectibleModal,
       openTab,
+      searchValue,
       setOpenTab,
       t,
       theme.primaryBackground

@@ -218,7 +218,9 @@ const Tokens = ({
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
             <Text fontSize={16} weight="medium">
-              {searchValue ? t('No tokens found') : t('No tokens yet')}
+              {!searchValue && !filterByNetworkId && t("You don't have any tokens yet")}
+              {!searchValue && filterByNetworkId && t("You don't have any tokens on this network")}
+              {searchValue && t('No tokens found')}
             </Text>
           </View>
         )
