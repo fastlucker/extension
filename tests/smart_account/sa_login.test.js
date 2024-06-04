@@ -51,7 +51,7 @@ describe('sa_login', () => {
   it('create smart account with phrase', async () => {
     await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
-    const passphraseWords = process.env.PASSPHRASE_SA
+    const passphraseWords = process.env.SA_PASSPHRASE
     const wordArray = passphraseWords.split(' ')
 
     await page.waitForSelector('[placeholder="Word 1"]')
