@@ -27,6 +27,7 @@ export type AccountKeyType = {
   addr: Key['addr']
   dedicatedToOneSA: Key['dedicatedToOneSA']
   type?: Key['type']
+  meta?: Key['meta']
   label?: string
 }
 
