@@ -232,7 +232,7 @@ const ViewOnlyScreen = () => {
               control={control}
               index={index}
               remove={remove}
-              isSubmitting={isSubmitting}
+              isLoading={isLoading || isSubmitting}
               handleSubmit={handleSubmit(handleFormSubmit)}
               disabled={disabled}
               field={field}

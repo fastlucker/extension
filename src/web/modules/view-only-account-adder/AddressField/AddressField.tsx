@@ -17,7 +17,7 @@ interface Props {
   index: number
   watch: UseFormWatch<any>
   control: any
-  isSubmitting: boolean
+  isLoading: boolean
   handleSubmit: () => void
   remove: (index: number) => void
   disabled: boolean
@@ -30,7 +30,7 @@ const AddressField: FC<Props> = ({
   index,
   watch,
   control,
-  isSubmitting,
+  isLoading,
   handleSubmit,
   remove,
   disabled,
@@ -69,8 +69,9 @@ const AddressField: FC<Props> = ({
   }, [duplicateAccountsIndexes, index, mainControllerState.accounts, value])
 
   const handleRevalidate = useCallback(() => {
+    if (isLoading) return
     trigger(`accounts.${index}.fieldValue`)
-  }, [index, trigger])
+  }, [index, isLoading, trigger])
 
   const { validation, RHFValidate } = useAddressInput({
     addressState: value,
@@ -90,14 +91,14 @@ const AddressField: FC<Props> = ({
       render={({ field: { onChange, onBlur } }) => (
         <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
           <AddressInput
-            testID='view-only-address-field'
+            testID="view-only-address-field"
             validation={validation}
             containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value.fieldValue}
             autoFocus
-            disabled={isSubmitting}
+            disabled={isLoading}
             ensAddress={value.ensAddress}
             udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}
