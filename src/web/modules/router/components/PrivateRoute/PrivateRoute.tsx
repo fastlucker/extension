@@ -28,7 +28,7 @@ const PrivateRoute = () => {
     to = ROUTES.keyStoreUnlock
   }
   if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
-    to = ROUTES.auth
+    to = ROUTES.getStarted
   }
 
   return !to ? <Outlet /> : <Navigate to={to} />

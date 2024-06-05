@@ -321,7 +321,7 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && (
+            {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Toggle
                   isOn={isHidden}
