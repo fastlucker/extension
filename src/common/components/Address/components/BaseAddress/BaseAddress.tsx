@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 // import AddressBookIcon from '@common/assets/svg/AddressBookIcon'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
@@ -25,7 +25,7 @@ import Option from './BaseAddressOption'
 
 interface Props extends TextProps {
   address: string
-  explorerNetworkId?: NetworkDescriptor['id']
+  explorerNetworkId?: NetworkId
 }
 
 const { isActionWindow } = getUiType()

@@ -2,7 +2,7 @@ import { formatUnits } from 'ethers'
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { PendingToken } from '@ambire-common/libs/portfolio/portfolioView'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -15,7 +15,7 @@ import getStyles from './styles'
 
 interface Props {
   token: PendingToken
-  networkId: NetworkDescriptor['id']
+  networkId: NetworkId
   hasBottomSpacing?: boolean
 }
 

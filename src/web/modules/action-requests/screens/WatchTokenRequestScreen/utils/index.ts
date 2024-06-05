@@ -1,7 +1,7 @@
 import { ZeroAddress } from 'ethers'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { RPCProviders } from '@ambire-common/interfaces/settings'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
@@ -10,31 +10,31 @@ import { TokenData } from '@web/modules/action-requests/screens/WatchTokenReques
 const polygonMaticTokenAddress = '0x0000000000000000000000000000000000001010'
 
 const selectNetwork = async (
-  network: NetworkDescriptor | undefined,
-  tokenNetwork: NetworkDescriptor | undefined,
+  network: Network | undefined,
+  tokenNetwork: Network | undefined,
   tokenData: TokenData,
-  networks: NetworkDescriptor[],
+  networks: Network[],
   portfolio: { state: PortfolioController },
   setIsLoading: (isLoading: boolean) => void,
-  setTokenNetwork: (network: NetworkDescriptor) => void,
+  setTokenNetwork: (network: Network) => void,
   handleTokenType: (networkId: string) => void,
   providers: RPCProviders
 ) => {
   if (!network && !tokenNetwork?.id) {
     const validTokenNetworks = networks.filter(
-      (_network: NetworkDescriptor) =>
+      (_network: Network) =>
         portfolio.state.validTokens.erc20[`${tokenData?.address}-${_network.id}`] === true &&
         `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20
     )
     const allNetworksChecked = networks.every(
-      (_network: NetworkDescriptor) =>
+      (_network: Network) =>
         `${tokenData?.address}-${_network.id}` in portfolio.state.validTokens.erc20 &&
         providers[_network.id].isWorking
     )
 
     if (validTokenNetworks.length > 0) {
       const newTokenNetwork = validTokenNetworks.find(
-        (_network: NetworkDescriptor) => _network.id !== tokenNetwork?.id
+        (_network: Network) => _network.id !== tokenNetwork?.id
       )
       if (newTokenNetwork) {
         setTokenNetwork(newTokenNetwork)
@@ -44,8 +44,7 @@ const selectNetwork = async (
     } else {
       await Promise.all(
         networks.map(
-          (_network: NetworkDescriptor) =>
-            providers[_network.id].isWorking && handleTokenType(_network.id)
+          (_network: Network) => providers[_network.id].isWorking && handleTokenType(_network.id)
         )
       )
     }
@@ -55,7 +54,7 @@ const selectNetwork = async (
 const getTokenEligibility = (
   tokenData: { address: string } | CustomToken,
   portfolio: { state: PortfolioController },
-  tokenNetwork: NetworkDescriptor | undefined
+  tokenNetwork: Network | undefined
 ) =>
   null ||
   (tokenData?.address &&
@@ -64,7 +63,7 @@ const getTokenEligibility = (
 
 const getTokenFromPreferences = (
   tokenData: { address: string } | CustomToken,
-  tokenNetwork: NetworkDescriptor | undefined,
+  tokenNetwork: Network | undefined,
   tokenPreferences: CustomToken[]
 ) =>
   tokenData &&
@@ -77,7 +76,7 @@ const getTokenFromPreferences = (
 const handleTokenIsInPortfolio = async (
   tokenInPreferences: CustomToken | undefined,
   accountPortfolio: AccountPortfolio | null,
-  tokenNetwork: NetworkDescriptor,
+  tokenNetwork: Network,
   tokenData: { address: string } | CustomToken
 ) => {
   const isTokenInHints =
@@ -98,7 +97,7 @@ const handleTokenIsInPortfolio = async (
 
 const getTokenFromPortfolio = (
   tokenData: { address: string } | CustomToken,
-  tokenNetwork: NetworkDescriptor | undefined,
+  tokenNetwork: Network | undefined,
   accountPortfolio: AccountPortfolio | null,
   tokenInPreferences: CustomToken | undefined
 ) =>
@@ -113,7 +112,7 @@ const getTokenFromPortfolio = (
 const getTokenFromTemporaryTokens = (
   portfolio: any,
   tokenData: { address: string } | CustomToken,
-  tokenNetwork: NetworkDescriptor | undefined
+  tokenNetwork: Network | undefined
 ) =>
   undefined ||
   (tokenData &&

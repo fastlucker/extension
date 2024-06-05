@@ -10,7 +10,7 @@ import React, {
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { Avatar } from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Pagination from '@common/components/Pagination'
@@ -43,7 +43,7 @@ const formatAddressLabelInSelector = (label: string, isLargeScreen: boolean) => 
 interface Props {
   HistoryComponent: ComponentType<{
     page?: number
-    network?: NetworkDescriptor
+    network?: Network
     account: Account
   }>
   historyType: 'transactions' | 'messages'
@@ -71,9 +71,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const [account, setAccount] = useState<Account>(
     mainState.accounts.filter((acc) => acc.addr === mainState.selectedAccount)[0]
   )
-  const [network, setNetwork] = useState<NetworkDescriptor>(
-    networks.filter((n) => n.id === 'ethereum')[0]
-  )
+  const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
   const accountsOptions: SelectValue[] = useMemo(() => {
     return mainState.accounts.map((acc) => ({

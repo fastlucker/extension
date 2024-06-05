@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
-import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,

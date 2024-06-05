@@ -8,7 +8,7 @@ import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp
 import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import {
   AccountPreferences,
   CustomNetwork,
@@ -97,7 +97,7 @@ type MainControllerAddCustomNetwork = {
 
 type MainControllerRemoveCustomNetwork = {
   type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
-  params: NetworkDescriptor['id']
+  params: NetworkId
 }
 
 type SettingsControllerAddAccountPreferences = {
@@ -108,7 +108,7 @@ type SettingsControllerAddAccountPreferences = {
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
-    chainId: NetworkDescriptor['chainId']
+    chainId: Network['chainId']
     rpcUrl: string
   }
 }
@@ -126,7 +126,7 @@ type MainControllerUpdateNetworkPreferences = {
   type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
   params: {
     networkPreferences: Partial<NetworkPreference>
-    networkId: NetworkDescriptor['id']
+    networkId: NetworkId
   }
 }
 
@@ -134,7 +134,7 @@ type MainControllerResetNetworkPreference = {
   type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
   params: {
     preferenceKey: keyof NetworkPreference
-    networkId: NetworkDescriptor['id']
+    networkId: NetworkId
   }
 }
 
@@ -266,7 +266,7 @@ type MainControllerSignAccountOpUpdateMainDepsAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
     accounts?: Account[]
-    networks?: NetworkDescriptor[]
+    networks?: Network[]
     accountStates?: AccountStates
   }
 }

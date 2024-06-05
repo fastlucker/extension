@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react'
 import { Pressable, View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -20,10 +20,10 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
-  networkId: NetworkDescriptor['id']
-  filterByNetworkId: NetworkDescriptor['id'] | null
+  networkId: NetworkId
+  filterByNetworkId: NetworkId | null
   openBlockExplorer: (url?: string) => void
-  openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
+  openSettingsBottomSheet: (networkId: NetworkId) => void
 }
 
 const Network: FC<Props> = ({

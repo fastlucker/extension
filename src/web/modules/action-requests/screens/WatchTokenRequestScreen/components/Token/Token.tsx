@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Alert from '@common/components/Alert'
@@ -27,7 +27,7 @@ const Token = ({
 }: {
   temporaryToken: TokenResult
   tokenData: TokenData | CustomToken | undefined
-  tokenNetwork: NetworkDescriptor | undefined
+  tokenNetwork: Network | undefined
   isLoading: boolean
   showAlreadyInPortfolioMessage: boolean
 }) => {

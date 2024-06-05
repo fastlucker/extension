@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
-import { NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkFeature } from '@ambire-common/interfaces/network'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'

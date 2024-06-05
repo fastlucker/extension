@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
-import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -33,7 +33,7 @@ import { deployContractsBytecode } from './oldDeployParams'
 import getStyles from './styles'
 
 type Props = {
-  networkId?: NetworkDescriptor['id']
+  networkId?: NetworkId
   features: NetworkFeature[] | undefined
   withRetryButton?: boolean
   handleRetry?: () => void

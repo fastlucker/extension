@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import InputSendToken from '@common/components/InputSendToken'
@@ -43,7 +43,7 @@ const getSelectProps = ({
   tokens: TokenResult[]
   token: string
   isTopUp: boolean
-  networks: NetworkDescriptor[]
+  networks: Network[]
 }) => {
   let options: any = []
   let value = null

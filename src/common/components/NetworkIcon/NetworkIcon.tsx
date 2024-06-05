@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
 import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
@@ -26,7 +26,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
-export type NetworkIconIdType = NetworkDescriptor['id'] | 'gasTank' | 'rewards'
+export type NetworkIconIdType = NetworkId | 'gasTank' | 'rewards'
 
 type Props = {
   id: NetworkIconIdType
@@ -36,7 +36,7 @@ type Props = {
   style?: ViewStyle
   withTooltip?: boolean
   [key: string]: any
-  benzinNetwork?: NetworkDescriptor
+  benzinNetwork?: Network
 }
 
 const icons: { [key: string]: any } = {

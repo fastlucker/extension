@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -21,7 +21,7 @@ import getStyles from './styles'
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
   closeBottomSheet: () => void
-  selectedNetworkId: NetworkDescriptor['id'] | null
+  selectedNetworkId: NetworkId | null
   openBlockExplorer: (url?: string) => void
 }
 

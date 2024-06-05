@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
 import Text from '@common/components/Text'
@@ -18,7 +18,7 @@ interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize: number
   textSize: number
-  networkId: NetworkDescriptor['id']
+  networkId: NetworkId
   isHistory?: boolean
 }
 

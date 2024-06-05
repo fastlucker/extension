@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { getFeatures } from '@ambire-common/libs/settings/settings'
 import { isValidURL } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
@@ -114,7 +114,7 @@ const NetworkForm = ({
   onCancel,
   onSaved
 }: {
-  selectedNetworkId?: NetworkDescriptor['id']
+  selectedNetworkId?: NetworkId
   onCancel: () => void
   onSaved: () => void
 }) => {

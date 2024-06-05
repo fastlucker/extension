@@ -6,7 +6,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
@@ -62,7 +62,7 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const networkData: NetworkDescriptor | null =
+  const networkData: Network | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =

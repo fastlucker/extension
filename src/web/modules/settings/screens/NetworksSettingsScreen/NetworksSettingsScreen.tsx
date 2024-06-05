@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -89,7 +89,7 @@ const NetworksSettingsScreen = () => {
     [networks, search]
   )
 
-  const handleSelectNetwork = useCallback((id: NetworkDescriptor['id']) => {
+  const handleSelectNetwork = useCallback((id: NetworkId) => {
     setSelectedNetworkId(id)
   }, [])
 

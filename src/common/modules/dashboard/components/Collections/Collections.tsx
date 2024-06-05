@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -26,7 +26,7 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
-  filterByNetworkId: NetworkDescriptor['id']
+  filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
 }
 

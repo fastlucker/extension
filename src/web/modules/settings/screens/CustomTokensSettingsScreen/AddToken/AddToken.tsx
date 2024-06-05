@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { isValidAddress } from '@ambire-common/services/address'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -41,9 +41,7 @@ const AddToken = () => {
   const { addToast } = useToast()
   const portfolio = usePortfolioControllerState()
 
-  const [network, setNetwork] = useState<NetworkDescriptor>(
-    networks.filter((n) => n.id === 'ethereum')[0]
-  )
+  const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(false)

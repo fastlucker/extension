@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -29,7 +29,7 @@ import Skeleton from './TokensSkeleton'
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  filterByNetworkId: NetworkDescriptor['id']
+  filterByNetworkId: NetworkId
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
