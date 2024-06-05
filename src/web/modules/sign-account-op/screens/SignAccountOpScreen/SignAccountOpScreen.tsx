@@ -30,7 +30,7 @@ import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
-import SigningKeySelect from '@web/modules/sign-message/components'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
 import getStyles from './styles'
 
