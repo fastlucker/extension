@@ -134,10 +134,7 @@ const TokenDetails = ({
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled:
-          !isGasTankFeeToken ||
-          !isSmartAccount ||
-          !networks.find((n) => n.id === token.networkId && n.hasRelayer),
+        isDisabled: !isGasTankFeeToken || !isSmartAccount,
         strokeWidth: 1
       },
       {

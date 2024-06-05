@@ -17,6 +17,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import DashboardBanners from '../DashboardBanners'
@@ -42,7 +43,11 @@ interface Props {
 const hasAmount = (token: TokenResult) => {
   return token.amount > 0n || (token.amountPostSimulation && token.amountPostSimulation > 0n)
 }
-
+// if the token is on the gas tank and the network is not a relayer network (a custom network)
+// we should not show it on dashboard
+const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
+  return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
+}
 const calculateTokenBalance = (token: TokenResult) => {
   const amount = getTokenAmount(token)
   const { decimals, priceIn } = token
@@ -66,6 +71,7 @@ const Tokens = ({
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { networks } = useSettingsControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -123,18 +129,19 @@ const Tokens = ({
       tokens
         .filter(
           (token) =>
-            hasAmount(token) ||
-            tokenPreferences.find(
-              ({ address, networkId }) =>
-                token.address.toLowerCase() === address.toLowerCase() &&
-                token.networkId === networkId
-            ) ||
-            (!hasNonZeroTokensOrPreferences &&
-              PINNED_TOKENS.find(
+            (hasAmount(token) ||
+              tokenPreferences.find(
                 ({ address, networkId }) =>
                   token.address.toLowerCase() === address.toLowerCase() &&
                   token.networkId === networkId
-              ))
+              ) ||
+              (!hasNonZeroTokensOrPreferences &&
+                PINNED_TOKENS.find(
+                  ({ address, networkId }) =>
+                    token.address.toLowerCase() === address.toLowerCase() &&
+                    token.networkId === networkId
+                ))) &&
+            !isGasTankTokenOnCustomNetwork(token, networks)
         )
         .filter((token) => !token.isHidden)
         .sort((a, b) => {
