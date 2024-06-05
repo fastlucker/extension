@@ -134,7 +134,10 @@ const TokenDetails = ({
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        isDisabled:
+          !isGasTankFeeToken ||
+          !isSmartAccount ||
+          !networks.find((n) => n.id === token.networkId && n.hasRelayer),
         strokeWidth: 1
       },
       {
@@ -222,6 +225,7 @@ const TokenDetails = ({
     const networkData = networks.find((n) => n.id === token?.networkId)
     if (!networkData) {
       addToast(t('Network not found'), { type: 'error' })
+      setIsTokenInfoLoading(false)
       return
     }
     const coingeckoId = geckoIdMapper(token?.address, networkData)
@@ -245,7 +249,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks])
 
   const handleHideToken = () => {
     if (!token) return
