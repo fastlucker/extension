@@ -29,8 +29,19 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
   const metaDetails = useMemo(() => {
-    // TODO: Implement internal key details. Could also be in a separate component?
-    if (type === 'internal') return []
+    if (type === 'internal')
+      return [
+        {
+          key: t('Address'),
+          value: addr,
+          tooltip: dedicatedToOneSA
+            ? t(
+                'Ambire derives a different key from your private key, for security and privacy reasons.'
+              )
+            : undefined,
+          suffix: dedicatedToOneSA ? '\n(dedicated key derived from the private key)' : ''
+        }
+      ]
 
     return [
       {
@@ -51,21 +62,13 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
           ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
           : '-',
         tooltip: dedicatedToOneSA
-          ? type === 'internal'
-            ? t(
-                'Ambire derives a different key from your private key, for security and privacy reasons.',
-                {
-                  addr: shortenAddress(addr, 13),
-                  offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-                }
-              )
-            : t(
-                'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
-                {
-                  addr: shortenAddress(addr, 13),
-                  offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-                }
-              )
+          ? t(
+              'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
+              {
+                addr: shortenAddress(addr, 13),
+                offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+              }
+            )
           : undefined,
         suffix: dedicatedToOneSA ? `\n(dedicated key with different derivation)\n${addr}` : ''
       }

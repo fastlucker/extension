@@ -90,8 +90,7 @@ const AccountKeys: FC<Props> = ({
               dedicatedToOneSA={dedicatedToOneSA}
               showCopyAddr={!dedicatedToOneSA}
               {...accountKeyProps}
-              // TODO: Handle opening internal key details
-              handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}
+              handleOnKeyDetailsPress={handleOnKeyDetailsPress}
             />
           )
         })}
