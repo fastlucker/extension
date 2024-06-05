@@ -17,7 +17,7 @@ describe('sa_balance', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------

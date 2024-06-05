@@ -26,7 +26,6 @@ describe('Invite Verification', () => {
       setTimeout(r, 3000)
     })
     await page.bringToFront()
-    // await page.reload()
   })
 
   afterEach(async () => {
@@ -38,6 +37,13 @@ describe('Invite Verification', () => {
     // In case of multiple redirects,
     // the navigation will resolve with the response of the last redirect.
     // await page.waitForNavigation()
+
+    await page.waitForFunction(
+      () => {
+        return window.location.href.includes('/invite-verify')
+      },
+      { timeout: 60000 }
+    )
 
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/invite-verify')
