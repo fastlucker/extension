@@ -39,7 +39,8 @@ const AccountKeys: FC<Props> = ({
         addr: key.addr,
         type: key.type,
         label: keyPreferences.find((x) => x.addr === key.addr && x.type === key.type)?.label,
-        dedicatedToOneSA: key.dedicatedToOneSA
+        dedicatedToOneSA: key.dedicatedToOneSA,
+        meta: key.meta
       }))
       .sort((a, b) => {
         const matchA = a.label?.match(DEFAULT_KEY_LABEL_PATTERN)
@@ -87,6 +88,7 @@ const AccountKeys: FC<Props> = ({
               key={addr + type}
               meta={meta}
               dedicatedToOneSA={dedicatedToOneSA}
+              showCopyAddr={!dedicatedToOneSA}
               {...accountKeyProps}
               // TODO: Handle opening internal key details
               handleOnKeyDetailsPress={type === 'internal' ? undefined : handleOnKeyDetailsPress}

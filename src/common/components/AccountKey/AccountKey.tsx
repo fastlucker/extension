@@ -37,6 +37,7 @@ type Props = AccountKeyType & {
   style?: ViewStyle
   enableEditing?: boolean
   handleOnKeyDetailsPress?: () => void
+  showCopyAddr?: boolean
 }
 
 const { isPopup } = getUiType()
@@ -53,6 +54,7 @@ const AccountKey: React.FC<Props> = ({
   label,
   addr,
   meta,
+  showCopyAddr = true,
   dedicatedToOneSA,
   isLast = false,
   type,
@@ -100,9 +102,6 @@ const AccountKey: React.FC<Props> = ({
     addToast(t('Key label updated'), { type: 'success' })
   }
 
-  // TODO: Use only the dedicatedToOneSA flag
-  const derivedForSmartAccountKeyOnly =
-    isDerivedForSmartAccountKeyOnly(meta?.index) || dedicatedToOneSA
   const shortAddr = shortenAddress(addr, 13)
 
   return (
@@ -145,24 +144,22 @@ const AccountKey: React.FC<Props> = ({
           )}
         </View>
         <Text
-          color={derivedForSmartAccountKeyOnly ? theme.infoDecorative : theme.primaryText}
+          color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
           fontSize={fontSize}
-          weight={derivedForSmartAccountKeyOnly ? 'semiBold' : 'regular'}
+          weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
           style={label || isImported ? spacings.mlTy : {}}
         >
-          {derivedForSmartAccountKeyOnly
-            ? t('(Dedicated key: {{shortAddr}})', { shortAddr })
-            : label
-            ? `(${shortAddr})`
-            : addr}
+          {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : addr}
         </Text>
-        <AnimatedPressable
-          style={[spacings.mlTy, copyIconAnimStyle]}
-          onPress={handleCopy}
-          {...bindCopyIconAnim}
-        >
-          <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
-        </AnimatedPressable>
+        {showCopyAddr && (
+          <AnimatedPressable
+            style={[spacings.mlTy, copyIconAnimStyle]}
+            onPress={handleCopy}
+            {...bindCopyIconAnim}
+          >
+            <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
+          </AnimatedPressable>
+        )}
       </View>
       {isImported ? (
         handleOnKeyDetailsPress && (

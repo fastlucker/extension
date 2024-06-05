@@ -24,7 +24,7 @@ interface Props {
 const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { type, meta } = details
+  const { type, meta, addr } = details
 
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
@@ -55,17 +55,17 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
           ? t(
               'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
               {
-                addr: shortenAddress(details.addr, 13),
+                addr: shortenAddress(addr, 13),
                 offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
               }
             )
           : undefined,
         suffix: isDerivedForSmartAccountKeyOnly(meta?.index)
-          ? '\n(dedicated key with different derivation)'
+          ? `\n(dedicated key with different derivation)\n${addr}`
           : ''
       }
     ]
-  }, [type, t, meta?.deviceModel, meta?.deviceId, meta?.hdPathTemplate, meta?.index, details.addr])
+  }, [type, t, meta?.deviceModel, meta?.deviceId, meta?.hdPathTemplate, meta?.index, addr])
 
   return (
     <View>
