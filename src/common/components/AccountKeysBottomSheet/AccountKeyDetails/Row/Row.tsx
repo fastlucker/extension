@@ -22,6 +22,7 @@ const Row: FC<Props> = ({ rowKey, value, tooltip, suffix }) => {
       <Text fontSize={14}>{rowKey}: </Text>
       <Text
         fontSize={14}
+        selectable
         weight="semiBold"
         style={{
           // @ts-ignore missing in the types, but React Native Web supports it
@@ -43,7 +44,7 @@ const Row: FC<Props> = ({ rowKey, value, tooltip, suffix }) => {
           </>
         )}
         {suffix && (
-          <Text fontSize={14} color={theme.infoDecorative} weight="semiBold">
+          <Text selectable fontSize={14} color={theme.infoDecorative} weight="semiBold">
             {suffix}
           </Text>
         )}
