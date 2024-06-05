@@ -185,8 +185,6 @@ const ViewOnlyScreen = () => {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
-    } else {
-      setIsLoading(false)
     }
   }, [
     accounts,
@@ -232,7 +230,7 @@ const ViewOnlyScreen = () => {
               control={control}
               index={index}
               remove={remove}
-              isSubmitting={isSubmitting}
+              isLoading={isLoading || isSubmitting}
               handleSubmit={handleSubmit(handleFormSubmit)}
               disabled={disabled}
               field={field}
