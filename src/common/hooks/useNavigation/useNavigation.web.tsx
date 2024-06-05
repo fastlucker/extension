@@ -42,13 +42,14 @@ const useNavigation = (): UseNavigationReturnType => {
   }, [])
 
   // Needed only in the mobile context
-  const setParams = () => {}
+  const setParams = useCallback(() => {}, [])
 
   return {
     navigate,
     setParams,
     setOptions,
-    goBack
+    goBack,
+    canGoBack: !!prevRoute
   }
 }
 

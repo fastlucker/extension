@@ -266,12 +266,13 @@ const SeedPhraseImportScreen = () => {
               render={({ field: { onChange, value } }) => (
                 <Select
                   setValue={(e) => {
-                    updateFieldsLength(e.value)
+                    updateFieldsLength(e.value as number)
                     onChange(e)
                   }}
                   options={SEED_LENGTH_SELECT_OPTIONS}
                   selectStyle={{ height: 40 }}
                   value={value}
+                  containerStyle={{ width: 240 }}
                 />
               )}
             />
