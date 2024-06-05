@@ -27,7 +27,7 @@ describe('sa_transactions', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    await browser.close()
+    // await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -323,6 +323,41 @@ describe('sa_transactions', () => {
       browser,
       '[data-testid="transfer-button-send"]',
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
+    )
+  })
+  //--------------------------------------------------------------------------------------------------------------
+  it.only('Pay transaction fee with smart account', async () => {
+    /* Click on "Send" button */
+    await clickOnElement(page, '[data-testid="dashboard-button-send"]')
+
+    await page.waitForSelector(amountField)
+
+    await selectMaticToken(page)
+
+    /* Type the amount */
+    await typeText(page, amountField, '0.0001')
+
+    /* Type the adress of the recipient  */
+    await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
+    )
+    await page.waitForSelector('[data-testid="checkbox"]')
+
+    /* Check the checkbox "I confirm this address is not a Binance wallets...." */
+    await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
+
+    /* Check the checkbox "Confirm sending to a previously unknown address" */
+    await clickOnElement(page, '[data-testid="checkbox"]')
+
+    /* Click on "Send" button and cofirm transaction */
+    await confirmTransaction(
+      page,
+      extensionRootUrl,
+      browser,
+      '[data-testid="transfer-button-send"]',
+      '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
+      // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
   })
 })
