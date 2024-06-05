@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
 
 import { Key } from '@ambire-common/interfaces/keystore'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
@@ -28,7 +27,6 @@ export type AccountKeyType = {
   addr: Key['addr']
   dedicatedToOneSA: Key['dedicatedToOneSA']
   type?: Key['type']
-  meta?: Key['meta']
   label?: string
 }
 
@@ -53,7 +51,6 @@ const KeyTypeIcon = memo(({ type }: { type: Key['type'] }) => {
 const AccountKey: React.FC<Props> = ({
   label,
   addr,
-  meta,
   showCopyAddr = true,
   dedicatedToOneSA,
   isLast = false,
