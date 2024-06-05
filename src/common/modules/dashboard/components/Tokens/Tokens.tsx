@@ -17,6 +17,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
 import DashboardBanners from '../DashboardBanners'
@@ -270,6 +271,7 @@ const Tokens = ({
       control,
       t,
       searchValue,
+      filterByNetworkId,
       accountPortfolio?.isAllReady,
       navigateToAddCustomToken
     ]
@@ -280,11 +282,7 @@ const Tokens = ({
       return tokenOrElement
     }
 
-    const token = tokenOrElement
-
-    return `${token?.address}-${token?.networkId}-${token?.flags?.onGasTank ? 'gas-tank' : ''}${
-      token?.flags?.rewardsType ? 'rewards' : ''
-    }${!token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''}`
+    return getTokenId(tokenOrElement)
   }, [])
 
   useEffect(() => {

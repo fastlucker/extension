@@ -13,7 +13,10 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
-import { isSmartAccount } from '@ambire-common/libs/account/account'
+import {
+  isDerivedForSmartAccountKeyOnly,
+  isSmartAccount
+} from '@ambire-common/libs/account/account'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
@@ -623,7 +626,7 @@ function stateDebug(event: string, stateToLog: object) {
                       accountKeys.map(({ addr, index }) => ({
                         addr,
                         type: keyType,
-                        dedicatedToOneSA: !isLinked,
+                        dedicatedToOneSA: isDerivedForSmartAccountKeyOnly(index),
                         meta: {
                           deviceId: deviceIds[keyType],
                           deviceModel: deviceModels[keyType],

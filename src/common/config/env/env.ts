@@ -87,6 +87,7 @@ interface Config extends EnvTypes {
   RPC_URLS: {
     [key in NETWORKS]: string
   }
+  NFT_CDN_URL: string
 }
 
 const CONFIG: Config = {
