@@ -185,8 +185,6 @@ const ViewOnlyScreen = () => {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
-    } else {
-      setIsLoading(false)
     }
   }, [
     accounts,

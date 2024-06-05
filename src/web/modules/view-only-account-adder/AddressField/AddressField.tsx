@@ -56,6 +56,10 @@ const AddressField: FC<Props> = ({
   )
 
   const overwriteError = useMemo(() => {
+    // We don't want to update the error message while accounts are being
+    // imported because that would stop the import process.
+    if (isLoading) return ''
+
     if (
       mainControllerState.accounts.find(
         (account) => account.addr.toLowerCase() === getAddressFromAddressState(value).toLowerCase()
@@ -66,9 +70,11 @@ const AddressField: FC<Props> = ({
     if (duplicateAccountsIndexes.includes(index)) return 'Duplicate address.'
 
     return ''
-  }, [duplicateAccountsIndexes, index, mainControllerState.accounts, value])
+  }, [duplicateAccountsIndexes, index, isLoading, mainControllerState.accounts, value])
 
   const handleRevalidate = useCallback(() => {
+    // We don't want to update the error message while accounts are being
+    // imported because that would stop the import process.
     if (isLoading) return
     trigger(`accounts.${index}.fieldValue`)
   }, [index, isLoading, trigger])
