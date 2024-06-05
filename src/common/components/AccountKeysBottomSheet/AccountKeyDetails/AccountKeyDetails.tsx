@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET } from '@ambire-common/consts/derivation'
-import { isDerivedForSmartAccountKeyOnly } from '@ambire-common/libs/account/account'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BackButton from '@common/components/BackButton'
@@ -39,7 +38,7 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
                 'Ambire derives a different key from your private key, for security and privacy reasons.'
               )
             : undefined,
-          suffix: dedicatedToOneSA ? '\n(dedicated key derived from the private key)' : ''
+          suffix: dedicatedToOneSA ? `\n${t('(dedicated key derived from the private key)')}` : ''
         }
       ]
 
@@ -70,7 +69,9 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
               }
             )
           : undefined,
-        suffix: dedicatedToOneSA ? `\n(dedicated key with different derivation)\n${addr}` : ''
+        suffix: dedicatedToOneSA
+          ? `\n${t('(dedicated key with different derivation)\n{{addr}}', { addr })}`
+          : ''
       }
     ]
   }, [
