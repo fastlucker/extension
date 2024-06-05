@@ -24,7 +24,7 @@ interface Props {
 const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { type, meta, addr } = details
+  const { type, meta, addr, dedicatedToOneSA } = details
 
   // Ideally, the meta should be all in there for external keys,
   // but just in case, add fallbacks (that should never happen)
@@ -50,22 +50,36 @@ const AccountKeyDetails: FC<Props> = ({ details, closeDetails }) => {
         value: meta?.hdPathTemplate
           ? getHdPathFromTemplate(meta?.hdPathTemplate, meta?.index)
           : '-',
-        // TODO: Different note for private key
-        tooltip: isDerivedForSmartAccountKeyOnly(meta?.index)
-          ? t(
-              'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
-              {
-                addr: shortenAddress(addr, 13),
-                offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
-              }
-            )
+        tooltip: dedicatedToOneSA
+          ? type === 'internal'
+            ? t(
+                'Ambire derives a different key from your private key, for security and privacy reasons.',
+                {
+                  addr: shortenAddress(addr, 13),
+                  offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+                }
+              )
+            : t(
+                'Ambire derives a different key on your hardware wallet with an offset of {{offset}}, for security and privacy reasons. You may see {{addr}} when signing on your hardware device.',
+                {
+                  addr: shortenAddress(addr, 13),
+                  offset: SMART_ACCOUNT_SIGNER_KEY_DERIVATION_OFFSET
+                }
+              )
           : undefined,
-        suffix: isDerivedForSmartAccountKeyOnly(meta?.index)
-          ? `\n(dedicated key with different derivation)\n${addr}`
-          : ''
+        suffix: dedicatedToOneSA ? `\n(dedicated key with different derivation)\n${addr}` : ''
       }
     ]
-  }, [type, t, meta?.deviceModel, meta?.deviceId, meta?.hdPathTemplate, meta?.index, addr])
+  }, [
+    type,
+    t,
+    meta?.deviceModel,
+    meta?.deviceId,
+    meta?.hdPathTemplate,
+    meta?.index,
+    dedicatedToOneSA,
+    addr
+  ])
 
   return (
     <View>
