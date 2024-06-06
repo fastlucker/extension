@@ -143,9 +143,14 @@ const AccountKey: React.FC<Props> = ({
         </View>
         <Text
           color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
-          fontSize={fontSize}
+          fontSize={fontSize - 1}
           weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
-          style={label || isImported ? spacings.mlTy : {}}
+          style={[
+            label || isImported ? spacings.mlMi : {},
+            // Reduce the letter spacing as a hack to be able to fit all elements
+            // on the row, even for the extreme case when the key label is max length
+            dedicatedToOneSA && { letterSpacing: -0.2 }
+          ]}
         >
           {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : addr}
         </Text>
