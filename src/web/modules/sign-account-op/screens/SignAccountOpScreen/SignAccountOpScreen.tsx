@@ -51,6 +51,15 @@ const SignAccountOpScreen = () => {
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
 
+  useEffect(() => {
+    // These errors get displayed in the UI (in the <Warning /> component),
+    // so in case of an error, closing the signer key selection modal is needed,
+    // otherwise errors will be displayed behind the modal overlay.
+    if (isChooseSignerShown && !!signAccountOpState?.errors.length) {
+      setIsChooseSignerShown(false)
+    }
+  }, [isChooseSignerShown, signAccountOpState?.errors.length])
+
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.Done ||
