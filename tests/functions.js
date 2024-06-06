@@ -391,8 +391,6 @@ export async function confirmTransaction(
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
 
-  return true
-
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page

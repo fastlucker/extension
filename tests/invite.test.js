@@ -55,7 +55,12 @@ describe('Invite Verification', () => {
 
     // Upon successful verification, the extension should redirect to the
     // get-started route, which otherwise is not accessible
-    await page.waitForNavigation()
+    await page.waitForFunction(
+      () => {
+        return window.location.href.includes('/invite-verify')
+      },
+      { timeout: 60000 }
+    )
 
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/get-started')

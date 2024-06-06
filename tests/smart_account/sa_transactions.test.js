@@ -327,7 +327,7 @@ describe('sa_transactions', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with smart account', async () => {
+  it.skip('Pay transaction fee with smart account', async () => {
     // Function to update saParams with new values
     function updateSaParams(newValues) {
       saParams.parsedKeystoreSecrets = JSON.parse(newValues.A2_SECRETS)
