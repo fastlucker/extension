@@ -90,6 +90,7 @@ jobs:
           SA_TOKEN_ITEMS: ${{ secrets.SA_TOKEN_ITEMS }}
           SA_NETWORK_WITH_ASSETS: ${{ secrets.SA_NETWORK_WITH_ASSETS }}
           SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
+          DEFAULT_INVITATION_CODE_DEV: ${{ secrets.DEFAULT_INVITATION_CODE_DEV }}
 
         run: yarn run test:e2e:web
 

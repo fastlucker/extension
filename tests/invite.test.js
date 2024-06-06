@@ -50,7 +50,10 @@ describe('Invite Verification', () => {
   })
 
   it('should verify a valid invite code and unlock the extension', async () => {
-    await page.type('input', process.env.DEFAULT_INVITATION_CODE_DEV)
+    await page.type(
+      '[data-testid="verify-invite-code-input"]',
+      process.env.DEFAULT_INVITATION_CODE_DEV
+    )
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
     // Upon successful verification, the extension should redirect to the
@@ -67,7 +70,7 @@ describe('Invite Verification', () => {
   })
 
   it('should fire an error toast in case of an invalid invite code', async () => {
-    await page.type('input', 'дъра-бъра-два-чадъра')
+    await page.type('[data-testid="verify-invite-code-input"]', 'дъра-бъра-два-чадъра')
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
     // Wait for the error toast to appear in the DOM
