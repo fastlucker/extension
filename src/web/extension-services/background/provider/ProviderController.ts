@@ -11,7 +11,6 @@ import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
-import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
@@ -52,7 +51,7 @@ export class ProviderController {
   }
 
   getDappNetwork = (origin: string) => {
-    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.id === NETWORKS.ethereum)
+    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.id === 'ethereum')
     if (!defaultNetwork)
       throw new Error(
         'Missing default network data, which should never happen. Please contact support.'

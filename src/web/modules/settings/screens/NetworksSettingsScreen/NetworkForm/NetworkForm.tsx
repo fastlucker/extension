@@ -131,7 +131,7 @@ const NetworkForm = ({
   )
 
   const isPredefinedNetwork = useMemo(
-    () => selectedNetwork && predefinedNetworks.some((n) => n.id === selectedNetwork.id),
+    () => selectedNetwork && selectedNetwork.predefined,
     [selectedNetwork]
   )
 
@@ -352,18 +352,18 @@ const NetworkForm = ({
   ])
 
   useEffect(() => {
-    if (statuses.addCustomNetwork === 'SUCCESS') {
+    if (statuses.addNetwork === 'SUCCESS') {
       addToast('Network successfully added!')
       !!onSaved && onSaved()
     }
-  }, [addToast, onSaved, statuses.addCustomNetwork])
+  }, [addToast, onSaved, statuses.addNetwork])
 
   useEffect(() => {
-    if (statuses.updateNetworkPreferences === 'SUCCESS') {
+    if (statuses.updateNetwork === 'SUCCESS') {
       addToast(`${selectedNetwork?.name} settings saved!`)
       !!onSaved && onSaved()
     }
-  }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetworkPreferences])
+  }, [addToast, onSaved, selectedNetwork?.name, statuses.updateNetwork])
 
   const handleSubmitButtonPress = () => {
     // eslint-disable-next-line prettier/prettier, @typescript-eslint/no-floating-promises
@@ -396,7 +396,7 @@ const NetworkForm = ({
 
       if (selectedNetworkId === 'add-custom-network') {
         dispatch({
-          type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK',
+          type: 'MAIN_CONTROLLER_ADD_NETWORK',
           params: {
             ...networkFormValues,
             name: networkFormValues.name,
@@ -409,9 +409,9 @@ const NetworkForm = ({
         })
       } else {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
           params: {
-            networkPreferences: {
+            network: {
               rpcUrls,
               selectedRpcUrl,
               explorerUrl: networkFormValues.explorerUrl

@@ -3,7 +3,6 @@ import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
@@ -130,10 +129,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
     }`
 
-    // if the network is a custom one, benzina will not work
-    // so we open the block explorer
-    const isCustomNetwork = !predefinedNetworks.find((net) => net.id === network.id)
-    if (isCustomNetwork) {
+    // if the network is a not a predefined one, benzina will not work so we open the block explorer
+    if (!network.predefined) {
       link = `${network.explorerUrl}/tx/${submittedAccountOp.txnId}`
     }
 
@@ -156,6 +153,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     addToast,
     network.id,
     network.explorerUrl,
+    network.predefined,
     submittedAccountOp.userOpHash,
     submittedAccountOp.txnId
   ])

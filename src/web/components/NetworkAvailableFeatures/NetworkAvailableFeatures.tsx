@@ -64,13 +64,8 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       .then((factoryCode: string) => {
         if (factoryCode !== '0x') {
           dispatch({
-            type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-            params: {
-              networkPreferences: {
-                areContractsDeployed: true
-              },
-              networkId: selectedNetwork.id
-            }
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+            params: { network: { areContractsDeployed: true }, networkId: selectedNetwork.id }
           })
         }
         provider.destroy()

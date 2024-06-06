@@ -9,12 +9,7 @@ import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
-import {
-  AccountPreferences,
-  CustomNetwork,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -90,13 +85,13 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerAddCustomNetwork = {
-  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
-  params: CustomNetwork
+type MainControllerAddNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_NETWORK'
+  params: Network
 }
 
-type MainControllerRemoveCustomNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
+type MainControllerRemoveNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
   params: NetworkId
 }
 
@@ -122,18 +117,18 @@ type MainControllerSettingsAddKeyPreferences = {
   params: KeyPreferences
 }
 
-type MainControllerUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
+type MainControllerUpdateNetworkAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
-    networkPreferences: Partial<NetworkPreference>
+    network: Partial<Network>
     networkId: NetworkId
   }
 }
 
-type MainControllerResetNetworkPreference = {
+type MainControllerResetNetworkAction = {
   type: 'MAIN_CONTROLLER_RESET_NETWORK'
   params: {
-    preferenceKey: keyof NetworkPreference
+    networkKey: keyof Network
     networkId: NetworkId
   }
 }
@@ -460,11 +455,11 @@ export type Action =
   | SettingsControllerAddAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
-  | MainControllerAddCustomNetwork
-  | MainControllerRemoveCustomNetwork
+  | MainControllerAddNetwork
+  | MainControllerRemoveNetwork
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerUpdateNetworkPreferences
-  | MainControllerResetNetworkPreference
+  | MainControllerUpdateNetworkAction
+  | MainControllerResetNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts

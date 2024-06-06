@@ -545,11 +545,11 @@ function stateDebug(event: string, stateToLog: object) {
                   providers: mainCtrl.providers.providers
                 })
               }
-              case 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK': {
-                return await mainCtrl.addCustomNetwork(params)
+              case 'MAIN_CONTROLLER_ADD_NETWORK': {
+                return await mainCtrl.addNetwork(params)
               }
-              case 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
-                return await mainCtrl.removeCustomNetwork(params)
+              case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
+                return await mainCtrl.removeNetwork(params)
               }
               case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
@@ -563,11 +563,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
                 return await mainCtrl.settings.addKeyPreferences(params)
               }
-              case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
-                return await mainCtrl.updateNetworkPreferences(
-                  params.networkPreferences,
-                  params.networkId
-                )
+              case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
+                return await mainCtrl.updateNetwork(params.network, params.networkId)
               }
               case 'MAIN_CONTROLLER_RESET_NETWORK': {
                 return await mainCtrl.resetNetwork(params.networkKey, params.networkId)
