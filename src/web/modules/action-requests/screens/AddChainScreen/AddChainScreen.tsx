@@ -6,7 +6,7 @@ import { View } from 'react-native'
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
 import { NetworkFeature } from '@ambire-common/interfaces/network'
 import { CustomNetwork } from '@ambire-common/interfaces/settings'
-import { getFeatures } from '@ambire-common/libs/settings/settings'
+import { getFeatures } from '@ambire-common/libs/networks/networks'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -27,7 +27,7 @@ import {
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import validateRequestParams from '@web/modules/action-requests/screens/AddChainScreen/validateRequestParams'
 
@@ -40,7 +40,7 @@ const AddChainScreen = () => {
   const state = useActionsControllerState()
   const [areParamsValid, setAreParamsValid] = useState<boolean | null>(null)
   const { maxWidthSize } = useWindowSize()
-  const { statuses, networkToAddOrUpdate } = useSettingsControllerState()
+  const { statuses, networkToAddOrUpdate } = useNetworksControllerState()
   const [features, setFeatures] = useState<NetworkFeature[]>(getFeatures(undefined))
   const [rpcUrlIndex, setRpcUrlIndex] = useState<number>(0)
   const actionButtonPressedRef = useRef(false)

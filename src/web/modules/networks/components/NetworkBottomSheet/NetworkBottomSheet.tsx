@@ -13,7 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import Option from './Option/Option'
 import getStyles from './styles'
@@ -34,7 +34,7 @@ const NetworkBottomSheet = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const networkData = networks.find((network) => network.id === selectedNetworkId)
 
   return (

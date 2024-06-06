@@ -21,7 +21,7 @@ import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import Network from '@web/modules/settings/screens/NetworksSettingsScreen/Network'
@@ -33,7 +33,7 @@ const NetworksSettingsScreen = () => {
   const { control, watch } = useForm({ defaultValues: { search: '' } })
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)

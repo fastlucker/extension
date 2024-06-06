@@ -15,8 +15,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
 
 interface Props {
@@ -35,7 +35,7 @@ const Network: FC<Props> = ({
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
   const { state } = useRoute()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { selectedAccount } = useMainControllerState()
   const portfolioControllerState = usePortfolioControllerState()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({

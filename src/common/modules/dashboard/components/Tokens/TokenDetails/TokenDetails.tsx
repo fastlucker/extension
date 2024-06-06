@@ -31,7 +31,7 @@ import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -52,7 +52,7 @@ const TokenDetails = ({
   const { t } = useTranslation()
   const { selectedAccount, accounts } = useMainControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)

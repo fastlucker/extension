@@ -11,8 +11,8 @@ import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 type ContextReturn = {
   state: TransferController
@@ -36,7 +36,7 @@ export const getInfoFromSearch = (search: string | undefined) => {
 
 const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
   const [state, setState] = useState<TransferController>({} as TransferController)

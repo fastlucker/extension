@@ -15,7 +15,7 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen'
 
 const Token = ({
@@ -33,7 +33,7 @@ const Token = ({
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const tokenDetails = useMemo(
     () =>
       temporaryToken &&

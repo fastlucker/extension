@@ -52,7 +52,7 @@ export class ProviderController {
   }
 
   getDappNetwork = (origin: string) => {
-    const defaultNetwork = this.mainCtrl.settings.networks.find((n) => n.id === NETWORKS.ethereum)
+    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.id === NETWORKS.ethereum)
     if (!defaultNetwork)
       throw new Error(
         'Missing default network data, which should never happen. Please contact support.'
@@ -62,7 +62,7 @@ export class ProviderController {
     if (!dappChainId) return defaultNetwork
 
     return (
-      this.mainCtrl.settings.networks.find((n) => n.chainId === BigInt(dappChainId)) ||
+      this.mainCtrl.networks.networks.find((n) => n.chainId === BigInt(dappChainId)) ||
       defaultNetwork
     )
   }
@@ -75,7 +75,7 @@ export class ProviderController {
     } = request
 
     const networkId = this.getDappNetwork(origin).id
-    const provider = this.mainCtrl.settings.providers[networkId]
+    const provider = this.mainCtrl.providers.providers[networkId]
 
     if (!this.dappsCtrl.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
@@ -131,7 +131,7 @@ export class ProviderController {
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
       const dappNetwork = this.getDappNetwork(session.origin)
-      const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
       const accountState =
         this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
       if (!accountState) return requestRes?.hash
@@ -204,7 +204,7 @@ export class ProviderController {
       }
       const dapp = dappsCtrl.getDapp(session.origin)
       const { chainId } = params[0]
-      const network = mainCtrl.settings.networks.find(
+      const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
       if (!network || !dapp?.isConnected) return false
@@ -221,7 +221,7 @@ export class ProviderController {
       chainId = Number(chainId)
     }
 
-    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
+    const network = this.mainCtrl.networks.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
@@ -268,7 +268,7 @@ export class ProviderController {
       }
       const dapp = dappsCtrl.getDapp(session.origin)
       const { chainId } = params[0]
-      const network = mainCtrl.settings.networks.find(
+      const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
       if (!dapp?.isConnected) return false
@@ -291,7 +291,7 @@ export class ProviderController {
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
-    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
+    const network = this.mainCtrl.networks.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')

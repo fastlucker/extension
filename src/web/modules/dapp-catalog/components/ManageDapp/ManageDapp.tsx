@@ -17,7 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import DappControl from '@web/modules/dapp-catalog/components/DappControl'
 
 import getStyles from './styles'
@@ -45,7 +45,7 @@ const ManageDapp = ({
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { state } = useDappsControllerState()
 
   const [network, setNetwork] = useState<Network>(

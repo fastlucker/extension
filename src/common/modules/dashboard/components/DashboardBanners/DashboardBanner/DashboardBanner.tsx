@@ -21,7 +21,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 import { getUiType } from '@web/utils/uiType'
 
@@ -44,7 +44,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { networks, statuses } = useSettingsControllerState()
+  const { networks, statuses } = useNetworksControllerState()
   const { visibleActionsQueue } = useActionsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]

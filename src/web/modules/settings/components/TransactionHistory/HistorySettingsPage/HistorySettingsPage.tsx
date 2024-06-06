@@ -26,6 +26,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -50,7 +51,8 @@ interface Props {
 }
 
 const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
-  const { networks, accountPreferences } = useSettingsControllerState()
+  const { accountPreferences } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const activityState = useActivityControllerState()
   const mainState = useMainControllerState()
   const { dispatch } = useBackgroundService()

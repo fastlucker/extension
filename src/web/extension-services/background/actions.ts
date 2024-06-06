@@ -131,7 +131,7 @@ type MainControllerUpdateNetworkPreferences = {
 }
 
 type MainControllerResetNetworkPreference = {
-  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
+  type: 'MAIN_CONTROLLER_RESET_NETWORK'
   params: {
     preferenceKey: keyof NetworkPreference
     networkId: NetworkId

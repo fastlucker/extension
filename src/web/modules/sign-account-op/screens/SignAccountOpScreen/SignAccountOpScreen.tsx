@@ -23,7 +23,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
@@ -40,7 +40,7 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)

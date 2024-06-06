@@ -10,6 +10,7 @@ import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/in
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
 import { randomId } from '@ambire-common/libs/humanizer/utils'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -20,10 +21,10 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -36,6 +37,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { addToast } = useToast()
   const mainState = useMainControllerState()
   const settingsState = useSettingsControllerState()
+  const networksState = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
 
@@ -46,8 +48,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   const network = useMemo(
-    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [settingsState.networks, submittedAccountOp.networkId]
+    () => networksState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [networksState.networks, submittedAccountOp.networkId]
   )
 
   useEffect(() => {
@@ -113,7 +115,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     submittedAccountOp.accountAddr,
     submittedAccountOp.gasFeePayment?.amount,
     submittedAccountOp.gasFeePayment?.inToken,
-    submittedAccountOp.networkId
+    submittedAccountOp.networkId,
+    network
   ])
 
   const handleOpenExplorer = useCallback(async () => {
@@ -149,7 +152,13 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [addToast, network.id, submittedAccountOp.userOpHash, submittedAccountOp.txnId])
+  }, [
+    addToast,
+    network.id,
+    network.explorerUrl,
+    submittedAccountOp.userOpHash,
+    submittedAccountOp.txnId
+  ])
 
   return calls.length ? (
     <View style={[styles.container, style]}>

@@ -17,7 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { isExtension } from '@web/constants/browserapi'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -35,7 +35,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
   const { theme } = useTheme()
   const { addToast } = useToast()
   // Standalone Benzin doesn't have access to controllers
-  const { networks = constantNetworks } = useSettingsControllerState()
+  const { networks = constantNetworks } = useNetworksControllerState()
   const network = networks?.find((n) => n.id === explorerNetworkId)
 
   const handleCopyAddress = useCallback(async () => {

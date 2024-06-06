@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
@@ -10,7 +9,7 @@ import { NFT_CDN_URL } from '@env'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import ManifestImage from '@web/components/ManifestImage'
 import { useCustomHover } from '@web/hooks/useHover'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
@@ -37,8 +36,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
       to: 1.15
     }
   })
-  const { networks: settingsNetworks } = useSettingsControllerState()
-  const networks = settingsNetworks ?? constantNetworks
+  const { networks } = useNetworksControllerState()
   const network = networks.find((n) => n.id === collectionData.networkId)
 
   const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${collectionData.address}&id=${id}`

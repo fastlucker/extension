@@ -24,7 +24,7 @@ import useTheme from '@common/hooks/useTheme'
 import { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 export type NetworkIconIdType = NetworkId | 'gasTank' | 'rewards'
 
@@ -67,7 +67,7 @@ const NetworkIcon = ({
   benzinNetwork,
   ...rest
 }: Props) => {
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const networkId = useMemo(() => {
     if (id.startsWith('bnb')) {

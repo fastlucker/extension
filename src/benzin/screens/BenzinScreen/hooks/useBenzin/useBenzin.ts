@@ -12,7 +12,7 @@ import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
@@ -42,7 +42,7 @@ interface Props {
 const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const { addToast } = useToast()
   const route = useRoute()
-  const { networks: settingsNetworks } = useSettingsControllerState()
+  const { networks: settingsNetworks } = useNetworksControllerState()
   const params = new URLSearchParams(route?.search)
   const txnId = params.get('txnId') ?? null
   const userOpHash = params.get('userOpHash') ?? null

@@ -24,7 +24,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
@@ -40,7 +40,7 @@ const SignMessageScreen = () => {
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
 

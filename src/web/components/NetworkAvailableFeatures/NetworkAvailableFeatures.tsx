@@ -27,7 +27,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import { deployContractsBytecode } from './oldDeployParams'
 import getStyles from './styles'
@@ -44,7 +44,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
   const { selectedAccount, accounts } = useMainControllerState()
-  const { networks, providers } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const [checkedDeploy, setCheckedDeploy] = useState<boolean>(false)
@@ -82,7 +82,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
     return () => {
       provider.destroy()
     }
-  }, [dispatch, selectedNetwork, providers, checkedDeploy])
+  }, [dispatch, selectedNetwork, checkedDeploy])
 
   const handleDeploy = useCallback(async () => {
     if (!selectedNetwork) return // this should not happen...

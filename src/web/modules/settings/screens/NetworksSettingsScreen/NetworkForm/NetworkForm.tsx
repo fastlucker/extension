@@ -7,7 +7,7 @@ import { Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { getFeatures } from '@ambire-common/libs/settings/settings'
+import { getFeatures } from '@ambire-common/libs/networks/networks'
 import { isValidURL } from '@ambire-common/services/validations'
 import Button from '@common/components/Button'
 import Input from '@common/components/Input'
@@ -23,7 +23,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import {
   getAreDefaultsChanged,
   handleErrors
@@ -121,10 +121,9 @@ const NetworkForm = ({
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
-  const { networks } = useSettingsControllerState()
+  const { networks, networkToAddOrUpdate, statuses } = useNetworksControllerState()
   const [isValidatingRPC, setValidatingRPC] = useState<boolean>(false)
   const { styles } = useTheme(getStyles)
-  const { networkToAddOrUpdate, statuses } = useSettingsControllerState()
 
   const selectedNetwork = useMemo(
     () => networks.find((network) => network.id === selectedNetworkId),

@@ -15,7 +15,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 import { getTokenId } from '@web/utils/token'
@@ -94,7 +94,7 @@ const SendForm = ({
     amount
   } = state
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { search } = useRoute()
 
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])

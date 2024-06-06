@@ -19,8 +19,8 @@ import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
@@ -37,7 +37,7 @@ type NetworkOption = {
 
 const AddToken = () => {
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { addToast } = useToast()
   const portfolio = usePortfolioControllerState()
 
