@@ -313,7 +313,7 @@ describe('ba_login', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('add view-only basic account', async () => {
+  it('add view-only basic account', async () => {
     await new Promise((r) => setTimeout(r, 1000))
     const buttonNext = '[data-testid="stories-button-next"]'
 

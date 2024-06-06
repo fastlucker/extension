@@ -27,7 +27,7 @@ describe('sa_transactions', () => {
 
   afterEach(async () => {
     await recorder.stop()
-    // await browser.close()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -326,61 +326,59 @@ describe('sa_transactions', () => {
     )
   })
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Pay transaction fee with smart account', async () => {
-    // New values to set in local storage for the test
-    const newValues = {
-      parsedKeystoreSecrets: JSON.parse(process.env.A2_SECRETS),
-      parsedKeystoreKeys: JSON.parse(process.env.A2_KEYS),
-      parsedKeystoreAccounts: JSON.parse(process.env.A2_ACCOUNTS)
+  //--------------------------------------------------------------------------------------------------------------
+  it('Pay transaction fee with smart account', async () => {
+    // Function to update saParams with new values
+    function updateSaParams(newValues) {
+      saParams.parsedKeystoreSecrets = JSON.parse(newValues.A2_SECRETS)
+      saParams.parsedKeystoreKeys = JSON.parse(newValues.A2_KEYS)
+      saParams.parsedKeystoreAccounts = JSON.parse(newValues.A2_ACCOUNTS)
     }
 
-    // Update local storage items
-    await page.evaluate((newValues) => {
-      const { parsedKeystoreSecrets, parsedKeystoreKeys, parsedKeystoreAccounts } = newValues
-      chrome.storage.local.set({
-        keystoreSecrets: parsedKeystoreSecrets,
-        keystoreKeys: parsedKeystoreKeys,
-        accounts: parsedKeystoreAccounts
-      })
-    }, newValues)
+    // New values to set in local storage for the test
+    const newValues = {
+      A2_SECRETS: process.env.A2_SECRETS,
+      A2_KEYS: process.env.A2_KEYS,
+      A2_ACCOUNTS: process.env.A2_ACCOUNTS
+    }
 
-    // Reload the page after setting the local storage values
-    await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
+    // Update saParams with the new values
+    updateSaParams(newValues)
 
-    /* Click on "Send" button */
-    await clickOnElement(page, '[data-testid="dashboard-button-send"]')
+    // Call bootstrapWithStorage again with the updated saParams
+    const context = await bootstrapWithStorage('sa_transactions', saParams)
+    browser = context.browser
+    page = context.page
+    extensionRootUrl = context.extensionRootUrl
 
-    await page.waitForSelector(amountField)
+    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
 
-    /* Type the adress of the recipient  */
+    /* Type the address of the recipient  */
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
+
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
     await page.waitForSelector('[data-testid="checkbox"]')
 
-    /* Check the checkbox "I confirm this address is not a Binance wallets...." */
+    /* Check the checkbox "I confirm this address is not a Binance wallet...." */
     await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
 
     /* Check the checkbox "Confirm sending to a previously unknown address" */
     await clickOnElement(page, '[data-testid="checkbox"]')
 
-    /* Click on "Send" button and cofirm transaction */
-
+    /* Click on "Send" button and confirm transaction */
     await confirmTransaction(
       page,
       extensionRootUrl,
       browser,
-
       '[data-testid="transfer-button-send"]',
-
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
-      // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
   })
 })

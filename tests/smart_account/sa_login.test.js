@@ -169,7 +169,7 @@ describe('sa_login', () => {
     await waitUntilError(errorMessage)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('add view-only smart account', async () => {
+  it('add view-only smart account', async () => {
     await new Promise((r) => setTimeout(r, 1000))
     const buttonNext = '[data-testid="stories-button-next"]'
 
