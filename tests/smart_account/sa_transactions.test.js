@@ -327,6 +327,26 @@ describe('sa_transactions', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   it.only('Pay transaction fee with smart account', async () => {
+    // New values to set in local storage for the test
+    const newValues = {
+      parsedKeystoreSecrets: JSON.parse(process.env.A2_SECRETS),
+      parsedKeystoreKeys: JSON.parse(process.env.A2_KEYS),
+      parsedKeystoreAccounts: JSON.parse(process.env.A2_ACCOUNTS)
+    }
+
+    // Update local storage items
+    await page.evaluate((newValues) => {
+      const { parsedKeystoreSecrets, parsedKeystoreKeys, parsedKeystoreAccounts } = newValues
+      chrome.storage.local.set({
+        keystoreSecrets: parsedKeystoreSecrets,
+        keystoreKeys: parsedKeystoreKeys,
+        accounts: parsedKeystoreAccounts
+      })
+    }, newValues)
+
+    // Reload the page after setting the local storage values
+    await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
+
     /* Click on "Send" button */
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
@@ -351,11 +371,14 @@ describe('sa_transactions', () => {
     await clickOnElement(page, '[data-testid="checkbox"]')
 
     /* Click on "Send" button and cofirm transaction */
+
     await confirmTransaction(
       page,
       extensionRootUrl,
       browser,
+
       '[data-testid="transfer-button-send"]',
+
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
       // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )

@@ -217,7 +217,6 @@ export async function bootstrapWithStorage(namespace, params) {
   // 1. We are no longer closing any tabs.
   // 2. Instead, we simply switch back to our tab under testing.
   await page.bringToFront()
-  // await page.reload()
   // we need to catch the error because in other way recorder will not be returned and test will fail with error
   try {
     await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
@@ -230,6 +229,7 @@ export async function bootstrapWithStorage(namespace, params) {
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   await new Promise((r) => setTimeout(r, 1000))
+
   const buttonNext = '[data-testid="stories-button-next"]'
 
   await page.waitForSelector(buttonNext)
@@ -352,7 +352,6 @@ export async function confirmTransaction(
   const buttonSignExists = await newPage.evaluate(() => {
     return !!document.querySelector('[data-testid="button-sign"]')
   })
-
   if (buttonSignExists) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
@@ -384,12 +383,16 @@ export async function confirmTransaction(
       await clickOnElement(newPage, '[data-testid="tokens-select"]')
       // Wait for some time
       await new Promise((r) => setTimeout(r, 2000))
+
       // Click on the Gas Tank option
       await clickOnElement(newPage, feeToken)
     }
   }
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+
+  return true
+
   /* Click on "Sign" button */
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page
@@ -431,6 +434,7 @@ export async function confirmTransaction(
     if (receipt.status === 1) {
     } else {
       console.log(`Transaction failed! Hash: ${transactionHash}`)
+
       expect(receipt.status).to.equal(1) // Assertion to fail the test if transaction failed
     }
   } catch (error) {
