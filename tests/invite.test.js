@@ -36,7 +36,6 @@ describe('Invite Verification', () => {
   it('should immediately redirect to the invite verification route', async () => {
     // In case of multiple redirects,
     // the navigation will resolve with the response of the last redirect.
-    // await page.waitForNavigation()
 
     await page.waitForFunction(
       () => {
@@ -60,7 +59,7 @@ describe('Invite Verification', () => {
     // get-started route, which otherwise is not accessible
     await page.waitForFunction(
       () => {
-        return window.location.href.includes('/invite-verify')
+        return window.location.href.includes('/get-started')
       },
       { timeout: 60000 }
     )

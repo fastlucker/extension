@@ -47,11 +47,11 @@ describe('sa_transactions', () => {
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
-    await page.waitForSelector('[data-testid="confirm-sw-warning-checkbox"]')
+    await page.waitForSelector('[data-testid="checkbox"]')
     await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
     /* Check the checkbox "I confirm this address is not a Binance wallets...." */
-    await clickOnElement(page, '[data-testid="sw-warning-checkbox"]')
+    await clickOnElement(page, '[data-testid="checkbox"]')
 
     /* Check the checkbox "Confirm sending to a previously unknown address" */
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
@@ -310,13 +310,13 @@ describe('sa_transactions', () => {
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
     await page.waitForSelector('[data-testid="checkbox"]')
+    await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
     /* Check the checkbox "I confirm this address is not a Binance wallets...." */
-    await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
-
-    /* Check the checkbox "Confirm sending to a previously unknown address" */
     await clickOnElement(page, '[data-testid="checkbox"]')
 
+    /* Check the checkbox "Confirm sending to a previously unknown address" */
+    await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
     /* Click on "Send" button and cofirm transaction */
     await confirmTransaction(
       page,
@@ -365,13 +365,13 @@ describe('sa_transactions', () => {
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
-    await page.waitForSelector('[data-testid="checkbox"]')
+    await page.waitForSelector('[data-testid="sw-warning-checkbox"]')
 
     /* Check the checkbox "I confirm this address is not a Binance wallet...." */
     await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
 
     /* Check the checkbox "Confirm sending to a previously unknown address" */
-    await clickOnElement(page, '[data-testid="checkbox"]')
+    await clickOnElement(page, '[data-testid="sw-warning-checkbox"]')
 
     /* Click on "Send" button and confirm transaction */
     await confirmTransaction(
