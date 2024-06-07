@@ -136,7 +136,8 @@ const HumanizedVisualization: FC<Props> = ({
                 flexbox.directionRow,
                 flexbox.wrap,
                 {
-                  marginHorizontal: SPACING_SM * sizeMultiplierSize
+                  marginRight: SPACING_SM * sizeMultiplierSize,
+                  gap: '10px'
                 }
               ]}
             >
@@ -145,7 +146,7 @@ const HumanizedVisualization: FC<Props> = ({
                 address={item.address}
                 highestPriorityAlias={`NFT #${item.nftId}`}
                 explorerNetworkId={networkId}
-              />
+              />{' '}
               <ManifestImage uri={imageUrl} />
             </View>
           )
