@@ -8,7 +8,7 @@ import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp
 import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
 import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -87,7 +87,7 @@ type MainControllerAccountAdderResetIfNeeded = {
 }
 type MainControllerAddNetwork = {
   type: 'MAIN_CONTROLLER_ADD_NETWORK'
-  params: Network
+  params: AddNetworkRequestParams
 }
 
 type MainControllerRemoveNetwork = {

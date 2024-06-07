@@ -195,8 +195,14 @@ const NetworkForm = ({
       if (type === 'change') {
         dispatch({ type: 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE' })
       }
-      if (!rpcUrl && !selectedRpcUrl) return
-      if (!rpcUrl && !chainId) return
+      if (!rpcUrl && !selectedRpcUrl) {
+        setValidatingRPC(false)
+        return
+      }
+      if (!rpcUrl && !chainId) {
+        setValidatingRPC(false)
+        return
+      }
 
       if (!rpcUrl) {
         rpcUrl = selectedRpcUrl as string
@@ -233,11 +239,20 @@ const NetworkForm = ({
           setValue('chainId', chainId)
         }
 
-        if (Number(network.chainId) !== Number(chainId) && selectedNetwork && rpcUrl) {
+        if (Number(network.chainId) !== Number(chainId) && rpcUrl) {
           setValidatingRPC(false)
           setError('rpcUrl', {
             type: 'custom-error',
             message: `RPC chain id ${network.chainId} does not match ${selectedNetwork?.name} chain id ${chainId}`
+          })
+          return
+        }
+
+        if (networks.find((n) => n.chainId === network.chainId) && type === 'add') {
+          setValidatingRPC(false)
+          setError('rpcUrl', {
+            type: 'custom-error',
+            message: `You already have a network with RPC chain id ${network.chainId}`
           })
           return
         }
@@ -259,7 +274,7 @@ const NetworkForm = ({
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
       }
     },
-    [selectedNetwork, rpcUrls, selectedRpcUrl, setValue, clearErrors, setError, dispatch]
+    [selectedNetwork, rpcUrls, selectedRpcUrl, networks, setValue, clearErrors, setError, dispatch]
   )
 
   useEffect(() => {
@@ -404,7 +419,8 @@ const NetworkForm = ({
             explorerUrl: networkFormValues.explorerUrl,
             rpcUrls,
             selectedRpcUrl,
-            chainId: BigInt(networkFormValues.chainId)
+            chainId: BigInt(networkFormValues.chainId),
+            iconUrls: []
           }
         })
       } else {
@@ -466,7 +482,7 @@ const NetworkForm = ({
         }
       }
     },
-    [rpcUrls.length, watch, errors.rpcUrl, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
+    [rpcUrls.length, watch, errors, handleSelectRpcUrl, validateRpcUrlAndRecalculateFeatures]
   )
 
   return (
