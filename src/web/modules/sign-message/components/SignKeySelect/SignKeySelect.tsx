@@ -69,6 +69,7 @@ const SigningKeySelect = ({
                 <AccountKey
                   addr={key.addr}
                   type={key.type}
+                  dedicatedToOneSA={key.dedicatedToOneSA}
                   label={label || `Key ${i + 1}`}
                   isLast={i === selectedAccountKeyStoreKeys.length - 1}
                   isImported={isImported}
