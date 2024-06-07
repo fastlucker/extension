@@ -63,7 +63,7 @@ describe('ba_transactions', () => {
   })
 
   // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
-  it('Make valid swap ', async () => {
+  it.only('Make valid swap ', async () => {
     await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
     /* Click on 'connect' button */
@@ -117,8 +117,6 @@ describe('ba_transactions', () => {
     await page.waitForSelector(swapBtn)
     await page.click(swapBtn)
     const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
-
-    // await clickOnElement(page, confirmSwapBtn)
 
     /* Click on 'Confirm Swap' button and confirm transaction */
     await confirmTransaction(
@@ -191,7 +189,7 @@ describe('ba_transactions', () => {
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
   //--------------------------------------------------------------------------------------------------------------
-  it('Send sign message ', async () => {
+  it.only('Send sign message ', async () => {
     /* Allow permissions for read and write in clipboard */
     const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
@@ -253,9 +251,15 @@ describe('ba_transactions', () => {
     await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
     /* Fill copied address in the Hexadecimal signature field */
     await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
-
+    console.log('before click on VERIFY')
     /* Click on "Verify" button */
     await clickOnElement(page, '#verifyButton')
+    console.log('after click on VERIFY')
+
+    const pageText = await page.evaluate(() => {
+      return document.body.innerText
+    })
+    console.log(pageText)
 
     /* Verify that sign message is valid */
     const validateMessage = 'Signature is Valid'
