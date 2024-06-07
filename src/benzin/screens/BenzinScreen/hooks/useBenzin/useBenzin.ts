@@ -11,8 +11,8 @@ import useSteps from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import useRoute from '@common/hooks/useRoute'
 import useToast from '@common/hooks/useToast'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { storage } from '@web/extension-services/background/webapi/storage'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const parseHumanizer = (humanizedCalls: IrCall[], setCalls: Function) => {
   // remove deadlines from humanizer
@@ -57,7 +57,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   useEffect(() => {
     if (!network?.rpcUrls) return
 
-    setProvider(getRpcProvider(network.rpcUrls, network.chainId))
+    setProvider(getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl))
 
     return () => {
       setProvider((prev) => {
@@ -66,7 +66,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
         return null
       })
     }
-  }, [network?.rpcUrls, network?.chainId])
+  }, [network?.rpcUrls, network?.chainId, network?.selectedRpcUrl])
 
   const stepsState = useSteps({
     txnId,

@@ -222,6 +222,7 @@ const TokenDetails = ({
     const networkData = networks.find((n) => n.id === token?.networkId)
     if (!networkData) {
       addToast(t('Network not found'), { type: 'error' })
+      setIsTokenInfoLoading(false)
       return
     }
     const coingeckoId = geckoIdMapper(token?.address, networkData)
@@ -245,7 +246,7 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks])
 
   const handleHideToken = () => {
     if (!token) return
@@ -321,7 +322,7 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && (
+            {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Toggle
                   isOn={isHidden}

@@ -4,19 +4,15 @@ import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import CloseIcon from '@common/assets/svg/CloseIcon'
-import Alert from '@common/components/Alert'
-import Button from '@common/components/Button'
+import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import useNavigation from '@common/hooks/useNavigation'
 import usePrevious from '@common/hooks/usePrevious'
-import useRoute from '@common/hooks/useRoute'
-import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -24,23 +20,21 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
-import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
+import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
+import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import { getUiType } from '@web/utils/uiType'
 
-import FallbackVisualization from './FallbackVisualization'
-import Info from './Info'
-import styles from './styles'
-
 const SignMessageScreen = () => {
-  const { theme } = useTheme()
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
@@ -48,13 +42,25 @@ const SignMessageScreen = () => {
   const mainState = useMainControllerState()
   const { networks } = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const { params } = useRoute()
-  const { navigate } = useNavigation()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
-  const { currentNotificationRequest } = useNotificationControllerState()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
+  const actionState = useActionsControllerState()
+
+  const signMessageAction = useMemo(() => {
+    if (actionState.currentAction?.type !== 'signMessage') return undefined
+
+    return actionState.currentAction as SignMessageAction
+  }, [actionState.currentAction])
+
+  const userRequest = useMemo(() => {
+    if (!signMessageAction) return undefined
+    if (!['typedMessage', 'message'].includes(signMessageAction.userRequest.action.kind))
+      return undefined
+
+    return signMessageAction.userRequest
+  }, [signMessageAction])
 
   const networkData: NetworkDescriptor | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
@@ -107,12 +113,6 @@ const SignMessageScreen = () => {
   })
 
   useEffect(() => {
-    if (!params?.accountAddr) {
-      navigate('/')
-    }
-  }, [params?.accountAddr, navigate])
-
-  useEffect(() => {
     if (
       prevSignMessageState.status === 'LOADING' &&
       signMessageState.status === 'DONE' &&
@@ -131,54 +131,48 @@ const SignMessageScreen = () => {
   ])
 
   useEffect(() => {
-    const msgsToBeSigned = mainState.messagesToBeSigned[params!.accountAddr] || []
-    if (msgsToBeSigned.length) {
-      if (msgsToBeSigned[0].id !== signMessageState.messageToSign?.id) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
-          params: {
-            filters: {
-              account:
-                (signMessageState.messageToSign?.accountAddr as string) ||
-                (params!.accountAddr as string),
-              network: networks[0].id
-            }
-          }
-        })
+    if (!userRequest || !signMessageAction) return
 
-        const msgsToSign =
-          mainState.messagesToBeSigned[params!.accountAddr || mainState.selectedAccount || '']
-        // Last message that was pushed to the messagesToBeSigned
-        const msgToSign = msgsToSign[msgsToSign.length - 1]
-        dispatch({
-          type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
-          params: {
-            dapp: {
-              name: currentNotificationRequest?.params?.session?.name,
-              icon: currentNotificationRequest?.params?.session?.icon
-            },
-            messageToSign: msgToSign,
-            accounts: mainState.accounts,
-            accountStates: mainState.accountStates
-          }
-        })
+    dispatch({
+      type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
+      params: {
+        filters: {
+          account: userRequest.meta.accountAddr,
+          network: userRequest.meta.networkId
+        }
       }
-    }
+    })
+
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT',
+      params: {
+        dapp: {
+          name: userRequest?.session?.name || '',
+          icon: userRequest?.session?.icon || ''
+        },
+        messageToSign: {
+          accountAddr: userRequest.meta.accountAddr,
+          networkId: userRequest.meta.networkId,
+          content: userRequest.action as PlainTextMessage | TypedMessage,
+          fromActionId: signMessageAction.id,
+          signature: null
+        },
+        accounts: mainState.accounts,
+        accountStates: mainState.accountStates
+      }
+    })
   }, [
     dispatch,
-    params,
     networks,
-    mainState.messagesToBeSigned,
+    userRequest,
+    signMessageAction,
     mainState.selectedAccount,
     mainState.accounts,
-    mainState.accountStates,
-    signMessageState.messageToSign?.id,
-    signMessageState.messageToSign?.accountAddr,
-    currentNotificationRequest?.params
+    mainState.accountStates
   ])
 
   useEffect(() => {
-    if (!getUiType().isNotification) return
+    if (!getUiType().isActionWindow) return
     const reset = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
@@ -208,9 +202,11 @@ const SignMessageScreen = () => {
   )
 
   const handleReject = () => {
+    if (!signMessageAction || !userRequest) return
+
     dispatch({
-      type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-      params: { err: t('User rejected the request.'), id: signMessageState.messageToSign?.id }
+      type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST',
+      params: { err: t('User rejected the request.'), id: userRequest.id }
     })
   }
 
@@ -302,32 +298,15 @@ const SignMessageScreen = () => {
         />
       }
       footer={
-        <View style={styles.buttonsContainer}>
-          <Button
-            text="Reject"
-            type="danger"
-            size="large"
-            hasBottomSpacing={false}
-            onPress={handleReject}
-          >
-            <View style={spacings.mlSm}>
-              <CloseIcon color={theme.errorDecorative} />
-            </View>
-          </Button>
-
-          {isScrollToBottomForced && !isViewOnly && shouldShowFallback ? (
-            <Alert type="error" text={t('Please, read the entire message before signing it.')} />
-          ) : null}
-          <Button
-            testID="button-sign"
-            text={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
-            disabled={signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly}
-            type="primary"
-            size="large"
-            hasBottomSpacing={false}
-            onPress={onSignButtonClick}
-          />
-        </View>
+        <ActionFooter
+          onReject={handleReject}
+          onResolve={onSignButtonClick}
+          resolveButtonText={signMessageState.status === 'LOADING' ? t('Signing...') : t('Sign')}
+          resolveDisabled={
+            signMessageState.status === 'LOADING' || isScrollToBottomForced || isViewOnly
+          }
+          resolveButtonTestID="button-sign"
+        />
       }
     >
       <SigningKeySelect
@@ -339,10 +318,13 @@ const SignMessageScreen = () => {
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20}>
+          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
             {t('Sign message')}
           </Text>
-          <Info kindOfMessage={signMessageState.messageToSign?.content.kind} />
+          <Info
+            kindOfMessage={signMessageState.messageToSign?.content.kind}
+            isViewOnly={isViewOnly}
+          />
           {visualizeHumanized &&
           // @TODO: Duplicate check. For some reason ts throws an error if we don't do this
           signMessageState.humanReadable &&

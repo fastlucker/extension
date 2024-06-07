@@ -7,7 +7,6 @@ import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
@@ -15,7 +14,6 @@ import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import Tokens from '../Tokens'
 
 interface Props {
-  accountPortfolio: AccountPortfolio | null
   filterByNetworkId: NetworkDescriptor['id']
   tokenPreferences: CustomToken[]
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -23,12 +21,7 @@ interface Props {
 
 const { isTab } = getUiType()
 
-const DashboardPages = ({
-  accountPortfolio,
-  filterByNetworkId,
-  tokenPreferences,
-  onScroll
-}: Props) => {
+const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props) => {
   const route = useRoute()
 
   const [openTab, setOpenTab] = useState(() => {
@@ -54,7 +47,6 @@ const DashboardPages = ({
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
         filterByNetworkId={filterByNetworkId}
-        isLoading={!accountPortfolio?.isAllReady}
         tokenPreferences={tokenPreferences}
         openTab={openTab}
         setOpenTab={setOpenTab}
@@ -63,6 +55,7 @@ const DashboardPages = ({
       />
 
       <Collections
+        filterByNetworkId={filterByNetworkId}
         openTab={openTab}
         setOpenTab={setOpenTab}
         initTab={initTab}

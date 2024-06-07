@@ -20,15 +20,12 @@ const styles = StyleSheet.create<Style>({
     height: COLLECTIBLE_SIZE,
     borderRadius: BORDER_RADIUS_PRIMARY,
     overflow: 'hidden',
-    ...(isTab ? spacings.mrLg : spacings.mrSm)
+    ...(isTab ? spacings.mrLg : spacings.mrSm),
+    ...(isTab ? spacings.mbSm : spacings.mbTy)
   },
   image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    position: 'absolute',
-    left: 0,
-    top: 0
+    borderRadius: BORDER_RADIUS_PRIMARY,
+    backgroundColor: 'transparent'
   }
 })
 

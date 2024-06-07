@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect, useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 
-import { Dapp, DappsController } from '@web/extension-services/background/controllers/dapps'
+import { Dapp } from '@ambire-common/interfaces/dapp'
+import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { Session } from '@web/extension-services/background/services/session'
 import { getCurrentTab } from '@web/extension-services/background/webapi/tab'
 import eventBus from '@web/extension-services/event/eventBus'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
-import { flushSync } from 'react-dom'
 
 // @ts-ignore
 interface DappControllerState extends DappsController {

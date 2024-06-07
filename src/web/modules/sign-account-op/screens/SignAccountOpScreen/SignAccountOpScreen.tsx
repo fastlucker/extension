@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
@@ -9,8 +10,6 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -20,6 +19,7 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -30,14 +30,12 @@ import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
-import SigningKeySelect from '@web/modules/sign-message/components'
-import { getUiType } from '@web/utils/uiType'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
-  const { params } = useRoute()
-  const { navigate } = useNavigation()
+  const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
@@ -52,6 +50,15 @@ const SignAccountOpScreen = () => {
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+
+  useEffect(() => {
+    // These errors get displayed in the UI (in the <Warning /> component),
+    // so in case of an error, closing the signer key selection modal is needed,
+    // otherwise errors will be displayed behind the modal overlay.
+    if (isChooseSignerShown && !!signAccountOpState?.errors.length) {
+      setIsChooseSignerShown(false)
+    }
+  }, [isChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
@@ -80,61 +87,55 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, slowRequest])
 
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
-      params: {
-        accountAddr: params?.accountAddr,
-        networkId: params?.network?.id
-      }
-    })
-  }, [params, dispatch])
+  const accountOpAction = useMemo(() => {
+    if (actionsState.currentAction?.type !== 'accountOp') return undefined
+    return actionsState.currentAction as AccountOpAction
+  }, [actionsState.currentAction])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
+    if (accountOpAction?.id) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+        params: { actionId: accountOpAction.id }
+      })
     }
+  }, [accountOpAction?.id, dispatch])
+
+  useEffect(() => {
+    if (!accountOpAction) return
 
     if (!activityState.isInitialized) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
         params: {
           filters: {
-            account: params.accountAddr,
-            network: params.network.id
+            account: accountOpAction.accountOp.accountAddr,
+            network: accountOpAction.accountOp.networkId
           }
         }
       })
     }
-  }, [activityState.isInitialized, dispatch, params])
+  }, [activityState.isInitialized, accountOpAction, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
   }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
-    if (!signAccountOpState?.accountOp) return
+    if (!accountOpAction) return
 
-    signAccountOpState.accountOp.calls.forEach((call) => {
-      if (call.fromUserRequestId)
-        dispatch({
-          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
-        })
+    dispatch({
+      type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
+      params: {
+        err: 'User rejected the transaction request.',
+        actionId: accountOpAction.id
+      }
     })
-  }, [dispatch, signAccountOpState?.accountOp])
+  }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
-    if (getUiType().isNotification) {
-      window.close()
-    } else {
-      navigate('/')
-    }
-  }, [navigate])
+    window.close()
+  }, [])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []

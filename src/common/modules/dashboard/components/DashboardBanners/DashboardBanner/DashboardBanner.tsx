@@ -19,6 +19,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
@@ -28,7 +29,7 @@ import getStyles from './styles'
 
 const isTab = getUiType().isTab
 
-const ERROR_ACTIONS = ['reject']
+const ERROR_ACTIONS = ['reject-accountOp']
 
 const ICON_MAP = {
   error: ErrorIcon,
@@ -44,6 +45,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { networks, statuses } = useSettingsControllerState()
+  const { visibleActionsQueue } = useActionsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]
 
@@ -85,19 +87,25 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
 
   const handleActionPress = useCallback(
     (action: Action) => {
-      if (action.actionName === 'open' && type === 'info') {
+      if (action.actionName === 'open-pending-dapp-requests') {
+        if (!visibleActionsQueue) return
+        const dappActions = visibleActionsQueue.filter((a) => a.type !== 'accountOp')
         dispatch({
-          type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST',
-          params: { id: action.meta.ids[0] }
+          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+          params: { actionId: dappActions[0].id }
+        })
+      }
+      if (action.actionName === 'open-accountOp') {
+        dispatch({
+          type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
+          params: action.meta
         })
       }
 
-      if (action.actionName === 'reject' && type === 'info') {
-        action.meta.ids.forEach((reqId: number) => {
-          dispatch({
-            type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-            params: { err: action.meta.err, id: reqId }
-          })
+      if (action.actionName === 'reject-accountOp') {
+        dispatch({
+          type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
+          params: action.meta
         })
       }
 
@@ -128,7 +136,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
         handleOpenBottomSheet()
       }
     },
-    [dispatch, addToast, navigate, handleOpenBottomSheet, type]
+    [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
   const handleSelectRpcUrl = useCallback(
@@ -194,6 +202,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
             {network?.rpcUrls.map((url: string, i: number) => {
               return (
                 <RpcSelectorItem
+                  key={url}
                   index={i}
                   url={url}
                   style={{ backgroundColor: theme.primaryBackground }}

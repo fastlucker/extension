@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlatList, Pressable, View } from 'react-native'
 
@@ -8,17 +7,15 @@ import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Search from '@common/components/Search'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
-import useElementSize from '@common/hooks/useElementSize'
+import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
-import useWindowSize from '@common/hooks/useWindowSize'
-import spacings, { SPACING } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import { Portal } from '@gorhom/portal'
 
+import MenuContainer from './MenuContainer'
 import { MenuOption, Option } from './MenuOption'
-import getStyles, { MAX_MENU_HEIGHT, MENU_OPTION_HEIGHT } from './styles'
+import getStyles, { MENU_OPTION_HEIGHT } from './styles'
 import { SelectProps, SelectValue } from './types'
 
 const Select = ({
@@ -35,16 +32,19 @@ const Select = ({
   disabled,
   withSearch = true
 }: SelectProps) => {
-  const selectRef: React.MutableRefObject<any> = useRef(null)
-  const menuRef: React.MutableRefObject<any> = useRef(null)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { t } = useTranslation()
-  const { control, watch, setValue: setSearchValue } = useForm({ defaultValues: { search: '' } })
-  const { x, y, height, width, forceUpdate } = useElementSize(selectRef)
-  const { height: windowHeight } = useWindowSize()
+  const {
+    selectRef,
+    menuRef,
+    isMenuOpen,
+    setIsMenuOpen,
+    control,
+    search,
+    setSearch,
+    toggleMenu,
+    menuProps
+  } = useSelect()
   const { theme, styles } = useTheme(getStyles)
-
-  const search = watch('search')
 
   const filteredOptions = useMemo(() => {
     if (!search) return options
@@ -58,36 +58,13 @@ const Select = ({
     })
   }, [options, search])
 
-  // close menu on click outside
-  useEffect(() => {
-    if (!isWeb) return
-    function handleClickOutside(event: MouseEvent) {
-      if (!isMenuOpen) return
-
-      if (
-        menuRef.current &&
-        selectRef.current &&
-        !menuRef.current?.contains(event.target) &&
-        !selectRef.current?.contains(event.target)
-      ) {
-        setIsMenuOpen(false)
-        setSearchValue('search', '')
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      if (!isWeb) return
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMenuOpen, setSearchValue])
-
   const handleOptionSelect = useCallback(
     (item: SelectValue) => {
       !!setValue && setValue(item)
       setIsMenuOpen(false)
-      setSearchValue('search', '')
+      setSearch('search', '')
     },
-    [setValue, setSearchValue]
+    [setValue, setIsMenuOpen, setSearch]
   )
 
   const renderItem = useCallback(
@@ -114,28 +91,6 @@ const Select = ({
     [menuOptionHeight]
   )
 
-  const handleOpenMenu = useCallback(() => {
-    if (isMenuOpen) return
-
-    setIsMenuOpen(true)
-    forceUpdate() // calculate menu position
-  }, [forceUpdate, isMenuOpen])
-
-  const menuPosition = useMemo(() => {
-    if (!!isMenuOpen && y + height + MAX_MENU_HEIGHT > windowHeight && y - MAX_MENU_HEIGHT > 0)
-      return 'top'
-
-    return 'bottom'
-  }, [height, isMenuOpen, windowHeight, y])
-
-  const maxMenuDynamicHeight = useMemo(() => {
-    if (menuPosition === 'bottom' && y + height + MAX_MENU_HEIGHT > windowHeight) {
-      return windowHeight - (y + height) - SPACING
-    }
-
-    return MAX_MENU_HEIGHT
-  }, [height, menuPosition, windowHeight, y])
-
   return (
     <View style={[styles.selectContainer, containerStyle]} testID="tokens-select">
       {!!label && (
@@ -155,7 +110,7 @@ const Select = ({
           disabled && { opacity: 0.6 },
           isMenuOpen && { borderColor: theme.infoBackground }
         ]}
-        onPress={handleOpenMenu}
+        onPress={toggleMenu}
       >
         <View
           ref={selectRef}
@@ -178,61 +133,50 @@ const Select = ({
         </View>
       </Pressable>
       {!!isMenuOpen && (
-        <Portal hostName="global">
-          <View
-            ref={menuRef}
-            style={[
-              styles.menuContainer,
-              { width, maxHeight: maxMenuDynamicHeight, left: x },
-              menuPosition === 'bottom' && { top: y + height },
-              menuPosition === 'top' && { bottom: windowHeight - y },
-              menuStyle
-            ]}
-          >
-            {!!withSearch && menuPosition === 'bottom' && (
-              <Search
-                placeholder={t('Search...')}
-                autoFocus
-                control={control}
-                containerStyle={spacings.mb0}
-                borderWrapperStyle={styles.searchBorderWrapperStyle}
-                inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
-                leftIconStyle={spacings.pl}
-              />
-            )}
-            <FlatList
-              data={filteredOptions}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              initialNumToRender={15}
-              windowSize={10}
-              maxToRenderPerBatch={20}
-              removeClippedSubviews
-              getItemLayout={getItemLayout}
-              ListEmptyComponent={
-                <Text
-                  style={[spacings.pv, flexbox.flex1, text.center]}
-                  numberOfLines={1}
-                  appearance="secondaryText"
-                  fontSize={14}
-                >
-                  {t('No items found')}
-                </Text>
-              }
+        <MenuContainer menuRef={menuRef} menuStyle={menuStyle} menuProps={menuProps}>
+          {!!withSearch && menuProps.position === 'bottom' && (
+            <Search
+              placeholder={t('Search...')}
+              autoFocus
+              control={control}
+              containerStyle={spacings.mb0}
+              borderWrapperStyle={styles.searchBorderWrapperStyle}
+              inputWrapperStyle={styles.bottomSearchInputWrapperStyle}
+              leftIconStyle={spacings.pl}
             />
-            {!!withSearch && menuPosition === 'top' && (
-              <Search
-                placeholder={t('Search...')}
-                autoFocus
-                control={control}
-                containerStyle={spacings.mb0}
-                borderWrapperStyle={styles.searchBorderWrapperStyle}
-                inputWrapperStyle={styles.topSearchInputWrapperStyle}
-                leftIconStyle={spacings.pl}
-              />
-            )}
-          </View>
-        </Portal>
+          )}
+          <FlatList
+            data={filteredOptions}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            initialNumToRender={15}
+            windowSize={10}
+            maxToRenderPerBatch={20}
+            removeClippedSubviews
+            getItemLayout={getItemLayout}
+            ListEmptyComponent={
+              <Text
+                style={[spacings.pv, flexbox.flex1, text.center]}
+                numberOfLines={1}
+                appearance="secondaryText"
+                fontSize={14}
+              >
+                {t('No items found')}
+              </Text>
+            }
+          />
+          {!!withSearch && menuProps.position === 'top' && (
+            <Search
+              placeholder={t('Search...')}
+              autoFocus
+              control={control}
+              containerStyle={spacings.mb0}
+              borderWrapperStyle={styles.searchBorderWrapperStyle}
+              inputWrapperStyle={styles.topSearchInputWrapperStyle}
+              leftIconStyle={spacings.pl}
+            />
+          )}
+        </MenuContainer>
       )}
     </View>
   )

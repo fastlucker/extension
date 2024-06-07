@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Image, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -12,6 +12,7 @@ import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
+import ManifestImage from '@web/components/ManifestImage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
@@ -51,36 +52,27 @@ const CollectibleModal = ({
     const networkData = networks.find(({ id }) => networkId === id)
     return (
       <>
-        <View
-          style={[
-            styles.image,
-            renderFallbackImage
-              ? {
-                  backgroundColor: theme.secondaryBackground,
-                  borderRadius: BORDER_RADIUS_PRIMARY,
-                  ...flexbox.center
-                }
-              : {}
-          ]}
-        >
-          {!renderFallbackImage ? (
-            <Image
-              resizeMode="contain"
-              source={{ uri: image }}
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: BORDER_RADIUS_PRIMARY
-              }}
-            />
-          ) : (
-            <ImageIcon
-              color={theme.secondaryText}
-              width={COLLECTIBLE_IMAGE_SIZE / 2}
-              height={COLLECTIBLE_IMAGE_SIZE / 2}
-            />
+        <ManifestImage
+          uri={image}
+          size={COLLECTIBLE_IMAGE_SIZE}
+          containerStyle={styles.imageContainer}
+          imageStyle={styles.image}
+          fallback={() => (
+            <View
+              style={[
+                flexbox.flex1,
+                flexbox.center,
+                { backgroundColor: theme.primaryBackground, width: '100%' }
+              ]}
+            >
+              <ImageIcon
+                color={theme.secondaryText}
+                width={COLLECTIBLE_IMAGE_SIZE / 2}
+                height={COLLECTIBLE_IMAGE_SIZE / 2}
+              />
+            </View>
           )}
-        </View>
+        />
         <View
           style={[
             flexbox.directionRow,

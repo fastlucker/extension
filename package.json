@@ -27,9 +27,9 @@
     "build:ios:production": "eas build -p ios --profile production",
     "build:ios:production:simulator": "eas build -p ios --profile production:simulator",
     "build:android:production:simulator": "eas build -p android --profile production:simulator",
-    "build:web:webkit": "rm -rf ./webkit-prod && APP_ENV=production WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-prod expo build:web",
-    "build:web:gecko": "rm -rf ./gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo build:web",
-    "build:web:benzin": "rm -rf ./benzin-prod && APP_ENV=production WEBPACK_BUILD_OUTPUT_PATH=benzin-prod expo build:web",
+    "build:web:webkit": "rm -rf ./webkit-prod && APP_ENV=production WEB_ENGINE=webkit WEBPACK_BUILD_OUTPUT_PATH=webkit-prod expo export:web",
+    "build:web:gecko": "rm -rf ./gecko-prod && APP_ENV=production WEB_ENGINE=gecko WEBPACK_BUILD_OUTPUT_PATH=gecko-prod expo export:web",
+    "build:web:benzin": "rm -rf ./benzin-prod && APP_ENV=production WEBPACK_BUILD_OUTPUT_PATH=benzin-prod expo export:web",
     "publish:development": "expo publish --release-channel development",
     "publish:staging": "APP_ENV=staging expo publish --release-channel staging",
     "publish:production": "APP_ENV=production expo publish --release-channel default",
@@ -40,12 +40,12 @@
     "expo:install": "expo install",
     "eas:secret:list": "eas secret:list",
     "eas:secret:push": "eas secret:push --scope project --env-file .env",
-    "test:e2e:web:old": "jest --config=./src/web/jest.config.js",
-    "test:e2e:web": "yarn build:web:webkit && jest --config=./jest.config.js ./tests/basic_account/",
-    "test": "jest --config=./jest.config.js ./tests/"
+    "test:e2e:web": "yarn build:web:webkit && jest --config=./tests/jest.config.js",
+    "test": "jest --config=./jest.config.js"
   },
   "engines": {
-    "node": "16.13.0"
+    "node": ">=18.20.3 <19.0.0",
+    "yarn": ">=1.22.0 <2.0.0"
   },
   "dependencies": {
     "@ambire/signature-validator": "^1.0.3",
@@ -160,8 +160,8 @@
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.0",
     "react-hook-form": "^7.21.0",
-    "react-idle-timer": "^5.7.2",
     "react-i18next": "^11.14.3",
+    "react-idle-timer": "^5.7.2",
     "react-native": "0.70.5",
     "react-native-android-location-services-dialog-box": "2.8.2",
     "react-native-app-intro-slider": "^4.0.4",
@@ -249,7 +249,6 @@
     "eslint-plugin-react": "7.27.1",
     "eslint-plugin-react-hooks": "4.3.0",
     "eslint-plugin-react-native": "3.11.0",
-    "expo-cli": "^6.3.8",
     "i18next-scanner": "^3.1.0",
     "i18next-scanner-typescript": "^1.0.6",
     "imapflow": "^1.0.136",
@@ -259,6 +258,7 @@
     "prettier": "2.5.0",
     "puppeteer": "^20.9.0",
     "react-native-dotenv": "^3.4.2",
+    "ts-jest": "^29.1.2",
     "typescript": "^4.6.3",
     "webpack": "^5.64.4",
     "webpack-cli": "^5.1.1",

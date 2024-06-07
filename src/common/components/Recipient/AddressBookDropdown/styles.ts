@@ -25,8 +25,6 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.alignCenter,
       ...flexbox.justifySpaceBetween,
       ...spacings.ph,
-      ...spacings.pvSm,
-
       borderBottomWidth: 1,
       borderBottomColor: theme.secondaryBorder,
       backgroundColor: theme.secondaryBackground

@@ -70,7 +70,8 @@ const HideToken = () => {
                 ({ address, networkId }) =>
                   token.address === address && token.networkId === networkId
               )) &&
-            !token.flags.onGasTank
+            !token.flags.onGasTank &&
+            !token.flags.rewardsType
         )
         .filter((token) => {
           if (!searchValue) return true

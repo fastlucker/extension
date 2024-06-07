@@ -27,7 +27,7 @@ import {
   getTokenFromPreferences,
   getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio
-} from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
+} from '@web/modules/action-requests/screens/WatchTokenRequestScreen/utils'
 
 type NetworkOption = {
   value: string

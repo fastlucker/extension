@@ -8,6 +8,7 @@ import {
   APP_RELAYRLESS,
   CONSTANTS_ENDPOINT,
   EnvTypes,
+  NFT_CDN_URL,
   PAYTRIE_PARTNER_URL,
   RAMP_HOST_API_KEY,
   RELAYER_URL,
@@ -86,6 +87,7 @@ interface Config extends EnvTypes {
   RPC_URLS: {
     [key in NETWORKS]: string
   }
+  NFT_CDN_URL: string
 }
 
 const CONFIG: Config = {
@@ -119,7 +121,8 @@ const CONFIG: Config = {
     [NETWORKS.cronos]: RPC_URL_CRONOS,
     [NETWORKS.aurora]: RPC_URL_AURORA,
     [NETWORKS['ethereum-pow']]: RPC_URL_ETHEREUM_POW
-  }
+  },
+  NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com'
 }
 
 if (isProd) {

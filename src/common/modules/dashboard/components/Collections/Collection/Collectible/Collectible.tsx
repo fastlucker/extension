@@ -1,19 +1,21 @@
-import React, { FC, useMemo, useState } from 'react'
+import React, { FC } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
-import { Collectible as CollectibleType } from '@ambire-common/libs/portfolio/interfaces'
-import Spinner from '@common/components/Spinner'
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import useTheme from '@common/hooks/useTheme'
 import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
+import { NFT_CDN_URL } from '@env'
 import ImageIcon from '@web/assets/svg/ImageIcon'
+import ManifestImage from '@web/components/ManifestImage'
 import { useCustomHover } from '@web/hooks/useHover'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
-type Props = CollectibleType & {
+type Props = {
+  id: bigint
   collectionData: {
     name: string
     address: string
@@ -26,10 +28,8 @@ type Props = CollectibleType & {
   openCollectibleModal: (collectible: SelectedCollectible) => void
 }
 
-const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal }) => {
+const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) => {
   const { theme } = useTheme()
-  const [isLoading, setIsLoading] = useState(true)
-  const [imageFailed, setImageFailed] = useState(false)
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
     values: {
@@ -37,100 +37,55 @@ const Collectible: FC<Props> = ({ id, url, collectionData, openCollectibleModal 
       to: 1.15
     }
   })
+  const { networks: settingsNetworks } = useSettingsControllerState()
+  const networks = settingsNetworks ?? constantNetworks
+  const network = networks.find((n) => n.id === collectionData.networkId)
 
-  const imageUrl = useMemo(() => {
-    // Ambire's NFT CDN can't handle base64 json data
-    if (url.startsWith('data:application')) {
-      try {
-        // Convert base64 to json
-        const json = Buffer.from(url.substring(29), 'base64').toString()
-        const result = JSON.parse(json)
-
-        // Add a proxy if the image is IPFS
-        if (result.image.startsWith('ipfs://')) {
-          return `https://ipfs.io/ipfs/${result.image.substring(7)}`
-        }
-
-        return result.image
-      } catch {
-        // imageFailed will be set by the onError event
-        return ''
-      }
-    }
-
-    // Resolves to an image from a JSON source
-    return `https://nftcdn.ambire.com/proxy?url=${url}`
-  }, [url])
+  const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${collectionData.address}&id=${id}`
 
   return (
     <Pressable
-      testID='collectible-picture'
-      style={[
-        styles.container,
-        imageFailed || isLoading
-          ? {
-              backgroundColor: theme.primaryBackground,
-              borderRadius: BORDER_RADIUS_PRIMARY,
-              ...flexbox.center
-            }
-          : {}
-      ]}
+      testID="collectible-picture"
+      style={styles.container}
       onPress={() => {
         openCollectibleModal({
           address: collectionData.address,
           name: `${collectionData.name} #${id}`,
           networkId: collectionData.networkId,
           lastPrice: collectionData.priceIn ? formatCollectiblePrice(collectionData.priceIn) : '',
-          image: imageFailed ? '' : imageUrl,
+          image: imageUrl,
           collectionName: collectionData.name
         })
       }}
       {...bindAnim}
     >
-      {({ hovered }: any) =>
-        !imageFailed ? (
-          <>
-            <Animated.Image
-              onError={() => setImageFailed(true)}
-              onLoadEnd={() => setIsLoading(false)}
-              source={{
-                uri: imageUrl
-              }}
+      <Animated.View
+        style={[flexbox.flex1, { transform: [{ scale: animStyle.scaleX as number }] }]}
+      >
+        <ManifestImage
+          uri={imageUrl}
+          size="100%"
+          skeletonProps={{
+            appearance: 'primaryBackground'
+          }}
+          fallback={() => (
+            <View
               style={[
-                styles.image,
-                {
-                  transform: [{ scale: animStyle.scaleX as number }]
-                }
+                flexbox.flex1,
+                flexbox.center,
+                { backgroundColor: theme.primaryBackground, width: '100%' }
               ]}
-              resizeMode="contain"
-            />
-            {isLoading && (
-              <View
-                style={{
-                  ...styles.image,
-                  ...flexbox.center,
-                  backgroundColor: theme.primaryBackground,
-                  // Display it over the image while loading
-                  zIndex: 3
-                }}
-              >
-                <Spinner
-                  style={{
-                    width: 24,
-                    height: 24
-                  }}
-                />
-              </View>
-            )}
-          </>
-        ) : (
-          <ImageIcon
-            color={theme.secondaryText}
-            width={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
-            height={COLLECTIBLE_SIZE / (hovered ? 1.85 : 2)}
-          />
-        )
-      }
+            >
+              <ImageIcon
+                color={theme.secondaryText}
+                width={COLLECTIBLE_SIZE / 2}
+                height={COLLECTIBLE_SIZE / 2}
+              />
+            </View>
+          )}
+          imageStyle={styles.image}
+        />
+      </Animated.View>
     </Pressable>
   )
 }

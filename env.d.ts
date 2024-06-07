@@ -62,6 +62,11 @@ declare module '@env' {
     ENVIRONMENT: string
 
     DEFAULT_INVITATION_CODE_DEV: string
+    /**
+     * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
+     * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
+     */
+    NFT_CDN_URL: string
   }
 
   export const RELAYER_URL: EnvTypes['RELAYER_URL']
@@ -97,6 +102,7 @@ declare module '@env' {
 
   export const SENTRY_DSN: EnvTypes['SENTRY_DSN']
 
+  export const NFT_CDN_URL: EnvTypes['NFT_CDN_URL']
   /**
    * Possible log level descriptors, may be string, lower or upper case, or number.
    * There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
