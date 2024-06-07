@@ -558,10 +558,10 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.settings.addAccountPreferences(params)
               }
               case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
-                return mainCtrl.networks.setNetworkToAddOrUpdate(params)
+                return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
               }
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
-                return mainCtrl.networks.setNetworkToAddOrUpdate(null)
+                return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
               }
               case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
                 return await mainCtrl.settings.addKeyPreferences(params)
