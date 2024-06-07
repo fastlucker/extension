@@ -254,12 +254,12 @@ describe('ba_transactions', () => {
     console.log('before click on VERIFY')
     /* Click on "Verify" button */
     await clickOnElement(page, '#verifyButton')
-    console.log('after click on VERIFY')
 
-    const pageText = await page.evaluate(() => {
+    let pageText = await page.evaluate(() => {
       return document.body.innerText
     })
-    console.log(pageText)
+    console.log(`before ${pageText}`)
+    await new Promise((r) => setTimeout(r, 2000))
 
     /* Verify that sign message is valid */
     const validateMessage = 'Signature is Valid'
@@ -272,5 +272,11 @@ describe('ba_transactions', () => {
       {},
       validateMessage
     )
+
+    pageText = await page.evaluate(() => {
+      return document.body.innerText
+    })
+
+    console.log(`after ${pageText}`)
   })
 })
