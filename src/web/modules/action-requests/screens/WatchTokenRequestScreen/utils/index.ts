@@ -2,7 +2,7 @@ import { ZeroAddress } from 'ethers'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { Network } from '@ambire-common/interfaces/network'
-import { RPCProviders } from '@ambire-common/interfaces/settings'
+import { RPCProviders } from '@ambire-common/interfaces/provider'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { AccountPortfolio } from '@web/contexts/portfolioControllerStateContext'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen' // Polygon MATIC token address
