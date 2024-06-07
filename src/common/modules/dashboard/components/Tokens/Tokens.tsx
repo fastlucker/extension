@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
-import { NetworkId } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -46,7 +46,7 @@ const hasAmount = (token: TokenResult) => {
 }
 // if the token is on the gas tank and the network is not a relayer network (a custom network)
 // we should not show it on dashboard
-const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
+const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
   return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
 }
 const calculateTokenBalance = (token: TokenResult) => {
