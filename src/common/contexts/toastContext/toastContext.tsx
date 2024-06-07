@@ -72,18 +72,20 @@ const ToastProvider = ({ children }: Props) => {
         ...(options || {})
       }
 
-      const existingToast = toasts.find((t) => t.text === toast.text)
-      if (existingToast) {
-        removeToast(existingToast.id)
-      }
+      // Make sure that toasts won't be duplicated
+      setToasts((prevToasts) => {
+        const existingToast = prevToasts.find((t) => t.text === toast.text)
 
-      setToasts((_toasts) => [..._toasts, toast])
+        const filteredPrevToasts = prevToasts.filter((t) => t.id !== existingToast?.id)
+
+        return [...filteredPrevToasts, toast]
+      })
 
       !toast.sticky && setTimeout(() => removeToast(toast.id), toast.timeout)
 
       return toast.id
     },
-    [toasts, setToasts, removeToast]
+    [setToasts, removeToast]
   )
 
   const onToastPress = useCallback(
