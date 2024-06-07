@@ -73,6 +73,23 @@ jobs:
           BA_SELECTED_ACCOUNT: ${{ secrets.BA_SELECTED_ACCOUNT }}
           BA_TERMSTATE: ${{ secrets.BA_TERMSTATE }}
           BA_TOKEN_ITEMS: ${{ secrets.BA_TOKEN_ITEMS }}
+          SA_ACCOUNT_PREFERENCES: ${{ secrets.SA_ACCOUNT_PREFERENCES }}
+          SA_ACCOUNTS: ${{ secrets.SA_ACCOUNTS }}
+          SA_IS_DEFAULT_WALLET: ${{ secrets.SA_IS_DEFAULT_WALLET }}
+          SA_IS_ONBOARDED: ${{ secrets.SA_IS_ONBOARDED }}
+          SA_KEY_PREFERENCES: ${{ secrets.SA_KEY_PREFERENCES }}
+          SA_KEYSTORE_UID: ${{ secrets.SA_KEYSTORE_UID }}
+          SA_KEYS: ${{ secrets.SA_KEYS }}
+          SA_SECRETS: ${{ secrets.SA_SECRETS }}
+          SA_NETWORK_PREFERENCES: ${{ secrets.SA_NETWORK_PREFERENCES }}
+          SA_ONBOARDING_STATE: ${{ secrets.SA_ONBOARDING_STATE }}
+          SA_PERMISSION: ${{ secrets.SA_PERMISSION }}
+          SA_PREVIOUSHINTS: ${{ secrets.SA_PREVIOUSHINTS }}
+          SA_SELECTED_ACCOUNT: ${{ secrets.SA_SELECTED_ACCOUNT }}
+          SA_TERMSTATE: ${{ secrets.SA_TERMSTATE }}
+          SA_TOKEN_ITEMS: ${{ secrets.SA_TOKEN_ITEMS }}
+          SA_NETWORK_WITH_ASSETS: ${{ secrets.SA_NETWORK_WITH_ASSETS }}
+          SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
           DEFAULT_INVITATION_CODE_DEV: ${{ secrets.DEFAULT_INVITATION_CODE_DEV }}
 
         run: yarn run test:e2e:web
