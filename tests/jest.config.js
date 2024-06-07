@@ -11,6 +11,6 @@ module.exports = {
   testTimeout: 30000,
   testPathIgnorePatterns: [
     // FIXME: Temporary disable running the smart account tests, until they are running correctly
-    path.join('<rootDir>', 'tests/smart_account')
+    // path.join('<rootDir>', 'tests/smart_account')
   ]
 }

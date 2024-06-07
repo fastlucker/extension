@@ -11,12 +11,12 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 
-describe('sa_transactions', () => {
-  let browser
-  let page
-  let extensionRootUrl
-  let recorder
+let browser
+let page
+let extensionRootUrl
+let recorder
 
+describe('sa_transactions', () => {
   beforeEach(async () => {
     const context = await bootstrapWithStorage('sa_transactions', saParams)
     browser = context.browser
@@ -326,54 +326,57 @@ describe('sa_transactions', () => {
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
   })
-  //--------------------------------------------------------------------------------------------------------------
-  //--------------------------------------------------------------------------------------------------------------
-  it.skip('Pay transaction fee with smart account', async () => {
-    // Function to update saParams with new values
-    function updateSaParams(newValues) {
-      saParams.parsedKeystoreSecrets = JSON.parse(newValues.A2_SECRETS)
-      saParams.parsedKeystoreKeys = JSON.parse(newValues.A2_KEYS)
-      saParams.parsedKeystoreAccounts = JSON.parse(newValues.A2_ACCOUNTS)
-    }
+})
 
-    // New values to set in local storage for the test
+describe('sa_transactions_with_new_storage', () => {
+  beforeEach(async () => {
     const newValues = {
-      A2_SECRETS: process.env.A2_SECRETS,
-      A2_KEYS: process.env.A2_KEYS,
-      A2_ACCOUNTS: process.env.A2_ACCOUNTS
+      parsedKeystoreSecrets: JSON.parse(process.env.A2_SECRETS),
+      parsedKeystoreKeys: JSON.parse(process.env.A2_KEYS),
+      parsedKeystoreAccounts: JSON.parse(process.env.A2_ACCOUNTS)
     }
 
-    // Update saParams with the new values
-    updateSaParams(newValues)
+    const context = await bootstrapWithStorage('sa_transactions', {
+      ...saParams,
+      ...newValues
+    })
 
-    // Call bootstrapWithStorage again with the updated saParams
-    const context = await bootstrapWithStorage('sa_transactions', saParams)
     browser = context.browser
     page = context.page
+    recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
+  })
 
+  afterEach(async () => {
+    await recorder.stop()
+    await browser.close()
+  })
+
+  it('Pay transaction fee with basic account', async () => {
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+
+    await page.waitForSelector(amountField)
 
     await selectMaticToken(page)
 
     /* Type the amount */
     await typeText(page, amountField, '0.0001')
 
-    /* Type the address of the recipient  */
+    /* Type the adress of the recipient  */
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
-
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
-    await page.waitForSelector('[data-testid="sw-warning-checkbox"]')
+    await page.waitForSelector('[data-testid="checkbox"]')
+    await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
-    /* Check the checkbox "I confirm this address is not a Binance wallet...." */
-    await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
+    /* Check the checkbox "I confirm this address is not a Binance wallets...." */
+    await clickOnElement(page, '[data-testid="checkbox"]')
 
     /* Check the checkbox "Confirm sending to a previously unknown address" */
-    await clickOnElement(page, '[data-testid="sw-warning-checkbox"]')
+    await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
-    /* Click on "Send" button and confirm transaction */
+    /* Click on "Send" button and cofirm transaction */
     await confirmTransaction(
       page,
       extensionRootUrl,
