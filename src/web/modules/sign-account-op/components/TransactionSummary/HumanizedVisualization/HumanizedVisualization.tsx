@@ -3,18 +3,15 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
+import Collectible from '@common/components/Collectible'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import { NFT_CDN_URL } from '@env'
-import ManifestImage from '@web/components/ManifestImage'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -126,10 +123,6 @@ const HumanizedVisualization: FC<Props> = ({
         }
 
         if (item.type === 'nft') {
-          const { networks: settingsNetworks } = useSettingsControllerState()
-          const networks = settingsNetworks ?? constantNetworks
-          const network = networks.find((n) => n.id === networkId)
-          const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${item.address}&id=${item.nftId}`
           return (
             <View
               style={[
@@ -146,8 +139,21 @@ const HumanizedVisualization: FC<Props> = ({
                 address={item.address}
                 highestPriorityAlias={`NFT #${item.nftId}`}
                 explorerNetworkId={networkId}
-              />{' '}
-              <ManifestImage uri={imageUrl} />
+              />
+              <Collectible
+                size={36}
+                id={item.nftId}
+                collectionData={{
+                  name: 'asd',
+                  address: item.address,
+                  networkId,
+                  priceIn: {
+                    baseCurrency: 'USD',
+                    price: 0
+                  }
+                }}
+                openCollectibleModal={() => {}}
+              />
             </View>
           )
         }
