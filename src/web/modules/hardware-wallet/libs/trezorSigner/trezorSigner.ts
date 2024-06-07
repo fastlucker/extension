@@ -15,6 +15,7 @@ import TrezorController, {
   EthereumTransaction,
   EthereumTransactionEIP1559
 } from '@web/modules/hardware-wallet/controllers/TrezorController'
+import shortenAddress from '@web/utils/shortenAddress'
 
 const DELAY_BETWEEN_POPUPS = 1000
 
@@ -88,7 +89,13 @@ class TrezorSigner implements KeystoreSigner {
 
     if (signedWithAddr !== this.key.addr) {
       throw new Error(
-        `The key you signed with (${signedWithAddr}) is different than the key we expected (${this.key.addr}). Probably you unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
+        `The key you signed with (${shortenAddress(
+          signedWithAddr,
+          13
+        )}) is different than the key we expected (${shortenAddress(
+          this.key.addr,
+          13
+        )}). You likely unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
       )
     }
   }
