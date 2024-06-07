@@ -59,30 +59,37 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     // Don't reinit the controller if it already exists. Only update its properties
     if (transferCtrl) return
 
+    const selectedAccountData = mainState.accounts.find(
+      (acc) => acc.addr === mainState.selectedAccount
+    )
+
+    if (!selectedAccountData) return
+
     transferCtrlRef.current = new TransferController(
       humanizerInfo as HumanizerMeta,
-      mainState.selectedAccount || '',
+      selectedAccountData,
       networks
     )
     forceUpdate()
-  }, [forceUpdate, mainState.selectedAccount, networks, transferCtrl])
+  }, [forceUpdate, mainState.accounts, mainState.selectedAccount, networks, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
     transferCtrl.onUpdate(() => {
-      console.log('update')
       setState(transferCtrl.toJSON())
     })
   }, [transferCtrl])
 
   useEffect(() => {
-    if (!transferCtrl) return
-    if (!mainState.selectedAccount) return
+    const selectedAccountData = mainState.accounts.find(
+      (acc) => acc.addr === mainState.selectedAccount
+    )
+    if (!selectedAccountData || !transferCtrl) return
 
     transferCtrl.update({
-      selectedAccount: mainState.selectedAccount
+      selectedAccountData
     })
-  }, [mainState.selectedAccount, transferCtrl])
+  }, [mainState.accounts, mainState.selectedAccount, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
