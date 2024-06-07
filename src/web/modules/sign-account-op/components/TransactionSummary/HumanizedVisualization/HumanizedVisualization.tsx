@@ -3,6 +3,7 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
@@ -11,6 +12,9 @@ import TokenIcon from '@common/components/TokenIcon'
 import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import { NFT_CDN_URL } from '@env'
+import ManifestImage from '@web/components/ManifestImage'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -40,7 +44,7 @@ const HumanizedVisualization: FC<Props> = ({
         flexbox.alignCenter,
         flexbox.wrap,
         {
-          marginHorizontal: SPACING_SM * sizeMultiplierSize
+          marginRight: SPACING_SM * sizeMultiplierSize
         }
       ]}
     >
@@ -122,16 +126,28 @@ const HumanizedVisualization: FC<Props> = ({
         }
 
         if (item.type === 'nft') {
+          const { networks: settingsNetworks } = useSettingsControllerState()
+          const networks = settingsNetworks ?? constantNetworks
+          const network = networks.find((n) => n.id === networkId)
+          const imageUrl = `${NFT_CDN_URL}/proxy?rpc=${network?.rpcUrls[0]}&contract=${item.address}&id=${item.nftId}`
           return (
-            <Text
-              key={key}
-              fontSize={textSize}
-              weight="medium"
-              appearance="primaryText"
-              style={{ maxWidth: '100%', marginRight }}
+            <View
+              style={[
+                flexbox.directionRow,
+                flexbox.wrap,
+                {
+                  marginHorizontal: SPACING_SM * sizeMultiplierSize
+                }
+              ]}
             >
-              {item?.humanizerMeta?.name || item.address}
-            </Text>
+              <Address
+                fontSize={textSize}
+                address={item.address}
+                highestPriorityAlias={`NFT #${item.nftId}`}
+                explorerNetworkId={networkId}
+              />
+              <ManifestImage uri={imageUrl} />
+            </View>
           )
         }
 
