@@ -52,7 +52,7 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal, size
         ...style,
         width: size || COLLECTIBLE_SIZE,
         height: size || COLLECTIBLE_SIZE,
-        marginRight: '8px'
+        ...styles.container
       }}
       onPress={() => {
         openCollectibleModal({

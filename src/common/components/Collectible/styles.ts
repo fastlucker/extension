@@ -1,6 +1,5 @@
 import { ImageStyle, StyleSheet, ViewStyle } from 'react-native'
 
-// import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { getUiType } from '@web/utils/uiType'
 
@@ -10,15 +9,15 @@ interface Style {
 }
 
 const isTab = getUiType().isTab
+
 export const COLLECTIBLE_SIZE = isTab ? 96 : 64
 
 const styles = StyleSheet.create<Style>({
   container: {
     position: 'relative',
     borderRadius: BORDER_RADIUS_PRIMARY,
-    overflow: 'hidden'
-    // ...(isTab ? spacings.mrLg : spacings.mrSm),
-    // ...(isTab ? spacings.mbSm : spacings.mbTy)
+    overflow: 'hidden',
+    marginRight: '8px'
   },
   image: {
     borderRadius: BORDER_RADIUS_PRIMARY,

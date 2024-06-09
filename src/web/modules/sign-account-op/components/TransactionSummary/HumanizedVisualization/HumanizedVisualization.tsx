@@ -41,7 +41,7 @@ const HumanizedVisualization: FC<Props> = ({
         flexbox.alignCenter,
         flexbox.wrap,
         {
-          marginRight: SPACING_SM * sizeMultiplierSize
+          marginHorizontal: SPACING_SM * sizeMultiplierSize
         }
       ]}
     >
