@@ -124,17 +124,7 @@ const HumanizedVisualization: FC<Props> = ({
 
         if (item.type === 'nft' && item.address && item.nftId) {
           return (
-            <View
-              style={[
-                flexbox.directionRow,
-                flexbox.wrap,
-                {
-                  marginRight: SPACING_SM * sizeMultiplierSize,
-                  minWidth: '9rem',
-                  justifyContent: 'space-between'
-                }
-              ]}
-            >
+            <View style={[flexbox.directionRow, flexbox.wrap]}>
               <Address
                 fontSize={textSize}
                 address={item.address}
@@ -142,6 +132,7 @@ const HumanizedVisualization: FC<Props> = ({
                 explorerNetworkId={networkId}
               />
               <Collectible
+                style={{ marginLeft: '8px' }}
                 size={36}
                 id={item.nftId}
                 collectionData={{

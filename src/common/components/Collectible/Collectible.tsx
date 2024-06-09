@@ -15,6 +15,7 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
 type Props = {
+  style?: any
   id: bigint
   collectionData: {
     name: string
@@ -29,7 +30,7 @@ type Props = {
   size?: number
 }
 
-const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal, size }) => {
+const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal, size, style }) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
@@ -47,7 +48,12 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal, size
   return (
     <Pressable
       testID="collectible-picture"
-      style={{ width: size || COLLECTIBLE_SIZE, height: size || COLLECTIBLE_SIZE }}
+      style={{
+        ...style,
+        width: size || COLLECTIBLE_SIZE,
+        height: size || COLLECTIBLE_SIZE,
+        marginRight: '8px'
+      }}
       onPress={() => {
         openCollectibleModal({
           address: collectionData.address,
