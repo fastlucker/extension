@@ -122,7 +122,7 @@ const HumanizedVisualization: FC<Props> = ({
           )
         }
 
-        if (item.type === 'nft') {
+        if (item.type === 'nft' && item.address && item.nftId) {
           return (
             <View
               style={[
@@ -130,7 +130,8 @@ const HumanizedVisualization: FC<Props> = ({
                 flexbox.wrap,
                 {
                   marginRight: SPACING_SM * sizeMultiplierSize,
-                  gap: '10px'
+                  minWidth: '9rem',
+                  justifyContent: 'space-between'
                 }
               ]}
             >
