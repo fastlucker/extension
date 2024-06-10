@@ -257,7 +257,7 @@ describe('ba_transactions', () => {
     /* Click on "Verify" button */
     await clickOnElement(page, '#verifyButton')
 
-    const pageText = await page.evaluate(() => {
+    let pageText = await page.evaluate(() => {
       return document.body.innerText
     })
     console.log(`before ${pageText}`)
