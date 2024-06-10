@@ -45,13 +45,10 @@ describe('transactions', () => {
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
-    await page.waitForSelector('[data-testid="checkbox"]')
-
-    /* Check the checkbox "I confirm this address is not a Binance wallets...." */
-    await clickOnElement(page, '[data-testid="confirm-address-checkbox"]')
+    await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
     /* Check the checkbox "Confirm sending to a previously unknown address" */
-    await clickOnElement(page, '[data-testid="checkbox"]')
+    await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     /* Click on "Send" button and cofirm transaction */
     await confirmTransaction(

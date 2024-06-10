@@ -17,6 +17,7 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -43,7 +44,11 @@ interface Props {
 const hasAmount = (token: TokenResult) => {
   return token.amount > 0n || (token.amountPostSimulation && token.amountPostSimulation > 0n)
 }
-
+// if the token is on the gas tank and the network is not a relayer network (a custom network)
+// we should not show it on dashboard
+const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
+  return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
+}
 const calculateTokenBalance = (token: TokenResult) => {
   const amount = getTokenAmount(token)
   const { decimals, priceIn } = token
@@ -67,6 +72,7 @@ const Tokens = ({
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { networks } = useSettingsControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -98,46 +104,27 @@ const Tokens = ({
     [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
 
-  // Filter out tokens which are not in
-  // tokenPreferences and pinned
-  const hasNonZeroTokensOrPreferences = useMemo(
-    () =>
-      tokens
-        .filter(
-          (tokenRes) =>
-            !PINNED_TOKENS.find(
-              (pinnedToken) =>
-                pinnedToken.address.toLowerCase() === tokenRes.address.toLowerCase() &&
-                hasAmount(tokenRes)
-            ) &&
-            !tokenPreferences.find(
-              (token: CustomToken) => token.address.toLowerCase() === tokenRes.address.toLowerCase()
-            ) &&
-            hasAmount(tokenRes)
-        )
-        .some(hasAmount),
-    [tokenPreferences, tokens]
-  )
+  const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
 
   const sortedTokens = useMemo(
     () =>
       tokens
-        .filter(
-          (token) =>
-            hasAmount(token) ||
-            tokenPreferences.find(
-              ({ address, networkId }) =>
-                token.address.toLowerCase() === address.toLowerCase() &&
-                token.networkId === networkId
-            ) ||
-            (!hasNonZeroTokensOrPreferences &&
-              PINNED_TOKENS.find(
-                ({ address, networkId }) =>
-                  token.address.toLowerCase() === address.toLowerCase() &&
-                  token.networkId === networkId
-              ))
-        )
-        .filter((token) => !token.isHidden)
+        .filter((token) => {
+          if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+          if (token?.isHidden) return false
+
+          const hasTokenAmount = hasAmount(token)
+          const isInPreferences = tokenPreferences.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+          const isPinned = PINNED_TOKENS.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+
+          return hasTokenAmount || isInPreferences || (isPinned && userHasNoBalance)
+        })
         .sort((a, b) => {
           // pending tokens go on top
           if (
@@ -182,7 +169,7 @@ const Tokens = ({
 
           return 0
         }),
-    [tokens, tokenPreferences, hasNonZeroTokensOrPreferences]
+    [tokens, networks, tokenPreferences, userHasNoBalance]
   )
 
   const navigateToAddCustomToken = useCallback(() => {

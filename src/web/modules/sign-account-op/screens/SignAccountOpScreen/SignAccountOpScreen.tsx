@@ -10,6 +10,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Spinner from '@common/components/Spinner'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -44,12 +45,25 @@ const SignAccountOpScreen = () => {
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+
+  useEffect(() => {
+    // Ensures user can re-open the modal, if previously being closed, e.g.
+    // there is an error (modal closed), but user opts-in sign again (open it).
+    const isModalStillOpen = isChooseSignerShown && prevIsChooseSignerShown
+    // These errors get displayed in the UI (in the <Warning /> component),
+    // so in case of an error, closing the signer key selection modal is needed,
+    // otherwise errors will be displayed behind the modal overlay.
+    if (isModalStillOpen && !!signAccountOpState?.errors.length) {
+      setIsChooseSignerShown(false)
+    }
+  }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||

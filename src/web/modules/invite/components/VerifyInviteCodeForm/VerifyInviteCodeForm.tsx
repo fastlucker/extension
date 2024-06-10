@@ -61,6 +61,7 @@ const VerifyInviteCodeForm: React.FC<any> = () => {
         rules={{ required: true }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            testID="verify-invite-code-input"
             onBlur={onBlur}
             onChangeText={onChange}
             onSubmitEditing={handleFormSubmit}

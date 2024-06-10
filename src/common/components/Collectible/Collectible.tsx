@@ -1,9 +1,9 @@
 import React, { FC } from 'react'
-import { Animated, Pressable, View } from 'react-native'
+import { Animated, Pressable, View, ViewStyle } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
+import { SelectedCollectible } from '@common/components/CollectibleModal'
 import useTheme from '@common/hooks/useTheme'
-import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import { formatCollectiblePrice } from '@common/modules/dashboard/components/Collections/Collection/Collection'
 import flexbox from '@common/styles/utils/flexbox'
 import { NFT_CDN_URL } from '@env'
@@ -15,20 +15,28 @@ import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import styles, { COLLECTIBLE_SIZE } from './styles'
 
 type Props = {
+  style?: ViewStyle
   id: bigint
   collectionData: {
-    name: string
+    name?: string
     address: string
     networkId: string
-    priceIn: {
+    priceIn?: {
       baseCurrency: string
       price: number
     } | null
   }
-  openCollectibleModal: (collectible: SelectedCollectible) => void
+  openCollectibleModal?: (collectible: SelectedCollectible) => void
+  size?: number
 }
 
-const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) => {
+const Collectible: FC<Props> = ({
+  id,
+  collectionData,
+  openCollectibleModal,
+  size = COLLECTIBLE_SIZE,
+  style
+}) => {
   const { theme } = useTheme()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'scaleX',
@@ -46,8 +54,14 @@ const Collectible: FC<Props> = ({ id, collectionData, openCollectibleModal }) =>
   return (
     <Pressable
       testID="collectible-picture"
-      style={styles.container}
+      style={{
+        width: size,
+        height: size,
+        ...styles.container,
+        ...style
+      }}
       onPress={() => {
+        if (!collectionData.name || !openCollectibleModal) return
         openCollectibleModal({
           address: collectionData.address,
           name: `${collectionData.name} #${id}`,
