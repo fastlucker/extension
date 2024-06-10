@@ -16,8 +16,8 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -72,7 +72,7 @@ const Tokens = ({
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
