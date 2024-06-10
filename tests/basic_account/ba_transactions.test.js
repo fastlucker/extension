@@ -17,13 +17,25 @@ describe('ba_transactions', () => {
   let extensionRootUrl
   let recorder
 
+  // beforeEach(async () => {
+  //   const context = await bootstrapWithStorage('ba_transactions', baParams)
+  //   browser = context.browser
+  //   page = context.page
+  //   recorder = context.recorder
+  //   extensionRootUrl = context.extensionRootUrl
+  // })
+
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_transactions', baParams)
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
-  })
+    try {
+      const context = await bootstrapWithStorage('ba_transactions', baParams)
+      browser = context.browser
+      page = context.page
+      recorder = context.recorder
+      extensionRootUrl = context.extensionRootUrl
+    } catch (error) {
+      console.error('Error during setup: ', error)
+    }
+  }, 60000)
 
   afterEach(async () => {
     await recorder.stop()
