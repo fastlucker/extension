@@ -50,6 +50,8 @@ export async function bootstrap(options = {}) {
   const extensionId = extractedExtensionId
   const extensionRootUrl = `chrome-extension://${extensionId}`
 
+  console.log('bootstrap executed')
+
   return {
     browser,
     extensionRootUrl,
@@ -98,6 +100,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
   await clickOnElement(page, '[data-testid="button-unlock"]')
 
   await page.waitForSelector('[data-testid="full-balance"]')
+  console.log('typeSeedPhrase executed')
 }
 
 //----------------------------------------------------------------------------------------------
@@ -218,6 +221,8 @@ export async function bootstrapWithStorage(namespace, params) {
   // 2. Instead, we simply switch back to our tab under testing.
   await page.bringToFront()
   // we need to catch the error because in other way recorder will not be returned and test will fail with error
+  console.log('bootstrapWithStorage executed')
+
   try {
     await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
   } catch (error) {
