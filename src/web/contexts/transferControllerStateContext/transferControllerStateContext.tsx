@@ -8,6 +8,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
+import { isGasTankTokenOnCustomNetwork } from '@common/modules/dashboard/components/Tokens/Tokens'
 import flexbox from '@common/styles/utils/flexbox'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
@@ -49,10 +50,19 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter(
-        (token) => Number(getTokenAmount(token)) > 0 && !token.flags.onGasTank
-      ) || [],
-    [accountPortfolio]
+      accountPortfolio?.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
+        const isTopUp = selectedTokenFromUrl?.isTopUp
+
+        if (
+          (isTopUp && !token.flags.canTopUpGasTank) ||
+          isGasTankTokenOnCustomNetwork(token, networks)
+        )
+          return false
+
+        return hasAmount
+      }) || [],
+    [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
 
   useEffect(() => {

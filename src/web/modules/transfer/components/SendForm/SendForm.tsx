@@ -37,17 +37,14 @@ const NO_TOKENS_ITEMS = [
 const getSelectProps = ({
   tokens,
   token,
-  isTopUp,
   networks
 }: {
   tokens: TokenResult[]
   token: string
-  isTopUp: boolean
   networks: NetworkDescriptor[]
 }) => {
   let options: any = []
   let value = null
-  let tokenSelectDisabled = true
   let amountSelectDisabled = true
 
   if (tokens?.length === 0) {
@@ -56,14 +53,13 @@ const getSelectProps = ({
   } else {
     options = mapTokenOptions(tokens, networks)
     value = options.find((item: any) => item.value === token) || options[0]
-    tokenSelectDisabled = isTopUp
     amountSelectDisabled = false
   }
 
   return {
     options,
     value,
-    tokenSelectDisabled,
+
     amountSelectDisabled
   }
 }
@@ -102,12 +98,10 @@ const SendForm = ({
   const {
     value: tokenSelectValue,
     options,
-    tokenSelectDisabled,
     amountSelectDisabled
   } = getSelectProps({
     tokens,
     token: selectedToken ? getTokenId(selectedToken) : '',
-    isTopUp,
     networks
   })
 
@@ -183,10 +177,10 @@ const SendForm = ({
       ) : (
         <Select
           setValue={({ value }) => handleChangeToken(value as string)}
-          label={t('Select Token')}
+          label={t(`Select ${isTopUp ? 'Gas Tank' : ''} Token`)}
           options={options}
           value={tokenSelectValue}
-          disabled={tokenSelectDisabled || disableForm}
+          disabled={disableForm}
           containerStyle={styles.tokenSelect}
         />
       )}
