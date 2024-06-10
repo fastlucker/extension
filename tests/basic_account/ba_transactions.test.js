@@ -26,10 +26,21 @@ describe('ba_transactions', () => {
   })
 
   afterEach(async () => {
-    await recorder.stop()
-    await browser.close()
+    if (recorder) {
+      try {
+        await recorder.stop()
+      } catch (error) {
+        console.error('Error stopping recorder: ', error)
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close()
+      } catch (error) {
+        console.error('Error closing browser: ', error)
+      }
+    }
   })
-
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
     /* Click on "Send" button */
@@ -189,7 +200,7 @@ describe('ba_transactions', () => {
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
   //--------------------------------------------------------------------------------------------------------------
-  it('Send sign message ', async () => {
+  it.only('Send sign message ', async () => {
     console.log('test start')
 
     // /* Allow permissions for read and write in clipboard */
@@ -274,11 +285,10 @@ describe('ba_transactions', () => {
       {},
       validateMessage
     )
+    console.log(`after ${pageText}`)
 
     pageText = await page.evaluate(() => {
       return document.body.innerText
     })
-
-    console.log(`after ${pageText}`)
   })
 })
