@@ -225,7 +225,7 @@ describe('ba_transactions', () => {
     )
     const newPage2 = await newTarget2.page()
 
-    newPage2.setViewport({
+    await newPage2.setViewport({
       width: 1000,
       height: 1000
     })
