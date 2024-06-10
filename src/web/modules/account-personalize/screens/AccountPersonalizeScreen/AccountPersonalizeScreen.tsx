@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ScrollView, View } from 'react-native'
 
@@ -38,15 +38,21 @@ const AccountPersonalizeScreen = () => {
   const { theme } = useTheme()
   const settingsCtrl = useSettingsControllerState()
   const { dispatch } = useBackgroundService()
-  const newAccounts: Account[] = params?.accounts || []
   const { maxWidthSize } = useWindowSize()
+
+  const newAccounts: Account[] = useMemo(() => params?.accounts || [], [params?.accounts])
+
+  const defaultPreferences = useMemo(() => {
+    return newAccounts.map((acc) => ({
+      account: acc,
+      label: settingsCtrl.accountPreferences[acc.addr].label,
+      pfp: settingsCtrl.accountPreferences[acc.addr].pfp
+    }))
+  }, [newAccounts, settingsCtrl.accountPreferences])
+
   const { handleSubmit, control, watch } = useForm<AccountPersonalizeFormValues>({
     defaultValues: {
-      preferences: newAccounts.map((acc) => ({
-        account: acc,
-        label: settingsCtrl.accountPreferences[acc.addr].label,
-        pfp: settingsCtrl.accountPreferences[acc.addr].pfp
-      }))
+      preferences: defaultPreferences
     }
   })
   const { fields } = useFieldArray({
@@ -147,6 +153,7 @@ const AccountPersonalizeScreen = () => {
                 account={field.account}
                 pfp={watchPreferences[index].pfp}
                 hasBottomSpacing={index !== fields.length - 1}
+                defaultPreferences={defaultPreferences[index]}
               />
             ))}
           </ScrollView>

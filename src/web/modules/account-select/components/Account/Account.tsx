@@ -111,7 +111,7 @@ const Account = ({
               </Text>
             ) : (
               <Editable
-                value={settingsCtrl.accountPreferences[addr]?.label}
+                initialValue={settingsCtrl.accountPreferences[addr]?.label}
                 onSave={onSave}
                 fontSize={14}
                 height={24}
