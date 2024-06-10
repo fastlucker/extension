@@ -199,86 +199,86 @@ describe('ba_transactions', () => {
     await new Promise((r) => setTimeout(r, 2000))
     await page.goto('https://sigtool.ambire.com/#dummyTodo', { waitUntil: 'load' })
 
-    // /* Click on 'connect wallet' button */
-    // await clickOnElement(page, 'button[class="button-connect"]')
-    // /* Select 'MetaMask' */
-    // await page.click('>>>[class^="name"]')
+    /* Click on 'connect wallet' button */
+    await clickOnElement(page, 'button[class="button-connect"]')
+    /* Select 'MetaMask' */
+    await page.click('>>>[class^="name"]')
 
-    // // Wait for the new page to be created and click on 'Connect' button
-    // const newTarget = await browser.waitForTarget(
-    //   (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
-    // )
-    // const newPage = await newTarget.page()
-    // await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+    // Wait for the new page to be created and click on 'Connect' button
+    const newTarget = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
+    )
+    const newPage = await newTarget.page()
+    await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
 
-    // /* Type message in the 'Message' field */
-    // const textMessage = 'text message'
-    // await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
-    // await new Promise((r) => setTimeout(r, 500))
+    /* Type message in the 'Message' field */
+    const textMessage = 'text message'
+    await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
+    await new Promise((r) => setTimeout(r, 500))
 
-    // /* Click on "Sign" button */
-    // await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
+    /* Click on "Sign" button */
+    await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
 
-    // // Wait for the new window to be created and switch to it
-    // const newTarget2 = await browser.waitForTarget(
-    //   (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
-    // )
-    // const newPage2 = await newTarget2.page()
+    // Wait for the new window to be created and switch to it
+    const newTarget2 = await browser.waitForTarget(
+      (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
+    )
+    const newPage2 = await newTarget2.page()
 
-    // await newPage2.setViewport({
-    //   width: 1000,
-    //   height: 1000
-    // })
+    await newPage2.setViewport({
+      width: 1000,
+      height: 1000
+    })
 
-    // /* Click on "Sign" button */
-    // await clickOnElement(newPage2, '[data-testid="button-sign"]')
-    // await page.waitForSelector('.signatureResult-signature')
-    // /* Get the Message signature text */
-    // const messageSignature = await page.evaluate(() => {
-    //   const message = document.querySelector('.signatureResult-signature')
-    //   return message.textContent
-    // })
+    /* Click on "Sign" button */
+    await clickOnElement(newPage2, '[data-testid="button-sign"]')
+    await page.waitForSelector('.signatureResult-signature')
+    /* Get the Message signature text */
+    const messageSignature = await page.evaluate(() => {
+      const message = document.querySelector('.signatureResult-signature')
+      return message.textContent
+    })
 
-    // /* !THIS IS NOT WORKING WITH PUPPETEER. IT CAN'T BE COPIED IN CLIPBOARD. THAT'S WHY copiedAddress
-    //     IS TAKEN FROM selectedAccount OBJECT IN LOCAL STORAGE! */
-    // /* Click on a button that triggers a copy to clipboard. */
-    // await page.click('.copyButton')
+    /* !THIS IS NOT WORKING WITH PUPPETEER. IT CAN'T BE COPIED IN CLIPBOARD. THAT'S WHY copiedAddress
+        IS TAKEN FROM selectedAccount OBJECT IN LOCAL STORAGE! */
+    /* Click on a button that triggers a copy to clipboard. */
+    await page.click('.copyButton')
 
-    // const copiedAddress = process.env.BA_SELECTED_ACCOUNT
-    // /* Click on "Verify" tab */
-    // await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
-    // /* Fill copied address in the Signer field */
-    // await typeText(page, '[placeholder="Signer address (0x....)"]', copiedAddress)
-    // /* Fill copied address in the Message field */
-    // await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
-    // /* Fill copied address in the Hexadecimal signature field */
-    // await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
-    // console.log('before click on VERIFY')
-    // /* Click on "Verify" button */
-    // await clickOnElement(page, '#verifyButton')
+    const copiedAddress = process.env.BA_SELECTED_ACCOUNT
+    /* Click on "Verify" tab */
+    await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
+    /* Fill copied address in the Signer field */
+    await typeText(page, '[placeholder="Signer address (0x....)"]', copiedAddress)
+    /* Fill copied address in the Message field */
+    await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
+    /* Fill copied address in the Hexadecimal signature field */
+    await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
+    console.log('before click on VERIFY')
+    /* Click on "Verify" button */
+    await clickOnElement(page, '#verifyButton')
 
-    // const pageText = await page.evaluate(() => {
-    //   return document.body.innerText
-    // })
-    // console.log(`before ${pageText}`)
-    // await new Promise((r) => setTimeout(r, 2000))
+    const pageText = await page.evaluate(() => {
+      return document.body.innerText
+    })
+    console.log(`before ${pageText}`)
+    await new Promise((r) => setTimeout(r, 2000))
 
-    // /* Verify that sign message is valid */
-    // const validateMessage = 'Signature is Valid'
-    // /* Wait until the 'Signature is Valid' text appears on the page */
-    // await page.waitForFunction(
-    //   (text) => {
-    //     const element = document.querySelector('body')
-    //     return element && element.textContent.includes(text)
-    //   },
-    //   {},
-    //   validateMessage
-    // )
+    /* Verify that sign message is valid */
+    const validateMessage = 'Signature is Valid'
+    /* Wait until the 'Signature is Valid' text appears on the page */
+    await page.waitForFunction(
+      (text) => {
+        const element = document.querySelector('body')
+        return element && element.textContent.includes(text)
+      },
+      {},
+      validateMessage
+    )
 
-    // pageText = await page.evaluate(() => {
-    //   return document.body.innerText
-    // })
+    pageText = await page.evaluate(() => {
+      return document.body.innerText
+    })
 
-    // console.log(`after ${pageText}`)
+    console.log(`after ${pageText}`)
   })
 })
