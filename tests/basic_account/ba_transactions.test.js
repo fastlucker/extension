@@ -15,19 +15,19 @@ describe('ba_transactions', () => {
   let browser
   let page
   let extensionRootUrl
-  let recorder
+  // let recorder
 
   beforeEach(async () => {
     const context = await bootstrapWithStorage('ba_transactions', baParams)
     browser = context.browser
     page = context.page
-    recorder = context.recorder
+    // recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
-    await recorder.stop()
-    // await browser.close()
+    // await recorder.stop()
+    await browser.close()
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -192,9 +192,9 @@ describe('ba_transactions', () => {
   it.only('Send sign message ', async () => {
     console.log('test start')
 
-    /* Allow permissions for read and write in clipboard */
-    const context = browser.defaultBrowserContext()
-    context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
+    // /* Allow permissions for read and write in clipboard */
+    // const context = browser.defaultBrowserContext()
+    // context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
 
     await new Promise((r) => setTimeout(r, 2000))
     await page.goto('https://sigtool.ambire.com/#dummyTodo', { waitUntil: 'load' })

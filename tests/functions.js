@@ -158,8 +158,8 @@ export async function bootstrapWithStorage(namespace, params) {
   const browser = context.browser
   const extensionRootUrl = context.extensionRootUrl
   const page = await browser.newPage()
-  const recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
-  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+  // const recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
+  // await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
@@ -228,7 +228,7 @@ export async function bootstrapWithStorage(namespace, params) {
   } catch (error) {
     console.log('typeSeedPhrase ERROR: ', error)
   }
-  return { browser, extensionRootUrl, page, recorder }
+  return { browser, extensionRootUrl, page }
 }
 
 //----------------------------------------------------------------------------------------------
