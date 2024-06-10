@@ -132,19 +132,13 @@ const HumanizedVisualization: FC<Props> = ({
                 explorerNetworkId={networkId}
               />
               <Collectible
-                style={{ marginLeft: '8px' }}
+                style={{ marginLeft: '8px', marginRight: '8px' }}
                 size={36}
                 id={item.nftId}
                 collectionData={{
-                  name: 'asd',
                   address: item.address,
-                  networkId,
-                  priceIn: {
-                    baseCurrency: 'USD',
-                    price: 0
-                  }
+                  networkId
                 }}
-                openCollectibleModal={() => {}}
               />
             </View>
           )

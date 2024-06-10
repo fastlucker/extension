@@ -18,15 +18,15 @@ type Props = {
   style?: ViewStyle
   id: bigint
   collectionData: {
-    name: string
+    name?: string
     address: string
     networkId: string
-    priceIn: {
+    priceIn?: {
       baseCurrency: string
       price: number
     } | null
   }
-  openCollectibleModal: (collectible: SelectedCollectible) => void
+  openCollectibleModal?: (collectible: SelectedCollectible) => void
   size?: number
 }
 
@@ -61,6 +61,7 @@ const Collectible: FC<Props> = ({
         ...style
       }}
       onPress={() => {
+        if (!collectionData.name || !openCollectibleModal) return
         openCollectibleModal({
           address: collectionData.address,
           name: `${collectionData.name} #${id}`,

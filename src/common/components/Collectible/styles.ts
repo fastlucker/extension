@@ -16,8 +16,7 @@ const styles = StyleSheet.create<Style>({
   container: {
     position: 'relative',
     borderRadius: BORDER_RADIUS_PRIMARY,
-    overflow: 'hidden',
-    marginRight: '8px'
+    overflow: 'hidden'
   },
   image: {
     borderRadius: BORDER_RADIUS_PRIMARY,
