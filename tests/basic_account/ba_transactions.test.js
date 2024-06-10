@@ -21,12 +21,12 @@ describe('ba_transactions', () => {
     const context = await bootstrapWithStorage('ba_transactions', baParams)
     browser = context.browser
     page = context.page
-    recorder = context.recorder
+    // recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
-    await recorder.stop()
+    // await recorder.stop()
     await browser.close()
   })
 
@@ -190,6 +190,8 @@ describe('ba_transactions', () => {
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
   //--------------------------------------------------------------------------------------------------------------
   it.only('Send sign message ', async () => {
+    console.log('test start')
+
     /* Allow permissions for read and write in clipboard */
     const context = browser.defaultBrowserContext()
     context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
