@@ -89,7 +89,7 @@ const Collection: FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.wrap]}>
         {collectibles.map((collectible) => (
           <Collectible
-            style={{ marginBottom: '12px', marginRight: '8px' }}
+            style={{ ...spacings.mbSm, ...spacings.mrTy }}
             key={address + collectible}
             id={collectible}
             collectionData={{

@@ -9,7 +9,7 @@ import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
+import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -132,7 +132,7 @@ const HumanizedVisualization: FC<Props> = ({
                 explorerNetworkId={networkId}
               />
               <Collectible
-                style={{ marginLeft: '8px', marginRight: '8px' }}
+                style={spacings.mhTy}
                 size={36}
                 id={item.nftId}
                 collectionData={{
