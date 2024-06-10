@@ -111,20 +111,19 @@ const Tokens = ({
       tokens
         .filter((token) => {
           if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+          if (token?.isHidden) return false
 
           const hasTokenAmount = hasAmount(token)
-          const isInPreferencesAndNotHidden = tokenPreferences.find(
+          const isInPreferences = tokenPreferences.find(
             ({ address, networkId }) =>
-              token.address.toLowerCase() === address.toLowerCase() &&
-              token.networkId === networkId &&
-              !token.isHidden
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
           )
           const isPinned = PINNED_TOKENS.find(
             ({ address, networkId }) =>
               token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
           )
 
-          return hasTokenAmount || isInPreferencesAndNotHidden || (isPinned && userHasNoBalance)
+          return hasTokenAmount || isInPreferences || (isPinned && userHasNoBalance)
         })
         .sort((a, b) => {
           // pending tokens go on top
