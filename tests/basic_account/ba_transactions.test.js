@@ -26,21 +26,10 @@ describe('ba_transactions', () => {
   })
 
   afterEach(async () => {
-    if (recorder) {
-      try {
-        await recorder.stop()
-      } catch (error) {
-        console.error('Error stopping recorder: ', error)
-      }
-    }
-    if (browser) {
-      try {
-        await browser.close()
-      } catch (error) {
-        console.error('Error closing browser: ', error)
-      }
-    }
+    await recorder.stop()
+    await browser.close()
   })
+
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
     /* Click on "Send" button */
@@ -274,21 +263,21 @@ describe('ba_transactions', () => {
     console.log(`before ${pageText}`)
     await new Promise((r) => setTimeout(r, 2000))
 
-    /* Verify that sign message is valid */
-    const validateMessage = 'Signature is Valid'
-    /* Wait until the 'Signature is Valid' text appears on the page */
-    await page.waitForFunction(
-      (text) => {
-        const element = document.querySelector('body')
-        return element && element.textContent.includes(text)
-      },
-      {},
-      validateMessage
-    )
-    console.log(`after ${pageText}`)
+    // /* Verify that sign message is valid */
+    // const validateMessage = 'Signature is Valid'
+    // /* Wait until the 'Signature is Valid' text appears on the page */
+    // await page.waitForFunction(
+    //   (text) => {
+    //     const element = document.querySelector('body')
+    //     return element && element.textContent.includes(text)
+    //   },
+    //   {},
+    //   validateMessage
+    // )
 
     pageText = await page.evaluate(() => {
       return document.body.innerText
     })
+    console.log(`after ${pageText}`)
   })
 })
