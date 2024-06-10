@@ -8,6 +8,7 @@ import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
   ledgerService
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import shortenAddress from '@web/utils/shortenAddress'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -48,7 +49,10 @@ class LedgerSigner implements KeystoreSigner {
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
-        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${shortenAddress(
+          this.key.addr,
+          13
+        )})`
       )
     }
   }
