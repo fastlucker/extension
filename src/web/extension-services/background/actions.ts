@@ -125,14 +125,6 @@ type MainControllerUpdateNetworkAction = {
   }
 }
 
-type MainControllerResetNetworkAction = {
-  type: 'MAIN_CONTROLLER_RESET_NETWORK'
-  params: {
-    networkKey: keyof Network
-    networkId: NetworkId
-  }
-}
-
 type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
@@ -459,7 +451,6 @@ export type Action =
   | MainControllerRemoveNetwork
   | MainControllerSettingsAddKeyPreferences
   | MainControllerUpdateNetworkAction
-  | MainControllerResetNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts

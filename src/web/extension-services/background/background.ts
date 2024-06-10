@@ -567,10 +567,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.settings.addKeyPreferences(params)
               }
               case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
-                return await mainCtrl.updateNetwork(params.network, params.networkId)
-              }
-              case 'MAIN_CONTROLLER_RESET_NETWORK': {
-                return await mainCtrl.resetNetwork(params.networkKey, params.networkId)
+                return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
               }
               case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
                 return await mainCtrl.selectAccount(params.accountAddr)
