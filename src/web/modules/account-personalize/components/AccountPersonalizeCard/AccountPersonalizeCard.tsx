@@ -82,6 +82,7 @@ const AccountPersonalizeCard = ({
                   setCustomValue={onChange}
                   customValue={value}
                   initialValue={defaultPreferences.label}
+                  testID={`edit-name-field-${index}`}
                 />
               )}
             />
