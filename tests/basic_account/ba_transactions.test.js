@@ -263,17 +263,17 @@ describe('ba_transactions', () => {
     console.log(`before ${pageText}`)
     await new Promise((r) => setTimeout(r, 2000))
 
-    // /* Verify that sign message is valid */
-    // const validateMessage = 'Signature is Valid'
-    // /* Wait until the 'Signature is Valid' text appears on the page */
-    // await page.waitForFunction(
-    //   (text) => {
-    //     const element = document.querySelector('body')
-    //     return element && element.textContent.includes(text)
-    //   },
-    //   {},
-    //   validateMessage
-    // )
+    /* Verify that sign message is valid */
+    const validateMessage = 'Signature is Valid'
+    /* Wait until the 'Signature is Valid' text appears on the page */
+    await page.waitForFunction(
+      (text) => {
+        const element = document.querySelector('body')
+        return element && element.textContent.includes(text)
+      },
+      {},
+      validateMessage
+    )
 
     pageText = await page.evaluate(() => {
       return document.body.innerText

@@ -3,6 +3,8 @@ import { ethers } from 'ethers'
 
 const puppeteer = require('puppeteer')
 
+let recorder
+
 const puppeteerArgs = [
   `--disable-extensions-except=${__dirname}/../webkit-prod/`,
   `--load-extension=${__dirname}/webkit-prod/`,
@@ -155,7 +157,7 @@ export async function bootstrapWithStorage(namespace, params) {
   const browser = context.browser
   const extensionRootUrl = context.extensionRootUrl
   const page = await browser.newPage()
-  const recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
+  recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
