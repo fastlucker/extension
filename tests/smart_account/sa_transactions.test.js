@@ -21,12 +21,12 @@ describe('sa_transactions', () => {
     const context = await bootstrapWithStorage('sa_transactions', saParams)
     browser = context.browser
     page = context.page
-    recorder = context.recorder
+    // recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
 
   afterEach(async () => {
-    await recorder.stop()
+    // await recorder.stop()
     await browser.close()
   })
 
