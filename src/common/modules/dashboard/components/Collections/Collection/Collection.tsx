@@ -1,18 +1,18 @@
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
+import Collectible from '@common/components/Collectible'
+import { SelectedCollectible } from '@common/components/CollectibleModal'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import Collectible from './Collectible'
 import getStyles from './styles'
 
 interface Props {
@@ -89,6 +89,7 @@ const Collection: FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.wrap]}>
         {collectibles.map((collectible) => (
           <Collectible
+            style={{ ...spacings.mbSm, ...spacings.mrTy }}
             key={address + collectible}
             id={collectible}
             collectionData={{
