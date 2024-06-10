@@ -579,7 +579,12 @@ const NetworkForm = ({
                             : t('Add')
                         }
                         type="secondary"
-                        disabled={!value.length || !!errors.rpcUrl || isValidatingRPC}
+                        disabled={
+                          !value.length ||
+                          (!!errors.rpcUrl &&
+                            errors.rpcUrl.message !== 'At least one RPC URL should be added') ||
+                          isValidatingRPC
+                        }
                         containerStyle={{ height: 40 }}
                         style={{ height: 40 }}
                         onPress={() => handleAddRpcUrl(value)}
