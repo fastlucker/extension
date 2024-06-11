@@ -56,6 +56,7 @@ const BaseAddress: FC<Props> = ({ children, address, explorerNetworkId, ...rest 
       // openInTab doesn't work in Standalone Benzin
       if (!isExtension) {
         await Linking.openURL(`${network?.explorerUrl}/address/${address}`)
+        return
       }
       // Close the action-window if this address is opened in one, otherwise
       // the user will have to minimize it to see the explorer.
