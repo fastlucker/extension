@@ -8,7 +8,7 @@ module.exports = {
   roots: ['tests'],
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
-  testTimeout: 30000,
+  testTimeout: 60000,
   testPathIgnorePatterns: [
     // FIXME: Temporary disable running the smart account tests, until they are running correctly
     // path.join('<rootDir>', 'tests/smart_account')
