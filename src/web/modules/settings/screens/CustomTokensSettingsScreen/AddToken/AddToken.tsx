@@ -102,7 +102,6 @@ const AddToken = () => {
     if (!isValidAddress(address) || !network) return
     await portfolio.updateTokenPreferences({
       address: temporaryToken?.address || address,
-      name: temporaryToken?.name || '',
       symbol: temporaryToken?.symbol || '',
       decimals: temporaryToken?.decimals || 18,
       networkId: network.id,
