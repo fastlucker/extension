@@ -2,8 +2,7 @@ import { isHexString } from 'ethers'
 import React, { FC, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomNetwork, NetworkPreference } from '@ambire-common/interfaces/settings'
+import { Network } from '@ambire-common/interfaces/network'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -21,7 +20,7 @@ import SectionHeading from '@web/modules/sign-account-op/components/SectionHeadi
 import getStyles from './styles'
 
 interface Props {
-  network: (NetworkDescriptor & (NetworkPreference | CustomNetwork)) | undefined
+  network: Network
   hasEstimation: boolean
 }
 
@@ -45,9 +44,9 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   }, [network, portfolioState.state, signAccountOpState?.accountOp])
 
   const portfolioStatePending = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network?.id) return null
+    if (!signAccountOpState?.accountOp || !network.id) return null
 
-    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network!.id]
+    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network.id]
   }, [network, portfolioState.state.pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
@@ -207,4 +206,4 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   )
 }
 
-export default Simulation
+export default React.memo(Simulation)

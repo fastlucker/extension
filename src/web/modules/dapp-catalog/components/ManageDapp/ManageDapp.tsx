@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { IHandles } from 'react-native-modalize/lib/options'
 
 import { Dapp } from '@ambire-common/interfaces/dapp'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -17,7 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import DappControl from '@web/modules/dapp-catalog/components/DappControl'
 
 import getStyles from './styles'
@@ -45,10 +45,10 @@ const ManageDapp = ({
 }: Props) => {
   const { styles, theme } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { state } = useDappsControllerState()
 
-  const [network, setNetwork] = useState<NetworkDescriptor>(
+  const [network, setNetwork] = useState<Network>(
     networks.filter((n) => Number(n.chainId) === dapp?.chainId)[0] ||
       networks.filter((n) => n.id === 'ethereum')[0]
   )

@@ -14,7 +14,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import ImageIcon from '@web/assets/svg/ImageIcon'
 import ManifestImage from '@web/components/ManifestImage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Row from './Row'
@@ -43,7 +43,7 @@ const CollectibleModal = ({
   const { t } = useTranslation()
   const { styles, theme } = useTheme(getStyles)
   const renderFallbackImage = !selectedCollectible?.image
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const ModalInner = useCallback(() => {
     if (!selectedCollectible) return null

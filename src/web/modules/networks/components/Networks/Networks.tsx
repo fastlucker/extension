@@ -1,21 +1,21 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import spacings from '@common/styles/spacings'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
-import Network from './Network'
+import NetworkComponent from './Network'
 
 const Networks = ({
   openSettingsBottomSheet,
   openBlockExplorer,
   filterByNetworkId
 }: {
-  openSettingsBottomSheet: (networkId: NetworkDescriptor['id']) => void
+  openSettingsBottomSheet: (networkId: NetworkId) => void
   openBlockExplorer: (url?: string) => void
-  filterByNetworkId: NetworkDescriptor['id'] | null
+  filterByNetworkId: NetworkId | null
 }) => {
   const { selectedAccount } = useMainControllerState()
   const portfolioControllerState = usePortfolioControllerState()
@@ -45,7 +45,7 @@ const Networks = ({
     <View style={spacings.mbLg}>
       {!!selectedAccount &&
         filteredAndSortedPortfolio.map((networkId) => (
-          <Network
+          <NetworkComponent
             key={networkId}
             networkId={networkId}
             filterByNetworkId={filterByNetworkId}

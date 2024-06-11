@@ -21,7 +21,7 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 import { getUiType } from '@web/utils/uiType'
 
@@ -44,7 +44,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { addToast } = useToast()
   const { navigate } = useNavigation()
   const { t } = useTranslation()
-  const { networks, statuses } = useSettingsControllerState()
+  const { networks, statuses } = useNetworksControllerState()
   const { visibleActionsQueue } = useActionsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]
@@ -65,7 +65,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   useEffect(() => {
     if (!withRpcUrlSelectBottomSheet) return
 
-    if (statuses.updateNetworkPreferences === 'SUCCESS') {
+    if (statuses.updateNetwork === 'SUCCESS') {
       addToast(`Successfully switched the RPC URL for ${network?.name}`)
       setTimeout(() => {
         closeBottomSheet()
@@ -76,7 +76,7 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
     addToast,
     closeBottomSheet,
     network?.name,
-    statuses.updateNetworkPreferences
+    statuses.updateNetwork
   ])
 
   const handleOpenBottomSheet = useCallback(() => {
@@ -144,13 +144,8 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
       const id = network?.id
       if (id) {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-          params: {
-            networkPreferences: {
-              selectedRpcUrl: url
-            },
-            networkId: id
-          }
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+          params: { network: { selectedRpcUrl: url }, networkId: id }
         })
       }
     },

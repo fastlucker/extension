@@ -7,7 +7,9 @@ import { EmailVaultController } from '@ambire-common/controllers/emailVault/emai
 import { InviteController } from '@ambire-common/controllers/invite/invite'
 import { KeystoreController } from '@ambire-common/controllers/keystore/keystore'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { NetworksController } from '@ambire-common/controllers/networks/networks'
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
+import { ProvidersController } from '@ambire-common/controllers/providers/providers'
 import { SettingsController } from '@ambire-common/controllers/settings/settings'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
@@ -17,6 +19,8 @@ import { DappsController } from '@web/extension-services/background/controllers/
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
+  providers: ProvidersController,
+  networks: NetworksController,
   accountAdder: AccountAdderController,
   keystore: KeystoreController,
   signMessage: SignMessageController,

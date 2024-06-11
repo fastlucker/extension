@@ -25,8 +25,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -50,7 +50,7 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { selectedAccount } = useMainControllerState()
   const banners = useBanners()
   const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
