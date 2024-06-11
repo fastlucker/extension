@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
@@ -16,8 +16,8 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
@@ -31,7 +31,7 @@ import Skeleton from './TokensSkeleton'
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  filterByNetworkId: NetworkDescriptor['id']
+  filterByNetworkId: NetworkId
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -46,7 +46,7 @@ const hasAmount = (token: TokenResult) => {
 }
 // if the token is on the gas tank and the network is not a relayer network (a custom network)
 // we should not show it on dashboard
-const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
+const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
   return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
 }
 const calculateTokenBalance = (token: TokenResult) => {
@@ -72,7 +72,7 @@ const Tokens = ({
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',

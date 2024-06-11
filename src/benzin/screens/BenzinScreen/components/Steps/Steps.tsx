@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { StepsData } from '@benzin/screens/BenzinScreen/hooks/useSteps'
 import { ActiveStepType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '@benzin/screens/BenzinScreen/styles'
@@ -13,7 +13,7 @@ import { getFee, getFinalizedRows, getTimestamp, shouldShowTxnProgress } from '.
 
 interface Props {
   activeStep: ActiveStepType
-  network: NetworkDescriptor
+  network: Network
   txnId: string | null
   userOpHash: string | null
   stepsState: StepsData

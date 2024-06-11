@@ -8,13 +8,8 @@ import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp
 import { Account, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  CustomNetwork,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -90,14 +85,14 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerAddCustomNetwork = {
-  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
-  params: CustomNetwork
+type MainControllerAddNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_NETWORK'
+  params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveCustomNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
-  params: NetworkDescriptor['id']
+type MainControllerRemoveNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
+  params: NetworkId
 }
 
 type SettingsControllerAddAccountPreferences = {
@@ -108,7 +103,7 @@ type SettingsControllerAddAccountPreferences = {
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
-    chainId: NetworkDescriptor['chainId']
+    chainId: Network['chainId']
     rpcUrl: string
   }
 }
@@ -122,19 +117,11 @@ type MainControllerSettingsAddKeyPreferences = {
   params: KeyPreferences
 }
 
-type MainControllerUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
+type MainControllerUpdateNetworkAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
-    networkPreferences: Partial<NetworkPreference>
-    networkId: NetworkDescriptor['id']
-  }
-}
-
-type MainControllerResetNetworkPreference = {
-  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
-  params: {
-    preferenceKey: keyof NetworkPreference
-    networkId: NetworkDescriptor['id']
+    network: Partial<Network>
+    networkId: NetworkId
   }
 }
 
@@ -266,7 +253,7 @@ type MainControllerSignAccountOpUpdateMainDepsAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
     accounts?: Account[]
-    networks?: NetworkDescriptor[]
+    networks?: Network[]
     accountStates?: AccountStates
   }
 }
@@ -460,11 +447,10 @@ export type Action =
   | SettingsControllerAddAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
-  | MainControllerAddCustomNetwork
-  | MainControllerRemoveCustomNetwork
+  | MainControllerAddNetwork
+  | MainControllerRemoveNetwork
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerUpdateNetworkPreferences
-  | MainControllerResetNetworkPreference
+  | MainControllerUpdateNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts

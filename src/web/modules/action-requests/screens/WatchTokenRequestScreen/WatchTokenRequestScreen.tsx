@@ -3,9 +3,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { DappRequestAction } from '@ambire-common/controllers/actions/actions'
-import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
-import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import Alert from '@common/components/Alert/Alert'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
@@ -20,8 +20,9 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import {
   getTokenEligibility,
@@ -49,7 +50,8 @@ const WatchTokenRequestScreen = () => {
   const { dispatch } = useBackgroundService()
   const state = useActionsControllerState()
   const portfolio = usePortfolioControllerState()
-  const { networks, providers } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
+  const { providers } = useProvidersControllerState()
 
   const dappAction = useMemo(() => {
     if (state.currentAction?.type !== 'dappRequest') return undefined
