@@ -104,47 +104,27 @@ const Tokens = ({
     [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
 
-  // Filter out tokens which are not in
-  // tokenPreferences and pinned
-  const hasNonZeroTokensOrPreferences = useMemo(
-    () =>
-      tokens
-        .filter(
-          (tokenRes) =>
-            !PINNED_TOKENS.find(
-              (pinnedToken) =>
-                pinnedToken.address.toLowerCase() === tokenRes.address.toLowerCase() &&
-                hasAmount(tokenRes)
-            ) &&
-            !tokenPreferences.find(
-              (token: CustomToken) => token.address.toLowerCase() === tokenRes.address.toLowerCase()
-            ) &&
-            hasAmount(tokenRes)
-        )
-        .some(hasAmount),
-    [tokenPreferences, tokens]
-  )
+  const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
 
   const sortedTokens = useMemo(
     () =>
       tokens
-        .filter(
-          (token) =>
-            (hasAmount(token) ||
-              tokenPreferences.find(
-                ({ address, networkId }) =>
-                  token.address.toLowerCase() === address.toLowerCase() &&
-                  token.networkId === networkId
-              ) ||
-              (!hasNonZeroTokensOrPreferences &&
-                PINNED_TOKENS.find(
-                  ({ address, networkId }) =>
-                    token.address.toLowerCase() === address.toLowerCase() &&
-                    token.networkId === networkId
-                ))) &&
-            !isGasTankTokenOnCustomNetwork(token, networks)
-        )
-        .filter((token) => !token.isHidden)
+        .filter((token) => {
+          if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+          if (token?.isHidden) return false
+
+          const hasTokenAmount = hasAmount(token)
+          const isInPreferences = tokenPreferences.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+          const isPinned = PINNED_TOKENS.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+
+          return hasTokenAmount || isInPreferences || (isPinned && userHasNoBalance)
+        })
         .sort((a, b) => {
           // pending tokens go on top
           if (
@@ -189,7 +169,7 @@ const Tokens = ({
 
           return 0
         }),
-    [tokens, tokenPreferences, hasNonZeroTokensOrPreferences]
+    [tokens, networks, tokenPreferences, userHasNoBalance]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
