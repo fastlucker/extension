@@ -17,7 +17,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import getStyles from './styles'
 
@@ -41,7 +41,7 @@ const DappControl = ({
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const network = useMemo(
     () =>

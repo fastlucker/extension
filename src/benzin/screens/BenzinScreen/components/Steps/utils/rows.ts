@@ -1,6 +1,6 @@
 import { Block } from 'ethers'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 
 const getDate = (timestamp: number) => {
@@ -66,7 +66,7 @@ const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedSta
 
 const getFee = (
   cost: null | string,
-  network: NetworkDescriptor,
+  network: Network,
   nativePrice: number,
   finalizedStatus: FinalizedStatusType
 ) => {

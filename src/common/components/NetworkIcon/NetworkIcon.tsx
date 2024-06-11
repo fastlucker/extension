@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomNetwork } from '@ambire-common/interfaces/settings'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import AndromedaLogo from '@common/assets/svg/AndromedaLogo'
 import ArbitrumLogo from '@common/assets/svg/ArbitrumLogo'
 import AvalancheLogo from '@common/assets/svg/AvalancheLogo'
@@ -19,14 +18,13 @@ import PolygonLogo from '@common/assets/svg/PolygonLogo'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
-import { NETWORKS } from '@common/constants/networks'
 import useTheme from '@common/hooks/useTheme'
 import { SPACING_MI, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-export type NetworkIconIdType = NetworkDescriptor['id'] | 'gasTank' | 'rewards'
+export type NetworkIconIdType = NetworkId | 'gasTank' | 'rewards'
 
 type Props = {
   id: NetworkIconIdType
@@ -36,23 +34,23 @@ type Props = {
   style?: ViewStyle
   withTooltip?: boolean
   [key: string]: any
-  benzinNetwork?: NetworkDescriptor
+  benzinNetwork?: Network
 }
 
-const icons: { [key: string]: any } = {
-  [NETWORKS.ethereum]: EthereumLogo,
-  [NETWORKS.rinkeby]: EthereumLogo,
-  [NETWORKS.polygon]: PolygonLogo,
-  [NETWORKS.avalanche]: AvalancheLogo,
-  [NETWORKS['binance-smart-chain']]: BinanceLogo,
-  [NETWORKS.fantom]: FantomLogo,
-  [NETWORKS.moonbeam]: MoonbeamLogo,
-  [NETWORKS.moonriver]: MoonriverLogo,
-  [NETWORKS.arbitrum]: ArbitrumLogo,
-  [NETWORKS.optimism]: OptimismLogo,
-  [NETWORKS.gnosis]: GnosisLogo,
-  [NETWORKS.kucoin]: KCCKuCoinLogo,
-  [NETWORKS.andromeda]: AndromedaLogo,
+const icons: { [key: NetworkId]: any } = {
+  ethereum: EthereumLogo,
+  rinkeby: EthereumLogo,
+  polygon: PolygonLogo,
+  avalanche: AvalancheLogo,
+  'binance-smart-chain': BinanceLogo,
+  fantom: FantomLogo,
+  moonbeam: MoonbeamLogo,
+  moonriver: MoonriverLogo,
+  arbitrum: ArbitrumLogo,
+  optimism: OptimismLogo,
+  gnosis: GnosisLogo,
+  kucoin: KCCKuCoinLogo,
+  andromeda: AndromedaLogo,
   gastank: GasTankIcon,
   rewards: RewardsIcon
 }
@@ -67,7 +65,7 @@ const NetworkIcon = ({
   benzinNetwork,
   ...rest
 }: Props) => {
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const networkId = useMemo(() => {
     if (id.startsWith('bnb')) {
@@ -83,7 +81,7 @@ const NetworkIcon = ({
 
   const iconUrls = useMemo(
     () => [
-      ...((network as CustomNetwork)?.iconUrls || []),
+      ...((network as Network)?.iconUrls || []),
       `https://icons.llamao.fi/icons/chains/rsz_${networkId.split(/\s+/)[0].toLowerCase()}.jpg`,
       `https://icons.llamao.fi/icons/chains/rsz_${network?.nativeAssetSymbol?.toLowerCase()}.jpg`,
       `https://raw.githubusercontent.com/ErikThiart/cryptocurrency-icons/master/64/${networkId.toLowerCase()}.png`,

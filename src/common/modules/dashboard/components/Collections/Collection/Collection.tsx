@@ -1,18 +1,18 @@
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
+import Collectible from '@common/components/Collectible'
+import { SelectedCollectible } from '@common/components/CollectibleModal'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import Collectible from './Collectible'
 import getStyles from './styles'
 
 interface Props {
@@ -53,11 +53,11 @@ const Collection: FC<Props> = ({
   openCollectibleModal
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const settingsState = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const networkData = useMemo(() => {
-    return settingsState.networks.find(({ id }) => networkId === id)
-  }, [networkId, settingsState.networks])
+    return networks.find(({ id }) => networkId === id)
+  }, [networkId, networks])
 
   return (
     <View style={styles.container}>
@@ -89,6 +89,7 @@ const Collection: FC<Props> = ({
       <View style={[flexbox.directionRow, flexbox.wrap]}>
         {collectibles.map((collectible) => (
           <Collectible
+            style={{ ...spacings.mbSm, ...spacings.mrTy }}
             key={address + collectible}
             id={collectible}
             collectionData={{

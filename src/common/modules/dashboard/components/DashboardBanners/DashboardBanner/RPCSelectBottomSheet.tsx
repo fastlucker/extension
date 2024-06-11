@@ -10,7 +10,7 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 
 interface Props {
@@ -22,13 +22,13 @@ interface Props {
 
 const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet, actions }) => {
   const { t } = useTranslation()
-  const { networks, statuses } = useSettingsControllerState()
+  const { networks, statuses } = useNetworksControllerState()
   const { addToast } = useToast()
   const { theme } = useTheme()
   const { dispatch } = useBackgroundService()
 
   const network = useMemo(() => {
-    if (!isVisible) return
+    if (!isVisible) return undefined
 
     return networks.find(
       // @ts-ignore
@@ -36,33 +36,29 @@ const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet
     )
   }, [actions, networks, isVisible])
 
+  useEffect(() => {
+    if (!isVisible) return
+
+    if (statuses.updateNetwork === 'SUCCESS') {
+      addToast(`Successfully switched the RPC URL for ${network?.name}`)
+      setTimeout(() => {
+        closeBottomSheet()
+      }, 250)
+    }
+  }, [isVisible, addToast, closeBottomSheet, network?.name, statuses.updateNetwork])
+
   const handleSelectRpcUrl = useCallback(
     (url: string) => {
       const id = network?.id
       if (id) {
         dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-          params: {
-            networkPreferences: {
-              selectedRpcUrl: url
-            },
-            networkId: id
-          }
+          type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+          params: { network: { selectedRpcUrl: url }, networkId: id }
         })
       }
     },
     [network?.id, dispatch]
   )
-
-  useEffect(() => {
-    if (!isVisible || statuses.updateNetworkPreferences !== 'SUCCESS') return
-
-    addToast(t('Successfully switched the RPC URL for {{network}}', { network: network?.name }))
-
-    setTimeout(() => {
-      closeBottomSheet()
-    }, 200)
-  }, [isVisible, addToast, closeBottomSheet, network?.name, statuses.updateNetworkPreferences, t])
 
   if (!isVisible) return null
 
