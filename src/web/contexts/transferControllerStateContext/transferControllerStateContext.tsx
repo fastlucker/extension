@@ -49,10 +49,19 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const tokens = useMemo(
     () =>
-      accountPortfolio?.tokens.filter(
-        (token) => Number(getTokenAmount(token)) > 0 && !token.flags.onGasTank
-      ) || [],
-    [accountPortfolio]
+      accountPortfolio?.tokens.filter((token) => {
+        const hasAmount = Number(getTokenAmount(token)) > 0
+        const isTopUp = selectedTokenFromUrl?.isTopUp
+
+        if (isTopUp) {
+          const tokenNetwork = networks.find((network) => network.id === token.networkId)
+
+          return hasAmount && tokenNetwork?.hasRelayer && token.flags.canTopUpGasTank
+        }
+
+        return hasAmount
+      }) || [],
+    [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
 
   useEffect(() => {

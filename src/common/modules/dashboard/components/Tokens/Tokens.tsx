@@ -46,7 +46,7 @@ const hasAmount = (token: TokenResult) => {
 }
 // if the token is on the gas tank and the network is not a relayer network (a custom network)
 // we should not show it on dashboard
-const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
+export const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: NetworkDescriptor[]) => {
   return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
 }
 const calculateTokenBalance = (token: TokenResult) => {
