@@ -201,7 +201,7 @@ describe('ba_transactions', () => {
   // Jordan: This test consistently functions as expected whenever we run it.
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
   //--------------------------------------------------------------------------------------------------------------
-  it.only('Send sign message ', async () => {
+  it('Sign message', async () => {
     console.log('test start')
 
     // /* Allow permissions for read and write in clipboard */
