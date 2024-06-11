@@ -201,11 +201,11 @@ const WatchTokenRequestScreen = () => {
   const handleAddToken = useCallback(async () => {
     if (!dappAction) return
     if (!tokenNetwork?.id) return
+
     const token: CustomToken = {
       address: getAddress(tokenData.address),
-      name: tokenData?.name,
       symbol: tokenData?.symbol,
-      decimals: tokenData?.decimals,
+      decimals: Number(tokenData?.decimals),
       standard: 'ERC20',
       networkId: tokenNetwork?.id
     }
