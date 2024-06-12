@@ -330,7 +330,7 @@ const TokenDetails = ({
                   isOn={isHidden}
                   onToggle={handleHideToken}
                   label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleProps={spacings.mrTy}
+                  toggleStyle={spacings.mrTy}
                 />
               </View>
             )}
@@ -379,6 +379,7 @@ const TokenDetails = ({
           <TokenDetailsButton
             key={action.id}
             {...action}
+            isDisabled={!!action.isDisabled}
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}
