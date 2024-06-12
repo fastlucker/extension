@@ -193,30 +193,22 @@ describe('ba_login', () => {
 
     // This function types words in the passphrase fields and checks if the button is disabled.
     async function typeWordsAndCheckButton(passphraseWords) {
-      try {
-        const wordArray = passphraseWords.split(' ')
+      const wordArray = passphraseWords.split(' ')
 
-        for (let i = 0; i < wordArray.length; i++) {
-          const wordToType = wordArray[i]
+      for (let i = 0; i < wordArray.length; i++) {
+        const wordToType = wordArray[i]
 
-          // Type the word into the input field using page.type
-          const inputSelector = `[placeholder="Word ${i + 1}"]`
-          await page.type(inputSelector, wordToType)
-        }
-
-        // Check whether button is disabled
-        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
-          return button.getAttribute('aria-disabled')
-        })
-
-        if (isButtonDisabled === 'true') {
-        } else {
-          throw new Error('Button is NOT disabled')
-        }
-      } catch (error) {
-        console.error(`Error when trying to login with phrase: ${passphraseWords}. Test failed`)
-        throw error
+        // Type the word into the input field using page.type
+        const inputSelector = `[placeholder="Word ${i + 1}"]`
+        await page.type(inputSelector, wordToType)
       }
+
+      // Check whether button is disabled
+      const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+        return button.getAttribute('aria-disabled')
+      })
+
+      expect(isButtonDisabled).toBe('true')
     }
     // This function waits until an error message appears on the page.
     async function waitUntilError(validateMessage) {

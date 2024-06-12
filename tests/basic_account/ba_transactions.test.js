@@ -188,11 +188,9 @@ describe('ba_transactions', () => {
   // Once we've addressed and stabilized the remaining transaction tests, we'll re-enable them.
   //--------------------------------------------------------------------------------------------------------------
   it('Sign message', async () => {
-    console.log('test start')
-
-    // /* Allow permissions for read and write in clipboard */
-    // const context = browser.defaultBrowserContext()
-    // context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
+    /* Allow permissions for read and write in clipboard */
+    const context = browser.defaultBrowserContext()
+    context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
 
     await new Promise((r) => setTimeout(r, 2000))
     await page.goto('https://sigtool.ambire.com/#dummyTodo', { waitUntil: 'load' })
@@ -251,7 +249,7 @@ describe('ba_transactions', () => {
     await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
     // Fill copied address in the Hexadecimal signature field
     await typeText(page, '[placeholder="Hexadecimal signature (0x....)"]', messageSignature)
-    console.log('before click on VERIFY')
+
     // Click on "Verify" button
     await clickOnElement(page, '#verifyButton')
 

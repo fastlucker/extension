@@ -109,7 +109,7 @@ export const INVITE_STORAGE_ITEM = {
   verifiedCode: 'dummy-test-code'
 }
 
-const baParams = {
+export const baParams = {
   parsedKeystoreAccountsPreferences: JSON.parse(process.env.BA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.BA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.BA_IS_DEFAULT_WALLET,
@@ -128,7 +128,7 @@ const baParams = {
   invite: JSON.stringify(INVITE_STORAGE_ITEM)
 }
 
-const saParams = {
+export const saParams = {
   parsedKeystoreAccountsPreferences: JSON.parse(process.env.SA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.SA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.SA_IS_DEFAULT_WALLET,
@@ -148,7 +148,7 @@ const saParams = {
   invite: JSON.stringify(INVITE_STORAGE_ITEM)
 }
 
-export { saParams, baParams } // Export the params object
+// export { saParams, baParams } // Export the params object
 
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
