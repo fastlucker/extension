@@ -84,7 +84,6 @@ const TokenIcon: React.FC<Props> = ({
     ],
     [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
-  console.log('imageUrl', imageUrl, hasError, isLoading)
   const setLoadingFinished = useCallback(() => {
     setIsLoading(false)
   }, [])
