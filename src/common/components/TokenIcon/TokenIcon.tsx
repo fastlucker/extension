@@ -58,7 +58,10 @@ const TokenIcon: React.FC<Props> = ({
   )
 
   const imageUrl = useMemo(() => {
-    if (!network || !network.platformId) return undefined
+    if (!network || !network.platformId) {
+      setHasError(true)
+      return undefined
+    }
     setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
@@ -81,7 +84,7 @@ const TokenIcon: React.FC<Props> = ({
     ],
     [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
-
+  console.log('imageUrl', imageUrl, hasError, isLoading)
   const setLoadingFinished = useCallback(() => {
     setIsLoading(false)
   }, [])
