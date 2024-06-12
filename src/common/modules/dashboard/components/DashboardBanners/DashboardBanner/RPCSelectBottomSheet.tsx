@@ -40,12 +40,16 @@ const RPCSelectBottomSheet: FC<Props> = ({ isVisible, sheetRef, closeBottomSheet
     if (!isVisible) return
 
     if (statuses.updateNetwork === 'SUCCESS') {
-      addToast(`Successfully switched the RPC URL for ${network?.name}`)
+      addToast(
+        t('Successfully switched the RPC URL for {{network}}', {
+          network: network?.name || 'Unknown network'
+        })
+      )
       setTimeout(() => {
         closeBottomSheet()
       }, 250)
     }
-  }, [isVisible, addToast, closeBottomSheet, network?.name, statuses.updateNetwork])
+  }, [isVisible, addToast, closeBottomSheet, network?.name, statuses.updateNetwork, t])
 
   const handleSelectRpcUrl = useCallback(
     (url: string) => {
