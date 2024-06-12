@@ -53,7 +53,7 @@ const SignedMessageHistory: FC<{
     <>
       {(activityState?.signedMessages?.items || []).map((item, i) => (
         <SignedMessageSummary
-          key={item.id}
+          key={item.timestamp + item.networkId}
           signedMessage={item as SignedMessage}
           style={i !== activityState.signedMessages!.items.length - 1 ? spacings.mbSm : {}}
         />
