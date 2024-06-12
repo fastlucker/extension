@@ -14,9 +14,8 @@ import { APP_VERSION } from '@common/config/env'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
 
-import { ProviderNeededControllers, RequestRes, Web3WalletPermission } from './types'
+import { RequestRes, Web3WalletPermission } from './types'
 
 type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
 
@@ -37,13 +36,10 @@ const handleSignMessage = (requestRes: RequestRes) => {
 export class ProviderController {
   mainCtrl: MainController
 
-  dappsCtrl: DappsController
-
   isUnlocked: boolean
 
-  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
+  constructor(mainCtrl: MainController) {
     this.mainCtrl = mainCtrl
-    this.dappsCtrl = dappsCtrl
 
     this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
       ? this.mainCtrl.keystore.isUnlocked
@@ -57,7 +53,7 @@ export class ProviderController {
         'Missing default network data, which should never happen. Please contact support.'
       )
 
-    const dappChainId = this.dappsCtrl.getDapp(origin)?.chainId
+    const dappChainId = this.mainCtrl.dapps.getDapp(origin)?.chainId
     if (!dappChainId) return defaultNetwork
 
     return (
@@ -76,7 +72,7 @@ export class ProviderController {
     const networkId = this.getDappNetwork(origin).id
     const provider = this.mainCtrl.providers.providers[networkId]
 
-    if (!this.dappsCtrl.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
+    if (!this.mainCtrl.dapps.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
     }
 
@@ -84,19 +80,19 @@ export class ProviderController {
   }
 
   ethRequestAccounts = async ({ session: { origin } }: DappProviderRequest) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
     const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
-    this.dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
+    this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
 
   @Reflect.metadata('SAFE', true)
   ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
 
@@ -104,7 +100,7 @@ export class ProviderController {
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
 
@@ -113,8 +109,8 @@ export class ProviderController {
 
   @Reflect.metadata('SAFE', true)
   ethChainId = async ({ session: { origin } }: DappProviderRequest) => {
-    if (this.dappsCtrl.hasPermission(origin)) {
-      return toBeHex(this.dappsCtrl.getDapp(origin)?.chainId || 1)
+    if (this.mainCtrl.dapps.hasPermission(origin)) {
+      return toBeHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
     }
     return toBeHex(1)
   }
@@ -186,14 +182,7 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({
-      request,
-      controllers
-    }: {
-      request: ProviderRequest
-      controllers: ProviderNeededControllers
-    }) => {
-      const { mainCtrl, dappsCtrl } = controllers
+    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
       const { params, session } = request
       if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
@@ -201,7 +190,7 @@ export class ProviderController {
       if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = dappsCtrl.getDapp(session.origin)
+      const dapp = mainCtrl.dapps.getDapp(session.origin)
       const { chainId } = params[0]
       const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
@@ -226,7 +215,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.dappsCtrl.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await browser.notifications.create(nanoid(), {
@@ -236,7 +225,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.dappsCtrl.broadcastDappSessionEvent(
+    this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -250,14 +239,7 @@ export class ProviderController {
 
   @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({
-      request,
-      controllers
-    }: {
-      request: ProviderRequest
-      controllers: ProviderNeededControllers
-    }) => {
-      const { mainCtrl, dappsCtrl } = controllers
+    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
       const { params, session } = request
       if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
@@ -265,7 +247,7 @@ export class ProviderController {
       if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = dappsCtrl.getDapp(session.origin)
+      const dapp = mainCtrl.dapps.getDapp(session.origin)
       const { chainId } = params[0]
       const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
@@ -296,7 +278,7 @@ export class ProviderController {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.dappsCtrl.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await browser.notifications.create(nanoid(), {
@@ -306,7 +288,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.dappsCtrl.broadcastDappSessionEvent(
+    this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -337,7 +319,7 @@ export class ProviderController {
   @Reflect.metadata('SAFE', true)
   walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
-    if (this.dappsCtrl.getDapp(origin) && this.isUnlocked) {
+    if (this.mainCtrl.dapps.getDapp(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result

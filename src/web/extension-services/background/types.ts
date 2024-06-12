@@ -2,6 +2,7 @@ import AccountAdderController from '@ambire-common/controllers/accountAdder/acco
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
+import { DappsController } from '@ambire-common/controllers/dapps/dapps'
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
 import { EmailVaultController } from '@ambire-common/controllers/emailVault/emailVault'
 import { InviteController } from '@ambire-common/controllers/invite/invite'
@@ -15,7 +16,6 @@ import { SignAccountOpController } from '@ambire-common/controllers/signAccountO
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
@@ -29,6 +29,7 @@ export const controllersNestedInMainMapping = {
   emailVault: EmailVaultController,
   signAccountOp: SignAccountOpController,
   transfer: TransferController,
+  dapps: DappsController,
   actions: ActionsController,
   settings: SettingsController,
   addressBook: AddressBookController,
@@ -41,7 +42,6 @@ export const controllersNestedInMainMapping = {
 }
 export const controllersMapping = {
   main: MainController,
-  dapps: DappsController,
   walletState: WalletStateController,
   autoLock: AutoLockController,
   ...controllersNestedInMainMapping
