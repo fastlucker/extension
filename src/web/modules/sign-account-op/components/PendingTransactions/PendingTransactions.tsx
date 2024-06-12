@@ -11,11 +11,12 @@ import spacings from '@common/styles/spacings'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
+import PendingTransactionsSkeleton from './PendingTransactionsSkeleton'
 import getStyles from './styles'
 
 interface Props {
   callsToVisualize: (IrCall | Call)[]
-  network: Network
+  network?: Network
 }
 
 const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
@@ -26,16 +27,20 @@ const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
     <View style={styles.transactionsContainer}>
       <SectionHeading>{t('Waiting Transactions')}</SectionHeading>
       <ScrollableWrapper style={styles.transactionsScrollView} scrollEnabled>
-        {callsToVisualize.map((call, i) => {
-          return (
-            <TransactionSummary
-              key={`${call.fromUserRequestId}+${i}`}
-              style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
-              call={call}
-              networkId={network.id}
-            />
-          )
-        })}
+        {network && callsToVisualize.length ? (
+          callsToVisualize.map((call, i) => {
+            return (
+              <TransactionSummary
+                key={`${call.fromUserRequestId}+${i}`}
+                style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
+                call={call}
+                networkId={network?.id || ''}
+              />
+            )
+          })
+        ) : (
+          <PendingTransactionsSkeleton />
+        )}
       </ScrollableWrapper>
     </View>
   )

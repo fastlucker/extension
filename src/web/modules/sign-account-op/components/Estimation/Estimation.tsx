@@ -1,7 +1,7 @@
 import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 
 import {
   getFeeSpeedIdentifier,
@@ -16,7 +16,6 @@ import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -29,15 +28,28 @@ import Fee from '@web/modules/sign-account-op/components/Fee'
 
 import SectionHeading from '../SectionHeading'
 import AmountInfo from './components/AmountInfo'
+import EstimationSkeleton from './components/EstimationSkeleton'
 import Warnings from './components/Warnings'
 import getStyles from './styles'
 
 type Props = {
-  signAccountOpState: SignAccountOpController
+  signAccountOpState: SignAccountOpController | null
   disabled: boolean
   hasEstimation: boolean
   slowRequest: boolean
   isViewOnly: boolean
+}
+
+const EstimationWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { t } = useTranslation()
+
+  const { styles } = useTheme(getStyles)
+  return (
+    <View style={styles.estimationContainer}>
+      <SectionHeading>{t('Estimation')}</SectionHeading>
+      <ScrollableWrapper style={styles.estimationScrollView}>{children}</ScrollableWrapper>
+    </View>
+  )
 }
 
 const Estimation = ({
@@ -47,14 +59,14 @@ const Estimation = ({
   slowRequest,
   isViewOnly
 }: Props) => {
-  const estimationFailed = signAccountOpState.status?.type === SigningStatus.EstimationError
+  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
 
   const payOptions = useMemo(() => {
-    if (!signAccountOpState.availableFeeOptions.length || !hasEstimation || estimationFailed)
+    if (!signAccountOpState?.availableFeeOptions.length || !hasEstimation || estimationFailed)
       return [
         {
           value: 'no-option',
@@ -114,9 +126,9 @@ const Estimation = ({
         }
       })
   }, [
-    signAccountOpState.availableFeeOptions,
-    signAccountOpState.accountOp.accountAddr,
-    signAccountOpState.feeSpeeds,
+    signAccountOpState?.availableFeeOptions,
+    signAccountOpState?.accountOp.accountAddr,
+    signAccountOpState?.feeSpeeds,
     hasEstimation,
     estimationFailed
   ])
@@ -126,6 +138,7 @@ const Estimation = ({
 
   const setFeeOption = useCallback(
     (localPayValue: any) => {
+      if (!signAccountOpState?.selectedFeeSpeed) return
       setPayValue(localPayValue)
 
       dispatch({
@@ -139,7 +152,7 @@ const Estimation = ({
         }
       })
     },
-    [dispatch, signAccountOpState.selectedFeeSpeed]
+    [dispatch, signAccountOpState?.selectedFeeSpeed]
   )
 
   useEffect(() => {
@@ -156,7 +169,7 @@ const Estimation = ({
   }, [initialSetupDone, payValue, setFeeOption, hasEstimation, estimationFailed])
 
   const feeSpeeds = useMemo(() => {
-    if (!signAccountOpState.selectedOption) return []
+    if (!signAccountOpState?.selectedOption) return []
 
     const identifier = getFeeSpeedIdentifier(
       signAccountOpState.selectedOption,
@@ -170,14 +183,14 @@ const Estimation = ({
       )
     }))
   }, [
-    signAccountOpState.feeSpeeds,
-    signAccountOpState.selectedOption,
-    signAccountOpState.accountOp.accountAddr
+    signAccountOpState?.feeSpeeds,
+    signAccountOpState?.selectedOption,
+    signAccountOpState?.accountOp.accountAddr
   ])
 
   const selectedFee = useMemo(
-    () => feeSpeeds.find((speed) => speed.type === signAccountOpState.selectedFeeSpeed),
-    [signAccountOpState.selectedFeeSpeed, feeSpeeds]
+    () => feeSpeeds.find((speed) => speed.type === signAccountOpState?.selectedFeeSpeed),
+    [signAccountOpState?.selectedFeeSpeed, feeSpeeds]
   )
 
   const onFeeSelect = useCallback(
@@ -192,95 +205,95 @@ const Estimation = ({
     [dispatch]
   )
 
+  if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {
+    return (
+      <EstimationWrapper>
+        <EstimationSkeleton />
+      </EstimationWrapper>
+    )
+  }
+
   return (
-    <View style={styles.estimationContainer}>
-      <SectionHeading>{t('Estimation')}</SectionHeading>
-      <ScrollableWrapper style={styles.estimationScrollView}>
-        {!!hasEstimation && !estimationFailed && (
-          <>
-            {isSmartAccount(signAccountOpState.account) && (
-              <Select
-                setValue={setFeeOption}
-                label={t('Pay fee with')}
-                options={payOptions}
-                containerStyle={spacings.mb}
-                value={payValue || {}}
-                disabled={disabled}
-                defaultValue={payValue}
-              />
-            )}
-            {feeSpeeds.length > 0 && (
-              <View style={[spacings.mbMd]}>
-                <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
-                  {t('Transaction speed')}
-                </Text>
-                <View
-                  style={[
-                    minWidthSize('xxl') && flexbox.wrap,
-                    flexbox.flex1,
-                    flexbox.directionRow,
-                    disabled && { opacity: 0.6 },
-                    minWidthSize('xxl') && { margin: -SPACING_MI }
-                  ]}
-                >
-                  {feeSpeeds.map((fee, i) => (
-                    <Fee
-                      disabled={disabled || fee.disabled}
-                      isLastItem={i === feeSpeeds.length - 1}
-                      key={fee.amount + fee.type}
-                      label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
-                      type={fee.type}
-                      amount={formatDecimals(parseFloat(fee.amountFormatted))}
-                      onPress={onFeeSelect}
-                      isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
-                    />
-                  ))}
-                  {/* TODO: <CustomFee onPress={() => {}} /> */}
-                </View>
+    <EstimationWrapper>
+      {!!hasEstimation && !estimationFailed && (
+        <>
+          {isSmartAccount(signAccountOpState.account) && (
+            <Select
+              setValue={setFeeOption}
+              label={t('Pay fee with')}
+              options={payOptions}
+              containerStyle={spacings.mb}
+              value={payValue || {}}
+              disabled={disabled}
+              defaultValue={payValue}
+            />
+          )}
+          {feeSpeeds.length > 0 && (
+            <View style={[spacings.mbMd]}>
+              <Text fontSize={16} color={theme.secondaryText} style={spacings.mbTy}>
+                {t('Transaction speed')}
+              </Text>
+              <View
+                style={[
+                  minWidthSize('xxl') && flexbox.wrap,
+                  flexbox.flex1,
+                  flexbox.directionRow,
+                  disabled && { opacity: 0.6 },
+                  minWidthSize('xxl') && { margin: -SPACING_MI }
+                ]}
+              >
+                {feeSpeeds.map((fee, i) => (
+                  <Fee
+                    disabled={disabled || fee.disabled}
+                    isLastItem={i === feeSpeeds.length - 1}
+                    key={fee.amount + fee.type}
+                    label={`${t(fee.type.charAt(0).toUpperCase() + fee.type.slice(1))}:`}
+                    type={fee.type}
+                    amount={formatDecimals(parseFloat(fee.amountFormatted))}
+                    onPress={onFeeSelect}
+                    isSelected={signAccountOpState.selectedFeeSpeed === fee.type}
+                  />
+                ))}
+                {/* TODO: <CustomFee onPress={() => {}} /> */}
               </View>
-            )}
-            {!!selectedFee && !!payValue && (
-              <AmountInfo
-                label="Fee"
-                amountFormatted={selectedFee.amountFormatted}
-                amountUsd={selectedFee.amountUsd}
-                symbol={payValue.token?.symbol}
-              />
-            )}
-            {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
-            {/* <View style={styles.gasTankContainer}> */}
-            {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
-            {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
-            {/* </View> */}
-            {signAccountOpState.selectedOption && payValue && payValue.token && (
-              <AmountInfo
-                label="Available"
-                amountFormatted={formatUnits(
-                  signAccountOpState.selectedOption.availableAmount,
-                  Number(payValue.token.decimals)
-                )}
-                amountUsd={getTokenUsdAmount(
-                  payValue.token,
-                  signAccountOpState.selectedOption.availableAmount
-                )}
-                symbol={payValue.token.symbol}
-              />
-            )}
-          </>
-        )}
-        {!hasEstimation && !estimationFailed && (
-          <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-            <Spinner style={styles.spinner} />
-          </View>
-        )}
-        <Warnings
-          hasEstimation={hasEstimation}
-          estimationFailed={estimationFailed}
-          slowRequest={slowRequest}
-          isViewOnly={isViewOnly}
-        />
-      </ScrollableWrapper>
-    </View>
+            </View>
+          )}
+          {!!selectedFee && !!payValue && (
+            <AmountInfo
+              label="Fee"
+              amountFormatted={selectedFee.amountFormatted}
+              amountUsd={selectedFee.amountUsd}
+              symbol={payValue.token?.symbol}
+            />
+          )}
+          {/* // TODO: - once we clear out the gas tank functionality, here we need to render what gas it saves */}
+          {/* <View style={styles.gasTankContainer}> */}
+          {/*  <Text style={styles.gasTankText}>{t('Gas Tank saves you:')}</Text> */}
+          {/*  <Text style={styles.gasTankText}>$ 2.6065</Text> */}
+          {/* </View> */}
+          {signAccountOpState.selectedOption && payValue && payValue.token && (
+            <AmountInfo
+              label="Available"
+              amountFormatted={formatUnits(
+                signAccountOpState.selectedOption.availableAmount,
+                Number(payValue.token.decimals)
+              )}
+              amountUsd={getTokenUsdAmount(
+                payValue.token,
+                signAccountOpState.selectedOption.availableAmount
+              )}
+              symbol={payValue.token.symbol}
+            />
+          )}
+        </>
+      )}
+      <Warnings
+        hasEstimation={hasEstimation}
+        estimationFailed={estimationFailed}
+        slowRequest={slowRequest}
+        isViewOnly={isViewOnly}
+      />
+    </EstimationWrapper>
   )
 }
 
