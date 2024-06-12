@@ -2,8 +2,7 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
-import { CustomNetwork, NetworkPreference } from '@ambire-common/interfaces/settings'
+import { Network } from '@ambire-common/interfaces/network'
 import { Call } from '@ambire-common/interfaces/userRequest'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -16,7 +15,7 @@ import getStyles from './styles'
 
 interface Props {
   callsToVisualize: (IrCall | Call)[]
-  network: (NetworkDescriptor & (NetworkPreference | CustomNetwork)) | undefined
+  network: Network
 }
 
 const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
@@ -33,7 +32,7 @@ const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
               key={`${call.fromUserRequestId}+${i}`}
               style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
               call={call}
-              networkId={network!.id}
+              networkId={network.id}
               testID={`recipient-address-${i}`}
             />
           )

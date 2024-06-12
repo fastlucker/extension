@@ -3,12 +3,13 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
+import Collectible from '@common/components/Collectible'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
+import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -18,7 +19,7 @@ interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize: number
   textSize: number
-  networkId: NetworkDescriptor['id']
+  networkId: NetworkId
   isHistory?: boolean
   testID?: string
 }
@@ -124,17 +125,25 @@ const HumanizedVisualization: FC<Props> = ({
           )
         }
 
-        if (item.type === 'nft') {
+        if (item.type === 'nft' && item.address && item.nftId) {
           return (
-            <Text
-              key={key}
-              fontSize={textSize}
-              weight="medium"
-              appearance="primaryText"
-              style={{ maxWidth: '100%', marginRight }}
-            >
-              {item?.humanizerMeta?.name || item.address}
-            </Text>
+            <View style={[flexbox.directionRow, flexbox.wrap]}>
+              <Address
+                fontSize={textSize}
+                address={item.address}
+                highestPriorityAlias={`NFT #${item.nftId}`}
+                explorerNetworkId={networkId}
+              />
+              <Collectible
+                style={spacings.mhTy}
+                size={36}
+                id={item.nftId}
+                collectionData={{
+                  address: item.address,
+                  networkId
+                }}
+              />
+            </View>
           )
         }
 

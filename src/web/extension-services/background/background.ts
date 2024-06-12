@@ -20,8 +20,8 @@ import {
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
+import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
-import { getNetworksWithFailedRPC } from '@ambire-common/libs/settings/settings'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -226,7 +226,7 @@ function stateDebug(event: string, stateToLog: object) {
   setAccountStateInterval(backgroundState.accountStateIntervals.standBy) // Call it once to initialize the interval
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
-    const currentNetwork = mainCtrl.settings.networks.filter((n) => n.id === accountOp.networkId)[0]
+    const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
     // 12 seconds is the time needed for a new ethereum block
     const time = currentNetwork.reestimateOn ?? 12000
 
@@ -377,7 +377,7 @@ function stateDebug(event: string, stateToLog: object) {
       // if there are failed networks, refresh the account state every 8 seconds
       // for them until we get a clean state
       const failedNetworkIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.settings.providers
+        providers: mainCtrl.providers.providers
       })
       if (failedNetworkIds.length) {
         setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
@@ -485,8 +485,8 @@ function stateDebug(event: string, stateToLog: object) {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks: mainCtrl.settings.networks,
-                    providers: mainCtrl.settings.providers
+                    networks: mainCtrl.networks.networks,
+                    providers: mainCtrl.providers.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -505,8 +505,8 @@ function stateDebug(event: string, stateToLog: object) {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks: mainCtrl.settings.networks,
-                  providers: mainCtrl.settings.providers
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
                 })
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_INIT_LATTICE': {
@@ -523,8 +523,8 @@ function stateDebug(event: string, stateToLog: object) {
 
                   return await mainCtrl.accountAdder.setPage({
                     page: 1,
-                    networks: mainCtrl.settings.networks,
-                    providers: mainCtrl.settings.providers
+                    networks: mainCtrl.networks.networks,
+                    providers: mainCtrl.providers.providers
                   })
                 } catch (e: any) {
                   throw new Error(
@@ -544,36 +544,30 @@ function stateDebug(event: string, stateToLog: object) {
 
                 return await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks: mainCtrl.settings.networks,
-                  providers: mainCtrl.settings.providers
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
                 })
               }
-              case 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK': {
-                return await mainCtrl.addCustomNetwork(params)
+              case 'MAIN_CONTROLLER_ADD_NETWORK': {
+                return await mainCtrl.addNetwork(params)
               }
-              case 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK': {
-                return await mainCtrl.removeCustomNetwork(params)
+              case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
+                return await mainCtrl.removeNetwork(params)
               }
               case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
                 return await mainCtrl.settings.addAccountPreferences(params)
               }
               case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
-                return mainCtrl.settings.setNetworkToAddOrUpdate(params)
+                return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
               }
               case 'SETTINGS_CONTROLLER_RESET_NETWORK_TO_ADD_OR_UPDATE': {
-                return mainCtrl.settings.setNetworkToAddOrUpdate(null)
+                return await mainCtrl.networks.setNetworkToAddOrUpdate(null)
               }
               case 'MAIN_CONTROLLER_SETTINGS_ADD_KEY_PREFERENCES': {
                 return await mainCtrl.settings.addKeyPreferences(params)
               }
-              case 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES': {
-                return await mainCtrl.updateNetworkPreferences(
-                  params.networkPreferences,
-                  params.networkId
-                )
-              }
-              case 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE': {
-                return await mainCtrl.resetNetworkPreference(params.preferenceKey, params.networkId)
+              case 'MAIN_CONTROLLER_UPDATE_NETWORK': {
+                return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
               }
               case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
                 return await mainCtrl.selectAccount(params.accountAddr)
@@ -593,8 +587,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SET_PAGE':
                 return await mainCtrl.accountAdder.setPage({
                   ...params,
-                  networks: mainCtrl.settings.networks,
-                  providers: mainCtrl.settings.providers
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
                 })
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_ADD_ACCOUNTS': {
                 const readyToAddKeys: ReadyToAddKeys = {
@@ -622,7 +616,7 @@ function stateDebug(event: string, stateToLog: object) {
                   }
 
                   const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ accountKeys, isLinked }) =>
+                    ({ accountKeys }) =>
                       accountKeys.map(({ addr, index }) => ({
                         addr,
                         type: keyType,
@@ -719,8 +713,8 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.accountAdder.setPage({
                   page: 1,
-                  networks: mainCtrl.settings.networks,
-                  providers: mainCtrl.settings.providers
+                  networks: mainCtrl.networks.networks,
+                  providers: mainCtrl.providers.providers
                 })
 
                 const firstSmartAccount = mainCtrl.accountAdder.accountsOnPage.find(
@@ -836,8 +830,7 @@ function stateDebug(event: string, stateToLog: object) {
                 if (!mainCtrl.selectedAccount) return
                 return await mainCtrl.updateSelectedAccount(
                   mainCtrl.selectedAccount,
-                  params?.forceUpdate,
-                  params?.additionalHints
+                  params?.forceUpdate
                 )
               }
 
@@ -851,23 +844,24 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
+                const token = params.token
                 let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
                 const tokenIsNotInPreferences =
                   (tokenPreferences?.length &&
                     tokenPreferences.find(
                       (_token) =>
-                        _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                        _token.address.toLowerCase() === token.address.toLowerCase() &&
                         params.token.networkId === _token?.networkId
                     )) ||
                   false
 
                 if (!tokenIsNotInPreferences) {
-                  tokenPreferences.push(params.token)
+                  tokenPreferences.push(token)
                 } else {
                   const updatedTokenPreferences = tokenPreferences.map((t: any) => {
                     if (
-                      t.address.toLowerCase() === params.token.address.toLowerCase() &&
-                      t.networkId === params.token.networkId
+                      t.address.toLowerCase() === token.address.toLowerCase() &&
+                      t.networkId === token.networkId
                     ) {
                       return params.token
                     }

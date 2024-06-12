@@ -2,7 +2,7 @@ import { formatUnits } from 'ethers'
 import React, { ReactNode, useCallback } from 'react'
 import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -21,7 +21,7 @@ import getStyles from './styles'
 interface Props {
   style: ViewStyle
   call: IrCall
-  networkId: NetworkDescriptor['id']
+  networkId: NetworkId
   rightIcon?: ReactNode
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'

@@ -273,7 +273,7 @@ describe('ba_login', () => {
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
 
-    const editAccountNameFields = await page.$$('[data-testid="pen-icon-edit-name"]')
+    const editAccountNameFields = await page.$$('[data-testid="editable-button"]')
 
     await editAccountNameFields[0].click()
     await new Promise((r) => setTimeout(r, 500))
@@ -284,6 +284,10 @@ describe('ba_login', () => {
     await new Promise((r) => setTimeout(r, 500))
 
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
+
+    // Click on the checkmark icon to save the new account names
+    editAccountNameFields[0].click()
+    editAccountNameFields[1].click()
 
     // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))

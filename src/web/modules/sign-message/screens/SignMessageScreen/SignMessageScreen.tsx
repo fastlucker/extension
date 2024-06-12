@@ -6,7 +6,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
@@ -24,7 +24,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
@@ -40,7 +40,7 @@ const SignMessageScreen = () => {
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
 
@@ -62,7 +62,7 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const networkData: NetworkDescriptor | null =
+  const networkData: Network | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =

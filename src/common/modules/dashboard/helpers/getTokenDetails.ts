@@ -1,6 +1,6 @@
 import { formatUnits } from 'ethers'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import formatDecimals from '@common/utils/formatDecimals'
 
@@ -13,7 +13,7 @@ const getTokenDetails = (
     decimals,
     amountPostSimulation
   }: TokenResult,
-  networks: NetworkDescriptor[]
+  networks: Network[]
 ) => {
   const isRewards = rewardsType === 'wallet-rewards'
   const isVesting = rewardsType === 'wallet-vesting'

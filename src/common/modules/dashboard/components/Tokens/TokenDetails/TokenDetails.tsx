@@ -31,7 +31,7 @@ import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -52,7 +52,7 @@ const TokenDetails = ({
   const { t } = useTranslation()
   const { selectedAccount, accounts } = useMainControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
@@ -247,26 +247,28 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks, addToast])
 
   const handleHideToken = () => {
     if (!token) return
     setIsHidden((prev) => !prev)
-    const tokenInPreferences =
-      tokenPreferences?.length &&
-      tokenPreferences.find(
-        (_token) =>
-          token.address.toLowerCase() === _token.address.toLowerCase() &&
-          token.networkId === _token.networkId
-      )
+    const tokenInPreferences = tokenPreferences?.length
+      ? tokenPreferences.find(
+          (_token) =>
+            token.address.toLowerCase() === _token.address.toLowerCase() &&
+            token.networkId === _token.networkId
+        )
+      : null
 
     const newToken = {
-      ...token,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      address: token.address,
+      networkId: token.networkId,
       isHidden: !token.isHidden,
-      ...(tokenInPreferences && 'standard' in tokenInPreferences
-        ? { standard: tokenInPreferences.standard }
-        : {})
+      standard: tokenInPreferences?.standard || 'ERC20'
     }
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {

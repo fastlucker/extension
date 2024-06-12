@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import AddIcon from '@common/assets/svg/AddIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
@@ -21,7 +21,7 @@ import text from '@common/styles/utils/text'
 import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import NetworkDetails from '@web/components/NetworkDetails'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import Network from '@web/modules/settings/screens/NetworksSettingsScreen/Network'
@@ -33,7 +33,7 @@ const NetworksSettingsScreen = () => {
   const { control, watch } = useForm({ defaultValues: { search: '' } })
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { maxWidthSize } = useWindowSize()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { setCurrentSettingsPage } = useContext(SettingsRoutesContext)
@@ -75,7 +75,7 @@ const NetworksSettingsScreen = () => {
 
         if (!isSure) return
 
-        dispatch({ type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK', params: network.id })
+        dispatch({ type: 'MAIN_CONTROLLER_REMOVE_NETWORK', params: network.id })
         setSelectedNetworkId(undefined)
       } else {
         addToast(`Unable to remove network. Network with chainID: ${chainId} not found`)
@@ -89,7 +89,7 @@ const NetworksSettingsScreen = () => {
     [networks, search]
   )
 
-  const handleSelectNetwork = useCallback((id: NetworkDescriptor['id']) => {
+  const handleSelectNetwork = useCallback((id: NetworkId) => {
     setSelectedNetworkId(id)
   }, [])
 

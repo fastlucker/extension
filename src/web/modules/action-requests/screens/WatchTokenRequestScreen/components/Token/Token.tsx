@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Alert from '@common/components/Alert'
@@ -15,7 +15,7 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { TokenData } from '@web/modules/action-requests/screens/WatchTokenRequestScreen/WatchTokenRequestScreen'
 
 const Token = ({
@@ -27,13 +27,13 @@ const Token = ({
 }: {
   temporaryToken: TokenResult
   tokenData: TokenData | CustomToken | undefined
-  tokenNetwork: NetworkDescriptor | undefined
+  tokenNetwork: Network | undefined
   isLoading: boolean
   showAlreadyInPortfolioMessage: boolean
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const tokenDetails = useMemo(
     () =>
       temporaryToken &&

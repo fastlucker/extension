@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Pressable } from 'react-native'
 
 import { geckoIdMapper } from '@ambire-common/consts/coingecko'
-import NetworkDescriptor from '@ambire-common/interfaces/networkDescriptor'
+import Network from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import CoingeckoIcon from '@common/assets/svg/CoingeckoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
@@ -19,7 +19,7 @@ type Props = {
   text: string
   containerStyle?: any
   address: CustomToken['address']
-  network: NetworkDescriptor
+  network: Network
 }
 
 const CoingeckoConfirmedBadge = ({ text, address, network, containerStyle }: Props) => {
