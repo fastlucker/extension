@@ -248,7 +248,10 @@ const NetworkForm = ({
           return
         }
 
-        if (networks.find((n) => n.chainId === network.chainId) && type === 'add') {
+        if (
+          networks.find((n) => n.chainId === network.chainId) &&
+          selectedNetworkId === 'add-custom-network'
+        ) {
           setValidatingRPC(false)
           setError('rpcUrl', {
             type: 'custom-error',
@@ -274,7 +277,17 @@ const NetworkForm = ({
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
       }
     },
-    [selectedNetwork, rpcUrls, selectedRpcUrl, networks, setValue, clearErrors, setError, dispatch]
+    [
+      selectedNetwork,
+      rpcUrls,
+      selectedRpcUrl,
+      selectedNetworkId,
+      networks,
+      setValue,
+      clearErrors,
+      setError,
+      dispatch
+    ]
   )
 
   useEffect(() => {
