@@ -58,7 +58,7 @@ const TokenIcon: React.FC<Props> = ({
   )
 
   const imageUrl = useMemo(() => {
-    if (!network) return undefined
+    if (!network || !network.platformId) return undefined
     setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
