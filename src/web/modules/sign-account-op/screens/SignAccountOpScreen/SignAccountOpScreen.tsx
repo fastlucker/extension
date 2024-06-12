@@ -24,7 +24,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
@@ -41,7 +41,7 @@ const SignAccountOpScreen = () => {
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
@@ -216,7 +216,7 @@ const SignAccountOpScreen = () => {
   // We want to show the errors one by one.
   // Once the user resolves an error, it will be removed from the array,
   // and we are going to show the next one, if it exists.
-  if (!signAccountOpState?.accountOp) {
+  if (!signAccountOpState?.accountOp || !network) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
         <Spinner />
@@ -229,8 +229,8 @@ const SignAccountOpScreen = () => {
       width="full"
       header={
         <HeaderAccountAndNetworkInfo
-          networkName={network?.name}
-          networkId={network?.id as NetworkIconIdType}
+          networkName={network.name}
+          networkId={network.id as NetworkIconIdType}
         />
       }
       footer={

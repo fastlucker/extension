@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { callsHumanizer } from '@ambire-common/libs/humanizer'
@@ -38,7 +38,7 @@ const REFETCH_JIFFY_SCAN_TIME = 10000 // 10 seconds as jiffy scan is a bit slowe
 interface Props {
   txnId: string | null
   userOpHash: string | null
-  network?: NetworkDescriptor
+  network?: Network
   standardOptions: {
     storage: Storage
     fetch: any
@@ -512,7 +512,7 @@ const useSteps = ({
         standardOptions.fetch,
         (humanizedCalls) => standardOptions.parser(humanizedCalls, setCalls),
         standardOptions.emitError,
-        { isExtension, noAsyncOperations: true }
+        { isExtension, noAsyncOperations: true, network }
       ).catch((e) => {
         if (!calls) setCalls([])
         return e

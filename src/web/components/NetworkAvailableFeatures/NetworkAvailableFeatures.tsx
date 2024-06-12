@@ -7,7 +7,7 @@ import { View } from 'react-native'
 
 import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelper.json'
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
-import { NetworkDescriptor, NetworkFeature } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -28,12 +28,12 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import getStyles from './styles'
 
 type Props = {
-  networkId?: NetworkDescriptor['id']
+  networkId?: NetworkId
   features: NetworkFeature[] | undefined
   withRetryButton?: boolean
   handleRetry?: () => void
@@ -44,7 +44,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
   const { selectedAccount, accounts } = useMainControllerState()
-  const { networks, providers } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const [checkedDeploy, setCheckedDeploy] = useState<boolean>(false)
@@ -64,13 +64,8 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       .then((factoryCode: string) => {
         if (factoryCode !== '0x') {
           dispatch({
-            type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-            params: {
-              networkPreferences: {
-                areContractsDeployed: true
-              },
-              networkId: selectedNetwork.id
-            }
+            type: 'MAIN_CONTROLLER_UPDATE_NETWORK',
+            params: { network: { areContractsDeployed: true }, networkId: selectedNetwork.id }
           })
         }
         provider.destroy()
@@ -82,7 +77,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
     return () => {
       provider.destroy()
     }
-  }, [dispatch, selectedNetwork, providers, checkedDeploy])
+  }, [dispatch, selectedNetwork, checkedDeploy])
 
   const handleDeploy = useCallback(async () => {
     if (!selectedNetwork) return // this should not happen...

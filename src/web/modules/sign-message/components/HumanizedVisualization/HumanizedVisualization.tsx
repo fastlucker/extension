@@ -3,7 +3,7 @@ import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Linking, View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
@@ -25,8 +25,8 @@ const visualizeContent = (kind: string, content?: string) => {
 
 const HumanizedVisualization: FC<{
   data: IrMessage['fullVisualization']
-  networkId?: NetworkDescriptor['id']
-  explorerUrl?: NetworkDescriptor['explorerUrl']
+  networkId?: NetworkId
+  explorerUrl?: Network['explorerUrl']
   kind: string
 }> = ({ kind, data = [], networkId, explorerUrl }) => {
   const { styles } = useTheme(getStyles)

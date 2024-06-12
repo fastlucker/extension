@@ -10,7 +10,7 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -53,11 +53,11 @@ const Collection: FC<Props> = ({
   openCollectibleModal
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const settingsState = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const networkData = useMemo(() => {
-    return settingsState.networks.find(({ id }) => networkId === id)
-  }, [networkId, settingsState.networks])
+    return networks.find(({ id }) => networkId === id)
+  }, [networkId, networks])
 
   return (
     <View style={styles.container}>

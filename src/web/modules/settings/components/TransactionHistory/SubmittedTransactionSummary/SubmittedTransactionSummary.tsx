@@ -3,7 +3,6 @@ import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
@@ -22,6 +21,7 @@ import { storage } from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
@@ -37,6 +37,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { addToast } = useToast()
   const mainState = useMainControllerState()
   const settingsState = useSettingsControllerState()
+  const networksState = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
 
@@ -47,8 +48,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   const network = useMemo(
-    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [settingsState.networks, submittedAccountOp.networkId]
+    () => networksState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [networksState.networks, submittedAccountOp.networkId]
   )
 
   useEffect(() => {
@@ -114,7 +115,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     submittedAccountOp.accountAddr,
     submittedAccountOp.gasFeePayment?.amount,
     submittedAccountOp.gasFeePayment?.inToken,
-    submittedAccountOp.networkId
+    submittedAccountOp.networkId,
+    network
   ])
 
   const handleOpenExplorer = useCallback(async () => {
@@ -128,10 +130,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
     }`
 
-    // if the network is a custom one, benzina will not work
-    // so we open the block explorer
-    const isCustomNetwork = !predefinedNetworks.find((net) => net.id === network.id)
-    if (isCustomNetwork) {
+    // if the network is a not a predefined one, benzina will not work so we open the block explorer
+    if (!network.predefined) {
       link = `${network.explorerUrl}/tx/${submittedAccountOp.txnId}`
     }
 
@@ -142,7 +142,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       !submittedAccountOp.txnId ||
       (submittedAccountOp.userOpHash &&
         submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
-        !isCustomNetwork)
+        !network.predefined)
     ) {
       link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
     }
@@ -155,9 +155,10 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   }, [
     addToast,
     network.id,
+    network.explorerUrl,
+    network.predefined,
     submittedAccountOp.userOpHash,
-    submittedAccountOp.txnId,
-    network.explorerUrl
+    submittedAccountOp.txnId
   ])
 
   return calls.length ? (

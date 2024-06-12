@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
 import { Account } from '@ambire-common/interfaces/account'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -16,10 +16,7 @@ import shortenAddress from '@web/utils/shortenAddress'
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SubmittedTransactionSummary from '../../components/TransactionHistory/SubmittedTransactionSummary'
 
-const AccountOpHistory: FC<{ network?: NetworkDescriptor; account: Account }> = ({
-  network,
-  account
-}) => {
+const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network, account }) => {
   const { accountPreferences } = useSettingsControllerState()
   const activityState = useActivityControllerState()
 
