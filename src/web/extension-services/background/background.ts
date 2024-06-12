@@ -616,7 +616,7 @@ function stateDebug(event: string, stateToLog: object) {
                   }
 
                   const readyToAddExternalKeys = mainCtrl.accountAdder.selectedAccounts.flatMap(
-                    ({ accountKeys, isLinked }) =>
+                    ({ accountKeys }) =>
                       accountKeys.map(({ addr, index }) => ({
                         addr,
                         type: keyType,
@@ -830,8 +830,7 @@ function stateDebug(event: string, stateToLog: object) {
                 if (!mainCtrl.selectedAccount) return
                 return await mainCtrl.updateSelectedAccount(
                   mainCtrl.selectedAccount,
-                  params?.forceUpdate,
-                  params?.additionalHints
+                  params?.forceUpdate
                 )
               }
 
@@ -845,23 +844,24 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES': {
+                const token = params.token
                 let tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
                 const tokenIsNotInPreferences =
                   (tokenPreferences?.length &&
                     tokenPreferences.find(
                       (_token) =>
-                        _token.address.toLowerCase() === params.token.address.toLowerCase() &&
+                        _token.address.toLowerCase() === token.address.toLowerCase() &&
                         params.token.networkId === _token?.networkId
                     )) ||
                   false
 
                 if (!tokenIsNotInPreferences) {
-                  tokenPreferences.push(params.token)
+                  tokenPreferences.push(token)
                 } else {
                   const updatedTokenPreferences = tokenPreferences.map((t: any) => {
                     if (
-                      t.address.toLowerCase() === params.token.address.toLowerCase() &&
-                      t.networkId === params.token.networkId
+                      t.address.toLowerCase() === token.address.toLowerCase() &&
+                      t.networkId === token.networkId
                     ) {
                       return params.token
                     }

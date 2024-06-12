@@ -43,6 +43,8 @@ export type RequestResponse =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result: any
     }
+  | undefined
+  | boolean
 
 export type ProviderRequestPayload = RequestArguments & {
   id: number

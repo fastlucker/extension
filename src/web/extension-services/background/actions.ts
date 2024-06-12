@@ -224,7 +224,7 @@ type PortfolioControllerGetTemporaryToken = {
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
-    token: CustomToken | TokenResult
+    token: CustomToken
   }
 }
 type PortfolioControllerRemoveTokenPreferences = {

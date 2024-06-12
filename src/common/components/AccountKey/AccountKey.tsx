@@ -131,7 +131,7 @@ const AccountKey: React.FC<Props> = ({
                 weight: 'semiBold'
               }}
               fontSize={fontSize}
-              value={label || ''}
+              initialValue={label || ''}
               onSave={editKeyLabel}
               maxLength={40}
             />

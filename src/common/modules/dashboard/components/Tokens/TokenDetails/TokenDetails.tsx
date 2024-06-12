@@ -246,26 +246,28 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks, addToast])
 
   const handleHideToken = () => {
     if (!token) return
     setIsHidden((prev) => !prev)
-    const tokenInPreferences =
-      tokenPreferences?.length &&
-      tokenPreferences.find(
-        (_token) =>
-          token.address.toLowerCase() === _token.address.toLowerCase() &&
-          token.networkId === _token.networkId
-      )
+    const tokenInPreferences = tokenPreferences?.length
+      ? tokenPreferences.find(
+          (_token) =>
+            token.address.toLowerCase() === _token.address.toLowerCase() &&
+            token.networkId === _token.networkId
+        )
+      : null
 
     const newToken = {
-      ...token,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      address: token.address,
+      networkId: token.networkId,
       isHidden: !token.isHidden,
-      ...(tokenInPreferences && 'standard' in tokenInPreferences
-        ? { standard: tokenInPreferences.standard }
-        : {})
+      standard: tokenInPreferences?.standard || 'ERC20'
     }
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
