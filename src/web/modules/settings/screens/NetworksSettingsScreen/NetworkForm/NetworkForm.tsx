@@ -254,14 +254,14 @@ const NetworkForm = ({
           return
         }
 
-        if (networks.find((n) => n.chainId === network.chainId) && type === 'add') {
-          setValidatingRPC(false)
-          setError('rpcUrl', {
-            type: 'custom-error',
-            message: `You already have a network with RPC chain id ${network.chainId}`
-          })
-          return
-        }
+        // if (networks.find((n) => n.chainId === network.chainId) && type === 'add') {
+        //   setValidatingRPC(false)
+        //   setError('rpcUrl', {
+        //     type: 'custom-error',
+        //     message: `You already have a network with RPC chain id ${network.chainId}`
+        //   })
+        //   return
+        // }
 
         if (
           type === 'change' &&
@@ -280,7 +280,7 @@ const NetworkForm = ({
         setError('rpcUrl', { type: 'custom-error', message: 'Invalid RPC URL' })
       }
     },
-    [selectedNetwork, rpcUrls, selectedRpcUrl, networks, setValue, clearErrors, setError, dispatch]
+    [selectedNetwork, rpcUrls, selectedRpcUrl, setValue, clearErrors, setError, dispatch]
   )
 
   useEffect(() => {
