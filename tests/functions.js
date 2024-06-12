@@ -96,7 +96,7 @@ export async function typeSeedPhrase(page, seedPhrase) {
   await page.waitForSelector('[data-testid="passphrase-field"]')
 
   await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
-  /* Click on "Unlock button" */
+  // Click on "Unlock button"
   await clickOnElement(page, '[data-testid="button-unlock"]')
 
   await page.waitForSelector('[data-testid="full-balance"]')
@@ -152,7 +152,7 @@ export { saParams, baParams } // Export the params object
 
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
-  /* Initialize browser and page using bootstrap */
+  // Initialize browser and page using bootstrap
   const context = await bootstrap()
   const browser = context.browser
   const extensionRootUrl = context.extensionRootUrl
@@ -236,7 +236,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
   await page.waitForSelector(buttonNext)
 
-  /* Click on "Next" button several times to finish the onboarding */
+  // Click on "Next" button several times to finish the onboarding
   await page.$eval(buttonNext, (button) => button.click())
 
   await page.waitForSelector('[data-testid="stories-button-previous"]')
@@ -246,14 +246,14 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   await page.$eval(buttonNext, (button) => button.click())
   await page.$eval(buttonNext, (button) => button.click())
 
-  /* check the checkbox "I agree ..." */
+  // check the checkbox "I agree ..."
   await page.$eval('[data-testid="checkbox"]', (button) => button.click())
-  /* Click on "Got it" */
+  // Click on "Got it"
   await page.$eval(buttonNext, (button) => button.click())
 
   await page.waitForSelector('[data-testid="get-started-button-import"]')
 
-  /* Click on "Import" button */
+  // Click on "Import" button
   await page.$eval('[data-testid="get-started-button-import"]', (button) => button.click())
 
   await page.waitForFunction(
@@ -262,15 +262,15 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
     },
     { timeout: 60000 }
   )
-  /* Click on "Import" private key */
+  // Click on "Import" private key
   await page.$eval(privKeyOrPhraseSelector, (button) => button.click())
 
-  /* type phrase */
+  // type phrase
   const phrase = 'Password'
   await typeText(page, '[data-testid="enter-pass-field"]', phrase)
   await typeText(page, '[data-testid="repeat-pass-field"]', phrase)
 
-  /* Click on "Set up Ambire Key Store" button */
+  // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, '[data-testid="keystore-button-create"]')
 
   await page.waitForSelector('[data-testid="keystore-button-continue"]')
@@ -280,7 +280,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
-  /* Click on Import button. */
+  // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
 
   await new Promise((r) => setTimeout(r, 2000))
@@ -288,10 +288,10 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
 
   await new Promise((r) => setTimeout(r, 2000))
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
-  /* Select one Legacy and one Smart account and keep the addresses of the accounts */
+  // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
 
-  /* Select one Legacy account and one Smart account */
+  // Select one Legacy account and one Smart account
   const firstSelectedBasicAccount = await page.$$eval(
     '[data-testid="add-account"]',
     (element, shouldClick) => {
@@ -308,7 +308,7 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     },
     shouldClickOnAccounts
   )
-  /* Click on Import Accounts button */
+  // Click on Import Accounts button
   await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
   await page.waitForFunction("window.location.hash == '#/account-personalize'")
 
@@ -393,7 +393,7 @@ export async function confirmTransaction(
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
 
-  /* Click on "Sign" button */
+  // Click on "Sign" button
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page
   await newPage.waitForFunction(

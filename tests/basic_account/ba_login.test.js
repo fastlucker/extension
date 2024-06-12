@@ -55,11 +55,11 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
+    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
 
-    /* Click on "Save and Continue" button */
+    // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
@@ -72,7 +72,7 @@ describe('ba_login', () => {
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    /* Verify that selected accounts exist on the page */
+    // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
       '[data-testid="account"]',
       (el) => el[0].innerText
@@ -102,11 +102,11 @@ describe('ba_login', () => {
       await page.type(inputSelector, wordToType)
     }
 
-    /* This function will complete the onboarsding stories and will select and retrieve first basic and first smarts account */
+    // This function will complete the onboarsding stories and will select and retrieve first basic and first smarts account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page, true)
 
-    /* Click on "Save and Continue" button */
+    // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
@@ -119,7 +119,7 @@ describe('ba_login', () => {
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    /* Verify that selected accounts exist on the page */
+    // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
       '[data-testid="account"]',
       (el) => el[0].innerText
@@ -141,11 +141,11 @@ describe('ba_login', () => {
       try {
         await typeText(page, enterSeedPhraseField, privateKey, { delay: 10 })
 
-        /* Check whether text "Invalid private key." exists on the page */
+        // Check whether text "Invalid private key." exists on the page
         await page.$$eval('div[dir="auto"]', (element) => {
           return element.find((item) => item.textContent === 'Invalid private key.').textContent
         })
-        /* Check whether button is disabled */
+        // Check whether button is disabled
         const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
           return button.getAttribute('aria-disabled')
         })
@@ -162,7 +162,7 @@ describe('ba_login', () => {
       }
     }
 
-    /* Test cases with different private keys */
+    // Test cases with different private keys
     await typeTextAndCheckValidity(
       '0000000000000000000000000000000000000000000000000000000000000000',
       'Test 1'
@@ -191,7 +191,7 @@ describe('ba_login', () => {
 
     await page.waitForSelector('[placeholder="Word 1"]')
 
-    /* This function types words in the passphrase fields and checks if the button is disabled. */
+    // This function types words in the passphrase fields and checks if the button is disabled.
     async function typeWordsAndCheckButton(passphraseWords) {
       try {
         const wordArray = passphraseWords.split(' ')
@@ -199,12 +199,12 @@ describe('ba_login', () => {
         for (let i = 0; i < wordArray.length; i++) {
           const wordToType = wordArray[i]
 
-          /* Type the word into the input field using page.type */
+          // Type the word into the input field using page.type
           const inputSelector = `[placeholder="Word ${i + 1}"]`
           await page.type(inputSelector, wordToType)
         }
 
-        /* Check whether button is disabled */
+        // Check whether button is disabled
         const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
           return button.getAttribute('aria-disabled')
         })
@@ -218,7 +218,7 @@ describe('ba_login', () => {
         throw error
       }
     }
-    /* This function waits until an error message appears on the page.  */
+    // This function waits until an error message appears on the page.
     async function waitUntilError(validateMessage) {
       await page.waitForFunction(
         (text) => {
@@ -230,20 +230,20 @@ describe('ba_login', () => {
       )
     }
 
-    /* Try to login with empty phrase fields */
+    // Try to login with empty phrase fields
     let passphraseWords = ''
     await typeWordsAndCheckButton(passphraseWords)
 
-    /* Test cases with different phrases keys */
+    // Test cases with different phrases keys
     passphraseWords =
       '00000 000000 00000 000000 00000 000000 00000 000000 00000 000000 00000 000000'
     await typeWordsAndCheckButton(passphraseWords)
 
     const errorMessage = 'Invalid Seed Phrase. Please review every field carefully.'
-    /* Wait until the error message appears on the page */
+    // Wait until the error message appears on the page
     await waitUntilError(errorMessage)
 
-    /* Clear the passphrase fields before write the new phrase */
+    // Clear the passphrase fields before write the new phrase
     const wordArray = passphraseWords.split(' ')
     for (let i = 0; i < wordArray.length; i++) {
       const wordToType = wordArray[i]
@@ -255,7 +255,7 @@ describe('ba_login', () => {
     passphraseWords =
       'allow survey play weasel exhibit helmet industry bunker fish step garlic ababa'
     await typeWordsAndCheckButton(passphraseWords)
-    /* Wait until the error message appears on the page */
+    // Wait until the error message appears on the page
     await waitUntilError(errorMessage)
   })
 
@@ -267,7 +267,7 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    /* This function will complete the onboarsding stories and will select and retrieve first basic and first smart account */
+    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
     await finishStoriesAndSelectAccount(page)
 
     const accountName1 = 'Test-Account-1'
@@ -285,7 +285,7 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
 
-    /* Click on "Save and Continue" button */
+    // Click on "Save and Continue" button
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
@@ -298,7 +298,7 @@ describe('ba_login', () => {
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    /* Verify that selected accounts exist on the page */
+    // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
       '[data-testid="account"]',
       (el) => el[0].innerText
@@ -319,7 +319,7 @@ describe('ba_login', () => {
 
     await page.waitForSelector(buttonNext)
 
-    /* Click on "Next" button several times to finish the onboarding */
+    // Click on "Next" button several times to finish the onboarding
     await page.$eval(buttonNext, (button) => button.click())
 
     await page.waitForSelector('[data-testid="stories-button-previous"]')
@@ -329,14 +329,14 @@ describe('ba_login', () => {
     await page.$eval(buttonNext, (button) => button.click())
     await page.$eval(buttonNext, (button) => button.click())
 
-    /* check the checkbox "I agree ..." */
+    // check the checkbox "I agree ..."
     await page.$eval('[data-testid="checkbox"]', (button) => button.click())
-    /* Click on "Got it" */
+    // Click on "Got it"
     await page.$eval(buttonNext, (button) => button.click())
 
     await page.waitForSelector('[data-testid="get-started-button-add"]')
 
-    /* Select "Add" */
+    // Select "Add"
     await clickOnElement(page, '[data-testid="get-started-button-add"]')
 
     const viewOnlyAddress = '0x048d8573402CE085A6c8f34d568eC2Ccc995196e'
@@ -344,30 +344,30 @@ describe('ba_login', () => {
     await typeText(page, '[data-testid="address-ens-field"]', viewOnlyAddress)
     await new Promise((r) => setTimeout(r, 500))
 
-    /* Click on "Import View-Only Accounts" button */
+    // Click on "Import View-Only Accounts" button
     await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
-    /* Click on "Account"  */
+    // Click on "Account"
     await new Promise((r) => setTimeout(r, 1000))
     await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
-    /* Find the element containing the specified address */
+    // Find the element containing the specified address
     const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`)
 
     if (addressElement.length > 0) {
-      /* Get the parent element of the element with the specified address */
+      // Get the parent element of the element with the specified address
       const parentElement = await addressElement[0].$x('..')
 
       if (parentElement.length > 0) {
-        /* Get the text content of the parent element and all elements within it */
+        // Get the text content of the parent element and all elements within it
         const parentTextContent = await page.evaluate((element) => {
           const elements = element.querySelectorAll('*')
           return Array.from(elements, (el) => el.textContent).join('\n')
         }, parentElement[0])
 
-        /* Verify that somewhere in the content there is the text 'View-only' */
+        // Verify that somewhere in the content there is the text 'View-only'
         const containsViewOnly = parentTextContent.includes('View-only')
 
         if (containsViewOnly) {

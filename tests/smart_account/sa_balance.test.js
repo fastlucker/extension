@@ -24,7 +24,7 @@ describe('sa_balance', () => {
   it('check the balance in account ', async () => {
     await page.waitForSelector('[data-testid="full-balance"]')
 
-    /* Get the available balance */
+    // Get the available balance
     const availableAmmount = await page.evaluate(() => {
       const balance = document.querySelector('[data-testid="full-balance"]')
       return balance.innerText
@@ -33,7 +33,7 @@ describe('sa_balance', () => {
     let availableAmmountNum = availableAmmount.replace(/\n/g, '')
     availableAmmountNum = availableAmmountNum.split('$')[1]
 
-    /* Verify that the balance is bigger than 0 */
+    // Verify that the balance is bigger than 0
     expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0)
   })
 
@@ -43,7 +43,7 @@ describe('sa_balance', () => {
 
     await new Promise((r) => setTimeout(r, 2000))
 
-    /* Verify that USDC, ETH, WALLET */
+    // Verify that USDC, ETH, WALLET
     const text = await page.$eval('*', (el) => el.innerText)
 
     expect(text).toMatch(/\bUSDC\b/)
@@ -55,7 +55,7 @@ describe('sa_balance', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('check if item exist in Collectibles tab', async () => {
-    /* Click on "Collectibles" button */
+    // Click on "Collectibles" button
     await clickOnElement(page, '[data-testid="tab-nft"]')
     // eslint-disable-next-line no-promise-executor-return
     await new Promise((r) => setTimeout(r, 1000))
@@ -63,18 +63,18 @@ describe('sa_balance', () => {
     const collectionItem = '[data-testid="collection-item"]'
     await page.waitForSelector(collectionItem)
 
-    /* Get the text content of the first item */
+    // Get the text content of the first item
     const firstCollectiblesItem = await page.$$eval(collectionItem, (element) => {
       return element[0].textContent
     })
 
     const colectiblPicture = '[data-testid="collectible-picture"]'
-    /* Click on the first item */
+    // Click on the first item
     await page.waitForSelector(colectiblPicture, { visible: true })
     const element = await page.$(colectiblPicture)
     await element.click()
 
-    /* Get the text of the modal and verify that the name of the first collectible item is included */
+    // Get the text of the modal and verify that the name of the first collectible item is included
     const modalText = await page.$eval('[data-testid="collectible-row"]', (el) => {
       return el.textContent
     })
@@ -100,7 +100,8 @@ describe('sa_balance', () => {
 
     // Click on the element within the modal
     await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
-
+    //! !!FOR THE MOMENT "SIGN OUT" BUTTON DOESN'T EXIST IN THE FULL SCREEN MODE. BELLOW WE VERIFY THAT CHANGED PASSWORD IS ALREADY IN USE.
+    // THIS STEP WILL BE CHANGED WHEN THE BUTTON IS CREATED!!!
     await typeText(page, '[data-testid="enter-current-pass-field"]', newPass)
     await typeText(page, '[data-testid="enter-new-pass-field"]', oldPass)
     await typeText(page, '[data-testid="repeat-new-pass-field"]', oldPass)

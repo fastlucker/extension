@@ -20,6 +20,7 @@ interface Props {
   textSize: number
   networkId: NetworkDescriptor['id']
   isHistory?: boolean
+  testID?: string
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -27,13 +28,15 @@ const HumanizedVisualization: FC<Props> = ({
   sizeMultiplierSize,
   textSize,
   networkId,
-  isHistory
+  isHistory,
+  testID
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
 
   return (
     <View
+      testID={testID}
       style={[
         flexbox.flex1,
         flexbox.directionRow,
