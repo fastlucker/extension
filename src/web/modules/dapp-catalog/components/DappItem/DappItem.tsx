@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
 import Badge from '@common/components/Badge'
@@ -106,7 +107,7 @@ const DappItem = (dapp: Dapp) => {
           <Text
             fontSize={12}
             appearance="secondaryText"
-            numberOfLines={isConnected ? 2 : 4}
+            numberOfLines={isConnected ? 2 : 3}
             // @ts-ignore
             dataSet={{
               tooltipId: url,
@@ -116,11 +117,14 @@ const DappItem = (dapp: Dapp) => {
             {description}
           </Text>
           {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
-          {!!isConnected && (
-            <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
-              <Badge text={t('Connected')} type="success" />
-            </View>
-          )}
+          <View style={[flexbox.alignEnd, flexbox.directionRow, flexbox.flex1]}>
+            {!!isConnected && <Badge text={t('Connected')} type="success" />}
+            {hovered && (
+              <View style={{ marginLeft: 'auto' }}>
+                <OpenIcon width={16} height={16} />
+              </View>
+            )}
+          </View>
         </AnimatedPressable>
       </div>
       <ManageDapp
