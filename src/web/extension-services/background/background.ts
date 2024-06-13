@@ -847,8 +847,20 @@ function stateDebug(event: string, stateToLog: object) {
                   })
                   tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
                 }
+                const tokenNetwork = mainCtrl.networks.networks.find(
+                  (n) => n.id === token.networkId
+                )
+
                 await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
-                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
+                return await mainCtrl.portfolio.updateSelectedAccount(
+                  mainCtrl.accounts,
+                  mainCtrl.selectedAccount || '',
+                  tokenNetwork,
+                  undefined,
+                  {
+                    forceUpdate: true
+                  }
+                )
               }
               case 'PORTFOLIO_CONTROLLER_REMOVE_TOKEN_PREFERENCES': {
                 const tokenPreferences = mainCtrl?.portfolio?.tokenPreferences
@@ -865,8 +877,21 @@ function stateDebug(event: string, stateToLog: object) {
                     _token.address.toLowerCase() !== params.token.address.toLowerCase() ||
                     _token.networkId !== params.token.networkId
                 )
+
+                const tokenNetwork = mainCtrl.networks.networks.find(
+                  (n) => n.id === params.token.networkId
+                )
+
                 await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
-                return await mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount, true)
+                return await mainCtrl.portfolio.updateSelectedAccount(
+                  mainCtrl.accounts,
+                  mainCtrl.selectedAccount || '',
+                  tokenNetwork,
+                  undefined,
+                  {
+                    forceUpdate: true
+                  }
+                )
               }
               case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
                 if (!mainCtrl.selectedAccount) return
