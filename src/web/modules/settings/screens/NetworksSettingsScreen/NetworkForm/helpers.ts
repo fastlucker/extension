@@ -20,12 +20,6 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: Network) => {
     if (key === 'chainId') {
       return values[key] !== Number(selectedNetwork[key])
     }
-    if (key === 'bundlerUrl') {
-      return (
-        values[key] !== DISABLED_BUNDLER_DEFAULT &&
-        values[key] !== (selectedNetwork.bundlerUrl === undefined ? '' : selectedNetwork.bundlerUrl)
-      )
-    }
     if (key === 'rpcUrls') {
       return values[key].some((u: string) => !(selectedNetwork.rpcUrls || []).includes(u))
     }

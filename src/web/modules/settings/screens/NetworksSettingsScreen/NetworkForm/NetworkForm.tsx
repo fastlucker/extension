@@ -25,7 +25,6 @@ import NetworkAvailableFeatures from '@web/components/NetworkAvailableFeatures'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import {
-  DISABLED_BUNDLER_DEFAULT,
   getAreDefaultsChanged,
   handleErrors
 } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/helpers'
@@ -153,8 +152,7 @@ const NetworkForm = ({
       nativeAssetSymbol: '',
       explorerUrl: '',
       coingeckoPlatformId: '',
-      coingeckoNativeAssetId: '',
-      bundlerUrl: ''
+      coingeckoNativeAssetId: ''
     },
     values: {
       name: selectedNetwork?.name || '',
@@ -163,11 +161,7 @@ const NetworkForm = ({
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
       coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
-      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || '',
-      bundlerUrl:
-        selectedNetwork?.predefined && selectedNetwork.erc4337.enabled
-          ? DISABLED_BUNDLER_DEFAULT
-          : selectedNetwork?.bundlerUrl
+      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || ''
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
@@ -303,7 +297,7 @@ const NetworkForm = ({
     const subscription = watch(async (value, { name }) => {
       if (name && !value[name]) {
         // @ts-ignore
-        if (name !== 'rpcUrl' && name !== 'bundlerUrl') {
+        if (name !== 'rpcUrl') {
           setError(name, { type: 'custom-error', message: 'Field is required' })
           return
         }
@@ -436,7 +430,6 @@ const NetworkForm = ({
             name: networkFormValues.name,
             nativeAssetSymbol: networkFormValues.nativeAssetSymbol,
             explorerUrl: networkFormValues.explorerUrl,
-            bundlerUrl: networkFormValues.bundlerUrl?.trim(),
             rpcUrls,
             selectedRpcUrl,
             chainId: BigInt(networkFormValues.chainId),
@@ -450,8 +443,7 @@ const NetworkForm = ({
             network: {
               rpcUrls,
               selectedRpcUrl,
-              explorerUrl: networkFormValues.explorerUrl,
-              bundlerUrl: networkFormValues.bundlerUrl?.trim()
+              explorerUrl: networkFormValues.explorerUrl
             },
             networkId: selectedNetworkId
           }
@@ -657,25 +649,6 @@ const NetworkForm = ({
                   </View>
                 )}
               </ScrollableWrapper>
-              <View style={[flexbox.directionRow, flexbox.alignStart]}>
-                <Controller
-                  control={control}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <Input
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      inputWrapperStyle={{ height: 40 }}
-                      inputStyle={{ height: 40 }}
-                      containerStyle={{ ...spacings.mlMi, flex: 2 }}
-                      label={t('Bundler URL')}
-                      error={handleErrors(errors.bundlerUrl)}
-                      disabled={selectedNetwork?.predefined && selectedNetwork?.erc4337.enabled}
-                    />
-                  )}
-                  name="bundlerUrl"
-                />
-              </View>
               <View style={[flexbox.directionRow, flexbox.alignStart]}>
                 <Controller
                   control={control}
