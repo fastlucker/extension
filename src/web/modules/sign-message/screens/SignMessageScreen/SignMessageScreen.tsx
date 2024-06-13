@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,10 +21,10 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
@@ -39,7 +40,7 @@ const SignMessageScreen = () => {
   const signMessageState = useSignMessageControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
-  const mainState = useMainControllerState()
+  const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
@@ -69,8 +70,8 @@ const SignMessageScreen = () => {
     usePrevious(signMessageState) || ({} as SignMessageController)
 
   const selectedAccountFull = useMemo(
-    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
-    [mainState.accounts, mainState.selectedAccount]
+    () => accounts.find((acc) => getAddress(acc.addr) === getAddress(selectedAccount || '')),
+    [accounts, selectedAccount]
   )
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -157,19 +158,11 @@ const SignMessageScreen = () => {
           fromActionId: signMessageAction.id,
           signature: null
         },
-        accounts: mainState.accounts,
-        accountStates: mainState.accountStates
+        accounts,
+        accountStates
       }
     })
-  }, [
-    dispatch,
-    networks,
-    userRequest,
-    signMessageAction,
-    mainState.selectedAccount,
-    mainState.accounts,
-    mainState.accountStates
-  ])
+  }, [dispatch, networks, userRequest, signMessageAction, selectedAccount, accounts, accountStates])
 
   useEffect(() => {
     if (!getUiType().isActionWindow) return

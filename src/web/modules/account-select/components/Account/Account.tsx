@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
@@ -13,10 +14,10 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -42,7 +43,7 @@ const Account = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const mainCtrl = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
@@ -52,11 +53,11 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: addr.toLowerCase() === mainCtrl.selectedAccount?.toLowerCase()
+    forceHoveredStyle: getAddress(addr) === getAddress(selectedAccount || '')
   })
 
   const selectAccount = () => {
-    if (mainCtrl.selectedAccount?.toLowerCase() !== addr?.toLowerCase()) {
+    if (getAddress(selectedAccount || '') !== getAddress(addr)) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: addr }

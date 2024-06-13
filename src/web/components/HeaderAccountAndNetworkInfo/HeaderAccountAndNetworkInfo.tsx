@@ -15,7 +15,7 @@ import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -34,9 +34,9 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const mainCtrl = useMainControllerState()
+  const accountsState = useAccountsControllerState()
   const settingsCtrl = useSettingsControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
+  const selectedAccount = accountsState.selectedAccount || ''
   const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
   const { minWidthSize, maxWidthSize } = useWindowSize()
@@ -48,8 +48,8 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
   }, [maxWidthSize])
 
   const account = useMemo(() => {
-    return mainCtrl.accounts.find((acc) => acc.addr === mainCtrl.selectedAccount)
-  }, [mainCtrl.accounts, mainCtrl.selectedAccount])
+    return accountsState.accounts.find((acc) => acc.addr === accountsState.selectedAccount)
+  }, [accountsState.accounts, accountsState.selectedAccount])
 
   return (
     <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>

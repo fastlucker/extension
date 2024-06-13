@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const useAccounts = () => {
@@ -14,11 +14,11 @@ const useAccounts = () => {
   })
   const search = watch('search')
 
-  const mainCtrl = useMainControllerState()
+  const accountsState = useAccountsControllerState()
 
   const accounts = useMemo(
     () =>
-      mainCtrl.accounts.filter((account) => {
+      accountsState.accounts.filter((account) => {
         if (!search) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(search.toLowerCase())
@@ -33,7 +33,7 @@ const useAccounts = () => {
 
         return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesBasicAccountMatch
       }),
-    [mainCtrl.accounts, search, accountPreferences]
+    [accountsState.accounts, search, accountPreferences]
   )
 
   return {

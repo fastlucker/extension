@@ -12,6 +12,7 @@ import {
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
+import { Network } from '@ambire-common/interfaces/network'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
   isDerivedForSmartAccountKeyOnly,
@@ -173,7 +174,7 @@ function stateDebug(event: string, stateToLog: object) {
 
     // mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount)
     backgroundState.fetchPortfolioIntervalId = setInterval(
-      () => mainCtrl.updateSelectedAccount(mainCtrl.selectedAccount),
+      () => mainCtrl.updateSelectedAccountPortfolio(),
       // In the case we have an active extension (opened tab, popup, action-window), we want to run the interval frequently (1 minute).
       // Otherwise, when inactive we want to run it once in a while (10 minutes).
       pm.ports.length ? 60000 : 600000
@@ -199,7 +200,7 @@ function stateDebug(event: string, stateToLog: object) {
     if (
       backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
     ) {
-      mainCtrl.updateAccountStates('pending')
+      mainCtrl.accounts.updateAccountStates('pending')
     }
 
     backgroundState.accountStateInterval = setInterval(async () => {
@@ -210,7 +211,7 @@ function stateDebug(event: string, stateToLog: object) {
         backgroundState.accountStateIntervals.standBy
           ? 'latest'
           : 'pending'
-      mainCtrl.updateAccountStates(blockTag)
+      mainCtrl.accounts.updateAccountStates(blockTag)
 
       // if we're in a pending update interval but there are no broadcastedButNotConfirmed account Ops, set the interval to standBy
       if (
@@ -335,7 +336,7 @@ function stateDebug(event: string, stateToLog: object) {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
                   dappsCtrl.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  dappsCtrl.broadcastDappSessionEvent('unlock', [mainCtrl.selectedAccount])
+                  dappsCtrl.broadcastDappSessionEvent('unlock', [mainCtrl.accounts.selectedAccount])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
@@ -380,7 +381,7 @@ function stateDebug(event: string, stateToLog: object) {
         providers: mainCtrl.providers.providers
       })
       if (failedNetworkIds.length) {
-        setTimeout(() => mainCtrl.updateAccountStates('latest', failedNetworkIds), 8000)
+        setTimeout(() => mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds), 8000)
       }
     }
   }, 'background')
@@ -570,7 +571,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.networks.updateNetwork(params.network, params.networkId)
               }
               case 'MAIN_CONTROLLER_SELECT_ACCOUNT': {
-                return await mainCtrl.selectAccount(params.accountAddr)
+                return await mainCtrl.accounts.selectAccount(params.accountAddr)
               }
               case 'MAIN_CONTROLLER_ACCOUNT_ADDER_SELECT_ACCOUNT': {
                 return mainCtrl.accountAdder.selectAccount(params.account)
@@ -651,7 +652,7 @@ function stateDebug(event: string, stateToLog: object) {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts
+                  mainCtrl.accounts.accounts
                 )
 
                 return await mainCtrl.accountAdder.addAccounts(
@@ -664,7 +665,7 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
                 const defaultAccountPreferences = getDefaultAccountPreferences(
                   params.accounts,
-                  mainCtrl.accounts
+                  mainCtrl.accounts.accounts
                 )
 
                 const ensOrUdAccountPreferences: AccountPreferences = params.accounts.reduce(
@@ -684,7 +685,7 @@ function stateDebug(event: string, stateToLog: object) {
 
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
-                await mainCtrl.addAccounts(params.accounts)
+                await mainCtrl.accounts.addAccounts(params.accounts)
 
                 // And manually trigger some of the `onAccountAdderSuccess` steps
                 // that are needed for view-only accounts, since the AccountAdder
@@ -695,7 +696,7 @@ function stateDebug(event: string, stateToLog: object) {
                     ...defaultAccountPreferences,
                     ...ensOrUdAccountPreferences
                   }),
-                  mainCtrl.selectAccount(params.accounts[0].addr)
+                  mainCtrl.accounts.selectAccount(params.accounts[0].addr)
                 ])
               }
               // This flow interacts manually with the AccountAdder controller so that it can
@@ -733,7 +734,7 @@ function stateDebug(event: string, stateToLog: object) {
 
                 const readyToAddAccountPreferences = getDefaultAccountPreferences(
                   mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts
+                  mainCtrl.accounts.accounts
                 )
 
                 const readyToAddKeys =
@@ -793,10 +794,7 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
-                return mainCtrl.activity.init({
-                  selectedAccount: mainCtrl.selectedAccount,
-                  filters: params?.filters
-                })
+                return mainCtrl.activity.init(params?.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
                 return mainCtrl.activity.setFilters(params.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_ACCOUNT_OPS_PAGINATION':
@@ -826,19 +824,16 @@ function stateDebug(event: string, stateToLog: object) {
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
                 return mainCtrl.actions.setCurrentActionByIndex(params.index)
 
-              case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT': {
-                if (!mainCtrl.selectedAccount) return
-                return await mainCtrl.updateSelectedAccount(
-                  mainCtrl.selectedAccount,
-                  params?.forceUpdate
-                )
+              case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
+                if (!mainCtrl.accounts.selectedAccount) return
+                return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate)
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
-                if (!mainCtrl.selectedAccount) return
+                if (!mainCtrl.accounts.selectedAccount) return
 
                 return await mainCtrl.portfolio.getTemporaryTokens(
-                  mainCtrl.selectedAccount,
+                  mainCtrl.accounts.selectedAccount,
                   params.networkId,
                   params.additionalHint
                 )
@@ -869,14 +864,14 @@ function stateDebug(event: string, stateToLog: object) {
                   })
                   tokenPreferences = updatedTokenPreferences.filter((t) => t.isHidden || t.standard)
                 }
-                const tokenNetwork = mainCtrl.networks.networks.find(
+                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
                   (n) => n.id === token.networkId
                 )
 
                 await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts,
-                  mainCtrl.selectedAccount || '',
+                  mainCtrl.accounts.accounts,
+                  mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,
                   {
@@ -900,14 +895,14 @@ function stateDebug(event: string, stateToLog: object) {
                     _token.networkId !== params.token.networkId
                 )
 
-                const tokenNetwork = mainCtrl.networks.networks.find(
+                const tokenNetwork: Network | undefined = mainCtrl.networks.networks.find(
                   (n) => n.id === params.token.networkId
                 )
 
                 await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts,
-                  mainCtrl.selectedAccount || '',
+                  mainCtrl.accounts.accounts,
+                  mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,
                   {
@@ -916,10 +911,10 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'PORTFOLIO_CONTROLLER_CHECK_TOKEN': {
-                if (!mainCtrl.selectedAccount) return
+                if (!mainCtrl.accounts.selectedAccount) return
                 return await mainCtrl.portfolio.updateTokenValidationByStandard(
                   params.token,
-                  mainCtrl.selectedAccount
+                  mainCtrl.accounts.selectedAccount
                 )
               }
               case 'KEYSTORE_CONTROLLER_ADD_SECRET':
@@ -966,7 +961,9 @@ function stateDebug(event: string, stateToLog: object) {
                 const { address, newName } = params
 
                 if (
-                  mainCtrl.accounts.find(({ addr }) => addr.toLowerCase() === address.toLowerCase())
+                  mainCtrl.accounts.accounts.find(
+                    ({ addr }) => addr.toLowerCase() === address.toLowerCase()
+                  )
                 ) {
                   return await mainCtrl.settings.addAccountPreferences({
                     [address]: {

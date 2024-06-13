@@ -19,9 +19,9 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -35,11 +35,11 @@ const { isPopup } = getUiType()
 const DashboardHeader = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const mainCtrl = useMainControllerState()
+  const accountsCtrl = useAccountsControllerState()
   const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
-  const selectedAccount = mainCtrl.selectedAccount || ''
-  const selectedAccountData = mainCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+  const selectedAccount = accountsCtrl.selectedAccount || ''
+  const selectedAccountData = accountsCtrl.accounts.find((acc) => acc.addr === selectedAccount)
 
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL

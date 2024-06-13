@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 import React, {
   ComponentType,
   FC,
@@ -23,9 +24,9 @@ import { useTranslation } from '@common/config/localization'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
@@ -54,7 +55,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const { accountPreferences } = useSettingsControllerState()
   const { networks } = useNetworksControllerState()
   const activityState = useActivityControllerState()
-  const mainState = useMainControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const [page, setPage] = useState(1)
   const { t } = useTranslation()
@@ -71,12 +72,12 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       : activityState.accountsOps?.itemsTotal) || 0
 
   const [account, setAccount] = useState<Account>(
-    mainState.accounts.filter((acc) => acc.addr === mainState.selectedAccount)[0]
+    accounts.filter((acc) => getAddress(acc.addr) === getAddress(selectedAccount || ''))[0]
   )
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
   const accountsOptions: SelectValue[] = useMemo(() => {
-    return mainState.accounts.map((acc) => ({
+    return accounts.map((acc) => ({
       value: acc.addr,
       label: (
         <Text weight="medium" numberOfLines={1}>
@@ -88,7 +89,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       ),
       icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} style={spacings.pr0} />
     }))
-  }, [accountPreferences, mainState.accounts, maxWidthSize])
+  }, [accountPreferences, accounts, maxWidthSize])
 
   const networksOptions: SelectValue[] = useMemo(
     () =>
@@ -157,7 +158,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
         }
       }
     })
-  }, [dispatch, account, network, activityState.isInitialized, mainState.selectedAccount])
+  }, [dispatch, account, network, activityState.isInitialized, selectedAccount])
 
   useEffect(() => {
     if (!activityState.isInitialized) return
@@ -179,9 +180,9 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const handleSetAccountValue = useCallback(
     (accountOption: SelectValue) => {
       setPage(1)
-      setAccount(mainState.accounts.filter((acc) => acc.addr === accountOption.value)[0])
+      setAccount(accounts.filter((acc) => acc.addr === accountOption.value)[0])
     },
-    [mainState.accounts]
+    [accounts]
   )
 
   const handleSetNetworkValue = useCallback(

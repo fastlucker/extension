@@ -21,9 +21,9 @@ import spacings from '@common/styles/spacings'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import AddressField from './AddressField'
@@ -55,7 +55,7 @@ const DEFAULT_ADDRESS_FIELD_VALUE = {
 const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
-  const mainControllerState = useMainControllerState()
+  const accountsState = useAccountsControllerState()
   const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
   const { addToast } = useToast()
@@ -172,7 +172,7 @@ const ViewOnlyScreen = () => {
     const newAccountsAddresses = accounts.map((account) =>
       getAddressFromAddressState(account).toLowerCase()
     )
-    const newAccountsAdded = mainControllerState.accounts.filter((account) =>
+    const newAccountsAdded = accountsState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr.toLowerCase())
     )
     const newAccountsDefaultPreferencesImported = Object.keys(
@@ -192,7 +192,7 @@ const ViewOnlyScreen = () => {
     duplicateAccountsIndexes.length,
     errors,
     isValid,
-    mainControllerState.accounts,
+    accountsState.accounts,
     navigate,
     settingsControllerState.accountPreferences
   ])

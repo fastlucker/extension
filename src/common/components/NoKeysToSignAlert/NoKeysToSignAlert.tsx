@@ -9,12 +9,12 @@ import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import Alert from '@common/components/Alert'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const NoKeysToSignAlert = () => {
-  const { accounts, selectedAccount } = useMainControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { keyPreferences } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()

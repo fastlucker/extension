@@ -185,9 +185,7 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params?: {
-    filters?: Filters
-  }
+  params?: { filters?: Filters }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -205,8 +203,8 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
-type MainControllerUpdateSelectedAccount = {
-  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+type MainControllerUpdateSelectedAccountPortfolio = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params: {
     forceUpdate?: boolean
     additionalHints?: TokenResult['address'][]
@@ -477,7 +475,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerUpdateSelectedAccount
+  | MainControllerUpdateSelectedAccountPortfolio
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences

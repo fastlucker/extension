@@ -18,8 +18,8 @@ import spacings from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
@@ -34,7 +34,7 @@ interface Props {
 const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const mainState = useMainControllerState()
+  const { accounts } = useAccountsControllerState()
   const settingsState = useSettingsControllerState()
   const networksState = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
@@ -65,7 +65,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   }, [
     submittedAccountOp,
     keystoreState.keys,
-    mainState.accounts,
+    accounts,
     settingsState.accountPreferences,
     settingsState.keyPreferences,
     network

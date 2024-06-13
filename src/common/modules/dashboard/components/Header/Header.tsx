@@ -1,3 +1,4 @@
+import React from 'react'
 import { Image, Pressable, View } from 'react-native'
 
 // @ts-ignore
@@ -13,7 +14,7 @@ import Header from '@common/modules/header/components/Header'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import { getAccountPfpSource } from '@web/modules/account-personalize/components/AccountPersonalizeCard/avatars'
 import commonWebStyles from '@web/styles/utils/common'
@@ -25,10 +26,10 @@ import getStyles from './styles'
 const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
-  const mainCtrl = useMainControllerState()
+  const accountsState = useAccountsControllerState()
   const settingsCtrl = useSettingsControllerState()
 
-  const selectedAccount = mainCtrl.selectedAccount || ''
+  const selectedAccount = accountsState.selectedAccount || ''
   const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
   const selectedAccPfpSource = getAccountPfpSource(selectedAccPref?.pfp)
   const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
@@ -76,7 +77,7 @@ const DashboardHeader = () => {
               iconColor={theme.secondaryText}
             />
             <Pressable
-              testID='account-select'
+              testID="account-select"
               onPress={() => navigate('account-select')}
               style={styles.accountButtonRightIcon}
             >
@@ -102,4 +103,4 @@ const DashboardHeader = () => {
   )
 }
 
-export default DashboardHeader
+export default React.memo(DashboardHeader)

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
-import { Network, NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -25,8 +25,8 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import { deployContractsBytecode } from './oldDeployParams'
@@ -43,7 +43,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
