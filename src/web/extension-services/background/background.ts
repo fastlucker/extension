@@ -127,11 +127,10 @@ function stateDebug(event: string, stateToLog: object) {
 
   // TODO: Figure out a way to update this once it's set by the Keystore controller
   const keyStoreUid = await storage.get('keyStoreUid', '')
-  const fetchWithCustomHeaders: Fetch = (url, options = { headers: { 'X-App-Source': '' } }) => {
-    // eslint-disable-next-line no-param-reassign
-    options.headers = options.headers || {} // in case only other options are passed
-    // eslint-disable-next-line no-param-reassign
-    options.headers['X-App-Source'] = keyStoreUid.substring(0, 11)
+  const fetchWithCustomHeaders: Fetch = (url, init) => {
+    const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
+    initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
+    initWithCustomHeaders.headers['x-app-source'] = keyStoreUid.substring(10, 21)
 
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
@@ -143,7 +142,7 @@ function stateDebug(event: string, stateToLog: object) {
         // Binding window to fetch provides the correct context.
         window.fetch.bind(window)
 
-    return fetchFn(url, options)
+    return fetchFn(url, initWithCustomHeaders)
   }
 
   const mainCtrl = new MainController({
