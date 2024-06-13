@@ -125,7 +125,7 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
-  // TODO: Figure out a way to update this once it's set by the Keystore controller
+  // TODO: Figure out a way to update this once the Keystore controller is set up initially
   const keyStoreUid = await storage.get('keyStoreUid', '')
   const fetchWithCustomHeaders: Fetch = (url, init) => {
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
