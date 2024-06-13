@@ -9,7 +9,8 @@ import eventBus from '@web/extension-services/event/eventBus'
  * and keeps the updated value in the state variable.
  */
 export default function useControllerState<K extends keyof ControllersMappingType>(
-  controllerName: K
+  controllerName: K,
+  onUpdateCallback?: (newState: ControllersMappingType[K]) => Promise<void> | void
 ): ControllersMappingType[K] {
   const [state, setState] = useState({} as ControllersMappingType[K])
 
@@ -31,6 +32,7 @@ export default function useControllerState<K extends keyof ControllersMappingTyp
       } else {
         setState(newState)
       }
+      !!onUpdateCallback && onUpdateCallback(newState)
     }
 
     eventBus.addEventListener(controllerName, onUpdate)

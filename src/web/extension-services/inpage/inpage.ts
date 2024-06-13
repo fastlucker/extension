@@ -5,6 +5,7 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { EventEmitter } from 'events'
 import { nanoid } from 'nanoid'
 
+import { Messenger } from '@ambire-common/interfaces/messenger'
 import { delayPromise } from '@common/utils/promises'
 import { ETH_RPC_METHODS_AMBIRE_MUST_HANDLE } from '@web/constants/common'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
@@ -15,7 +16,7 @@ import {
 import DedupePromise from '@web/extension-services/inpage/services/dedupePromise'
 import PushEventHandlers from '@web/extension-services/inpage/services/pushEventsHandlers'
 import ReadyPromise from '@web/extension-services/inpage/services/readyPromise'
-import { initializeMessenger, Messenger } from '@web/extension-services/messengers'
+import { initializeMessenger } from '@web/extension-services/messengers/initializeMessenger'
 import { logInfoWithPrefix, logWarnWithPrefix } from '@web/utils/logger'
 
 export type DefaultWallet = 'AMBIRE' | 'OTHER'
