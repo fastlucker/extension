@@ -9,7 +9,6 @@ import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
-import Spinner from '@common/components/Spinner'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -213,64 +212,58 @@ const SignAccountOpScreen = () => {
     )
   }
 
-  // We want to show the errors one by one.
-  // Once the user resolves an error, it will be removed from the array,
-  // and we are going to show the next one, if it exists.
-  if (!signAccountOpState?.accountOp || !network) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Spinner />
-      </View>
-    )
-  }
-
   return (
     <TabLayoutContainer
       width="full"
       header={
         <HeaderAccountAndNetworkInfo
-          networkName={network.name}
-          networkId={network.id as NetworkIconIdType}
+          networkName={network?.name}
+          networkId={network?.id as NetworkIconIdType}
         />
       }
       footer={
         <Footer
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
-          isEOA={!isSmartAccount(signAccountOpState.account)}
+          isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
           isSignLoading={isSignLoading}
-          readyToSign={signAccountOpState.readyToSign}
+          readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
           isViewOnly={isViewOnly}
           onSign={onSignButtonClick}
         />
       }
     >
-      <SigningKeySelect
-        isVisible={isChooseSignerShown}
-        isSigning={isSignLoading || !signAccountOpState.readyToSign}
-        handleClose={() => setIsChooseSignerShown(false)}
-        selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-        handleChangeSigningKey={handleChangeSigningKey}
-      />
+      {signAccountOpState ? (
+        <SigningKeySelect
+          isVisible={isChooseSignerShown}
+          isSigning={isSignLoading || !signAccountOpState.readyToSign}
+          handleClose={() => setIsChooseSignerShown(false)}
+          selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+          handleChangeSigningKey={handleChangeSigningKey}
+        />
+      ) : null}
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            <Simulation network={network} hasEstimation={!!hasEstimation} />
+            <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
             <PendingTransactions callsToVisualize={callsToVisualize} network={network} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <Estimation
             signAccountOpState={signAccountOpState}
             disabled={isSignLoading}
-            hasEstimation={!!hasEstimation}
+            hasEstimation={!!hasEstimation && !!signAccountOpState}
             slowRequest={slowRequest}
             isViewOnly={isViewOnly}
           />
-          <HardwareWalletSigningModal
-            modalRef={hwModalRef}
-            keyType={signAccountOpState.accountOp.signingKeyType}
-            onReject={handleRejectAccountOp}
-          />
+
+          {signAccountOpState && (
+            <HardwareWalletSigningModal
+              modalRef={hwModalRef}
+              keyType={signAccountOpState.accountOp.signingKeyType || ''}
+              onReject={handleRejectAccountOp}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
