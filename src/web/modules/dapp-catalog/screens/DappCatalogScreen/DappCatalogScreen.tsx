@@ -83,7 +83,7 @@ const sortDApps = (a?: Dapp, b?: Dapp) => {
   if (a?.isConnected && !b?.isConnected) return -1
   if (!a?.isConnected && b?.isConnected) return 1
 
-  return (a?.name || '').localeCompare(b?.name || '')
+  return 0
 }
 
 const DappCatalogScreen = () => {
