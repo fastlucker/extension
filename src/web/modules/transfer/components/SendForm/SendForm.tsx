@@ -16,6 +16,7 @@ import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 import { getTokenId } from '@web/utils/token'
@@ -80,6 +81,7 @@ const SendForm = ({
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
   const {
     maxAmount,
     selectedToken,
@@ -167,17 +169,19 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {!state.selectedToken && tokens.length ? (
+      {(!state.selectedToken && tokens.length) || !accountPortfolio?.isAllReady ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {t('Select Token')}
+            {!accountPortfolio?.isAllReady
+              ? t('Loading tokens...')
+              : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
           <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
         </View>
       ) : (
         <Select
           setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank' : ''} Token`)}
+          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           options={options}
           value={tokenSelectValue}
           disabled={disableForm}
@@ -192,6 +196,7 @@ const SendForm = ({
         setMaxAmount={setMaxAmount}
         maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
         disabled={disableForm}
+        isLoading={!accountPortfolio?.isAllReady}
       />
       <View>
         {!isTopUp && (

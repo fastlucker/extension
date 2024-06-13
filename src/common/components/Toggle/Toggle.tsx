@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unused-prop-types */
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import ToggleSwitch from 'toggle-switch-react-native'
 
 import Text, { Props as TextProps } from '@common/components/Text'
@@ -12,6 +12,7 @@ import { ToggleProps } from './types'
 
 interface Props extends ToggleProps {
   labelProps?: TextProps
+  toggleStyle?: ViewStyle
 }
 
 const Toggle = ({ isOn, onToggle, label, style }: Props) => {
