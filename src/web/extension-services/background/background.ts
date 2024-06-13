@@ -126,9 +126,15 @@ function stateDebug(event: string, stateToLog: object) {
 
   const mainCtrl = new MainController({
     storage,
-    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
-    // binding window to fetch provides the correct context
-    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
+    // Use the native fetch (instead of node-fetch or whatever else) since
+    // browser extensions are designed to run within the web environment,
+    // which already provides a native and well-optimized fetch API.
+    fetch: isManifestV3
+      ? fetch
+      : // Popup pages don't have access to the global fetch, causing:
+        // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
+        // Binding window to fetch provides the correct context.
+        window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
