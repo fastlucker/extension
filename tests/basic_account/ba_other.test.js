@@ -73,12 +73,14 @@ describe('ba_other', () => {
     await typeText(page, '[data-testid="contact-name-field"]', addName)
     await typeText(page, '[data-testid="address-ens-field"]', addAddress)
 
+    await new Promise((r) => setTimeout(r, 1000))
+
     await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
 
     await page.waitForSelector('[data-testid="name-first-address"]')
 
     const addressContent = await page.evaluate(() => {
-      const element = document.querySelector('[data-testid="name-first-address"]') // Replace with your actual selector
+      const element = document.querySelector('[data-testid="name-first-address"]')
       return element.outerHTML
     })
 
