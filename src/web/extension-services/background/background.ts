@@ -11,6 +11,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
@@ -124,17 +125,30 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
-  const mainCtrl = new MainController({
-    storage,
+  // TODO: Figure out a way to update this once it's set by the Keystore controller
+  const keyStoreUid = await storage.get('keyStoreUid', '')
+  const fetchWithCustomHeaders: Fetch = (url, options = { headers: { 'X-App-Source': '' } }) => {
+    // eslint-disable-next-line no-param-reassign
+    options.headers = options.headers || {} // in case only other options are passed
+    // eslint-disable-next-line no-param-reassign
+    options.headers['X-App-Source'] = keyStoreUid.substring(0, 11)
+
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
     // which already provides a native and well-optimized fetch API.
-    fetch: isManifestV3
+    const fetchFn = isManifestV3
       ? fetch
       : // Popup pages don't have access to the global fetch, causing:
         // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
         // Binding window to fetch provides the correct context.
-        window.fetch.bind(window),
+        window.fetch.bind(window)
+
+    return fetchFn(url, options)
+  }
+
+  const mainCtrl = new MainController({
+    storage,
+    fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
