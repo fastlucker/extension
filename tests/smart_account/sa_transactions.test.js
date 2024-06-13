@@ -3,10 +3,9 @@ import {
   typeText,
   clickOnElement,
   clickElementWithRetry,
-  bootstrapWithStorage,
+  bootstrapWithSmartStorage,
   confirmTransaction,
-  selectMaticToken,
-  saParams
+  selectMaticToken
 } from '../functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
@@ -19,7 +18,7 @@ let recorder
 
 describe('sa_transactions', () => {
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('sa_transactions', saParams)
+    const context = await bootstrapWithSmartStorage('sa_transactions')
     browser = context.browser
     page = context.page
     recorder = context.recorder
@@ -73,9 +72,7 @@ describe('sa_transactions', () => {
     // Click on 'connect' button
     await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
 
-    // await new Promise((r) => setTimeout(r, 2000))
     // Select 'MetaMask'
-    // await clickOnElement(page, '[data-testid="wallet-option-injected"]')
     await clickElementWithRetry(page, '[data-testid="wallet-option-injected"]')
 
     // Wait for the new page to be created and click on 'Connect' button

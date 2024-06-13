@@ -40,7 +40,6 @@ describe('sa_balance', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('check if networks Ethereum, USDC and Polygon exist in the account  ', async () => {
     await page.waitForSelector('[data-testid="full-balance"]')
-
     await new Promise((r) => setTimeout(r, 2000))
 
     // Verify that USDC, ETH, WALLET

@@ -23,7 +23,6 @@ describe('ba_balance', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('check the balance in account ', async () => {
     await page.waitForSelector('[data-testid="full-balance"]')
-
     await new Promise((r) => setTimeout(r, 1000))
 
     // Get the available balance

@@ -2,8 +2,7 @@ import {
   typeText,
   clickOnElement,
   clickElementWithRetry,
-  bootstrapWithStorage,
-  baParams,
+  bootstrapWithBasicStorage,
   confirmTransaction,
   selectMaticToken
 } from '../functions.js'
@@ -18,7 +17,7 @@ describe('ba_transactions', () => {
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_transactions', baParams)
+    const context = await bootstrapWithBasicStorage('ba_transactions')
     browser = context.browser
     page = context.page
     recorder = context.recorder

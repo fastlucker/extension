@@ -29,7 +29,7 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 30,
+    slowMo: 20,
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -148,8 +148,6 @@ export const saParams = {
   invite: JSON.stringify(INVITE_STORAGE_ITEM)
 }
 
-// export { saParams, baParams } // Export the params object
-
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
@@ -225,6 +223,26 @@ export async function bootstrapWithStorage(namespace, params) {
   } catch (error) {
     console.log('typeSeedPhrase ERROR: ', error)
   }
+  return { browser, extensionRootUrl, page, recorder }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function bootstrapWithBasicStorage(namespace) {
+  const context = await bootstrapWithStorage(namespace, baParams)
+  const browser = context.browser
+  const page = context.page
+  recorder = context.recorder
+  const extensionRootUrl = context.extensionRootUrl
+  return { browser, extensionRootUrl, page, recorder }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function bootstrapWithSmartStorage(namespace) {
+  const context = await bootstrapWithStorage(namespace, saParams)
+  const browser = context.browser
+  const page = context.page
+  recorder = context.recorder
+  const extensionRootUrl = context.extensionRootUrl
   return { browser, extensionRootUrl, page, recorder }
 }
 
@@ -420,24 +438,16 @@ export async function confirmTransaction(
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
-  try {
-    //  Define the RPC URL for the Polygon network
-    const rpcUrl = 'https://invictus.ambire.com/polygon'
+  //  Define the RPC URL for the Polygon network
+  const rpcUrl = 'https://invictus.ambire.com/polygon'
 
-    // Create a provider instance using the JsonRpcProvider
-    const provider = new ethers.JsonRpcProvider(rpcUrl)
+  // Create a provider instance using the JsonRpcProvider
+  const provider = new ethers.JsonRpcProvider(rpcUrl)
 
-    // Get transaction receipt
-    const receipt = await provider.getTransactionReceipt(transactionHash)
+  // Get transaction receipt
+  const receipt = await provider.getTransactionReceipt(transactionHash)
 
-    if (receipt.status === 1) {
-    } else {
-      console.log(`Transaction failed! Hash: ${transactionHash}`)
-
-      expect(receipt.status).to.equal(1) // Assertion to fail the test if transaction failed
-    }
-  } catch (error) {
-    // Handle any errors that occur during the transaction retrieval
-    console.error('Error transaction status:', error, `TRANSACTION HASH: ${transactionHash}`)
-  }
+  console.log(`Batched Transaction Hash: ${transactionHash}`)
+  // Assertion to fail the test if transaction failed
+  expect(receipt.status).toBe(1)
 }
