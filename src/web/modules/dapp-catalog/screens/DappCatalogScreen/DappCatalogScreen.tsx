@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
@@ -75,6 +75,17 @@ const FilterButton = React.memo(({ value, active, style, onPress }: FilterButton
 
 const { isPopup } = getUiType()
 
+const sortDApps = (a?: Dapp, b?: Dapp) => {
+  // Display favorite dApps first
+  if (a?.favorite && !b?.favorite) return -1
+  if (!a?.favorite && b?.favorite) return 1
+  // Display connect dApps second
+  if (a?.isConnected && !b?.isConnected) return -1
+  if (!a?.isConnected && b?.isConnected) return 1
+
+  return (a?.name || '').localeCompare(b?.name || '')
+}
+
 const DappCatalogScreen = () => {
   const { control, watch, setValue } = useForm({
     defaultValues: {
@@ -90,6 +101,8 @@ const DappCatalogScreen = () => {
 
   const search = watch('search')
   const debouncedSearch = useDebounce({ value: search, delay: 350 })
+  const [initialDAppListState, setInitialDAppListState] = useState<Dapp[]>([])
+
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
     if (debouncedSearch.length) {
@@ -105,11 +118,33 @@ const DappCatalogScreen = () => {
     return allDapps
   }, [debouncedSearch, state.dapps, predefinedFilter])
 
+  const sortedByFavoriteDApps = useMemo(() => {
+    if (!initialDAppListState.length) return []
+
+    return filteredDapps.sort((a, b) => {
+      // Display favorite dApps first, but keep the initial order.
+      // Otherwise adding a dApp to favorites would immediately
+      // move it to the top of the list, which feels weird.
+      // This way, the dApp will be moved to the top only after
+      // the user refreshes the page.
+      const dAppA = initialDAppListState.find((dapp) => dapp.url === a.url)
+      const dAppB = initialDAppListState.find((dapp) => dapp.url === b.url)
+
+      return sortDApps(dAppA, dAppB)
+    })
+  }, [filteredDapps, initialDAppListState])
+
   const handleSelectPredefinedFilter = useCallback((type: 'all' | 'favorites' | 'connected') => {
     setPredefinedFilter(type)
   }, [])
 
-  const renderItem = ({ item }: { item: Dapp }) => <DappItem {...item} />
+  const renderItem = useCallback(({ item }: { item: Dapp }) => <DappItem {...item} />, [])
+
+  useEffect(() => {
+    if (!initialDAppListState.length && state.dapps.length) {
+      setInitialDAppListState(state.dapps)
+    }
+  }, [initialDAppListState, state.dapps])
 
   return (
     <TabLayoutContainer
@@ -154,7 +189,7 @@ const DappCatalogScreen = () => {
             !!isPopup && { paddingRight: SPACING_SM - SPACING_MI / 2 }
           ]}
           numColumns={3}
-          data={filteredDapps}
+          data={sortedByFavoriteDApps}
           renderItem={renderItem}
           keyExtractor={(item: Dapp) => item.url.toString()}
           ListEmptyComponent={
