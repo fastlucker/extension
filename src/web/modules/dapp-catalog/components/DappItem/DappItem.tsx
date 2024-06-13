@@ -13,6 +13,7 @@ import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -55,7 +56,18 @@ const DappItem = (dapp: Dapp) => {
         >
           <View style={[flexbox.directionRow, spacings.mbSm]}>
             <View style={spacings.mrTy}>
-              <ManifestImage uri={icon || ''} size={40} fallback={fallbackIcon} />
+              <ManifestImage
+                uri={icon || ''}
+                size={40}
+                fallback={fallbackIcon}
+                containerStyle={{
+                  backgroundColor: theme.primaryBackground
+                }}
+                iconScale={0.8}
+                imageStyle={{
+                  borderRadius: BORDER_RADIUS_PRIMARY
+                }}
+              />
             </View>
             <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
               <View
