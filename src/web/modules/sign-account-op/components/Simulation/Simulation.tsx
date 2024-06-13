@@ -6,7 +6,6 @@ import { Network } from '@ambire-common/interfaces/network'
 import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { Trans, useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -17,10 +16,11 @@ import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControll
 import PendingTokenSummary from '@web/modules/sign-account-op/components/PendingTokenSummary'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 
+import SimulationSkeleton from './SimulationSkeleton'
 import getStyles from './styles'
 
 interface Props {
-  network: Network
+  network?: Network
   hasEstimation: boolean
 }
 
@@ -44,9 +44,9 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   }, [network, portfolioState.state, signAccountOpState?.accountOp])
 
   const portfolioStatePending = useMemo(() => {
-    if (!signAccountOpState?.accountOp || !network.id) return null
+    if (!signAccountOpState?.accountOp || !network?.id) return null
 
-    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network.id]
+    return portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network?.id]
   }, [network, portfolioState.state.pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
@@ -141,7 +141,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network!.id}
+                      networkId={network?.id || ''}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
@@ -165,7 +165,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
                     <PendingTokenSummary
                       key={token.address}
                       token={token}
-                      networkId={network!.id}
+                      networkId={network?.id || ''}
                       hasBottomSpacing={i < pendingTokens.length - 1}
                     />
                   )
@@ -197,11 +197,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
           />
         </View>
       )}
-      {shouldShowLoader && (
-        <View style={spacings.mt}>
-          <Spinner style={styles.spinner} />
-        </View>
-      )}
+      {shouldShowLoader && <SimulationSkeleton />}
     </View>
   )
 }
