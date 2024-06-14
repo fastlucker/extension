@@ -125,12 +125,13 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
-  // TODO: Figure out a way to update this once the Keystore controller is set up initially
-  const keyStoreUid = await storage.get('keyStoreUid', '')
   const fetchWithCustomHeaders: Fetch = (url, init) => {
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
-    initWithCustomHeaders.headers['x-app-source'] = keyStoreUid.substring(10, 21)
+
+    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
+    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
 
     // Use the native fetch (instead of node-fetch or whatever else) since
     // browser extensions are designed to run within the web environment,
