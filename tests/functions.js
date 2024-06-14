@@ -227,26 +227,6 @@ export async function bootstrapWithStorage(namespace, params) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function bootstrapWithBasicStorage(namespace) {
-  const context = await bootstrapWithStorage(namespace, baParams)
-  const browser = context.browser
-  const page = context.page
-  recorder = context.recorder
-  const extensionRootUrl = context.extensionRootUrl
-  return { browser, extensionRootUrl, page, recorder }
-}
-
-//----------------------------------------------------------------------------------------------
-export async function bootstrapWithSmartStorage(namespace) {
-  const context = await bootstrapWithStorage(namespace, saParams)
-  const browser = context.browser
-  const page = context.page
-  recorder = context.recorder
-  const extensionRootUrl = context.extensionRootUrl
-  return { browser, extensionRootUrl, page, recorder }
-}
-
-//----------------------------------------------------------------------------------------------
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   await new Promise((r) => setTimeout(r, 1000))
 
