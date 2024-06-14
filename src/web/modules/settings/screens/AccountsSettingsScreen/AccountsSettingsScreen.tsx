@@ -9,7 +9,6 @@ import useAccounts from '@common/hooks/useAccounts/useAccounts'
 import useElementSize from '@common/hooks/useElementSize'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
@@ -18,7 +17,6 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
-  const { accountPreferences } = useSettingsControllerState()
   const { accounts, control } = useAccounts()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
@@ -40,9 +38,10 @@ const AccountsSettingsScreen = () => {
 
   const onSelectAccount = useCallback(
     (addr: string) => {
-      addToast(`Selected account ${accountPreferences[addr]?.label || addr}`)
+      const acc = accounts.find((a) => a.addr === addr)
+      addToast(`Selected account ${acc?.preferences?.label || addr}`)
     },
-    [accountPreferences, addToast]
+    [accounts, addToast]
   )
 
   return (

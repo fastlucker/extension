@@ -2,10 +2,8 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 const useAccounts = () => {
-  const { accountPreferences } = useSettingsControllerState()
   const { control, watch } = useForm({
     mode: 'all',
     defaultValues: {
@@ -22,7 +20,7 @@ const useAccounts = () => {
         if (!search) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(search.toLowerCase())
-        const doesLabelMatch = accountPreferences[account.addr]?.label
+        const doesLabelMatch = account.preferences.label
           .toLowerCase()
           .includes(search.toLowerCase())
         const isSmartAccount = !!account?.creation
@@ -33,13 +31,10 @@ const useAccounts = () => {
 
         return doesAddressMatch || doesLabelMatch || doesSmartAccountMatch || doesBasicAccountMatch
       }),
-    [accountsState.accounts, search, accountPreferences]
+    [accountsState.accounts, search]
   )
 
-  return {
-    accounts,
-    control
-  }
+  return { accounts, control }
 }
 
 export default useAccounts

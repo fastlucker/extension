@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { AddressState } from '@ambire-common/interfaces/domains'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
@@ -24,7 +25,6 @@ import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import AddressField from './AddressField'
 
@@ -56,7 +56,6 @@ const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
-  const settingsControllerState = useSettingsControllerState()
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
@@ -130,13 +129,19 @@ const ViewOnlyScreen = () => {
         associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
       }
 
+      const addr = getAddress(address)
+      const domainName = account.ensAddress || account.udAddress ? account.fieldValue : null
       return {
-        addr: getAddress(address),
+        addr,
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation,
         // account.fieldValue is the domain name if it's an ENS/UD address
-        domainName: account.ensAddress || account.udAddress ? account.fieldValue : null
+        domainName,
+        preferences: {
+          label: domainName || DEFAULT_ACCOUNT_LABEL,
+          pfp: addr
+        }
       }
     })
 
@@ -175,13 +180,9 @@ const ViewOnlyScreen = () => {
     const newAccountsAdded = accountsState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr.toLowerCase())
     )
-    const newAccountsDefaultPreferencesImported = Object.keys(
-      settingsControllerState.accountPreferences
-    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr.toLowerCase()))
 
-    // Navigate when the new accounts and their default preferences are imported,
-    // indicating the final step for the view-only account adding flow completes.
-    if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
+    // Navigate when the new accounts are imported, indicating the final step for the view-only account adding flow completes.
+    if (newAccountsAdded.length) {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
@@ -193,8 +194,7 @@ const ViewOnlyScreen = () => {
     errors,
     isValid,
     accountsState.accounts,
-    navigate,
-    settingsControllerState.accountPreferences
+    navigate
   ])
 
   return (

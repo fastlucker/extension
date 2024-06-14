@@ -8,7 +8,6 @@ import Badge from '@common/components/Badge'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import Header from '@common/modules/header/components/Header'
@@ -16,7 +15,6 @@ import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -34,12 +32,8 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { styles: headerStyles } = useTheme(getHeaderStyles)
-  const accountsState = useAccountsControllerState()
-  const settingsCtrl = useSettingsControllerState()
-  const selectedAccount = accountsState.selectedAccount || ''
-  const selectedAccountPref = settingsCtrl.accountPreferences[selectedAccount]
-  const selectedAccountLabel = selectedAccountPref?.label || DEFAULT_ACCOUNT_LABEL
   const { minWidthSize, maxWidthSize } = useWindowSize()
+  const accountsState = useAccountsControllerState()
 
   const isActionWindow = getUiType().isActionWindow
 
@@ -51,13 +45,15 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
     return accountsState.accounts.find((acc) => acc.addr === accountsState.selectedAccount)
   }, [accountsState.accounts, accountsState.selectedAccount])
 
+  if (!account) return null
+
   return (
     <Header mode="custom" withAmbireLogo={!!withAmbireLogo && maxWidthSize(700)}>
       <View
         style={[headerStyles.widthContainer, !isActionWindow && { maxWidth: tabLayoutWidths.xl }]}
       >
         <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.flex1]}>
-          <Avatar pfp={selectedAccountPref?.pfp} />
+          <Avatar pfp={account.preferences.pfp} />
           <Text
             appearance="secondaryText"
             weight="medium"
@@ -65,7 +61,7 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             numberOfLines={1}
             style={spacings.mrMi}
           >
-            {selectedAccountLabel}
+            {account.preferences.label}
           </Text>
           <Text
             selectable
@@ -74,10 +70,10 @@ const HeaderAccountAndNetworkInfo: FC<Props> = ({
             fontSize={fontSize}
             style={spacings.mrMi}
           >
-            ({minWidthSize(900) && shortenAddress(selectedAccount, 12)}
-            {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(selectedAccount, 20)}
-            {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(selectedAccount, 30)}
-            {maxWidthSize(1150) && selectedAccount})
+            ({minWidthSize(900) && shortenAddress(account.addr, 12)}
+            {maxWidthSize(900) && minWidthSize(1000) && shortenAddress(account.addr, 20)}
+            {maxWidthSize(1000) && minWidthSize(1150) && shortenAddress(account.addr, 30)}
+            {maxWidthSize(1150) && account.addr})
           </Text>
           <Badge
             type={!account?.creation ? 'warning' : 'success'}

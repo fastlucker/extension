@@ -28,7 +28,6 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
 import shortenAddress from '@web/utils/shortenAddress'
@@ -52,7 +51,6 @@ interface Props {
 }
 
 const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
-  const { accountPreferences } = useSettingsControllerState()
   const { networks } = useNetworksControllerState()
   const activityState = useActivityControllerState()
   const { accounts, selectedAccount } = useAccountsControllerState()
@@ -82,14 +80,14 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       label: (
         <Text weight="medium" numberOfLines={1}>
           {`${formatAddressLabelInSelector(
-            accountPreferences?.[acc.addr]?.label || '',
+            acc.preferences.label,
             maxWidthSize('xl')
           )} (${shortenAddress(acc.addr, 10)})`}
         </Text>
       ),
-      icon: <Avatar pfp={accountPreferences[acc.addr]?.pfp} size={30} style={spacings.pr0} />
+      icon: <Avatar pfp={acc.preferences.pfp} size={30} style={spacings.pr0} />
     }))
-  }, [accountPreferences, accounts, maxWidthSize])
+  }, [accounts, maxWidthSize])
 
   const networksOptions: SelectValue[] = useMemo(
     () =>

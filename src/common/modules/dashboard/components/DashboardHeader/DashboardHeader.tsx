@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, Pressable, View } from 'react-native'
 
@@ -11,7 +11,6 @@ import ViewOnlyIconFilled from '@common/assets/svg/ViewOnlyIconFilled'
 import AccountKeysButton from '@common/components/AccountKeysButton'
 import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
@@ -22,7 +21,6 @@ import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import commonWebStyles from '@web/styles/utils/common'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
@@ -35,14 +33,14 @@ const { isPopup } = getUiType()
 const DashboardHeader = () => {
   const { t } = useTranslation()
   const { addToast } = useToast()
-  const accountsCtrl = useAccountsControllerState()
-  const settingsCtrl = useSettingsControllerState()
-  const keystoreCtrl = useKeystoreControllerState()
-  const selectedAccount = accountsCtrl.selectedAccount || ''
-  const selectedAccountData = accountsCtrl.accounts.find((acc) => acc.addr === selectedAccount)
+  const accountsState = useAccountsControllerState()
+  const keystoreState = useKeystoreControllerState()
 
-  const selectedAccPref = settingsCtrl.accountPreferences[selectedAccount]
-  const selectedAccLabel = selectedAccPref?.label || DEFAULT_ACCOUNT_LABEL
+  const account = useMemo(
+    () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
+    [accountsState.accounts, accountsState.selectedAccount]
+  )
+
   const [bindAddressAnim, addressAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -63,13 +61,11 @@ const DashboardHeader = () => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
 
-  const isViewOnly = keystoreCtrl.keys.every(
-    (k) => !selectedAccountData?.associatedKeys.includes(k.addr)
-  )
+  const isViewOnly = keystoreState.keys.every((k) => !account?.associatedKeys.includes(k.addr))
 
   const handleCopyText = async () => {
     try {
-      await Clipboard.setStringAsync(selectedAccount)
+      await Clipboard.setStringAsync(accountsState.selectedAccount!)
       addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
     } catch {
       addToast(t('Failed to copy address to clipboard!') as string, {
@@ -78,6 +74,8 @@ const DashboardHeader = () => {
       })
     }
   }
+
+  if (!account) return null
 
   return (
     <View
@@ -107,7 +105,7 @@ const DashboardHeader = () => {
             <>
               <View style={styles.accountButtonInfo}>
                 <View>
-                  <Avatar pfp={selectedAccPref?.pfp} size={32} />
+                  <Avatar pfp={account.preferences.pfp} size={32} />
                   {isViewOnly && (
                     <View
                       style={{
@@ -135,7 +133,7 @@ const DashboardHeader = () => {
                   color={theme.primaryBackground}
                   fontSize={14}
                 >
-                  {selectedAccLabel}
+                  {account.preferences.label}
                 </Text>
                 <AccountKeysButton />
               </View>
@@ -159,7 +157,7 @@ const DashboardHeader = () => {
               weight="medium"
               fontSize={14}
             >
-              ({shortenAddress(selectedAccount, 13)})
+              ({shortenAddress(accountsState.selectedAccount!, 13)})
             </Text>
             <CopyIcon width={20} height={20} color={theme.primaryBackground} />
           </AnimatedPressable>

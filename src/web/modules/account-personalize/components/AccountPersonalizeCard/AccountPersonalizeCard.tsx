@@ -19,32 +19,17 @@ import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
 
-export type AccountPersonalizeFormValues = {
-  preferences: {
-    account: Account
-    label: string
-    pfp: string
-  }[]
-}
-
 type Props = {
   account: Account
-  pfp: string
   index: number
-  control: Control<AccountPersonalizeFormValues>
+  control: Control<{
+    accounts: Account[]
+  }>
   hasBottomSpacing?: boolean
-  defaultPreferences: AccountPersonalizeFormValues['preferences'][number]
 }
 
-const AccountPersonalizeCard = ({
-  account,
-  index,
-  pfp,
-  control,
-  hasBottomSpacing = true,
-  defaultPreferences
-}: Props) => {
-  const { addr: address, associatedKeys, creation } = account
+const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = true }: Props) => {
+  const { addr: address, associatedKeys, creation, preferences } = account
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const keystoreCtrl = useKeystoreControllerState()
@@ -54,7 +39,7 @@ const AccountPersonalizeCard = ({
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
         <View testID="personalize-account" style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Avatar pfp={pfp} />
+          <Avatar pfp={preferences.pfp} />
           <View style={flexbox.flex1}>
             <View style={[flexbox.directionRow, flexbox.alignCenter]}>
               <Text fontSize={14} style={spacings.mrLg}>
@@ -76,12 +61,12 @@ const AccountPersonalizeCard = ({
 
             <Controller
               control={control}
-              name={`preferences.${index}.label`}
+              name={`accounts.${index}.preferences.label`}
               render={({ field: { onChange, value } }) => (
                 <Editable
                   setCustomValue={onChange}
                   customValue={value}
-                  initialValue={defaultPreferences.label}
+                  initialValue={preferences.label}
                   testID={`edit-name-field-${index}`}
                 />
               )}

@@ -13,7 +13,6 @@ import {
 import { MainController } from '@ambire-common/controllers/main/main'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network } from '@ambire-common/interfaces/network'
-import { AccountPreferences } from '@ambire-common/interfaces/settings'
 import {
   isDerivedForSmartAccountKeyOnly,
   isSmartAccount
@@ -37,10 +36,7 @@ import { updateHumanizerMetaInStorage } from '@web/extension-services/background
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
-import {
-  getDefaultAccountPreferences,
-  getDefaultKeyLabel
-} from '@web/modules/account-personalize/libs/defaults'
+import { getDefaultKeyLabel } from '@web/modules/account-personalize/libs/defaults'
 import LatticeController from '@web/modules/hardware-wallet/controllers/LatticeController'
 import LedgerController from '@web/modules/hardware-wallet/controllers/LedgerController'
 import TrezorController from '@web/modules/hardware-wallet/controllers/TrezorController'
@@ -555,8 +551,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_REMOVE_NETWORK': {
                 return await mainCtrl.removeNetwork(params)
               }
-              case 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES': {
-                return await mainCtrl.settings.addAccountPreferences(params)
+              case 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES': {
+                return await mainCtrl.accounts.updateAccountPreferences(params)
               }
               case 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE': {
                 return await mainCtrl.networks.setNetworkToAddOrUpdate(params)
@@ -650,39 +646,13 @@ function stateDebug(event: string, stateToLog: object) {
                     }))
                 )
 
-                const readyToAddAccountPreferences = getDefaultAccountPreferences(
-                  mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts.accounts
-                )
-
                 return await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddAccountPreferences,
                   readyToAddKeys,
                   readyToAddKeyPreferences
                 )
               }
               case 'MAIN_CONTROLLER_ADD_VIEW_ONLY_ACCOUNTS': {
-                const defaultAccountPreferences = getDefaultAccountPreferences(
-                  params.accounts,
-                  mainCtrl.accounts.accounts
-                )
-
-                const ensOrUdAccountPreferences: AccountPreferences = params.accounts.reduce(
-                  (acc: AccountPreferences, account) => {
-                    if (account.domainName) {
-                      acc[account.addr] = {
-                        pfp: defaultAccountPreferences[account.addr].pfp,
-                        label: account.domainName
-                      }
-                      return acc
-                    }
-
-                    return acc
-                  },
-                  {}
-                )
-
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
                 await mainCtrl.accounts.addAccounts(params.accounts)
@@ -691,13 +661,7 @@ function stateDebug(event: string, stateToLog: object) {
                 // that are needed for view-only accounts, since the AccountAdder
                 // flow was bypassed and the `onAccountAdderSuccess` subscription
                 // in the MainController won't click.
-                return await Promise.all([
-                  mainCtrl.settings.addAccountPreferences({
-                    ...defaultAccountPreferences,
-                    ...ensOrUdAccountPreferences
-                  }),
-                  mainCtrl.accounts.selectAccount(params.accounts[0].addr)
-                ])
+                return await mainCtrl.accounts.selectAccount(params.accounts[0].addr)
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
@@ -732,11 +696,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.accountAdder.selectAccount(firstSmartAccount)
 
-                const readyToAddAccountPreferences = getDefaultAccountPreferences(
-                  mainCtrl.accountAdder.selectedAccounts.map(({ account }) => account),
-                  mainCtrl.accounts.accounts
-                )
-
                 const readyToAddKeys =
                   mainCtrl.accountAdder.retrieveInternalKeysOfSelectedAccounts()
 
@@ -756,7 +715,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 return await mainCtrl.accountAdder.addAccounts(
                   mainCtrl.accountAdder.selectedAccounts,
-                  readyToAddAccountPreferences,
                   {
                     internal: readyToAddKeys,
                     external: []
@@ -960,19 +918,20 @@ function stateDebug(event: string, stateToLog: object) {
               case 'ADDRESS_BOOK_CONTROLLER_RENAME_CONTACT': {
                 const { address, newName } = params
 
-                if (
-                  mainCtrl.accounts.accounts.find(
-                    ({ addr }) => addr.toLowerCase() === address.toLowerCase()
-                  )
-                ) {
-                  return await mainCtrl.settings.addAccountPreferences({
-                    [address]: {
-                      ...mainCtrl.settings.accountPreferences[address],
-                      label: newName.trim()
-                    }
-                  })
-                }
+                const account = mainCtrl.accounts.accounts.find(
+                  ({ addr }) => addr.toLowerCase() === address.toLowerCase()
+                )
+                if (!account) return
 
+                await mainCtrl.accounts.updateAccountPreferences([
+                  {
+                    addr: address,
+                    preferences: {
+                      pfp: account.preferences.pfp,
+                      label: newName
+                    }
+                  }
+                ])
                 return await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
               }
               case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':

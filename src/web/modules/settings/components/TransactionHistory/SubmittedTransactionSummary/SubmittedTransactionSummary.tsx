@@ -62,14 +62,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       (err: any) => setHumanizerError(err),
       { noAsyncOperations: true, network }
     )
-  }, [
-    submittedAccountOp,
-    keystoreState.keys,
-    accounts,
-    settingsState.accountPreferences,
-    settingsState.keyPreferences,
-    network
-  ])
+  }, [submittedAccountOp, keystoreState.keys, accounts, settingsState.keyPreferences, network])
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls

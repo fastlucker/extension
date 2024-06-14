@@ -5,11 +5,11 @@ import {
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
 import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
-import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
+import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -95,9 +95,9 @@ type MainControllerRemoveNetwork = {
   params: NetworkId
 }
 
-type SettingsControllerAddAccountPreferences = {
-  type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES'
-  params: AccountPreferences
+type AccountsControllerUpdateAccountPreferences = {
+  type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
+  params: { addr: string; preferences: AccountPreferences }[]
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
@@ -442,7 +442,7 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
-  | SettingsControllerAddAccountPreferences
+  | AccountsControllerUpdateAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
   | MainControllerAddNetwork

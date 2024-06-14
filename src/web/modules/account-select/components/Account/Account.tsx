@@ -9,7 +9,6 @@ import Badge from '@common/components/Badge'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
@@ -18,7 +17,6 @@ import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
@@ -39,12 +37,11 @@ const Account = ({
   withSettings?: boolean
   renderRightChildren?: () => React.ReactNode
 }) => {
-  const { addr, creation, associatedKeys } = account
+  const { addr, creation, associatedKeys, preferences } = account
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
   const { selectedAccount } = useAccountsControllerState()
-  const settingsCtrl = useSettingsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
   const [bindAnim, animStyle] = useCustomHover({
@@ -69,13 +66,8 @@ const Account = ({
 
   const onSave = (value: string) => {
     dispatch({
-      type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES',
-      params: {
-        [addr]: {
-          ...settingsCtrl.accountPreferences[addr],
-          label: value
-        }
-      }
+      type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
+      params: [{ addr, preferences: { label: value, pfp: preferences.pfp } }]
     })
     addToast(t('Account label updated.'))
   }
@@ -85,7 +77,7 @@ const Account = ({
       <Animated.View style={[styles.accountContainer, animStyle]}>
         <View style={[flexboxStyles.directionRow]}>
           <View style={[flexboxStyles.justifyCenter]}>
-            <Avatar pfp={settingsCtrl.accountPreferences[addr]?.pfp} />
+            <Avatar pfp={account.preferences.pfp} />
           </View>
           <View>
             <View style={flexboxStyles.directionRow}>
@@ -108,11 +100,11 @@ const Account = ({
             </View>
             {!withSettings ? (
               <Text appearance="secondaryText" fontSize={14} weight="semiBold">
-                {settingsCtrl.accountPreferences[addr]?.label || DEFAULT_ACCOUNT_LABEL}
+                {account.preferences.label}
               </Text>
             ) : (
               <Editable
-                initialValue={settingsCtrl.accountPreferences[addr]?.label}
+                initialValue={account.preferences.label}
                 onSave={onSave}
                 fontSize={14}
                 height={24}
