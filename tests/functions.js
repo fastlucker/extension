@@ -427,7 +427,7 @@ export async function confirmTransaction(
   // Get transaction receipt
   const receipt = await provider.getTransactionReceipt(transactionHash)
 
-  console.log(`Batched Transaction Hash: ${transactionHash}`)
+  console.log(`Transaction Hash: ${transactionHash}`)
   // Assertion to fail the test if transaction failed
   expect(receipt.status).toBe(1)
 }
