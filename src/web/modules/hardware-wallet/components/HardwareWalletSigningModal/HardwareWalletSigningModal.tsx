@@ -47,6 +47,7 @@ const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
       backgroundColor="primaryBackground"
       autoWidth
       sheetRef={modalRef}
+      shouldBeClosableOnDrag={false}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {
