@@ -359,7 +359,6 @@ const SignMessageScreen = () => {
             <HardwareWalletSigningModal
               modalRef={hwModalRef}
               keyType={signMessageState.signingKeyType}
-              onReject={handleReject}
             />
           )}
         </View>

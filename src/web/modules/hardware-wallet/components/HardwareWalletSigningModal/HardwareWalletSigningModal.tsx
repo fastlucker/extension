@@ -22,7 +22,6 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 type Props = {
   modalRef: any
   keyType: ExternalKey['type']
-  onReject: () => void
 }
 
 const iconByKeyType = {
@@ -31,7 +30,7 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ modalRef, keyType, onReject }: Props) => {
+const HardwareWalletSigningModal = ({ modalRef, keyType }: Props) => {
   const { t } = useTranslation()
 
   const titleSuffix = useMemo(() => {
