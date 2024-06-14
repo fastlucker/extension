@@ -1,8 +1,5 @@
-import {
-  CallbackFunction,
-  createMessenger,
-  SendMessage
-} from '@web/extension-services/messengers/internal/createMessenger'
+import { CallbackFunction, SendMessage } from '@ambire-common/interfaces/messenger'
+import { createMessenger } from '@web/extension-services/messengers/internal/createMessenger'
 import { isValidReply } from '@web/extension-services/messengers/internal/isValidReply'
 import { isValidSend } from '@web/extension-services/messengers/internal/isValidSend'
 

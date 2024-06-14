@@ -27,7 +27,6 @@ import { RELAYER_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 import handleProviderRequests from '@web/extension-services/background/provider/handleProviderRequests'
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
@@ -121,7 +120,6 @@ function stateDebug(event: string, stateToLog: object) {
   const ledgerCtrl = new LedgerController()
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
-  const dappsCtrl = new DappsController(storage)
 
   const mainCtrl = new MainController({
     storage,
@@ -146,13 +144,6 @@ function stateDebug(event: string, stateToLog: object) {
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
-    },
-    getDapp: (url: string) => {
-      return dappsCtrl.getDapp(url)
-    },
-    onUpdateDappSelectedAccount: (accountAddr) => {
-      const account = accountAddr ? [accountAddr] : []
-      return dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
     },
     onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
       notifyForSuccessfulBroadcast(type)
@@ -330,9 +321,11 @@ function stateDebug(event: string, stateToLog: object) {
             if (ctrlName === 'keystore') {
               if (controller.isReadyToStoreKeys) {
                 if (backgroundState.isUnlocked && !controller.isUnlocked) {
-                  dappsCtrl.broadcastDappSessionEvent('lock')
+                  mainCtrl.dapps.broadcastDappSessionEvent('lock')
                 } else if (!backgroundState.isUnlocked && controller.isUnlocked) {
-                  dappsCtrl.broadcastDappSessionEvent('unlock', [mainCtrl.accounts.selectedAccount])
+                  mainCtrl.dapps.broadcastDappSessionEvent('unlock', [
+                    mainCtrl.accounts.selectedAccount
+                  ])
                 }
                 backgroundState.isUnlocked = controller.isUnlocked
               }
@@ -416,17 +409,6 @@ function stateDebug(event: string, stateToLog: object) {
     })
   })
 
-  // Broadcast onUpdate for the dapps controller
-  dappsCtrl.onUpdate((forceEmit) => {
-    debounceFrontEndEventUpdatesOnSameTick('dapps', dappsCtrl, dappsCtrl, forceEmit)
-  })
-  dappsCtrl.onError(() => {
-    pm.send('> ui-error', {
-      method: 'dapps',
-      params: { errors: dappsCtrl.emittedErrors, controller: 'dapps' }
-    })
-  })
-
   // listen for messages from UI
   browser.runtime.onConnect.addListener(async (port: Port) => {
     if (['popup', 'tab', 'action-window'].includes(port.name)) {
@@ -445,8 +427,6 @@ function stateDebug(event: string, stateToLog: object) {
                   pm.send('> ui', { method: 'main', params: mainCtrl })
                 } else if (params.controller === ('walletState' as any)) {
                   pm.send('> ui', { method: 'walletState', params: walletStateCtrl })
-                } else if (params.controller === ('dapps' as any)) {
-                  pm.send('> ui', { method: 'dapps', params: dappsCtrl })
                 } else if (params.controller === ('autoLock' as any)) {
                   pm.send('> ui', { method: 'autoLock', params: autoLockCtrl })
                 } else {
@@ -962,13 +942,13 @@ function stateDebug(event: string, stateToLog: object) {
               }
 
               case 'DAPPS_CONTROLLER_DISCONNECT_DAPP': {
-                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
-                dappsCtrl.updateDapp(params, { isConnected: false })
+                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+                mainCtrl.dapps.updateDapp(params, { isConnected: false })
                 break
               }
               case 'CHANGE_CURRENT_DAPP_NETWORK': {
-                dappsCtrl.updateDapp(params.origin, { chainId: params.chainId })
-                dappsCtrl.broadcastDappSessionEvent(
+                mainCtrl.dapps.updateDapp(params.origin, { chainId: params.chainId })
+                mainCtrl.dapps.broadcastDappSessionEvent(
                   'chainChanged',
                   {
                     chain: `0x${params.chainId.toString(16)}`,
@@ -979,14 +959,14 @@ function stateDebug(event: string, stateToLog: object) {
                 break
               }
               case 'DAPP_CONTROLLER_ADD_DAPP': {
-                return dappsCtrl.addDapp(params)
+                return mainCtrl.dapps.addDapp(params)
               }
               case 'DAPP_CONTROLLER_UPDATE_DAPP': {
-                return dappsCtrl.updateDapp(params.url, params.dapp)
+                return mainCtrl.dapps.updateDapp(params.url, params.dapp)
               }
               case 'DAPP_CONTROLLER_REMOVE_DAPP': {
-                dappsCtrl.broadcastDappSessionEvent('disconnect', undefined, params)
-                return dappsCtrl.removeDapp(params)
+                mainCtrl.dapps.broadcastDappSessionEvent('disconnect', undefined, params)
+                return mainCtrl.dapps.removeDapp(params)
               }
 
               default:
@@ -1036,7 +1016,7 @@ function stateDebug(event: string, stateToLog: object) {
     }
 
     const origin = getOriginFromUrl(meta.sender.url)
-    const session = dappsCtrl.getOrCreateDappSession(sessionId, origin)
+    const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
     session.setMessenger(bridgeMessenger)
 
     // Temporarily resolves the subscription methods as successful
@@ -1053,10 +1033,7 @@ function stateDebug(event: string, stateToLog: object) {
           session,
           origin
         },
-        {
-          mainCtrl,
-          dappsCtrl
-        }
+        mainCtrl
       )
       return { id, result: res }
     } catch (error: any) {
@@ -1069,6 +1046,18 @@ function stateDebug(event: string, stateToLog: object) {
       return { id, error: errorRes }
     }
   })
+
+  try {
+    browser.tabs.onRemoved.addListener((tabId: number) => {
+      const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+      // eslint-disable-next-line no-restricted-syntax
+      for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
+        mainCtrl.dapps.deleteDappSession(key)
+      }
+    })
+  } catch (error) {
+    console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+  }
 })()
 
 // Open the get-started screen in a new tab right after the extension is installed.

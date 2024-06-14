@@ -11,6 +11,7 @@ import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
@@ -334,7 +335,7 @@ const SignMessageScreen = () => {
               messageToSign={signMessageState.messageToSign}
             />
           ) : (
-            <Text>Loading</Text>
+            <SkeletonLoader width="100%" height={48} />
           )}
           {isViewOnly && (
             <View
