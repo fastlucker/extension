@@ -1,4 +1,4 @@
-import { ReplyMessage } from '@web/extension-services/messengers/internal/createMessenger'
+import { ReplyMessage } from '@ambire-common/interfaces/messenger'
 
 export function isValidReply<TResponse>({
   id,

@@ -1,26 +1,25 @@
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { Collectible as CollectibleInterface } from '@ambire-common/libs/portfolio/interfaces'
+import Collectible from '@common/components/Collectible'
+import { SelectedCollectible } from '@common/components/CollectibleModal'
 import NetworkIcon from '@common/components/NetworkIcon'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
-import { SelectedCollectible } from '@common/modules/dashboard/components/Collections/CollectibleModal/CollectibleModal'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import Collectible from './Collectible'
 import getStyles from './styles'
 
 interface Props {
   address: string
   name: string
   networkId: NetworkIconIdType
-  collectibles: CollectibleInterface[]
+  collectibles: bigint[]
   priceIn: {
     baseCurrency: string
     price: number
@@ -54,16 +53,16 @@ const Collection: FC<Props> = ({
   openCollectibleModal
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const settingsState = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const networkData = useMemo(() => {
-    return settingsState.networks.find(({ id }) => networkId === id)
-  }, [networkId, settingsState.networks])
+    return networks.find(({ id }) => networkId === id)
+  }, [networkId, networks])
 
   return (
     <View style={styles.container}>
       <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.pbTy]}>
-        <Text testID='collection-item' fontSize={isTab ? 16 : 14} weight="medium">
+        <Text testID="collection-item" fontSize={isTab ? 16 : 14} weight="medium">
           {name}
         </Text>
         <Text style={spacings.mlTy} fontSize={isTab ? 16 : 14} appearance="secondaryText">
@@ -87,12 +86,12 @@ const Collection: FC<Props> = ({
           {priceIn && priceIn.length ? ` / Floor Price: ${formatCollectiblePrice(priceIn[0])}` : ''}
         </Text>
       </View>
-      <View style={[flexbox.directionRow]}>
+      <View style={[flexbox.directionRow, flexbox.wrap]}>
         {collectibles.map((collectible) => (
           <Collectible
-            key={collectible.url + collectible.id}
-            url={collectible.url}
-            id={collectible.id}
+            style={{ ...spacings.mbSm, ...spacings.mrTy }}
+            key={address + collectible}
+            id={collectible}
             collectionData={{
               name,
               address,

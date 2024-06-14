@@ -1,48 +1,23 @@
-/* eslint-disable no-promise-executor-return */
-/* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'reflect-metadata'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { EthereumProviderError, ethErrors } from 'eth-rpc-errors'
+import { ethErrors } from 'eth-rpc-errors'
 import { toBeHex } from 'ethers'
 import cloneDeep from 'lodash/cloneDeep'
 import { nanoid } from 'nanoid'
 
 import { MainController } from '@ambire-common/controllers/main/main'
+import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { isErc4337Broadcast } from '@ambire-common/libs/userOperation/userOperation'
 import bundler from '@ambire-common/services/bundlers'
 import { APP_VERSION } from '@common/config/env'
-import { NETWORKS } from '@common/constants/networks'
 import { delayPromise } from '@common/utils/promises'
 import { browser } from '@web/constants/browserapi'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
-import { DappsController } from '@web/extension-services/background/controllers/dapps'
-import { Session } from '@web/extension-services/background/services/session'
 
-interface RequestRes {
-  type?: string
-  address?: string
-  uiRequestComponent?: string
-  isSend?: boolean
-  isSpeedUp?: boolean
-  isCancel?: boolean
-  isSwap?: boolean
-  isGnosis?: boolean
-  account?: any
-  extra?: Record<string, any>
-  traceId?: string
-  $ctx?: any
-  signingTxId?: string
-  hash?: string
-  error?: string
-}
+import { RequestRes, Web3WalletPermission } from './types'
 
-interface Web3WalletPermission {
-  // The name of the method corresponding to the permission
-  parentCapability: string
-  // The date the permission was granted, in UNIX epoch time
-  date?: number
-}
+type ProviderRequest = DappProviderRequest & { requestRes: RequestRes }
 
 const handleSignMessage = (requestRes: RequestRes) => {
   if (requestRes) {
@@ -61,13 +36,10 @@ const handleSignMessage = (requestRes: RequestRes) => {
 export class ProviderController {
   mainCtrl: MainController
 
-  dappsCtrl: DappsController
-
   isUnlocked: boolean
 
-  constructor(mainCtrl: MainController, dappsCtrl: DappsController) {
+  constructor(mainCtrl: MainController) {
     this.mainCtrl = mainCtrl
-    this.dappsCtrl = dappsCtrl
 
     this.isUnlocked = this.mainCtrl.keystore.isReadyToStoreKeys
       ? this.mainCtrl.keystore.isUnlocked
@@ -75,59 +47,60 @@ export class ProviderController {
   }
 
   getDappNetwork = (origin: string) => {
-    const defaultNetwork = this.mainCtrl.settings.networks.find((n) => n.id === NETWORKS.ethereum)
+    const defaultNetwork = this.mainCtrl.networks.networks.find((n) => n.id === 'ethereum')
     if (!defaultNetwork)
       throw new Error(
         'Missing default network data, which should never happen. Please contact support.'
       )
 
-    const dappChainId = this.dappsCtrl.getDapp(origin)?.chainId
+    const dappChainId = this.mainCtrl.dapps.getDapp(origin)?.chainId
     if (!dappChainId) return defaultNetwork
 
     return (
-      this.mainCtrl.settings.networks.find((n) => n.chainId === BigInt(dappChainId)) ||
+      this.mainCtrl.networks.networks.find((n) => n.chainId === BigInt(dappChainId)) ||
       defaultNetwork
     )
   }
 
-  ethRpc = async (req: any) => {
+  ethRpc = async (request: DappProviderRequest) => {
     const {
-      data: { method, params },
+      method,
+      params,
       session: { origin }
-    } = req
+    } = request
 
     const networkId = this.getDappNetwork(origin).id
-    const provider = this.mainCtrl.settings.providers[networkId]
+    const provider = this.mainCtrl.providers.providers[networkId]
 
-    if (!this.dappsCtrl.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
+    if (!this.mainCtrl.dapps.hasPermission(origin) && !SAFE_RPC_METHODS.includes(method)) {
       throw ethErrors.provider.unauthorized()
     }
 
     return provider.send(method, params)
   }
 
-  ethRequestAccounts = async ({ session: { origin } }: any) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+  ethRequestAccounts = async ({ session: { origin } }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       throw ethErrors.provider.unauthorized()
     }
 
     const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
-    this.dappsCtrl.broadcastDappSessionEvent('accountsChanged', account)
+    this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
   }
 
   @Reflect.metadata('SAFE', true)
-  ethAccounts = async ({ session: { origin } }: any) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+  ethAccounts = async ({ session: { origin } }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       return []
     }
 
     return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
   }
 
-  ethCoinbase = async ({ session: { origin } }: any) => {
-    if (!this.dappsCtrl.hasPermission(origin) || !this.isUnlocked) {
+  ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
+    if (!this.mainCtrl.dapps.hasPermission(origin) || !this.isUnlocked) {
       return null
     }
 
@@ -135,35 +108,25 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  ethChainId = async ({ session: { origin } }: any) => {
-    if (this.dappsCtrl.hasPermission(origin)) {
-      return toBeHex(this.dappsCtrl.getDapp(origin)?.chainId || 1)
+  ethChainId = async ({ session: { origin } }: DappProviderRequest) => {
+    if (this.mainCtrl.dapps.hasPermission(origin)) {
+      return toBeHex(this.mainCtrl.dapps.getDapp(origin)?.chainId || 1)
     }
     return toBeHex(1)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SendTransaction', false])
-  ethSendTransaction = async (options: {
-    data: {
-      $ctx?: any
-      params: any
-    }
-    session: Session
-    requestRes: RequestRes
-    pushed: boolean
-    result: any
-  }) => {
-    if (options.pushed) return options.result
-
-    const { requestRes } = cloneDeep(options)
+  @Reflect.metadata('ACTION_REQUEST', ['SendTransaction', false])
+  ethSendTransaction = async (request: ProviderRequest) => {
+    const { session } = request
+    const { requestRes } = cloneDeep(request)
 
     if (requestRes?.hash) {
       // @erc4337
       // check if the request is erc4337
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
-      const dappNetwork = this.getDappNetwork(options.session.origin)
-      const network = this.mainCtrl.settings.networks.filter((net) => net.id === dappNetwork.id)[0]
+      const dappNetwork = this.getDappNetwork(session.origin)
+      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
       const accountState =
         this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
       if (!accountState) return requestRes?.hash
@@ -175,7 +138,7 @@ export class ProviderController {
       }
 
       // delay just for better UX
-      // when the notification window is closed and the user views the dapp, we wait for the user
+      // when the action-window is closed and the user views the dapp, we wait for the user
       // to see the actual update in the dapp's UI once the request is resolved.
       await delayPromise(400)
       return hash
@@ -192,48 +155,44 @@ export class ProviderController {
     return `Ambire v${APP_VERSION}`
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  personalSign = async ({ requestRes }: any) => {
+  @Reflect.metadata('ACTION_REQUEST', ['SignText', false])
+  personalSign = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignText', false])
-  ethSign = async ({ requestRes }: any) => {
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
+  ethSignTypedData = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedData = async ({ requestRes }: any) => {
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV1 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV1 = async ({ requestRes }: any) => {
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV3 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV3 = async ({ requestRes }: any) => {
+  @Reflect.metadata('ACTION_REQUEST', ['SignTypedData', false])
+  ethSignTypedDataV4 = async ({ requestRes }: ProviderRequest) => {
     return handleSignMessage(requestRes)
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['SignTypedData', false])
-  ethSignTypedDataV4 = async ({ requestRes }: any) => {
-    return handleSignMessage(requestRes)
-  }
-
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({ data, session, mainCtrl, dappsCtrl }: any) => {
-      if (!data.params[0]) {
+    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
+      const { params, session } = request
+      if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
-      if (!data.params[0]?.chainId) {
+      if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = dappsCtrl.getDapp(session.origin)
-      const { chainId } = data.params[0]
-      const network = mainCtrl.settings.networks.find(
+      const dapp = mainCtrl.dapps.getDapp(session.origin)
+      const { chainId } = params[0]
+      const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
       if (!network || !dapp?.isConnected) return false
@@ -242,35 +201,21 @@ export class ProviderController {
     }
   ])
   walletAddEthereumChain = ({
-    data: {
-      params: [chainParams]
-    },
+    params: [chainParams],
     session: { origin, name }
-  }: {
-    data: {
-      params: any[]
-    }
-    session: {
-      origin: string
-      name: string
-    }
-    requestRes?: {
-      chain: any
-      rpcUrl: string
-    }
-  }) => {
+  }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
 
-    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
+    const network = this.mainCtrl.networks.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.dappsCtrl.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await browser.notifications.create(nanoid(), {
@@ -280,7 +225,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.dappsCtrl.broadcastDappSessionEvent(
+    this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -292,48 +237,48 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', [
+  @Reflect.metadata('ACTION_REQUEST', [
     'AddChain',
-    ({ data, session, mainCtrl, dappsCtrl }: any) => {
-      if (!data.params[0]) {
+    ({ request, mainCtrl }: { request: ProviderRequest; mainCtrl: MainController }) => {
+      const { params, session } = request
+      if (!params[0]) {
         throw ethErrors.rpc.invalidParams('params is required but got []')
       }
-      if (!data.params[0]?.chainId) {
+      if (!params[0]?.chainId) {
         throw ethErrors.rpc.invalidParams('chainId is required')
       }
-      const dapp = dappsCtrl.getDapp(session.origin)
-      const { chainId } = data.params[0]
-      const network = mainCtrl.settings.networks.find(
+      const dapp = mainCtrl.dapps.getDapp(session.origin)
+      const { chainId } = params[0]
+      const network = mainCtrl.networks.networks.find(
         (n: any) => Number(n.chainId) === Number(chainId)
       )
       if (!dapp?.isConnected) return false
 
       if (!network) {
-        throw new EthereumProviderError(
-          4902,
-          'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
-        ).serialize()
+        throw ethErrors.provider.custom({
+          code: 4902,
+          message:
+            'Unrecognized chain ID. Try adding the chain using wallet_addEthereumChain first.'
+        })
       }
       return true
     }
   ])
   walletSwitchEthereumChain = ({
-    data: {
-      params: [chainParams]
-    },
+    params: [chainParams],
     session: { origin, name }
-  }: any) => {
+  }: ProviderRequest) => {
     let chainId = chainParams.chainId
     if (typeof chainId === 'string') {
       chainId = Number(chainId)
     }
-    const network = this.mainCtrl.settings.networks.find((n) => Number(n.chainId) === chainId)
+    const network = this.mainCtrl.networks.networks.find((n) => Number(n.chainId) === chainId)
 
     if (!network) {
       throw new Error('This chain is not supported by Ambire yet.')
     }
 
-    this.dappsCtrl.updateDapp(origin, { chainId })
+    this.mainCtrl.dapps.updateDapp(origin, { chainId })
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await browser.notifications.create(nanoid(), {
@@ -343,7 +288,7 @@ export class ProviderController {
         message: `Network switched to ${network.name} for ${name || origin}.`
       })
     })()
-    this.dappsCtrl.broadcastDappSessionEvent(
+    this.mainCtrl.dapps.broadcastDappSessionEvent(
       'chainChanged',
       {
         chain: toBeHex(network.chainId),
@@ -355,15 +300,15 @@ export class ProviderController {
     return null
   }
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['WalletWatchAsset', false])
+  @Reflect.metadata('ACTION_REQUEST', ['WalletWatchAsset', false])
   walletWatchAsset = () => true
 
-  @Reflect.metadata('NOTIFICATION_REQUEST', ['GetEncryptionPublicKey', false])
-  ethGetEncryptionPublicKey = ({ requestRes }: { requestRes: string }) => ({
+  @Reflect.metadata('ACTION_REQUEST', ['GetEncryptionPublicKey', false])
+  ethGetEncryptionPublicKey = ({ requestRes }: ProviderRequest) => ({
     result: requestRes
   })
 
-  walletRequestPermissions = ({ data: { params: permissions } }) => {
+  walletRequestPermissions = ({ params: permissions }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
     if (permissions && 'eth_accounts' in permissions[0]) {
       result.push({ parentCapability: 'eth_accounts' })
@@ -372,19 +317,15 @@ export class ProviderController {
   }
 
   @Reflect.metadata('SAFE', true)
-  walletGetPermissions = ({ session: { origin } }) => {
+  walletGetPermissions = ({ session: { origin } }: DappProviderRequest) => {
     const result: Web3WalletPermission[] = []
-    if (this.dappsCtrl.getDapp(origin) && this.isUnlocked) {
+    if (this.mainCtrl.dapps.getDapp(origin) && this.isUnlocked) {
       result.push({ parentCapability: 'eth_accounts' })
     }
     return result
   }
 
-  personalEcRecover = ({
-    data: {
-      params: [data, sig, extra = {}]
-    }
-  }) => {
+  personalEcRecover = ({ params: [data, sig, extra = {}] }: DappProviderRequest) => {
     // TODO:
   }
 

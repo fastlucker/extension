@@ -2,15 +2,14 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { Call } from '@ambire-common/libs/accountOp/types'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
-import Spinner from '@common/components/Spinner'
-import useNavigation from '@common/hooks/useNavigation'
-import useRoute from '@common/hooks/useRoute'
+import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
@@ -20,38 +19,50 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignAccountOpControllerState from '@web/hooks/useSignAccountOpControllerState'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
 import Estimation from '@web/modules/sign-account-op/components/Estimation'
 import Footer from '@web/modules/sign-account-op/components/Footer'
 import PendingTransactions from '@web/modules/sign-account-op/components/PendingTransactions'
 import Simulation from '@web/modules/sign-account-op/components/Simulation'
-import SigningKeySelect from '@web/modules/sign-message/components'
-import { getUiType } from '@web/utils/uiType'
+import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
 
 import getStyles from './styles'
 
 const SignAccountOpScreen = () => {
-  const { params } = useRoute()
-  const { navigate } = useNavigation()
+  const actionsState = useActionsControllerState()
   const signAccountOpState = useSignAccountOpControllerState()
   const mainState = useMainControllerState()
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
+  const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+
+  useEffect(() => {
+    // Ensures user can re-open the modal, if previously being closed, e.g.
+    // there is an error (modal closed), but user opts-in sign again (open it).
+    const isModalStillOpen = isChooseSignerShown && prevIsChooseSignerShown
+    // These errors get displayed in the UI (in the <Warning /> component),
+    // so in case of an error, closing the signer key selection modal is needed,
+    // otherwise errors will be displayed behind the modal overlay.
+    if (isModalStillOpen && !!signAccountOpState?.errors.length) {
+      setIsChooseSignerShown(false)
+    }
+  }, [isChooseSignerShown, prevIsChooseSignerShown, signAccountOpState?.errors.length])
 
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
@@ -80,61 +91,55 @@ const SignAccountOpScreen = () => {
     }
   }, [hasEstimation, slowRequest])
 
-  useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
-    }
-
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
-      params: {
-        accountAddr: params?.accountAddr,
-        networkId: params?.network?.id
-      }
-    })
-  }, [params, dispatch])
+  const accountOpAction = useMemo(() => {
+    if (actionsState.currentAction?.type !== 'accountOp') return undefined
+    return actionsState.currentAction as AccountOpAction
+  }, [actionsState.currentAction])
 
   useEffect(() => {
-    if (!params?.accountAddr || !params?.network) {
-      return
+    if (accountOpAction?.id) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT',
+        params: { actionId: accountOpAction.id }
+      })
     }
+  }, [accountOpAction?.id, dispatch])
+
+  useEffect(() => {
+    if (!accountOpAction) return
 
     if (!activityState.isInitialized) {
       dispatch({
         type: 'MAIN_CONTROLLER_ACTIVITY_INIT',
         params: {
           filters: {
-            account: params.accountAddr,
-            network: params.network.id
+            account: accountOpAction.accountOp.accountAddr,
+            network: accountOpAction.accountOp.networkId
           }
         }
       })
     }
-  }, [activityState.isInitialized, dispatch, params])
+  }, [activityState.isInitialized, accountOpAction, dispatch])
 
   const network = useMemo(() => {
     return networks.find((n) => n.id === signAccountOpState?.accountOp?.networkId)
   }, [networks, signAccountOpState?.accountOp?.networkId])
 
   const handleRejectAccountOp = useCallback(() => {
-    if (!signAccountOpState?.accountOp) return
+    if (!accountOpAction) return
 
-    signAccountOpState.accountOp.calls.forEach((call) => {
-      if (call.fromUserRequestId)
-        dispatch({
-          type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST',
-          params: { err: 'User rejected the transaction request', id: call.fromUserRequestId }
-        })
+    dispatch({
+      type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP',
+      params: {
+        err: 'User rejected the transaction request.',
+        actionId: accountOpAction.id
+      }
     })
-  }, [dispatch, signAccountOpState?.accountOp])
+  }, [dispatch, accountOpAction])
 
   const handleAddToCart = useCallback(() => {
-    if (getUiType().isNotification) {
-      window.close()
-    } else {
-      navigate('/')
-    }
-  }, [navigate])
+    window.close()
+  }, [])
 
   const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
     if (!signAccountOpState?.accountOp) return []
@@ -207,17 +212,6 @@ const SignAccountOpScreen = () => {
     )
   }
 
-  // We want to show the errors one by one.
-  // Once the user resolves an error, it will be removed from the array,
-  // and we are going to show the next one, if it exists.
-  if (!signAccountOpState?.accountOp) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.alignCenter, flexbox.justifyCenter]}>
-        <Spinner />
-      </View>
-    )
-  }
-
   return (
     <TabLayoutContainer
       width="full"
@@ -231,40 +225,45 @@ const SignAccountOpScreen = () => {
         <Footer
           onReject={handleRejectAccountOp}
           onAddToCart={handleAddToCart}
-          isEOA={!isSmartAccount(signAccountOpState.account)}
+          isEOA={!signAccountOpState || !isSmartAccount(signAccountOpState.account)}
           isSignLoading={isSignLoading}
-          readyToSign={signAccountOpState.readyToSign}
+          readyToSign={!!signAccountOpState && signAccountOpState.readyToSign}
           isViewOnly={isViewOnly}
           onSign={onSignButtonClick}
         />
       }
     >
-      <SigningKeySelect
-        isVisible={isChooseSignerShown}
-        isSigning={isSignLoading || !signAccountOpState.readyToSign}
-        handleClose={() => setIsChooseSignerShown(false)}
-        selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-        handleChangeSigningKey={handleChangeSigningKey}
-      />
+      {signAccountOpState ? (
+        <SigningKeySelect
+          isVisible={isChooseSignerShown}
+          isSigning={isSignLoading || !signAccountOpState.readyToSign}
+          handleClose={() => setIsChooseSignerShown(false)}
+          selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
+          handleChangeSigningKey={handleChangeSigningKey}
+        />
+      ) : null}
       <TabLayoutWrapperMainContent scrollEnabled={false}>
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
-            <Simulation network={network} hasEstimation={!!hasEstimation} />
+            <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
             <PendingTransactions callsToVisualize={callsToVisualize} network={network} />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <Estimation
             signAccountOpState={signAccountOpState}
             disabled={isSignLoading}
-            hasEstimation={!!hasEstimation}
+            hasEstimation={!!hasEstimation && !!signAccountOpState}
             slowRequest={slowRequest}
             isViewOnly={isViewOnly}
           />
-          <HardwareWalletSigningModal
-            modalRef={hwModalRef}
-            keyType={signAccountOpState.accountOp.signingKeyType}
-            onReject={handleRejectAccountOp}
-          />
+
+          {signAccountOpState && (
+            <HardwareWalletSigningModal
+              modalRef={hwModalRef}
+              keyType={signAccountOpState.accountOp.signingKeyType || ''}
+              onReject={handleRejectAccountOp}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

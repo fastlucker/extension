@@ -6,14 +6,17 @@ import NumberInput from '@common/components/NumberInput'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 
+import SkeletonLoader from '../SkeletonLoader'
 import styles from './styles'
 
 const MaxAmount = ({
   maxAmount,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  isLoading
 }: {
   maxAmount: number | null
   selectedTokenSymbol: string
+  isLoading: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -23,20 +26,23 @@ const MaxAmount = ({
         {t('Enter Amount')}
       </Text>
 
-      {maxAmount !== undefined && maxAmount !== null ? (
-        <View style={styles.maxAmountValueWrapper}>
-          <Text
-            testID="max-available-ammount"
-            numberOfLines={1}
-            style={styles.maxAmountValue}
-            ellipsizeMode="tail"
-          >
-            <Text fontSize={12}>Available Amount: </Text>
-            {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
-          </Text>
-          {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
-        </View>
-      ) : null}
+      {maxAmount !== null &&
+        (selectedTokenSymbol && !isLoading ? (
+          <View style={styles.maxAmountValueWrapper}>
+            <Text
+              testID="max-available-ammount"
+              numberOfLines={1}
+              style={styles.maxAmountValue}
+              ellipsizeMode="tail"
+            >
+              <Text fontSize={12}>Available Amount: </Text>
+              {maxAmount === 0 ? 0 : maxAmount.toFixed(maxAmount < 1 ? 8 : 4)}
+            </Text>
+            {!!selectedTokenSymbol && <Text>{` ${selectedTokenSymbol.toUpperCase()}`}</Text>}
+          </View>
+        ) : (
+          <SkeletonLoader height={22} width={100} />
+        ))}
     </View>
   )
 }
@@ -48,6 +54,7 @@ interface Props {
   errorMessage: string
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
+  isLoading: boolean
   disabled?: boolean
 }
 
@@ -58,7 +65,8 @@ const InputSendToken = ({
   setMaxAmount,
   maxAmount,
   errorMessage,
-  disabled
+  disabled,
+  isLoading
 }: Props) => {
   const { t } = useTranslation()
 
@@ -76,10 +84,14 @@ const InputSendToken = ({
 
   return (
     <>
-      <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
+      <MaxAmount
+        isLoading={isLoading}
+        maxAmount={maxAmount}
+        selectedTokenSymbol={selectedTokenSymbol}
+      />
       <View style={styles.inputWrapper}>
         <NumberInput
-          testID='amount-field'
+          testID="amount-field"
           onChangeText={handleOnTokenAmountChange}
           containerStyle={styles.inputContainerStyle}
           value={amount}

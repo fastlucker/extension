@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import AccountsFilledIcon from '@common/assets/svg/AccountsFilledIcon'
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -12,10 +12,11 @@ import AddressInput from '@common/components/AddressInput'
 import { AddressValidation } from '@common/components/AddressInput/AddressInput'
 import { InputProps } from '@common/components/Input'
 import Text from '@common/components/Text'
-import { isWeb } from '@common/config/env'
+import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import AddContactBottomSheet from './AddContactBottomSheet'
 import AddressBookDropdown from './AddressBookDropdown'
@@ -28,15 +29,20 @@ interface Props extends InputProps {
   uDAddress: string
   ensAddress: string
   addressValidationMsg: string
-  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
-  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
-  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  isRecipientAddressUnknown: boolean
+  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   validation: AddressValidation
   isRecipientDomainResolving: boolean
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
   selectedTokenSymbol?: TokenResult['symbol']
+}
+
+const ADDRESS_BOOK_VISIBLE_VALIDATION = {
+  isError: true, // Don't let the user submit, just in case there is an error
+  message: ''
 }
 
 const Recipient: React.FC<Props> = ({
@@ -56,63 +62,78 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
+  const { selectedAccount } = useMainControllerState()
+  const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { contacts } = useAddressBookControllerState()
-  const [isAddressBookVisible, setIsAddressBookVisible] = useState(false)
-  const addressBookRef = useRef(null)
-  const isAddressInAddressBook = contacts.some((contact) => {
-    const actualAddress = ensAddress || uDAddress || address
+  const {
+    selectRef: addressBookSelectRef,
+    menuRef: addressBookMenuRef,
+    isMenuOpen: isAddressBookVisible,
+    setIsMenuOpen: setIsAddressBookVisible,
+    toggleMenu: toggleAddressBookMenu,
+    menuProps
+  } = useSelect()
 
+  const isAddressInAddressBook = contacts.some((contact) => {
     return actualAddress.toLowerCase() === contact.address.toLowerCase()
   })
 
-  const onFocus = () => setIsAddressBookVisible(true)
+  const filteredContacts = contacts.filter((contact) => {
+    if (!actualAddress) return true
+
+    const lowercaseActualAddress = actualAddress.toLowerCase()
+    const lowercaseName = contact.name.toLowerCase()
+    const lowercaseAddress = contact.address.toLowerCase()
+
+    return (
+      lowercaseAddress.includes(lowercaseActualAddress) ||
+      lowercaseName.includes(lowercaseActualAddress)
+    )
+  })
 
   const setAddressAndCloseAddressBook = (newAddress: string) => {
     setIsAddressBookVisible(false)
     setAddress(newAddress)
   }
 
-  // Close the address book on click outside
-  useEffect(() => {
-    if (!isWeb) return
-    function handleClickOutside(event: MouseEvent) {
-      // @ts-ignore
-      if (addressBookRef.current && !addressBookRef.current?.contains(event.target)) {
-        setIsAddressBookVisible(false)
-      }
-    }
+  const visualizeAddressBookDropdown = () => {
+    setIsAddressBookVisible(true)
+  }
 
-    document.addEventListener('mousedown', handleClickOutside)
+  const selectSingleContactResult = () => {
+    if (!isAddressBookVisible || filteredContacts.length !== 1) return
 
-    return () => {
-      if (!isWeb) return
-
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [addressBookRef])
+    setAddressAndCloseAddressBook(filteredContacts[0].address)
+  }
 
   return (
     <>
       <AddressInput
-        testID='recepient-address-field'
-        validation={validation}
+        testID="recepient-address-field"
+        validation={isAddressBookVisible ? ADDRESS_BOOK_VISIBLE_VALIDATION : validation}
         containerStyle={styles.inputContainer}
         udAddress={uDAddress}
         ensAddress={ensAddress}
         isRecipientDomainResolving={isRecipientDomainResolving}
         label="Add Recipient"
         value={address}
-        onChangeText={setAddressAndCloseAddressBook}
+        onChangeText={setAddress}
         disabled={disabled}
-        onFocus={onFocus}
+        onFocus={visualizeAddressBookDropdown}
+        inputBorderWrapperRef={addressBookSelectRef}
+        onSubmitEditing={selectSingleContactResult}
         childrenBelowInput={
           <AddressBookDropdown
             isVisible={isAddressBookVisible}
-            passRef={addressBookRef}
+            setIsVisible={setIsAddressBookVisible}
+            filteredContacts={filteredContacts}
+            passRef={addressBookMenuRef}
             onContactPress={setAddressAndCloseAddressBook}
+            menuProps={menuProps}
+            search={actualAddress}
           />
         }
         childrenBeforeButtons={
@@ -126,13 +147,7 @@ const Recipient: React.FC<Props> = ({
         }
         button={isAddressBookVisible ? <UpArrowIcon /> : <DownArrowIcon />}
         buttonProps={{
-          onPress: () => {
-            if (!isAddressBookVisible) {
-              setIsAddressBookVisible(true)
-            }
-            // If the address book is visible and the user clicks on the button
-            // the address book will be closed by the click outside event listener
-          }
+          onPress: toggleAddressBookMenu
         }}
       />
       <View style={styles.inputBottom}>
@@ -154,6 +169,7 @@ const Recipient: React.FC<Props> = ({
           }
           isRecipientAddressUnknown={isRecipientAddressUnknown}
           isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+          isRecipientAddressSameAsSender={actualAddress === selectedAccount}
           addressValidationMsg={addressValidationMsg}
           onAddToAddressBook={openBottomSheet}
           isSWWarningVisible={isSWWarningVisible}

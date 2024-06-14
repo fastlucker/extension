@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { NetworkId } from '@ambire-common/interfaces/network'
+import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import DashboardBanners from '@common/modules/dashboard/components/DashboardBanners'
@@ -13,9 +15,8 @@ import { TabType } from '@common/modules/dashboard/components/TabsAndSearch/Tabs
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import { getUiType } from '@web/utils/uiType'
 
-import CollectibleModal from './CollectibleModal'
-import { SelectedCollectible } from './CollectibleModal/CollectibleModal'
 import Collection from './Collection'
+import CollectionsSkeleton from './CollectionsSkeleton'
 import styles from './styles'
 
 interface Props {
@@ -24,12 +25,13 @@ interface Props {
   initTab?: {
     [key: string]: boolean
   }
+  filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
+const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, filterByNetworkId }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -57,15 +59,23 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
 
   const filteredPortfolioCollections = useMemo(
     () =>
-      (accountPortfolio?.collections || []).filter(({ name, address }) => {
-        if (!searchValue) return true
+      (accountPortfolio?.collections || []).filter(({ name, address, networkId }) => {
+        let isMatchingNetwork = true
+        let isMatchingSearch = true
 
-        return (
-          name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          address.toLowerCase().includes(searchValue.toLowerCase())
-        )
+        if (filterByNetworkId) {
+          isMatchingNetwork = networkId === filterByNetworkId
+        }
+
+        if (searchValue) {
+          isMatchingSearch =
+            name.toLowerCase().includes(searchValue.toLowerCase()) ||
+            address.toLowerCase().includes(searchValue.toLowerCase())
+        }
+
+        return isMatchingNetwork && isMatchingSearch
       }),
-    [accountPortfolio?.collections, searchValue]
+    [accountPortfolio?.collections, filterByNetworkId, searchValue]
   )
 
   const renderItem = useCallback(
@@ -81,12 +91,20 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
       if (item === 'empty') {
         return (
           <Text fontSize={16} weight="medium" style={styles.noCollectibles}>
-            {t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue && !filterByNetworkId && t("You don't have any collectibles (NFTs) yet")}
+            {!searchValue &&
+              filterByNetworkId &&
+              t("You don't have any collectibles (NFTs) on this network")}
+            {searchValue && t('No collectibles (NFTs) found')}
           </Text>
         )
       }
 
-      if (!initTab?.collectibles || !item) return null
+      if (item === 'skeleton') {
+        return <CollectionsSkeleton amount={filteredPortfolioCollections.length ? 3 : 5} />
+      }
+
+      if (!initTab?.collectibles || !item || item === 'keep-this-to-avoid-key-warning') return null
 
       const { name, address, networkId, collectibles, priceIn } = item
 
@@ -104,9 +122,12 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
     },
     [
       control,
+      filterByNetworkId,
+      filteredPortfolioCollections.length,
       initTab?.collectibles,
       openCollectibleModal,
       openTab,
+      searchValue,
       setOpenTab,
       t,
       theme.primaryBackground
@@ -138,7 +159,8 @@ const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll }) => {
         data={[
           'header',
           ...(initTab?.collectibles ? filteredPortfolioCollections : []),
-          !filteredPortfolioCollections.length ? 'empty' : ''
+          !filteredPortfolioCollections.length && accountPortfolio?.isAllReady ? 'empty' : '',
+          !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning'
         ]}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

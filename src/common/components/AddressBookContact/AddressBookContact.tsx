@@ -130,7 +130,7 @@ const AddressBookContact: FC<Props> = ({
               height={20}
               minWidth={80}
               maxLength={32}
-              value={name}
+              initialValue={name}
               onSave={onSave}
             />
           ) : (

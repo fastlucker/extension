@@ -24,7 +24,7 @@ export const OVERVIEW_CONTENT_MAX_HEIGHT = 120
 const DashboardScreen = () => {
   const route = useRoute()
   const { styles } = useTheme(getStyles)
-  const { accountPortfolio, state } = usePortfolioControllerState()
+  const { state } = usePortfolioControllerState()
   const { ref: receiveModalRef, open: openReceiveModal, close: closeReceiveModal } = useModalize()
   const lastOffsetY = useRef(0)
   const scrollUpStartedAt = useRef(0)
@@ -86,7 +86,6 @@ const DashboardScreen = () => {
             setDashboardOverviewSize={setDashboardOverviewSize}
           />
           <DashboardPages
-            accountPortfolio={accountPortfolio}
             tokenPreferences={state?.tokenPreferences}
             filterByNetworkId={filterByNetworkId}
             onScroll={onScroll}

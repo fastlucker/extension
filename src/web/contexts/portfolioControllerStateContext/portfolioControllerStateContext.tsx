@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
-import { NetworkId } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
@@ -19,24 +19,26 @@ export interface AccountPortfolio {
   isAllReady: boolean
 }
 
+const DEFAULT_ACCOUNT_PORTFOLIO = {
+  tokens: [],
+  collections: [],
+  totalAmount: 0,
+  isAllReady: false
+}
+
 const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
-  startedLoading: null | number
+  startedLoadingAtTimestamp: null | number
   refreshPortfolio: () => void
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
 }>({
-  accountPortfolio: {
-    tokens: [],
-    collections: [],
-    totalAmount: 0,
-    isAllReady: false
-  },
+  accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
   state: {} as any,
-  startedLoading: null,
+  startedLoadingAtTimestamp: null,
   refreshPortfolio: () => {},
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
@@ -51,19 +53,16 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const mainCtrl = useMainControllerState()
   const account = mainCtrl?.accounts?.find((acc) => acc.addr === mainCtrl.selectedAccount)
 
-  const [accountPortfolio, setAccountPortfolio] = useState<AccountPortfolio>({
-    tokens: [],
-    collections: [],
-    totalAmount: 0,
-    isAllReady: false
-  })
-  const [startedLoading, setStartedLoading] = useState(null)
-  const prevAccountPortfolio = useRef<AccountPortfolio>({
-    tokens: [],
-    collections: [],
-    totalAmount: 0,
-    isAllReady: false
-  })
+  const [accountPortfolio, setAccountPortfolio] =
+    useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
+  const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
+  const prevAccountPortfolio = useRef<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
+
+  const resetAccountPortfolio = useCallback(() => {
+    setAccountPortfolio(DEFAULT_ACCOUNT_PORTFOLIO)
+    prevAccountPortfolio.current = DEFAULT_ACCOUNT_PORTFOLIO
+    setStartedLoadingAtTimestamp(null)
+  }, [])
 
   useEffect(() => {
     if (!Object.keys(state).length) {
@@ -76,23 +75,11 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
-    setAccountPortfolio({
-      tokens: [],
-      collections: [],
-      totalAmount: 0,
-      isAllReady: false
-    })
-    prevAccountPortfolio.current = {
-      tokens: [],
-      collections: [],
-      totalAmount: 0,
-      isAllReady: false
-    }
-    setStartedLoading(null)
-  }, [mainCtrl.selectedAccount])
+    resetAccountPortfolio()
+  }, [mainCtrl.selectedAccount, resetAccountPortfolio])
 
   useEffect(() => {
-    if (!mainCtrl.selectedAccount) return
+    if (!mainCtrl.selectedAccount || !account) return
 
     const newAccountPortfolio = calculateAccountPortfolio(
       mainCtrl.selectedAccount,
@@ -108,32 +95,15 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [mainCtrl.selectedAccount, account, state])
 
   useEffect(() => {
-    if (Object.keys(state?.latest || {}).length && mainCtrl?.selectedAccount) {
-      Object.values(state?.latest[mainCtrl.selectedAccount as string] || {}).forEach(
-        (network: any) => {
-          if (
-            network?.result?.updateStarted &&
-            (!startedLoading || network?.result?.updateStarted < startedLoading)
-          ) {
-            setStartedLoading(network.result.updateStarted)
-          }
-        }
-      )
+    if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
+      setStartedLoadingAtTimestamp(null)
+      return
     }
-  }, [state?.latest, mainCtrl.selectedAccount, startedLoading])
 
-  const updateAdditionalHints = useCallback(
-    (tokenIds: string[]) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
-        params: {
-          forceUpdate: true,
-          additionalHints: tokenIds
-        }
-      })
-    },
-    [dispatch]
-  )
+    if (!startedLoadingAtTimestamp && !accountPortfolio.isAllReady) {
+      setStartedLoadingAtTimestamp(Date.now())
+    }
+  }, [startedLoadingAtTimestamp, accountPortfolio.isAllReady])
 
   const getTemporaryTokens = useCallback(
     (networkId: NetworkId, tokenId: string) => {
@@ -191,8 +161,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         forceUpdate: true
       }
     })
-    setAccountPortfolio({ ...accountPortfolio, isAllReady: false } as any)
-  }, [dispatch, accountPortfolio, setAccountPortfolio])
+    resetAccountPortfolio()
+  }, [dispatch, resetAccountPortfolio])
 
   return (
     <PortfolioControllerStateContext.Provider
@@ -201,9 +171,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           state,
           accountPortfolio,
           refreshPortfolio,
-          startedLoading,
+          startedLoadingAtTimestamp,
           updateTokenPreferences,
-          updateAdditionalHints,
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens
@@ -211,10 +180,9 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         [
           state,
           accountPortfolio,
-          startedLoading,
+          startedLoadingAtTimestamp,
           refreshPortfolio,
           updateTokenPreferences,
-          updateAdditionalHints,
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens

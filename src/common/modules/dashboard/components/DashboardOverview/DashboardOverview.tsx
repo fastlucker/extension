@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -25,8 +25,8 @@ import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -50,17 +50,18 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { selectedAccount } = useMainControllerState()
   const banners = useBanners()
-  const { accountPortfolio, state, refreshPortfolio } = usePortfolioControllerState()
-
+  const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
+    usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
   })
+  const [isLoadingTakingTooLong, setIsLoadingTakingTooLong] = useState(false)
 
   const filterByNetworkId = route?.state?.filterByNetworkId || null
 
@@ -95,6 +96,37 @@ const DashboardOverview: FC<Props> = ({
 
     return !!portfolioRelatedBanners.length
   }, [banners, selectedAccount])
+
+  // Compare the current timestamp with the timestamp when the loading started
+  // and if it takes more than 5 seconds, set isLoadingTakingTooLong to true
+  useEffect(() => {
+    if (!startedLoadingAtTimestamp) {
+      setIsLoadingTakingTooLong(false)
+      return
+    }
+
+    const checkIsLoadingTakingTooLong = () => {
+      const takesMoreThan5Seconds = Date.now() - startedLoadingAtTimestamp > 5000
+
+      setIsLoadingTakingTooLong(takesMoreThan5Seconds)
+    }
+
+    checkIsLoadingTakingTooLong()
+
+    const interval = setInterval(() => {
+      if (accountPortfolio?.isAllReady) {
+        clearInterval(interval)
+        setIsLoadingTakingTooLong(false)
+        return
+      }
+
+      checkIsLoadingTakingTooLong()
+    }, 500)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -143,7 +175,20 @@ const DashboardOverview: FC<Props> = ({
               <View>
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                   {!accountPortfolio?.isAllReady ? (
-                    <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
+                    <>
+                      <SkeletonLoader lowOpacity width={200} height={42} borderRadius={8} />
+                      {!!isLoadingTakingTooLong && (
+                        <>
+                          <WarningIcon
+                            color={theme.warningDecorative}
+                            style={spacings.mlMi}
+                            data-tooltip-id="loading-warning"
+                            data-tooltip-content={t('Loading all networks is taking too long.')}
+                          />
+                          <Tooltip id="loading-warning" />
+                        </>
+                      )}
+                    </>
                   ) : (
                     <View
                       testID="full-balance"
@@ -201,7 +246,8 @@ const DashboardOverview: FC<Props> = ({
                   onPress={() => {
                     navigate(WEB_ROUTES.networks, {
                       state: {
-                        filterByNetworkId
+                        filterByNetworkId,
+                        prevTab: window.location.hash.split('?')[1] || ''
                       }
                     })
                   }}

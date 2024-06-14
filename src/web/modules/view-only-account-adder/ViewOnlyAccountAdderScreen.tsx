@@ -1,5 +1,5 @@
 import { getAddress } from 'ethers'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
@@ -70,7 +70,7 @@ const ViewOnlyScreen = () => {
     setValue,
     handleSubmit,
     trigger,
-    formState: { isValid, isSubmitting }
+    formState: { isValid: perhapsUselessIsValid, errors, isSubmitting }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -82,10 +82,17 @@ const ViewOnlyScreen = () => {
     control,
     name: 'accounts'
   })
-
   const accounts = watch('accounts')
-
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
+
+  const isValid = useMemo(() => {
+    return !errors.accounts?.length && perhapsUselessIsValid
+  }, [perhapsUselessIsValid, errors.accounts?.length])
+
+  const disabled = useMemo(
+    () => !isValid || isSubmitting || isLoading || duplicateAccountsIndexes.length > 0,
+    [duplicateAccountsIndexes.length, isLoading, isSubmitting, isValid]
+  )
 
   const handleFormSubmit = useCallback(async () => {
     const accountsToAddPromises = accounts.map(async (account) => {
@@ -178,20 +185,17 @@ const ViewOnlyScreen = () => {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
-    } else {
-      setIsLoading(false)
     }
   }, [
     accounts,
     dispatch,
     duplicateAccountsIndexes.length,
+    errors,
     isValid,
     mainControllerState.accounts,
     navigate,
     settingsControllerState.accountPreferences
   ])
-
-  const disabled = !isValid || isSubmitting || isLoading || duplicateAccountsIndexes.length > 0
 
   return (
     <TabLayoutContainer
@@ -226,7 +230,7 @@ const ViewOnlyScreen = () => {
               control={control}
               index={index}
               remove={remove}
-              isSubmitting={isSubmitting}
+              isLoading={isLoading || isSubmitting}
               handleSubmit={handleSubmit(handleFormSubmit)}
               disabled={disabled}
               field={field}

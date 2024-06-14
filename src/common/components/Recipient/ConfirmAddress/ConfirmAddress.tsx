@@ -1,24 +1,25 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
-import { TransferControllerState } from '@ambire-common/interfaces/transfer'
+import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import spacings from '@common/styles/spacings'
-import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
+import useTransferControllerState from '@web/hooks/useTransferControllerState'
 
 type Props = {
   onAddToAddressBook: () => any
-  isRecipientHumanizerKnownTokenOrSmartContract: TransferControllerState['isRecipientHumanizerKnownTokenOrSmartContract']
-  isRecipientAddressUnknown: TransferControllerState['isRecipientAddressUnknown']
-  isRecipientAddressUnknownAgreed: TransferControllerState['isRecipientAddressUnknownAgreed']
+  isRecipientAddressUnknown: boolean
+  isRecipientHumanizerKnownTokenOrSmartContract: boolean
+  isRecipientAddressUnknownAgreed: TransferController['isRecipientAddressUnknownAgreed']
   onRecipientAddressUnknownCheckboxClick: () => void
   addressValidationMsg: string
   isSWWarningVisible: boolean
   isSWWarningAgreed: boolean
+  isRecipientAddressSameAsSender: boolean
   selectedTokenSymbol?: TokenResult['symbol']
 }
 
@@ -31,25 +32,24 @@ const ConfirmAddress = ({
   addressValidationMsg,
   isSWWarningVisible,
   isSWWarningAgreed,
+  isRecipientAddressSameAsSender,
   selectedTokenSymbol
 }: Props) => {
-  const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
+  const { transferCtrl } = useTransferControllerState()
   const [bindAnim, animStyle] = useHover({
     preset: 'opacityInverted'
   })
 
   const onSWWarningCheckboxClick = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_TRANSFER_UPDATE',
-      params: {
-        isSWWarningAgreed: true
-      }
+    transferCtrl.update({
+      isSWWarningAgreed: true
     })
-  }, [dispatch])
+  }, [transferCtrl])
 
   return !isRecipientHumanizerKnownTokenOrSmartContract &&
     !!isRecipientAddressUnknown &&
+    !isRecipientAddressSameAsSender &&
     addressValidationMsg !== 'Invalid address.' ? (
     <>
       <View style={spacings.mbMd}>
@@ -58,6 +58,7 @@ const ConfirmAddress = ({
           onValueChange={onRecipientAddressUnknownCheckboxClick}
           label={t('Confirm sending to a previously unknown address')}
           style={isSWWarningVisible ? spacings.mbSm : spacings.mb0}
+          testID="recipient-address-unknown-checkbox"
         />
 
         {isSWWarningVisible ? (
@@ -66,11 +67,7 @@ const ConfirmAddress = ({
             style={spacings.mb0}
             onValueChange={onSWWarningCheckboxClick}
           >
-            <Text
-              fontSize={12}
-              onPress={onSWWarningCheckboxClick}
-              testID="confirm-address-checkbox"
-            >
+            <Text fontSize={12} onPress={onSWWarningCheckboxClick} testID="sw-warning-checkbox">
               {
                 t(
                   'I confirm this address is not Binance, Coinbase or another centralized exchange. These platforms do not support {{token}} deposits from smart wallets.',

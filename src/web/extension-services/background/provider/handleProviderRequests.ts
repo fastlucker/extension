@@ -1,18 +1,25 @@
+import { ethErrors } from 'eth-rpc-errors'
+
+import { Session } from '@ambire-common/classes/session'
+import { MainController } from '@ambire-common/controllers/main/main'
+import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
 import { ProviderController } from '@web/extension-services/background/provider/ProviderController'
 import rpcFlow from '@web/extension-services/background/provider/rpcFlow'
-import { ProviderRequest } from '@web/extension-services/background/provider/types'
 
-const handleProviderRequests = async (req: ProviderRequest): Promise<any> => {
-  const { data, session } = req
-  if (data.method === 'tabCheckin') {
-    session.setProp({ origin: req.origin, name: data.params.name, icon: data.params.icon })
+const handleProviderRequests = async (
+  request: DappProviderRequest & { session: Session },
+  mainCtrl: MainController
+): Promise<any> => {
+  const { method, params, session } = request
+  if (method === 'tabCheckin') {
+    session.setProp({ origin: request.origin, name: params.name, icon: params.icon })
     return
   }
 
-  if (data.method === 'getProviderState') {
-    const providerController = new ProviderController(req.mainCtrl, req.dappsCtrl)
-    const isUnlocked = req.mainCtrl.keystore.isUnlocked
-    const chainId = await providerController.ethChainId(req)
+  if (method === 'getProviderState') {
+    const providerController = new ProviderController(mainCtrl)
+    const isUnlocked = mainCtrl.keystore.isUnlocked
+    const chainId = await providerController.ethChainId(request)
     let networkVersion = '1'
 
     try {
@@ -24,12 +31,20 @@ const handleProviderRequests = async (req: ProviderRequest): Promise<any> => {
     return {
       chainId,
       isUnlocked,
-      accounts: isUnlocked ? await providerController.ethAccounts(req) : [],
+      accounts: isUnlocked ? await providerController.ethAccounts(request) : [],
       networkVersion
     }
   }
 
-  return rpcFlow(req)
+  if (method === 'eth_sign') {
+    throw ethErrors.provider.custom({
+      code: 1001,
+      message:
+        "Signing with 'eth_sign' can lead to asset loss. For your safety, Ambire does not support this method."
+    })
+  }
+
+  return rpcFlow(request, mainCtrl)
 }
 
 export default handleProviderRequests

@@ -1,13 +1,15 @@
 import React from 'react'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 
-const mapTokenOptions = (values: TokenResult[], networks: NetworkDescriptor[]) =>
+import { getTokenId } from './token'
+
+const mapTokenOptions = (values: TokenResult[], networks: Network[]) =>
   values.map((value) => ({
-    value: `${value.address}-${value.networkId}-${value.symbol}`,
+    value: getTokenId(value),
     label: (
       <Text numberOfLines={1}>
         <Text fontSize={16} weight="medium">

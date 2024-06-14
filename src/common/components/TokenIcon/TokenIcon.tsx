@@ -4,12 +4,13 @@ import { Image, ImageProps, View, ViewStyle } from 'react-native'
 import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import MissingTokenIcon from '@common/assets/svg/MissingTokenIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
-import Spinner from '@common/components/Spinner'
 import useTheme from '@common/hooks/useTheme'
 import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
+import SkeletonLoader from '../SkeletonLoader'
+import { SkeletonLoaderProps } from '../SkeletonLoader/types'
 import getStyles from './styles'
 
 interface Props extends Partial<ImageProps> {
@@ -25,6 +26,7 @@ interface Props extends Partial<ImageProps> {
   onGasTank?: boolean
   networkSize?: number
   uri?: string
+  skeletonAppearance?: SkeletonLoaderProps['appearance']
 }
 
 const TokenIcon: React.FC<Props> = ({
@@ -39,12 +41,13 @@ const TokenIcon: React.FC<Props> = ({
   height = 20,
   onGasTank = false,
   networkSize = 14,
+  skeletonAppearance = 'primaryBackground',
   ...props
 }) => {
   const { theme, styles } = useTheme(getStyles)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [hasError, setHasError] = useState<boolean>(false)
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const network = useMemo(
     () =>
@@ -55,7 +58,10 @@ const TokenIcon: React.FC<Props> = ({
   )
 
   const imageUrl = useMemo(() => {
-    if (!network) return undefined
+    if (!network || !network.platformId) {
+      setHasError(true)
+      return undefined
+    }
     setHasError(false)
     return `https://cena.ambire.com/iconProxy/${network.platformId}/${address}`
   }, [address, network])
@@ -78,7 +84,6 @@ const TokenIcon: React.FC<Props> = ({
     ],
     [containerStyle, withContainer, containerWidth, containerHeight, theme.secondaryBackground]
   )
-
   const setLoadingFinished = useCallback(() => {
     setIsLoading(false)
   }, [])
@@ -90,9 +95,12 @@ const TokenIcon: React.FC<Props> = ({
   return (
     <View style={allContainerStyle}>
       {!!isLoading && !hasError && (
-        <View style={styles.loader}>
-          <Spinner style={{ width, height }} />
-        </View>
+        <SkeletonLoader
+          width={width}
+          height={height}
+          style={styles.loader}
+          appearance={skeletonAppearance}
+        />
       )}
       {!!imageUrl && !hasError && (
         <Image

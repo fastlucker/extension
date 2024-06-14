@@ -4,12 +4,11 @@ import { useForm } from 'react-hook-form'
 import { FlatListProps, View } from 'react-native'
 
 import { PINNED_TOKENS } from '@ambire-common/consts/pinnedTokens'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
 import Button from '@common/components/Button'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
@@ -17,7 +16,9 @@ import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
 import DashboardBanners from '../DashboardBanners'
@@ -25,12 +26,12 @@ import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
 import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
+import Skeleton from './TokensSkeleton'
 
 interface Props {
   openTab: TabType
   setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  filterByNetworkId: NetworkDescriptor['id']
-  isLoading: boolean
+  filterByNetworkId: NetworkId
   tokenPreferences: CustomToken[]
   initTab?: {
     [key: string]: boolean
@@ -43,7 +44,11 @@ interface Props {
 const hasAmount = (token: TokenResult) => {
   return token.amount > 0n || (token.amountPostSimulation && token.amountPostSimulation > 0n)
 }
-
+// if the token is on the gas tank and the network is not a relayer network (a custom network)
+// we should not show it on dashboard
+const isGasTankTokenOnCustomNetwork = (token: TokenResult, networks: Network[]) => {
+  return token.flags.onGasTank && !networks.find((n) => n.id === token.networkId && n.hasRelayer)
+}
 const calculateTokenBalance = (token: TokenResult) => {
   const amount = getTokenAmount(token)
   const { decimals, priceIn } = token
@@ -57,7 +62,6 @@ const calculateTokenBalance = (token: TokenResult) => {
 const { isPopup } = getUiType()
 
 const Tokens = ({
-  isLoading,
   filterByNetworkId,
   tokenPreferences,
   openTab,
@@ -68,6 +72,7 @@ const Tokens = ({
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const { theme } = useTheme()
+  const { networks } = useNetworksControllerState()
   const { accountPortfolio } = usePortfolioControllerState()
   const { control, watch, setValue } = useForm({
     mode: 'all',
@@ -99,46 +104,27 @@ const Tokens = ({
     [accountPortfolio?.tokens, filterByNetworkId, searchValue]
   )
 
-  // Filter out tokens which are not in
-  // tokenPreferences and pinned
-  const hasNonZeroTokensOrPreferences = useMemo(
-    () =>
-      tokens
-        .filter(
-          (tokenRes) =>
-            !PINNED_TOKENS.find(
-              (pinnedToken) =>
-                pinnedToken.address.toLowerCase() === tokenRes.address.toLowerCase() &&
-                hasAmount(tokenRes)
-            ) &&
-            !tokenPreferences.find(
-              (token: CustomToken) => token.address.toLowerCase() === tokenRes.address.toLowerCase()
-            ) &&
-            hasAmount(tokenRes)
-        )
-        .some(hasAmount),
-    [tokenPreferences, tokens]
-  )
+  const userHasNoBalance = useMemo(() => !tokens.some(hasAmount), [tokens])
 
   const sortedTokens = useMemo(
     () =>
       tokens
-        .filter(
-          (token) =>
-            hasAmount(token) ||
-            tokenPreferences.find(
-              ({ address, networkId }) =>
-                token.address.toLowerCase() === address.toLowerCase() &&
-                token.networkId === networkId
-            ) ||
-            (!hasNonZeroTokensOrPreferences &&
-              PINNED_TOKENS.find(
-                ({ address, networkId }) =>
-                  token.address.toLowerCase() === address.toLowerCase() &&
-                  token.networkId === networkId
-              ))
-        )
-        .filter((token) => !token.isHidden)
+        .filter((token) => {
+          if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+          if (token?.isHidden) return false
+
+          const hasTokenAmount = hasAmount(token)
+          const isInPreferences = tokenPreferences.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+          const isPinned = PINNED_TOKENS.find(
+            ({ address, networkId }) =>
+              token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
+          )
+
+          return hasTokenAmount || isInPreferences || (isPinned && userHasNoBalance)
+        })
         .sort((a, b) => {
           // pending tokens go on top
           if (
@@ -183,7 +169,7 @@ const Tokens = ({
 
           return 0
         }),
-    [tokens, tokenPreferences, hasNonZeroTokensOrPreferences]
+    [tokens, networks, tokenPreferences, userHasNoBalance]
   )
 
   const navigateToAddCustomToken = useCallback(() => {
@@ -191,7 +177,7 @@ const Tokens = ({
   }, [navigate])
 
   const renderItem = useCallback(
-    ({ item }: any) => {
+    ({ item, index }: any) => {
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
@@ -219,36 +205,54 @@ const Tokens = ({
       if (item === 'empty') {
         return (
           <View style={[flexbox.alignCenter, spacings.pv]}>
-            {searchValue ? (
-              <Text fontSize={16} weight="medium">
-                {t('No tokens found')}
-              </Text>
-            ) : (
-              <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                <Text fontSize={16} weight="medium" style={isLoading && spacings.mrTy}>
-                  {isLoading ? t('Looking for tokens') : t('No tokens yet')}
-                </Text>
-                {!!isLoading && <Spinner style={{ width: 16, height: 16 }} />}
-              </View>
-            )}
+            <Text fontSize={16} weight="medium">
+              {!searchValue && !filterByNetworkId && t("You don't have any tokens yet")}
+              {!searchValue && filterByNetworkId && t("You don't have any tokens on this network")}
+              {searchValue && t('No tokens found')}
+            </Text>
           </View>
         )
       }
 
-      if (!initTab?.tokens || !item) return null
+      if (item === 'skeleton')
+        return (
+          <View style={spacings.ptTy}>
+            {/* Display more skeleton items if there are no tokens */}
+            <Skeleton amount={sortedTokens.length ? 3 : 5} withHeader={false} />
+          </View>
+        )
+
+      if (item === 'footer') {
+        return accountPortfolio?.isAllReady &&
+          // A trick to render the button once all tokens have been rendered. Otherwise
+          // there will be layout shifts
+          index === sortedTokens.length + 3 ? (
+          <Button
+            type="secondary"
+            text={t('+ Add Custom Token')}
+            onPress={navigateToAddCustomToken}
+            style={spacings.mtSm}
+          />
+        ) : null
+      }
+
+      if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
 
       return <TokenItem token={item} tokenPreferences={tokenPreferences} />
     },
     [
-      control,
+      sortedTokens.length,
       initTab?.tokens,
-      isLoading,
-      openTab,
-      searchValue,
-      setOpenTab,
-      t,
+      tokenPreferences,
       theme.primaryBackground,
-      tokenPreferences
+      openTab,
+      setOpenTab,
+      control,
+      t,
+      searchValue,
+      filterByNetworkId,
+      accountPortfolio?.isAllReady,
+      navigateToAddCustomToken
     ]
   )
 
@@ -257,11 +261,7 @@ const Tokens = ({
       return tokenOrElement
     }
 
-    const token = tokenOrElement
-
-    return `${token?.address}-${token?.networkId}-${token?.flags?.onGasTank ? 'gas-tank' : ''}${
-      token?.flags?.rewardsType ? 'rewards' : ''
-    }${!token?.flags?.onGasTank && !token?.flags?.rewardsType ? 'token' : ''}`
+    return getTokenId(tokenOrElement)
   }, [])
 
   useEffect(() => {
@@ -276,21 +276,13 @@ const Tokens = ({
       data={[
         'header',
         ...(initTab?.tokens ? sortedTokens : []),
-        !sortedTokens.length ? 'empty' : ''
+        !sortedTokens.length && accountPortfolio?.isAllReady ? 'empty' : '',
+        !accountPortfolio?.isAllReady ? 'skeleton' : 'keep-this-to-avoid-key-warning',
+        'footer'
       ]}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListFooterComponent={
-        accountPortfolio?.isAllReady ? (
-          <Button
-            type="secondary"
-            text={t('+ Add Custom Token')}
-            onPress={navigateToAddCustomToken}
-          />
-        ) : null
-      }
-      ListFooterComponentStyle={spacings.ptSm}
-      onEndReachedThreshold={isPopup ? 5 : 2.5} // ListFooterComponent will flash while scrolling fast if this value is too low.
+      onEndReachedThreshold={isPopup ? 5 : 2.5}
       initialNumToRender={isPopup ? 10 : 20}
       windowSize={9} // Larger values can cause performance issues.
       onScroll={onScroll}

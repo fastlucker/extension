@@ -45,7 +45,7 @@ const Alert: FC<Props> = ({
   style,
   children,
   size = 'md',
-  isTypeLabelHidden = false,
+  isTypeLabelHidden = true,
   buttonProps,
   customIcon: CustomIcon
 }) => {

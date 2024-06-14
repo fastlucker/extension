@@ -73,6 +73,7 @@ jobs:
           BA_SELECTED_ACCOUNT: ${{ secrets.BA_SELECTED_ACCOUNT }}
           BA_TERMSTATE: ${{ secrets.BA_TERMSTATE }}
           BA_TOKEN_ITEMS: ${{ secrets.BA_TOKEN_ITEMS }}
+          DEFAULT_INVITATION_CODE_DEV: ${{ secrets.DEFAULT_INVITATION_CODE_DEV }}
 
         run: yarn run test:e2e:web
 

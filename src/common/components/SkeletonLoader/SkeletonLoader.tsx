@@ -18,7 +18,8 @@ const SkeletonLoader = ({
   height,
   borderRadius = BORDER_RADIUS_PRIMARY,
   style,
-  lowOpacity = false
+  lowOpacity = false,
+  appearance
 }: SkeletonLoaderProps) => {
   const pulseAnim = useRef(new Animated.Value(0)).current
   const { theme } = useTheme()
@@ -51,7 +52,7 @@ const SkeletonLoader = ({
         {
           width,
           height,
-          backgroundColor: theme.secondaryBackground,
+          backgroundColor: theme[appearance || 'secondaryBackground'],
           borderRadius
         },
         { opacity: pulseAnim },

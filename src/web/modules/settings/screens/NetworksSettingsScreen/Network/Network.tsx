@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network as NetworkInterface, NetworkId } from '@ambire-common/interfaces/network'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -10,9 +10,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
 interface Props {
-  network: NetworkDescriptor
-  selectedNetworkId?: NetworkDescriptor['id']
-  handleSelectNetwork: (networkId: NetworkDescriptor['id']) => void
+  network: NetworkInterface
+  selectedNetworkId?: NetworkId
+  handleSelectNetwork: (networkId: NetworkId) => void
 }
 
 const Network: FC<Props> = ({ network, selectedNetworkId, handleSelectNetwork }) => {

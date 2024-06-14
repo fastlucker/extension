@@ -1,16 +1,15 @@
+import {
+  AccountOpAction,
+  Action as ActionFromActionsQueue
+} from '@ambire-common/controllers/actions/actions'
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Account, AccountId, AccountStates } from '@ambire-common/interfaces/account'
+import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  CustomNetwork,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
-import { TransferUpdate } from '@ambire-common/interfaces/transfer'
+import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { AccountPreferences, KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -19,7 +18,6 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
-import { Dapp } from './controllers/dapps'
 import { controllersMapping } from './types'
 
 type InitControllerStateAction = {
@@ -87,14 +85,14 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerAddCustomNetwork = {
-  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
-  params: CustomNetwork
+type MainControllerAddNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_NETWORK'
+  params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveCustomNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
-  params: NetworkDescriptor['id']
+type MainControllerRemoveNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
+  params: NetworkId
 }
 
 type SettingsControllerAddAccountPreferences = {
@@ -105,7 +103,7 @@ type SettingsControllerAddAccountPreferences = {
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
-    chainId: NetworkDescriptor['chainId']
+    chainId: Network['chainId']
     rpcUrl: string
   }
 }
@@ -119,19 +117,11 @@ type MainControllerSettingsAddKeyPreferences = {
   params: KeyPreferences
 }
 
-type MainControllerUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
+type MainControllerUpdateNetworkAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
-    networkPreferences: Partial<NetworkPreference>
-    networkId: NetworkDescriptor['id']
-  }
-}
-
-type MainControllerResetNetworkPreference = {
-  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
-  params: {
-    preferenceKey: keyof NetworkPreference
-    networkId: NetworkDescriptor['id']
+    network: Partial<Network>
+    networkId: NetworkId
   }
 }
 
@@ -139,9 +129,33 @@ type MainControllerAddUserRequestAction = {
   type: 'MAIN_CONTROLLER_ADD_USER_REQUEST'
   params: UserRequest
 }
+type MainControllerBuildTransferUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST'
+  params: {
+    amount: string
+    selectedToken: TokenResult
+    recipientAddress: string
+  }
+}
 type MainControllerRemoveUserRequestAction = {
   type: 'MAIN_CONTROLLER_REMOVE_USER_REQUEST'
   params: { id: UserRequest['id'] }
+}
+type MainControllerResolveUserRequestAction = {
+  type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST'
+  params: { data: any; id: UserRequest['id'] }
+}
+type MainControllerRejectUserRequestAction = {
+  type: 'MAIN_CONTROLLER_REJECT_USER_REQUEST'
+  params: { err: string; id: UserRequest['id'] }
+}
+type MainControllerResolveAccountOpAction = {
+  type: 'MAIN_CONTROLLER_RESOLVE_ACCOUNT_OP'
+  params: { data: any; actionId: AccountOpAction['id'] }
+}
+type MainControllerRejectAccountOpAction = {
+  type: 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP'
+  params: { err: string; actionId: AccountOpAction['id'] }
 }
 type MainControllerSignMessageInitAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT'
@@ -171,7 +185,9 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params: { filters: Filters }
+  params?: {
+    filters?: Filters
+  }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -189,31 +205,6 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
-type MainControllerTransferResetAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_RESET_FORM'
-}
-
-type MainControllerTransferBuildUserRequestAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_BUILD_USER_REQUEST'
-}
-
-type TransferControllerCheckIsRecipientAddressUnknownAction = {
-  type: 'TRANSFER_CONTROLLER_CHECK_IS_RECIPIENT_ADDRESS_UNKNOWN'
-}
-
-type MainControllerTransferUpdateAction = {
-  type: 'MAIN_CONTROLLER_TRANSFER_UPDATE'
-  params: TransferUpdate
-}
-
-type NotificationControllerResolveRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_RESOLVE_REQUEST'
-  params: { data: any; id?: number }
-}
-type NotificationControllerRejectRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_REJECT_REQUEST'
-  params: { err: string; id?: number }
-}
 type MainControllerUpdateSelectedAccount = {
   type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
   params: {
@@ -233,7 +224,7 @@ type PortfolioControllerGetTemporaryToken = {
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
-    token: CustomToken | TokenResult
+    token: CustomToken
   }
 }
 type PortfolioControllerRemoveTokenPreferences = {
@@ -250,27 +241,19 @@ type PortfolioControllerCheckToken = {
   }
 }
 type MainControllerSignAccountOpInitAction = {
-  params: {
-    accountAddr: AccountId
-    networkId: NetworkId
-  }
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_INIT'
+  params: {
+    actionId: AccountOpAction['id']
+  }
 }
 type MainControllerSignAccountOpDestroyAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY'
-}
-type MainControllerSignAccountOpEstimateAction = {
-  params: {
-    accountAddr: AccountId
-    networkId: NetworkId
-  }
-  type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_ESTIMATE'
 }
 type MainControllerSignAccountOpUpdateMainDepsAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
     accounts?: Account[]
-    networks?: NetworkDescriptor[]
+    networks?: Network[]
     accountStates?: AccountStates
   }
 }
@@ -373,12 +356,34 @@ type DappsControllerRemoveDappAction = {
   params: Dapp['url']
 }
 
-type NotificationControllerFocusCurrentNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_FOCUS_CURRENT_NOTIFICATION_REQUEST'
+type ActionsControllerAddToActionsQueue = {
+  type: 'ACTIONS_CONTROLLER_ADD_TO_ACTIONS_QUEUE'
+  params: ActionFromActionsQueue
 }
-type NotificationControllerOpenNotificationRequestAction = {
-  type: 'NOTIFICATION_CONTROLLER_OPEN_NOTIFICATION_REQUEST'
-  params: { id: number }
+type ActionsControllerRemoveFromActionsQueue = {
+  type: 'ACTIONS_CONTROLLER_REMOVE_FROM_ACTIONS_QUEUE'
+  params: { id: ActionFromActionsQueue['id'] }
+}
+type ActionsControllerFocusActionWindow = {
+  type: 'ACTIONS_CONTROLLER_FOCUS_ACTION_WINDOW'
+}
+
+type ActionsControllerMakeAllActionsActive = {
+  type: 'ACTIONS_CONTROLLER_MAKE_ALL_ACTIONS_ACTIVE'
+}
+
+type ActionsControllerSetCurrentActionById = {
+  type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID'
+  params: {
+    actionId: ActionFromActionsQueue['id']
+  }
+}
+
+type ActionsControllerSetCurrentActionByIndex = {
+  type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX'
+  params: {
+    index: number
+  }
 }
 
 type AddressBookControllerAddContact = {
@@ -442,17 +447,21 @@ export type Action =
   | SettingsControllerAddAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
-  | MainControllerAddCustomNetwork
-  | MainControllerRemoveCustomNetwork
+  | MainControllerAddNetwork
+  | MainControllerRemoveNetwork
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerUpdateNetworkPreferences
-  | MainControllerResetNetworkPreference
+  | MainControllerUpdateNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
+  | MainControllerBuildTransferUserRequest
   | MainControllerRemoveUserRequestAction
+  | MainControllerResolveUserRequestAction
+  | MainControllerRejectUserRequestAction
+  | MainControllerResolveAccountOpAction
+  | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
@@ -465,16 +474,9 @@ export type Action =
   | MainControllerActivityResetAction
   | MainControllerSignAccountOpInitAction
   | MainControllerSignAccountOpDestroyAction
-  | MainControllerSignAccountOpEstimateAction
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerTransferResetAction
-  | MainControllerTransferBuildUserRequestAction
-  | TransferControllerCheckIsRecipientAddressUnknownAction
-  | MainControllerTransferUpdateAction
-  | NotificationControllerResolveRequestAction
-  | NotificationControllerRejectRequestAction
   | MainControllerUpdateSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
@@ -499,8 +501,12 @@ export type Action =
   | DappsControllerAddDappAction
   | DappsControllerUpdateDappAction
   | DappsControllerRemoveDappAction
-  | NotificationControllerFocusCurrentNotificationRequestAction
-  | NotificationControllerOpenNotificationRequestAction
+  | ActionsControllerAddToActionsQueue
+  | ActionsControllerRemoveFromActionsQueue
+  | ActionsControllerFocusActionWindow
+  | ActionsControllerMakeAllActionsActive
+  | ActionsControllerSetCurrentActionById
+  | ActionsControllerSetCurrentActionByIndex
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact

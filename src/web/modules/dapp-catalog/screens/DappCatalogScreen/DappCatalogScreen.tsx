@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 
+import { Dapp } from '@ambire-common/interfaces/dapp'
 import BackButton from '@common/components/BackButton'
 import ScrollableWrapper, { WRAPPER_TYPES } from '@common/components/ScrollableWrapper'
 import Search from '@common/components/Search'
@@ -17,7 +18,6 @@ import {
   TabLayoutContainer,
   tabLayoutWidths
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import { Dapp } from '@web/extension-services/background/controllers/dapps'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import { AnimatedPressable, useMultiHover } from '@web/hooks/useHover'
 import DappItem from '@web/modules/dapp-catalog/components/DappItem'
@@ -90,6 +90,7 @@ const DappCatalogScreen = () => {
 
   const search = watch('search')
   const debouncedSearch = useDebounce({ value: search, delay: 350 })
+
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
     if (debouncedSearch.length) {
@@ -109,7 +110,7 @@ const DappCatalogScreen = () => {
     setPredefinedFilter(type)
   }, [])
 
-  const renderItem = ({ item }: { item: Dapp }) => <DappItem {...item} />
+  const renderItem = useCallback(({ item }: { item: Dapp }) => <DappItem {...item} />, [])
 
   return (
     <TabLayoutContainer

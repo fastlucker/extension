@@ -1,12 +1,14 @@
 import { Signature, Transaction, TransactionLike } from 'ethers'
 
 import { ExternalKey, KeystoreSigner } from '@ambire-common/interfaces/keystore'
+import { normalizeLedgerMessage } from '@ambire-common/libs/ledger/ledger'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
 import LedgerController, {
   ledgerService
 } from '@web/modules/hardware-wallet/controllers/LedgerController'
+import shortenAddress from '@web/utils/shortenAddress'
 
 class LedgerSigner implements KeystoreSigner {
   key: ExternalKey
@@ -47,7 +49,10 @@ class LedgerSigner implements KeystoreSigner {
 
     if (!this.controller.isUnlocked(path, this.key.addr)) {
       throw new Error(
-        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${this.key.addr})`
+        `The Ledger is unlocked, but with different seed or passphrase, because the address of the retrieved key is different than the key expected (${shortenAddress(
+          this.key.addr,
+          13
+        )})`
       )
     }
   }
@@ -86,6 +91,14 @@ class LedgerSigner implements KeystoreSigner {
     }
   }
 
+  async #withNormalizedError<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation()
+    } catch (error: any) {
+      throw new Error(normalizeLedgerMessage(error?.message))
+    }
+  }
+
   signRawTransaction: KeystoreSigner['signRawTransaction'] = async (txnRequest) => {
     await this.#prepareForSigning()
 
@@ -112,10 +125,12 @@ class LedgerSigner implements KeystoreSigner {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
 
       const res = await this.#withDisconnectProtection(() =>
-        this.controller!.walletSDK!.signTransaction(
-          path,
-          stripHexPrefix(unsignedSerializedTxn),
-          resolution
+        this.#withNormalizedError(() =>
+          this.controller!.walletSDK!.signTransaction(
+            path,
+            stripHexPrefix(unsignedSerializedTxn),
+            resolution
+          )
         )
       )
 
@@ -146,12 +161,14 @@ class LedgerSigner implements KeystoreSigner {
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await this.#withDisconnectProtection(() =>
-        this.controller!.walletSDK!.signEIP712Message(path, {
-          domain,
-          types,
-          message,
-          primaryType
-        })
+        this.#withNormalizedError(() =>
+          this.controller!.walletSDK!.signEIP712Message(path, {
+            domain,
+            types,
+            message,
+            primaryType
+          })
+        )
       )
 
       const signature = addHexPrefix(`${rsvRes.r}${rsvRes.s}${rsvRes.v.toString(16)}`)
@@ -176,7 +193,9 @@ class LedgerSigner implements KeystoreSigner {
     try {
       const path = getHdPathFromTemplate(this.key.meta.hdPathTemplate, this.key.meta.index)
       const rsvRes = await this.#withDisconnectProtection(() =>
-        this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
+        this.#withNormalizedError(() =>
+          this.controller!.walletSDK!.signPersonalMessage(path, stripHexPrefix(hex))
+        )
       )
 
       const signature = addHexPrefix(`${rsvRes?.r}${rsvRes?.s}${rsvRes?.v.toString(16)}`)

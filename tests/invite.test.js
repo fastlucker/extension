@@ -17,7 +17,7 @@ describe('Invite Verification', () => {
     page = await browser.newPage()
 
     recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/login_${Date.now()}.mp4`)
+    await recorder.start(`./recorder/invite_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
@@ -35,30 +35,27 @@ describe('Invite Verification', () => {
   })
 
   it('should immediately redirect to the invite verification route', async () => {
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/invite-verify')
-      },
-      { timeout: 60000 }
-    )
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/invite-verify')
   })
 
   it('should verify a valid invite code and unlock the extension', async () => {
-    await page.type('input', process.env.DEFAULT_INVITATION_CODE_DEV)
+    await page.type(
+      '[data-testid="verify-invite-code-input"]',
+      process.env.DEFAULT_INVITATION_CODE_DEV
+    )
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
     // Upon successful verification, the extension should redirect to the
     // get-started route, which otherwise is not accessible
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/get-started')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForNavigation()
+
+    const href = await page.evaluate(() => window.location.href)
+    expect(href).toContain('/get-started')
   })
 
   it('should fire an error toast in case of an invalid invite code', async () => {
-    await page.type('input', 'дъра-бъра-два-чадъра')
+    await page.type('[data-testid="verify-invite-code-input"]', 'дъра-бъра-два-чадъра')
     await clickOnElement(page, '[data-testid="verify-invite-code-submit"]')
 
     // Wait for the error toast to appear in the DOM

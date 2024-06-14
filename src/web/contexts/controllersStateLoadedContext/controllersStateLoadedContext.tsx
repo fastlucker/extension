@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
@@ -9,8 +10,9 @@ import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerStat
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
-import useNotificationControllerState from '@web/hooks/useNotificationControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -29,9 +31,11 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const networksState = useNetworksControllerState()
+  const providersState = useProvidersControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
-  const notificationState = useNotificationControllerState()
+  const actionsState = useActionsControllerState()
   const activityState = useActivityControllerState()
   const { state: portfolioState } = usePortfolioControllerState()
   const settingsState = useSettingsControllerState()
@@ -44,6 +48,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
     [mainState]
+  )
+  const hasNetworksState: boolean = useMemo(
+    () => !!Object.keys(networksState).length,
+    [networksState]
+  )
+  const hasProvidersState: boolean = useMemo(
+    () => !!Object.keys(providersState).length,
+    [providersState]
   )
   const hasWalletState: boolean = useMemo(
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
@@ -61,10 +73,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(signMessageState).length,
     [signMessageState]
   )
-  const hasNotificationState: boolean = useMemo(
-    () => !!Object.keys(notificationState).length,
-    [notificationState]
-  )
+  const hasActionsState: boolean = useMemo(() => !!Object.keys(actionsState).length, [actionsState])
   const hasPortfolioState: boolean = useMemo(
     () => !!Object.keys(portfolioState).length,
     [portfolioState]
@@ -108,11 +117,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
     if (
       hasMainState &&
+      hasNetworksState &&
+      hasProvidersState &&
       hasWalletState &&
       hasAccountAdderState &&
       hasKeystoreState &&
       hasSignMessageState &&
-      hasNotificationState &&
+      hasActionsState &&
       hasPortfolioState &&
       hasActivityState &&
       hasSettingsState &&
@@ -129,11 +140,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     return () => clearTimeout(timeout)
   }, [
     hasMainState,
+    hasNetworksState,
+    hasProvidersState,
     hasWalletState,
     hasAccountAdderState,
     hasKeystoreState,
     hasSignMessageState,
-    hasNotificationState,
+    hasActionsState,
     hasPortfolioState,
     hasActivityState,
     hasSettingsState,

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { isValidAddress } from '@ambire-common/services/address'
 import Alert from '@common/components/Alert/Alert'
 import Button from '@common/components/Button'
@@ -19,15 +19,15 @@ import { useTranslation } from '@common/config/localization'
 import useToast from '@common/hooks/useToast'
 import spacings, { SPACING_2XL, SPACING_SM } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import {
   getTokenEligibility,
   getTokenFromPortfolio,
   getTokenFromPreferences,
   getTokenFromTemporaryTokens,
   handleTokenIsInPortfolio
-} from '@web/modules/notification-requests/screens/WatchTokenRequestScreen/utils'
+} from '@web/modules/action-requests/screens/WatchTokenRequestScreen/utils'
 
 type NetworkOption = {
   value: string
@@ -37,13 +37,11 @@ type NetworkOption = {
 
 const AddToken = () => {
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { addToast } = useToast()
   const portfolio = usePortfolioControllerState()
 
-  const [network, setNetwork] = useState<NetworkDescriptor>(
-    networks.filter((n) => n.id === 'ethereum')[0]
-  )
+  const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 
   const [showAlreadyInPortfolioMessage, setShowAlreadyInPortfolioMessage] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -104,7 +102,6 @@ const AddToken = () => {
     if (!isValidAddress(address) || !network) return
     await portfolio.updateTokenPreferences({
       address: temporaryToken?.address || address,
-      name: temporaryToken?.name || '',
       symbol: temporaryToken?.symbol || '',
       decimals: temporaryToken?.decimals || 18,
       networkId: network.id,

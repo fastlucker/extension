@@ -5,6 +5,7 @@ import {
   ExternalSignerController,
   KeystoreSigner
 } from '@ambire-common/interfaces/keystore'
+import { getMessageFromTrezorErrorCode } from '@ambire-common/libs/trezor/trezor'
 import { addHexPrefix } from '@ambire-common/utils/addHexPrefix'
 import { getHdPathFromTemplate } from '@ambire-common/utils/hdPath'
 import { stripHexPrefix } from '@ambire-common/utils/stripHexPrefix'
@@ -14,6 +15,7 @@ import TrezorController, {
   EthereumTransaction,
   EthereumTransactionEIP1559
 } from '@web/modules/hardware-wallet/controllers/TrezorController'
+import shortenAddress from '@web/utils/shortenAddress'
 
 const DELAY_BETWEEN_POPUPS = 1000
 
@@ -87,7 +89,13 @@ class TrezorSigner implements KeystoreSigner {
 
     if (signedWithAddr !== this.key.addr) {
       throw new Error(
-        `The key you signed with (${signedWithAddr}) is different than the key we expected (${this.key.addr}). Probably you unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
+        `The key you signed with (${shortenAddress(
+          signedWithAddr,
+          13
+        )}) is different than the key we expected (${shortenAddress(
+          this.key.addr,
+          13
+        )}). You likely unlocked your Trezor with different passphrase or the Trezor you connected has a different seed.`
       )
     }
   }
@@ -135,9 +143,8 @@ class TrezorSigner implements KeystoreSigner {
       transaction: unsignedTxn
     })
 
-    if (!res.success) {
-      throw new Error(res.payload?.error || 'trezorSigner: singing failed for unknown reason')
-    }
+    if (!res.success)
+      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
 
     try {
       const signature = Signature.from({
@@ -161,7 +168,10 @@ class TrezorSigner implements KeystoreSigner {
 
       return signedTxn.serialized
     } catch (error: any) {
-      throw new Error(error?.message || 'trezorSigner: singing failed for unknown reason')
+      throw new Error(
+        error?.message ||
+          'Signing failed for unknown reason. Please try again later or contact support if the problem persists.'
+      )
     }
   }
 
@@ -192,12 +202,8 @@ class TrezorSigner implements KeystoreSigner {
       message_hash
     } as any)
 
-    if (!res.success) {
-      throw new Error(
-        res.payload.error ||
-          'Something went wrong when signing the typed data message. Please try again or contact support if the problem persists.'
-      )
-    }
+    if (!res.success)
+      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
 
     this.#validateSigningKey(res.payload.address)
 
@@ -214,12 +220,8 @@ class TrezorSigner implements KeystoreSigner {
       hex: true
     })
 
-    if (!res.success) {
-      throw new Error(
-        res.payload.error ||
-          'Something went wrong when signing the message. Please try again or contact support if the problem persists.'
-      )
-    }
+    if (!res.success)
+      throw new Error(getMessageFromTrezorErrorCode(res.payload?.code, res.payload?.error))
 
     this.#validateSigningKey(res.payload.address)
 

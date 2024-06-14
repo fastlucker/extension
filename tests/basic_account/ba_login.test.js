@@ -147,12 +147,9 @@ describe('login', () => {
           return element.find((item) => item.textContent === 'Invalid private key.').textContent
         })
         /* Check whether button is disabled */
-        const isButtonDisabled = await page.$eval(
-          '[data-testid="phrase-button-import"]',
-          (button) => {
-            return button.getAttribute('aria-disabled')
-          }
-        )
+        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+          return button.getAttribute('aria-disabled')
+        })
 
         if (isButtonDisabled === 'true') {
           console.log('Button is disabled')
@@ -220,12 +217,9 @@ describe('login', () => {
         }
 
         /* Check whether button is disabled */
-        const isButtonDisabled = await page.$eval(
-          '[data-testid="phrase-button-import"]',
-          (button) => {
-            return button.getAttribute('aria-disabled')
-          }
-        )
+        const isButtonDisabled = await page.$eval('[data-testid="import-button"]', (button) => {
+          return button.getAttribute('aria-disabled')
+        })
 
         if (isButtonDisabled === 'true') {
           console.log(`Button is disabled when try to login with phrase ${passphraseWords}`)
@@ -293,7 +287,7 @@ describe('login', () => {
     const accountName1 = 'Test-Account-1'
     const accountName2 = 'Test-Account-2'
 
-    const editAccountNameFields = await page.$$('[data-testid="pen-icon-edit-name"]')
+    const editAccountNameFields = await page.$$('[data-testid="editable-button"]')
 
     await editAccountNameFields[0].click()
     await new Promise((r) => setTimeout(r, 500))
@@ -304,6 +298,10 @@ describe('login', () => {
     await new Promise((r) => setTimeout(r, 500))
 
     await typeText(page, '[data-testid="edit-name-field-1"]', accountName2)
+
+    // Click on the checkmark icon to save the new account names
+    editAccountNameFields[0].click()
+    editAccountNameFields[1].click()
 
     /* Click on "Save and Continue" button */
     await new Promise((r) => setTimeout(r, 1000))

@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react'
+import React, { ReactElement, ReactNode, useMemo } from 'react'
 import { ColorValue, View, ViewStyle } from 'react-native'
 
 import ScrollableWrapper, { WrapperProps } from '@common/components/ScrollableWrapper'
@@ -15,7 +15,7 @@ import getStyles from './styles'
 
 type Width = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
-const { isTab, isNotification } = getUiType()
+const { isTab, isActionWindow } = getUiType()
 
 export const tabLayoutWidths = {
   xs: 420,
@@ -33,14 +33,14 @@ type TabLayoutContainerProps = {
   footerStyle?: ViewStyle
   hideFooterInPopup?: boolean
   width?: Width
-  children: ReactElement | ReactElement[]
+  children: ReactElement | ReactElement[] | ReactNode | ReactNode[]
   renderDirectChildren?: React.ReactNode
   style?: ViewStyle
   withHorizontalPadding?: boolean
 }
 
 export const getTabLayoutPadding = (maxWidthSize: (size: WindowSizes) => boolean) => {
-  if (isTab || isNotification) {
+  if (isTab || isActionWindow) {
     return {
       paddingHorizontal: maxWidthSize('xl') ? SPACING_3XL : SPACING_XL
     }
