@@ -3,22 +3,7 @@ import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
-import {
-  APP_RELAYRLESS,
-  CONSTANTS_ENDPOINT,
-  EnvTypes,
-  NFT_CDN_URL,
-  PAYTRIE_PARTNER_URL,
-  RAMP_HOST_API_KEY,
-  RELAYER_URL,
-  SENTRY_DSN,
-  SWAP_URL,
-  TRANSAK_API_KEY_PROD,
-  TRANSAK_API_KEY_STAGING,
-  VELCRO_API_ENDPOINT,
-  ZAPPER_API_ENDPOINT,
-  ZAPPER_API_KEY
-} from '@env'
+import { EnvTypes, NFT_CDN_URL, RELAYER_URL, SENTRY_DSN, VELCRO_API_ENDPOINT } from '@env'
 
 import appJSON from '../../../../app.json'
 
@@ -57,43 +42,20 @@ enum APP_ENV {
 
 interface Config extends EnvTypes {
   APP_ENV: APP_ENV
-  /**
-   * Option to run the app without the Ambire Relayer. See `RELAYER_URL`
-   * TODO: This is never tested, so it might not work!
-   */
-  APP_RELAYRLESS: boolean
-  TRANSAK_ENV: 'STAGING' | 'PRODUCTION'
-  /**
-   * In blockchain terms, an RPC allows access to a server node on the specified
-   * network and allows app to communicate and interact with that blockchain.
-   */
-  RPC_URLS: {
-    [key in NETWORKS]: string
-  }
-  NFT_CDN_URL: string
 }
 
 const CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
-  APP_RELAYRLESS: APP_RELAYRLESS === 'true',
   RELAYER_URL,
-  ZAPPER_API_ENDPOINT,
-  ZAPPER_API_KEY,
   VELCRO_API_ENDPOINT,
-  RAMP_HOST_API_KEY,
-  PAYTRIE_PARTNER_URL,
-  TRANSAK_API_KEY: TRANSAK_API_KEY_STAGING,
-  TRANSAK_ENV: 'STAGING',
-  SWAP_URL,
   SENTRY_DSN,
-  CONSTANTS_ENDPOINT,
-  NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com'
+  NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com',
+  ENVIRONMENT: process.env.ENVIRONMENT || 'development',
+  DEFAULT_INVITATION_CODE_DEV: process.env.DEFAULT_INVITATION_CODE_DEV || ''
 }
 
 if (isProd) {
   CONFIG.APP_ENV = APP_ENV.PROD
-  CONFIG.TRANSAK_ENV = 'PRODUCTION'
-  CONFIG.TRANSAK_API_KEY = TRANSAK_API_KEY_PROD
 } else if (isStaging) {
   CONFIG.APP_ENV = APP_ENV.STAGING
 }
@@ -103,6 +65,6 @@ if (isProd) {
  * That's special app mode, which is meant to be turned on only manually.
  * TODO: This is never tested, so it might not work!
  */
-export const isRelayerless = CONFIG.APP_RELAYRLESS || !CONFIG.RELAYER_URL
+export const isRelayerless = !CONFIG.RELAYER_URL
 
 export default CONFIG
