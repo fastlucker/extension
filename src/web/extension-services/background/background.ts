@@ -125,6 +125,7 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
+  // Custom headers, as of v4.26.0 will be only extension-specific. TBD for the other apps.
   const fetchWithCustomHeaders: Fetch = (url, init) => {
     const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
     initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
