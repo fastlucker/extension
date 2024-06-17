@@ -1,5 +1,5 @@
 import { bootstrapWithStorage, saParams } from '../functions.js'
-import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common.js'
+import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('sa_balance', () => {
   let browser

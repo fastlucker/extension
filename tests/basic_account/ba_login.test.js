@@ -13,7 +13,7 @@ import {
   createAccountWithPhrase,
   createAccountWithInvalidPhrase,
   addViewOnlyAccount
-} from '../common.js'
+} from '../common/login.js'
 
 describe('ba_login', () => {
   let browser

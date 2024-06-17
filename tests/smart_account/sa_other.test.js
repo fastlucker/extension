@@ -1,5 +1,5 @@
 import { bootstrapWithStorage, saParams } from '../functions.js'
-import { changePassword, addContactInAddressBook } from '../common.js'
+import { changePassword, addContactInAddressBook } from '../common/other.js'
 
 describe('sa_other', () => {
   let browser

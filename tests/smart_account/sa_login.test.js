@@ -5,7 +5,7 @@ import {
   createAccountWithPhrase,
   createAccountWithInvalidPhrase,
   addViewOnlyAccount
-} from '../common.js'
+} from '../common/login.js'
 
 describe('sa_login', () => {
   let browser

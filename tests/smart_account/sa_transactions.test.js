@@ -14,7 +14,7 @@ import {
   sendFundsGreaterThatBalance,
   sendFundsToSmartContract,
   signMessage
-} from '../common.js'
+} from '../common/transactions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
