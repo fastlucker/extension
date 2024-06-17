@@ -705,7 +705,6 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
-  console.log('eip6963:requestProvider')
   isEIP6963 = true
   connectButtonReplacementCtrl.update({ isEIP6963: true })
   announceEip6963Provider(ambireProvider)
