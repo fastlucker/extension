@@ -678,10 +678,15 @@ const initProvider = () => {
   window.ambire = ambireProvider
 }
 
-if (ambireIsOpera) {
-  initOperaProvider()
-} else {
-  initProvider()
+const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum')
+const canDefine = !descriptor || descriptor.configurable
+
+if (canDefine) {
+  if (ambireIsOpera) {
+    initOperaProvider()
+  } else {
+    initProvider()
+  }
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
@@ -700,6 +705,7 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
+  console.log('eip6963:requestProvider')
   isEIP6963 = true
   connectButtonReplacementCtrl.update({ isEIP6963: true })
   announceEip6963Provider(ambireProvider)
