@@ -22,6 +22,7 @@ const ContactsList = () => {
           {contacts.length > 0 ? (
             contacts.map((contact) => (
               <AddressBookContact
+                testID={`name-${contact.name.toLowerCase().replace(/\s+/g, '-')}`}
                 key={`${contact.address}-${!contact.isWalletAccount ? 'wallet' : 'address'}`}
                 name={contact.name}
                 address={contact.address}

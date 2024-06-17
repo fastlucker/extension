@@ -114,6 +114,7 @@ const AddContactForm = () => {
         }}
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
+            testID="contact-name-field"
             label={t('Name')}
             placeholder={t('Contact name')}
             maxLength={32}
@@ -149,6 +150,7 @@ const AddContactForm = () => {
       />
 
       <Button
+        testID="add-to-address-book-button"
         text={t('Add to Address Book')}
         disabled={!isValid || isSubmitting}
         onPress={submitForm}
