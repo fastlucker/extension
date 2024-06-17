@@ -668,7 +668,13 @@ const initProvider = () => {
 
   finalProvider = ambireProvider
   patchProvider(ambireProvider)
-  setAmbireProvider()
+
+  const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum')
+  const canDefine = !descriptor || descriptor.configurable
+
+  if (canDefine) {
+    setAmbireProvider()
+  }
 
   if (!window.web3) {
     window.web3 = {
@@ -677,16 +683,10 @@ const initProvider = () => {
   }
   window.ambire = ambireProvider
 }
-
-const descriptor = Object.getOwnPropertyDescriptor(window, 'ethereum')
-const canDefine = !descriptor || descriptor.configurable
-
-if (canDefine) {
-  if (ambireIsOpera) {
-    initOperaProvider()
-  } else {
-    initProvider()
-  }
+if (ambireIsOpera) {
+  initOperaProvider()
+} else {
+  initProvider()
 }
 
 const announceEip6963Provider = (p: EthereumProvider) => {
