@@ -23,7 +23,7 @@ import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigne
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL } from '@env'
+import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -130,6 +130,7 @@ function stateDebug(event: string, stateToLog: object) {
     // binding window to fetch provides the correct context
     fetch: isManifestV3 ? fetch : window.fetch.bind(window),
     relayerUrl: RELAYER_URL,
+    velcroUrl: VELCRO_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal

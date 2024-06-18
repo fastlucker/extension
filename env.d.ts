@@ -6,7 +6,7 @@ declare module '@env' {
 
   export type EnvTypes = {
     RELAYER_URL: string
-    VELCRO_API_ENDPOINT: string
+    VELCRO_URL: string
     SENTRY_DSN?: string
     ENVIRONMENT: string
     DEFAULT_INVITATION_CODE_DEV: string
@@ -24,7 +24,7 @@ declare module '@env' {
   /**
    * Alternative to Zapper, developed by Ambire. Serves the same purpose.
    */
-  export const VELCRO_API_ENDPOINT: EnvTypes['VELCRO_API_ENDPOINT']
+  export const VELCRO_URL: EnvTypes['VELCRO_URL']
 
   /**
    * Sentry is application monitoring and error tracking app used by the mobile app.

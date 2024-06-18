@@ -3,7 +3,7 @@ import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
-import { EnvTypes, NFT_CDN_URL, RELAYER_URL, SENTRY_DSN, VELCRO_API_ENDPOINT } from '@env'
+import { EnvTypes, NFT_CDN_URL, RELAYER_URL, SENTRY_DSN, VELCRO_URL } from '@env'
 
 import appJSON from '../../../../app.json'
 
@@ -47,7 +47,7 @@ interface Config extends EnvTypes {
 const CONFIG: Config = {
   APP_ENV: APP_ENV.DEV,
   RELAYER_URL,
-  VELCRO_API_ENDPOINT,
+  VELCRO_URL,
   SENTRY_DSN,
   NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com',
   ENVIRONMENT: process.env.ENVIRONMENT || 'development',
