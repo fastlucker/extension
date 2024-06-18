@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -17,6 +18,7 @@ import { SettingsRoutesContext } from '../../contexts/SettingsRoutesContext'
 
 const AccountsSettingsScreen = () => {
   const { addToast } = useToast()
+  const { t } = useTranslation()
   const { accounts, control } = useAccounts()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const accountsContainerRef = useRef(null)
@@ -39,9 +41,9 @@ const AccountsSettingsScreen = () => {
   const onSelectAccount = useCallback(
     (addr: string) => {
       const acc = accounts.find((a) => a.addr === addr)
-      addToast(`Selected account ${acc?.preferences?.label || addr}`)
+      addToast(t('Selected account {{label}}', { label: acc?.preferences?.label || addr }))
     },
-    [accounts, addToast]
+    [accounts, addToast, t]
   )
 
   return (
