@@ -15,42 +15,54 @@ interface Props {
   handleCopyText: () => void
   handleOpenExplorer: () => void
   style?: ViewStyle
+  showCopyBtn: boolean
+  showOpenExplorerBtn: boolean
 }
 
-const Buttons: FC<Props> = ({ handleCopyText, handleOpenExplorer, style = {} }) => {
+const Buttons: FC<Props> = ({
+  handleCopyText,
+  handleOpenExplorer,
+  style = {},
+  showCopyBtn,
+  showOpenExplorerBtn
+}) => {
   const { styles, theme } = useTheme(getStyles)
 
   return (
     <View style={[styles.buttons, style]}>
-      <Pressable style={styles.openExplorer}>
-        <OpenIcon
-          width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-          height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
-          color={theme.primary}
-        />
-        <Text
-          fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
-          appearance="primary"
-          weight="medium"
-          style={styles.openExplorerText}
-          onPress={handleOpenExplorer}
+      {showOpenExplorerBtn && (
+        <Pressable style={styles.openExplorer}>
+          <OpenIcon
+            width={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+            height={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 16}
+            color={theme.primary}
+          />
+          <Text
+            fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 16 : 14}
+            appearance="primary"
+            weight="medium"
+            style={styles.openExplorerText}
+            onPress={handleOpenExplorer}
+          >
+            Open explorer
+          </Text>
+        </Pressable>
+      )}
+      {showCopyBtn && (
+        <Button
+          style={{
+            width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
+            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
+            ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
+          }}
+          onPress={handleCopyText}
         >
-          Open explorer
-        </Text>
-      </Pressable>
-      <Button
-        style={{
-          width: IS_MOBILE_UP_BENZIN_BREAKPOINT ? 200 : '100%',
-          ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mlLg : {}),
-          ...(IS_MOBILE_UP_BENZIN_BREAKPOINT ? spacings.mb0 : spacings.mbMd)
-        }}
-        onPress={handleCopyText}
-      >
-        <CopyIcon color="#fff" />
-        <Text style={{ color: '#fff', ...spacings.mlSm }} fontSize={16} weight="medium">
-          Copy link
-        </Text>
-      </Button>
+          <CopyIcon color="#fff" />
+          <Text style={{ color: '#fff', ...spacings.mlSm }} fontSize={16} weight="medium">
+            Copy link
+          </Text>
+        </Button>
+      )}
     </View>
   )
 }

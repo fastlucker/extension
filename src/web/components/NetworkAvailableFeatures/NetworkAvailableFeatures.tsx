@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelper.json'
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
 import { Network, NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
@@ -29,7 +30,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import { deployContractsBytecode } from './oldDeployParams'
 import getStyles from './styles'
 
 type Props = {
@@ -92,13 +92,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       return
     }
 
-    // MAJOR TODO<BOBBY>:
-    // Currently, we support the old smart accounts that do not have the latest
-    // ambire contracts code. To have the same contracts accross networks, we
-    // need to deploy not the latest, but a cached version of our contracts.
-    // Once the final version of the contracts comes, we have to fix this
-    // const bytecode = DeployHelper.bin
-    const bytecode = deployContractsBytecode
+    const bytecode = DeployHelper.bin
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
     const singletonABI = [
       {

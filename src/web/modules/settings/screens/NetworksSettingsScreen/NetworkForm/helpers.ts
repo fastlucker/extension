@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import { Network } from '@ambire-common/interfaces/network'
 
+export const DISABLED_BUNDLER_DEFAULT = 'Using Pimlico'
+
 const handleErrors = (error: any) => {
   if (typeof error === 'boolean') return error
   if (typeof error?.message === 'string') return error?.message
@@ -11,8 +13,8 @@ const getAreDefaultsChanged = (values: any, selectedNetwork?: Network) => {
   if (!selectedNetwork) return false
   delete values.rpcUrl
   // TODO: remove these 2
-  delete values.coingeckoPlatformId
-  delete values.coingeckoNativeAssetId
+  delete values.platformId
+  delete values.nativeAssetId
 
   return Object.keys(values).some((key) => {
     if (key === 'chainId') {
