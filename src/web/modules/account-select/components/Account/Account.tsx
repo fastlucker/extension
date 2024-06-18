@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
@@ -50,11 +49,11 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: getAddress(addr) === selectedAccount
+    forceHoveredStyle: addr === selectedAccount
   })
 
   const selectAccount = () => {
-    if (selectedAccount !== getAddress(addr)) {
+    if (selectedAccount !== addr) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: addr }
