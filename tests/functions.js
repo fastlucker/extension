@@ -326,12 +326,11 @@ export async function selectMaticToken(page) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function confirmTransaction(
+export async function triggerTransaction(
   page,
-  extensionRootUrl,
   browser,
-  triggerTransactionSelector,
-  feeToken
+  extensionRootUrl,
+  triggerTransactionSelector
 ) {
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
@@ -341,21 +340,27 @@ export async function confirmTransaction(
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  let newPage = await newTarget.page()
+  const newPage = await newTarget.page()
   newPage.setViewport({
     width: 1300,
     height: 700
   })
-  await new Promise((r) => setTimeout(r, 2000))
 
-  // Check if "sign-message" window is open
-  const buttonSignExists = await newPage.evaluate(() => {
+  return newPage
+}
+
+//----------------------------------------------------------------------------------------------
+export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
+  let newPage = page // Initialize newPage with the current page
+
+  const buttonSignExists = await page.evaluate(() => {
     return !!document.querySelector('[data-testid="button-sign"]')
   })
+
   if (buttonSignExists) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await newPage.click('[data-testid="button-sign"]')
+    await page.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
@@ -365,34 +370,35 @@ export async function confirmTransaction(
     newPage = await newPageTarget.page() // Update newPage to capture the new window
   }
 
+  return { newPage }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function selectFeeToken(page, feeToken) {
   // Check if select fee token is visible
-  const selectToken = await newPage.evaluate(() => {
+  const selectToken = await page.evaluate(() => {
     return !!document.querySelector('[data-testid="tokens-select"]')
   })
 
   if (selectToken) {
-    // Get the text content of the element
-    const selectText = await newPage.evaluate(() => {
-      const element = document.querySelector('[data-testid="tokens-select"]')
-      return element.textContent.trim()
-    })
+    // Click on the tokens select
+    await clickOnElement(page, '[data-testid="tokens-select"]')
+    // Wait for some time
+    await new Promise((r) => setTimeout(r, 2000))
 
-    // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
-    if (selectText.includes('Gas Tank')) {
-      // Click on the tokens select
-      await clickOnElement(newPage, '[data-testid="tokens-select"]')
-      // Wait for some time
-      await new Promise((r) => setTimeout(r, 2000))
-
-      // Click on the Gas Tank option
-      await clickOnElement(newPage, feeToken)
-    }
+    // Click on the Gas Tank option
+    await clickOnElement(page, feeToken)
   }
+}
+
+//----------------------------------------------------------------------------------------------
+export async function signAndConfirmTransaction(newPage) {
   // Click on "Ape" button
   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
+
   // Wait for the 'Timestamp' text to appear twice on the page
   await newPage.waitForFunction(
     () => {
@@ -418,7 +424,7 @@ export async function confirmTransaction(
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
-  //  Define the RPC URL for the Polygon network
+  // Define the RPC URL for the Polygon network
   const rpcUrl = 'https://invictus.ambire.com/polygon'
 
   // Create a provider instance using the JsonRpcProvider

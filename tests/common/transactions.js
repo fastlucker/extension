@@ -2,8 +2,11 @@ import {
   typeText,
   clickOnElement,
   clickElementWithRetry,
-  confirmTransaction,
-  selectMaticToken
+  selectMaticToken,
+  triggerTransaction,
+  checkForSignMessageWindow,
+  selectFeeToken,
+  signAndConfirmTransaction
 } from '../functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
@@ -38,15 +41,23 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
     await clickOnElement(page, '[data-testid="checkbox"]')
   }
 
-  // Confirm Transaction
-  await confirmTransaction(
+  const newPage = await triggerTransaction(
     page,
-    extensionRootUrl,
     browser,
-    '[data-testid="transfer-button-send"]',
-    // '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x6b175474e89094c44da98b954eedeac495271d0fdaigastank"]'
+    extensionRootUrl,
+    '[data-testid="transfer-button-send"]'
+  )
+
+  await new Promise((r) => setTimeout(r, 2000))
+
+  // Check if select fee token is visible and select the token
+  await selectFeeToken(
+    newPage,
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
+  await new Promise((r) => setTimeout(r, 1000))
+  // Sign and confirm the transaction
+  await signAndConfirmTransaction(newPage)
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -64,7 +75,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   const newTarget = await browser.waitForTarget(
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
   )
-  const newPage = await newTarget.page()
+  let newPage = await newTarget.page()
 
   await newPage.setViewport({
     width: 1000,
@@ -104,13 +115,20 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
 
   // Click on 'Confirm Swap' button and confirm transaction
-  await confirmTransaction(
-    page,
-    extensionRootUrl,
-    browser,
-    confirmSwapBtn,
+
+  newPage = await triggerTransaction(page, browser, extensionRootUrl, confirmSwapBtn)
+  await new Promise((r) => setTimeout(r, 2000))
+  // Check if "sign-message" window is open
+  const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+  newPage = result.newPage
+  // Check if select fee token is visible and select the token
+  await selectFeeToken(
+    newPage,
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
+  await new Promise((r) => setTimeout(r, 1000))
+  // Sign and confirm the transaction
+  await signAndConfirmTransaction(newPage)
 }
 
 //--------------------------------------------------------------------------------------------------------------

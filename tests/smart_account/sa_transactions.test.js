@@ -1,11 +1,13 @@
-import { ethers } from 'ethers'
 import {
   typeText,
   clickOnElement,
   bootstrapWithStorage,
   saParams,
-  confirmTransaction,
-  selectMaticToken
+  selectMaticToken,
+  triggerTransaction,
+  checkForSignMessageWindow,
+  signAndConfirmTransaction,
+  selectFeeToken
 } from '../functions.js'
 
 import {
@@ -68,6 +70,8 @@ describe('sa_transactions', () => {
       page,
       '[data-testid="token-0x0000000000000000000000000000000000000000-polygon"]'
     )
+    await new Promise((r) => setTimeout(r, 500))
+
     // Click on "Top Up Gas Tank"
     await clickOnElement(page, '[data-testid="top-up-button"]')
 
@@ -81,13 +85,27 @@ describe('sa_transactions', () => {
     await typeText(page, amountField, '0.0001')
 
     // Click on "Top Up" button and confirm transaction
-    await confirmTransaction(
+
+    let newPage = await triggerTransaction(
       page,
-      extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]',
+      extensionRootUrl,
+      '[data-testid="transfer-button-send"]'
+    )
+    await new Promise((r) => setTimeout(r, 2000))
+
+    // Check if "sign-message" window is open
+    const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+    newPage = result.newPage
+
+    // Check if select fee token is visible and select the token
+    await selectFeeToken(
+      newPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
+    await new Promise((r) => setTimeout(r, 1000))
+    // Sign and confirm the transaction
+    await signAndConfirmTransaction(newPage)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -115,23 +133,37 @@ describe('sa_transactions', () => {
 
     // Check the checkbox "Confirm sending to a previously unknown address"
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
+
     // Click on "Send" button and cofirm transaction
-    await confirmTransaction(
+    const newPage = await triggerTransaction(
       page,
-      extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]',
+      extensionRootUrl,
+      '[data-testid="transfer-button-send"]'
+    )
+    await new Promise((r) => setTimeout(r, 2000))
+
+    // // Check if "sign-message" window is open
+    // const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+    // newPage = result.newPage
+
+    // Check if select fee token is visible and select the token
+    await selectFeeToken(
+      newPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
+    await new Promise((r) => setTimeout(r, 1000))
+    // Sign and confirm the transaction
+    await signAndConfirmTransaction(newPage)
   })
 })
-
-describe.skip('sa_transactions_with_new_storage', () => {
+//--------------------------------------------------------------------------------------------------------------
+describe('sa_transactions_with_new_storage', () => {
   beforeEach(async () => {
     const newValues = {
-      parsedKeystoreSecrets: JSON.parse(process.env.A2_SECRETS),
-      parsedKeystoreKeys: JSON.parse(process.env.A2_KEYS),
-      parsedKeystoreAccounts: JSON.parse(process.env.A2_ACCOUNTS)
+      parsedKeystoreSecrets: JSON.parse(process.env.SA_SECRETS),
+      parsedKeystoreKeys: JSON.parse(process.env.SA_KEYS),
+      parsedKeystoreAccounts: JSON.parse(process.env.SA_ACCOUNTS)
     }
 
     const context = await bootstrapWithStorage('sa_transactions', {
@@ -149,6 +181,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
     await recorder.stop()
     await browser.close()
   })
+
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with basic account', async () => {
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
@@ -175,13 +208,27 @@ describe.skip('sa_transactions_with_new_storage', () => {
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    await confirmTransaction(
+
+    let newPage = await triggerTransaction(
       page,
-      extensionRootUrl,
       browser,
-      '[data-testid="transfer-button-send"]',
+      extensionRootUrl,
+      '[data-testid="transfer-button-send"]'
+    )
+    await new Promise((r) => setTimeout(r, 2000))
+
+    // Check if "sign-message" window is open
+    const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+    newPage = result.newPage
+
+    // Check if select fee token is visible and select the token
+    await selectFeeToken(
+      newPage,
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
     )
+    await new Promise((r) => setTimeout(r, 1000))
+    // Sign and confirm the transaction
+    await signAndConfirmTransaction(newPage)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -296,55 +343,14 @@ describe.skip('sa_transactions_with_new_storage', () => {
       firstRecipient,
       secondRecipient
     )
-    // Check if select fee token is visible
-    const selectToken = await newPage.evaluate(() => {
-      return !!document.querySelector('[data-testid="tokens-select"]')
-    })
 
-    if (selectToken) {
-      // Get the text content of the element
-      const selectText = await newPage.evaluate(() => {
-        const element = document.querySelector('[data-testid="tokens-select"]')
-        return element.textContent.trim()
-      })
-
-      // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
-      if (selectText.includes('Gas Tank')) {
-        // Click on the tokens select
-        await clickOnElement(newPage, '[data-testid="tokens-select"]')
-        // Wait for some time
-        await new Promise((r) => setTimeout(r, 2000))
-
-        // Click on the Gas Tank option
-        await clickOnElement(
-          newPage,
-          '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
-        )
-      }
-    }
-    // Click on "Ape" button
-    await clickOnElement(newPage, '[data-testid="fee-ape:"]')
-
-    // Click on "Sign" button
-    await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-    // Wait for the 'Timestamp' text to appear twice on the page
-    await newPage.waitForFunction(
-      () => {
-        const transactionText = document.documentElement.innerText
-        const occurrences = (transactionText.match(/Timestamp/g) || []).length
-        return occurrences >= 2
-      },
-      { timeout: 250000 }
+    // Check if select fee token is visible and select the token
+    await selectFeeToken(
+      newPage,
+      '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
 
-    const doesFailedExist = await newPage.evaluate(() => {
-      const failedText = document.documentElement.innerText
-      return failedText.includes('failed') || failedText.includes('dropped')
-    })
-
-    await new Promise((r) => setTimeout(r, 300))
-
-    expect(doesFailedExist).toBe(false) // This will fail the test if 'failed' or 'dropped' exists
+    await signAndConfirmTransaction(newPage)
 
     // Verify that both recipient addresses are visible
     await newPage.waitForFunction(
@@ -356,24 +362,5 @@ describe.skip('sa_transactions_with_new_storage', () => {
       firstRecipient,
       secondRecipient
     )
-
-    const currentURL = await newPage.url()
-
-    // Split the URL by the '=' character and get the transaction hash
-    const parts = currentURL.split('=')
-    const transactionHash = parts[parts.length - 1]
-
-    //  Define the RPC URL for the Polygon network
-    const rpcUrl = 'https://invictus.ambire.com/polygon'
-
-    // Create a provider instance using the JsonRpcProvider
-    const provider = new ethers.JsonRpcProvider(rpcUrl)
-
-    // Get transaction receipt
-    const receipt = await provider.getTransactionReceipt(transactionHash)
-
-    console.log(`Batched Transaction Hash: ${transactionHash}`)
-
-    expect(receipt.status).toBe(1) // Assertion to fail the test if transaction failed
   })
 })
