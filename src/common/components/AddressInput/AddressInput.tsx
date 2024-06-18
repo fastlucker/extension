@@ -95,6 +95,7 @@ const AddressInput: React.FC<Props> = ({
         onChangeText={onChangeText}
         // Purposefully spread props here, so that we don't override AddressInput's props
         {...rest}
+        testID="address-ens-field"
         containerStyle={containerStyle}
         validLabel={!isError ? message : ''}
         error={isError ? message : ''}

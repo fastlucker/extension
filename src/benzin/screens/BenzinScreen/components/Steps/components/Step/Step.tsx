@@ -64,11 +64,14 @@ const Step: FC<StepProps> = ({
   // Whether the line gradient should have red in it.
   const isRedDisplayedInLineGradient =
     (finalizedStatus?.status === 'failed' && stepIndex === 1) ||
-    finalizedStatus?.status === 'dropped'
+    finalizedStatus?.status === 'dropped' ||
+    finalizedStatus?.status === 'rejected'
 
   // True if the transaction has failed and we are on the last step, because only the last step shows the error message.
   const hasFailed =
-    (finalizedStatus?.status === 'failed' || finalizedStatus?.status === 'dropped') &&
+    (finalizedStatus?.status === 'failed' ||
+      finalizedStatus?.status === 'dropped' ||
+      finalizedStatus?.status === 'rejected') &&
     stepIndex === STEPS.length - 1
 
   const getTitleAppearance = () => {

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { INVITE_STATUS } from '@ambire-common/controllers/invite/invite'
 import Spinner from '@common/components/Spinner'
 import useNavigation from '@common/hooks/useNavigation'
@@ -73,18 +72,7 @@ const SortHat = () => {
       if (actionType === 'signMessage') return navigate(ROUTES.signMessage)
 
       if (actionType === 'benzin') {
-        // if userOpHash and custom network, close the window as jiffyscan may not support the network
         const benzinAction = actionsState.currentAction
-        const isCustomNetwork = !predefinedNetworks.find(
-          (net) => net.id === benzinAction.userRequest.meta?.networkId
-        )
-        if (benzinAction.userRequest.meta?.userOpHash && isCustomNetwork) {
-          dispatch({
-            type: 'MAIN_CONTROLLER_RESOLVE_USER_REQUEST',
-            params: { data: {}, id: benzinAction.id as number }
-          })
-          return
-        }
         let link = `${ROUTES.benzin}?networkId=${benzinAction.userRequest.meta?.networkId}&isInternal`
         if (benzinAction.userRequest.meta?.txnId) {
           link += `&txnId=${benzinAction.userRequest.meta?.txnId}`

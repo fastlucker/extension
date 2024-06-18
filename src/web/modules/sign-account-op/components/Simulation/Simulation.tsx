@@ -67,13 +67,15 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
     return (
       (!portfolioStatePending?.isLoading || initialSimulationLoaded) &&
       (!!portfolioStatePending?.errors.find((err) => err.simulationErrorMsg) ||
-        !!portfolioStatePending?.criticalError?.simulationErrorMsg)
+        !!portfolioStatePending?.criticalError?.simulationErrorMsg ||
+        !!signAccountOpState?.errors.length)
     )
   }, [
     initialSimulationLoaded,
     portfolioStatePending?.criticalError?.simulationErrorMsg,
     portfolioStatePending?.errors,
-    portfolioStatePending?.isLoading
+    portfolioStatePending?.isLoading,
+    signAccountOpState?.errors
   ])
 
   const simulationErrorMsg = useMemo(() => {

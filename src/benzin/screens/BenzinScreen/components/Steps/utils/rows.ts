@@ -3,6 +3,8 @@ import { Block } from 'ethers'
 import { Network } from '@ambire-common/interfaces/network'
 import { FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 
+const doNotShow = ['dropped', 'rejected']
+
 const getDate = (timestamp: number) => {
   return new Date(timestamp * 1000).toLocaleString('en-us', {
     year: 'numeric',
@@ -17,7 +19,6 @@ const getDate = (timestamp: number) => {
 const shouldShowTxnProgress = (finalizedStatus: FinalizedStatusType) => {
   if (!finalizedStatus) return true
 
-  const doNotShow = ['dropped']
   return doNotShow.indexOf(finalizedStatus.status) === -1
 }
 
@@ -26,7 +27,7 @@ const getTimestamp = (blockData: null | Block, finalizedStatus: FinalizedStatusT
     return getDate(blockData.timestamp)
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
+  return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'
 }
 
 const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
@@ -34,7 +35,7 @@ const getBlockNumber = (blockData: null | Block, finalizedStatus: FinalizedStatu
     return blockData.number.toString()
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
+  return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'
 }
 
 const getFinalizedRows = (blockData: null | Block, finalizedStatus: FinalizedStatusType) => {
@@ -74,7 +75,7 @@ const getFee = (
     return `${cost} ${network.nativeAssetSymbol} ($${(Number(cost) * nativePrice).toFixed(2)})`
   }
 
-  return finalizedStatus && finalizedStatus.status === 'dropped' ? '-' : 'loading'
+  return finalizedStatus && doNotShow.indexOf(finalizedStatus.status) !== -1 ? '-' : 'loading'
 }
 
 export { shouldShowTxnProgress, getTimestamp, getBlockNumber, getFinalizedRows, getFee }
