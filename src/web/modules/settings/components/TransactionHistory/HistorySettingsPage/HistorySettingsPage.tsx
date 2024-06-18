@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, {
   ComponentType,
   FC,
@@ -70,7 +69,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
       : activityState.accountsOps?.itemsTotal) || 0
 
   const [account, setAccount] = useState<Account>(
-    accounts.filter((acc) => getAddress(acc.addr) === getAddress(selectedAccount || ''))[0]
+    accounts.filter((acc) => acc.addr === selectedAccount)[0]
   )
   const [network, setNetwork] = useState<Network>(networks.filter((n) => n.id === 'ethereum')[0])
 

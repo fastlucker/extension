@@ -50,11 +50,11 @@ const Account = ({
       from: theme.primaryBackground,
       to: theme.secondaryBackground
     },
-    forceHoveredStyle: getAddress(addr) === getAddress(selectedAccount || '')
+    forceHoveredStyle: getAddress(addr) === selectedAccount
   })
 
   const selectAccount = () => {
-    if (getAddress(selectedAccount || '') !== getAddress(addr)) {
+    if (selectedAccount !== getAddress(addr)) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
         params: { accountAddr: addr }

@@ -71,7 +71,7 @@ const SignMessageScreen = () => {
     usePrevious(signMessageState) || ({} as SignMessageController)
 
   const selectedAccountFull = useMemo(
-    () => accounts.find((acc) => getAddress(acc.addr) === getAddress(selectedAccount || '')),
+    () => accounts.find((acc) => acc.addr === selectedAccount),
     [accounts, selectedAccount]
   )
 

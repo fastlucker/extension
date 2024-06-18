@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
@@ -59,7 +58,7 @@ const AccountSelectScreen = () => {
     // of the previously selected account.
     if (!selectedAccount || !pendingToBeSetSelectedAccount) return
 
-    if (getAddress(selectedAccount || '') === getAddress(pendingToBeSetSelectedAccount)) {
+    if (selectedAccount === pendingToBeSetSelectedAccount) {
       navigate(ROUTES.dashboard)
     }
   }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
