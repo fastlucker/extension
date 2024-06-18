@@ -5,39 +5,38 @@ declare module '@env' {
   const log = require('loglevel')
 
   export type EnvTypes = {
-    /**
-     * The Ambire relayer for all EVM chains. Responsible for managing on-chain
-     * Identities (called "Ambire accounts") and relaying gasless transactions
-     * to the Ethereum network. It is not intended to be blockchain-agnostic,
-     * and it is Ethereum-specific.
-     */
     RELAYER_URL: string
-    /**
-     * Alternative to Zapper, developed by Ambire. Serves the same purpose.
-     */
     VELCRO_API_ENDPOINT: string
-    /**
-     * Sentry is application monitoring and error tracking app used by the mobile app.
-     */
     SENTRY_DSN?: string
-
     ENVIRONMENT: string
-
     DEFAULT_INVITATION_CODE_DEV: string
-    /**
-     * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
-     * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
-     */
     NFT_CDN_URL: string
   }
 
+  /**
+   * The Ambire relayer for all EVM chains. Responsible for managing on-chain
+   * Identities (called "Ambire accounts") and relaying gasless transactions
+   * to the Ethereum network. It is not intended to be blockchain-agnostic,
+   * and it is Ethereum-specific.
+   */
   export const RELAYER_URL: EnvTypes['RELAYER_URL']
 
+  /**
+   * Alternative to Zapper, developed by Ambire. Serves the same purpose.
+   */
   export const VELCRO_API_ENDPOINT: EnvTypes['VELCRO_API_ENDPOINT']
 
+  /**
+   * Sentry is application monitoring and error tracking app used by the mobile app.
+   */
   export const SENTRY_DSN: EnvTypes['SENTRY_DSN'] | undefined
 
+  /**
+   * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
+   * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
+   */
   export const NFT_CDN_URL: EnvTypes['NFT_CDN_URL']
+
   /**
    * Possible log level descriptors, may be string, lower or upper case, or number.
    * There are 6 levels: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'.
@@ -46,6 +45,7 @@ declare module '@env' {
    * will output messages, but log.info("something") will not.
    */
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: log.LogLevelDesc
+
   /** See `BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD` */
   export const BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: log.LogLevelDesc
 
