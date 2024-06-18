@@ -26,6 +26,7 @@ interface Props {
   onRightIconPress?: () => void
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
+  testID?: string
 }
 
 const sizeMultiplier = {
@@ -41,7 +42,8 @@ const TransactionSummary = ({
   rightIcon,
   onRightIconPress,
   size = 'lg',
-  isHistory
+  isHistory,
+  testID
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -80,6 +82,7 @@ const TransactionSummary = ({
               textSize={textSize}
               networkId={networkId}
               isHistory={isHistory}
+              testID={testID}
             />
           ) : (
             <FallbackVisualization

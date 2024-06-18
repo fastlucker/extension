@@ -135,7 +135,8 @@ const TokenDetails = ({
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !isGasTankFeeToken || !isSmartAccount,
-        strokeWidth: 1
+        strokeWidth: 1,
+        testID: 'top-up-button'
       },
       {
         id: 'earn',

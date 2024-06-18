@@ -238,7 +238,15 @@ const Tokens = ({
 
       if (!initTab?.tokens || !item || item === 'keep-this-to-avoid-key-warning') return null
 
-      return <TokenItem token={item} tokenPreferences={tokenPreferences} />
+      return (
+        <TokenItem
+          token={item}
+          tokenPreferences={tokenPreferences}
+          testID={`token-${item.address}-${item.networkId}${
+            item.flags.onGasTank ? '-gastank' : ''
+          }`}
+        />
+      )
     },
     [
       sortedTokens.length,
