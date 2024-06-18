@@ -51,8 +51,7 @@ jobs:
           # Its value is based on the above Display server configuration
           DISPLAY: ':99.0'
           RELAYER_URL: ${{ secrets.RELAYER_URL }}
-          CONSTANTS_ENDPOINT: ${{ secrets.CONSTANTS_ENDPOINT }}
-          VELCRO_API_ENDPOINT: ${{ secrets.VELCRO_API_ENDPOINT }}
+          VELCRO_URL: ${{ secrets.VELCRO_API_ENDPOINT }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
