@@ -5,6 +5,7 @@ import { View } from 'react-native'
 
 import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { AddressState } from '@ambire-common/interfaces/domains'
+import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -82,6 +83,7 @@ const ViewOnlyScreen = () => {
     name: 'accounts'
   })
   const accounts = watch('accounts')
+  console.log(accounts)
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
   const isValid = useMemo(() => {
@@ -139,7 +141,7 @@ const ViewOnlyScreen = () => {
         // account.fieldValue is the domain name if it's an ENS/UD address
         domainName,
         preferences: {
-          label: domainName || DEFAULT_ACCOUNT_LABEL,
+          label: domainName || getDefaultAccountPreferences(addr, accountsState.accounts).label,
           pfp: addr
         }
       }

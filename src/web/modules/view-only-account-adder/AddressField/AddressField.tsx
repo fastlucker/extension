@@ -61,7 +61,9 @@ const AddressField: FC<Props> = ({
     if (isLoading) return ''
 
     if (
-      accountsState.accounts.find((account) => account.addr === getAddressFromAddressState(value))
+      accountsState.accounts.find(
+        (account) => account.addr.toLowerCase() === getAddressFromAddressState(value).toLowerCase()
+      )
     )
       return 'This address is already in your wallet.'
 

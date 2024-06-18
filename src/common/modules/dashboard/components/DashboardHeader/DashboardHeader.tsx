@@ -36,7 +36,7 @@ const DashboardHeader = () => {
   const accountsState = useAccountsControllerState()
   const keystoreState = useKeystoreControllerState()
 
-  const account = useMemo(
+  const selectedAccountData = useMemo(
     () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
     [accountsState.accounts, accountsState.selectedAccount]
   )
@@ -61,7 +61,9 @@ const DashboardHeader = () => {
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
 
-  const isViewOnly = keystoreState.keys.every((k) => !account?.associatedKeys.includes(k.addr))
+  const isViewOnly = keystoreState.keys.every(
+    (k) => !selectedAccountData?.associatedKeys.includes(k.addr)
+  )
 
   const handleCopyText = async () => {
     try {
@@ -75,7 +77,7 @@ const DashboardHeader = () => {
     }
   }
 
-  if (!account) return null
+  if (!selectedAccountData) return null
 
   return (
     <View
@@ -105,7 +107,7 @@ const DashboardHeader = () => {
             <>
               <View style={styles.accountButtonInfo}>
                 <View>
-                  <Avatar pfp={account.preferences.pfp} size={32} />
+                  <Avatar pfp={selectedAccountData.preferences.pfp} size={32} />
                   {isViewOnly && (
                     <View
                       style={{
@@ -133,7 +135,7 @@ const DashboardHeader = () => {
                   color={theme.primaryBackground}
                   fontSize={14}
                 >
-                  {account.preferences.label}
+                  {selectedAccountData.preferences.label}
                 </Text>
                 <AccountKeysButton />
               </View>
