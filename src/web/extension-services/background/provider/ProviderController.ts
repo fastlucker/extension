@@ -127,18 +127,14 @@ export class ProviderController {
       // check if the request is erc4337
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
-      const dappNetwork = this.getDappNetwork(session.origin)
-      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
-      const accountState =
-        this.mainCtrl.accounts.accountStates?.[this.mainCtrl.accounts.selectedAccount!]?.[
-          network.id
-        ]
-      if (!accountState) return requestRes?.hash
-
-      const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
-      if (is4337Broadcast) {
+      if (requestRes?.isUserOp) {
+        const dappNetwork = this.getDappNetwork(session.origin)
+        const network = this.mainCtrl.networks.networks.filter(
+          (net) => net.id === dappNetwork.id
+        )[0]
         hash = (await bundler.pollTxnHash(hash, network)).transactionHash
+        if (!hash) throw new Error('Transaction failed!')
       }
 
       // delay just for better UX

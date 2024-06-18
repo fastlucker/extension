@@ -160,8 +160,8 @@ const NetworkForm = ({
       chainId: Number(selectedNetwork?.chainId) || '',
       nativeAssetSymbol: selectedNetwork?.nativeAssetSymbol || '',
       explorerUrl: selectedNetwork?.explorerUrl || '',
-      coingeckoPlatformId: (selectedNetwork?.coingeckoPlatformId as string) || '',
-      coingeckoNativeAssetId: (selectedNetwork?.coingeckoNativeAssetId as string) || ''
+      coingeckoPlatformId: (selectedNetwork?.platformId as string) || '',
+      coingeckoNativeAssetId: (selectedNetwork?.nativeAssetId as string) || ''
     }
   })
   const [rpcUrls, setRpcUrls] = useState(selectedNetwork?.rpcUrls || [])
