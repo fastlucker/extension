@@ -38,7 +38,6 @@ const HotWalletCreateSelectorScreen = () => {
 
   return (
     <TabLayoutContainer
-      width="full"
       backgroundColor={theme.secondaryBackground}
       header={<Header withAmbireLogo />}
       footer={

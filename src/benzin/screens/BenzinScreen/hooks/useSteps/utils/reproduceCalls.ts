@@ -9,6 +9,7 @@ import {
   executeInterface,
   executeMultipleInterface,
   executeUnknownWalletInterface,
+  handleOps070,
   handleOpsInterface,
   quickAccManagerCancelInterface,
   quickAccManagerExecScheduledInterface,
@@ -124,8 +125,10 @@ const decodeUserOp = (userOp: UserOperation) => {
   }
 }
 
-const decodeUserOpWithoutUserOpHash = (txnData: string) => {
-  const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txnData)
+const decodeUserOpWithoutUserOpHash = (txnData: string, is070 = false) => {
+  const handleOpsData = is070
+    ? handleOps070.decodeFunctionData('handleOps', txnData)
+    : handleOpsInterface.decodeFunctionData('handleOps', txnData)
   const sigHashValues = Object.values(userOpSigHashes)
   const userOps = handleOpsData[0].filter((op: any) => sigHashValues.includes(op[3].slice(0, 10)))
   // if there's more than 1 user op, we cannot guess which is the
@@ -202,6 +205,11 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
 
   if (sigHash === handleOpsInterface.getFunction('handleOps')!.selector) {
     const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data)
+    if (decodedUserOp) return decodedUserOp
+  }
+
+  if (sigHash === handleOps070.getFunction('handleOps')!.selector) {
+    const decodedUserOp = decodeUserOpWithoutUserOpHash(txn.data, true)
     if (decodedUserOp) return decodedUserOp
   }
 

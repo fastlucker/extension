@@ -22,6 +22,7 @@ export type RequestRes = {
   signingTxId?: string
   hash?: string
   error?: string
+  isUserOp?: boolean
 }
 
 export type Web3WalletPermission = {

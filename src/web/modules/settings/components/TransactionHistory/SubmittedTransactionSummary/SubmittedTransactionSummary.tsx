@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
@@ -139,7 +140,9 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     // In that case, open benzina only with the userOpHash
     if (
       !submittedAccountOp.txnId ||
-      (submittedAccountOp.userOpHash && submittedAccountOp.userOpHash === submittedAccountOp.txnId)
+      (submittedAccountOp.userOpHash &&
+        submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
+        !network.predefined)
     ) {
       link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
     }
@@ -166,41 +169,58 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           style={styles.summaryItem}
           call={call}
           networkId={submittedAccountOp.networkId}
-          rightIcon={index === 0 ? <OpenIcon /> : null}
+          rightIcon={
+            index === 0 &&
+            (!submittedAccountOp.status ||
+              submittedAccountOp.status !== AccountOpStatus.Rejected) ? (
+              <OpenIcon />
+            ) : null
+          }
           onRightIconPress={handleOpenExplorer}
           isHistory
         />
       ))}
-      <View style={styles.footer}>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Fee')}:{' '}
-          </Text>
-          <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-          </Text>
-        </View>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Submitted on')}:{' '}
-          </Text>
-          {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
-            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-              {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
-                submittedAccountOp.timestamp
-              ).toLocaleTimeString()})`}
+      {submittedAccountOp.status !== AccountOpStatus.Rejected && (
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Fee')}:{' '}
             </Text>
-          )}
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+            </Text>
+          </View>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Submitted on')}:{' '}
+            </Text>
+            {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+                {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
+                  submittedAccountOp.timestamp
+                ).toLocaleTimeString()})`}
+              </Text>
+            )}
+          </View>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Block Explorer')}:{' '}
+            </Text>
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              {new URL(network.explorerUrl).hostname}
+            </Text>
+          </View>
         </View>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Block Explorer')}:{' '}
-          </Text>
-          <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {new URL(network.explorerUrl).hostname}
-          </Text>
+      )}
+      {submittedAccountOp.status === AccountOpStatus.Rejected && (
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="errorText" style={spacings.mrTy}>
+              Failed to send
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
     </View>
   ) : (
     <View style={style}>
