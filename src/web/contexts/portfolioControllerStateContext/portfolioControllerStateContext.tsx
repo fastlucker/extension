@@ -30,20 +30,20 @@ const PortfolioControllerStateContext = createContext<{
   accountPortfolio: AccountPortfolio | null
   state: PortfolioController
   startedLoadingAtTimestamp: null | number
-  refreshPortfolio: () => void
   getTemporaryTokens: (networkId: NetworkId, tokenId: CustomToken['address']) => void
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
+  resetAccountPortfolioLocalState: () => void
 }>({
   accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
   state: {} as any,
   startedLoadingAtTimestamp: null,
-  refreshPortfolio: () => {},
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
-  checkToken: () => {}
+  checkToken: () => {},
+  resetAccountPortfolioLocalState: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -58,7 +58,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const [startedLoadingAtTimestamp, setStartedLoadingAtTimestamp] = useState<number | null>(null)
   const prevAccountPortfolio = useRef<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
 
-  const resetAccountPortfolio = useCallback(() => {
+  const resetAccountPortfolioLocalState = useCallback(() => {
     setAccountPortfolio(DEFAULT_ACCOUNT_PORTFOLIO)
     prevAccountPortfolio.current = DEFAULT_ACCOUNT_PORTFOLIO
     setStartedLoadingAtTimestamp(null)
@@ -75,8 +75,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
-    resetAccountPortfolio()
-  }, [accountsState.selectedAccount, resetAccountPortfolio])
+    resetAccountPortfolioLocalState()
+  }, [accountsState.selectedAccount, resetAccountPortfolioLocalState])
 
   useEffect(() => {
     if (!accountsState.selectedAccount || !account) return
@@ -88,9 +88,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       account
     )
 
-    if (newAccountPortfolio.isAllReady || !prevAccountPortfolio?.current?.tokens.length) {
+    if (
+      newAccountPortfolio.isAllReady ||
+      (!prevAccountPortfolio?.current?.tokens?.length && newAccountPortfolio.tokens.length)
+    ) {
       setAccountPortfolio(newAccountPortfolio)
-      prevAccountPortfolio.current = newAccountPortfolio
+
+      if (newAccountPortfolio.isAllReady) prevAccountPortfolio.current = newAccountPortfolio
     }
   }, [accountsState.selectedAccount, account, state])
 
@@ -154,36 +158,28 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     [dispatch]
   )
 
-  const refreshPortfolio = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
-      params: { forceUpdate: true }
-    })
-    resetAccountPortfolio()
-  }, [dispatch, resetAccountPortfolio])
-
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
         () => ({
           state,
           accountPortfolio,
-          refreshPortfolio,
           startedLoadingAtTimestamp,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          resetAccountPortfolioLocalState
         }),
         [
           state,
           accountPortfolio,
           startedLoadingAtTimestamp,
-          refreshPortfolio,
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          resetAccountPortfolioLocalState
         ]
       )}
     >
