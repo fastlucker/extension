@@ -11,10 +11,12 @@ import styles from './styles'
 
 const MaxAmount = ({
   maxAmount,
-  selectedTokenSymbol
+  selectedTokenSymbol,
+  isLoading
 }: {
   maxAmount: number | null
   selectedTokenSymbol: string
+  isLoading: boolean
 }) => {
   const { t } = useTranslation()
 
@@ -25,7 +27,7 @@ const MaxAmount = ({
       </Text>
 
       {maxAmount !== null &&
-        (selectedTokenSymbol ? (
+        (selectedTokenSymbol && !isLoading ? (
           <View style={styles.maxAmountValueWrapper}>
             <Text
               testID="max-available-ammount"
@@ -52,6 +54,7 @@ interface Props {
   errorMessage: string
   onAmountChange: (value: any) => void
   setMaxAmount: () => void
+  isLoading: boolean
   disabled?: boolean
 }
 
@@ -62,7 +65,8 @@ const InputSendToken = ({
   setMaxAmount,
   maxAmount,
   errorMessage,
-  disabled
+  disabled,
+  isLoading
 }: Props) => {
   const { t } = useTranslation()
 
@@ -80,7 +84,11 @@ const InputSendToken = ({
 
   return (
     <>
-      <MaxAmount maxAmount={maxAmount} selectedTokenSymbol={selectedTokenSymbol} />
+      <MaxAmount
+        isLoading={isLoading}
+        maxAmount={maxAmount}
+        selectedTokenSymbol={selectedTokenSymbol}
+      />
       <View style={styles.inputWrapper}>
         <NumberInput
           testID="amount-field"

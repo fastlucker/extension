@@ -15,17 +15,19 @@ import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetails from '../TokenDetails'
 import getStyles from './styles'
 
 const TokenItem = ({
   token,
-  tokenPreferences
+  tokenPreferences,
+  testID
 }: {
   token: TokenResult
   tokenPreferences: CustomToken[]
+  testID?: string
 }) => {
   const {
     symbol,
@@ -34,7 +36,7 @@ const TokenItem = ({
     flags: { onGasTank }
   } = token
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -71,6 +73,7 @@ const TokenItem = ({
       onPress={() => openBottomSheet()}
       style={[styles.container, animStyle]}
       {...bindAnim}
+      testID={testID}
     >
       <BottomSheet
         id={`token-details-${address}`}

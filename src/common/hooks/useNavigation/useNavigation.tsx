@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { navigationRef } from '@common/services/navigation'
 import { useNavigation as useReactNavigation } from '@react-navigation/native'
@@ -32,9 +32,12 @@ const useNavigation = (): UseNavigationReturnType => {
     }
   }, [])
 
+  const canGoBack = useMemo(() => nav.canGoBack(), [nav])
+
   return {
     ...nav,
-    navigate
+    navigate,
+    canGoBack
   }
 }
 

@@ -58,6 +58,7 @@ const ConfirmAddress = ({
           onValueChange={onRecipientAddressUnknownCheckboxClick}
           label={t('Confirm sending to a previously unknown address')}
           style={isSWWarningVisible ? spacings.mbSm : spacings.mb0}
+          testID="recipient-address-unknown-checkbox"
         />
 
         {isSWWarningVisible ? (
@@ -66,11 +67,7 @@ const ConfirmAddress = ({
             style={spacings.mb0}
             onValueChange={onSWWarningCheckboxClick}
           >
-            <Text
-              fontSize={12}
-              onPress={onSWWarningCheckboxClick}
-              testID="confirm-address-checkbox"
-            >
+            <Text fontSize={12} onPress={onSWWarningCheckboxClick} testID="sw-warning-checkbox">
               {
                 t(
                   'I confirm this address is not Binance, Coinbase or another centralized exchange. These platforms do not support {{token}} deposits from smart wallets.',

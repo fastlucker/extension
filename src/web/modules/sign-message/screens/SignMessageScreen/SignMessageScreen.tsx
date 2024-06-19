@@ -1,3 +1,4 @@
+import { getAddress } from 'ethers'
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6,10 +7,11 @@ import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import usePrevious from '@common/hooks/usePrevious'
@@ -20,16 +22,16 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import ActionFooter from '@web/modules/action-requests/components/ActionFooter'
 import HardwareWalletSigningModal from '@web/modules/hardware-wallet/components/HardwareWalletSigningModal'
+import MessageSummary from '@web/modules/sign-message/components/MessageSummary'
 import SigningKeySelect from '@web/modules/sign-message/components/SignKeySelect'
-import MessageSummary from '@web/modules/sign-message/controllers/MessageSummary'
 import FallbackVisualization from '@web/modules/sign-message/screens/SignMessageScreen/FallbackVisualization'
 import Info from '@web/modules/sign-message/screens/SignMessageScreen/Info'
 import { getUiType } from '@web/utils/uiType'
@@ -39,8 +41,8 @@ const SignMessageScreen = () => {
   const signMessageState = useSignMessageControllerState()
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
-  const mainState = useMainControllerState()
-  const { networks } = useSettingsControllerState()
+  const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
+  const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
 
@@ -62,15 +64,15 @@ const SignMessageScreen = () => {
     return signMessageAction.userRequest
   }, [signMessageAction])
 
-  const networkData: NetworkDescriptor | null =
+  const networkData: Network | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const prevSignMessageState: SignMessageController =
     usePrevious(signMessageState) || ({} as SignMessageController)
 
   const selectedAccountFull = useMemo(
-    () => mainState.accounts.find((acc) => acc.addr === mainState.selectedAccount),
-    [mainState.accounts, mainState.selectedAccount]
+    () => accounts.find((acc) => acc.addr === selectedAccount),
+    [accounts, selectedAccount]
   )
 
   const selectedAccountKeyStoreKeys = useMemo(
@@ -157,19 +159,11 @@ const SignMessageScreen = () => {
           fromActionId: signMessageAction.id,
           signature: null
         },
-        accounts: mainState.accounts,
-        accountStates: mainState.accountStates
+        accounts,
+        accountStates
       }
     })
-  }, [
-    dispatch,
-    networks,
-    userRequest,
-    signMessageAction,
-    mainState.selectedAccount,
-    mainState.accounts,
-    mainState.accountStates
-  ])
+  }, [dispatch, networks, userRequest, signMessageAction, selectedAccount, accounts, accountStates])
 
   useEffect(() => {
     if (!getUiType().isActionWindow) return
@@ -341,7 +335,7 @@ const SignMessageScreen = () => {
               messageToSign={signMessageState.messageToSign}
             />
           ) : (
-            <Text>Loading</Text>
+            <SkeletonLoader width="100%" height={48} />
           )}
           {isViewOnly && (
             <View

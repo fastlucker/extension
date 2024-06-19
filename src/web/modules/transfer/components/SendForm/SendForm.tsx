@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { View } from 'react-native'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { Network } from '@ambire-common/interfaces/network'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import InputSendToken from '@common/components/InputSendToken'
@@ -15,7 +15,8 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { mapTokenOptions } from '@web/utils/maps'
 import { getTokenId } from '@web/utils/token'
@@ -37,17 +38,14 @@ const NO_TOKENS_ITEMS = [
 const getSelectProps = ({
   tokens,
   token,
-  isTopUp,
   networks
 }: {
   tokens: TokenResult[]
   token: string
-  isTopUp: boolean
-  networks: NetworkDescriptor[]
+  networks: Network[]
 }) => {
   let options: any = []
   let value = null
-  let tokenSelectDisabled = true
   let amountSelectDisabled = true
 
   if (tokens?.length === 0) {
@@ -56,14 +54,13 @@ const getSelectProps = ({
   } else {
     options = mapTokenOptions(tokens, networks)
     value = options.find((item: any) => item.value === token) || options[0]
-    tokenSelectDisabled = isTopUp
     amountSelectDisabled = false
   }
 
   return {
     options,
     value,
-    tokenSelectDisabled,
+
     amountSelectDisabled
   }
 }
@@ -84,6 +81,7 @@ const SendForm = ({
 }) => {
   const { validation } = addressInputState
   const { state, tokens, transferCtrl } = useTransferControllerState()
+  const { accountPortfolio } = usePortfolioControllerState()
   const {
     maxAmount,
     selectedToken,
@@ -94,7 +92,7 @@ const SendForm = ({
     amount
   } = state
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const { search } = useRoute()
 
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
@@ -102,12 +100,10 @@ const SendForm = ({
   const {
     value: tokenSelectValue,
     options,
-    tokenSelectDisabled,
     amountSelectDisabled
   } = getSelectProps({
     tokens,
     token: selectedToken ? getTokenId(selectedToken) : '',
-    isTopUp,
     networks
   })
 
@@ -173,20 +169,22 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {!state.selectedToken && tokens.length ? (
+      {(!state.selectedToken && tokens.length) || !accountPortfolio?.isAllReady ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {t('Select Token')}
+            {!accountPortfolio?.isAllReady
+              ? t('Loading tokens...')
+              : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           </Text>
           <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
         </View>
       ) : (
         <Select
           setValue={({ value }) => handleChangeToken(value as string)}
-          label={t('Select Token')}
+          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           options={options}
           value={tokenSelectValue}
-          disabled={tokenSelectDisabled || disableForm}
+          disabled={disableForm}
           containerStyle={styles.tokenSelect}
         />
       )}
@@ -198,6 +196,7 @@ const SendForm = ({
         setMaxAmount={setMaxAmount}
         maxAmount={!amountSelectDisabled ? Number(maxAmount) : null}
         disabled={disableForm}
+        isLoading={!accountPortfolio?.isAllReady}
       />
       <View>
         {!isTopUp && (

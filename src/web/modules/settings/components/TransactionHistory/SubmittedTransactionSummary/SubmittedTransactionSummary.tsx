@@ -3,13 +3,14 @@ import { formatUnits } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, ViewStyle } from 'react-native'
 
-import { networks as predefinedNetworks } from '@ambire-common/consts/networks'
 import { SubmittedAccountOp } from '@ambire-common/controllers/activity/activity'
+import { AccountOpStatus } from '@ambire-common/libs/accountOp/accountOp'
 import { callsHumanizer, HUMANIZER_META_KEY } from '@ambire-common/libs/humanizer'
 import { HumanizerVisualization, IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { humanizerMetaParsing } from '@ambire-common/libs/humanizer/parsers/humanizerMetaParsing'
 import { randomId } from '@ambire-common/libs/humanizer/utils'
 import OpenIcon from '@common/assets/svg/OpenIcon'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
 import useTheme from '@common/hooks/useTheme'
@@ -18,12 +19,12 @@ import spacings from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
-import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -34,8 +35,9 @@ interface Props {
 const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { styles } = useTheme(getStyles)
   const { addToast } = useToast()
-  const mainState = useMainControllerState()
+  const { accounts } = useAccountsControllerState()
   const settingsState = useSettingsControllerState()
+  const networksState = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
 
@@ -46,8 +48,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   const network = useMemo(
-    () => settingsState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [settingsState.networks, submittedAccountOp.networkId]
+    () => networksState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [networksState.networks, submittedAccountOp.networkId]
   )
 
   useEffect(() => {
@@ -61,14 +63,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       (err: any) => setHumanizerError(err),
       { noAsyncOperations: true, network }
     )
-  }, [
-    submittedAccountOp,
-    keystoreState.keys,
-    mainState.accounts,
-    settingsState.accountPreferences,
-    settingsState.keyPreferences,
-    network
-  ])
+  }, [submittedAccountOp, keystoreState.keys, accounts, settingsState.keyPreferences, network])
 
   const calls = useMemo(() => {
     if (humanizerError) return submittedAccountOp.calls
@@ -113,7 +108,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     submittedAccountOp.accountAddr,
     submittedAccountOp.gasFeePayment?.amount,
     submittedAccountOp.gasFeePayment?.inToken,
-    submittedAccountOp.networkId
+    submittedAccountOp.networkId,
+    network
   ])
 
   const handleOpenExplorer = useCallback(async () => {
@@ -127,10 +123,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
       submittedAccountOp.userOpHash ? `&userOpHash=${submittedAccountOp.userOpHash}` : ''
     }`
 
-    // if the network is a custom one, benzina will not work
-    // so we open the block explorer
-    const isCustomNetwork = !predefinedNetworks.find((net) => net.id === network.id)
-    if (isCustomNetwork) {
+    // if the network is a not a predefined one, benzina will not work so we open the block explorer
+    if (!network.predefined) {
       link = `${network.explorerUrl}/tx/${submittedAccountOp.txnId}`
     }
 
@@ -139,7 +133,9 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     // In that case, open benzina only with the userOpHash
     if (
       !submittedAccountOp.txnId ||
-      (submittedAccountOp.userOpHash && submittedAccountOp.userOpHash === submittedAccountOp.txnId)
+      (submittedAccountOp.userOpHash &&
+        submittedAccountOp.userOpHash === submittedAccountOp.txnId &&
+        !network.predefined)
     ) {
       link = `https://benzin.ambire.com/?networkId=${networkId}&userOpHash=${submittedAccountOp.userOpHash}`
     }
@@ -149,7 +145,14 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
     } catch (e: any) {
       addToast(e?.message || 'Error opening explorer', { type: 'error' })
     }
-  }, [addToast, network.id, submittedAccountOp.userOpHash, submittedAccountOp.txnId])
+  }, [
+    addToast,
+    network.id,
+    network.explorerUrl,
+    network.predefined,
+    submittedAccountOp.userOpHash,
+    submittedAccountOp.txnId
+  ])
 
   return calls.length ? (
     <View style={[styles.container, style]}>
@@ -159,41 +162,58 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           style={styles.summaryItem}
           call={call}
           networkId={submittedAccountOp.networkId}
-          rightIcon={index === 0 ? <OpenIcon /> : null}
+          rightIcon={
+            index === 0 &&
+            (!submittedAccountOp.status ||
+              submittedAccountOp.status !== AccountOpStatus.Rejected) ? (
+              <OpenIcon />
+            ) : null
+          }
           onRightIconPress={handleOpenExplorer}
           isHistory
         />
       ))}
-      <View style={styles.footer}>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Fee')}:{' '}
-          </Text>
-          <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-          </Text>
-        </View>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Submitted on')}:{' '}
-          </Text>
-          {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
-            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-              {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
-                submittedAccountOp.timestamp
-              ).toLocaleTimeString()})`}
+      {submittedAccountOp.status !== AccountOpStatus.Rejected && (
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Fee')}:{' '}
             </Text>
-          )}
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+            </Text>
+          </View>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Submitted on')}:{' '}
+            </Text>
+            {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+                {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
+                  submittedAccountOp.timestamp
+                ).toLocaleTimeString()})`}
+              </Text>
+            )}
+          </View>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+              {t('Block Explorer')}:{' '}
+            </Text>
+            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+              {new URL(network.explorerUrl).hostname}
+            </Text>
+          </View>
         </View>
-        <View style={styles.footerItem}>
-          <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-            {t('Block Explorer')}:{' '}
-          </Text>
-          <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-            {new URL(network.explorerUrl).hostname}
-          </Text>
+      )}
+      {submittedAccountOp.status === AccountOpStatus.Rejected && (
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="errorText" style={spacings.mrTy}>
+              Failed to send
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
     </View>
   ) : (
     <View style={style}>

@@ -9,7 +9,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 
 interface Props {
   duplicateAccountsIndexes: number[]
@@ -17,7 +17,7 @@ interface Props {
   index: number
   watch: UseFormWatch<any>
   control: any
-  isSubmitting: boolean
+  isLoading: boolean
   handleSubmit: () => void
   remove: (index: number) => void
   disabled: boolean
@@ -30,7 +30,7 @@ const AddressField: FC<Props> = ({
   index,
   watch,
   control,
-  isSubmitting,
+  isLoading,
   handleSubmit,
   remove,
   disabled,
@@ -39,7 +39,7 @@ const AddressField: FC<Props> = ({
 }) => {
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
-  const mainControllerState = useMainControllerState()
+  const accountsState = useAccountsControllerState()
 
   const setAddressState = useCallback(
     (newState: AddressStateOptional) => {
@@ -56,8 +56,12 @@ const AddressField: FC<Props> = ({
   )
 
   const overwriteError = useMemo(() => {
+    // We don't want to update the error message while accounts are being
+    // imported because that would stop the import process.
+    if (isLoading) return ''
+
     if (
-      mainControllerState.accounts.find(
+      accountsState.accounts.find(
         (account) => account.addr.toLowerCase() === getAddressFromAddressState(value).toLowerCase()
       )
     )
@@ -66,11 +70,14 @@ const AddressField: FC<Props> = ({
     if (duplicateAccountsIndexes.includes(index)) return 'Duplicate address.'
 
     return ''
-  }, [duplicateAccountsIndexes, index, mainControllerState.accounts, value])
+  }, [duplicateAccountsIndexes, index, isLoading, accountsState.accounts, value])
 
   const handleRevalidate = useCallback(() => {
+    // We don't want to update the error message while accounts are being
+    // imported because that would stop the import process.
+    if (isLoading) return
     trigger(`accounts.${index}.fieldValue`)
-  }, [index, trigger])
+  }, [index, isLoading, trigger])
 
   const { validation, RHFValidate } = useAddressInput({
     addressState: value,
@@ -90,14 +97,14 @@ const AddressField: FC<Props> = ({
       render={({ field: { onChange, onBlur } }) => (
         <View style={[spacings.mbTy, flexbox.directionRow, flexbox.alignCenter]}>
           <AddressInput
-            testID='view-only-address-field'
+            testID="view-only-address-field"
             validation={validation}
             containerStyle={{ ...spacings.mb0, ...flexbox.flex1 }}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value.fieldValue}
             autoFocus
-            disabled={isSubmitting}
+            disabled={isLoading}
             ensAddress={value.ensAddress}
             udAddress={value.udAddress}
             isRecipientDomainResolving={value.isDomainResolving}

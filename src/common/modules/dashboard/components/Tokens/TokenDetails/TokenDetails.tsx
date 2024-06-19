@@ -29,9 +29,9 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetailsButton from './Button'
 import CopyTokenAddress from './CopyTokenAddress'
@@ -50,9 +50,9 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
   const [isTokenInfoLoading, setIsTokenInfoLoading] = useState(false)
   const [isHidden, setIsHidden] = useState(!!token?.isHidden)
@@ -135,7 +135,8 @@ const TokenDetails = ({
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !isGasTankFeeToken || !isSmartAccount,
-        strokeWidth: 1
+        strokeWidth: 1,
+        testID: 'top-up-button'
       },
       {
         id: 'earn',
@@ -222,6 +223,7 @@ const TokenDetails = ({
     const networkData = networks.find((n) => n.id === token?.networkId)
     if (!networkData) {
       addToast(t('Network not found'), { type: 'error' })
+      setIsTokenInfoLoading(false)
       return
     }
     const coingeckoId = geckoIdMapper(token?.address, networkData)
@@ -245,26 +247,28 @@ const TokenDetails = ({
       .finally(() => {
         setIsTokenInfoLoading(false)
       })
-  }, [addToast, t, token?.address, token?.networkId, networks])
+  }, [t, token?.address, token?.networkId, networks, addToast])
 
   const handleHideToken = () => {
     if (!token) return
     setIsHidden((prev) => !prev)
-    const tokenInPreferences =
-      tokenPreferences?.length &&
-      tokenPreferences.find(
-        (_token) =>
-          token.address.toLowerCase() === _token.address.toLowerCase() &&
-          token.networkId === _token.networkId
-      )
+    const tokenInPreferences = tokenPreferences?.length
+      ? tokenPreferences.find(
+          (_token) =>
+            token.address.toLowerCase() === _token.address.toLowerCase() &&
+            token.networkId === _token.networkId
+        )
+      : null
 
     const newToken = {
-      ...token,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      address: token.address,
+      networkId: token.networkId,
       isHidden: !token.isHidden,
-      ...(tokenInPreferences && 'standard' in tokenInPreferences
-        ? { standard: tokenInPreferences.standard }
-        : {})
+      standard: tokenInPreferences?.standard || 'ERC20'
     }
+
     dispatch({
       type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES',
       params: {
@@ -321,13 +325,13 @@ const TokenDetails = ({
                 <CopyTokenAddress address={address} isRewards={isRewards} isVesting={isVesting} />
               </Text>
             </View>
-            {!onGasTank && (
+            {!onGasTank && !isRewards && !isVesting && (
               <View style={[flexbox.alignSelfEnd]}>
                 <Toggle
                   isOn={isHidden}
                   onToggle={handleHideToken}
                   label={isHidden ? t('Show Token') : t('Hide Token')}
-                  toggleProps={spacings.mrTy}
+                  toggleStyle={spacings.mrTy}
                 />
               </View>
             )}
@@ -376,6 +380,7 @@ const TokenDetails = ({
           <TokenDetailsButton
             key={action.id}
             {...action}
+            isDisabled={!!action.isDisabled}
             token={token}
             isTokenInfoLoading={isTokenInfoLoading}
             handleClose={handleClose}

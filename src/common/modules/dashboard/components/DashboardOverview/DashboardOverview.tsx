@@ -23,10 +23,11 @@ import spacings, { SPACING, SPACING_TY, SPACING_XL } from '@common/styles/spacin
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
@@ -50,8 +51,8 @@ const DashboardOverview: FC<Props> = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
-  const { networks } = useSettingsControllerState()
-  const { selectedAccount } = useMainControllerState()
+  const { networks } = useNetworksControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const banners = useBanners()
   const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
     usePortfolioControllerState()

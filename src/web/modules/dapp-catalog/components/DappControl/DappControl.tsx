@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pressable, View } from 'react-native'
 
+import predefinedDapps from '@ambire-common/consts/dappCatalog.json'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import CloseIcon from '@common/assets/svg/CloseIcon'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
@@ -11,13 +12,12 @@ import StarIcon from '@common/assets/svg/StarIcon'
 import UpArrowIcon from '@common/assets/svg/UpArrowIcon'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import predefinedDapps from '@common/constants/dappCatalog.json'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import getStyles from './styles'
 
@@ -41,7 +41,7 @@ const DappControl = ({
   const { styles, theme } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
 
   const network = useMemo(
     () =>

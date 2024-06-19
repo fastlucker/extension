@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { NetworkDescriptor } from '@ambire-common/interfaces/networkDescriptor'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import BottomSheet from '@common/components/BottomSheet'
@@ -13,7 +13,7 @@ import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import Option from './Option/Option'
 import getStyles from './styles'
@@ -21,7 +21,7 @@ import getStyles from './styles'
 interface Props {
   sheetRef: ReturnType<typeof useModalize>['ref']
   closeBottomSheet: () => void
-  selectedNetworkId: NetworkDescriptor['id'] | null
+  selectedNetworkId: NetworkId | null
   openBlockExplorer: (url?: string) => void
 }
 
@@ -34,7 +34,7 @@ const NetworkBottomSheet = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { theme, styles } = useTheme(getStyles)
-  const { networks } = useSettingsControllerState()
+  const { networks } = useNetworksControllerState()
   const networkData = networks.find((network) => network.id === selectedNetworkId)
 
   return (

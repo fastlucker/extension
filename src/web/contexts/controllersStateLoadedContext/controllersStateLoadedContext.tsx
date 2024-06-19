@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
@@ -10,7 +11,9 @@ import useEmailVaultControllerState from '@web/hooks/useEmailVaultControllerStat
 import useInviteControllerState from '@web/hooks/useInviteControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState/useMainControllerState'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
+import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
@@ -29,6 +32,9 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const accountAdderState = useAccountAdderControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const networksState = useNetworksControllerState()
+  const providersState = useProvidersControllerState()
+  const accountsState = useAccountsControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const actionsState = useActionsControllerState()
@@ -44,6 +50,18 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
     [mainState]
+  )
+  const hasNetworksState: boolean = useMemo(
+    () => !!Object.keys(networksState).length,
+    [networksState]
+  )
+  const hasProvidersState: boolean = useMemo(
+    () => !!Object.keys(providersState).length,
+    [providersState]
+  )
+  const hasAccountsState: boolean = useMemo(
+    () => !!Object.keys(accountsState).length,
+    [accountsState]
   )
   const hasWalletState: boolean = useMemo(
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
@@ -61,7 +79,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(signMessageState).length,
     [signMessageState]
   )
-  const hasactionsState: boolean = useMemo(() => !!Object.keys(actionsState).length, [actionsState])
+  const hasActionsState: boolean = useMemo(() => !!Object.keys(actionsState).length, [actionsState])
   const hasPortfolioState: boolean = useMemo(
     () => !!Object.keys(portfolioState).length,
     [portfolioState]
@@ -105,11 +123,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
     if (
       hasMainState &&
+      hasNetworksState &&
+      hasProvidersState &&
+      hasAccountsState &&
       hasWalletState &&
       hasAccountAdderState &&
       hasKeystoreState &&
       hasSignMessageState &&
-      hasactionsState &&
+      hasActionsState &&
       hasPortfolioState &&
       hasActivityState &&
       hasSettingsState &&
@@ -126,11 +147,14 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     return () => clearTimeout(timeout)
   }, [
     hasMainState,
+    hasNetworksState,
+    hasProvidersState,
+    hasAccountsState,
     hasWalletState,
     hasAccountAdderState,
     hasKeystoreState,
     hasSignMessageState,
-    hasactionsState,
+    hasActionsState,
     hasPortfolioState,
     hasActivityState,
     hasSettingsState,

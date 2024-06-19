@@ -1,4 +1,4 @@
-import React, { ReactElement, useMemo } from 'react'
+import React, { ReactElement, ReactNode, useMemo } from 'react'
 import { ColorValue, View, ViewStyle } from 'react-native'
 
 import ScrollableWrapper, { WrapperProps } from '@common/components/ScrollableWrapper'
@@ -33,7 +33,7 @@ type TabLayoutContainerProps = {
   footerStyle?: ViewStyle
   hideFooterInPopup?: boolean
   width?: Width
-  children: ReactElement | ReactElement[]
+  children: ReactElement | ReactElement[] | ReactNode | ReactNode[]
   renderDirectChildren?: React.ReactNode
   style?: ViewStyle
   withHorizontalPadding?: boolean

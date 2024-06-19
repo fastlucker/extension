@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { FC, useCallback, useEffect, useMemo } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -8,23 +8,19 @@ import ErrorIcon from '@common/assets/svg/ErrorIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SuccessIcon from '@common/assets/svg/SuccessIcon'
 import WarningIcon from '@common/assets/svg/WarningIcon'
-import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
 import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
-import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
-import { RpcSelectorItem } from '@web/modules/settings/screens/NetworksSettingsScreen/NetworkForm/NetworkForm'
 import { getUiType } from '@web/utils/uiType'
 
+import RPCSelectBottomSheet from './RPCSelectBottomSheet'
 import getStyles from './styles'
 
 const isTab = getUiType().isTab
@@ -43,8 +39,6 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
   const { navigate } = useNavigation()
-  const { t } = useTranslation()
-  const { networks, statuses } = useSettingsControllerState()
   const { visibleActionsQueue } = useActionsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const Icon = ICON_MAP[type]
@@ -53,31 +47,6 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
     () => !!actions.filter((a) => a.actionName === 'select-rpc-url').length,
     [actions]
   )
-  const network = useMemo(() => {
-    if (!withRpcUrlSelectBottomSheet) return undefined
-
-    return networks.find(
-      // @ts-ignore
-      (n) => n.id === actions.filter((a) => a.actionName === 'select-rpc-url')[0]?.meta?.network?.id
-    )
-  }, [actions, networks, withRpcUrlSelectBottomSheet])
-
-  useEffect(() => {
-    if (!withRpcUrlSelectBottomSheet) return
-
-    if (statuses.updateNetworkPreferences === 'SUCCESS') {
-      addToast(`Successfully switched the RPC URL for ${network?.name}`)
-      setTimeout(() => {
-        closeBottomSheet()
-      }, 250)
-    }
-  }, [
-    withRpcUrlSelectBottomSheet,
-    addToast,
-    closeBottomSheet,
-    network?.name,
-    statuses.updateNetworkPreferences
-  ])
 
   const handleOpenBottomSheet = useCallback(() => {
     if (withRpcUrlSelectBottomSheet) {
@@ -139,24 +108,6 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
     [visibleActionsQueue, dispatch, addToast, navigate, handleOpenBottomSheet, type]
   )
 
-  const handleSelectRpcUrl = useCallback(
-    (url: string) => {
-      const id = network?.id
-      if (id) {
-        dispatch({
-          type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES',
-          params: {
-            networkPreferences: {
-              selectedRpcUrl: url
-            },
-            networkId: id
-          }
-        })
-      }
-    },
-    [network?.id, dispatch]
-  )
-
   return (
     <View style={[styles.container, { backgroundColor: theme[`${type}Background`] }]}>
       <View style={[styles.content, { borderLeftColor: theme[`${type}Decorative`] }]}>
@@ -193,30 +144,12 @@ const DashboardBanner: FC<BannerType> = ({ type, title, text, actions = [] }) =>
           )
         })}
       </View>
-      {!!withRpcUrlSelectBottomSheet && (
-        <BottomSheet id="select-rpc-url" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
-          <Text fontSize={20} weight="semiBold" numberOfLines={1} style={spacings.mbLg}>
-            {t(`Select RPC URL for ${network?.name}`)}
-          </Text>
-          <View style={{ ...common.borderRadiusPrimary, ...common.hidden }}>
-            {network?.rpcUrls.map((url: string, i: number) => {
-              return (
-                <RpcSelectorItem
-                  key={url}
-                  index={i}
-                  url={url}
-                  style={{ backgroundColor: theme.primaryBackground }}
-                  rpcUrlsLength={network?.rpcUrls?.length}
-                  shouldShowRemove={false}
-                  selectedRpcUrl={network?.selectedRpcUrl}
-                  forceLargeItems
-                  onPress={() => handleSelectRpcUrl(url)}
-                />
-              )
-            })}
-          </View>
-        </BottomSheet>
-      )}
+      <RPCSelectBottomSheet
+        actions={actions}
+        sheetRef={sheetRef}
+        closeBottomSheet={closeBottomSheet}
+        isVisible={withRpcUrlSelectBottomSheet}
+      />
     </View>
   )
 }

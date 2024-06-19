@@ -5,6 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import ManifestFallbackIcon from '@common/assets/svg/ManifestFallbackIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import SettingsIcon from '@common/assets/svg/SettingsIcon'
 import StarIcon from '@common/assets/svg/StarIcon'
 import Badge from '@common/components/Badge'
@@ -13,6 +14,7 @@ import Tooltip from '@common/components/Tooltip'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import ManifestImage from '@web/components/ManifestImage'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -50,12 +52,23 @@ const DappItem = (dapp: Dapp) => {
       >
         <AnimatedPressable
           style={[styles.container, animStyle]}
-          onPress={() => openInTab(url)}
+          onPress={() => openInTab(url, false)}
           {...bindAnim}
         >
           <View style={[flexbox.directionRow, spacings.mbSm]}>
             <View style={spacings.mrTy}>
-              <ManifestImage uri={icon || ''} size={40} fallback={fallbackIcon} />
+              <ManifestImage
+                uri={icon || ''}
+                size={40}
+                fallback={fallbackIcon}
+                containerStyle={{
+                  backgroundColor: theme.primaryBackground
+                }}
+                iconScale={0.8}
+                imageStyle={{
+                  borderRadius: BORDER_RADIUS_PRIMARY
+                }}
+              />
             </View>
             <View style={[flexbox.flex1, flexbox.justifySpaceBetween]}>
               <View
@@ -94,7 +107,7 @@ const DappItem = (dapp: Dapp) => {
           <Text
             fontSize={12}
             appearance="secondaryText"
-            numberOfLines={isConnected ? 2 : 4}
+            numberOfLines={isConnected ? 2 : 3}
             // @ts-ignore
             dataSet={{
               tooltipId: url,
@@ -104,11 +117,14 @@ const DappItem = (dapp: Dapp) => {
             {description}
           </Text>
           {!!getUiType().isPopup && <Tooltip id={url} delayShow={900} />}
-          {!!isConnected && (
-            <View style={[flexbox.alignStart, flexbox.flex1, flexbox.justifyEnd]}>
-              <Badge text={t('Connected')} type="success" />
-            </View>
-          )}
+          <View style={[flexbox.alignEnd, flexbox.directionRow, flexbox.flex1]}>
+            {!!isConnected && <Badge text={t('Connected')} type="success" />}
+            {hovered && (
+              <View style={{ marginLeft: 'auto' }}>
+                <OpenIcon width={16} height={16} />
+              </View>
+            )}
+          </View>
         </AnimatedPressable>
       </div>
       <ManageDapp

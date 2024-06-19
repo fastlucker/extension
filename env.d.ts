@@ -62,7 +62,10 @@ declare module '@env' {
     ENVIRONMENT: string
 
     DEFAULT_INVITATION_CODE_DEV: string
-
+    /**
+     * The URL for the Ambire NFT proxy service, responsible for resolving NFT images from the passed parameters.
+     * Takes in RPC url, contract address and token Id so we can use the complete proxy URL as source for image components.
+     */
     NFT_CDN_URL: string
   }
 

@@ -3,7 +3,6 @@ import Constants from 'expo-constants'
 import * as Updates from 'expo-updates'
 import { Platform } from 'react-native'
 
-import { NETWORKS } from '@common/constants/networks'
 import {
   APP_RELAYRLESS,
   CONSTANTS_ENDPOINT,
@@ -12,22 +11,6 @@ import {
   PAYTRIE_PARTNER_URL,
   RAMP_HOST_API_KEY,
   RELAYER_URL,
-  RPC_URL_ANDROMEDA,
-  RPC_URL_ARBITRUM,
-  RPC_URL_AURORA,
-  RPC_URL_AVALANCHE,
-  RPC_URL_BNB_CHAIN,
-  RPC_URL_CRONOS,
-  RPC_URL_ETHEREUM,
-  RPC_URL_ETHEREUM_POW,
-  RPC_URL_FANTOM,
-  RPC_URL_GNOSIS,
-  RPC_URL_KUCOIN,
-  RPC_URL_MOONBEAM,
-  RPC_URL_MOONRIVER,
-  RPC_URL_OPTIMISM,
-  RPC_URL_POLYGON,
-  RPC_URL_RINKEBY,
   SENTRY_DSN,
   SWAP_URL,
   TRANSAK_API_KEY_PROD,
@@ -87,6 +70,7 @@ interface Config extends EnvTypes {
   RPC_URLS: {
     [key in NETWORKS]: string
   }
+  NFT_CDN_URL: string
 }
 
 const CONFIG: Config = {
@@ -103,24 +87,6 @@ const CONFIG: Config = {
   SWAP_URL,
   SENTRY_DSN,
   CONSTANTS_ENDPOINT,
-  RPC_URLS: {
-    [NETWORKS.ethereum]: RPC_URL_ETHEREUM,
-    [NETWORKS.polygon]: RPC_URL_POLYGON,
-    [NETWORKS.avalanche]: RPC_URL_AVALANCHE,
-    [NETWORKS['binance-smart-chain']]: RPC_URL_BNB_CHAIN,
-    [NETWORKS.fantom]: RPC_URL_FANTOM,
-    [NETWORKS.moonbeam]: RPC_URL_MOONBEAM,
-    [NETWORKS.moonriver]: RPC_URL_MOONRIVER,
-    [NETWORKS.arbitrum]: RPC_URL_ARBITRUM,
-    [NETWORKS.gnosis]: RPC_URL_GNOSIS,
-    [NETWORKS.kucoin]: RPC_URL_KUCOIN,
-    [NETWORKS.optimism]: RPC_URL_OPTIMISM,
-    [NETWORKS.andromeda]: RPC_URL_ANDROMEDA,
-    [NETWORKS.rinkeby]: RPC_URL_RINKEBY,
-    [NETWORKS.cronos]: RPC_URL_CRONOS,
-    [NETWORKS.aurora]: RPC_URL_AURORA,
-    [NETWORKS['ethereum-pow']]: RPC_URL_ETHEREUM_POW
-  },
   NFT_CDN_URL: NFT_CDN_URL || 'https://nftcdn.ambire.com'
 }
 

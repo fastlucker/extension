@@ -5,16 +5,11 @@ import {
 import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
-import { Account, AccountStates } from '@ambire-common/interfaces/account'
+import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
 import { Dapp } from '@ambire-common/interfaces/dapp'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { NetworkDescriptor, NetworkId } from '@ambire-common/interfaces/networkDescriptor'
-import {
-  AccountPreferences,
-  CustomNetwork,
-  KeyPreferences,
-  NetworkPreference
-} from '@ambire-common/interfaces/settings'
+import { AddNetworkRequestParams, Network, NetworkId } from '@ambire-common/interfaces/network'
+import { KeyPreferences } from '@ambire-common/interfaces/settings'
 import { Message, UserRequest } from '@ambire-common/interfaces/userRequest'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
 import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
@@ -90,25 +85,25 @@ type MainControllerAddSeedPhraseAccounts = {
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
-type MainControllerAddCustomNetwork = {
-  type: 'MAIN_CONTROLLER_ADD_CUSTOM_NETWORK'
-  params: CustomNetwork
+type MainControllerAddNetwork = {
+  type: 'MAIN_CONTROLLER_ADD_NETWORK'
+  params: AddNetworkRequestParams
 }
 
-type MainControllerRemoveCustomNetwork = {
-  type: 'MAIN_CONTROLLER_REMOVE_CUSTOM_NETWORK'
-  params: NetworkDescriptor['id']
+type MainControllerRemoveNetwork = {
+  type: 'MAIN_CONTROLLER_REMOVE_NETWORK'
+  params: NetworkId
 }
 
-type SettingsControllerAddAccountPreferences = {
-  type: 'SETTINGS_CONTROLLER_ADD_ACCOUNT_PREFERENCES'
-  params: AccountPreferences
+type AccountsControllerUpdateAccountPreferences = {
+  type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES'
+  params: { addr: string; preferences: AccountPreferences }[]
 }
 
 type SettingsControllerSetNetworkToAddOrUpdate = {
   type: 'SETTINGS_CONTROLLER_SET_NETWORK_TO_ADD_OR_UPDATE'
   params: {
-    chainId: NetworkDescriptor['chainId']
+    chainId: Network['chainId']
     rpcUrl: string
   }
 }
@@ -122,19 +117,11 @@ type MainControllerSettingsAddKeyPreferences = {
   params: KeyPreferences
 }
 
-type MainControllerUpdateNetworkPreferences = {
-  type: 'MAIN_CONTROLLER_UPDATE_NETWORK_PREFERENCES'
+type MainControllerUpdateNetworkAction = {
+  type: 'MAIN_CONTROLLER_UPDATE_NETWORK'
   params: {
-    networkPreferences: Partial<NetworkPreference>
-    networkId: NetworkDescriptor['id']
-  }
-}
-
-type MainControllerResetNetworkPreference = {
-  type: 'MAIN_CONTROLLER_RESET_NETWORK_PREFERENCE'
-  params: {
-    preferenceKey: keyof NetworkPreference
-    networkId: NetworkDescriptor['id']
+    network: Partial<Network>
+    networkId: NetworkId
   }
 }
 
@@ -198,9 +185,7 @@ type MainControllerBroadcastSignedMessageAction = {
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
-  params?: {
-    filters?: Filters
-  }
+  params?: { filters?: Filters }
 }
 type MainControllerActivitySetFiltersAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS'
@@ -218,8 +203,8 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
-type MainControllerUpdateSelectedAccount = {
-  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT'
+type MainControllerUpdateSelectedAccountPortfolio = {
+  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
   params: {
     forceUpdate?: boolean
     additionalHints?: TokenResult['address'][]
@@ -237,7 +222,7 @@ type PortfolioControllerGetTemporaryToken = {
 type PortfolioControllerUpdateTokenPreferences = {
   type: 'PORTFOLIO_CONTROLLER_UPDATE_TOKEN_PREFERENCES'
   params: {
-    token: CustomToken | TokenResult
+    token: CustomToken
   }
 }
 type PortfolioControllerRemoveTokenPreferences = {
@@ -266,7 +251,7 @@ type MainControllerSignAccountOpUpdateMainDepsAction = {
   type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_UPDATE_MAIN_DEPS'
   params: {
     accounts?: Account[]
-    networks?: NetworkDescriptor[]
+    networks?: Network[]
     accountStates?: AccountStates
   }
 }
@@ -461,14 +446,13 @@ export type Action =
   | MainControllerAccountAdderSelectAccountAction
   | MainControllerAccountAdderDeselectAccountAction
   | MainControllerAccountAdderResetIfNeeded
-  | SettingsControllerAddAccountPreferences
+  | AccountsControllerUpdateAccountPreferences
   | SettingsControllerSetNetworkToAddOrUpdate
   | SettingsControllerResetNetworkToAddOrUpdate
-  | MainControllerAddCustomNetwork
-  | MainControllerRemoveCustomNetwork
+  | MainControllerAddNetwork
+  | MainControllerRemoveNetwork
   | MainControllerSettingsAddKeyPreferences
-  | MainControllerUpdateNetworkPreferences
-  | MainControllerResetNetworkPreference
+  | MainControllerUpdateNetworkAction
   | MainControllerAccountAdderSetPageAction
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
@@ -495,7 +479,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerUpdateSelectedAccount
+  | MainControllerUpdateSelectedAccountPortfolio
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
