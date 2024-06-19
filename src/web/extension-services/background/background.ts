@@ -782,6 +782,8 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.actions.setCurrentActionById(params.actionId)
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
                 return mainCtrl.actions.setCurrentActionByIndex(params.index)
+              case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
+                return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
                 if (!mainCtrl.accounts.selectedAccount) return
