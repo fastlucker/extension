@@ -18,13 +18,14 @@ interface Props extends TextProps {
 }
 
 const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
-  const { accounts } = useAccountsControllerState()
+  const accountsState = useAccountsControllerState()
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = useMemo(() => getAddress(address), [address])
+
   const account = useMemo(() => {
-    if (!accounts) return undefined
-    return accounts.find((a) => a.addr === checksummedAddress)
-  }, [accounts, checksummedAddress])
+    if (!accountsState?.accounts) return undefined
+    return accountsState.accounts.find((a) => a.addr === checksummedAddress)
+  }, [accountsState?.accounts, checksummedAddress])
 
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
 
