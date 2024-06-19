@@ -84,7 +84,9 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
+    const account = this.mainCtrl.accounts.selectedAccount
+      ? [this.mainCtrl.accounts.selectedAccount]
+      : []
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
@@ -96,7 +98,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
+    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
@@ -104,7 +106,7 @@ export class ProviderController {
       return null
     }
 
-    return this.mainCtrl.selectedAccount || null
+    return this.mainCtrl.accounts.selectedAccount || null
   }
 
   @Reflect.metadata('SAFE', true)
@@ -125,16 +127,14 @@ export class ProviderController {
       // check if the request is erc4337
       // if it is, the received requestRes?.hash is an userOperationHash
       // Call the bundler to receive the transaction hash needed by the dapp
-      const dappNetwork = this.getDappNetwork(session.origin)
-      const network = this.mainCtrl.networks.networks.filter((net) => net.id === dappNetwork.id)[0]
-      const accountState =
-        this.mainCtrl.accountStates?.[this.mainCtrl.selectedAccount!]?.[network.id]
-      if (!accountState) return requestRes?.hash
-
-      const is4337Broadcast = isErc4337Broadcast(network, accountState)
       let hash = requestRes?.hash
-      if (is4337Broadcast) {
+      if (requestRes?.isUserOp) {
+        const dappNetwork = this.getDappNetwork(session.origin)
+        const network = this.mainCtrl.networks.networks.filter(
+          (net) => net.id === dappNetwork.id
+        )[0]
         hash = (await bundler.pollTxnHash(hash, network)).transactionHash
+        if (!hash) throw new Error('Transaction failed!')
       }
 
       // delay just for better UX

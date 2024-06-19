@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
 import spacings from '@common/styles/spacings'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import NetworkComponent from './Network'
@@ -17,7 +17,7 @@ const Networks = ({
   openBlockExplorer: (url?: string) => void
   filterByNetworkId: NetworkId | null
 }) => {
-  const { selectedAccount } = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const portfolioControllerState = usePortfolioControllerState()
 
   const portfolioByNetworks = useMemo(

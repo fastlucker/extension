@@ -9,8 +9,8 @@ import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import Spinner from '@common/components/Spinner'
 import useRoute from '@common/hooks/useRoute'
 import flexbox from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -35,7 +35,7 @@ export const getInfoFromSearch = (search: string | undefined) => {
 }
 
 const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
-  const mainState = useMainControllerState()
+  const accountsState = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { contacts } = useAddressBookControllerState()
   const { search } = useRoute()
@@ -68,8 +68,8 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
     // Don't reinit the controller if it already exists. Only update its properties
     if (transferCtrl) return
 
-    const selectedAccountData = mainState.accounts.find(
-      (acc) => acc.addr === mainState.selectedAccount
+    const selectedAccountData = accountsState.accounts.find(
+      (acc) => acc.addr === accountsState.selectedAccount
     )
 
     if (!selectedAccountData) return
@@ -80,7 +80,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
       networks
     )
     forceUpdate()
-  }, [forceUpdate, mainState.accounts, mainState.selectedAccount, networks, transferCtrl])
+  }, [forceUpdate, accountsState.accounts, accountsState.selectedAccount, networks, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return
@@ -90,15 +90,15 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
   }, [transferCtrl])
 
   useEffect(() => {
-    const selectedAccountData = mainState.accounts.find(
-      (acc) => acc.addr === mainState.selectedAccount
+    const selectedAccountData = accountsState.accounts.find(
+      (acc) => acc.addr === accountsState.selectedAccount
     )
     if (!selectedAccountData || !transferCtrl) return
 
     transferCtrl.update({
       selectedAccountData
     })
-  }, [mainState.accounts, mainState.selectedAccount, transferCtrl])
+  }, [accountsState.accounts, accountsState.selectedAccount, transferCtrl])
 
   useEffect(() => {
     if (!transferCtrl) return

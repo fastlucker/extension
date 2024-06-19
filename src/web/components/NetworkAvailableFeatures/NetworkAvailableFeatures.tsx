@@ -5,8 +5,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import DeployHelper from '@ambire-common/../contracts/compiled/DeployHelper.json'
 import { AMBIRE_ACCOUNT_FACTORY, SINGLETON } from '@ambire-common/consts/deploy'
-import { Network, NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkFeature, NetworkId } from '@ambire-common/interfaces/network'
 import { SignUserRequest } from '@ambire-common/interfaces/userRequest'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -25,11 +26,10 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
-import { deployContractsBytecode } from './oldDeployParams'
 import getStyles from './styles'
 
 type Props = {
@@ -43,7 +43,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { pathname } = useRoute()
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
   const { addToast } = useToast()
@@ -92,13 +92,7 @@ const NetworkAvailableFeatures = ({ networkId, features, withRetryButton, handle
       return
     }
 
-    // MAJOR TODO<BOBBY>:
-    // Currently, we support the old smart accounts that do not have the latest
-    // ambire contracts code. To have the same contracts accross networks, we
-    // need to deploy not the latest, but a cached version of our contracts.
-    // Once the final version of the contracts comes, we have to fix this
-    // const bytecode = DeployHelper.bin
-    const bytecode = deployContractsBytecode
+    const bytecode = DeployHelper.bin
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000'
     const singletonABI = [
       {

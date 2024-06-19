@@ -8,16 +8,16 @@ import NoKeysIcon from '@common/assets/svg/NoKeysIcon'
 import SingleKeyIcon from '@common/assets/svg/SingleKeyIcon'
 import AccountKeysBottomSheet from '@common/components/AccountKeysBottomSheet'
 import useTheme from '@common/hooks/useTheme'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import getStyles from './styles'
 
 const AccountKeysButton = () => {
   const { theme, styles } = useTheme(getStyles)
-  const { accounts, selectedAccount } = useMainControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { keys } = useKeystoreControllerState()
   const { keyPreferences } = useSettingsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()

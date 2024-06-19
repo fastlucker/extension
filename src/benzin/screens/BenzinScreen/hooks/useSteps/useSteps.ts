@@ -1,8 +1,9 @@
 import {
   AbiCoder,
   Block,
-  ethers,
+  formatEther,
   JsonRpcProvider,
+  keccak256,
   TransactionReceipt,
   TransactionResponse
 } from 'ethers'
@@ -20,7 +21,10 @@ import { getNativePrice } from '@ambire-common/libs/humanizer/utils'
 import { getExplorerId } from '@ambire-common/libs/userOperation/userOperation'
 import { Bundler } from '@ambire-common/services/bundlers/bundler'
 import { fetchUserOp } from '@ambire-common/services/explorers/jiffyscan'
-import { handleOpsInterface } from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
+import {
+  handleOps070,
+  handleOpsInterface
+} from '@benzin/screens/BenzinScreen/constants/humanizerInterfaces'
 import { ActiveStepType, FinalizedStatusType } from '@benzin/screens/BenzinScreen/interfaces/steps'
 import { UserOperation } from '@benzin/screens/BenzinScreen/interfaces/userOperation'
 import { isExtension } from '@web/constants/browserapi'
@@ -111,12 +115,21 @@ const useSteps = ({
 
   // if we have a userOpHash only, try to find the txnId
   useEffect(() => {
-    if (!userOpHash || txnId || userOpStatusData.txnId || !network) return
+    if (!userOpHash || txnId || userOpStatusData.status || !network) return
 
     // implement the bundler fetch here, why not
     // and only listen for txIds
     Bundler.getStatusAndTxnId(userOpHash, network)
       .then((bundlerResult) => {
+        if (bundlerResult.status === 'rejected') {
+          setUserOpStatusData({ status: 'rejected', txnId: null })
+          setFinalizedStatus({
+            status: 'rejected',
+            reason: 'Bundler has rejected the user operation'
+          })
+          setActiveStep('finalized')
+          return
+        }
         if (bundlerResult.transactionHash && !userOpStatusData.txnId) {
           setUserOpStatusData({
             status: 'submitted',
@@ -241,7 +254,12 @@ const useSteps = ({
         let userOpsLength = 0
         if (!userOpHash && txn) {
           try {
-            const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+            // check the sighash
+            const sigHash = txn.data.slice(0, 10)
+            const handleOpsData =
+              sigHash === handleOpsInterface.getFunction('handleOps')!.selector
+                ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+                : handleOps070.decodeFunctionData('handleOps', txn.data)
             userOpsLength = handleOpsData[0].length
           } catch (e: any) {
             /* silence is bitcoin */
@@ -370,55 +388,86 @@ const useSteps = ({
   useEffect(() => {
     if (!userOpHash || !network || !txn || userOp) return
 
-    const handleOpsData = handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+    const sigHash = txn.data.slice(0, 10)
+    const is060 = sigHash === handleOpsInterface.getFunction('handleOps')!.selector
+    const handleOpsData = is060
+      ? handleOpsInterface.decodeFunctionData('handleOps', txn.data)
+      : handleOps070.decodeFunctionData('handleOps', txn.data)
     const userOperations = handleOpsData[0]
+    const abiCoder = new AbiCoder()
+
     let hashFound = false
     userOperations.forEach((opArray: any) => {
-      // THE PACKING
       const sender = opArray[0]
       const nonce = opArray[1]
-      const hashInitCode = ethers.keccak256(opArray[2])
-      const hashCallData = ethers.keccak256(opArray[3])
-      const callGasLimit = opArray[4]
-      const verificationGasLimit = opArray[5]
-      const preVerificationGas = opArray[6]
-      const maxFeePerGas = opArray[7]
-      const maxPriorityFeePerGas = opArray[8]
-      const hashPaymasterAndData = ethers.keccak256(opArray[9])
-      const abiCoder = new AbiCoder()
-      const packed = abiCoder.encode(
-        [
-          'address',
-          'uint256',
-          'bytes32',
-          'bytes32',
-          'uint256',
-          'uint256',
-          'uint256',
-          'uint256',
-          'uint256',
-          'bytes32'
-        ],
-        [
-          sender,
-          nonce,
-          hashInitCode,
-          hashCallData,
-          callGasLimit,
-          verificationGasLimit,
-          preVerificationGas,
-          maxFeePerGas,
-          maxPriorityFeePerGas,
-          hashPaymasterAndData
-        ]
-      )
-      // END THE PACKING
+      const hashInitCode = keccak256(opArray[2])
+      const hashCallData = keccak256(opArray[3])
 
-      const hash = ethers.keccak256(packed)
-      const finalHash = ethers.keccak256(
+      let hash
+      if (!is060) {
+        const accountGasLimits = opArray[4]
+        const preVerificationGas = opArray[5]
+        const gasFees = opArray[6]
+        const hashPaymasterAndData = keccak256(opArray[7])
+        const packed = abiCoder.encode(
+          ['address', 'uint256', 'bytes32', 'bytes32', 'bytes32', 'uint256', 'bytes32', 'bytes32'],
+          [
+            sender,
+            nonce,
+            hashInitCode,
+            hashCallData,
+            accountGasLimits,
+            preVerificationGas,
+            gasFees,
+            hashPaymasterAndData
+          ]
+        )
+        hash = keccak256(packed)
+      } else {
+        const callGasLimit = opArray[4]
+        const verificationGasLimit = opArray[5]
+        const preVerificationGas = opArray[6]
+        const maxFeePerGas = opArray[7]
+        const maxPriorityFeePerGas = opArray[8]
+        const hashPaymasterAndData = keccak256(opArray[9])
+        const packed = abiCoder.encode(
+          [
+            'address',
+            'uint256',
+            'bytes32',
+            'bytes32',
+            'uint256',
+            'uint256',
+            'uint256',
+            'uint256',
+            'uint256',
+            'bytes32'
+          ],
+          [
+            sender,
+            nonce,
+            hashInitCode,
+            hashCallData,
+            callGasLimit,
+            verificationGasLimit,
+            preVerificationGas,
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            hashPaymasterAndData
+          ]
+        )
+
+        hash = keccak256(packed)
+      }
+
+      const finalHash = keccak256(
         abiCoder.encode(
           ['bytes32', 'address', 'uint256'],
-          [hash, ERC_4337_ENTRYPOINT, network.chainId]
+          [
+            hash,
+            is060 ? '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789' : ERC_4337_ENTRYPOINT,
+            network.chainId
+          ]
         )
       )
 
@@ -445,7 +494,7 @@ const useSteps = ({
     if (calls) return
 
     if (network && txnReceipt.from && txn) {
-      setCost(ethers.formatEther(txnReceipt.actualGasCost!.toString()))
+      setCost(formatEther(txnReceipt.actualGasCost!.toString()))
       const accountOp: AccountOp = {
         accountAddr: txnReceipt.from!,
         networkId: network.id,

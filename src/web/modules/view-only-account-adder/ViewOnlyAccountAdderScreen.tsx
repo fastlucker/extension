@@ -3,7 +3,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 
+import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { AddressState } from '@ambire-common/interfaces/domains'
+import { getDefaultAccountPreferences } from '@ambire-common/libs/account/account'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import BackButton from '@common/components/BackButton'
 import Button from '@common/components/Button'
@@ -21,10 +23,9 @@ import spacings from '@common/styles/spacings'
 import { getAddressFromAddressState } from '@common/utils/domains'
 import { RELAYER_URL } from '@env'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 
 import AddressField from './AddressField'
 
@@ -55,8 +56,7 @@ const DEFAULT_ADDRESS_FIELD_VALUE = {
 const ViewOnlyScreen = () => {
   const { navigate } = useNavigation()
   const { dispatch } = useBackgroundService()
-  const mainControllerState = useMainControllerState()
-  const settingsControllerState = useSettingsControllerState()
+  const accountsState = useAccountsControllerState()
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
@@ -83,6 +83,7 @@ const ViewOnlyScreen = () => {
     name: 'accounts'
   })
   const accounts = watch('accounts')
+  console.log(accounts)
   const duplicateAccountsIndexes = getDuplicateAccountIndexes(accounts)
 
   const isValid = useMemo(() => {
@@ -130,13 +131,19 @@ const ViewOnlyScreen = () => {
         associatedKeys = Object.keys(accountIdentity?.associatedKeys || {})
       }
 
+      const addr = getAddress(address)
+      const domainName = account.ensAddress || account.udAddress ? account.fieldValue : null
       return {
-        addr: getAddress(address),
+        addr,
         associatedKeys,
         initialPrivileges: accountIdentity?.initialPrivileges || [],
         creation,
         // account.fieldValue is the domain name if it's an ENS/UD address
-        domainName: account.ensAddress || account.udAddress ? account.fieldValue : null
+        domainName,
+        preferences: {
+          label: domainName || getDefaultAccountPreferences(addr, accountsState.accounts).label,
+          pfp: addr
+        }
       }
     })
 
@@ -172,16 +179,12 @@ const ViewOnlyScreen = () => {
     const newAccountsAddresses = accounts.map((account) =>
       getAddressFromAddressState(account).toLowerCase()
     )
-    const newAccountsAdded = mainControllerState.accounts.filter((account) =>
+    const newAccountsAdded = accountsState.accounts.filter((account) =>
       newAccountsAddresses.includes(account.addr.toLowerCase())
     )
-    const newAccountsDefaultPreferencesImported = Object.keys(
-      settingsControllerState.accountPreferences
-    ).some((accountAddr) => newAccountsAddresses.includes(accountAddr.toLowerCase()))
 
-    // Navigate when the new accounts and their default preferences are imported,
-    // indicating the final step for the view-only account adding flow completes.
-    if (newAccountsAdded.length && newAccountsDefaultPreferencesImported) {
+    // Navigate when the new accounts are imported, indicating the final step for the view-only account adding flow completes.
+    if (newAccountsAdded.length) {
       navigate(WEB_ROUTES.accountPersonalize, {
         state: { accounts: newAccountsAdded }
       })
@@ -192,9 +195,8 @@ const ViewOnlyScreen = () => {
     duplicateAccountsIndexes.length,
     errors,
     isValid,
-    mainControllerState.accounts,
-    navigate,
-    settingsControllerState.accountPreferences
+    accountsState.accounts,
+    navigate
   ])
 
   return (

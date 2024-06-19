@@ -29,8 +29,8 @@ import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
 import { RELAYER_URL } from '@env'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import TokenDetailsButton from './Button'
@@ -50,7 +50,7 @@ const TokenDetails = ({
   const { navigate } = useNavigation()
   const { addToast } = useToast()
   const { t } = useTranslation()
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [hasTokenInfo, setHasTokenInfo] = useState(false)
@@ -135,7 +135,8 @@ const TokenDetails = ({
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
         isDisabled: !isGasTankFeeToken || !isSmartAccount,
-        strokeWidth: 1
+        strokeWidth: 1,
+        testID: 'top-up-button'
       },
       {
         id: 'earn',

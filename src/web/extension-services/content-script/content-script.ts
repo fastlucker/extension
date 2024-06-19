@@ -14,10 +14,11 @@ const injectProviderScript = () => {
   // the script element with src won't execute immediately use inline script element instead!
   const container = document.head || document.documentElement
   const ele = document.createElement('script')
-  let content = ';(function () {'
-  content += '#PAGEPROVIDER#'
-  content += '\n})();'
-  ele.textContent = content
+  // The string is then replaced by AssetReplacePlugin in webpack.
+  // The idea is to inject inpage.js into the page context.
+  ele.textContent = '#PAGEPROVIDER#'
+  // Otherwise the script will mess with the global scope of the page
+  ele.type = 'module'
   container.insertBefore(ele, container.children[0])
   container.removeChild(ele)
 }

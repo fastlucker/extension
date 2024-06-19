@@ -21,6 +21,10 @@ const handleOpsInterface = new Interface([
   'function handleOps(tuple(address, uint256, bytes, bytes, uint256, uint256, uint256, uint256, uint256, bytes, bytes)[] calldata ops, address payable beneficiary) public'
 ])
 
+const handleOps070 = new Interface([
+  'function handleOps(tuple(address, uint256, bytes, bytes, bytes32, uint256, bytes32, bytes, bytes)[] calldata ops, address payable beneficiary) public'
+])
+
 const executeBySenderInterface = new Interface([
   'function executeBySender(tuple(address, uint256, bytes)[] calls) external payable'
 ])
@@ -61,5 +65,6 @@ export {
   quickAccManagerExecScheduledInterface,
   executeCallInterface,
   executeBatchInterface,
-  executeUnknownWalletInterface
+  executeUnknownWalletInterface,
+  handleOps070
 }

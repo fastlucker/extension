@@ -22,7 +22,7 @@ import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { TabLayoutContainer } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import AddAccount from '@web/modules/account-select/components/AddAccount'
 
@@ -32,7 +32,7 @@ const AccountSelectScreen = () => {
   const { styles, theme } = useTheme(getStyles)
   const { accounts, control } = useAccounts()
   const { navigate } = useNavigation()
-  const mainCtrl = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const { t } = useTranslation()
   const accountsContainerRef = useRef(null)
@@ -56,10 +56,12 @@ const AccountSelectScreen = () => {
   useEffect(() => {
     // Navigate to the dashboard after the account is selected to avoid showing the dashboard
     // of the previously selected account.
-    if (mainCtrl.selectedAccount?.toLowerCase() === pendingToBeSetSelectedAccount.toLowerCase()) {
+    if (!selectedAccount || !pendingToBeSetSelectedAccount) return
+
+    if (selectedAccount === pendingToBeSetSelectedAccount) {
       navigate(ROUTES.dashboard)
     }
-  }, [mainCtrl.selectedAccount, navigate, pendingToBeSetSelectedAccount])
+  }, [selectedAccount, navigate, pendingToBeSetSelectedAccount])
 
   return !pendingToBeSetSelectedAccount ? (
     <TabLayoutContainer

@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from 'ethers'
 import { setStringAsync } from 'expo-clipboard'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
 import { networks as constantNetworks } from '@ambire-common/consts/networks'
@@ -109,6 +109,21 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     onOpenExplorer && onOpenExplorer()
   }, [network, userOpHash, stepsState.txnId, onOpenExplorer, addToast])
 
+  const showCopyBtn = useMemo(() => {
+    if (!network) return true
+
+    const isRejected = stepsState.userOpStatusData.status === 'rejected'
+    const isCustom = !network.hasRelayer
+    return !isCustom && !isRejected
+  }, [network, stepsState.userOpStatusData])
+
+  const showOpenExplorerBtn = useMemo(() => {
+    if (!network) return true
+
+    const isRejected = stepsState.userOpStatusData.status === 'rejected'
+    return !isRejected
+  }, [network, stepsState.userOpStatusData])
+
   return {
     activeStep,
     handleCopyText,
@@ -117,7 +132,9 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
     network,
     txnId: stepsState.txnId,
     userOpHash,
-    isRenderedInternally
+    isRenderedInternally,
+    showCopyBtn,
+    showOpenExplorerBtn
   }
 }
 

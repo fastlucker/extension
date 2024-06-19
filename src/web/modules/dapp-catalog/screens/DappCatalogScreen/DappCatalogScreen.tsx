@@ -90,6 +90,7 @@ const DappCatalogScreen = () => {
 
   const search = watch('search')
   const debouncedSearch = useDebounce({ value: search, delay: 350 })
+
   const filteredDapps = useMemo(() => {
     const allDapps = state.dapps
     if (debouncedSearch.length) {
@@ -109,7 +110,7 @@ const DappCatalogScreen = () => {
     setPredefinedFilter(type)
   }, [])
 
-  const renderItem = ({ item }: { item: Dapp }) => <DappItem {...item} />
+  const renderItem = useCallback(({ item }: { item: Dapp }) => <DappItem {...item} />, [])
 
   return (
     <TabLayoutContainer
