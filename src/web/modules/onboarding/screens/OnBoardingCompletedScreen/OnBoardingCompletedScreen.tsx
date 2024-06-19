@@ -25,7 +25,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { storage } from '@web/extension-services/background/webapi/storage'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import PinExtension from '@web/modules/onboarding/components/PinExtension/PinExtension'
 
 import ConfettiAnimation from '../../components/ConfettiAnimation'
@@ -38,7 +38,7 @@ const OnBoardingCompletedScreen = () => {
   const [isOnBoarded, setIsOnBoarded] = useState<boolean | undefined>(undefined)
   const [showRewards, setShowRewards] = useState(false)
   const { params } = useRoute()
-  const mainState = useMainControllerState()
+  const { accounts } = useAccountsControllerState()
 
   useEffect(() => {
     if (!params?.validSession) {
@@ -47,16 +47,16 @@ const OnBoardingCompletedScreen = () => {
   }, [params?.validSession, navigate])
 
   useEffect(() => {
-    if (mainState.accounts.some((acc) => acc.newlyCreated)) {
+    if (accounts.some((acc) => acc.newlyCreated)) {
       setShowRewards(true)
     }
-  }, [mainState.accounts])
+  }, [accounts])
 
   useEffect(() => {
-    if (mainState.accounts.length && isOnBoarded !== undefined) {
+    if (accounts.length && isOnBoarded !== undefined) {
       storage.set('isOnBoarded', true)
     }
-  }, [mainState.accounts.length, isOnBoarded])
+  }, [accounts.length, isOnBoarded])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

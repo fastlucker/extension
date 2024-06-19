@@ -11,13 +11,13 @@ import {
   TabLayoutContainer,
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import HotWalletCreateCards from '@web/modules/auth/components/HotWalletCreateCards'
 
 const HotWalletCreateSelectorScreen = () => {
   const { t } = useTranslation()
-  const { accounts } = useMainControllerState()
+  const { accounts } = useAccountsControllerState()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
   const { isReadyToStoreKeys } = useKeystoreControllerState()
