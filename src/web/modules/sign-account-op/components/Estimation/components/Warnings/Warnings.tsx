@@ -18,9 +18,16 @@ interface Props {
   estimationFailed: boolean
   slowRequest: boolean
   isViewOnly: boolean
+  isRbf: boolean
 }
 
-const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isViewOnly }) => {
+const Warnings: FC<Props> = ({
+  hasEstimation,
+  estimationFailed,
+  slowRequest,
+  isViewOnly,
+  isRbf
+}) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const signAccountOpState = useSignAccountOpControllerState()
@@ -37,6 +44,15 @@ const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isV
 
   return (
     <>
+      {!!isRbf && (
+        <View style={styles.errorContainer}>
+          <Alert
+            type="warning"
+            title="RBF (replace by fee) detected. You are trying to replace the current transaction in the mempool with a new one. To do so, standard gas prices have been increased by 12.5%"
+          />
+        </View>
+      )}
+
       {!!hasEstimation &&
         !estimationFailed &&
         signAccountOpState.gasUsedTooHigh &&
