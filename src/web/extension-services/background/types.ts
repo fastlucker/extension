@@ -1,4 +1,5 @@
 import AccountAdderController from '@ambire-common/controllers/accountAdder/accountAdder'
+import { AccountsController } from '@ambire-common/controllers/accounts/accounts'
 import { ActionsController } from '@ambire-common/controllers/actions/actions'
 import { ActivityController } from '@ambire-common/controllers/activity/activity'
 import { AddressBookController } from '@ambire-common/controllers/addressBook/addressBook'
@@ -21,6 +22,7 @@ import { WalletStateController } from '@web/extension-services/background/contro
 export const controllersNestedInMainMapping = {
   providers: ProvidersController,
   networks: NetworksController,
+  accounts: AccountsController,
   accountAdder: AccountAdderController,
   keystore: KeystoreController,
   signMessage: SignMessageController,

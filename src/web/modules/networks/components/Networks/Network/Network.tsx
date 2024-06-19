@@ -13,8 +13,8 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, DURATIONS, useCustomHover, useMultiHover } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import getStyles from '@web/modules/networks/screens/styles'
@@ -36,7 +36,7 @@ const Network: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { state } = useRoute()
   const { networks } = useNetworksControllerState()
-  const { selectedAccount } = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const portfolioControllerState = usePortfolioControllerState()
   const [bindAnim, animStyle, isHovered, triggerHover] = useMultiHover({
     values: [

@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react'
 
 import useAccountAdderControllerState from '@web/hooks/useAccountAdderControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
@@ -33,6 +34,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const mainState = useMainControllerState()
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
+  const accountsState = useAccountsControllerState()
   const walletState = useWalletStateController()
   const signMessageState = useSignMessageControllerState()
   const actionsState = useActionsControllerState()
@@ -56,6 +58,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const hasProvidersState: boolean = useMemo(
     () => !!Object.keys(providersState).length,
     [providersState]
+  )
+  const hasAccountsState: boolean = useMemo(
+    () => !!Object.keys(accountsState).length,
+    [accountsState]
   )
   const hasWalletState: boolean = useMemo(
     () => !!Object.keys(walletState).length && !!walletState?.isReady,
@@ -119,6 +125,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasMainState &&
       hasNetworksState &&
       hasProvidersState &&
+      hasAccountsState &&
       hasWalletState &&
       hasAccountAdderState &&
       hasKeystoreState &&
@@ -142,6 +149,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasMainState,
     hasNetworksState,
     hasProvidersState,
+    hasAccountsState,
     hasWalletState,
     hasAccountAdderState,
     hasKeystoreState,

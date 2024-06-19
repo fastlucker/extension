@@ -9,7 +9,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { getAddressFromAddressState } from '@common/utils/domains'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 
 interface Props {
   duplicateAccountsIndexes: number[]
@@ -39,7 +39,7 @@ const AddressField: FC<Props> = ({
 }) => {
   const accounts = watch('accounts')
   const value = watch(`accounts.${index}`)
-  const mainControllerState = useMainControllerState()
+  const accountsState = useAccountsControllerState()
 
   const setAddressState = useCallback(
     (newState: AddressStateOptional) => {
@@ -61,7 +61,7 @@ const AddressField: FC<Props> = ({
     if (isLoading) return ''
 
     if (
-      mainControllerState.accounts.find(
+      accountsState.accounts.find(
         (account) => account.addr.toLowerCase() === getAddressFromAddressState(value).toLowerCase()
       )
     )
@@ -70,7 +70,7 @@ const AddressField: FC<Props> = ({
     if (duplicateAccountsIndexes.includes(index)) return 'Duplicate address.'
 
     return ''
-  }, [duplicateAccountsIndexes, index, isLoading, mainControllerState.accounts, value])
+  }, [duplicateAccountsIndexes, index, isLoading, accountsState.accounts, value])
 
   const handleRevalidate = useCallback(() => {
     // We don't want to update the error message while accounts are being

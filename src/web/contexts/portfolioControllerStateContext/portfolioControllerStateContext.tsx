@@ -8,9 +8,9 @@ import {
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -50,8 +50,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const controller = 'portfolio'
   const state = useControllerState(controller)
   const { dispatch } = useBackgroundService()
-  const mainCtrl = useMainControllerState()
-  const account = mainCtrl?.accounts?.find((acc) => acc.addr === mainCtrl.selectedAccount)
+  const accountsState = useAccountsControllerState()
+  const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -76,13 +76,13 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   useEffect(() => {
     // Set an initial empty state for accountPortfolio
     resetAccountPortfolio()
-  }, [mainCtrl.selectedAccount, resetAccountPortfolio])
+  }, [accountsState.selectedAccount, resetAccountPortfolio])
 
   useEffect(() => {
-    if (!mainCtrl.selectedAccount || !account) return
+    if (!accountsState.selectedAccount || !account) return
 
     const newAccountPortfolio = calculateAccountPortfolio(
-      mainCtrl.selectedAccount,
+      accountsState.selectedAccount,
       state,
       prevAccountPortfolio?.current,
       account
@@ -92,7 +92,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       setAccountPortfolio(newAccountPortfolio)
       prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [mainCtrl.selectedAccount, account, state])
+  }, [accountsState.selectedAccount, account, state])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
@@ -156,10 +156,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
 
   const refreshPortfolio = useCallback(() => {
     dispatch({
-      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT',
-      params: {
-        forceUpdate: true
-      }
+      type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO',
+      params: { forceUpdate: true }
     })
     resetAccountPortfolio()
   }, [dispatch, resetAccountPortfolio])
