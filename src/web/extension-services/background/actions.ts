@@ -384,6 +384,10 @@ type ActionsControllerSetCurrentActionByIndex = {
   }
 }
 
+type ActionsControllerSetWindowLoaded = {
+  type: 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED'
+}
+
 type AddressBookControllerAddContact = {
   type: 'ADDRESS_BOOK_CONTROLLER_ADD_CONTACT'
   params: {
@@ -505,6 +509,7 @@ export type Action =
   | ActionsControllerMakeAllActionsActive
   | ActionsControllerSetCurrentActionById
   | ActionsControllerSetCurrentActionByIndex
+  | ActionsControllerSetWindowLoaded
   | AddressBookControllerAddContact
   | AddressBookControllerRenameContact
   | AddressBookControllerRemoveContact
