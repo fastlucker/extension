@@ -21,10 +21,10 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const { accounts } = useAccountsControllerState()
   const { contacts = [] } = useAddressBookControllerState()
   const checksummedAddress = useMemo(() => getAddress(address), [address])
-  const account = useMemo(
-    () => accounts.find((a) => a.addr === checksummedAddress),
-    [accounts, checksummedAddress]
-  )
+  const account = useMemo(() => {
+    if (!accounts) return undefined
+    return accounts.find((a) => a.addr === checksummedAddress)
+  }, [accounts, checksummedAddress])
 
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
 
