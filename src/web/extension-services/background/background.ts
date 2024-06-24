@@ -849,7 +849,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.accounts,
                   mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,
@@ -880,7 +879,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.accounts,
                   mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,
