@@ -78,12 +78,20 @@ const Estimation = ({
       ]
     return signAccountOpState.availableFeeOptions
       .sort((a: FeePaymentOption, b: FeePaymentOption) => {
-        const aId = getFeeSpeedIdentifier(a, signAccountOpState.accountOp.accountAddr)
+        const aId = getFeeSpeedIdentifier(
+          a,
+          signAccountOpState.accountOp.accountAddr,
+          signAccountOpState.rbfAccountOps[a.paidBy]
+        )
         const aSlow = signAccountOpState.feeSpeeds[aId].find((speed) => speed.type === 'slow')
         if (!aSlow) return -1
         const aCanCoverFee = a.availableAmount >= aSlow.amount
 
-        const bId = getFeeSpeedIdentifier(b, signAccountOpState.accountOp.accountAddr)
+        const bId = getFeeSpeedIdentifier(
+          b,
+          signAccountOpState.accountOp.accountAddr,
+          signAccountOpState.rbfAccountOps[b.paidBy]
+        )
         const bSlow = signAccountOpState.feeSpeeds[bId].find((speed) => speed.type === 'slow')
         if (!bSlow) return 1
         const bCanCoverFee = b.availableAmount >= bSlow.amount
@@ -97,7 +105,11 @@ const Estimation = ({
       .map((feeOption) => {
         const gasTankKey = feeOption.token.flags.onGasTank ? 'gasTank' : ''
 
-        const id = getFeeSpeedIdentifier(feeOption, signAccountOpState.accountOp.accountAddr)
+        const id = getFeeSpeedIdentifier(
+          feeOption,
+          signAccountOpState.accountOp.accountAddr,
+          signAccountOpState.rbfAccountOps[feeOption.paidBy]
+        )
         const speedCoverage: FeeSpeed[] = []
         signAccountOpState.feeSpeeds[id].forEach((speed) => {
           if (feeOption.availableAmount >= speed.amount) speedCoverage.push(speed.type)
@@ -130,7 +142,8 @@ const Estimation = ({
     signAccountOpState?.accountOp.accountAddr,
     signAccountOpState?.feeSpeeds,
     hasEstimation,
-    estimationFailed
+    estimationFailed,
+    signAccountOpState?.rbfAccountOps
   ])
 
   const [payValue, setPayValue] = useState(payOptions[0])
@@ -173,7 +186,8 @@ const Estimation = ({
 
     const identifier = getFeeSpeedIdentifier(
       signAccountOpState.selectedOption,
-      signAccountOpState.accountOp.accountAddr
+      signAccountOpState.accountOp.accountAddr,
+      signAccountOpState.rbfAccountOps[signAccountOpState.selectedOption.paidBy]
     )
     return signAccountOpState.feeSpeeds[identifier].map((speed) => ({
       ...speed,
@@ -185,7 +199,8 @@ const Estimation = ({
   }, [
     signAccountOpState?.feeSpeeds,
     signAccountOpState?.selectedOption,
-    signAccountOpState?.accountOp.accountAddr
+    signAccountOpState?.accountOp.accountAddr,
+    signAccountOpState?.rbfAccountOps
   ])
 
   const selectedFee = useMemo(
@@ -292,7 +307,7 @@ const Estimation = ({
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
-        rbfDetected={!!signAccountOpState?.rbfAccountOp}
+        rbfDetected={!!signAccountOpState?.rbfAccountOps[payValue.paidBy]}
       />
     </EstimationWrapper>
   )
