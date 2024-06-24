@@ -18,7 +18,7 @@ interface Props {
   estimationFailed: boolean
   slowRequest: boolean
   isViewOnly: boolean
-  isRbf: boolean
+  rbfDetected: boolean
 }
 
 const Warnings: FC<Props> = ({
@@ -26,7 +26,7 @@ const Warnings: FC<Props> = ({
   estimationFailed,
   slowRequest,
   isViewOnly,
-  isRbf
+  rbfDetected
 }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
@@ -44,7 +44,7 @@ const Warnings: FC<Props> = ({
 
   return (
     <>
-      {!!isRbf && (
+      {!!rbfDetected && (
         <View style={styles.errorContainer}>
           <Alert
             type="warning"

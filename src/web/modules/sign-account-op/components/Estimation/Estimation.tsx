@@ -22,7 +22,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import spacings, { SPACING_MI } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useActivityControllerState from '@web/hooks/useActivityControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import PayOption from '@web/modules/sign-account-op/components/Estimation/components/PayOption'
 import Fee from '@web/modules/sign-account-op/components/Fee'
@@ -62,7 +61,6 @@ const Estimation = ({
 }: Props) => {
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
   const { dispatch } = useBackgroundService()
-  const activityState = useActivityControllerState()
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { minWidthSize } = useWindowSize()
@@ -207,18 +205,6 @@ const Estimation = ({
     [dispatch]
   )
 
-  const lastAccountOp = useMemo(() => {
-    if (!signAccountOpState?.accountOp?.networkId) return null
-
-    return activityState.lastAccountOps[signAccountOpState.accountOp.networkId]
-  }, [signAccountOpState?.accountOp?.networkId, activityState])
-
-  const isRbf = useMemo(() => {
-    if (!lastAccountOp || !signAccountOpState?.accountOp?.nonce) return false
-
-    return lastAccountOp.nonce === signAccountOpState.accountOp.nonce
-  }, [lastAccountOp, signAccountOpState?.accountOp?.nonce])
-
   if ((!hasEstimation && !estimationFailed) || !signAccountOpState) {
     return (
       <EstimationWrapper>
@@ -306,7 +292,7 @@ const Estimation = ({
         estimationFailed={estimationFailed}
         slowRequest={slowRequest}
         isViewOnly={isViewOnly}
-        isRbf={isRbf}
+        rbfDetected={!!signAccountOpState?.rbfAccountOp}
       />
     </EstimationWrapper>
   )
