@@ -165,7 +165,6 @@ const HumanizedVisualization: FC<Props> = ({
 
           return (
             <Text weight="semiBold" key={key}>
-              {' '}
               {foundChain ? foundChain.name : `Unknown chain with id ${item.chainId}`}
             </Text>
           )
