@@ -10,14 +10,12 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useActivityControllerState from '@web/hooks/useActivityControllerState'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
 import HistorySettingsPage from '../../components/TransactionHistory/HistorySettingsPage'
 import SubmittedTransactionSummary from '../../components/TransactionHistory/SubmittedTransactionSummary'
 
 const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network, account }) => {
-  const { accountPreferences } = useSettingsControllerState()
   const activityState = useActivityControllerState()
 
   if (!activityState?.accountsOps?.items?.length) {
@@ -29,7 +27,7 @@ const AccountOpHistory: FC<{ network?: Network; account: Account }> = ({ network
           <Text style={text.center}>
             <Text fontSize={16}>{'No transactions history for\n'}</Text>
             <Text fontSize={16} weight="medium">
-              {`${accountPreferences?.[account.addr]?.label} (${shortenAddress(account.addr, 10)})`}
+              {`${account.preferences.label} (${shortenAddress(account.addr, 10)})`}
             </Text>
             <Text fontSize={16}>{' on '}</Text>
             <Text fontSize={16} weight="medium">

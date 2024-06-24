@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -6,11 +6,10 @@ import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
 import { Avatar } from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { DEFAULT_ACCOUNT_LABEL } from '@common/constants/account'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useSettingsControllerState from '@web/hooks/useSettingsControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import shortenAddress from '@web/utils/shortenAddress'
 
 const PayOption = ({
@@ -23,13 +22,19 @@ const PayOption = ({
   disabledReason?: string
 }) => {
   const { t } = useTranslation()
-  const settingsCtrl = useSettingsControllerState()
   const { maxWidthSize } = useWindowSize()
   const isL = maxWidthSize('l')
-  const accountPref = settingsCtrl.accountPreferences[feeOption.paidBy]
+  const { accounts } = useAccountsControllerState()
+
   const iconSize = isL ? 20 : 16
-  const label = accountPref?.label || DEFAULT_ACCOUNT_LABEL
   const disabledStyle = disabled ? { opacity: 0.5 } : {}
+
+  const account = useMemo(
+    () => accounts.find((a) => a.addr === feeOption.paidBy),
+    [accounts, feeOption.paidBy]
+  )
+
+  if (!account) return null
 
   return (
     <View
@@ -53,10 +58,10 @@ const PayOption = ({
           }
         ]}
       >
-        <Avatar pfp={accountPref?.pfp} size={32} />
+        <Avatar pfp={account.preferences.pfp} size={32} />
         <View style={[flexbox.flex1, spacings.mrMi]}>
           <Text weight="medium" fontSize={isL ? 14 : 12} numberOfLines={1}>
-            {label}
+            {account.preferences.label}
           </Text>
           <Text weight="medium" fontSize={10} numberOfLines={1} appearance="secondaryText">
             (
@@ -123,4 +128,4 @@ const PayOption = ({
   )
 }
 
-export default PayOption
+export default React.memo(PayOption)

@@ -84,7 +84,9 @@ export class ProviderController {
       throw ethErrors.provider.unauthorized()
     }
 
-    const account = this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
+    const account = this.mainCtrl.accounts.selectedAccount
+      ? [this.mainCtrl.accounts.selectedAccount]
+      : []
     this.mainCtrl.dapps.broadcastDappSessionEvent('accountsChanged', account)
 
     return account
@@ -96,7 +98,7 @@ export class ProviderController {
       return []
     }
 
-    return this.mainCtrl.selectedAccount ? [this.mainCtrl.selectedAccount] : []
+    return this.mainCtrl.accounts.selectedAccount ? [this.mainCtrl.accounts.selectedAccount] : []
   }
 
   ethCoinbase = async ({ session: { origin } }: DappProviderRequest) => {
@@ -104,7 +106,7 @@ export class ProviderController {
       return null
     }
 
-    return this.mainCtrl.selectedAccount || null
+    return this.mainCtrl.accounts.selectedAccount || null
   }
 
   @Reflect.metadata('SAFE', true)

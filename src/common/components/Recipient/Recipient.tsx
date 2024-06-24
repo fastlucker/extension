@@ -15,8 +15,8 @@ import Text from '@common/components/Text'
 import useSelect from '@common/hooks/useSelect'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useAddressBookControllerState from '@web/hooks/useAddressBookControllerState'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 
 import AddContactBottomSheet from './AddContactBottomSheet'
 import AddressBookDropdown from './AddressBookDropdown'
@@ -62,7 +62,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningAgreed,
   selectedTokenSymbol
 }) => {
-  const { selectedAccount } = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const actualAddress = ensAddress || uDAddress || address
   const { t } = useTranslation()
   const { theme } = useTheme()

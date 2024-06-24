@@ -26,8 +26,8 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import SendForm from '@web/modules/transfer/components/SendForm/SendForm'
 
@@ -49,7 +49,7 @@ const TransferScreen = () => {
   const { navigate } = useNavigation()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
-  const { selectedAccount, accounts } = useMainControllerState()
+  const { selectedAccount, accounts } = useAccountsControllerState()
   const selectedAccountData = accounts.find((account) => account.addr === selectedAccount)
   const isSmartAccount = selectedAccountData ? getIsSmartAccount(selectedAccountData) : false
 

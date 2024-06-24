@@ -21,7 +21,7 @@ import {
   TabLayoutWrapperMainContent
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { createTab } from '@web/extension-services/background/webapi/tab'
-import useMainControllerState from '@web/hooks/useMainControllerState'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import Networks from '@web/modules/networks/components/Networks'
 
 import AllNetworksOption from '../components/AllNetworksOption/AllNetworksOption'
@@ -33,7 +33,7 @@ const NetworksScreen = () => {
   const { state } = useRoute()
   const { theme } = useTheme()
   const { navigate } = useNavigation()
-  const { selectedAccount } = useMainControllerState()
+  const { selectedAccount } = useAccountsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [selectedNetworkId, setSelectedNetworkId] = useState<NetworkId | null>(null)
   const filterByNetworkId = state?.filterByNetworkId || null
