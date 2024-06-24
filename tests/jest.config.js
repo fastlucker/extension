@@ -9,6 +9,7 @@ module.exports = {
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
   testTimeout: 120000,
+  // TODO: Validate if this fixes the problem on the CI too.
   maxWorkers: 1,
   testPathIgnorePatterns: [
     // FIXME: Temporary disable running the smart account tests, until they are running correctly
