@@ -26,7 +26,7 @@ export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
     await finishStoriesAndSelectAccount(page, 'true')
 
   // Click on "Save and Continue" button
-  await new Promise((r) => setTimeout(r, 1000))
+  await page.waitForSelector('[data-testid="button-save-and-continue"]:not([disabled])')
   await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
   await page.waitForFunction(
@@ -113,7 +113,7 @@ export async function createAccountWithInvalidPhrase(page) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress) {
-  await new Promise((r) => setTimeout(r, 1000))
+  await page.waitForSelector('[data-testid="stories-button-next"]')
   const buttonNext = '[data-testid="stories-button-next"]'
 
   await page.waitForSelector(buttonNext)
@@ -139,13 +139,13 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
   await clickOnElement(page, '[data-testid="get-started-button-add"]')
 
   await typeText(page, '[data-testid="address-ens-field"]', viewOnlyAddress)
-  await new Promise((r) => setTimeout(r, 500))
 
   // Click on "Import View-Only Accounts" button
+  await page.waitForSelector('[data-testid="view-only-button-import"]')
   await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
   // Click on "Account"
-  await new Promise((r) => setTimeout(r, 1000))
+  await page.waitForSelector('[data-testid="button-save-and-continue"]:not([disabled])')
   await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
 
   await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
