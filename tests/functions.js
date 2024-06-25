@@ -284,6 +284,10 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   await page.waitForSelector('xpath///a[contains(text(), "Next")]')
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
 
+  // TODO: Figure out if this helps. Wait for the animation (transition) between
+  // this and the next element to complete.
+  await new Promise((r) => setTimeout(r, 1000))
+
   await page.waitForSelector('xpath///a[contains(text(), "Got it")]', { timeout: 60000 })
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
 
