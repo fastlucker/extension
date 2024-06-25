@@ -9,7 +9,11 @@ module.exports = {
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
   testTimeout: 120000,
-  // TODO: Validate if this fixes the problem on the CI too.
+  // TODO: Concurrently running all E2E tests cause random failures, causing
+  // timeouts to get reached for some tests (sometimes). Limiting the
+  // concurrently running test suites solved the glitch, but that's a temporary
+  // solution. We need to investigate the root cause of the random failures
+  // and timeouts and fix them.
   maxWorkers: 1,
   testPathIgnorePatterns: [
     // FIXME: Temporary disable running the smart account tests, until they are running correctly
