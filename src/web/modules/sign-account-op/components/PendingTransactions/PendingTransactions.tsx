@@ -8,6 +8,7 @@ import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SectionHeading from '@web/modules/sign-account-op/components/SectionHeading'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
@@ -22,6 +23,7 @@ interface Props {
 const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
+  const { networks } = useNetworksControllerState()
 
   return (
     <View style={styles.transactionsContainer}>
@@ -31,11 +33,12 @@ const PendingTransactions: FC<Props> = ({ callsToVisualize, network }) => {
           callsToVisualize.map((call, i) => {
             return (
               <TransactionSummary
-                key={`${call.fromUserRequestId}+${i}`}
+                key={`${call.fromUserRequestId!}+${i}`}
                 style={i !== callsToVisualize.length - 1 ? spacings.mbSm : {}}
                 call={call}
                 networkId={network?.id || ''}
                 testID={`recipient-address-${i}`}
+                networks={networks}
               />
             )
           })
