@@ -32,6 +32,7 @@ interface Props {
   backgroundColor?: 'primaryBackground' | 'secondaryBackground'
   autoWidth?: boolean
   autoOpen?: boolean
+  shouldBeClosableOnDrag?: boolean
 }
 
 const ANIMATION_DURATION: number = 250
@@ -54,7 +55,8 @@ const BottomSheet: React.FC<Props> = ({
   scrollViewProps,
   backgroundColor = 'secondaryBackground',
   autoWidth = false,
-  autoOpen = false
+  autoOpen = false,
+  shouldBeClosableOnDrag = true
 }) => {
   const type = _type || (isPopup ? 'bottom-sheet' : 'modal')
   const isModal = type === 'modal'
@@ -161,6 +163,7 @@ const BottomSheet: React.FC<Props> = ({
         disableScrollIfPossible={false}
         withOverlay={false}
         onBackButtonPress={() => true}
+        panGestureEnabled={shouldBeClosableOnDrag}
         {...(!flatListProps
           ? {
               scrollViewProps: {

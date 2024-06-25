@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react'
 
 import { ERC_4337_ENTRYPOINT } from '@ambire-common/consts/deploy'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
+import { Fetch } from '@ambire-common/interfaces/fetch'
 import { Network } from '@ambire-common/interfaces/network'
 import { Storage } from '@ambire-common/interfaces/storage'
 import { AccountOp } from '@ambire-common/libs/accountOp/accountOp'
@@ -41,7 +42,7 @@ interface Props {
   network?: Network
   standardOptions: {
     storage: Storage
-    fetch: any
+    fetch: Fetch
     emitError: (e: ErrorRef) => number
     parser: Function
   }
