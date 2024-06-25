@@ -30,16 +30,11 @@ export async function changePassword(page, extensionRootUrl) {
   await page.waitForSelector('[data-testid="device-pass-success-modal"]')
 
   // Click on the element within the modal
-  await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
-
-  await new Promise((r) => setTimeout(r, 1000))
-
-  const isModalExist = await page.evaluate(() => {
-    // Check if the element "device-pass-success-modal" exists
-    return !!document.querySelector('[data-testid="device-pass-success-modal"]')
+  clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+  // Wait for the modal to be closed
+  await page.waitForSelector('[data-testid="device-pass-success-modal"]', {
+    hidden: true
   })
-
-  expect(isModalExist).toBe(false)
 }
 
 //--------------------------------------------------------------------------------------------------------------

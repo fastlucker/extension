@@ -281,11 +281,12 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
 
-  await new Promise((r) => setTimeout(r, 2000))
+  await page.waitForSelector('xpath///a[contains(text(), "Next")]')
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
 
-  await new Promise((r) => setTimeout(r, 2000))
+  await page.waitForSelector('xpath///a[contains(text(), "Got it")]')
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
 
