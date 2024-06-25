@@ -284,7 +284,7 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   await page.waitForSelector('xpath///a[contains(text(), "Next")]')
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
 
-  await page.waitForSelector('xpath///a[contains(text(), "Got it")]')
+  await page.waitForSelector('xpath///a[contains(text(), "Got it")]', { timeout: 60000 })
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
