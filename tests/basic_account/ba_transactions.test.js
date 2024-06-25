@@ -27,23 +27,23 @@ describe('ba_transactions', () => {
     await browser.close()
   })
 
-  it('Make valid transaction', async () => {
-    await makeValidTransaction(page, extensionRootUrl, browser)
-  })
-
-  it('Make valid swap ', async () => {
-    await makeSwap(page, extensionRootUrl, browser)
-  })
-
-  it('(-) Send matics greater than the available balance ', async () => {
+  it('(-) Sends MATIC tokens greater than the available balance', async () => {
     await sendFundsGreaterThatBalance(page, extensionRootUrl)
   })
 
-  it('(-) Send matics to smart contract ', async () => {
+  it('(-) Sends MATIC tokens to a smart contract', async () => {
     await sendFundsToSmartContract(page, extensionRootUrl)
   })
 
-  it('Sign message', async () => {
+  it('Makes a valid transaction', async () => {
+    await makeValidTransaction(page, extensionRootUrl, browser)
+  })
+
+  it('Makes a valid swap', async () => {
+    await makeSwap(page, extensionRootUrl, browser)
+  })
+
+  it('Signs a message', async () => {
     await signMessage(page, extensionRootUrl, browser, process.env.BA_SELECTED_ACCOUNT)
   })
 })

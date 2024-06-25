@@ -337,65 +337,54 @@ export async function confirmTransaction(
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
 
-  await new Promise((r) => setTimeout(r, 1000))
-
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  let newPage = await newTarget.page()
-  newPage.setViewport({
-    width: 1300,
-    height: 700
-  })
-  await new Promise((r) => setTimeout(r, 2000))
+  let actionWindowPage = await newTarget.page()
+  actionWindowPage.setViewport({ width: 1300, height: 700 })
 
-  // Check if "sign-message" window is open
-  const buttonSignExists = await newPage.evaluate(() => {
-    return !!document.querySelector('[data-testid="button-sign"]')
-  })
-  if (buttonSignExists) {
+  // Check if "sign-message" action-window is open
+  if (actionWindowPage.url().endsWith('/sign-message')) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await newPage.click('[data-testid="button-sign"]')
+    await actionWindowPage.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
     )
     const newPageTarget = await newPagePromise2
 
-    newPage = await newPageTarget.page() // Update newPage to capture the new window
+    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
   }
 
   // Check if select fee token is visible
-  const selectToken = await newPage.evaluate(() => {
-    return !!document.querySelector('[data-testid="tokens-select"]')
-  })
+  const tokenSelect = await actionWindowPage.evaluate(
+    () => !!document.querySelector('[data-testid="select"]')
+  )
 
-  if (selectToken) {
+  if (tokenSelect) {
     // Get the text content of the element
-    const selectText = await newPage.evaluate(() => {
-      const element = document.querySelector('[data-testid="tokens-select"]')
+    const selectText = await actionWindowPage.evaluate(() => {
+      const element = document.querySelector('[data-testid="select"]')
       return element.textContent.trim()
     })
 
     // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
     if (selectText.includes('Gas Tank')) {
       // Click on the tokens select
-      await clickOnElement(newPage, '[data-testid="tokens-select"]')
-      // Wait for some time
-      await new Promise((r) => setTimeout(r, 2000))
-
+      await clickOnElement(actionWindowPage, '[data-testid="select"]')
+      await actionWindowPage.waitForSelector('[data-testid="select-menu"]')
       // Click on the Gas Tank option
-      await clickOnElement(newPage, feeToken)
+      await clickOnElement(actionWindowPage, feeToken)
     }
   }
   // Click on "Ape" button
-  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+  await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
-  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
+  await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(
+  await actionWindowPage.waitForFunction(
     () => {
       const pageText = document.documentElement.innerText
       const occurrences = (pageText.match(/Timestamp/g) || []).length
@@ -404,16 +393,14 @@ export async function confirmTransaction(
     { timeout: 250000 }
   )
 
-  const doesFailedExist = await newPage.evaluate(() => {
+  const doesFailedExist = await actionWindowPage.evaluate(() => {
     const pageText = document.documentElement.innerText
     return pageText.includes('failed') || pageText.includes('dropped')
   })
 
-  await new Promise((r) => setTimeout(r, 300))
-
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 
-  const currentURL = await newPage.url()
+  const currentURL = await actionWindowPage.url()
 
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')
