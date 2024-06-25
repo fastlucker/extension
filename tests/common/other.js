@@ -50,8 +50,7 @@ export async function addContactInAddressBook(page, extensionRootUrl) {
   await typeText(page, '[data-testid="contact-name-field"]', addName)
   await typeText(page, '[data-testid="address-ens-field"]', addAddress)
 
-  await new Promise((r) => setTimeout(r, 1000))
-
+  await page.waitForSelector('[data-testid="add-to-address-book-button"]')
   await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
 
   await page.waitForSelector('[data-testid="name-first-address"]')

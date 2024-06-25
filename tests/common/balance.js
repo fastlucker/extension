@@ -6,16 +6,16 @@ export async function checkBalanceInAccount(page) {
   await new Promise((r) => setTimeout(r, 1000))
 
   // Get the available balance
-  const availableAmmount = await page.evaluate(() => {
+  const availableAmount = await page.evaluate(() => {
     const balance = document.querySelector('[data-testid="full-balance"]')
     return balance.innerText
   })
 
-  let availableAmmountNum = availableAmmount.replace(/\n/g, '')
-  availableAmmountNum = availableAmmountNum.split('$')[1]
+  let availableAmountNum = availableAmount.replace(/\n/g, '')
+  availableAmountNum = availableAmountNum.split('$')[1]
 
   // Verify that the balance is bigger than 0
-  expect(parseFloat(availableAmmountNum)).toBeGreaterThan(0)
+  expect(parseFloat(availableAmountNum)).toBeGreaterThan(0)
 }
 
 //--------------------------------------------------------------------------------------------------------------
