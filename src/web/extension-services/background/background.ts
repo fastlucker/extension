@@ -11,6 +11,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network } from '@ambire-common/interfaces/network'
 import {
@@ -121,11 +122,31 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
+  // Custom headers, as of v4.26.0 will be only extension-specific. TBD for the other apps.
+  const fetchWithCustomHeaders: Fetch = (url, init) => {
+    const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
+    initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
+
+    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
+    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+
+    // Use the native fetch (instead of node-fetch or whatever else) since
+    // browser extensions are designed to run within the web environment,
+    // which already provides a native and well-optimized fetch API.
+    const fetchFn = isManifestV3
+      ? fetch
+      : // Popup pages don't have access to the global fetch, causing:
+        // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
+        // Binding window to fetch provides the correct context.
+        window.fetch.bind(window)
+
+    return fetchFn(url, initWithCustomHeaders)
+  }
+
   const mainCtrl = new MainController({
     storage,
-    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
-    // binding window to fetch provides the correct context
-    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
+    fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
     keystoreSigners: {
@@ -762,6 +783,8 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.actions.setCurrentActionById(params.actionId)
               case 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_INDEX':
                 return mainCtrl.actions.setCurrentActionByIndex(params.index)
+              case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
+                return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
                 if (!mainCtrl.accounts.selectedAccount) return
@@ -809,7 +832,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.portfolio.updateTokenPreferences(tokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.accounts,
                   mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,
@@ -840,7 +862,6 @@ function stateDebug(event: string, stateToLog: object) {
 
                 await mainCtrl.portfolio.updateTokenPreferences(newTokenPreferences)
                 return await mainCtrl.portfolio.updateSelectedAccount(
-                  mainCtrl.accounts.accounts,
                   mainCtrl.accounts.selectedAccount || '',
                   tokenNetwork,
                   undefined,

@@ -3,6 +3,7 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
@@ -12,6 +13,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -34,6 +36,8 @@ const HumanizedVisualization: FC<Props> = ({
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
+  const { networks: settingsNetworks } = useNetworksControllerState()
+  const networks = settingsNetworks ?? constantNetworks
 
   return (
     <View
@@ -156,6 +160,15 @@ const HumanizedVisualization: FC<Props> = ({
               marginRight={marginRight}
             />
           )
+        if (item.type === 'chain' && item.chainId) {
+          const foundChain = networks.find((n) => n.chainId === item.chainId)
+
+          return (
+            <Text weight="semiBold" key={key}>
+              {t(foundChain ? foundChain.name : `Unknown chain with id ${item.chainId}`)}
+            </Text>
+          )
+        }
         if (item.content) {
           return (
             <Text
