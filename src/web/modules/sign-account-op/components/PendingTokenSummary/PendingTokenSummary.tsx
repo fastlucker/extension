@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 import { View } from 'react-native'
 
 import { NetworkId } from '@ambire-common/interfaces/network'
-import { TokenResult } from '@ambire-common/libs/portfolio/interfaces'
+import { PendingToken } from '@ambire-common/libs/portfolio/portfolioView'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -14,7 +14,7 @@ import formatDecimals from '@common/utils/formatDecimals'
 import getStyles from './styles'
 
 interface Props {
-  token: TokenResult
+  token: PendingToken
   networkId: NetworkId
   hasBottomSpacing?: boolean
 }
@@ -31,24 +31,24 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
 
     if (!usdPrice) return null
 
-    const value = usdPrice * Number(formatUnits(token.simulationAmount!, token.decimals))
+    const value = usdPrice * Number(formatUnits(token.amountToSend, token.decimals))
 
     return formatDecimals(value)
   }, [token])
 
   const amountToSendSign = useMemo(() => {
-    if (token.simulationAmount! < 0) return '-'
-    if (token.simulationAmount! > 0) return '+'
+    if (token.type === 'send') return '-'
+    if (token.type === 'receive') return '+'
 
     return ''
-  }, [token.simulationAmount])
+  }, [token.type])
 
   const amountToSendTextColor = useMemo(() => {
-    if (token.simulationAmount! < 0) return colors.radicalRed
-    if (token.simulationAmount! > 0) return colors.greenHaze
+    if (token.type === 'send') return colors.radicalRed
+    if (token.type === 'receive') return colors.greenHaze
 
     return colors.martinique
-  }, [token.simulationAmount])
+  }, [token.type])
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
@@ -63,7 +63,7 @@ const PendingTokenSummary = ({ token, networkId, hasBottomSpacing = true }: Prop
       </View>
       <Text selectable fontSize={16} weight="medium" color={amountToSendTextColor}>
         {`${amountToSendSign}${formatDecimals(
-          Math.abs(Number(formatUnits(token.simulationAmount!, token.decimals || 18)))
+          Number(formatUnits(token.amountToSend, token.decimals || 18))
         )}`}
         <Text fontSize={16} weight="medium">
           {` ${token.symbol}`}
