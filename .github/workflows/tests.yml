@@ -30,7 +30,7 @@ jobs:
 
       - name: Install NPM packages ♾️🕳️
         env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: yarn install
 
       - name: Git submodules init
@@ -51,7 +51,7 @@ jobs:
           # Its value is based on the above Display server configuration
           DISPLAY: ':99.0'
           RELAYER_URL: ${{ secrets.RELAYER_URL }}
-          VELCRO_URL: ${{ secrets.VELCRO_API_ENDPOINT }}
+          VELCRO_URL: ${{ secrets.VELCRO_URL }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD }}
           BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV: ${{ secrets.BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
