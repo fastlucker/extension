@@ -3,7 +3,6 @@ import React, { FC, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
-import { calculateTokensPendingState } from '@ambire-common/libs/portfolio/portfolioView'
 import Alert from '@common/components/Alert'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Text from '@common/components/Text'
@@ -33,11 +32,14 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
 
   const pendingTokens = useMemo(() => {
     if (signAccountOpState?.accountOp && network) {
-      return calculateTokensPendingState(
-        signAccountOpState?.accountOp.accountAddr,
-        network,
-        portfolioState.state
-      )
+      const pendingData =
+        portfolioState.state.pending[signAccountOpState.accountOp.accountAddr][network.id]
+
+      if (!pendingData || !pendingData.isReady || !pendingData.result) {
+        return []
+      }
+
+      return pendingData.result.tokens.filter((token) => token.simulationAmount !== undefined)
     }
     return []
   }, [network, portfolioState.state, signAccountOpState?.accountOp])
@@ -49,12 +51,12 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
   }, [network, portfolioState.state.pending, signAccountOpState?.accountOp])
 
   const pendingSendTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'send'),
+    () => pendingTokens.filter((token) => token.simulationAmount! < 0),
     [pendingTokens]
   )
 
   const pendingReceiveTokens = useMemo(
-    () => pendingTokens.filter((token) => token.type === 'receive'),
+    () => pendingTokens.filter((token) => token.simulationAmount! > 0),
     [pendingTokens]
   )
 

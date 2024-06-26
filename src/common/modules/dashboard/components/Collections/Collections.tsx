@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FlatListProps, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import CollectibleModal, { SelectedCollectible } from '@common/components/CollectibleModal'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
@@ -27,19 +27,11 @@ interface Props {
   }
   filterByNetworkId: NetworkId
   onScroll: FlatListProps<any>['onScroll']
-  networks: Network[]
 }
 
 const { isPopup } = getUiType()
 
-const Collections: FC<Props> = ({
-  openTab,
-  setOpenTab,
-  initTab,
-  onScroll,
-  filterByNetworkId,
-  networks
-}) => {
+const Collections: FC<Props> = ({ openTab, setOpenTab, initTab, onScroll, filterByNetworkId }) => {
   const { accountPortfolio } = usePortfolioControllerState()
   const { ref: modalRef, open: openModal, close: closeModal } = useModalize()
   const { t } = useTranslation()
@@ -125,7 +117,6 @@ const Collections: FC<Props> = ({
           collectibles={collectibles}
           priceIn={priceIn}
           openCollectibleModal={openCollectibleModal}
-          networks={networks}
         />
       )
     },
