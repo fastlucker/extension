@@ -281,11 +281,16 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
 
-  await new Promise((r) => setTimeout(r, 2000))
+  await page.waitForSelector('xpath///a[contains(text(), "Next")]')
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
 
-  await new Promise((r) => setTimeout(r, 2000))
+  // TODO: Figure out if this helps. Wait for the animation (transition) between
+  // this and the next element to complete.
+  await new Promise((r) => setTimeout(r, 1000))
+
+  await page.waitForSelector('xpath///a[contains(text(), "Got it")]', { timeout: 60000 })
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
 
@@ -335,39 +340,24 @@ export async function triggerTransaction(
   const elementToClick = await page.waitForSelector(triggerTransactionSelector)
   await elementToClick.click()
 
-  await new Promise((r) => setTimeout(r, 1000))
-
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  const newPage = await newTarget.page()
-  newPage.setViewport({
-    width: 1300,
-    height: 700
-  })
+  let actionWindowPage = await newTarget.page()
+  actionWindowPage.setViewport({ width: 1300, height: 700 })
 
-  return newPage
-}
-
-//----------------------------------------------------------------------------------------------
-export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
-  let newPage = page // Initialize newPage with the current page
-
-  const buttonSignExists = await page.evaluate(() => {
-    return !!document.querySelector('[data-testid="button-sign"]')
-  })
-
-  if (buttonSignExists) {
+  // Check if "sign-message" action-window is open
+  if (actionWindowPage.url().endsWith('/sign-message')) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await page.click('[data-testid="button-sign"]')
+    await actionWindowPage.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
     )
     const newPageTarget = await newPagePromise2
 
-    newPage = await newPageTarget.page() // Update newPage to capture the new window
+    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
   }
 
   return { newPage }
@@ -376,31 +366,33 @@ export async function checkForSignMessageWindow(page, extensionRootUrl, browser)
 //----------------------------------------------------------------------------------------------
 export async function selectFeeToken(page, feeToken) {
   // Check if select fee token is visible
-  const selectToken = await page.evaluate(() => {
-    return !!document.querySelector('[data-testid="tokens-select"]')
-  })
+  const tokenSelect = await actionWindowPage.evaluate(
+    () => !!document.querySelector('[data-testid="select"]')
+  )
 
-  if (selectToken) {
-    // Click on the tokens select
-    await clickOnElement(page, '[data-testid="tokens-select"]')
-    // Wait for some time
-    await new Promise((r) => setTimeout(r, 2000))
+  if (tokenSelect) {
+    // Get the text content of the element
+    const selectText = await actionWindowPage.evaluate(() => {
+      const element = document.querySelector('[data-testid="select"]')
+      return element.textContent.trim()
+    })
 
-    // Click on the Gas Tank option
-    await clickOnElement(page, feeToken)
+    // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
+    if (selectText.includes('Gas Tank')) {
+      // Click on the tokens select
+      await clickOnElement(actionWindowPage, '[data-testid="select"]')
+      await actionWindowPage.waitForSelector('[data-testid="select-menu"]')
+      // Click on the Gas Tank option
+      await clickOnElement(actionWindowPage, feeToken)
+    }
   }
-}
-
-//----------------------------------------------------------------------------------------------
-export async function signAndConfirmTransaction(newPage) {
   // Click on "Ape" button
-  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+  await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
-  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-
+  await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(
+  await actionWindowPage.waitForFunction(
     () => {
       const pageText = document.documentElement.innerText
       const occurrences = (pageText.match(/Timestamp/g) || []).length
@@ -409,16 +401,14 @@ export async function signAndConfirmTransaction(newPage) {
     { timeout: 250000 }
   )
 
-  const doesFailedExist = await newPage.evaluate(() => {
+  const doesFailedExist = await actionWindowPage.evaluate(() => {
     const pageText = document.documentElement.innerText
     return pageText.includes('failed') || pageText.includes('dropped')
   })
 
-  await new Promise((r) => setTimeout(r, 300))
-
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 
-  const currentURL = await newPage.url()
+  const currentURL = await actionWindowPage.url()
 
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')

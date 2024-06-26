@@ -33,6 +33,7 @@ const MenuContainer: FC<Props> = ({
     <Portal hostName="global">
       <View
         ref={menuRef}
+        testID="select-menu"
         style={[
           styles.menuContainer,
           { width, maxHeight: maxDynamicHeight, left: x },

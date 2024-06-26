@@ -14,16 +14,14 @@ const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(page, extensionRootUrl, browser) {
   // Click on "Send" button
+  await page.waitForSelector('[data-testid="dashboard-button-send"]')
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
-  await page.waitForSelector(amountField)
-
+  await page.waitForSelector('[data-testid="amount-field"]')
   await selectMaticToken(page)
+  await typeText(page, '[data-testid="amount-field"]', '0.0001') // Type the amount
 
-  // Type the amount
-  await typeText(page, amountField, '0.0001')
-
-  // Type the adress of the recipient
+  // Type the address of the recipient
   await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
   await page.waitForXPath(
     '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
@@ -31,15 +29,14 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
   await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
 
   // Check the checkbox "Confirm sending to a previously unknown address"
+  await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
   await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
   // Check the checkbox "I confirm this address is not a Binance wallets...."
-  const checkboxExists = await page.evaluate(() => {
-    return !!document.querySelector('[data-testid="checkbox"]')
-  })
-  if (checkboxExists) {
-    await clickOnElement(page, '[data-testid="checkbox"]')
-  }
+  const checkboxExists = await page.evaluate(
+    () => !!document.querySelector('[data-testid="checkbox"]')
+  )
+  if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
 
   const newPage = await triggerTransaction(
     page,
@@ -66,30 +63,24 @@ export async function makeSwap(page, extensionRootUrl, browser) {
 
   // Click on 'connect' button
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
-  // await new Promise((r) => setTimeout(r, 2000))
 
-  // Select 'MetaMask'
+  // Select option: 'Injected Wallet'
   await clickElementWithRetry(page, '[data-testid="wallet-option-injected"]')
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
   )
-  let newPage = await newTarget.page()
+  const actionWindowPage = await newTarget.page()
+  await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
-  await newPage.setViewport({
-    width: 1000,
-    height: 1000
-  })
+  await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
 
-  await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
-
-  await new Promise((r) => setTimeout(r, 1000))
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
 
-  await new Promise((r) => setTimeout(r, 1000))
-  await clickOnElement(page, '[data-testid="common-base-USDT"]')
+  const USDTSelector = await page.waitForSelector('[data-testid="common-base-USDT"]')
+  await USDTSelector.click()
 
   await page.waitForSelector('[data-testid="common-base-USDT"]', {
     hidden: true,
@@ -99,31 +90,22 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   // Click on 'Select token' and select 'USDC' token
   await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
-  // await new Promise((r) => setTimeout(r, 500))
   await clickOnElement(page, '[data-testid="common-base-USDC"]')
-  // wait until elemenent is not displayed
+  // wait until element is not displayed
   await page.waitForSelector('[data-testid="common-base-USDC"]', {
     hidden: true,
     timeout: 3000
   })
   await typeText(page, '#swap-currency-output', '0.0001')
-
-  const swapBtn = '[data-testid="swap-button"]:not([disabled])'
-  await new Promise((r) => setTimeout(r, 500))
-  await page.waitForSelector(swapBtn)
-  await page.click(swapBtn)
-  const confirmSwapBtn = '[data-testid="confirm-swap-button"]:not([disabled]'
+  await page.waitForSelector('[data-testid="swap-button"]:not([disabled])')
+  await page.click('[data-testid="swap-button"]:not([disabled])')
 
   // Click on 'Confirm Swap' button and confirm transaction
-
-  newPage = await triggerTransaction(page, browser, extensionRootUrl, confirmSwapBtn)
-  await new Promise((r) => setTimeout(r, 2000))
-  // Check if "sign-message" window is open
-  const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
-  newPage = result.newPage
-  // Check if select fee token is visible and select the token
-  await selectFeeToken(
-    newPage,
+  await confirmTransaction(
+    page,
+    extensionRootUrl,
+    browser,
+    '[data-testid="confirm-swap-button"]:not([disabled]',
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
   await new Promise((r) => setTimeout(r, 1000))
@@ -135,16 +117,16 @@ export async function makeSwap(page, extensionRootUrl, browser) {
 export async function sendFundsGreaterThatBalance(page, extensionRootUrl) {
   await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
-  await page.waitForSelector('[data-testid="max-available-ammount"]')
+  await page.waitForSelector('[data-testid="max-available-amount"]')
 
   await selectMaticToken(page)
 
   // Get the available balance
-  const maxAvailableAmmount = await page.evaluate(() => {
-    const balance = document.querySelector('[data-testid="max-available-ammount"]')
+  const maxAvailableAmount = await page.evaluate(() => {
+    const balance = document.querySelector('[data-testid="max-available-amount"]')
     return balance.textContent
   })
-  const balance1 = 1 + maxAvailableAmmount
+  const balance1 = 1 + maxAvailableAmount
 
   // Type the amount bigger than balance
   await typeText(page, amountField, balance1)
@@ -166,14 +148,14 @@ export async function sendFundsGreaterThatBalance(page, extensionRootUrl) {
 export async function sendFundsToSmartContract(page, extensionRootUrl) {
   await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
-  await page.waitForSelector('[data-testid="max-available-ammount"]')
+  await page.waitForSelector('[data-testid="max-available-amount"]')
 
   await selectMaticToken(page)
 
   // Type the amount
   await typeText(page, amountField, '0.0001')
 
-  // Type the adress of smart contract in the "Add Recipient" field
+  // Type the address of smart contract in the "Add Recipient" field
   await typeText(page, recipientField, '0x4e15361fd6b4bb609fa63c81a2be19d873717870')
 
   // Verify that the message "The amount is greater than the asset's balance:" exist on the page
@@ -193,15 +175,18 @@ export async function sendFundsToSmartContract(page, extensionRootUrl) {
 export async function signMessage(page, extensionRootUrl, browser, signerAddress) {
   /* Allow permissions for read and write in clipboard */
   const context = browser.defaultBrowserContext()
-  context.overridePermissions('https://sigtool.ambire.com', ['clipboard-read', 'clipboard-write'])
-
-  await new Promise((r) => setTimeout(r, 2000))
+  await context.overridePermissions('https://sigtool.ambire.com', [
+    'clipboard-read',
+    'clipboard-write'
+  ])
   await page.goto('https://sigtool.ambire.com/#dummyTodo', { waitUntil: 'load' })
 
   // Click on 'connect wallet' button
-  await clickOnElement(page, 'button[class="button-connect"]')
+  const connectButtonSelector = await page.waitForSelector('button[class="button-connect"]')
+  connectButtonSelector.click()
   // Select 'MetaMask'
-  await page.click('>>>[class^="name"]')
+  const connectWalletButtonSelector = await page.waitForSelector('>>>[class^="name"]')
+  connectWalletButtonSelector.click()
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
@@ -213,24 +198,25 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
   // Type message in the 'Message' field
   const textMessage = 'text message'
   await typeText(page, '[placeholder="Message (Hello world)"]', textMessage)
-  await new Promise((r) => setTimeout(r, 500))
 
   // Click on "Sign" button
-  await clickOnElement(page, 'xpath///span[contains(text(), "Sign")]')
+  const signButtonSelector = await page.waitForSelector('xpath///span[contains(text(), "Sign")]')
+  signButtonSelector.click()
 
   // Wait for the new window to be created and switch to it
-  const newTarget2 = await browser.waitForTarget(
+  const actionWindowTarget = await browser.waitForTarget(
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
   )
-  const newPage2 = await newTarget2.page()
+  const actionWindowPage = await actionWindowTarget.page()
 
-  await newPage2.setViewport({
-    width: 1000,
-    height: 1000
-  })
+  await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   // Click on "Sign" button
-  await clickOnElement(newPage2, '[data-testid="button-sign"]')
+  const signActionButtonSelector = await actionWindowPage.waitForSelector(
+    '[data-testid="button-sign"]'
+  )
+  signActionButtonSelector.click()
+
   await page.waitForSelector('.signatureResult-signature')
   // Get the Message signature text
   const messageSignature = await page.evaluate(() => {
@@ -255,10 +241,7 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
   // Click on "Verify" button
   await clickOnElement(page, '#verifyButton')
 
-  await new Promise((r) => setTimeout(r, 2000))
-
   // Verify that sign message is valid
-  const validateMessage = 'Signature is Valid'
   // Wait until the 'Signature is Valid' text appears on the page
   await page.waitForFunction(
     (text) => {
@@ -266,6 +249,6 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
       return element && element.textContent.includes(text)
     },
     {},
-    validateMessage
+    'Signature is Valid'
   )
 }

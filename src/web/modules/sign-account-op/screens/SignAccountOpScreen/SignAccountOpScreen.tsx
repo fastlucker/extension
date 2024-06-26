@@ -261,7 +261,6 @@ const SignAccountOpScreen = () => {
             <HardwareWalletSigningModal
               modalRef={hwModalRef}
               keyType={signAccountOpState.accountOp.signingKeyType || ''}
-              onReject={handleRejectAccountOp}
             />
           )}
         </View>
