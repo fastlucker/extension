@@ -62,7 +62,7 @@ export async function bootstrap(options = {}) {
 
 //----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector) {
-  const elementToClick = await page.waitForSelector(selector)
+  const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   await elementToClick.click()
 }
 
@@ -82,7 +82,7 @@ export async function clickElementWithRetry(page, selector, maxRetries = 5) {
 }
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
-  await page.waitForSelector(selector)
+  await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   const whereToType = await page.$(selector)
   await whereToType.click({ clickCount: 3 })
   await whereToType.press('Backspace')

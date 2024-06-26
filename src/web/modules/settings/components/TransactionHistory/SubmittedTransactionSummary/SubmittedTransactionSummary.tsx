@@ -37,7 +37,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { addToast } = useToast()
   const { accounts } = useAccountsControllerState()
   const settingsState = useSettingsControllerState()
-  const networksState = useNetworksControllerState()
+  const { networks } = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
 
@@ -48,8 +48,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   const network = useMemo(
-    () => networksState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [networksState.networks, submittedAccountOp.networkId]
+    () => networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [networks, submittedAccountOp.networkId]
   )
 
   useEffect(() => {
@@ -171,6 +171,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
+          networks={networks}
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected && (
