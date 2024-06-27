@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react'
 import { View } from 'react-native'
 
+import { Network } from '@ambire-common/interfaces/network'
 import Collectible from '@common/components/Collectible'
 import { SelectedCollectible } from '@common/components/CollectibleModal'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -10,7 +11,6 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -25,6 +25,7 @@ interface Props {
     price: number
   }[]
   openCollectibleModal: (collectible: SelectedCollectible) => void
+  networks: Network[]
 }
 
 export const formatCollectiblePrice = ({
@@ -50,10 +51,10 @@ const Collection: FC<Props> = ({
   networkId,
   collectibles,
   priceIn,
-  openCollectibleModal
+  openCollectibleModal,
+  networks
 }) => {
   const { theme, styles } = useTheme(getStyles)
-  const { networks } = useNetworksControllerState()
 
   const networkData = useMemo(() => {
     return networks.find(({ id }) => networkId === id)
@@ -99,6 +100,7 @@ const Collection: FC<Props> = ({
               priceIn: priceIn.length ? priceIn[0] : null
             }}
             openCollectibleModal={openCollectibleModal}
+            networks={networks}
           />
         ))}
       </View>
