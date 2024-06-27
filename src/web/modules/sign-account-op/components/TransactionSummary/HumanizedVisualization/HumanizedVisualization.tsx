@@ -3,7 +3,8 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
@@ -12,6 +13,7 @@ import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -22,7 +24,6 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
-  networks: Network[]
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -31,11 +32,12 @@ const HumanizedVisualization: FC<Props> = ({
   textSize,
   networkId,
   isHistory,
-  testID,
-  networks
+  testID
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
+  const { networks: settingsNetworks } = useNetworksControllerState()
+  const networks = settingsNetworks ?? constantNetworks
 
   return (
     <View
@@ -144,7 +146,6 @@ const HumanizedVisualization: FC<Props> = ({
                   address: item.address,
                   networkId
                 }}
-                networks={networks}
               />
             </View>
           )

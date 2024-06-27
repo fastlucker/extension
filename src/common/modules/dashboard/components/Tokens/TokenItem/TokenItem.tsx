@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
+import { isSmartAccount } from '@ambire-common/libs/account/account'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
@@ -14,6 +15,7 @@ import getTokenDetails from '@common/modules/dashboard/helpers/getTokenDetails'
 import spacings, { SPACING_2XL, SPACING_TY } from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexboxStyles from '@common/styles/utils/flexbox'
+import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
@@ -37,6 +39,7 @@ const TokenItem = ({
   } = token
   const { t } = useTranslation()
   const { networks } = useNetworksControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
 
   const { styles, theme } = useTheme(getStyles)
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -48,8 +51,17 @@ const TokenItem = ({
     }
   })
 
-  const isPending =
-    token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
+  const account = useMemo(
+    () => accounts.find((acc) => acc.addr === selectedAccount),
+    [accounts, selectedAccount]
+  )
+
+  // By design we should simulate only for SA on the DashboardScreen
+  const isPending = useMemo(() => {
+    if (!isSmartAccount(account)) return false
+
+    return token.amountPostSimulation !== undefined && token.amountPostSimulation !== token.amount
+  }, [account, token.amount, token.amountPostSimulation])
 
   const {
     balanceFormatted,

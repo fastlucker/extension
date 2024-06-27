@@ -3,7 +3,7 @@ import { setStringAsync } from 'expo-clipboard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Linking } from 'react-native'
 
-import { extraNetworks, networks as constantNetworks } from '@ambire-common/consts/networks'
+import { networks as constantNetworks } from '@ambire-common/consts/networks'
 import { ErrorRef } from '@ambire-common/controllers/eventEmitter/eventEmitter'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import { getRpcProvider } from '@ambire-common/services/provider'
@@ -48,7 +48,7 @@ const useBenzin = ({ onOpenExplorer }: Props = {}) => {
   const userOpHash = params.get('userOpHash') ?? null
   const isRenderedInternally = typeof params.get('isInternal') === 'string'
   const networkId = params.get('networkId')
-  const networks = settingsNetworks ?? [...constantNetworks, ...extraNetworks]
+  const networks = settingsNetworks ?? constantNetworks
   const network = networks.find((n) => n.id === networkId)
 
   const [provider, setProvider] = useState<JsonRpcProvider | null>(null)

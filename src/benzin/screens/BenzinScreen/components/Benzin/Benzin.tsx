@@ -2,7 +2,6 @@ import { randomBytes } from 'ethers'
 import React, { useMemo } from 'react'
 import { ImageBackground, ScrollView, View } from 'react-native'
 
-import { extraNetworks, networks as constantNetworks } from '@ambire-common/consts/networks'
 // @ts-ignore
 import meshGradientLarge from '@benzin/assets/images/mesh-gradient-large.png'
 // @ts-ignore
@@ -16,7 +15,6 @@ import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import spacings from '@common/styles/spacings'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import TransactionSummary from '@web/modules/sign-account-op/components/TransactionSummary'
 
 import { IS_MOBILE_UP_BENZIN_BREAKPOINT } from '../../styles'
@@ -25,11 +23,6 @@ import getStyles from './styles'
 const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
   const { styles } = useTheme(getStyles)
   const { maxWidthSize } = useWindowSize()
-  const { networks: stateNetworks } = useNetworksControllerState()
-  const networks = useMemo(
-    () => stateNetworks ?? [...constantNetworks, ...extraNetworks],
-    [stateNetworks]
-  )
 
   if (!state?.network) {
     // @TODO
@@ -72,10 +65,9 @@ const Benzin = ({ state }: { state: ReturnType<typeof useBenzin> }) => {
         }
         onRightIconPress={handleOpenExplorer}
         size={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 'lg' : 'sm'}
-        networks={networks}
       />
     ))
-  }, [calls, handleOpenExplorer, network, networks])
+  }, [calls, handleOpenExplorer, network])
 
   return (
     <ImageBackground
