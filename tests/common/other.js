@@ -13,9 +13,6 @@ export async function changePassword(page, extensionRootUrl) {
 
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
-  // Wait for the modal to appear
-  await page.waitForSelector('[data-testid="device-pass-success-modal"]')
-
   // Click on the element within the modal
   await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
   //! !!FOR THE MOMENT "SIGN OUT" BUTTON DOESN'T EXIST IN THE FULL SCREEN MODE. BELLOW WE VERIFY THAT CHANGED PASSWORD IS ALREADY IN USE.
@@ -26,11 +23,8 @@ export async function changePassword(page, extensionRootUrl) {
 
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
-  // Wait for the modal to appear
-  await page.waitForSelector('[data-testid="device-pass-success-modal"]')
-
   // Click on the element within the modal
-  clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+  await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
   // Wait for the modal to be closed
   await page.waitForSelector('[data-testid="device-pass-success-modal"]', {
     hidden: true
@@ -50,7 +44,6 @@ export async function addContactInAddressBook(page, extensionRootUrl) {
   await typeText(page, '[data-testid="contact-name-field"]', addName)
   await typeText(page, '[data-testid="address-ens-field"]', addAddress)
 
-  await page.waitForSelector('[data-testid="add-to-address-book-button"]')
   await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
 
   await page.waitForSelector('[data-testid="name-first-address"]')

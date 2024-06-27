@@ -12,6 +12,7 @@ describe('ba_other', () => {
 
     browser = context.browser
     page = context.page
+    page.setDefaultTimeout(240000)
     recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })

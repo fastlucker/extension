@@ -29,7 +29,7 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 20,
+    slowMo: 0,
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -37,9 +37,7 @@ export async function bootstrap(options = {}) {
     // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
     // It configures the display server and make the tests working in headful mode in Github actions.
     ...(process.env.DISPLAY && {
-      env: {
-        DISPLAY: process.env.DISPLAY
-      }
+      env: { DISPLAY: process.env.DISPLAY }
     }),
     ignoreHTTPSErrors: true
   })
@@ -61,9 +59,25 @@ export async function bootstrap(options = {}) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function clickOnElement(page, selector) {
-  const elementToClick = await page.waitForSelector(selector)
-  await elementToClick.click()
+export async function clickOnElement(page, selector, waitUntilEnabled = true) {
+  const elementToClick = await page.waitForSelector(selector, { visible: true })
+
+  let isClickable = false
+  if (waitUntilEnabled) {
+    while (!isClickable) {
+      isClickable = await page.evaluate((selector) => {
+        const buttonElement = document.querySelector(selector)
+        return (
+          buttonElement &&
+          !buttonElement.disabled &&
+          window.getComputedStyle(buttonElement).pointerEvents !== 'none'
+        )
+      }, selector)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+  }
+
+  if (isClickable || !waitUntilEnabled) await elementToClick.click()
 }
 
 //----------------------------------------------------------------------------------------------
@@ -204,15 +218,6 @@ export async function bootstrapWithStorage(namespace, params) {
     })
   }, params)
 
-  // Please note the following:
-  // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
-  // 2. But at the same time, the extension onboarding page is also shown automatically.
-  // 3. During these page transitions (new tabs being opened), we should wait a bit and avoid switching between or closing tabs because the extension background process is being initialized, and it will only initialize if the current tab is visible.
-  // If it's not visible (when we are transitioning), the initialization fails.
-  // Later, we will check how we can deal with this better.
-  await new Promise((r) => {
-    setTimeout(r, 2000)
-  })
   // Please note that:
   // 1. We are no longer closing any tabs.
   // 2. Instead, we simply switch back to our tab under testing.
@@ -280,16 +285,8 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
-
-  await page.waitForSelector('xpath///a[contains(text(), "Next")]')
-  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
-
-  // TODO: Figure out if this helps. Wait for the animation (transition) between
-  // this and the next element to complete.
-  await new Promise((r) => setTimeout(r, 1000))
-
-  await page.waitForSelector('xpath///a[contains(text(), "Got it")]', { timeout: 60000 })
-  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
@@ -311,14 +308,14 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     },
     shouldClickOnAccounts
   )
-  // Click on Import Accounts button
-  await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
-  await page.waitForFunction("window.location.hash == '#/account-personalize'")
 
-  return {
-    firstSelectedBasicAccount,
-    firstSelectedSmartAccount
-  }
+  await Promise.all([
+    // Click on Import Accounts button
+    clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])'),
+    page.waitForNavigation()
+  ])
+
+  return { firstSelectedBasicAccount, firstSelectedSmartAccount }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -338,8 +335,7 @@ export async function confirmTransaction(
   triggerTransactionSelector,
   feeToken
 ) {
-  const elementToClick = await page.waitForSelector(triggerTransactionSelector)
-  await elementToClick.click()
+  await clickOnElement(page, triggerTransactionSelector)
 
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)

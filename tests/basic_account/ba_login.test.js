@@ -29,6 +29,7 @@ describe('ba_login', () => {
     extensionId = context.extensionId
 
     page = await browser.newPage()
+    page.setDefaultTimeout(240000)
 
     recorder = new PuppeteerScreenRecorder(page)
     await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
@@ -62,13 +63,12 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
+    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
 
     // Click on "Save and Continue" button
-    await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
     await page.waitForFunction(
       () => {

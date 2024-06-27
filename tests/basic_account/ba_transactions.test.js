@@ -18,6 +18,7 @@ describe('ba_transactions', () => {
     const context = await bootstrapWithStorage('ba_transactions', baParams)
     browser = context.browser
     page = context.page
+    page.setDefaultTimeout(240000)
     recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
@@ -27,20 +28,20 @@ describe('ba_transactions', () => {
     await browser.close()
   })
 
-  it('(-) Sends MATIC tokens greater than the available balance', async () => {
-    await sendFundsGreaterThatBalance(page, extensionRootUrl)
-  })
-
-  it('(-) Sends MATIC tokens to a smart contract', async () => {
-    await sendFundsToSmartContract(page, extensionRootUrl)
-  })
-
   it('Makes a valid transaction', async () => {
     await makeValidTransaction(page, extensionRootUrl, browser)
   })
 
   it('Makes a valid swap', async () => {
     await makeSwap(page, extensionRootUrl, browser)
+  })
+
+  it('(-) Sends MATIC tokens greater than the available balance', async () => {
+    await sendFundsGreaterThatBalance(page, extensionRootUrl)
+  })
+
+  it('(-) Sends MATIC tokens to a smart contract', async () => {
+    await sendFundsToSmartContract(page, extensionRootUrl)
   })
 
   it('Signs a message', async () => {

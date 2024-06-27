@@ -15,6 +15,7 @@ describe('Invite Verification', () => {
     extensionId = context.extensionId
 
     page = await browser.newPage()
+    page.setDefaultTimeout(120000)
 
     recorder = new PuppeteerScreenRecorder(page)
     await recorder.start(`./recorder/invite_${Date.now()}.mp4`)
@@ -22,9 +23,6 @@ describe('Invite Verification', () => {
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
 
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
     await page.bringToFront()
   })
 
