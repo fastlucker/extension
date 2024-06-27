@@ -7,6 +7,7 @@ import usePrevious from '@common/hooks/usePrevious'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import Collections from '../Collections'
@@ -42,7 +43,7 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
       setInitTab((prev) => ({ ...prev, [openTab]: true }))
     }
   }, [openTab, prevOpenTab, initTab])
-
+  const { networks } = useNetworksControllerState()
   return (
     <View style={[flexbox.flex1, isTab ? spacings.phSm : {}]}>
       <Tokens
@@ -60,6 +61,7 @@ const DashboardPages = ({ filterByNetworkId, tokenPreferences, onScroll }: Props
         setOpenTab={setOpenTab}
         initTab={initTab}
         onScroll={onScroll}
+        networks={networks}
       />
     </View>
   )
