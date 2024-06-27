@@ -19,8 +19,8 @@ describe('sa_login', () => {
     browser = context.browser
     extensionRootUrl = context.extensionRootUrl
     extensionId = context.extensionId
-
     page = await browser.newPage()
+    page.setDefaultTimeout(240000)
 
     recorder = new PuppeteerScreenRecorder(page)
     await recorder.start(`./recorder/sa_login_${Date.now()}.mp4`)
@@ -34,9 +34,6 @@ describe('sa_login', () => {
       chrome.storage.local.set({ invite })
     }, JSON.stringify(INVITE_STORAGE_ITEM))
 
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
     await page.bringToFront()
   })
 

@@ -3,7 +3,7 @@ import { bootstrapWithStorage, baParams } from '../functions.js'
 import {
   makeValidTransaction,
   makeSwap,
-  sendFundsGreaterThatBalance,
+  sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
   signMessage
 } from '../common/transactions.js'
@@ -37,7 +37,7 @@ describe('ba_transactions', () => {
   })
 
   it('(-) Sends MATIC tokens greater than the available balance', async () => {
-    await sendFundsGreaterThatBalance(page, extensionRootUrl)
+    await sendFundsGreaterThanBalance(page, extensionRootUrl)
   })
 
   it('(-) Sends MATIC tokens to a smart contract', async () => {

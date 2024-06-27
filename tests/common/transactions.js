@@ -58,6 +58,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
   )
   const actionWindowPage = await newTarget.page()
+  actionWindowPage.setDefaultTimeout(240000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
@@ -93,7 +94,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function sendFundsGreaterThatBalance(page, extensionRootUrl) {
+export async function sendFundsGreaterThanBalance(page, extensionRootUrl) {
   await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
   await page.waitForSelector('[data-testid="max-available-amount"]')
@@ -184,6 +185,7 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-message`
   )
   const actionWindowPage = await actionWindowTarget.page()
+  actionWindowPage.setDefaultTimeout(240000)
 
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 

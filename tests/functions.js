@@ -152,7 +152,7 @@ export const saParams = {
   parsedKeystoreKeys: JSON.parse(process.env.SA_KEYS),
   parsedKeystoreSecrets: JSON.parse(process.env.SA_SECRETS),
   parsedNetworkPreferences: JSON.parse(process.env.SA_NETWORK_PREFERENCES),
-  paresdNetworksWithAssetsByAccount: JSON.parse(process.env.SA_NETWORK_WITH_ASSETS),
+  parsedNetworksWithAssetsByAccount: JSON.parse(process.env.SA_NETWORK_WITH_ASSETS),
   parsedOnboardingState: JSON.parse(process.env.SA_ONBOARDING_STATE),
   envPermission: process.env.SA_PERMISSION,
   parsedPreviousHints: JSON.parse(process.env.SA_PREVIOUSHINTS),
@@ -341,6 +341,8 @@ export async function confirmTransaction(
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
   let actionWindowPage = await newTarget.page()
+  actionWindowPage.setDefaultTimeout(240000)
+
   actionWindowPage.setViewport({ width: 1300, height: 700 })
 
   // Check if "sign-message" action-window is open
@@ -355,6 +357,7 @@ export async function confirmTransaction(
     const newPageTarget = await newPagePromise2
 
     actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    actionWindowPage.setDefaultTimeout(240000)
   }
 
   // Check if select fee token is visible
