@@ -105,6 +105,24 @@ const SignAccountOpScreen = () => {
     }
   }, [accountOpAction?.id, dispatch])
 
+  // trace the call once gas price and estimation is up
+  useEffect(() => {
+    if (
+      accountOpAction?.id &&
+      signAccountOpState &&
+      signAccountOpState.estimation &&
+      hasEstimation
+    ) {
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRACE_CALL',
+        params: {
+          actionId: accountOpAction.id,
+          estimation: signAccountOpState.estimation
+        }
+      })
+    }
+  }, [hasEstimation, accountOpAction, signAccountOpState, dispatch])
+
   useEffect(() => {
     if (!accountOpAction) return
 
