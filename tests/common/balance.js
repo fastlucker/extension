@@ -2,6 +2,7 @@ import { clickOnElement } from '../functions'
 
 //--------------------------------------------------------------------------------------------------------------
 export async function checkBalanceInAccount(page) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector('[data-testid="full-balance"]')
 
   // Get the available balance
@@ -19,6 +20,7 @@ export async function checkBalanceInAccount(page) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function checkNetworks(page) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   await page.waitForSelector('[data-testid="full-balance"]')
 
   // Verify that USDC, ETH, WALLET
@@ -31,9 +33,9 @@ export async function checkNetworks(page) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function checkCollectibleItem(page) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Collectibles" button
   await clickOnElement(page, '[data-testid="tab-nft"]')
-
   await page.waitForSelector('[data-testid="collection-item"]')
 
   // Get the text content of the first item

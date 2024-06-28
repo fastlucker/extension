@@ -10,6 +10,7 @@ const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 //--------------------------------------------------------------------------------------------------------------
 export async function makeValidTransaction(page, extensionRootUrl, browser) {
+  await page.waitForFunction(() => window.location.href.includes('/dashboard'))
   // Click on "Send" button
   await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 
@@ -163,7 +164,7 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
 
   // Click on 'connect wallet' button
   await clickOnElement(page, 'button[class="button-connect"]')
-  // Select 'MetaMask'
+  // Select 'MetaMask/Ambire' connect button
   await clickOnElement(page, '>>>[class^="name"]', false)
 
   // Wait for the new page to be created and click on 'Connect' button

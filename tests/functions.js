@@ -1,5 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
-import { ethers } from 'ethers'
+import { ethers, Network } from 'ethers'
 
 const puppeteer = require('puppeteer')
 
@@ -75,6 +75,11 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true) {
       }, selector)
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
+  }
+
+  if (!waitUntilEnabled) {
+    // in case the button was disabled wait for it state to be updated before clicking on it
+    await new Promise((resolve) => setTimeout(resolve, 250))
   }
 
   if (isClickable || !waitUntilEnabled) await elementToClick.click()
@@ -179,42 +184,23 @@ export async function bootstrapWithStorage(namespace, params) {
   // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
   // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
   await page.evaluate((params) => {
-    const {
-      parsedKeystoreAccountsPreferences,
-      parsedKeystoreAccounts,
-      parsedIsDefaultWallet,
-      parsedKeyPreferences,
-      parsedKeystoreUID,
-      parsedKeystoreKeys,
-      parsedKeystoreSecrets,
-      parsedNetworkPreferences,
-      parsedNetworksWithAssetsByAccount,
-      parsedOnboardingState,
-      envPermission,
-      parsedPreviousHints,
-      envSelectedAccount,
-      envTermState,
-      parsedTokenItems,
-      invite
-    } = params
-
-    chrome.storage.local.set({
-      accountPreferences: parsedKeystoreAccountsPreferences,
-      accounts: parsedKeystoreAccounts,
-      isDefaultWallet: parsedIsDefaultWallet,
-      keyPreferences: parsedKeyPreferences,
-      keyStoreUid: parsedKeystoreUID,
-      keystoreKeys: parsedKeystoreKeys,
-      keystoreSecrets: parsedKeystoreSecrets,
-      networkPreferences: parsedNetworkPreferences,
-      networksWithAssetsByAccount: parsedNetworksWithAssetsByAccount,
-      onboardingState: parsedOnboardingState,
-      permission: envPermission,
-      previousHints: parsedPreviousHints,
-      selectedAccount: envSelectedAccount,
-      termsState: envTermState,
-      tokenIcons: parsedTokenItems,
-      invite
+    return chrome.storage.local.set({
+      accountPreferences: params.parsedKeystoreAccountsPreferences,
+      accounts: params.parsedKeystoreAccounts,
+      isDefaultWallet: params.parsedIsDefaultWallet,
+      keyPreferences: params.parsedKeyPreferences,
+      keyStoreUid: params.parsedKeystoreUID,
+      keystoreKeys: params.parsedKeystoreKeys,
+      keystoreSecrets: params.parsedKeystoreSecrets,
+      networkPreferences: params.parsedNetworkPreferences,
+      networksWithAssetsByAccount: params.parsedNetworksWithAssetsByAccount,
+      onboardingState: params.parsedOnboardingState,
+      permission: params.envPermission,
+      previousHints: params.parsedPreviousHints,
+      selectedAccount: params.envSelectedAccount,
+      termsState: params.envTermState,
+      tokenIcons: params.parsedTokenItems,
+      invite: params.invite
     })
   }, params)
 
@@ -233,8 +219,6 @@ export async function bootstrapWithStorage(namespace, params) {
 
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
-  await new Promise((r) => setTimeout(r, 1000))
-
   const buttonNext = '[data-testid="stories-button-next"]'
 
   await page.waitForSelector(buttonNext)
@@ -285,7 +269,11 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
+  await page.waitForFunction(() => window.location.href.includes('/account-adder'))
+
+  await page.waitForXPath(`//*[contains(text(), 'Next')]`)
   await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false)
+  await page.waitForXPath(`//*[contains(text(), 'Got it')]`)
   await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
@@ -409,16 +397,18 @@ export async function confirmTransaction(
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
-  //  Define the RPC URL for the Polygon network
-  const rpcUrl = 'https://invictus.ambire.com/polygon'
-
   // Create a provider instance using the JsonRpcProvider
-  const provider = new ethers.JsonRpcProvider(rpcUrl)
+  const staticNetwork = Network.from(137)
+  const provider = new ethers.JsonRpcProvider(
+    'https://invictus.ambire.com/polygon',
+    staticNetwork,
+    { staticNetwork }
+  )
 
   // Get transaction receipt
   const receipt = await provider.getTransactionReceipt(transactionHash)
-
   console.log(`Transaction Hash: ${transactionHash}`)
+  console.log('getTransactionReceipt result', receipt)
   // Assertion to fail the test if transaction failed
   expect(receipt.status).toBe(1)
 }

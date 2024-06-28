@@ -22,8 +22,8 @@ describe('Invite Verification', () => {
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
-
     await page.bringToFront()
+    await page.waitForFunction(() => window.location.href.includes('/invite-verify'))
   })
 
   afterEach(async () => {
@@ -32,16 +32,6 @@ describe('Invite Verification', () => {
   })
 
   it('should immediately redirect to the invite verification route', async () => {
-    // In case of multiple redirects,
-    // the navigation will resolve with the response of the last redirect.
-
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/invite-verify')
-      },
-      { timeout: 60000 }
-    )
-
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/invite-verify')
   })

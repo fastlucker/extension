@@ -29,10 +29,10 @@ describe('sa_login', () => {
     await page.goto(getStartedPage)
 
     // Bypass the invite verification step
-    await page.evaluate((invite) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.storage.local.set({ invite })
-    }, JSON.stringify(INVITE_STORAGE_ITEM))
+    await page.evaluate(
+      (invite) => chrome.storage.local.set({ invite }),
+      JSON.stringify(INVITE_STORAGE_ITEM)
+    )
 
     await page.bringToFront()
   })

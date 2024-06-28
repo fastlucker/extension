@@ -7,13 +7,14 @@ export async function changePassword(page, extensionRootUrl) {
   })
   const oldPass = process.env.KEYSTORE_PASS
   const newPass = 'B1234566'
+  await page.waitForXPath(`//*[contains(text(), 'Change Device Password')]`)
   await typeText(page, '[data-testid="enter-current-pass-field"]', oldPass)
   await typeText(page, '[data-testid="enter-new-pass-field"]', newPass)
   await typeText(page, '[data-testid="repeat-new-pass-field"]', newPass)
-
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
-  // Click on the element within the modal
+  // Click on the button within the modal
+  await page.waitForXPath(`//*[contains(text(), 'Got it')]`)
   await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
   //! !!FOR THE MOMENT "SIGN OUT" BUTTON DOESN'T EXIST IN THE FULL SCREEN MODE. BELLOW WE VERIFY THAT CHANGED PASSWORD IS ALREADY IN USE.
   // THIS STEP WILL BE CHANGED WHEN THE BUTTON IS CREATED!!!
@@ -24,6 +25,7 @@ export async function changePassword(page, extensionRootUrl) {
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
   // Click on the element within the modal
+  await page.waitForXPath(`//*[contains(text(), 'Got it')]`)
   await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
   // Wait for the modal to be closed
   await page.waitForSelector('[data-testid="device-pass-success-modal"]', {

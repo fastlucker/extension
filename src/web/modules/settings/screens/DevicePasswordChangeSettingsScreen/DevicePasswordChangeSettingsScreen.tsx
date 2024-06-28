@@ -99,7 +99,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     })()
   }
 
-  const isChangeKeystorePasswordLoading = state.statuses.changeKeystorePassword === 'LOADING'
+  const isChangeKeystorePasswordLoading = state.statuses.changeKeystorePassword !== 'INITIAL'
 
   return (
     <>
@@ -179,12 +179,8 @@ const DevicePasswordChangeSettingsScreen = () => {
             style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}
-            disabled={isSubmitting || isChangeKeystorePasswordLoading || !isValid}
-            text={
-              isSubmitting || isChangeKeystorePasswordLoading
-                ? t('Loading...')
-                : t('Change Device Password')
-            }
+            disabled={isChangeKeystorePasswordLoading || !isValid}
+            text={isChangeKeystorePasswordLoading ? t('Loading...') : t('Change Device Password')}
             onPress={handleChangeKeystorePassword}
           />
         </View>
