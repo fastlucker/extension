@@ -13,6 +13,6 @@ module.exports = {
     // Ignore specified test paths to speed up the testing process during debugging
     // DEFAULT: no paths should be ignored
     // path.join('<rootDir>', 'tests/smart_account'),
-    path.join('<rootDir>', 'tests/basic_account')
+    // path.join('<rootDir>', 'tests/basic_account')
   ]
 }
