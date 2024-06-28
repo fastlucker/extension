@@ -2,7 +2,7 @@ import { formatUnits } from 'ethers'
 import React, { ReactNode, useCallback } from 'react'
 import { TouchableOpacity, View, ViewStyle } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import DeleteIcon from '@common/assets/svg/DeleteIcon'
 import ExpandableCard from '@common/components/ExpandableCard'
@@ -27,6 +27,7 @@ interface Props {
   size?: 'sm' | 'md' | 'lg'
   isHistory?: boolean
   testID?: string
+  networks: Network[]
 }
 
 const sizeMultiplier = {
@@ -43,7 +44,8 @@ const TransactionSummary = ({
   onRightIconPress,
   size = 'lg',
   isHistory,
-  testID
+  testID,
+  networks
 }: Props) => {
   const textSize = 16 * sizeMultiplier[size]
   const { t } = useTranslation()
@@ -83,6 +85,7 @@ const TransactionSummary = ({
               networkId={networkId}
               isHistory={isHistory}
               testID={testID}
+              networks={networks}
             />
           ) : (
             <FallbackVisualization

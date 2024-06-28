@@ -134,7 +134,11 @@ const TokenDetails = ({
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        // disable the top up for now as it is not working in a lot of cases:
+        // 1) eoa pays for sa; 2) 4337
+        // once the relayer moves to transfer logs, uncomment the line below
+        // isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        isDisabled: true,
         strokeWidth: 1,
         testID: 'top-up-button'
       },
