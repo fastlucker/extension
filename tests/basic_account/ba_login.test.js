@@ -19,11 +19,7 @@ describe('ba_login', () => {
   let browser, page, extensionRootUrl, extensionId, recorder
 
   beforeEach(async () => {
-    const context = await bootstrap()
-    browser = context.browser
-    extensionRootUrl = context.extensionRootUrl
-    extensionId = context.extensionId
-
+    ;({ browser, extensionRootUrl, extensionId } = await bootstrap())
     page = await browser.newPage()
     page.setDefaultTimeout(240000)
 
@@ -42,6 +38,7 @@ describe('ba_login', () => {
 
   afterEach(async () => {
     await recorder.stop()
+    await page.close()
     await browser.close()
   })
 

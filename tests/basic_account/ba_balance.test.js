@@ -2,21 +2,14 @@ import { bootstrapWithStorage, baParams } from '../functions.js'
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('ba_balance', () => {
-  let browser
-  let page
-  let recorder
-
-  beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_balance', baParams)
-
-    browser = context.browser
-    page = context.page
-    page.setDefaultTimeout(240000)
-    recorder = context.recorder
+  let browser, page, recorder
+  beforeAll(async () => {
+    ;({ browser, page, recorder } = await bootstrapWithStorage('ba_balance', baParams))
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await recorder.stop()
+    await page.close()
     await browser.close()
   })
 

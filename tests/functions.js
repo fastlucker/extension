@@ -170,10 +170,9 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const context = await bootstrap()
-  const browser = context.browser
-  const extensionRootUrl = context.extensionRootUrl
+  const { browser, extensionRootUrl } = await bootstrap()
   const page = await browser.newPage()
+  page.setDefaultTimeout(240000)
   recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
