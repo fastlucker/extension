@@ -11,6 +11,7 @@ import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfol
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 
 export interface AccountPortfolio {
   tokens: TokenResultInterface[]
@@ -52,6 +53,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const { dispatch } = useBackgroundService()
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
+  const mainControllerState = useMainControllerState()
+  const hasSignAccountOp = mainControllerState.signAccountOp
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
@@ -85,14 +88,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       accountsState.selectedAccount,
       state,
       prevAccountPortfolio?.current,
-      account
+      hasSignAccountOp
     )
 
     if (newAccountPortfolio.isAllReady || !prevAccountPortfolio?.current?.tokens.length) {
       setAccountPortfolio(newAccountPortfolio)
       prevAccountPortfolio.current = newAccountPortfolio
     }
-  }, [accountsState.selectedAccount, account, state])
+  }, [accountsState.selectedAccount, account, state, hasSignAccountOp])
 
   useEffect(() => {
     if (startedLoadingAtTimestamp && accountPortfolio.isAllReady) {
