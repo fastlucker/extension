@@ -30,7 +30,7 @@ const MaxAmount = ({
         (selectedTokenSymbol && !isLoading ? (
           <View style={styles.maxAmountValueWrapper}>
             <Text
-              testID="max-available-ammount"
+              testID="max-available-amount"
               numberOfLines={1}
               style={styles.maxAmountValue}
               ellipsizeMode="tail"

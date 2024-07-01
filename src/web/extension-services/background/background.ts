@@ -11,6 +11,7 @@ import {
   HD_PATH_TEMPLATE_TYPE
 } from '@ambire-common/consts/derivation'
 import { MainController } from '@ambire-common/controllers/main/main'
+import { Fetch } from '@ambire-common/interfaces/fetch'
 import { ExternalKey, Key, ReadyToAddKeys } from '@ambire-common/interfaces/keystore'
 import { Network } from '@ambire-common/interfaces/network'
 import {
@@ -23,7 +24,7 @@ import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigne
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
 import { createRecurringTimeout } from '@common/utils/timeout'
-import { RELAYER_URL } from '@env'
+import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { BadgesController } from '@web/extension-services/background/controllers/badges'
@@ -124,12 +125,33 @@ function stateDebug(event: string, stateToLog: object) {
   const trezorCtrl = new TrezorController()
   const latticeCtrl = new LatticeController()
 
+  // Custom headers, as of v4.26.0 will be only extension-specific. TBD for the other apps.
+  const fetchWithCustomHeaders: Fetch = (url, init) => {
+    const initWithCustomHeaders = init || { headers: { 'x-app-source': '' } }
+    initWithCustomHeaders.headers = initWithCustomHeaders.headers || {}
+
+    const sliceOfKeyStoreUid = mainCtrl.keystore.keyStoreUid?.substring(10, 21) || ''
+    const inviteVerifiedCode = mainCtrl.invite.verifiedCode || ''
+    initWithCustomHeaders.headers['x-app-source'] = sliceOfKeyStoreUid + inviteVerifiedCode
+
+    // Use the native fetch (instead of node-fetch or whatever else) since
+    // browser extensions are designed to run within the web environment,
+    // which already provides a native and well-optimized fetch API.
+    const fetchFn = isManifestV3
+      ? fetch
+      : // Popup pages don't have access to the global fetch, causing:
+        // "Error: Failed to execute 'fetch' on 'Window': Illegal invocation",
+        // Binding window to fetch provides the correct context.
+        window.fetch.bind(window)
+
+    return fetchFn(url, initWithCustomHeaders)
+  }
+
   const mainCtrl = new MainController({
     storage,
-    // popup pages dont have access to fetch. Error: Failed to execute 'fetch' on 'Window': Illegal invocation
-    // binding window to fetch provides the correct context
-    fetch: isManifestV3 ? fetch : window.fetch.bind(window),
+    fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
+    velcroUrl: VELCRO_URL,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal

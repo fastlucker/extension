@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import { NetworkId } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
@@ -22,6 +22,7 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
+  networks: Network[]
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -30,7 +31,8 @@ const HumanizedVisualization: FC<Props> = ({
   textSize,
   networkId,
   isHistory,
-  testID
+  testID,
+  networks
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
@@ -142,6 +144,7 @@ const HumanizedVisualization: FC<Props> = ({
                   address: item.address,
                   networkId
                 }}
+                networks={networks}
               />
             </View>
           )
@@ -156,6 +159,15 @@ const HumanizedVisualization: FC<Props> = ({
               marginRight={marginRight}
             />
           )
+        if (item.type === 'chain' && item.chainId) {
+          const foundChain = networks.find((n) => n.chainId === item.chainId)
+
+          return (
+            <Text weight="semiBold" key={key}>
+              {t(foundChain ? foundChain.name : `Unknown chain with id ${item.chainId}`)}
+            </Text>
+          )
+        }
         if (item.content) {
           return (
             <Text
