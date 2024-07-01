@@ -75,7 +75,7 @@ function stateDebug(event: string, stateToLog: object) {
   // ensuring that the Controllers are initialized with the storage correctly.
   if (process.env.IS_TESTING === 'true') {
     await new Promise((r) => {
-      setTimeout(r, 1000)
+      setTimeout(r, 5000)
     })
   }
 

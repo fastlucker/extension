@@ -19,27 +19,27 @@ describe('ba_login', () => {
   let browser, page, extensionRootUrl, extensionId, recorder
 
   beforeEach(async () => {
-    ;({ browser, extensionRootUrl, extensionId } = await bootstrap())
-    page = await browser.newPage()
-    page.setDefaultTimeout(240000)
-
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
-    await page.goto(`chrome-extension://${extensionId}/tab.html#/get-started`)
-
+    ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
+    const backgroundPage = await backgroundTarget.page()
     // Bypass the invite verification step
-    await page.evaluate(
+    await backgroundPage.evaluate(
       (invite) => chrome.storage.local.set({ invite }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 
+    page = await browser.newPage()
+    page.setDefaultTimeout(120000)
+
+    recorder = new PuppeteerScreenRecorder(page)
+    await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
+    await page.goto(`chrome-extension://${extensionId}/tab.html#/get-started`)
     await page.bringToFront()
   })
 
   afterEach(async () => {
-    await recorder.stop()
-    await page.close()
-    await browser.close()
+    if (recorder) await recorder.stop()
+    if (page) await page.close()
+    if (browser) await browser.close()
   })
 
   const enterSeedPhraseField = '[data-testid="enter-seed-phrase-field"]'

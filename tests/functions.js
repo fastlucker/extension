@@ -17,6 +17,10 @@ const puppeteerArgs = [
   // '--detectOpenHandles',
   '--start-maximized',
 
+  '--disable-background-timer-throttling',
+  '--disable-backgrounding-occluded-windows',
+  '--disable-renderer-backgrounding',
+
   // We need this for running Puppeteer in Github Actions
   '--no-sandbox',
   '--disable-setuid-sandbox',
@@ -44,6 +48,7 @@ export async function bootstrap(options = {}) {
 
   // Extract the extension ID from the browser targets
   const targets = await browser.targets()
+  const backgroundTarget = targets.find((target) => target.type() === 'background_page')
   const extensionTarget = targets.find((target) => target.url().includes('chrome-extension'))
   const partialExtensionUrl = extensionTarget.url() || ''
   const [, , extractedExtensionId] = partialExtensionUrl.split('/')
@@ -54,12 +59,13 @@ export async function bootstrap(options = {}) {
     browser,
     extensionRootUrl,
     extensionId,
-    extensionTarget
+    extensionTarget,
+    backgroundTarget
   }
 }
 
 //----------------------------------------------------------------------------------------------
-export async function clickOnElement(page, selector, waitUntilEnabled = true) {
+export async function clickOnElement(page, selector, waitUntilEnabled = true, clickDelay = 0) {
   const elementToClick = await page.waitForSelector(selector, { visible: true })
 
   let isClickable = false
@@ -82,7 +88,12 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true) {
     await new Promise((resolve) => setTimeout(resolve, 250))
   }
 
-  if (isClickable || !waitUntilEnabled) await elementToClick.click()
+  if (isClickable || !waitUntilEnabled) {
+    if (clickDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, clickDelay))
+    }
+    await elementToClick.click()
+  }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -170,38 +181,38 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const { browser, extensionRootUrl } = await bootstrap()
+  const { browser, extensionRootUrl, backgroundTarget } = await bootstrap()
+  const backgroundPage = await backgroundTarget.page()
+  await backgroundPage.evaluate(
+    (params) =>
+      chrome.storage.local.set({
+        accountPreferences: params.parsedKeystoreAccountsPreferences,
+        accounts: params.parsedKeystoreAccounts,
+        isDefaultWallet: params.parsedIsDefaultWallet,
+        keyPreferences: params.parsedKeyPreferences,
+        keyStoreUid: params.parsedKeystoreUID,
+        keystoreKeys: params.parsedKeystoreKeys,
+        keystoreSecrets: params.parsedKeystoreSecrets,
+        networkPreferences: params.parsedNetworkPreferences,
+        networksWithAssetsByAccount: params.parsedNetworksWithAssetsByAccount,
+        onboardingState: params.parsedOnboardingState,
+        permission: params.envPermission,
+        previousHints: params.parsedPreviousHints,
+        selectedAccount: params.envSelectedAccount,
+        termsState: params.envTermState,
+        tokenIcons: params.parsedTokenItems,
+        invite: params.invite
+      }),
+    params
+  )
+
   const page = await browser.newPage()
-  page.setDefaultTimeout(240000)
+  page.setDefaultTimeout(120000)
   recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
-
-  // Please note the following:
-  // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
-  // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
-  await page.evaluate((params) => {
-    return chrome.storage.local.set({
-      accountPreferences: params.parsedKeystoreAccountsPreferences,
-      accounts: params.parsedKeystoreAccounts,
-      isDefaultWallet: params.parsedIsDefaultWallet,
-      keyPreferences: params.parsedKeyPreferences,
-      keyStoreUid: params.parsedKeystoreUID,
-      keystoreKeys: params.parsedKeystoreKeys,
-      keystoreSecrets: params.parsedKeystoreSecrets,
-      networkPreferences: params.parsedNetworkPreferences,
-      networksWithAssetsByAccount: params.parsedNetworksWithAssetsByAccount,
-      onboardingState: params.parsedOnboardingState,
-      permission: params.envPermission,
-      previousHints: params.parsedPreviousHints,
-      selectedAccount: params.envSelectedAccount,
-      termsState: params.envTermState,
-      tokenIcons: params.parsedTokenItems,
-      invite: params.invite
-    })
-  }, params)
 
   // Please note that:
   // 1. We are no longer closing any tabs.
@@ -221,12 +232,9 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   const buttonNext = '[data-testid="stories-button-next"]'
 
   await page.waitForSelector(buttonNext)
-
   // Click on "Next" button several times to finish the onboarding
   await page.$eval(buttonNext, (button) => button.click())
-
   await page.waitForSelector('[data-testid="stories-button-previous"]')
-
   await page.$eval(buttonNext, (button) => button.click())
   await page.$eval(buttonNext, (button) => button.click())
   await page.$eval(buttonNext, (button) => button.click())
@@ -242,14 +250,9 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   // Click on "Import" button
   await page.$eval('[data-testid="get-started-button-import"]', (button) => button.click())
 
-  await page.waitForFunction(
-    () => {
-      return window.location.href.includes('/import-hot-wallet')
-    },
-    { timeout: 60000 }
-  )
+  await page.waitForFunction(() => window.location.href.includes('/import-hot-wallet'))
   // Click on "Import" private key
-  await page.$eval(privKeyOrPhraseSelector, (button) => button.click())
+  await clickOnElement(page, privKeyOrPhraseSelector)
 
   // type phrase
   const phrase = 'Password'
@@ -258,10 +261,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, '[data-testid="keystore-button-create"]')
-
-  await page.waitForSelector('[data-testid="keystore-button-continue"]')
-
-  await page.$eval('[data-testid="keystore-button-continue"]', (button) => button.click())
+  await clickOnElement(page, '[data-testid="keystore-button-continue"]', true, 2000)
 }
 
 //----------------------------------------------------------------------------------------------
@@ -270,10 +270,8 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   await clickOnElement(page, '[data-testid="import-button"]')
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-  await page.waitForXPath(`//*[contains(text(), 'Next')]`)
-  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false)
-  await page.waitForXPath(`//*[contains(text(), 'Got it')]`)
-  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 2000)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 2000)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')

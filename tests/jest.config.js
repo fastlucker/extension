@@ -8,11 +8,15 @@ module.exports = {
   roots: ['tests'],
   // Longer timeout than the default one needed for heavier dapps, like https://myetherwallet.com,
   // otherwise, tests fail because the default timeout gets reached.
-  testTimeout: 360000,
+  testTimeout: 120000,
+  // Limit the number of workers to prevent performance degradation.
+  // Running multiple workers simultaneously can significantly slow down the tests,
+  // causing them to fail randomly due to exceeding timeout limits.
+  maxWorkers: 2,
   testPathIgnorePatterns: [
     // Ignore specified test paths to speed up the testing process during debugging
     // DEFAULT: no paths should be ignored
-    path.join('<rootDir>', 'tests/smart_account')
+    // path.join('<rootDir>', 'tests/smart_account')
     // path.join('<rootDir>', 'tests/basic_account')
   ]
 }

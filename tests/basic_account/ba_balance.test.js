@@ -3,14 +3,14 @@ import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../c
 
 describe('ba_balance', () => {
   let browser, page, recorder
-  beforeAll(async () => {
+  beforeEach(async () => {
     ;({ browser, page, recorder } = await bootstrapWithStorage('ba_balance', baParams))
   })
 
-  afterAll(async () => {
-    await recorder.stop()
-    await page.close()
-    await browser.close()
+  afterEach(async () => {
+    if (recorder) await recorder.stop()
+    if (page) await page.close()
+    if (browser) await browser.close()
   })
 
   it('check the balance in account ', async () => {

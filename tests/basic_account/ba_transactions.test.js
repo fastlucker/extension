@@ -9,23 +9,19 @@ import {
 } from '../common/transactions.js'
 
 describe('ba_transactions', () => {
-  let browser
-  let page
-  let extensionRootUrl
-  let recorder
+  let browser, page, extensionRootUrl, recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_transactions', baParams)
-    browser = context.browser
-    page = context.page
-    page.setDefaultTimeout(240000)
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    ;({ browser, page, recorder, extensionRootUrl } = await bootstrapWithStorage(
+      'ba_transactions',
+      baParams
+    ))
   })
 
   afterEach(async () => {
-    await recorder.stop()
-    await browser.close()
+    if (recorder) await recorder.stop()
+    if (page) await page.close()
+    if (browser) await browser.close()
   })
 
   it('Makes a valid transaction', async () => {
