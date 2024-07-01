@@ -121,14 +121,9 @@ export async function typeText(page, selector, text) {
 
 //----------------------------------------------------------------------------------------------
 export async function typeSeedPhrase(page, seedPhrase) {
-  await new Promise((r) => setTimeout(r, 2000))
-
   await page.waitForSelector('[data-testid="passphrase-field"]')
-
   await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
-  // Click on "Unlock button"
-  await clickOnElement(page, '[data-testid="button-unlock"]')
-
+  await clickOnElement(page, '[data-testid="button-unlock"]') // Click on "Unlock button"
   await page.waitForSelector('[data-testid="full-balance"]')
 }
 
