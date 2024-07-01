@@ -17,10 +17,6 @@ const puppeteerArgs = [
   // '--detectOpenHandles',
   '--start-maximized',
 
-  '--disable-background-timer-throttling',
-  '--disable-backgrounding-occluded-windows',
-  '--disable-renderer-backgrounding',
-
   // We need this for running Puppeteer in Github Actions
   '--no-sandbox',
   '--disable-setuid-sandbox',
@@ -83,15 +79,8 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
     }
   }
 
-  if (!waitUntilEnabled) {
-    // in case the button was disabled wait for it state to be updated before clicking on it
-    await new Promise((resolve) => setTimeout(resolve, 250))
-  }
-
   if (isClickable || !waitUntilEnabled) {
-    if (clickDelay > 0) {
-      await new Promise((resolve) => setTimeout(resolve, clickDelay))
-    }
+    if (clickDelay > 0) await new Promise((resolve) => setTimeout(resolve, clickDelay))
     await elementToClick.click()
   }
 }
