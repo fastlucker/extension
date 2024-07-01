@@ -97,20 +97,7 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
 }
 
 //----------------------------------------------------------------------------------------------
-export async function clickElementWithRetry(page, selector, maxRetries = 5) {
-  let retries = 0
-  while (retries < maxRetries) {
-    const element = await page.$(selector)
-    if (element) {
-      await element.click()
-      return
-    }
-    await page.waitForTimeout(500) // Wait for 1/2 second before trying again
-    retries++
-  }
-  throw new Error(`Element ${selector} not found or not clickable after ${maxRetries} retries`)
-}
-//----------------------------------------------------------------------------------------------
+
 export async function typeText(page, selector, text) {
   await page.waitForSelector(selector)
   const whereToType = await page.$(selector)

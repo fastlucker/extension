@@ -1,10 +1,4 @@
-import {
-  typeText,
-  clickOnElement,
-  clickElementWithRetry,
-  confirmTransaction,
-  selectMaticToken
-} from '../functions'
+import { typeText, clickOnElement, confirmTransaction, selectMaticToken } from '../functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -52,7 +46,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
 
   // Select option: 'Injected Wallet'
-  await clickElementWithRetry(page, '[data-testid="wallet-option-injected"]')
+  await clickOnElement(page, '[data-testid="wallet-option-injected"]')
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
