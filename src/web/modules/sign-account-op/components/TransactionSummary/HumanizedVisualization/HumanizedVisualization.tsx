@@ -163,25 +163,29 @@ const HumanizedVisualization: FC<Props> = ({
         if (item.type === 'chain' && item.chainId) {
           const foundChain = networks.find((n) => n.chainId === item.chainId)
 
-          return foundChain ? (
-            <>
-              <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
-              <Text
-                style={{ textDecorationLine: 'underline' }}
-                onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
-                weight="semiBold" // key={key}
-              >
-                {foundChain.name}
-              </Text>
-            </>
-          ) : (
-            <Text
-              style={{ textDecorationLine: 'underline' }}
-              onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
-              weight="semiBold" // key={key}
-            >
-              {`Chain with id ${item.chainId}`}
-            </Text>
+          return (
+            <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
+              {foundChain ? (
+                <>
+                  <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
+                  <Text
+                    style={{ textDecorationLine: 'underline' }}
+                    onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                    weight="semiBold"
+                  >
+                    {foundChain.name}
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  style={{ textDecorationLine: 'underline' }}
+                  onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                  weight="semiBold"
+                >
+                  {`Chain with id ${item.chainId}`}
+                </Text>
+              )}
+            </View>
           )
         }
         if (item.content) {
