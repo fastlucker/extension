@@ -13,7 +13,6 @@ describe('ba_other', () => {
 
   afterEach(async () => {
     if (recorder) await recorder.stop()
-    if (page) await page.close()
     if (browser) await browser.close()
   })
   it('change password', async () => {
