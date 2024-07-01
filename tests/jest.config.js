@@ -13,6 +13,7 @@ module.exports = {
   // Running multiple workers simultaneously can significantly slow down the tests,
   // causing them to fail randomly due to exceeding timeout limits.
   maxWorkers: 1,
+  browserPerWorker: true,
   testPathIgnorePatterns: [
     // Ignore specified test paths to speed up the testing process during debugging
     // DEFAULT: no paths should be ignored
