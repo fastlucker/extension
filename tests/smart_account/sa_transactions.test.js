@@ -29,8 +29,8 @@ describe('sa_transactions', () => {
   })
 
   afterEach(async () => {
-    if (recorder) await recorder.stop()
-    if (browser) await browser.close()
+    await recorder.stop()
+    await browser.close()
   })
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {

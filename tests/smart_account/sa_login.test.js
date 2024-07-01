@@ -31,8 +31,8 @@ describe('sa_login', () => {
   })
 
   afterEach(async () => {
-    if (recorder) await recorder.stop()
-    if (browser) await browser.close()
+    await recorder.stop()
+    await browser.close()
   })
 
   //------------------------------------------------------------------------------------------------------

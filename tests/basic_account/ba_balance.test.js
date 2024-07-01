@@ -8,8 +8,8 @@ describe('ba_balance', () => {
   })
 
   afterEach(async () => {
-    if (recorder) await recorder.stop()
-    if (browser) await browser.close()
+    await recorder.stop()
+    await browser.close()
   })
 
   it('check the balance in account ', async () => {

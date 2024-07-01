@@ -214,16 +214,10 @@ export async function bootstrapWithStorage(namespace, params) {
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
 
-  // Please note that:
-  // 1. We are no longer closing any tabs.
-  // 2. Instead, we simply switch back to our tab under testing.
+  // Make the extension tab active in the browser
   await page.bringToFront()
-  // we need to catch the error because in other way recorder will not be returned and test will fail with error
-  try {
-    await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
-  } catch (error) {
-    console.log('typeSeedPhrase ERROR: ', error)
-  }
+  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+
   return { browser, extensionRootUrl, page, recorder }
 }
 

@@ -12,8 +12,8 @@ describe('ba_other', () => {
   })
 
   afterEach(async () => {
-    if (recorder) await recorder.stop()
-    if (browser) await browser.close()
+    await recorder.stop()
+    await browser.close()
   })
   it('change password', async () => {
     await changePassword(page, extensionRootUrl)
