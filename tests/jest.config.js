@@ -14,7 +14,6 @@ module.exports = {
   // causing them to fail randomly due to exceeding timeout limits.
   // https://github.com/argos-ci/jest-puppeteer?tab=readme-ov-file#ci-timeout
   maxWorkers: 1,
-  browserPerWorker: true,
   testPathIgnorePatterns: [
     // Ignore specified test paths to speed up the testing process during debugging
     // DEFAULT: no paths should be ignored
