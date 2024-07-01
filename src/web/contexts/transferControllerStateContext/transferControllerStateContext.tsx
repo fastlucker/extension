@@ -59,7 +59,7 @@ const TransferControllerStateProvider: React.FC<any> = ({ children }) => {
           return hasAmount && tokenNetwork?.hasRelayer && token.flags.canTopUpGasTank
         }
 
-        return hasAmount
+        return hasAmount && !token.flags.onGasTank
       }) || [],
     [accountPortfolio?.tokens, networks, selectedTokenFromUrl?.isTopUp]
   )
