@@ -923,9 +923,13 @@ function stateDebug(event: string, stateToLog: object) {
                 const account = mainCtrl.accounts.accounts.find(
                   ({ addr }) => addr.toLowerCase() === address.toLowerCase()
                 )
-                if (!account) return
 
-                await mainCtrl.accounts.updateAccountPreferences([
+                if (!account) {
+                  await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
+                  return
+                }
+
+                return await mainCtrl.accounts.updateAccountPreferences([
                   {
                     addr: address,
                     preferences: {
@@ -934,7 +938,6 @@ function stateDebug(event: string, stateToLog: object) {
                     }
                   }
                 ])
-                return await mainCtrl.addressBook.renameManuallyAddedContact(address, newName)
               }
               case 'ADDRESS_BOOK_CONTROLLER_REMOVE_CONTACT':
                 return await mainCtrl.addressBook.removeManuallyAddedContact(params.address)
