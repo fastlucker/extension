@@ -62,7 +62,8 @@ describe('sa_transactions', () => {
     await signMessage(page, extensionRootUrl, browser, process.env.SA_SELECTED_ACCOUNT)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it('Top up gas tank', async () => {
+  // TODO: Topping up the gas tank is temporarily disabled as of v4.26.0.
+  it.only('Top up gas tank', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
