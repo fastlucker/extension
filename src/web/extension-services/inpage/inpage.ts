@@ -212,14 +212,14 @@ export const patchProvider = (p: any) => {
 }
 
 const domReadyCall = (callback: any) => {
-  if (document.readyState === 'complete') {
-    callback()
-  } else {
+  if (document.readyState === 'loading') {
     const domContentLoadedHandler = () => {
       callback()
       document.removeEventListener('DOMContentLoaded', domContentLoadedHandler)
     }
     document.addEventListener('DOMContentLoaded', domContentLoadedHandler)
+  } else {
+    callback()
   }
 }
 
