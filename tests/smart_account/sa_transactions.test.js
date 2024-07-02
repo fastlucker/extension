@@ -57,7 +57,7 @@ describe('sa_transactions', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   // TODO: Topping up the gas tank is temporarily disabled as of v4.26.0.
-  it.only('Top up gas tank', async () => {
+  it.skip('Top up gas tank', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
