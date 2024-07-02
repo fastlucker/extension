@@ -23,11 +23,11 @@ describe('ba_transactions', () => {
     await browser.close()
   })
 
-  it.skip('Makes a valid transaction', async () => {
+  it('Makes a valid transaction', async () => {
     await makeValidTransaction(page, extensionRootUrl, browser)
   })
 
-  it.skip('Makes a valid swap', async () => {
+  it('Makes a valid swap', async () => {
     await makeSwap(page, extensionRootUrl, browser)
   })
 
@@ -39,7 +39,7 @@ describe('ba_transactions', () => {
     await sendFundsToSmartContract(page, extensionRootUrl)
   })
 
-  it.skip('Signs a message', async () => {
+  it('Signs a message', async () => {
     await signMessage(page, extensionRootUrl, browser, process.env.BA_SELECTED_ACCOUNT)
   })
 })
