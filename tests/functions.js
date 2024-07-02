@@ -60,11 +60,11 @@ export async function bootstrap(options = {}) {
   }
 }
 
-//----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector, waitUntilEnabled = true, clickDelay = 0) {
   const elementToClick = await page.waitForSelector(selector, { visible: true })
 
   let isClickable = false
+  // wait for the button to be clickable before clicking it
   if (waitUntilEnabled) {
     while (!isClickable) {
       isClickable = await page.evaluate((selector) => {
@@ -226,7 +226,7 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, '[data-testid="keystore-button-create"]')
-  await clickOnElement(page, '[data-testid="keystore-button-continue"]', true, 2000)
+  await clickOnElement(page, '[data-testid="keystore-button-continue"]', true, 1500)
 }
 
 //----------------------------------------------------------------------------------------------
@@ -235,8 +235,8 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
   await clickOnElement(page, '[data-testid="import-button"]')
   await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 2000)
-  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 2000)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
@@ -291,7 +291,7 @@ export async function confirmTransaction(
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
   let actionWindowPage = await newTarget.page()
-  actionWindowPage.setDefaultTimeout(240000)
+  actionWindowPage.setDefaultTimeout(120000)
 
   actionWindowPage.setViewport({ width: 1300, height: 700 })
 
@@ -307,7 +307,7 @@ export async function confirmTransaction(
     const newPageTarget = await newPagePromise2
 
     actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
-    actionWindowPage.setDefaultTimeout(240000)
+    actionWindowPage.setDefaultTimeout(120000)
   }
 
   // Check if select fee token is visible

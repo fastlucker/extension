@@ -26,11 +26,7 @@ export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
 
   // Click on "Save and Continue" button
   await clickOnElement(page, '[data-testid="button-save-and-continue"]')
-
-  await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'), {
-    timeout: 60000
-  })
-
+  await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'))
   await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Verify that selected accounts exist on the page

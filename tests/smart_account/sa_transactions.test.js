@@ -130,7 +130,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
 
     browser = context.browser
     page = context.page
-    page.setDefaultTimeout(240000)
+    page.setDefaultTimeout(120000)
     recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })

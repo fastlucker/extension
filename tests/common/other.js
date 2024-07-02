@@ -15,7 +15,7 @@ export async function changePassword(page, extensionRootUrl) {
 
   await page.waitForSelector('[data-testid="bottom-sheet"]')
   // Click on the button within the modal
-  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 2000)
+  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 1500)
   await page.waitForSelector('[data-testid="bottom-sheet"]', { hidden: true })
   //! !!FOR THE MOMENT "SIGN OUT" BUTTON DOESN'T EXIST IN THE FULL SCREEN MODE. BELLOW WE VERIFY THAT CHANGED PASSWORD IS ALREADY IN USE.
   // THIS STEP WILL BE CHANGED WHEN THE BUTTON IS CREATED!!!
@@ -27,7 +27,7 @@ export async function changePassword(page, extensionRootUrl) {
 
   await page.waitForSelector('[data-testid="bottom-sheet"]')
   // Click on the element within the modal
-  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 2000)
+  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 1500)
   // Wait for the modal to be closed
   await page.waitForSelector('[data-testid="bottom-sheet"]', { hidden: true })
 }
