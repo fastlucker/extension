@@ -65,17 +65,21 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
 
   let isClickable = false
   // wait for the button to be clickable before clicking it
-  if (waitUntilEnabled) {
-    while (!isClickable) {
-      isClickable = await page.evaluate((selector) => {
-        const buttonElement = document.querySelector(selector)
-        return (
-          buttonElement &&
-          !buttonElement.disabled &&
-          window.getComputedStyle(buttonElement).pointerEvents !== 'none'
-        )
-      }, selector)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+  if (waitUntilEnabled && elementToClick) {
+    try {
+      while (!isClickable) {
+        isClickable = await page.evaluate((selector) => {
+          const buttonElement = document.querySelector(selector)
+          return (
+            buttonElement &&
+            !buttonElement.disabled &&
+            window.getComputedStyle(buttonElement).pointerEvents !== 'none'
+          )
+        }, selector)
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    } catch (error) {
+      isClickable = true
     }
   }
 

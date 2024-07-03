@@ -59,7 +59,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
 
   // Select USDT and USDC tokens for swap
-  await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]', false)
+  await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
 
   await clickOnElement(page, '[data-testid="common-base-USDT"]')
 
@@ -68,7 +68,7 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   })
 
   // Click on 'Select token' and select 'USDC' token
-  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]', false)
+  await clickOnElement(page, 'xpath///span[contains(text(), "Select token")]')
 
   await clickOnElement(page, '[data-testid="common-base-USDC"]')
   // wait until element is not displayed
@@ -159,7 +159,7 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
   // Click on 'connect wallet' button
   await clickOnElement(page, 'button[class="button-connect"]')
   // Select 'MetaMask/Ambire' connect button
-  await clickOnElement(page, '>>>[class^="name"]', false)
+  await clickOnElement(page, '>>>[class^="name"]')
 
   // Wait for the new page to be created and click on 'Connect' button
   const newTarget = await browser.waitForTarget(
@@ -200,7 +200,7 @@ export async function signMessage(page, extensionRootUrl, browser, signerAddress
   await page.click('.copyButton')
 
   // Click on "Verify" tab
-  await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]', false)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Verify")]')
   // Fill copied address in the Signer field
   await typeText(page, '[placeholder="Signer address (0x....)"]', signerAddress)
   // Fill copied address in the Message field
