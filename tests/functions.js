@@ -347,6 +347,9 @@ export async function confirmTransaction(
   let actionWindowPage = await newTarget.page()
   actionWindowPage.setViewport({ width: 1300, height: 700 })
 
+  const transactionRecorder = new PuppeteerScreenRecorder(actionWindowPage, { followNewTab: true })
+  await transactionRecorder.start(`./recorder/txn_action_window_${Date.now()}.mp4`)
+
   // Check if "sign-message" action-window is open
   if (actionWindowPage.url().endsWith('/sign-message')) {
     console.log('New window before transaction is open')
@@ -402,6 +405,12 @@ export async function confirmTransaction(
     return pageText.includes('failed') || pageText.includes('dropped')
   })
 
+  // If it fails, the next expect will throw an error and the recorder at the end of the test won't finish recording.
+  // Because of this, we make sure to stop it here in case of failure.
+  if (doesFailedExist) {
+    await transactionRecorder.stop()
+  }
+
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 
   const currentURL = await actionWindowPage.url()
@@ -418,6 +427,8 @@ export async function confirmTransaction(
 
   // Get transaction receipt
   const receipt = await provider.getTransactionReceipt(transactionHash)
+
+  await transactionRecorder.stop()
 
   console.log(`Transaction Hash: ${transactionHash}`)
   // Assertion to fail the test if transaction failed
