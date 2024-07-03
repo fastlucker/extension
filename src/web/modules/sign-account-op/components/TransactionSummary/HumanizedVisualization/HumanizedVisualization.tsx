@@ -55,7 +55,6 @@ const HumanizedVisualization: FC<Props> = ({
           return (
             <TokenComponent
               key={key}
-              style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
               sizeMultiplierSize={sizeMultiplierSize}
               amount={item.amount!}
               address={item.address!}

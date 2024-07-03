@@ -1,19 +1,20 @@
 import { formatUnits, MaxUint256, ZeroAddress } from 'ethers'
 import React, { FC, memo, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, ViewStyle } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { getTokenInfo } from '@ambire-common/libs/humanizer/utils'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
-import { SPACING_TY } from '@common/styles/spacings'
+import spacings, { SPACING_TY } from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 interface Props {
   key: number
-  style: ViewStyle
   address: string
   amount: bigint
   sizeMultiplierSize: number
@@ -23,7 +24,6 @@ interface Props {
 
 const TokenComponent: FC<Props> = ({
   key,
-  style,
   amount,
   address,
   sizeMultiplierSize,
@@ -31,14 +31,15 @@ const TokenComponent: FC<Props> = ({
   network
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-  const { accountPortfolio } = usePortfolioControllerState()
-  const { t } = useTranslation()
-  const isUnlimitedByPermit2 = amount!.toString(16).toLowerCase() === 'f'.repeat(40)
+  const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
   const isMaxUint256 = amount === MaxUint256
-  const infoFromCurrentBalances = accountPortfolio?.tokens?.find(
-    (token) => token.address.toLowerCase() === address
-  )
 
+  const { t } = useTranslation()
+  const [fetchedFromCena, setFetchedFromCena] = useState(null)
+  const { accountPortfolio } = usePortfolioControllerState()
+  const infoFromCurrentBalances = accountPortfolio?.tokens?.find(
+    (token) => token.address.toLowerCase() === address.toLowerCase()
+  )
   const nativeTokenInfo = useMemo(
     () =>
       address === ZeroAddress && {
@@ -47,7 +48,6 @@ const TokenComponent: FC<Props> = ({
       },
     [address, network]
   )
-  const [fetchedFromCena, setFetchedFromCena] = useState(null)
 
   useEffect(() => {
     if (!infoFromCurrentBalances && !nativeTokenInfo)
@@ -63,7 +63,7 @@ const TokenComponent: FC<Props> = ({
     infoFromCurrentBalances || nativeTokenInfo || fetchedFromCena || {}
 
   return (
-    <View key={key} style={style}>
+    <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {BigInt(amount) > BigInt(0) ? (
         <Text
           fontSize={textSize}
@@ -75,12 +75,7 @@ const TokenComponent: FC<Props> = ({
             <Text appearance="warningText">{t('unlimited')}</Text>
           ) : (
             <>
-              {formatDecimals(
-                Number(
-                  // @TODO should fix the decimals
-                  formatUnits(amount, tokenInfo?.decimals || 1)
-                )
-              )}{' '}
+              {formatDecimals(Number(formatUnits(amount, tokenInfo?.decimals || 1)))}{' '}
               {!tokenInfo?.decimals && (
                 <Text
                   fontSize={textSize}
@@ -95,17 +90,23 @@ const TokenComponent: FC<Props> = ({
           )}
         </Text>
       ) : null}
-      <TokenIcon
-        width={24 * sizeMultiplierSize}
-        height={24 * sizeMultiplierSize}
-        networkId={network.id}
-        address={address}
-        withNetworkIcon={false}
-        containerStyle={{ marginRight: marginRight / 2 }}
-      />
-      <Text fontSize={textSize} weight="medium" appearance="primaryText">
-        {tokenInfo?.symbol || t('unknown token')}
-      </Text>
+      <Pressable
+        style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
+        onPress={() => Linking.openURL(`${network.explorerUrl}/address/${address}`)}
+      >
+        <TokenIcon
+          width={24 * sizeMultiplierSize}
+          height={24 * sizeMultiplierSize}
+          networkId={network.id}
+          address={address}
+          withNetworkIcon={false}
+          containerStyle={{ marginRight: marginRight / 2 }}
+        />
+        <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
+          {tokenInfo?.symbol || t('unknown token')}
+        </Text>
+        <InfoIcon width={14} height={14} />
+      </Pressable>
     </View>
   )
 }
