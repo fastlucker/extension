@@ -14,7 +14,7 @@ interface Props extends ReturnType<typeof useReverseLookup> {
   plainAddressMaxLength?: number
 }
 
-const AccountAddress: FC<Props> = ({ isLoading, ens, ud, address, plainAddressMaxLength = 32 }) => {
+const AccountAddress: FC<Props> = ({ isLoading, ens, ud, address, plainAddressMaxLength = 42 }) => {
   if (isLoading) {
     return <SkeletonLoader width={200} height={20} />
   }
@@ -26,7 +26,7 @@ const AccountAddress: FC<Props> = ({ isLoading, ens, ud, address, plainAddressMa
           <Text fontSize={12} weight="semiBold" appearance="primary">
             {ens || ud}
           </Text>
-          <PlainAddress maxLength={13} address={address} style={spacings.mlMi} />
+          <PlainAddress maxLength={18} address={address} style={spacings.mlMi} />
         </View>
       ) : (
         <PlainAddress maxLength={plainAddressMaxLength} address={address} hideParentheses />
