@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6,7 +5,6 @@ import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
-import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
@@ -67,8 +65,8 @@ const SignMessageScreen = () => {
   const networkData: Network | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
-  const prevSignMessageState: SignMessageController =
-    usePrevious(signMessageState) || ({} as SignMessageController)
+  // const prevSignMessageState: SignMessageController =
+  //   usePrevious(signMessageState) || ({} as SignMessageController)
 
   const selectedAccountFull = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -114,23 +112,24 @@ const SignMessageScreen = () => {
     return () => clearTimeout(timer)
   })
 
-  useEffect(() => {
-    if (
-      prevSignMessageState.status === 'LOADING' &&
-      signMessageState.status === 'DONE' &&
-      signMessageState.signedMessage
-    ) {
-      dispatch({
-        type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
-        params: { signedMessage: signMessageState.signedMessage }
-      })
-    }
-  }, [
-    dispatch,
-    prevSignMessageState.status,
-    signMessageState.signedMessage,
-    signMessageState.status
-  ])
+  // TODO: Move in the background
+  // useEffect(() => {
+  //   if (
+  //     prevSignMessageState.status === 'LOADING' &&
+  //     signMessageState.status === 'DONE' &&
+  //     signMessageState.signedMessage
+  //   ) {
+  //     dispatch({
+  //       type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE',
+  //       params: { signedMessage: signMessageState.signedMessage }
+  //     })
+  //   }
+  // }, [
+  //   dispatch,
+  //   prevSignMessageState.status,
+  //   signMessageState.signedMessage,
+  //   signMessageState.status
+  // ])
 
   useEffect(() => {
     if (!userRequest || !signMessageAction) return
@@ -168,7 +167,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     if (!getUiType().isActionWindow) return
     const reset = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
     window.addEventListener('beforeunload', reset)
@@ -180,7 +179,7 @@ const SignMessageScreen = () => {
 
   useEffect(() => {
     return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
