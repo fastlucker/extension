@@ -3,19 +3,14 @@ import { Control, Controller } from 'react-hook-form'
 import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
-import {
-  isAmbireV1LinkedAccount,
-  isSmartAccount as getIsSmartAccount
-} from '@ambire-common/libs/account/account'
-import { Avatar } from '@common/components/Avatar'
-import Badge from '@common/components/Badge'
+import AccountAddress from '@common/components/AccountAddress'
+import AccountBadges from '@common/components/AccountBadges'
+import Avatar from '@common/components/Avatar'
 import Editable from '@common/components/Editable'
-import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
+import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 import getStyles from './styles'
 
@@ -29,48 +24,33 @@ type Props = {
 }
 
 const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = true }: Props) => {
-  const { addr: address, associatedKeys, creation, preferences } = account
+  const { addr: address, preferences } = account
+  const { ens, ud, isLoading } = useReverseLookup({ address })
   const { styles } = useTheme(getStyles)
-  const { t } = useTranslation()
-  const keystoreCtrl = useKeystoreControllerState()
-  const isSmartAccount = getIsSmartAccount(account)
 
   return (
     <View style={[styles.container, !hasBottomSpacing && spacings.mb0]}>
       <View style={[flexbox.justifySpaceBetween, flexbox.alignCenter, flexbox.directionRow]}>
         <View testID="personalize-account" style={[flexbox.directionRow, flexbox.alignCenter]}>
-          <Avatar pfp={preferences.pfp} />
+          <Avatar ens={ens} ud={ud} pfp={preferences.pfp} />
           <View style={flexbox.flex1}>
-            <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-              <Text fontSize={14} style={spacings.mrLg}>
-                {address}
-              </Text>
-              <Badge
-                withIcon
-                style={spacings.mlTy}
-                type={isSmartAccount ? 'success' : 'warning'}
-                text={isSmartAccount ? t('Smart Account') : t('Basic Account')}
+            <View style={flexbox.directionRow}>
+              <Controller
+                control={control}
+                name={`accounts.${index}.preferences.label`}
+                render={({ field: { onChange, value } }) => (
+                  <Editable
+                    setCustomValue={onChange}
+                    customValue={value}
+                    initialValue={preferences.label}
+                    testID={`edit-name-field-${index}`}
+                    height={24}
+                  />
+                )}
               />
-              {keystoreCtrl.keys.every((k) => !associatedKeys.includes(k.addr)) && (
-                <Badge style={spacings.mlTy} type="info" text={t('View-only')} />
-              )}
-              {isSmartAccount && isAmbireV1LinkedAccount(creation?.factoryAddr) && (
-                <Badge style={spacings.mlTy} type="info" text={t('Ambire v1')} />
-              )}
+              <AccountBadges accountData={account} />
             </View>
-
-            <Controller
-              control={control}
-              name={`accounts.${index}.preferences.label`}
-              render={({ field: { onChange, value } }) => (
-                <Editable
-                  setCustomValue={onChange}
-                  customValue={value}
-                  initialValue={preferences.label}
-                  testID={`edit-name-field-${index}`}
-                />
-              )}
-            />
+            <AccountAddress ens={ens} ud={ud} isLoading={isLoading} address={address} />
           </View>
         </View>
       </View>
