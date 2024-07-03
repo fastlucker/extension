@@ -10,11 +10,11 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
 
-const getCurrentAccountBanners = (banners: BannerInterface[], selectAccount: AccountId | null) =>
+const getCurrentAccountBanners = (banners: BannerInterface[], selectedAccount: AccountId | null) =>
   banners.filter((banner) => {
     if (!banner.accountAddr) return true
 
-    return banner.accountAddr === selectAccount
+    return banner.accountAddr === selectedAccount
   })
 
 export default function useBanners(): BannerInterface[] {

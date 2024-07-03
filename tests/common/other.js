@@ -7,17 +7,16 @@ export async function changePassword(page, extensionRootUrl) {
   })
   const oldPass = process.env.KEYSTORE_PASS
   const newPass = 'B1234566'
+  await page.waitForSelector('[data-testid="enter-current-pass-field"]')
   await typeText(page, '[data-testid="enter-current-pass-field"]', oldPass)
   await typeText(page, '[data-testid="enter-new-pass-field"]', newPass)
   await typeText(page, '[data-testid="repeat-new-pass-field"]', newPass)
-
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
-  // Wait for the modal to appear
-  await page.waitForSelector('[data-testid="device-pass-success-modal"]')
-
-  // Click on the element within the modal
-  await clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+  await page.waitForSelector('[data-testid="bottom-sheet"]')
+  // Click on the button within the modal
+  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 1500)
+  await page.waitForSelector('[data-testid="bottom-sheet"]', { hidden: true })
   //! !!FOR THE MOMENT "SIGN OUT" BUTTON DOESN'T EXIST IN THE FULL SCREEN MODE. BELLOW WE VERIFY THAT CHANGED PASSWORD IS ALREADY IN USE.
   // THIS STEP WILL BE CHANGED WHEN THE BUTTON IS CREATED!!!
   await typeText(page, '[data-testid="enter-current-pass-field"]', newPass)
@@ -26,15 +25,11 @@ export async function changePassword(page, extensionRootUrl) {
 
   await clickOnElement(page, '[data-testid="change-device-pass-button"]')
 
-  // Wait for the modal to appear
-  await page.waitForSelector('[data-testid="device-pass-success-modal"]')
-
+  await page.waitForSelector('[data-testid="bottom-sheet"]')
   // Click on the element within the modal
-  clickOnElement(page, '[data-testid="device-pass-success-modal"]')
+  await clickOnElement(page, '[data-testid="device-pass-success-modal"]', true, 1500)
   // Wait for the modal to be closed
-  await page.waitForSelector('[data-testid="device-pass-success-modal"]', {
-    hidden: true
-  })
+  await page.waitForSelector('[data-testid="bottom-sheet"]', { hidden: true })
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -50,7 +45,6 @@ export async function addContactInAddressBook(page, extensionRootUrl) {
   await typeText(page, '[data-testid="contact-name-field"]', addName)
   await typeText(page, '[data-testid="address-ens-field"]', addAddress)
 
-  await page.waitForSelector('[data-testid="add-to-address-book-button"]')
   await clickOnElement(page, '[data-testid="add-to-address-book-button"]')
 
   await page.waitForSelector('[data-testid="name-first-address"]')

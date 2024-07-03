@@ -11,7 +11,7 @@ import {
 import {
   makeValidTransaction,
   makeSwap,
-  sendFundsGreaterThatBalance,
+  sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
   signMessage
 } from '../common/transactions.js'
@@ -19,19 +19,13 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 
-let browser
-let page
-let extensionRootUrl
-let recorder
-
 describe('sa_transactions', () => {
+  let browser, page, extensionRootUrl, recorder
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('sa_transactions', saParams)
-
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    ;({ browser, page, extensionRootUrl, recorder } = await bootstrapWithStorage(
+      'sa_transactions',
+      saParams
+    ))
   })
 
   afterEach(async () => {
@@ -48,12 +42,12 @@ describe('sa_transactions', () => {
     await makeSwap(page, extensionRootUrl, browser)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send matics greater than the available balance ', async () => {
-    await sendFundsGreaterThatBalance(page, extensionRootUrl)
+  it('(-) Send MATIC tokens greater than the available balance ', async () => {
+    await sendFundsGreaterThanBalance(page, extensionRootUrl)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send matics to smart contract ', async () => {
+  it('(-) Send MATIC tokens to smart contract ', async () => {
     await sendFundsToSmartContract(page, extensionRootUrl)
   })
 
@@ -72,12 +66,7 @@ describe('sa_transactions', () => {
     // Click on "Top Up Gas Tank"
     await clickOnElement(page, '[data-testid="top-up-button"]')
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/transfer')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForFunction(() => window.location.href.includes('/transfer'))
 
     await typeText(page, amountField, '0.0001')
 
@@ -103,7 +92,7 @@ describe('sa_transactions', () => {
     // Type the amount
     await typeText(page, amountField, '0.0001')
 
-    // Type the adress of the recipient
+    // Type the address of the recipient
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
@@ -116,7 +105,7 @@ describe('sa_transactions', () => {
 
     // Check the checkbox "Confirm sending to a previously unknown address"
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
-    // Click on "Send" button and cofirm transaction
+    // Click on "Send" button and confirm transaction
     await confirmTransaction(
       page,
       extensionRootUrl,
@@ -142,6 +131,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
 
     browser = context.browser
     page = context.page
+    page.setDefaultTimeout(120000)
     recorder = context.recorder
     extensionRootUrl = context.extensionRootUrl
   })
@@ -254,7 +244,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
 
     const secondRecipient = '0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e'
 
-    // Type the adress of the recipient
+    // Type the address of the recipient
     await typeText(page, recipientField, secondRecipient)
     // await page.waitForXPath(
     //   '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'

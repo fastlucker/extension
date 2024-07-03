@@ -75,7 +75,7 @@ function stateDebug(event: string, stateToLog: object) {
   // ensuring that the Controllers are initialized with the storage correctly.
   if (process.env.IS_TESTING === 'true') {
     await new Promise((r) => {
-      setTimeout(r, 1000)
+      setTimeout(r, 4000)
     })
   }
 
@@ -658,12 +658,7 @@ function stateDebug(event: string, stateToLog: object) {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
                 await mainCtrl.accounts.addAccounts(params.accounts)
-
-                // And manually trigger some of the `onAccountAdderSuccess` steps
-                // that are needed for view-only accounts, since the AccountAdder
-                // flow was bypassed and the `onAccountAdderSuccess` subscription
-                // in the MainController won't click.
-                return await mainCtrl.accounts.selectAccount(params.accounts[0].addr)
+                break
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
