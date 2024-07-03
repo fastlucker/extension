@@ -35,6 +35,7 @@ const PortfolioControllerStateContext = createContext<{
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
+  claimWalletRewards: (token: TokenResultInterface) => void
 }>({
   accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
   state: {} as any,
@@ -43,7 +44,8 @@ const PortfolioControllerStateContext = createContext<{
   getTemporaryTokens: () => {},
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
-  checkToken: () => {}
+  checkToken: () => {},
+  claimWalletRewards: () => {}
 })
 
 const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
@@ -162,6 +164,24 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     resetAccountPortfolio()
   }, [dispatch, resetAccountPortfolio])
 
+  const claimWalletRewards = useCallback(
+    (token: TokenResultInterface) => {
+      if (!accountsState.selectedAccount || !account) return
+
+      const claimableRewardsData =
+        state.latest[accountsState.selectedAccount].rewards?.result?.claimableRewardsData
+
+      if (!claimableRewardsData) return
+      dispatch({
+        type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
+        params: {
+          token,
+          claimableRewardsData
+        }
+      })
+    },
+    [dispatch, account, accountsState.selectedAccount, state.latest]
+  )
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
@@ -173,7 +193,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          claimWalletRewards
         }),
         [
           state,
@@ -183,7 +204,8 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           updateTokenPreferences,
           removeTokenPreferences,
           checkToken,
-          getTemporaryTokens
+          getTemporaryTokens,
+          claimWalletRewards
         ]
       )}
     >

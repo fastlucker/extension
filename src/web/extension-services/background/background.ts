@@ -730,6 +730,8 @@ function stateDebug(event: string, stateToLog: object) {
                   params.recipientAddress,
                   params.selectedToken
                 )
+              case 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST':
+                return await mainCtrl.claimWallet(params.token, params.claimableRewardsData)
               case 'MAIN_CONTROLLER_ADD_USER_REQUEST':
                 return await mainCtrl.addUserRequest(params)
               case 'MAIN_CONTROLLER_REMOVE_USER_REQUEST':

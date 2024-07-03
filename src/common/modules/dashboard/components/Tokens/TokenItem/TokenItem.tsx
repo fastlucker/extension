@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -7,6 +7,7 @@ import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import RewardsIcon from '@common/assets/svg/RewardsIcon'
 import BottomSheet from '@common/components/BottomSheet'
+import Button from '@common/components/Button'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import { useTranslation } from '@common/config/localization'
@@ -18,6 +19,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
+import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 import TokenDetails from '../TokenDetails'
 import getStyles from './styles'
@@ -31,6 +33,7 @@ const TokenItem = ({
   tokenPreferences: CustomToken[]
   testID?: string
 }) => {
+  const { claimWalletRewards } = usePortfolioControllerState()
   const {
     symbol,
     address,
@@ -80,6 +83,10 @@ const TokenItem = ({
 
   if ((isRewards || isVesting) && !balance && !pendingBalance) return null
 
+  const sendClaimTransaction = useCallback(() => {
+    claimWalletRewards(token)
+  }, [token, claimWalletRewards])
+
   return (
     <AnimatedPressable
       onPress={() => openBottomSheet()}
@@ -119,28 +126,41 @@ const TokenItem = ({
                 />
               )}
             </View>
-            <View style={flexboxStyles.flex1}>
-              <Text
-                selectable
-                style={spacings.mrTy}
-                color={isPending ? theme.warningText : theme.primaryText}
-                fontSize={16}
-                weight="number_bold"
-                numberOfLines={1}
-              >
-                {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
-              </Text>
-
-              <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-                <Text weight="regular" shouldScale={false} fontSize={12}>
-                  {!!isRewards && t('Claimable rewards')}
-                  {!!isVesting && t('Claimable early supporters vestings')}
-                  {!isRewards && !isVesting && t('on')}{' '}
-                </Text>
-                <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
-                  {!!onGasTank && t('Gas Tank')}
-                  {!onGasTank && !isRewards && !isVesting && networkData?.name}
-                </Text>
+            <View style={[flexboxStyles.alignCenter]}>
+              <View style={[flexboxStyles.flex1, flexboxStyles.directionRow]}>
+                <View>
+                  <Text
+                    selectable
+                    style={spacings.mrTy}
+                    color={isPending ? theme.warningText : theme.primaryText}
+                    fontSize={16}
+                    weight="number_bold"
+                    numberOfLines={1}
+                  >
+                    {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
+                  </Text>
+                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                    <Text weight="regular" shouldScale={false} fontSize={12}>
+                      {!!isRewards && t('Claimable rewards')}
+                      {!!isVesting && t('Claimable early supporters vestings')}
+                      {!isRewards && !isVesting && t('on')}{' '}
+                    </Text>
+                    <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
+                      {!!onGasTank && t('Gas Tank')}
+                      {!onGasTank && !isRewards && !isVesting && networkData?.name}
+                    </Text>
+                  </View>
+                </View>
+                {!!isRewards && (
+                  <Button
+                    style={spacings.ml}
+                    size="small"
+                    hasBottomSpacing={false}
+                    type="secondary"
+                    text={t('Claim')}
+                    onPress={sendClaimTransaction}
+                  />
+                )}
               </View>
             </View>
           </View>

@@ -16,6 +16,7 @@ import { EstimateResult } from '@ambire-common/libs/estimate/interfaces'
 import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
+import { AdditionalPortfolioNetworkResult } from '@ambire-common/libs/portfolio/interfaces'
 
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
@@ -135,6 +136,13 @@ type MainControllerBuildTransferUserRequest = {
     amount: string
     selectedToken: TokenResult
     recipientAddress: string
+  }
+}
+type MainControllerBuildClaimWalletUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST'
+  params: {
+    token: TokenResult
+    claimableRewardsData: AdditionalPortfolioNetworkResult['claimableRewardsData']
   }
 }
 type MainControllerRemoveUserRequestAction = {
@@ -459,6 +467,7 @@ export type Action =
   | MainControllerAddSeedPhraseAccounts
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
+  | MainControllerBuildClaimWalletUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
