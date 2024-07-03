@@ -1,19 +1,16 @@
-import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC, memo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Linking, Pressable, View } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { Network } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
-import TokenIcon from '@common/components/TokenIcon'
+import TokenComponent from '@common/components/TokenComponent'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
-import formatDecimals from '@common/utils/formatDecimals'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -21,7 +18,7 @@ interface Props {
   data: IrCall['fullVisualization']
   sizeMultiplierSize: number
   textSize: number
-  networkId: NetworkId
+  network: Network
   isHistory?: boolean
   testID?: string
   networks: Network[]
@@ -31,13 +28,12 @@ const HumanizedVisualization: FC<Props> = ({
   data = [],
   sizeMultiplierSize,
   textSize,
-  networkId,
+  network,
   isHistory,
   testID,
   networks
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-  const { t } = useTranslation()
 
   return (
     <View
@@ -56,63 +52,16 @@ const HumanizedVisualization: FC<Props> = ({
         if (!item || item.isHidden) return null
         const key = item.id
         if (item.type === 'token') {
-          const isUnlimitedByPermit2 = item.amount!.toString(16).toLowerCase() === 'f'.repeat(40)
-          const isMaxUint256 = item.amount === MaxUint256
           return (
-            <View
+            <TokenComponent
               key={key}
               style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}
-            >
-              {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                <Text
-                  fontSize={textSize}
-                  weight="medium"
-                  appearance="primaryText"
-                  style={{ maxWidth: '100%', marginRight }}
-                >
-                  {isUnlimitedByPermit2 || isMaxUint256 ? (
-                    <Text appearance="warningText">{t('unlimited')}</Text>
-                  ) : (
-                    formatDecimals(
-                      Number(
-                        formatUnits(item.amount || '0x0', item?.humanizerMeta?.token?.decimals || 1)
-                      )
-                    )
-                  )}
-                </Text>
-              ) : null}
-
-              {item.address ? (
-                <TokenIcon
-                  width={24 * sizeMultiplierSize}
-                  height={24 * sizeMultiplierSize}
-                  networkId={networkId}
-                  address={item.address}
-                  withNetworkIcon={false}
-                  containerStyle={{ marginRight: marginRight / 2 }}
-                />
-              ) : null}
-              {item?.humanizerMeta?.token ? (
-                <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                  {item?.humanizerMeta?.token?.symbol || ''}
-                </Text>
-              ) : !!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                <Text
-                  fontSize={textSize}
-                  weight="medium"
-                  appearance="primaryText"
-                  style={{ maxWidth: '100%' }}
-                >
-                  {t('units of unknown token')}
-                </Text>
-              ) : (
-                // there are cases where the humanizer would return token with amount = 0
-                // still, not having humanizerMeta.token is bad
-                <Text fontSize={textSize} weight="medium" appearance="primaryText">
-                  {t('unknown token')}
-                </Text>
-              )}
-            </View>
+              sizeMultiplierSize={sizeMultiplierSize}
+              amount={item.amount!}
+              address={item.address!}
+              textSize={textSize}
+              network={network}
+            />
           )
         }
 
@@ -123,7 +72,7 @@ const HumanizedVisualization: FC<Props> = ({
                 fontSize={textSize}
                 address={item.address}
                 highestPriorityAlias={item?.humanizerMeta?.name}
-                explorerNetworkId={networkId}
+                explorerNetworkId={network.id}
               />
             </View>
           )
@@ -136,7 +85,7 @@ const HumanizedVisualization: FC<Props> = ({
                 fontSize={textSize}
                 address={item.address}
                 highestPriorityAlias={`NFT #${item.nftId}`}
-                explorerNetworkId={networkId}
+                explorerNetworkId={network.id}
               />
               <Collectible
                 style={spacings.mhTy}
@@ -144,7 +93,7 @@ const HumanizedVisualization: FC<Props> = ({
                 id={item.nftId}
                 collectionData={{
                   address: item.address,
-                  networkId
+                  networkId: network.id
                 }}
                 networks={networks}
               />
