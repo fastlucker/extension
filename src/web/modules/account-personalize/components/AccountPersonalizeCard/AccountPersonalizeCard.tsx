@@ -45,6 +45,9 @@ const AccountPersonalizeCard = ({ account, index, control, hasBottomSpacing = tr
                     initialValue={preferences.label}
                     testID={`edit-name-field-${index}`}
                     height={24}
+                    textProps={{
+                      weight: 'medium'
+                    }}
                   />
                 )}
               />
