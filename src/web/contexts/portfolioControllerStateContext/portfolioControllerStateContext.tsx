@@ -54,7 +54,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
   const accountsState = useAccountsControllerState()
   const account = accountsState.accounts?.find((acc) => acc.addr === accountsState.selectedAccount)
   const mainControllerState = useMainControllerState()
-  const hasSignAccountOp = mainControllerState.signAccountOp
+  const hasSignAccountOp = !!mainControllerState.signAccountOp
 
   const [accountPortfolio, setAccountPortfolio] =
     useState<AccountPortfolio>(DEFAULT_ACCOUNT_PORTFOLIO)
