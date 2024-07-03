@@ -1,12 +1,14 @@
 import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
 import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
@@ -163,9 +165,32 @@ const HumanizedVisualization: FC<Props> = ({
           const foundChain = networks.find((n) => n.chainId === item.chainId)
 
           return (
-            <Text weight="semiBold" key={key}>
-              {t(foundChain ? foundChain.name : `Unknown chain with id ${item.chainId}`)}
-            </Text>
+            <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
+              {foundChain ? (
+                <>
+                  <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
+                  <Text
+                    onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                    weight="semiBold"
+                  >
+                    {foundChain.name}
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                  weight="semiBold"
+                >
+                  {`Chain with id ${item.chainId}`}
+                </Text>
+              )}
+              <Pressable
+                style={spacings.mlMi}
+                onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+              >
+                <InfoIcon width={14} height={14} />
+              </Pressable>
+            </View>
           )
         }
         if (item.content) {
