@@ -146,7 +146,7 @@ const Account = ({
       </Animated.View>
       <Dialog
         dialogRef={dialogRef}
-        id="delete-contact"
+        id="delete-account"
         title={t('Delete Account')}
         text={t('Are you sure you want to delete this account?')}
         handleClose={closeDialog}
