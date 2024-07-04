@@ -64,7 +64,8 @@ export async function bootstrap(options = {}) {
 // by default the function will wait for the button element to become enabled in order to click on it
 export async function clickOnElement(page, selector, waitUntilEnabled = true, clickDelay = 0) {
   const elementToClick = await page.waitForSelector(selector, { visible: true })
-
+  // await elementToClick.click()
+  // return
   const executeClick = async () => {
     if (clickDelay > 0) await new Promise((resolve) => setTimeout(resolve, clickDelay))
     if (!elementToClick) return
@@ -77,7 +78,7 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
       try {
         const buttonElement = document.querySelector(selector)
         return (
-          buttonElement &&
+          !!buttonElement &&
           !buttonElement.disabled &&
           window.getComputedStyle(buttonElement).pointerEvents !== 'none'
         )
@@ -89,11 +90,14 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
       }
     }, selector)
 
+    if (isClickable === 'disabled') return
+
     if (isClickable) {
       return await executeClick()
     } else {
       await new Promise((resolve) => setTimeout(resolve, 100))
-      return await waitForClickable()
+      await waitForClickable()
+      return 'disabled'
     }
   }
 

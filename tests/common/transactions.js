@@ -40,9 +40,7 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(page, extensionRootUrl, browser) {
-  await page.goto('https://app.uniswap.org/swap?chain=polygon', {
-    waitUntil: ['load', 'domcontentloaded', 'networkidle2']
-  })
+  await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
 
   // Click on 'connect' button
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
