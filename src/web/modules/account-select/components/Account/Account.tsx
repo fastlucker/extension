@@ -1,10 +1,13 @@
 import React from 'react'
 import { Animated, Pressable, View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { Account as AccountInterface } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount, isSmartAccount } from '@ambire-common/libs/account/account'
+import LogOutIcon from '@common/assets/svg/LogOutIcon'
 import { Avatar } from '@common/components/Avatar'
 import Badge from '@common/components/Badge'
+import Dialog from '@common/components/Dialog'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -43,6 +46,7 @@ const Account = ({
   const { selectedAccount } = useAccountsControllerState()
   const keystoreCtrl = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
+  const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
   const [bindAnim, animStyle] = useCustomHover({
     property: 'backgroundColor',
     values: {
@@ -61,6 +65,20 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
+  }
+
+  const removeAccount = () => {
+    dispatch({
+      type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT',
+      params: {
+        accountAddr: addr
+      }
+    })
+    addToast(t('Account removed.'))
+  }
+
+  const promptRemoveAccount = () => {
+    openDialog()
   }
 
   const onSave = (value: string) => {
@@ -120,9 +138,27 @@ const Account = ({
         {renderRightChildren && (
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             {renderRightChildren()}
+            <Pressable onPress={promptRemoveAccount}>
+              <LogOutIcon />
+            </Pressable>
           </View>
         )}
       </Animated.View>
+      <Dialog
+        dialogRef={dialogRef}
+        id="delete-contact"
+        title={t('Delete Account')}
+        text={t('Are you sure you want to delete this account?')}
+        handleClose={closeDialog}
+        handleConfirm={removeAccount}
+        confirmButtonText={t('Delete')}
+        closeButtonProps={{
+          type: 'primary'
+        }}
+        confirmButtonProps={{
+          type: 'danger'
+        }}
+      />
     </Pressable>
   )
 }

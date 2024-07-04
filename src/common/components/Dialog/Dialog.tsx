@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import BottomSheet from '@common/components/BottomSheet'
-import Button from '@common/components/Button'
+import Button, { Props as ButtonProps } from '@common/components/Button'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -17,6 +17,8 @@ interface Props {
   text: string
   closeButtonText?: string
   confirmButtonText?: string
+  closeButtonProps?: ButtonProps
+  confirmButtonProps?: ButtonProps
 }
 
 const Dialog: FC<Props> = ({
@@ -27,7 +29,9 @@ const Dialog: FC<Props> = ({
   title,
   text,
   closeButtonText,
-  confirmButtonText
+  confirmButtonText,
+  closeButtonProps = {},
+  confirmButtonProps = {}
 }) => {
   const { t } = useTranslation()
 
@@ -58,6 +62,7 @@ const Dialog: FC<Props> = ({
           style={{
             minWidth: 164
           }}
+          {...closeButtonProps}
         />
         <Button
           style={{
@@ -66,6 +71,7 @@ const Dialog: FC<Props> = ({
           hasBottomSpacing={false}
           text={confirmButtonText || t('Confirm')}
           onPress={handleConfirm}
+          {...confirmButtonProps}
         />
       </View>
     </BottomSheet>
