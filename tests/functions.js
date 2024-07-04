@@ -30,6 +30,10 @@ const puppeteerArgs = [
  * The messages are sent as strings, as Puppeteer can't read more complex structures.
  */
 function logger(page) {
+  // Enable the logger, only if E2E_DEBUG is set to 'true'.
+  // The same rule is applied in backgrounds.ts too.
+  if (process.env.E2E_DEBUG !== 'true') return
+
   page.on('console', (message) => {
     const text = message.text()
 
