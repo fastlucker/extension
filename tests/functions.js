@@ -64,13 +64,18 @@ export async function bootstrap(options = {}) {
 // by default the function will wait for the button element to become enabled in order to click on it
 export async function clickOnElement(page, selector, waitUntilEnabled = true, clickDelay = 0) {
   const elementToClick = await page.waitForSelector(selector, { visible: true })
-  // await elementToClick.click()
-  // return
+
   const executeClick = async () => {
     if (clickDelay > 0) await new Promise((resolve) => setTimeout(resolve, clickDelay))
     if (!elementToClick) return
-
-    return await elementToClick.click()
+    try {
+      return await elementToClick.click()
+    } catch (error) {
+      // sometimes the button is in the DOM and it is enabled but it is not in the area of the screen
+      // where it can be clicked. In that case settings a small timeout before clicking works just fine
+      // but a more reliable option is to use page.$eval
+      await page.$eval(selector, (el) => el.click())
+    }
   }
 
   const waitForClickable = async () => {
