@@ -25,6 +25,34 @@ const puppeteerArgs = [
   '--window-size=1920,1080'
 ]
 
+/**
+ * Log all page console.log messages.
+ * The messages are sent as strings, as Puppeteer can't read more complex structures.
+ */
+function logger(page) {
+  page.on('console', (message) => {
+    const text = message.text()
+
+    try {
+      // The controllers' state is sent as a stringified JSON with the jsonRich library,
+      // which is why we need to parse it back.
+      // It would be better to use jsonRich.parse here, but it's written in TypeScript, while all E2E test files are in pure JS.
+      // So we made a compromise and copied the parsing function instead of refactoring all the tests.
+      const parsed = JSON.parse(text, (key, value) => {
+        if (value?.$bigint) {
+          return BigInt(value.$bigint)
+        }
+        return value
+      })
+      console.log(parsed)
+    } catch (e) {
+      // We wrapped the parsing in a try/catch block because it's very likely that the string is not a JSON string.
+      // In that case, the parsing will fail, and we will simply show the string message.
+      console.log(text)
+    }
+  })
+}
+
 export async function bootstrap(options = {}) {
   const { headless = false } = options
 
@@ -51,12 +79,16 @@ export async function bootstrap(options = {}) {
   const extensionId = extractedExtensionId
   const extensionRootUrl = `chrome-extension://${extensionId}`
 
+  const backgroundPage = await backgroundTarget.page()
+  // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
+  logger(backgroundPage)
+
   return {
     browser,
     extensionRootUrl,
     extensionId,
     extensionTarget,
-    backgroundTarget
+    backgroundPage
   }
 }
 
@@ -156,8 +188,7 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const { browser, extensionRootUrl, backgroundTarget } = await bootstrap()
-  const backgroundPage = await backgroundTarget.page()
+  const { browser, extensionRootUrl, backgroundPage } = await bootstrap()
   await backgroundPage.evaluate(
     (params) =>
       chrome.storage.local.set({

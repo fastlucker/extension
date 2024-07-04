@@ -56,6 +56,15 @@ function saveTimestamp() {
 }
 
 function stateDebug(event: string, stateToLog: object) {
+  // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
+  // Puppeteer listens for console.log events and will output the message to the CI console.
+  // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
+  // 💡 `logInfoWithPrefix` wraps console.log, and we can't add a listener to it from the Puppeteer configuration.
+  // That's why we use the native `console.log` method here to send the state to Puppeteer.
+  if (process.env.E2E_DEBUG === 'true') {
+    console.log(stringify(stateToLog))
+  }
+
   // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
   // This is especially true for the main controller, which includes all sub-controller states.
   // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
