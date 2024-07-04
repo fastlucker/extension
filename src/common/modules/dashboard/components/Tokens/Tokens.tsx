@@ -91,7 +91,7 @@ const Tokens = ({
           if (filterByNetworkId === 'rewards') return token.flags.rewardsType
           if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
 
-          return token.networkId === filterByNetworkId
+          return token.networkId === filterByNetworkId && !token.flags.onGasTank
         })
         .filter((token) => {
           if (!searchValue) return true
