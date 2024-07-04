@@ -8,11 +8,10 @@ import {
 } from '../common/login.js'
 
 describe('sa_login', () => {
-  let browser, page, extensionRootUrl, extensionId, recorder
+  let browser, page, extensionRootUrl, extensionId, recorder, backgroundPage
 
   beforeEach(async () => {
-    ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
-    const backgroundPage = await backgroundTarget.page()
+    ;({ browser, extensionRootUrl, extensionId, backgroundPage } = await bootstrap())
     // Bypass the invite verification step
     await backgroundPage.evaluate(
       (invite) => chrome.storage.local.set({ invite }),
