@@ -44,7 +44,7 @@ const DevicePasswordChangeSettingsScreen = () => {
     getValues,
     trigger,
     reset,
-    formState: { errors, isSubmitting, isValid }
+    formState: { errors, isValid }
   } = useForm({
     mode: 'all',
     defaultValues: {
@@ -98,8 +98,6 @@ const DevicePasswordChangeSettingsScreen = () => {
       })
     })()
   }
-
-  const isChangeKeystorePasswordLoading = state.statuses.changeKeystorePassword === 'LOADING'
 
   return (
     <>
@@ -179,9 +177,10 @@ const DevicePasswordChangeSettingsScreen = () => {
             style={{ alignSelf: 'flex-start', paddingHorizontal: SPACING_XL }}
             textStyle={{ fontSize: 14 }}
             hasBottomSpacing={false}
-            disabled={isSubmitting || isChangeKeystorePasswordLoading || !isValid}
+            // !== 'INITIAL' to prevent calling same func while the prev execution of that func sends it's status to the FE
+            disabled={state.statuses.changeKeystorePassword !== 'INITIAL' || !isValid}
             text={
-              isSubmitting || isChangeKeystorePasswordLoading
+              state.statuses.changeKeystorePassword === 'LOADING'
                 ? t('Loading...')
                 : t('Change Device Password')
             }
