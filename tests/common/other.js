@@ -1,8 +1,8 @@
 import { typeText, clickOnElement } from '../functions'
 
 //--------------------------------------------------------------------------------------------------------------
-export async function changePassword(page, extensionRootUrl) {
-  await page.goto(`${extensionRootUrl}/tab.html#/settings/device-password-change`, {
+export async function changePassword(page, extensionURL) {
+  await page.goto(`${extensionURL}/tab.html#/settings/device-password-change`, {
     waitUntil: 'load'
   })
   const oldPass = process.env.KEYSTORE_PASS
@@ -33,8 +33,8 @@ export async function changePassword(page, extensionRootUrl) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function addContactInAddressBook(page, extensionRootUrl) {
-  await page.goto(`${extensionRootUrl}/tab.html#/settings/address-book`, {
+export async function addContactInAddressBook(page, extensionURL) {
+  await page.goto(`${extensionURL}/tab.html#/settings/address-book`, {
     waitUntil: 'load'
   })
 

@@ -3,7 +3,6 @@ import { ethers, Network } from 'ethers'
 
 const puppeteer = require('puppeteer')
 
-let recorder
 const buildPath = process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'
 
 const puppeteerArgs = [
@@ -58,13 +57,11 @@ function logger(page) {
   })
 }
 
-export async function bootstrap(options = {}) {
-  const { headless = false } = options
-
+export async function bootstrap(namespace) {
   const browser = await puppeteer.launch({
     // devtools: true,
     slowMo: 10,
-    headless,
+    headless: false,
     args: puppeteerArgs,
     defaultViewport: null,
     // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
@@ -80,18 +77,28 @@ export async function bootstrap(options = {}) {
   const backgroundTarget = targets.find((target) => target.type() === 'background_page')
   const extensionTarget = targets.find((target) => target.url().includes('chrome-extension'))
   const partialExtensionUrl = extensionTarget.url() || ''
-  const [, , extractedExtensionId] = partialExtensionUrl.split('/')
-  const extensionId = extractedExtensionId
-  const extensionRootUrl = `chrome-extension://${extensionId}`
+  const [, , extensionId] = partialExtensionUrl.split('/')
+  const extensionURL = `chrome-extension://${extensionId}`
 
   const backgroundPage = await backgroundTarget.page()
   // If env.E2E_DEBUG is set to 'true', we log all controllers' state updates from the background page
   logger(backgroundPage)
 
+  const page = await browser.newPage()
+  page.setDefaultTimeout(120000)
+  // Make the extension tab active in the browser
+  await page.bringToFront()
+
+  const recorder = new PuppeteerScreenRecorder(page, {
+    followNewTab: true
+  })
+  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
+
   return {
     browser,
-    extensionRootUrl,
-    extensionId,
+    page,
+    recorder,
+    extensionURL,
     extensionTarget,
     backgroundPage
   }
@@ -135,12 +142,11 @@ export async function clickOnElement(page, selector, waitUntilEnabled = true, cl
     if (isClickable === 'disabled') return
 
     if (isClickable) {
-      return await executeClick()
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      await waitForClickable()
-      return 'disabled'
+      return executeClick()
     }
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    await waitForClickable()
+    return 'disabled'
   }
 
   if (waitUntilEnabled) {
@@ -217,7 +223,7 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const { browser, extensionRootUrl, backgroundPage } = await bootstrap()
+  const { browser, page, recorder, extensionURL, backgroundPage } = await bootstrap(namespace)
   await backgroundPage.evaluate(
     (params) =>
       chrome.storage.local.set({
@@ -242,11 +248,6 @@ export async function bootstrapWithStorage(namespace, params) {
     params
   )
 
-  const page = await browser.newPage()
-  page.setDefaultTimeout(120000)
-  recorder = new PuppeteerScreenRecorder(page, { followNewTab: true, recordDurationLimit: 20 })
-  await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
-
   /**
    * If something goes wrong with any of the functions below, e.g., `typeSeedPhrase`,
    * this `bootstrapWithStorage` won't return the expected object (browser, recorder, etc.),
@@ -261,10 +262,8 @@ export async function bootstrapWithStorage(namespace, params) {
    */
   try {
     // Navigate to a specific URL if necessary
-    await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
 
-    // Make the extension tab active in the browser
-    await page.bringToFront()
     await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
   } catch (e) {
     console.log(e)
@@ -274,7 +273,7 @@ export async function bootstrapWithStorage(namespace, params) {
     process.exit(1)
   }
 
-  return { browser, extensionRootUrl, page, recorder }
+  return { browser, extensionURL, page, recorder }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -365,7 +364,7 @@ export async function selectMaticToken(page) {
 //----------------------------------------------------------------------------------------------
 export async function confirmTransaction(
   page,
-  extensionRootUrl,
+  extensionURL,
   browser,
   triggerTransactionSelector,
   feeToken
@@ -373,7 +372,7 @@ export async function confirmTransaction(
   await clickOnElement(page, triggerTransactionSelector)
 
   const newTarget = await browser.waitForTarget((target) =>
-    target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
+    target.url().startsWith(`${extensionURL}/action-window.html#`)
   )
   let actionWindowPage = await newTarget.page()
   actionWindowPage.setDefaultTimeout(120000)
@@ -390,7 +389,7 @@ export async function confirmTransaction(
     await actionWindowPage.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
-      (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
+      (target) => target.url() === `${extensionURL}/action-window.html#/sign-account-op`
     )
     const newPageTarget = await newPagePromise2
 

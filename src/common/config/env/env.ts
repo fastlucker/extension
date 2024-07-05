@@ -7,6 +7,7 @@ import { EnvTypes, NFT_CDN_URL, RELAYER_URL, SENTRY_DSN, VELCRO_URL } from '@env
 
 import appJSON from '../../../../app.json'
 
+export const isTesting = process.env.IS_TESTING === 'true'
 export const isDev = process.env.APP_ENV === 'development'
 export const isProd = process.env.APP_ENV === 'production'
 export const isStaging = process.env.APP_ENV === 'staging'
