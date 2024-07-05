@@ -782,7 +782,6 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.resetSignMessage()
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-                // TODO: Check error handling
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
                 return await mainCtrl.signMessage.sign()
               }
@@ -822,7 +821,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-                return mainCtrl.reloadSelectedAccount()
+                return await mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
