@@ -14,7 +14,7 @@ describe('sa_login', () => {
     ;({ browser, extensionRootUrl, extensionId, backgroundPage } = await bootstrap())
     // Bypass the invite verification step
     await backgroundPage.evaluate(
-      (invite) => chrome.storage.local.set({ invite }),
+      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 

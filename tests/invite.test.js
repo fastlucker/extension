@@ -6,6 +6,7 @@ describe('Invite Verification', () => {
   let page
   let extensionId
   let recorder
+  let backgroundPage
 
   // TODO: Same logic as the one found in the ba_login.test.js and
   // sa_login.test.js, consider refactoring (so it's DRY).
@@ -13,6 +14,9 @@ describe('Invite Verification', () => {
     const context = await bootstrap()
     browser = context.browser
     extensionId = context.extensionId
+    backgroundPage = context.backgroundPage
+
+    await backgroundPage.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
 
     page = await browser.newPage()
     page.setDefaultTimeout(120000)
