@@ -89,6 +89,10 @@ const SignAccountOpScreen = () => {
       clearTimeout(timeout)
       setSlowRequest(false)
     }
+
+    return () => {
+      clearTimeout(timeout)
+    }
   }, [hasEstimation, slowRequest])
 
   const accountOpAction = useMemo(() => {
