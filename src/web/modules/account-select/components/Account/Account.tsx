@@ -126,14 +126,12 @@ const Account = ({
             />
           </View>
         </View>
-        {renderRightChildren && (
-          <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-            {renderRightChildren()}
-            <Pressable onPress={promptRemoveAccount}>
-              <LogOutIcon color={theme.secondaryText} />
-            </Pressable>
-          </View>
-        )}
+        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+          {renderRightChildren && renderRightChildren()}
+          <Pressable onPress={promptRemoveAccount}>
+            <LogOutIcon width={20} height={20} color={theme.secondaryText} />
+          </Pressable>
+        </View>
       </Animated.View>
       <Dialog
         dialogRef={dialogRef}
