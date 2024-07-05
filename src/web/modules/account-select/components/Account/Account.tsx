@@ -139,7 +139,7 @@ const Account = ({
           <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
             {renderRightChildren()}
             <Pressable onPress={promptRemoveAccount}>
-              <LogOutIcon />
+              <LogOutIcon color={theme.secondaryText} />
             </Pressable>
           </View>
         )}
