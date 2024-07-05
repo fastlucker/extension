@@ -82,7 +82,7 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
 
   const simulationErrorMsg = useMemo(() => {
     let errorMsg = 'We were unable to simulate the transaction'
-    if (portfolioStatePending?.criticalError) {
+    if (portfolioStatePending?.criticalError && !portfolioStatePending?.isReady) {
       if (isHexString(portfolioStatePending?.criticalError.simulationErrorMsg)) {
         errorMsg = `${errorMsg}. Please report this error to our team: ${portfolioStatePending?.criticalError.simulationErrorMsg}`
       } else {
@@ -99,7 +99,11 @@ const Simulation: FC<Props> = ({ network, hasEstimation }) => {
       }
     }
     return errorMsg
-  }, [portfolioStatePending?.criticalError, portfolioStatePending?.errors])
+  }, [
+    portfolioStatePending?.criticalError,
+    portfolioStatePending?.errors,
+    portfolioStatePending?.isReady
+  ])
 
   const shouldShowLoader = useMemo(
     () =>
