@@ -36,12 +36,12 @@ const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isV
   if (!signAccountOpState) return null
 
   return (
-    <>
+    <View style={styles.container}>
       {!!hasEstimation &&
         !estimationFailed &&
         signAccountOpState.gasUsedTooHigh &&
         !signAccountOpState?.errors.length && (
-          <View style={styles.errorContainer}>
+          <View style={spacings.ptTy}>
             <Alert
               type="warning"
               title="Estimation for this request is enormously high (more than 10 million gas units). There's a chance the transaction is invalid and it will revert. Are you sure you want to continue?"
@@ -59,7 +59,7 @@ const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isV
         )}
 
       {!hasEstimation && !!slowRequest && !signAccountOpState?.errors.length ? (
-        <View style={styles.errorContainer}>
+        <View style={spacings.ptTy}>
           <Alert
             type="warning"
             title="Estimating this transaction is taking an unexpectedly long time. We'll keep trying, but it is possible that there's an issue with this network or RPC - please change your RPC provider or contact Ambire support if this issue persists."
@@ -68,12 +68,12 @@ const Warnings: FC<Props> = ({ hasEstimation, estimationFailed, slowRequest, isV
       ) : null}
 
       {!!signAccountOpState?.errors.length && !isViewOnly ? (
-        <View style={styles.errorContainer}>
+        <View style={spacings.ptTy}>
           <Alert type="error" title={signAccountOpState?.errors[0]} />
         </View>
       ) : null}
-      {isViewOnly && <NoKeysToSignAlert />}
-    </>
+      {isViewOnly && <NoKeysToSignAlert style={spacings.ptTy} />}
+    </View>
   )
 }
 
