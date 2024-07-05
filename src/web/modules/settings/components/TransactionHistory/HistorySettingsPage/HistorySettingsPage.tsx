@@ -11,7 +11,7 @@ import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import { Avatar } from '@common/components/Avatar'
+import Avatar from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
