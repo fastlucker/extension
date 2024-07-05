@@ -2,12 +2,14 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -172,12 +174,14 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
         state.latest[accountsState.selectedAccount].rewards?.result?.claimableRewardsData
 
       if (!claimableRewardsData) return
+      const userRequest: UserRequest = buildClaimWalletRequest({
+        selectedAccount: accountsState.selectedAccount,
+        selectedToken: token,
+        claimableRewardsData
+      })
       dispatch({
-        type: 'MAIN_CONTROLLER_BUILD_CLAIM_WALLET_USER_REQUEST',
-        params: {
-          token,
-          claimableRewardsData
-        }
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: userRequest
       })
     },
     [dispatch, account, accountsState.selectedAccount, state.latest]
