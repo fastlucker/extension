@@ -2,7 +2,7 @@ import {
   AccountOpAction,
   Action as ActionFromActionsQueue
 } from '@ambire-common/controllers/actions/actions'
-import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
@@ -175,10 +175,6 @@ type MainControllerSignMessageResetAction = {
 type MainControllerSignMessageSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
   params: { keyAddr: Key['addr']; keyType: Key['type'] }
-}
-type MainControllerBroadcastSignedMessageAction = {
-  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
-  params: { signedMessage: SignedMessage }
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
@@ -460,7 +456,6 @@ export type Action =
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
-  | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivitySetFiltersAction
   | MainControllerActivitySetAccountOpsPaginationAction

@@ -785,8 +785,6 @@ function stateDebug(event: string, stateToLog: object) {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
                 return await mainCtrl.signMessage.sign()
               }
-              case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
-                return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
