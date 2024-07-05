@@ -164,6 +164,14 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
+  // TODO: Figure out if this is needed?
+  // useEffect(() => {
+  // if (signMessageState.statuses.sign === 'ERROR') {
+  // dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
+  // dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
+  // }
+  // }, [dispatch, signMessageState.statuses.sign])
+
   const handleChangeSigningKey = useCallback(
     (keyAddr: string, keyType: string) => {
       dispatch({
