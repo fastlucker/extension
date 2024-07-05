@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -196,21 +196,24 @@ const SignMessageScreen = () => {
     )
   }
 
-  const handleSign = (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
-    // Has more than one key, should first choose the key to sign with
-    const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
-    if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
-      return setIsChooseSignerShown(true)
-    }
+  const handleSign = useCallback(
+    (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
+      // Has more than one key, should first choose the key to sign with
+      const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
+      if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
+        return setIsChooseSignerShown(true)
+      }
 
-    const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
-    const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
+      const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
+      const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
 
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
-      params: { keyAddr, keyType }
-    })
-  }
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
+        params: { keyAddr, keyType }
+      })
+    },
+    [dispatch, selectedAccountKeyStoreKeys]
+  )
 
   return (
     <TabLayoutContainer
