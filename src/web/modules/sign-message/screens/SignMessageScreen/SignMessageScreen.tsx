@@ -1,4 +1,3 @@
-import { getAddress } from 'ethers'
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -338,15 +337,13 @@ const SignMessageScreen = () => {
             <SkeletonLoader width="100%" height={48} />
           )}
           {isViewOnly && (
-            <View
+            <NoKeysToSignAlert
               style={{
                 ...flexbox.alignSelfCenter,
                 marginTop: 'auto',
                 maxWidth: 600
               }}
-            >
-              <NoKeysToSignAlert />
-            </View>
+            />
           )}
           {!!signMessageState.signingKeyType && (
             <HardwareWalletSigningModal

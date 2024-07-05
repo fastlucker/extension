@@ -1,5 +1,5 @@
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
-import { ethers } from 'ethers'
+import { ethers, Network } from 'ethers'
 
 const puppeteer = require('puppeteer')
 
@@ -29,24 +29,22 @@ export async function bootstrap(options = {}) {
   const { headless = false } = options
 
   const browser = await puppeteer.launch({
-    slowMo: 20,
-
     // devtools: true,
+    slowMo: 10,
     headless,
     args: puppeteerArgs,
     defaultViewport: null,
     // DISPLAY variable is being set in tests.yml, and it's needed only for running the tests in Github actions.
     // It configures the display server and make the tests working in headful mode in Github actions.
     ...(process.env.DISPLAY && {
-      env: {
-        DISPLAY: process.env.DISPLAY
-      }
+      env: { DISPLAY: process.env.DISPLAY }
     }),
     ignoreHTTPSErrors: true
   })
 
   // Extract the extension ID from the browser targets
   const targets = await browser.targets()
+  const backgroundTarget = targets.find((target) => target.type() === 'background_page')
   const extensionTarget = targets.find((target) => target.url().includes('chrome-extension'))
   const partialExtensionUrl = extensionTarget.url() || ''
   const [, , extractedExtensionId] = partialExtensionUrl.split('/')
@@ -57,31 +55,42 @@ export async function bootstrap(options = {}) {
     browser,
     extensionRootUrl,
     extensionId,
-    extensionTarget
+    extensionTarget,
+    backgroundTarget
   }
 }
 
-//----------------------------------------------------------------------------------------------
-export async function clickOnElement(page, selector) {
-  const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
-  await elementToClick.click()
-}
+export async function clickOnElement(page, selector, waitUntilEnabled = true, clickDelay = 0) {
+  const elementToClick = await page.waitForSelector(selector, { visible: true })
 
-//----------------------------------------------------------------------------------------------
-export async function clickElementWithRetry(page, selector, maxRetries = 5) {
-  let retries = 0
-  while (retries < maxRetries) {
-    const element = await page.$(selector)
-    if (element) {
-      await element.click()
-      return
+  let isClickable = false
+  // wait for the button to be clickable before clicking it
+  if (waitUntilEnabled && elementToClick) {
+    try {
+      while (!isClickable) {
+        isClickable = await page.evaluate((selector) => {
+          const buttonElement = document.querySelector(selector)
+          return (
+            buttonElement &&
+            !buttonElement.disabled &&
+            window.getComputedStyle(buttonElement).pointerEvents !== 'none'
+          )
+        }, selector)
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      }
+    } catch (error) {
+      isClickable = true
     }
-    await page.waitForTimeout(500) // Wait for 1/2 second before trying again
-    retries++
   }
-  throw new Error(`Element ${selector} not found or not clickable after ${maxRetries} retries`)
+
+  if (isClickable || !waitUntilEnabled) {
+    if (clickDelay > 0) await new Promise((resolve) => setTimeout(resolve, clickDelay))
+    await elementToClick.click()
+  }
 }
+
 //----------------------------------------------------------------------------------------------
+
 export async function typeText(page, selector, text) {
   await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   const whereToType = await page.$(selector)
@@ -92,14 +101,9 @@ export async function typeText(page, selector, text) {
 
 //----------------------------------------------------------------------------------------------
 export async function typeSeedPhrase(page, seedPhrase) {
-  await new Promise((r) => setTimeout(r, 2000))
-
   await page.waitForSelector('[data-testid="passphrase-field"]')
-
   await typeText(page, '[data-testid="passphrase-field"]', seedPhrase)
-  // Click on "Unlock button"
-  await clickOnElement(page, '[data-testid="button-unlock"]')
-
+  await clickOnElement(page, '[data-testid="button-unlock"]') // Click on "Unlock button"
   await page.waitForSelector('[data-testid="full-balance"]')
 }
 
@@ -137,7 +141,7 @@ export const saParams = {
   parsedKeystoreKeys: JSON.parse(process.env.SA_KEYS),
   parsedKeystoreSecrets: JSON.parse(process.env.SA_SECRETS),
   parsedNetworkPreferences: JSON.parse(process.env.SA_NETWORK_PREFERENCES),
-  paresdNetworksWithAssetsByAccount: JSON.parse(process.env.SA_NETWORK_WITH_ASSETS),
+  parsedNetworksWithAssetsByAccount: JSON.parse(process.env.SA_NETWORK_WITH_ASSETS),
   parsedOnboardingState: JSON.parse(process.env.SA_ONBOARDING_STATE),
   envPermission: process.env.SA_PERMISSION,
   parsedPreviousHints: JSON.parse(process.env.SA_PREVIOUSHINTS),
@@ -150,92 +154,54 @@ export const saParams = {
 //----------------------------------------------------------------------------------------------
 export async function bootstrapWithStorage(namespace, params) {
   // Initialize browser and page using bootstrap
-  const context = await bootstrap()
-  const browser = context.browser
-  const extensionRootUrl = context.extensionRootUrl
+  const { browser, extensionRootUrl, backgroundTarget } = await bootstrap()
+  const backgroundPage = await backgroundTarget.page()
+  await backgroundPage.evaluate(
+    (params) =>
+      chrome.storage.local.set({
+        accountPreferences: params.parsedKeystoreAccountsPreferences,
+        accounts: params.parsedKeystoreAccounts,
+        isDefaultWallet: params.parsedIsDefaultWallet,
+        keyPreferences: params.parsedKeyPreferences,
+        keyStoreUid: params.parsedKeystoreUID,
+        keystoreKeys: params.parsedKeystoreKeys,
+        keystoreSecrets: params.parsedKeystoreSecrets,
+        networkPreferences: params.parsedNetworkPreferences,
+        networksWithAssetsByAccount: params.parsedNetworksWithAssetsByAccount,
+        onboardingState: params.parsedOnboardingState,
+        permission: params.envPermission,
+        previousHints: params.parsedPreviousHints,
+        selectedAccount: params.envSelectedAccount,
+        termsState: params.envTermState,
+        tokenIcons: params.parsedTokenItems,
+        invite: params.invite
+      }),
+    params
+  )
+
   const page = await browser.newPage()
+  page.setDefaultTimeout(120000)
   recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
   // Navigate to a specific URL if necessary
   await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
 
-  // Please note the following:
-  // 1. I've added a waiting timeout in backgrounds.ts because it was not possible to predefine the storage before the app initializing process starts.
-  // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
-  await page.evaluate((params) => {
-    const {
-      parsedKeystoreAccounts,
-      parsedIsDefaultWallet,
-      parsedKeyPreferences,
-      parsedKeystoreUID,
-      parsedKeystoreKeys,
-      parsedKeystoreSecrets,
-      parsedNetworkPreferences,
-      parsedNetworksWithAssetsByAccount,
-      parsedOnboardingState,
-      envPermission,
-      parsedPreviousHints,
-      envSelectedAccount,
-      envTermState,
-      parsedTokenItems,
-      invite
-    } = params
-
-    chrome.storage.local.set({
-      accounts: parsedKeystoreAccounts,
-      isDefaultWallet: parsedIsDefaultWallet,
-      keyPreferences: parsedKeyPreferences,
-      keyStoreUid: parsedKeystoreUID,
-      keystoreKeys: parsedKeystoreKeys,
-      keystoreSecrets: parsedKeystoreSecrets,
-      networkPreferences: parsedNetworkPreferences,
-      networksWithAssetsByAccount: parsedNetworksWithAssetsByAccount,
-      onboardingState: parsedOnboardingState,
-      permission: envPermission,
-      previousHints: parsedPreviousHints,
-      selectedAccount: envSelectedAccount,
-      termsState: envTermState,
-      tokenIcons: parsedTokenItems,
-      invite
-    })
-  }, params)
-
-  // Please note the following:
-  // 1. Every time beforeEach is invoked, we are loading a specific page, i.e., await page.goto(${extensionRootUrl}/tab.html#/keystore-unlock, { waitUntil: 'load' }).
-  // 2. But at the same time, the extension onboarding page is also shown automatically.
-  // 3. During these page transitions (new tabs being opened), we should wait a bit and avoid switching between or closing tabs because the extension background process is being initialized, and it will only initialize if the current tab is visible.
-  // If it's not visible (when we are transitioning), the initialization fails.
-  // Later, we will check how we can deal with this better.
-  await new Promise((r) => {
-    setTimeout(r, 2000)
-  })
-  // Please note that:
-  // 1. We are no longer closing any tabs.
-  // 2. Instead, we simply switch back to our tab under testing.
+  // Make the extension tab active in the browser
   await page.bringToFront()
-  // we need to catch the error because in other way recorder will not be returned and test will fail with error
-  try {
-    await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
-  } catch (error) {
-    console.log('typeSeedPhrase ERROR: ', error)
-  }
+  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+
   return { browser, extensionRootUrl, page, recorder }
 }
 
 //----------------------------------------------------------------------------------------------
 export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
-  await new Promise((r) => setTimeout(r, 1000))
-
   const buttonNext = '[data-testid="stories-button-next"]'
 
   await page.waitForSelector(buttonNext)
-
   // Click on "Next" button several times to finish the onboarding
   await page.$eval(buttonNext, (button) => button.click())
-
   await page.waitForSelector('[data-testid="stories-button-previous"]')
-
   await page.$eval(buttonNext, (button) => button.click())
   await page.$eval(buttonNext, (button) => button.click())
   await page.$eval(buttonNext, (button) => button.click())
@@ -251,14 +217,9 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
   // Click on "Import" button
   await page.$eval('[data-testid="get-started-button-import"]', (button) => button.click())
 
-  await page.waitForFunction(
-    () => {
-      return window.location.href.includes('/import-hot-wallet')
-    },
-    { timeout: 60000 }
-  )
+  await page.waitForFunction(() => window.location.href.includes('/import-hot-wallet'))
   // Click on "Import" private key
-  await page.$eval(privKeyOrPhraseSelector, (button) => button.click())
+  await clickOnElement(page, privKeyOrPhraseSelector)
 
   // type phrase
   const phrase = 'Password'
@@ -267,26 +228,17 @@ export async function setAmbKeyStore(page, privKeyOrPhraseSelector) {
 
   // Click on "Set up Ambire Key Store" button
   await clickOnElement(page, '[data-testid="keystore-button-create"]')
-
-  await page.waitForSelector('[data-testid="keystore-button-continue"]')
-
-  await page.$eval('[data-testid="keystore-button-continue"]', (button) => button.click())
+  await clickOnElement(page, '[data-testid="keystore-button-continue"]', true, 1500)
 }
 
 //----------------------------------------------------------------------------------------------
 export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts) {
   // Click on Import button.
   await clickOnElement(page, '[data-testid="import-button"]')
+  await page.waitForFunction(() => window.location.href.includes('/account-adder'))
 
-  await page.waitForSelector('xpath///a[contains(text(), "Next")]')
-  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]')
-
-  // TODO: Figure out if this helps. Wait for the animation (transition) between
-  // this and the next element to complete.
-  await new Promise((r) => setTimeout(r, 1000))
-
-  await page.waitForSelector('xpath///a[contains(text(), "Got it")]', { timeout: 60000 })
-  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]')
+  await clickOnElement(page, 'xpath///a[contains(text(), "Next")]', false, 1500)
+  await clickOnElement(page, 'xpath///a[contains(text(), "Got it")]', false, 1500)
 
   // Select one Legacy and one Smart account and keep the addresses of the accounts
   await page.waitForSelector('[data-testid="checkbox"]')
@@ -308,14 +260,14 @@ export async function finishStoriesAndSelectAccount(page, shouldClickOnAccounts)
     },
     shouldClickOnAccounts
   )
-  // Click on Import Accounts button
-  await clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])')
-  await page.waitForFunction("window.location.hash == '#/account-personalize'")
 
-  return {
-    firstSelectedBasicAccount,
-    firstSelectedSmartAccount
-  }
+  await Promise.all([
+    // Click on Import Accounts button
+    clickOnElement(page, '[data-testid="button-import-account"]:not([disabled])'),
+    page.waitForNavigation()
+  ])
+
+  return { firstSelectedBasicAccount, firstSelectedSmartAccount }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -334,30 +286,18 @@ export async function triggerTransaction(
   extensionRootUrl,
   triggerTransactionSelector
 ) {
-  const elementToClick = await page.waitForSelector(triggerTransactionSelector)
-  await elementToClick.click()
+  await clickOnElement(page, triggerTransactionSelector)
 
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  const newPage = await newTarget.page()
-  newPage.setViewport({
-    width: 1300,
-    height: 700
-  })
+  let actionWindowPage = await newTarget.page()
+  actionWindowPage.setDefaultTimeout(120000)
 
-  return newPage
-}
+  actionWindowPage.setViewport({ width: 1300, height: 700 })
 
-//----------------------------------------------------------------------------------------------
-export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
-  let newPage = page // Initialize newPage with the current page
-
-  const buttonSignExists = await page.evaluate(() => {
-    return !!document.querySelector('[data-testid="button-sign"]')
-  })
-
-  if (buttonSignExists) {
+  // Check if "sign-message" action-window is open
+  if (actionWindowPage.url().endsWith('/sign-message')) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
     await page.click('[data-testid="button-sign"]')
@@ -367,7 +307,8 @@ export async function checkForSignMessageWindow(page, extensionRootUrl, browser)
     )
     const newPageTarget = await newPagePromise2
 
-    newPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    actionWindowPage.setDefaultTimeout(120000)
   }
 
   return { newPage }
@@ -470,16 +411,18 @@ export async function confirmTransactionStatus(newPage, network) {
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
-  // Define the RPC URL for the Polygon network
-  const rpcUrl = `https://invictus.ambire.com/${network}`
-
   // Create a provider instance using the JsonRpcProvider
-  const provider = new ethers.JsonRpcProvider(rpcUrl)
+  const staticNetwork = Network.from(137)
+  const provider = new ethers.JsonRpcProvider(
+    'https://invictus.ambire.com/polygon',
+    staticNetwork,
+    { staticNetwork }
+  )
 
   // Get transaction receipt
   const receipt = await provider.getTransactionReceipt(transactionHash)
-
   console.log(`Transaction Hash: ${transactionHash}`)
+  console.log('getTransactionReceipt result', receipt)
   // Assertion to fail the test if transaction failed
   expect(receipt.status).toBe(1)
 }
