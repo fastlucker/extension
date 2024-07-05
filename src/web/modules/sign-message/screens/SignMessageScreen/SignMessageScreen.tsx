@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
@@ -65,9 +65,6 @@ const SignMessageScreen = () => {
 
   const networkData: Network | null =
     networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
-
-  // const prevSignMessageState: SignMessageController =
-  //   usePrevious(signMessageState) || ({} as SignMessageController)
 
   const selectedAccountFull = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -187,14 +184,6 @@ const SignMessageScreen = () => {
 
     closeHwModal()
   }, [signMessageState.signingKeyType, signStatus, openHwModal, closeHwModal])
-
-  if (!Object.keys(signMessageState).length) {
-    return (
-      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
-        <Spinner />
-      </View>
-    )
-  }
 
   const handleSign = useCallback(
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
