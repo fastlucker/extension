@@ -16,35 +16,23 @@ import {
 } from '../common/login.js'
 
 describe('ba_login', () => {
-  let browser
-  let page
-  let extensionRootUrl
-  let extensionId
-  let recorder
+  let browser, page, extensionRootUrl, extensionId, recorder
 
   beforeEach(async () => {
-    const context = await bootstrap()
-    browser = context.browser
-    extensionRootUrl = context.extensionRootUrl
-    extensionId = context.extensionId
+    ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
+    const backgroundPage = await backgroundTarget.page()
+    // Bypass the invite verification step
+    await backgroundPage.evaluate(
+      (invite) => chrome.storage.local.set({ invite }),
+      JSON.stringify(INVITE_STORAGE_ITEM)
+    )
 
     page = await browser.newPage()
+    page.setDefaultTimeout(120000)
 
     recorder = new PuppeteerScreenRecorder(page)
     await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
-
-    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
-    await page.goto(getStartedPage)
-
-    // Bypass the invite verification step
-    await page.evaluate((invite) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.storage.local.set({ invite })
-    }, JSON.stringify(INVITE_STORAGE_ITEM))
-
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
+    await page.goto(`chrome-extension://${extensionId}/tab.html#/get-started`)
     await page.bringToFront()
   })
 
@@ -62,13 +50,12 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
+    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
 
     // Click on "Save and Continue" button
-    await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
     await page.waitForFunction(
       () => {
@@ -151,7 +138,7 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
+    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     await finishStoriesAndSelectAccount(page)
 
     const accountName1 = 'Test-Account-1'

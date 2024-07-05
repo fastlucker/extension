@@ -75,7 +75,7 @@ function stateDebug(event: string, stateToLog: object) {
   // ensuring that the Controllers are initialized with the storage correctly.
   if (process.env.IS_TESTING === 'true') {
     await new Promise((r) => {
-      setTimeout(r, 1000)
+      setTimeout(r, 4000)
     })
   }
 
@@ -94,6 +94,8 @@ function stateDebug(event: string, stateToLog: object) {
     accountStateIntervals: {
       pending: number
       standBy: number
+      retriedFastAccountStateReFetchForNetworks: string[]
+      fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
@@ -112,7 +114,8 @@ function stateDebug(event: string, stateToLog: object) {
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
       pending: 3000,
-      standBy: 300000
+      standBy: 300000,
+      retriedFastAccountStateReFetchForNetworks: []
     },
     hasSignAccountOpCtrlInitialized: false
   }
@@ -366,6 +369,54 @@ function stateDebug(event: string, stateToLog: object) {
                 delete backgroundState.activityIntervalId
               }
             }
+            if (ctrlName === 'accounts') {
+              const failedNetworkIds = getNetworksWithFailedRPC({
+                providers: mainCtrl.providers.providers
+              })
+
+              const retriedFastAccountStateReFetchForNetworks =
+                backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
+
+              // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
+              // if the RPC goes down again
+              if (retriedFastAccountStateReFetchForNetworks.length) {
+                retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
+                  if (!failedNetworkIds.includes(networkId)) {
+                    delete retriedFastAccountStateReFetchForNetworks[index]
+                  }
+                })
+              }
+
+              if (failedNetworkIds.length) {
+                // Filter out the network ids that have already been retried (update them with the regular interval)
+                const filteredNetworkIds = failedNetworkIds.filter(
+                  (id) =>
+                    !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
+                      (networkId) => networkId === id
+                    )
+                )
+
+                if (filteredNetworkIds.length) {
+                  if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
+                    clearTimeout(
+                      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout
+                    )
+                  }
+
+                  backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
+                    async () => {
+                      await mainCtrl.accounts.updateAccountStates('latest', filteredNetworkIds)
+
+                      // Add the network ids that have been retried to the list
+                      failedNetworkIds.forEach((id) => {
+                        retriedFastAccountStateReFetchForNetworks.push(id)
+                      })
+                    },
+                    8000
+                  )
+                }
+              }
+            }
           }, 'background')
         }
       }
@@ -384,17 +435,6 @@ function stateDebug(event: string, stateToLog: object) {
         }
       }
     })
-
-    if (mainCtrl.isReady) {
-      // if there are failed networks, refresh the account state every 8 seconds
-      // for them until we get a clean state
-      const failedNetworkIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.providers.providers
-      })
-      if (failedNetworkIds.length) {
-        setTimeout(() => mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds), 8000)
-      }
-    }
   }, 'background')
   mainCtrl.onError(() => {
     stateDebug('onError (main ctrl)', mainCtrl)
@@ -658,12 +698,7 @@ function stateDebug(event: string, stateToLog: object) {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
                 await mainCtrl.accounts.addAccounts(params.accounts)
-
-                // And manually trigger some of the `onAccountAdderSuccess` steps
-                // that are needed for view-only accounts, since the AccountAdder
-                // flow was bypassed and the `onAccountAdderSuccess` subscription
-                // in the MainController won't click.
-                return await mainCtrl.accounts.selectAccount(params.accounts[0].addr)
+                break
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
@@ -786,9 +821,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
                 return mainCtrl.actions.setWindowLoaded()
 
-              case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-                if (!mainCtrl.accounts.selectedAccount) return
-                return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate)
+              case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
+                return mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
