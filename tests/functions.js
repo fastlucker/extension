@@ -30,6 +30,7 @@ export async function bootstrap(options = {}) {
 
   const browser = await puppeteer.launch({
     slowMo: 20,
+
     // devtools: true,
     headless,
     args: puppeteerArgs,
@@ -62,7 +63,7 @@ export async function bootstrap(options = {}) {
 
 //----------------------------------------------------------------------------------------------
 export async function clickOnElement(page, selector) {
-  const elementToClick = await page.waitForSelector(selector)
+  const elementToClick = await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   await elementToClick.click()
 }
 
@@ -82,7 +83,7 @@ export async function clickElementWithRetry(page, selector, maxRetries = 5) {
 }
 //----------------------------------------------------------------------------------------------
 export async function typeText(page, selector, text) {
-  await page.waitForSelector(selector)
+  await page.waitForSelector(selector, { visible: true, timeout: 5000 })
   const whereToType = await page.$(selector)
   await whereToType.click({ clickCount: 3 })
   await whereToType.press('Backspace')
@@ -110,7 +111,6 @@ export const INVITE_STORAGE_ITEM = {
 }
 
 export const baParams = {
-  parsedKeystoreAccountsPreferences: JSON.parse(process.env.BA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.BA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.BA_IS_DEFAULT_WALLET,
   parsedKeyPreferences: JSON.parse(process.env.BA_KEY_PREFERENCES),
@@ -129,7 +129,6 @@ export const baParams = {
 }
 
 export const saParams = {
-  parsedKeystoreAccountsPreferences: JSON.parse(process.env.SA_ACCOUNT_PREFERENCES),
   parsedKeystoreAccounts: JSON.parse(process.env.SA_ACCOUNTS),
   parsedIsDefaultWallet: process.env.SA_IS_DEFAULT_WALLET,
   parsedIsOnBoarded: process.env.SA_IS_ONBOARDED,
@@ -166,7 +165,6 @@ export async function bootstrapWithStorage(namespace, params) {
   // 2. Before that, we were trying to set the storage, but the controllers were already initialized, and their storage was empty.
   await page.evaluate((params) => {
     const {
-      parsedKeystoreAccountsPreferences,
       parsedKeystoreAccounts,
       parsedIsDefaultWallet,
       parsedKeyPreferences,
@@ -185,7 +183,6 @@ export async function bootstrapWithStorage(namespace, params) {
     } = params
 
     chrome.storage.local.set({
-      accountPreferences: parsedKeystoreAccountsPreferences,
       accounts: parsedKeystoreAccounts,
       isDefaultWallet: parsedIsDefaultWallet,
       keyPreferences: parsedKeyPreferences,
@@ -343,21 +340,34 @@ export async function triggerTransaction(
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  let actionWindowPage = await newTarget.page()
-  actionWindowPage.setViewport({ width: 1300, height: 700 })
+  const newPage = await newTarget.page()
+  newPage.setViewport({
+    width: 1300,
+    height: 700
+  })
 
-  // Check if "sign-message" action-window is open
-  if (actionWindowPage.url().endsWith('/sign-message')) {
+  return newPage
+}
+
+//----------------------------------------------------------------------------------------------
+export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
+  let newPage = page // Initialize newPage with the current page
+
+  const buttonSignExists = await page.evaluate(() => {
+    return !!document.querySelector('[data-testid="button-sign"]')
+  })
+
+  if (buttonSignExists) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await actionWindowPage.click('[data-testid="button-sign"]')
+    await page.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
     )
     const newPageTarget = await newPagePromise2
 
-    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    newPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
   }
 
   return { newPage }
@@ -366,33 +376,75 @@ export async function triggerTransaction(
 //----------------------------------------------------------------------------------------------
 export async function selectFeeToken(page, feeToken) {
   // Check if select fee token is visible
-  const tokenSelect = await actionWindowPage.evaluate(
-    () => !!document.querySelector('[data-testid="select"]')
-  )
+  const selectToken = await page.evaluate(() => {
+    return !!document.querySelector('[data-testid="tokens-select"]')
+  })
 
-  if (tokenSelect) {
-    // Get the text content of the element
-    const selectText = await actionWindowPage.evaluate(() => {
-      const element = document.querySelector('[data-testid="select"]')
-      return element.textContent.trim()
-    })
+  if (selectToken) {
+    // Click on the tokens select
+    await clickOnElement(page, '[data-testid="tokens-select"]')
+    // Wait for some time
+    await new Promise((r) => setTimeout(r, 2000))
 
-    // Check if the text contains "Gas Tank". It means that pay fee by gas tank is selected
-    if (selectText.includes('Gas Tank')) {
-      // Click on the tokens select
-      await clickOnElement(actionWindowPage, '[data-testid="select"]')
-      await actionWindowPage.waitForSelector('[data-testid="select-menu"]')
-      // Click on the Gas Tank option
-      await clickOnElement(actionWindowPage, feeToken)
-    }
+    // Click on the Gas Tank option
+    await clickOnElement(page, feeToken)
   }
+}
+
+//----------------------------------------------------------------------------------------------
+// export async function signAndConfirmTransaction(newPage) {
+//   // Click on "Ape" button
+//   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+
+//   // Click on "Sign" button
+//   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
+
+//   // Wait for the 'Timestamp' text to appear twice on the page
+//   await newPage.waitForFunction(
+//     () => {
+//       const pageText = document.documentElement.innerText
+//       const occurrences = (pageText.match(/Timestamp/g) || []).length
+//       return occurrences >= 2
+//     },
+//     { timeout: 250000 }
+//   )
+
+//   const doesFailedExist = await newPage.evaluate(() => {
+//     const pageText = document.documentElement.innerText
+//     return pageText.includes('failed') || pageText.includes('dropped')
+//   })
+
+//   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
+
+//   const currentURL = await newPage.url()
+
+//   // Split the URL by the '=' character and get the transaction hash
+//   const parts = currentURL.split('=')
+//   const transactionHash = parts[parts.length - 1]
+
+//   // Define the RPC URL for the Polygon network
+//   const rpcUrl = 'https://invictus.ambire.com/polygon'
+
+//   // Create a provider instance using the JsonRpcProvider
+//   const provider = new ethers.JsonRpcProvider(rpcUrl)
+
+//   // Get transaction receipt
+//   const receipt = await provider.getTransactionReceipt(transactionHash)
+
+//   console.log(`Transaction Hash: ${transactionHash}`)
+//   // Assertion to fail the test if transaction failed
+//   expect(receipt.status).toBe(1)
+// }
+
+export async function signTransaction(newPage) {
   // Click on "Ape" button
-  await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
+  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
-  await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
+  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
+
   // Wait for the 'Timestamp' text to appear twice on the page
-  await actionWindowPage.waitForFunction(
+  await newPage.waitForFunction(
     () => {
       const pageText = document.documentElement.innerText
       const occurrences = (pageText.match(/Timestamp/g) || []).length
@@ -401,21 +453,25 @@ export async function selectFeeToken(page, feeToken) {
     { timeout: 250000 }
   )
 
-  const doesFailedExist = await actionWindowPage.evaluate(() => {
+  const doesFailedExist = await newPage.evaluate(() => {
     const pageText = document.documentElement.innerText
     return pageText.includes('failed') || pageText.includes('dropped')
   })
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
 
-  const currentURL = await actionWindowPage.url()
+  return { newPage }
+}
+
+export async function confirmTransactionStatus(newPage, network) {
+  const currentURL = await newPage.url()
 
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
   // Define the RPC URL for the Polygon network
-  const rpcUrl = 'https://invictus.ambire.com/polygon'
+  const rpcUrl = `https://invictus.ambire.com/${network}`
 
   // Create a provider instance using the JsonRpcProvider
   const provider = new ethers.JsonRpcProvider(rpcUrl)
