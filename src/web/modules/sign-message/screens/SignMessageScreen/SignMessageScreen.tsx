@@ -12,6 +12,7 @@ import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
+import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -36,6 +37,8 @@ import { getUiType } from '@web/utils/uiType'
 const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
+  const signStatus = signMessageState.statuses.sign
+  const prevSignStatus = usePrevious(signStatus)
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
@@ -166,11 +169,11 @@ const SignMessageScreen = () => {
 
   // TODO: Figure out if this is needed?
   // useEffect(() => {
-  // if (signMessageState.statuses.sign === 'ERROR') {
+  // if (signStatus === 'ERROR') {
   // dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
   // dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
   // }
-  // }, [dispatch, signMessageState.statuses.sign])
+  // }, [dispatch, signStatus])
 
   const handleChangeSigningKey = useCallback(
     (keyAddr: string, keyType: string) => {
@@ -200,7 +203,8 @@ const SignMessageScreen = () => {
   useEffect(() => {
     if (
       signMessageState.isInitialized &&
-      signMessageState.statuses.sign === 'INITIAL' &&
+      prevSignStatus === 'LOADING' &&
+      signStatus === 'INITIAL' &&
       signMessageState.signingKeyAddr &&
       signMessageState.signingKeyType &&
       signMessageState.messageToSign
@@ -210,7 +214,8 @@ const SignMessageScreen = () => {
   }, [
     handleSign,
     signMessageState.isInitialized,
-    signMessageState.statuses.sign,
+    signStatus,
+    prevSignStatus,
     signMessageState.signingKeyAddr,
     signMessageState.signingKeyType,
     signMessageState.messageToSign
@@ -220,14 +225,14 @@ const SignMessageScreen = () => {
     if (
       signMessageState.signingKeyType &&
       signMessageState.signingKeyType !== 'internal' &&
-      signMessageState.statuses.sign === 'LOADING'
+      signStatus === 'LOADING'
     ) {
       openHwModal()
       return
     }
 
     closeHwModal()
-  }, [signMessageState.signingKeyType, signMessageState.statuses.sign, openHwModal, closeHwModal])
+  }, [signMessageState.signingKeyType, signStatus, openHwModal, closeHwModal])
 
   if (!Object.keys(signMessageState).length) {
     return (
@@ -282,19 +287,15 @@ const SignMessageScreen = () => {
         <ActionFooter
           onReject={handleReject}
           onResolve={onSignButtonClick}
-          resolveButtonText={
-            signMessageState.statuses.sign === 'LOADING' ? t('Signing...') : t('Sign')
-          }
-          resolveDisabled={
-            signMessageState.statuses.sign === 'LOADING' || isScrollToBottomForced || isViewOnly
-          }
+          resolveButtonText={signStatus === 'LOADING' ? t('Signing...') : t('Sign')}
+          resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
         />
       }
     >
       <SigningKeySelect
         isVisible={isChooseSignerShown}
-        isSigning={signMessageState.statuses.sign === 'LOADING'}
+        isSigning={signStatus === 'LOADING'}
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
         handleChangeSigningKey={handleChangeSigningKey}
         handleClose={() => setIsChooseSignerShown(false)}
