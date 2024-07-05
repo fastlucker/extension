@@ -167,16 +167,6 @@ const SignMessageScreen = () => {
     }
   }, [dispatch])
 
-  const handleChangeSigningKey = useCallback(
-    (keyAddr: string, keyType: string) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY',
-        params: { key: keyAddr, type: keyType }
-      })
-    },
-    [dispatch]
-  )
-
   const handleReject = () => {
     if (!signMessageAction || !userRequest) return
 
@@ -185,26 +175,6 @@ const SignMessageScreen = () => {
       params: { err: t('User rejected the request.'), id: userRequest.id }
     })
   }
-
-  const handleSign = useCallback(() => {
-    dispatch({
-      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
-    })
-  }, [dispatch])
-
-  useEffect(() => {
-    if (
-      signMessageState.readyToSign &&
-      // FIXME: Workaround that allows user to attempt to sign the message again.
-      // That's because on error, the status is flipped back from 'ERROR to 'INITIAL'
-      // that triggers an infinite loop (since the SignMessage controller is
-      // still initialized and all the required data is set).
-      prevSignStatus !== 'ERROR' &&
-      signStatus === 'INITIAL'
-    ) {
-      handleSign()
-    }
-  }, [handleSign, signMessageState.readyToSign, signStatus, prevSignStatus])
 
   useEffect(() => {
     if (
@@ -227,37 +197,28 @@ const SignMessageScreen = () => {
     )
   }
 
-  const onSignButtonClick = () => {
-    // FIXME: Ugly workaround for triggering `handleSign` manually.
-    // This approach is a temporary fix to address the issue where the
-    // 'useEffect' hook fails to get re-triggered. The original 'useEffect' was
-    // supposed to trigger 'handleSign' when certain conditions in
-    // 'signMessageState' were met. However, we encountered a problem: when
-    // 'mainCtrl.signMessage.sign()' throws an error (e.g., hardware wallet issues),
-    // the 'Sign' button becomes non-responsive. This happens because the
-    // 'useEffect' doesn't reactivate after the first  execution of
-    // 'mainCtrl.signMessage.setSigningKey'. To ensure functionality, this
-    // workaround checks if the signing key is set (via 'hasSigningKey') and
-    // then directly calls 'handleSign', bypassing the problematic 'useEffect' logic.
-    // A more robust and maintainable fix should be explored
-    // to handle such edge cases effectively in the future!
-    // FIXME: this won't allow changing the signing key (if user has multiple)
-    // after the first time the user picks key and attempts to sign the message
-    // (which ultimately sets the signing key the first time it gets triggered).
-    const hasSigningKey = signMessageState.signingKeyAddr && signMessageState.signingKeyType
-    if (hasSigningKey) return handleSign()
-
-    // If the account has only one signer, we don't need to show the keys select
-    if (selectedAccountKeyStoreKeys.length === 1) {
-      handleChangeSigningKey(
-        selectedAccountKeyStoreKeys[0].addr,
-        selectedAccountKeyStoreKeys[0].type
-      )
-      return
+  const handleSign = () => {
+    // Has more than one key, should first choose the key to sign with
+    if (selectedAccountKeyStoreKeys.length > 1) {
+      return setIsChooseSignerShown(true)
     }
 
-    setIsChooseSignerShown(true)
+    const { addr, type } = selectedAccountKeyStoreKeys[0]
+    dispatch({
+      type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
+      params: { keyAddr: addr, keyType: type }
+    })
   }
+
+  const handleSignWithChosenSigningKey = useCallback(
+    (keyAddr: string, keyType: string) => {
+      dispatch({
+        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
+        params: { keyAddr, keyType }
+      })
+    },
+    [dispatch]
+  )
 
   return (
     <TabLayoutContainer
@@ -271,7 +232,7 @@ const SignMessageScreen = () => {
       footer={
         <ActionFooter
           onReject={handleReject}
-          onResolve={onSignButtonClick}
+          onResolve={handleSign}
           resolveButtonText={signStatus === 'LOADING' ? t('Signing...') : t('Sign')}
           resolveDisabled={signStatus === 'LOADING' || isScrollToBottomForced || isViewOnly}
           resolveButtonTestID="button-sign"
@@ -282,7 +243,7 @@ const SignMessageScreen = () => {
         isVisible={isChooseSignerShown}
         isSigning={signStatus === 'LOADING'}
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChangeSigningKey={handleChangeSigningKey}
+        handleChangeSigningKey={handleSignWithChosenSigningKey}
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>

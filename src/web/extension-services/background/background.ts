@@ -747,10 +747,10 @@ function stateDebug(event: string, stateToLog: object) {
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.resetSignMessage()
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
+                // TODO: Check error handling
+                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
                 return await mainCtrl.signMessage.sign()
               }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-                return mainCtrl.signMessage.setSigningKey(params.key, params.type)
               case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
                 return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':

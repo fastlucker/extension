@@ -174,10 +174,7 @@ type MainControllerSignMessageResetAction = {
 }
 type MainControllerSignMessageSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
-}
-type MainControllerSignMessageSetSignKeyAction = {
-  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
-  params: { key: Key['addr']; type: Key['type'] }
+  params: { keyAddr: Key['addr']; keyType: Key['type'] }
 }
 type MainControllerBroadcastSignedMessageAction = {
   type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
@@ -467,7 +464,6 @@ export type Action =
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
   | MainControllerSignMessageSignAction
-  | MainControllerSignMessageSetSignKeyAction
   | MainControllerBroadcastSignedMessageAction
   | MainControllerActivityInitAction
   | MainControllerActivitySetFiltersAction
