@@ -119,7 +119,7 @@ const TransferScreen = () => {
         </>
       }
     >
-      <TabLayoutWrapperMainContent>
+      <TabLayoutWrapperMainContent contentContainerStyle={spacings.pt2Xl}>
         {state?.isInitialized ? (
           <Panel
             style={[styles.panel]}
