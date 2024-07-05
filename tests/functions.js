@@ -212,7 +212,8 @@ export async function bootstrapWithStorage(namespace, params) {
         selectedAccount: params.envSelectedAccount,
         termsState: params.envTermState,
         tokenIcons: params.parsedTokenItems,
-        invite: params.invite
+        invite: params.invite,
+        isE2EStorageSet: true
       }),
     params
   )

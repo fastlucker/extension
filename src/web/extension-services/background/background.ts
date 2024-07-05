@@ -48,6 +48,7 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
+import wait from '@ambire-common/utils/wait'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -82,10 +83,21 @@ function stateDebug(event: string, stateToLog: object) {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
+  // Once the storage is configured in Puppeteer, we set the `isE2EStorageSet` flag to true.
+  // Here, we are waiting for its value to be set.
   if (process.env.IS_TESTING === 'true') {
-    await new Promise((r) => {
-      setTimeout(r, 4000)
-    })
+    const checkE2EStorage = async (): Promise<void> => {
+      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+
+      if (isE2EStorageSet) {
+        return
+      }
+
+      await wait(100)
+      await checkE2EStorage()
+    }
+
+    await checkE2EStorage()
   }
 
   if (isManifestV3) {
