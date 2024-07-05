@@ -266,15 +266,13 @@ const SignMessageScreen = () => {
             <SkeletonLoader width="100%" height={48} />
           )}
           {isViewOnly && (
-            <View
+            <NoKeysToSignAlert
               style={{
                 ...flexbox.alignSelfCenter,
                 marginTop: 'auto',
                 maxWidth: 600
               }}
-            >
-              <NoKeysToSignAlert />
-            </View>
+            />
           )}
           {!!signMessageState.signingKeyType && (
             <HardwareWalletSigningModal

@@ -200,12 +200,8 @@ type MainControllerActivityResetAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_RESET'
 }
 
-type MainControllerUpdateSelectedAccountPortfolio = {
-  type: 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO'
-  params: {
-    forceUpdate?: boolean
-    additionalHints?: TokenResult['address'][]
-  }
+type MainControllerReloadSelectedAccount = {
+  type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
 }
 
 type PortfolioControllerGetTemporaryToken = {
@@ -475,7 +471,7 @@ export type Action =
   | MainControllerSignAccountOpUpdateMainDepsAction
   | MainControllerSignAccountOpSignAction
   | MainControllerSignAccountOpUpdateAction
-  | MainControllerUpdateSelectedAccountPortfolio
+  | MainControllerReloadSelectedAccount
   | PortfolioControllerUpdateTokenPreferences
   | PortfolioControllerGetTemporaryToken
   | PortfolioControllerRemoveTokenPreferences
