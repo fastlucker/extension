@@ -2,16 +2,9 @@ import { bootstrapWithStorage, baParams } from '../functions.js'
 import { checkBalanceInAccount, checkNetworks, checkCollectibleItem } from '../common/balance.js'
 
 describe('ba_balance', () => {
-  let browser
-  let page
-  let recorder
-
+  let browser, page, recorder
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_balance', baParams)
-
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
+    ;({ browser, page, recorder } = await bootstrapWithStorage('ba_balance', baParams))
   })
 
   afterEach(async () => {

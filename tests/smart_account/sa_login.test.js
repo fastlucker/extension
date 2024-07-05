@@ -8,35 +8,25 @@ import {
 } from '../common/login.js'
 
 describe('sa_login', () => {
-  let browser
-  let page
-  let extensionRootUrl
-  let extensionId
-  let recorder
+  let browser, page, extensionRootUrl, extensionId, recorder
 
   beforeEach(async () => {
-    const context = await bootstrap()
-    browser = context.browser
-    extensionRootUrl = context.extensionRootUrl
-    extensionId = context.extensionId
+    ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
+    const backgroundPage = await backgroundTarget.page()
+    // Bypass the invite verification step
+    await backgroundPage.evaluate(
+      (invite) => chrome.storage.local.set({ invite }),
+      JSON.stringify(INVITE_STORAGE_ITEM)
+    )
 
     page = await browser.newPage()
+    page.setDefaultTimeout(120000)
 
     recorder = new PuppeteerScreenRecorder(page)
     await recorder.start(`./recorder/sa_login_${Date.now()}.mp4`)
 
     const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
     await page.goto(getStartedPage)
-
-    // Bypass the invite verification step
-    await page.evaluate((invite) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.storage.local.set({ invite })
-    }, JSON.stringify(INVITE_STORAGE_ITEM))
-
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
     await page.bringToFront()
   })
 

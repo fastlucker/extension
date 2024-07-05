@@ -1,7 +1,6 @@
 import { getAddress } from 'ethers'
 import React, { FC, useMemo } from 'react'
 
-import { DEFAULT_ACCOUNT_LABEL } from '@ambire-common/consts/account'
 import { Props as TextProps } from '@common/components/Text'
 import { isExtension } from '@web/constants/browserapi'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
@@ -30,13 +29,10 @@ const Address: FC<Props> = ({ address, highestPriorityAlias, ...rest }) => {
   const contact = contacts.find((c) => c.address.toLowerCase() === address.toLowerCase())
 
   // highestPriorityAlias and account labels are of higher priority than domains
-  if (highestPriorityAlias || contact?.name || account?.preferences?.label || DEFAULT_ACCOUNT_LABEL)
+  if (highestPriorityAlias || contact?.name || account?.preferences?.label)
     return (
       <BaseAddress address={checksummedAddress} {...rest}>
-        {highestPriorityAlias ||
-          contact?.name ||
-          account?.preferences?.label ||
-          DEFAULT_ACCOUNT_LABEL}
+        {highestPriorityAlias || contact?.name || account?.preferences?.label}
       </BaseAddress>
     )
 

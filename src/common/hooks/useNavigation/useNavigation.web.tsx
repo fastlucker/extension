@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Subject } from 'rxjs'
 
@@ -9,7 +9,7 @@ export const titleChangeEventStream: TitleChangeEventStreamType = new Subject<st
 
 const useNavigation = (): UseNavigationReturnType => {
   const nav = useNavigate()
-  const prevRoute = useLocation()
+  const currentRoute = useLocation()
 
   const navigate = useCallback<UseNavigationReturnType['navigate']>(
     (to, options) => {
@@ -21,11 +21,11 @@ const useNavigation = (): UseNavigationReturnType => {
         ...options,
         state: {
           ...(options?.state || {}),
-          prevRoute
+          prevRoute: currentRoute
         }
       })
     },
-    [nav, prevRoute]
+    [nav, currentRoute]
   )
 
   const goBack = useCallback(() => {
@@ -43,6 +43,12 @@ const useNavigation = (): UseNavigationReturnType => {
 
   // Needed only in the mobile context
   const setParams = useCallback(() => {}, [])
+
+  const prevRoute = useMemo(() => {
+    if (!currentRoute.state?.prevRoute) return null
+
+    return currentRoute.state.prevRoute
+  }, [currentRoute])
 
   return {
     navigate,

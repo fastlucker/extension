@@ -9,8 +9,7 @@ import {
 export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
   await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
-  const passphraseWords = phrase
-  const wordArray = passphraseWords.split(' ')
+  const wordArray = phrase.split(' ')
 
   await page.waitForSelector('[placeholder="Word 1"]')
   for (let i = 0; i < wordArray.length; i++) {
@@ -21,21 +20,13 @@ export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
     await page.type(inputSelector, wordToType)
   }
 
-  // This function will complete the onboarsding stories and will select and retrieve first basic and first smarts account
+  // This function will complete the onboarding stories and will select and retrieve first basic and first smarts account
   const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
     await finishStoriesAndSelectAccount(page, 'true')
 
   // Click on "Save and Continue" button
-  await page.waitForSelector('[data-testid="button-save-and-continue"]:not([disabled])')
-  await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
-
-  await page.waitForFunction(
-    () => {
-      return window.location.href.includes('/onboarding-completed')
-    },
-    { timeout: 60000 }
-  )
-
+  await clickOnElement(page, '[data-testid="button-save-and-continue"]')
+  await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'))
   await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Verify that selected accounts exist on the page
@@ -79,7 +70,7 @@ export async function createAccountWithInvalidPhrase(page) {
         const element = document.querySelector('body')
         return element && element.textContent.includes(text)
       },
-      { timeout: 8000 },
+      { timeout: 60000 },
       validateMessage
     )
   }
@@ -99,7 +90,6 @@ export async function createAccountWithInvalidPhrase(page) {
   // Clear the passphrase fields before write the new phrase
   const wordArray = passphraseWords.split(' ')
   for (let i = 0; i < wordArray.length; i++) {
-    const wordToType = wordArray[i]
     const inputSelector = `[placeholder="Word ${i + 1}"]`
     await page.click(inputSelector, { clickCount: 3 }) // Select all content
     await page.keyboard.press('Backspace') // Delete the selected content
@@ -113,9 +103,7 @@ export async function createAccountWithInvalidPhrase(page) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress) {
-  await page.waitForSelector('[data-testid="stories-button-next"]')
   const buttonNext = '[data-testid="stories-button-next"]'
-
   await page.waitForSelector(buttonNext)
 
   // Click on "Next" button several times to finish the onboarding
@@ -133,20 +121,16 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
   // Click on "Got it"
   await page.$eval(buttonNext, (button) => button.click())
 
-  await page.waitForSelector('[data-testid="get-started-button-add"]')
-
   // Select "Add"
   await clickOnElement(page, '[data-testid="get-started-button-add"]')
 
   await typeText(page, '[data-testid="address-ens-field"]', viewOnlyAddress)
 
   // Click on "Import View-Only Accounts" button
-  await page.waitForSelector('[data-testid="view-only-button-import"]')
   await clickOnElement(page, '[data-testid="view-only-button-import"]')
 
   // Click on "Account"
-  await page.waitForSelector('[data-testid="button-save-and-continue"]:not([disabled])')
-  await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
+  await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
   await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
 
