@@ -4,10 +4,11 @@ import { ethers, Network } from 'ethers'
 const puppeteer = require('puppeteer')
 
 let recorder
+const buildPath = process.env.WEBPACK_BUILD_OUTPUT_PATH || 'webkit-prod'
 
 const puppeteerArgs = [
-  `--disable-extensions-except=${__dirname}/../webkit-prod/`,
-  `--load-extension=${__dirname}/webkit-prod/`,
+  `--disable-extensions-except=${__dirname}/../${buildPath}/`,
+  `--load-extension=${__dirname}/${buildPath}/`,
   '--disable-features=DialMediaRouteProvider',
 
   // '--disable-features=ClipboardContentSetting',
