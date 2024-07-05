@@ -220,15 +220,35 @@ export async function bootstrapWithStorage(namespace, params) {
 
   const page = await browser.newPage()
   page.setDefaultTimeout(120000)
-  recorder = new PuppeteerScreenRecorder(page, { followNewTab: true })
+  recorder = new PuppeteerScreenRecorder(page, { followNewTab: true, recordDurationLimit: 20 })
   await recorder.start(`./recorder/${namespace}_${Date.now()}.mp4`)
 
-  // Navigate to a specific URL if necessary
-  await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
+  /**
+   * If something goes wrong with any of the functions below, e.g., `typeSeedPhrase`,
+   * this `bootstrapWithStorage` won't return the expected object (browser, recorder, etc.),
+   * and the CI will hang for a long time as the recorder won't be stopped in the `afterEach` block and will continue recording.
+   * This is the message we got in such a case in the CI:
+   *
+   * 'Jest did not exit one second after the test run has completed.
+   *  This usually means that there are asynchronous operations that weren't stopped in your tests.
+   *  Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.'
+   *
+   * To prevent such long-lasting handles, we are catching the error and stopping the Jest process.
+   */
+  try {
+    // Navigate to a specific URL if necessary
+    await page.goto(`${extensionRootUrl}/tab.html#/keystore-unlock`, { waitUntil: 'load' })
 
-  // Make the extension tab active in the browser
-  await page.bringToFront()
-  await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+    // Make the extension tab active in the browser
+    await page.bringToFront()
+    await typeSeedPhrase(page, process.env.KEYSTORE_PASS)
+  } catch (e) {
+    console.log(e)
+    await recorder.stop()
+    await browser.close()
+
+    process.exit(1)
+  }
 
   return { browser, extensionRootUrl, page, recorder }
 }
