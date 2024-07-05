@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
@@ -13,7 +13,6 @@ import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
-import usePrevious from '@common/hooks/usePrevious'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
@@ -39,7 +38,6 @@ const SignMessageScreen = () => {
   const { t } = useTranslation()
   const signMessageState = useSignMessageControllerState()
   const signStatus = signMessageState.statuses.sign
-  const prevSignStatus = usePrevious(signStatus)
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
   const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
