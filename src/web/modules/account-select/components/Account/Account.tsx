@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -56,7 +56,7 @@ const Account = ({
     forceHoveredStyle: addr === selectedAccount
   })
 
-  const selectAccount = () => {
+  const selectAccount = useCallback(() => {
     if (selectedAccount !== addr) {
       dispatch({
         type: 'MAIN_CONTROLLER_SELECT_ACCOUNT',
@@ -65,9 +65,9 @@ const Account = ({
     }
 
     onSelect && onSelect(addr)
-  }
+  }, [addr, dispatch, onSelect, selectedAccount])
 
-  const removeAccount = () => {
+  const removeAccount = useCallback(() => {
     dispatch({
       type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT',
       params: {
@@ -75,19 +75,22 @@ const Account = ({
       }
     })
     addToast(t('Account removed.'))
-  }
+  }, [addToast, addr, dispatch, t])
 
-  const promptRemoveAccount = () => {
+  const promptRemoveAccount = useCallback(() => {
     openDialog()
-  }
+  }, [openDialog])
 
-  const onSave = (value: string) => {
-    dispatch({
-      type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
-      params: [{ addr, preferences: { label: value, pfp: preferences.pfp } }]
-    })
-    addToast(t('Account label updated.'))
-  }
+  const onSave = useCallback(
+    (value: string) => {
+      dispatch({
+        type: 'ACCOUNTS_CONTROLLER_UPDATE_ACCOUNT_PREFERENCES',
+        params: [{ addr, preferences: { label: value, pfp: preferences.pfp } }]
+      })
+      addToast(t('Account label updated.'))
+    },
+    [addToast, addr, dispatch, preferences.pfp, t]
+  )
 
   return (
     <Pressable onPress={selectAccount} {...bindAnim} testID="account">
