@@ -194,28 +194,17 @@ const SignMessageScreen = () => {
 
   useEffect(() => {
     if (
-      signMessageState.isInitialized &&
-      signMessageState.signingKeyAddr &&
-      signMessageState.signingKeyType &&
-      signMessageState.messageToSign &&
+      signMessageState.readyToSign &&
       // FIXME: Workaround that allows user to attempt to sign the message again.
       // That's because on error, the status is flipped back from 'ERROR to 'INITIAL'
       // that triggers an infinite loop (since the SignMessage controller is
       // still initialized and all the required data is set).
-      prevSignStatus === 'LOADING' &&
+      prevSignStatus !== 'ERROR' &&
       signStatus === 'INITIAL'
     ) {
       handleSign()
     }
-  }, [
-    handleSign,
-    signMessageState.isInitialized,
-    signStatus,
-    prevSignStatus,
-    signMessageState.signingKeyAddr,
-    signMessageState.signingKeyType,
-    signMessageState.messageToSign
-  ])
+  }, [handleSign, signMessageState.readyToSign, signStatus, prevSignStatus])
 
   useEffect(() => {
     if (
