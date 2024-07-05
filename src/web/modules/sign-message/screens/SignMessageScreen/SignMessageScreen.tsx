@@ -150,7 +150,7 @@ const SignMessageScreen = () => {
   useEffect(() => {
     if (!getUiType().isActionWindow) return
     const reset = () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
     window.addEventListener('beforeunload', reset)
@@ -162,18 +162,10 @@ const SignMessageScreen = () => {
 
   useEffect(() => {
     return () => {
-      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
+      dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET' })
       dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
     }
   }, [dispatch])
-
-  // TODO: Figure out if this is needed?
-  // useEffect(() => {
-  // if (signStatus === 'ERROR') {
-  // dispatch({ type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY' })
-  // dispatch({ type: 'MAIN_CONTROLLER_ACTIVITY_RESET' })
-  // }
-  // }, [dispatch, signStatus])
 
   const handleChangeSigningKey = useCallback(
     (keyAddr: string, keyType: string) => {

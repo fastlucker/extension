@@ -170,7 +170,7 @@ type MainControllerSignMessageInitAction = {
   }
 }
 type MainControllerSignMessageResetAction = {
-  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY'
+  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
 }
 type MainControllerSignMessageSignAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'

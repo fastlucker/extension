@@ -744,8 +744,8 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
                 return mainCtrl.initSignMessage(params)
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_DESTROY':
-                return mainCtrl.destroySignMessage()
+              case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
+                return mainCtrl.resetSignMessage()
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
                 return await mainCtrl.signMessage.sign()
               }
