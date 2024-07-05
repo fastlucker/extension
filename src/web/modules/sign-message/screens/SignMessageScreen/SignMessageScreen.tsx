@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
+import { Key } from '@ambire-common/interfaces/keystore'
 import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
@@ -197,28 +198,21 @@ const SignMessageScreen = () => {
     )
   }
 
-  const handleSign = () => {
+  const handleSign = (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
     // Has more than one key, should first choose the key to sign with
-    if (selectedAccountKeyStoreKeys.length > 1) {
+    const hasChosenSigningKey = chosenSigningKeyAddr && chosenSigningKeyType
+    if (selectedAccountKeyStoreKeys.length > 1 && !hasChosenSigningKey) {
       return setIsChooseSignerShown(true)
     }
 
-    const { addr, type } = selectedAccountKeyStoreKeys[0]
+    const keyAddr = chosenSigningKeyAddr || selectedAccountKeyStoreKeys[0].addr
+    const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
+
     dispatch({
       type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
-      params: { keyAddr: addr, keyType: type }
+      params: { keyAddr, keyType }
     })
   }
-
-  const handleSignWithChosenSigningKey = useCallback(
-    (keyAddr: string, keyType: string) => {
-      dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
-        params: { keyAddr, keyType }
-      })
-    },
-    [dispatch]
-  )
 
   return (
     <TabLayoutContainer
@@ -243,7 +237,7 @@ const SignMessageScreen = () => {
         isVisible={isChooseSignerShown}
         isSigning={signStatus === 'LOADING'}
         selectedAccountKeyStoreKeys={selectedAccountKeyStoreKeys}
-        handleChangeSigningKey={handleSignWithChosenSigningKey}
+        handleChooseSigningKey={handleSign}
         handleClose={() => setIsChooseSignerShown(false)}
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
