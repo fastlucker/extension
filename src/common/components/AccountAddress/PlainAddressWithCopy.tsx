@@ -1,6 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ViewStyle } from 'react-native'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
 import useTheme from '@common/hooks/useTheme'
@@ -13,7 +14,7 @@ import PlainAddress from './PlainAddress'
 interface Props {
   maxLength: number
   address: string
-  style?: any
+  style?: ViewStyle
   hideParentheses?: boolean
 }
 
