@@ -16,7 +16,11 @@ import {
 } from '../common/login.js'
 
 describe('ba_login', () => {
-  let browser, page, extensionRootUrl, extensionId, recorder
+  let browser
+  let page
+  let extensionRootUrl
+  let extensionId
+  let recorder
 
   beforeEach(async () => {
     ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
@@ -65,6 +69,11 @@ describe('ba_login', () => {
     )
 
     await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+
+    // Wait for account addresses to load
+    await new Promise((r) => {
+      setTimeout(r, 2000)
+    })
 
     // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
