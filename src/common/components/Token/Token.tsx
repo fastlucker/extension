@@ -5,7 +5,7 @@ import { Linking, Pressable, View } from 'react-native'
 
 import { Network } from '@ambire-common/interfaces/network'
 import { getTokenInfo } from '@ambire-common/libs/humanizer/utils'
-import InfoIcon from '@common/assets/svg/InfoIcon'
+import OpenIcon from '@common/assets/svg/OpenIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_TY } from '@common/styles/spacings'
@@ -110,8 +110,7 @@ const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, netwo
         <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
           {tokenInfo?.symbol || t('unknown token')}
         </Text>
-        {/* <OpenIcon /> */}
-        <InfoIcon width={14} height={14} />
+        <OpenIcon width={14} height={14} />
       </Pressable>
     </View>
   )
