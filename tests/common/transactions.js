@@ -1,3 +1,4 @@
+import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { typeText, clickOnElement, confirmTransaction, selectMaticToken } from '../functions'
 
 const recipientField = '[data-testid="address-ens-field"]'
@@ -53,10 +54,17 @@ export async function makeSwap(page, extensionURL, browser) {
     (target) => target.url() === `${extensionURL}/action-window.html#/dapp-connect-request`
   )
   const actionWindowPage = await newTarget.page()
+
+  const actionWindowDapReqRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
+    followNewTab: true
+  })
+  await actionWindowDapReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
+
+  await actionWindowDapReqRecorder.stop()
 
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')
@@ -166,7 +174,14 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
     (target) => target.url() === `${extensionURL}/action-window.html#/dapp-connect-request`
   )
   const newPage = await newTarget.page()
+  const actionWindowDappReqRecorder = new PuppeteerScreenRecorder(newPage, {
+    followNewTab: true
+  })
+  await actionWindowDappReqRecorder.start(`./recorder/action_window_dap_req_${Date.now()}.mp4`)
+
   await clickOnElement(newPage, '[data-testid="dapp-connect-button"]')
+
+  await actionWindowDappReqRecorder.stop()
 
   // Type message in the 'Message' field
   const textMessage = 'text message'
@@ -180,12 +195,20 @@ export async function signMessage(page, extensionURL, browser, signerAddress) {
     (target) => target.url() === `${extensionURL}/action-window.html#/sign-message`
   )
   const actionWindowPage = await actionWindowTarget.page()
+
+  const actionWindowSignMsgRecorder = new PuppeteerScreenRecorder(actionWindowPage, {
+    followNewTab: true
+  })
+  await actionWindowSignMsgRecorder.start(`./recorder/action_window_sign_msg_${Date.now()}.mp4`)
+
   actionWindowPage.setDefaultTimeout(120000)
 
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="button-sign"]')
+
+  await actionWindowSignMsgRecorder.stop()
 
   await page.waitForSelector('.signatureResult-signature')
   // Get the Message signature text
