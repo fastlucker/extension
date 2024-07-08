@@ -23,6 +23,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -68,7 +69,9 @@ function stateDebug(event: string, stateToLog: object) {
   logInfoWithPrefix(event, parse(stringify(stateToLog)))
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
+let mainCtrl: MainController
+
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
@@ -147,7 +150,7 @@ function stateDebug(event: string, stateToLog: object) {
     return fetchFn(url, initWithCustomHeaders)
   }
 
-  const mainCtrl = new MainController({
+  mainCtrl = new MainController({
     storage,
     fetch: fetchWithCustomHeaders,
     relayerUrl: RELAYER_URL,
@@ -1066,59 +1069,67 @@ function stateDebug(event: string, stateToLog: object) {
       })
     }
   })
+})()
 
-  const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  providerRequestTransport.reply(async ({ method, id, params }, meta) => {
-    const sessionId = meta.sender?.tab?.id
-    if (sessionId === undefined || !meta.sender?.url) {
-      return
-    }
+const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+providerRequestTransport.reply(async ({ method, id, params }, meta) => {
+  // wait for mainCtrl to be initialized before handling dapp requests
+  while (!mainCtrl) {
+    await wait(200)
+  }
+  const sessionId = meta.sender?.tab?.id
+  if (sessionId === undefined || !meta.sender?.url) {
+    return
+  }
 
-    const origin = getOriginFromUrl(meta.sender.url)
-    const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
-    session.setMessenger(bridgeMessenger)
+  const origin = getOriginFromUrl(meta.sender.url)
+  const session = mainCtrl.dapps.getOrCreateDappSession(sessionId, origin)
+  session.setMessenger(bridgeMessenger)
 
-    // Temporarily resolves the subscription methods as successful
-    // but the rpc block subscription is actually not implemented because it causes app crashes
-    if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
-      return true
-    }
-
-    try {
-      const res = await handleProviderRequests(
-        {
-          method,
-          params,
-          session,
-          origin
-        },
-        mainCtrl
-      )
-      return { id, result: res }
-    } catch (error: any) {
-      let errorRes
-      try {
-        errorRes = error.serialize()
-      } catch (e) {
-        errorRes = error
-      }
-      return { id, error: errorRes }
-    }
-  })
+  // Temporarily resolves the subscription methods as successful
+  // but the rpc block subscription is actually not implemented because it causes app crashes
+  if (method === 'eth_subscribe' || method === 'eth_unsubscribe') {
+    return true
+  }
 
   try {
-    browser.tabs.onRemoved.addListener((tabId: number) => {
-      const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
-      // eslint-disable-next-line no-restricted-syntax
-      for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
-        mainCtrl.dapps.deleteDappSession(key)
-      }
-    })
-  } catch (error) {
-    console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+    const res = await handleProviderRequests(
+      {
+        method,
+        params,
+        session,
+        origin
+      },
+      mainCtrl
+    )
+    return { id, result: res }
+  } catch (error: any) {
+    let errorRes
+    try {
+      errorRes = error.serialize()
+    } catch (e) {
+      errorRes = error
+    }
+    return { id, error: errorRes }
   }
-})()
+})
+
+try {
+  browser.tabs.onRemoved.addListener(async (tabId: number) => {
+    // wait for mainCtrl to be initialized before handling dapp requests
+    while (!mainCtrl) {
+      await wait(200)
+    }
+    const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of sessionKeys.filter((k) => k.startsWith(`${tabId}-`))) {
+      mainCtrl.dapps.deleteDappSession(key)
+    }
+  })
+} catch (error) {
+  console.error('Failed to register browser.tabs.onRemoved.addListener', error)
+}
 
 // Open the get-started screen in a new tab right after the extension is installed.
 browser.runtime.onInstalled.addListener(({ reason }: any) => {
