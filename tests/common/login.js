@@ -139,7 +139,7 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
 
   if (addressElement.length > 0) {
     // Get the parent element of the element with the specified address
-    const parentElement = await addressElement[0].$x('..')
+    const parentElement = await addressElement[0].$x('../../..')
 
     if (parentElement.length > 0) {
       // Get the text content of the parent element and all elements within it
@@ -151,10 +151,7 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
       // Verify that somewhere in the content there is the text 'View-only'
       const containsViewOnly = parentTextContent.includes('View-only')
 
-      if (containsViewOnly) {
-      } else {
-        throw new Error('The content does not contain the text "View-only".')
-      }
+      expect(containsViewOnly).toBe(true)
     }
   }
 }
