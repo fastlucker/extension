@@ -33,13 +33,6 @@ import shortenAddress from '@web/utils/shortenAddress'
 
 const ITEMS_PER_PAGE = 10
 
-const formatAddressLabelInSelector = (label: string, isLargeScreen: boolean) => {
-  if (label.length > (isLargeScreen ? 26 : 18))
-    return `${label.slice(0, isLargeScreen ? 24 : 16)}...`
-
-  return label
-}
-
 interface Props {
   HistoryComponent: ComponentType<{
     page?: number
@@ -77,16 +70,30 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
     return accounts.map((acc) => ({
       value: acc.addr,
       label: (
-        <Text weight="medium" numberOfLines={1}>
-          {`${formatAddressLabelInSelector(
-            acc.preferences.label,
-            maxWidthSize('xl')
-          )} (${shortenAddress(acc.addr, 10)})`}
-        </Text>
+        <View>
+          <Text
+            fontSize={14}
+            weight="medium"
+            style={{
+              lineHeight: 20
+            }}
+          >
+            {acc.preferences.label}
+          </Text>
+          <Text
+            fontSize={12}
+            appearance="secondaryText"
+            style={{
+              lineHeight: 12
+            }}
+          >
+            {shortenAddress(acc.addr, 32)}
+          </Text>
+        </View>
       ),
-      icon: <Avatar pfp={acc.preferences.pfp} size={30} style={spacings.pr0} />
+      icon: <Avatar pfp={acc.preferences.pfp} size={32} style={spacings.pr0} />
     }))
-  }, [accounts, maxWidthSize])
+  }, [accounts])
 
   const networksOptions: SelectValue[] = useMemo(
     () =>
