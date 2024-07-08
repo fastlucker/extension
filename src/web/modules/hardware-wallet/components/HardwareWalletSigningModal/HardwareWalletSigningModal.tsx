@@ -21,8 +21,7 @@ import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 
 type Props = {
   keyType: ExternalKey['type']
-  shouldOpen: boolean
-  shouldClose: boolean
+  isVisible: boolean
 }
 
 const iconByKeyType = {
@@ -31,17 +30,14 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ keyType, shouldOpen, shouldClose }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, isVisible }: Props) => {
   const { t } = useTranslation()
   const { ref, open, close } = useModalize()
 
   useEffect(() => {
-    if (shouldClose) close()
-  }, [close, shouldClose])
-
-  useEffect(() => {
-    if (shouldOpen) open()
-  }, [open, shouldOpen])
+    if (isVisible) open()
+    else close()
+  }, [open, close, isVisible])
 
   const titleSuffix = useMemo(() => {
     const Icon = keyType && iconByKeyType[keyType as keyof typeof iconByKeyType]
@@ -57,7 +53,7 @@ const HardwareWalletSigningModal = ({ keyType, shouldOpen, shouldClose }: Props)
       autoWidth
       sheetRef={ref}
       shouldBeClosableOnDrag={false}
-      autoOpen={shouldOpen}
+      autoOpen={isVisible}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {

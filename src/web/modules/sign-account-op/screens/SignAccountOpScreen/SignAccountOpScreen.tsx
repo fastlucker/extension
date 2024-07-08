@@ -253,8 +253,7 @@ const SignAccountOpScreen = () => {
           {signAccountOpState?.accountOp.signingKeyType &&
             signAccountOpState?.accountOp.signingKeyType !== 'internal' && (
               <HardwareWalletSigningModal
-                shouldOpen={isSignLoading}
-                shouldClose={!isSignLoading}
+                isVisible={isSignLoading}
                 keyType={signAccountOpState.accountOp.signingKeyType}
               />
             )}

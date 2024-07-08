@@ -254,8 +254,7 @@ const SignMessageScreen = () => {
           {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
               keyType={signMessageState.signingKeyType}
-              shouldOpen={signStatus === 'LOADING'}
-              shouldClose={signStatus !== 'LOADING'}
+              isVisible={signStatus === 'LOADING'}
             />
           )}
         </View>
