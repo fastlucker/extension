@@ -8,7 +8,7 @@ import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
-import TokenComponent from '@common/components/TokenComponent'
+import Token from '@common/components/Token'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
@@ -53,7 +53,7 @@ const HumanizedVisualization: FC<Props> = ({
         const key = item.id
         if (item.type === 'token') {
           return (
-            <TokenComponent
+            <Token
               key={key}
               sizeMultiplierSize={sizeMultiplierSize}
               amount={item.amount!}

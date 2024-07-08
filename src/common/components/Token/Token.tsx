@@ -14,7 +14,6 @@ import formatDecimals from '@common/utils/formatDecimals'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
 interface Props {
-  key: number
   address: string
   amount: bigint
   sizeMultiplierSize: number
@@ -22,23 +21,23 @@ interface Props {
   network: Network
 }
 
-const TokenComponent: FC<Props> = ({
-  key,
-  amount,
-  address,
-  sizeMultiplierSize,
-  textSize,
-  network
-}) => {
+const Token: FC<Props> = ({ amount, address, sizeMultiplierSize, textSize, network }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
-  const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
-  const isMaxUint256 = amount === MaxUint256
+  const shouldDisplayUnlimitedAmount = useMemo(() => {
+    const isUnlimitedByPermit2 = amount.toString(16).toLowerCase() === 'f'.repeat(40)
+    const isMaxUint256 = amount === MaxUint256
+    return isUnlimitedByPermit2 || isMaxUint256
+  }, [amount])
 
   const { t } = useTranslation()
   const [fetchedFromCena, setFetchedFromCena] = useState(null)
   const { accountPortfolio } = usePortfolioControllerState()
-  const infoFromCurrentBalances = accountPortfolio?.tokens?.find(
-    (token) => token.address.toLowerCase() === address.toLowerCase()
+  const infoFromCurrentBalances = useMemo(
+    () =>
+      accountPortfolio?.tokens?.find(
+        (token) => token.address.toLowerCase() === address.toLowerCase()
+      ),
+    [accountPortfolio, address]
   )
   const nativeTokenInfo = useMemo(
     () =>
@@ -48,7 +47,6 @@ const TokenComponent: FC<Props> = ({
       },
     [address, network]
   )
-
   useEffect(() => {
     if (!infoFromCurrentBalances && !nativeTokenInfo)
       getTokenInfo({ networkId: network.id, accountAddr: ZeroAddress }, address, {
@@ -59,11 +57,18 @@ const TokenComponent: FC<Props> = ({
         .catch((e) => console.error(e))
   }, [nativeTokenInfo, infoFromCurrentBalances, address, network])
 
-  const tokenInfo: { decimals?: number; symbol?: string } =
-    infoFromCurrentBalances || nativeTokenInfo || fetchedFromCena || {}
+  const tokenInfo: { decimals?: number; symbol?: string } = useMemo(
+    () => infoFromCurrentBalances || nativeTokenInfo || fetchedFromCena || {},
+    [infoFromCurrentBalances, nativeTokenInfo, fetchedFromCena]
+  )
+
+  const openExplorer = useMemo(
+    () => () => Linking.openURL(`${network.explorerUrl}/address/${address}`),
+    [address, network.explorerUrl]
+  )
 
   return (
-    <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
+    <View style={{ ...flexbox.directionRow, ...flexbox.alignCenter, marginRight }}>
       {BigInt(amount) > BigInt(0) ? (
         <Text
           fontSize={textSize}
@@ -71,7 +76,7 @@ const TokenComponent: FC<Props> = ({
           appearance="primaryText"
           style={{ maxWidth: '100%' }}
         >
-          {isUnlimitedByPermit2 || isMaxUint256 ? (
+          {shouldDisplayUnlimitedAmount ? (
             <Text appearance="warningText">{t('unlimited')}</Text>
           ) : (
             <>
@@ -92,7 +97,7 @@ const TokenComponent: FC<Props> = ({
       ) : null}
       <Pressable
         style={{ ...spacings.mlMi, ...flexbox.directionRow, ...flexbox.alignCenter }}
-        onPress={() => Linking.openURL(`${network.explorerUrl}/address/${address}`)}
+        onPress={openExplorer}
       >
         <TokenIcon
           width={24 * sizeMultiplierSize}
@@ -105,10 +110,11 @@ const TokenComponent: FC<Props> = ({
         <Text fontSize={textSize} weight="medium" appearance="primaryText" style={spacings.mrMi}>
           {tokenInfo?.symbol || t('unknown token')}
         </Text>
+        {/* <OpenIcon /> */}
         <InfoIcon width={14} height={14} />
       </Pressable>
     </View>
   )
 }
 
-export default memo(TokenComponent)
+export default memo(Token)
