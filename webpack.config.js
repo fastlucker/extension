@@ -23,7 +23,7 @@ module.exports = async function (env, argv) {
     // some of the logic needs to be moved from the service worker to the frontend (FE), which is not an optimal solution at the moment.
     // https://github.com/trezor/trezor-suite/issues/6458
     // https://github.com/trezor/trezor-suite/pull/9525
-    const manifestVersion = 2
+    const manifestVersion = 3
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -66,7 +66,7 @@ module.exports = async function (env, argv) {
       // in Chrome Web Store and can't be changed.
       // {@link https://developer.chrome.com/extensions/manifest/key}
       // TODO: Figure out if this works for gecko
-      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display']
+      manifest.permissions = [...manifest.permissions, 'scripting', 'system.display', 'alarms']
       manifest.key = process.env.BROWSER_EXTENSION_PUBLIC_KEY
     }
 

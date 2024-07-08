@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 
 import EventEmitter from '@ambire-common/controllers/eventEmitter/eventEmitter'
-import { isManifestV3 } from '@web/constants/browserapi'
+import { browser, isManifestV3 } from '@web/constants/browserapi'
 import { storage } from '@web/extension-services/background/webapi/storage'
 
 export const ALARMS_AUTO_LOCK = 'ALARMS_AUTO_LOCK'

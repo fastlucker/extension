@@ -1035,6 +1035,7 @@ function stateDebug(event: string, stateToLog: object) {
             }
           }
         } catch (err: any) {
+          console.error(err)
           pm.send('> ui-error', {
             method: type,
             params: {
