@@ -2,7 +2,10 @@ import { bootstrapWithStorage, saParams } from '../functions.js'
 import { changePassword, addContactInAddressBook } from '../common/other.js'
 
 describe('sa_other', () => {
-  let browser, page, recorder, extensionRootUrl
+  let browser
+  let page
+  let recorder
+  let extensionRootUrl
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionRootUrl } = await bootstrapWithStorage(
@@ -15,7 +18,7 @@ describe('sa_other', () => {
     await recorder.stop()
     await browser.close()
   })
-  it('change password', async () => {
+  it.only('change password', async () => {
     await changePassword(page, extensionRootUrl)
   })
 

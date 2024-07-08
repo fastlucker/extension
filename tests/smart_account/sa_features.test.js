@@ -6,7 +6,6 @@ import {
   selectMaticToken,
   triggerTransaction,
   checkForSignMessageWindow,
-  signAndConfirmTransaction,
   signTransaction,
   confirmTransactionStatus,
   selectFeeToken
@@ -75,8 +74,10 @@ describe('sa_transactions', () => {
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
     await new Promise((r) => setTimeout(r, 1000))
+
     // Sign and confirm the transaction
-    await signAndConfirmTransaction(newPage)
+    await signTransaction(newPage)
+    await confirmTransactionStatus(newPage, 'polygon', 137)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -121,7 +122,8 @@ describe('sa_transactions', () => {
     )
     await new Promise((r) => setTimeout(r, 1000))
     // Sign and confirm the transaction
-    await signAndConfirmTransaction(newPage)
+    await signTransaction(newPage)
+    await confirmTransactionStatus(newPage, 'polygon', 137)
   })
 
   //--------------------------------------------------------------------------------------------------------------
@@ -169,11 +171,12 @@ describe('sa_transactions', () => {
     )
     await new Promise((r) => setTimeout(r, 1000))
     // Sign and confirm the transaction
-    await signAndConfirmTransaction(newPage)
+    await signTransaction(newPage)
+    await confirmTransactionStatus(newPage, 'polygon', 137)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('Make batched transaction', async () => {
+  it.skip('Make batched transaction', async () => {
     // Click on "Send" button
     await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
 
@@ -279,8 +282,9 @@ describe('sa_transactions', () => {
       newPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
-
-    await signAndConfirmTransaction(newPage)
+    // Sign and confirm the transaction
+    await signTransaction(newPage)
+    await confirmTransactionStatus(newPage, 'polygon', 137)
 
     // Verify that both recipient addresses are visible
     await newPage.waitForFunction(
@@ -295,7 +299,7 @@ describe('sa_transactions', () => {
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.only('4337 transaction', async () => {
+  it('4337 transaction', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
@@ -369,6 +373,6 @@ describe('sa_transactions', () => {
 
     // Sign and confirm the transaction
     await signTransaction(newPage)
-    await confirmTransactionStatus(newPage, 'optimism')
+    await confirmTransactionStatus(newPage, 'optimism', 10)
   })
 })

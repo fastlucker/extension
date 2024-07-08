@@ -291,16 +291,23 @@ export async function triggerTransaction(
   const newTarget = await browser.waitForTarget((target) =>
     target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
   )
-  let actionWindowPage = await newTarget.page()
+  const actionWindowPage = await newTarget.page()
   actionWindowPage.setDefaultTimeout(120000)
 
   actionWindowPage.setViewport({ width: 1300, height: 700 })
+
+  return actionWindowPage
+}
+
+//----------------------------------------------------------------------------------------------
+export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
+  let actionWindowPage = page // Initialize newPage with the current page
 
   // Check if "sign-message" action-window is open
   if (actionWindowPage.url().endsWith('/sign-message')) {
     console.log('New window before transaction is open')
     // If the selector exists, click on it
-    await page.click('[data-testid="button-sign"]')
+    await actionWindowPage.click('[data-testid="button-sign"]')
 
     const newPagePromise2 = await browser.waitForTarget(
       (target) => target.url() === `${extensionRootUrl}/action-window.html#/sign-account-op`
@@ -311,81 +318,37 @@ export async function triggerTransaction(
     actionWindowPage.setDefaultTimeout(120000)
   }
 
-  return { newPage }
+  return { actionWindowPage }
 }
 
 //----------------------------------------------------------------------------------------------
-export async function selectFeeToken(page, feeToken) {
+export async function selectFeeToken(actionWindowPage, feeToken) {
   // Check if select fee token is visible
-  const selectToken = await page.evaluate(() => {
+  const selectToken = await actionWindowPage.evaluate(() => {
     return !!document.querySelector('[data-testid="tokens-select"]')
   })
 
   if (selectToken) {
     // Click on the tokens select
-    await clickOnElement(page, '[data-testid="tokens-select"]')
+    await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
     // Wait for some time
     await new Promise((r) => setTimeout(r, 2000))
 
     // Click on the Gas Tank option
-    await clickOnElement(page, feeToken)
+    await clickOnElement(actionWindowPage, feeToken)
   }
 }
 
 //----------------------------------------------------------------------------------------------
-// export async function signAndConfirmTransaction(newPage) {
-//   // Click on "Ape" button
-//   await clickOnElement(newPage, '[data-testid="fee-ape:"]')
-
-//   // Click on "Sign" button
-//   await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-
-//   // Wait for the 'Timestamp' text to appear twice on the page
-//   await newPage.waitForFunction(
-//     () => {
-//       const pageText = document.documentElement.innerText
-//       const occurrences = (pageText.match(/Timestamp/g) || []).length
-//       return occurrences >= 2
-//     },
-//     { timeout: 250000 }
-//   )
-
-//   const doesFailedExist = await newPage.evaluate(() => {
-//     const pageText = document.documentElement.innerText
-//     return pageText.includes('failed') || pageText.includes('dropped')
-//   })
-
-//   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
-
-//   const currentURL = await newPage.url()
-
-//   // Split the URL by the '=' character and get the transaction hash
-//   const parts = currentURL.split('=')
-//   const transactionHash = parts[parts.length - 1]
-
-//   // Define the RPC URL for the Polygon network
-//   const rpcUrl = 'https://invictus.ambire.com/polygon'
-
-//   // Create a provider instance using the JsonRpcProvider
-//   const provider = new ethers.JsonRpcProvider(rpcUrl)
-
-//   // Get transaction receipt
-//   const receipt = await provider.getTransactionReceipt(transactionHash)
-
-//   console.log(`Transaction Hash: ${transactionHash}`)
-//   // Assertion to fail the test if transaction failed
-//   expect(receipt.status).toBe(1)
-// }
-
-export async function signTransaction(newPage) {
+export async function signTransaction(actionWindowPage) {
+  actionWindowPage.setDefaultTimeout(120000)
   // Click on "Ape" button
-  await clickOnElement(newPage, '[data-testid="fee-ape:"]')
+  await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
 
   // Click on "Sign" button
-  await clickOnElement(newPage, '[data-testid="transaction-button-sign"]')
-
+  await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
   // Wait for the 'Timestamp' text to appear twice on the page
-  await newPage.waitForFunction(
+  await actionWindowPage.waitForFunction(
     () => {
       const pageText = document.documentElement.innerText
       const occurrences = (pageText.match(/Timestamp/g) || []).length
@@ -394,27 +357,27 @@ export async function signTransaction(newPage) {
     { timeout: 250000 }
   )
 
-  const doesFailedExist = await newPage.evaluate(() => {
+  const doesFailedExist = await actionWindowPage.evaluate(() => {
     const pageText = document.documentElement.innerText
     return pageText.includes('failed') || pageText.includes('dropped')
   })
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
-
-  return { newPage }
+  // return { actionWindowPage }
 }
 
-export async function confirmTransactionStatus(newPage, network) {
-  const currentURL = await newPage.url()
+//----------------------------------------------------------------------------------------------
+export async function confirmTransactionStatus(actionWindowPage, networkName, chainID) {
+  const currentURL = await actionWindowPage.url()
 
   // Split the URL by the '=' character and get the transaction hash
   const parts = currentURL.split('=')
   const transactionHash = parts[parts.length - 1]
 
   // Create a provider instance using the JsonRpcProvider
-  const staticNetwork = Network.from(137)
+  const staticNetwork = Network.from(chainID)
   const provider = new ethers.JsonRpcProvider(
-    'https://invictus.ambire.com/polygon',
+    `https://invictus.ambire.com/${networkName}`,
     staticNetwork,
     { staticNetwork }
   )

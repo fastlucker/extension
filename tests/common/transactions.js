@@ -1,4 +1,13 @@
-import { typeText, clickOnElement, confirmTransaction, selectMaticToken } from '../functions'
+import {
+  typeText,
+  clickOnElement,
+  selectMaticToken,
+  triggerTransaction,
+  checkForSignMessageWindow,
+  selectFeeToken,
+  signTransaction,
+  confirmTransactionStatus
+} from '../functions.js'
 
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
@@ -41,9 +50,9 @@ export async function makeValidTransaction(page, extensionRootUrl, browser) {
     newPage,
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
-  await new Promise((r) => setTimeout(r, 1000))
   // Sign and confirm the transaction
-  await signAndConfirmTransaction(newPage)
+  await signTransaction(newPage)
+  await confirmTransactionStatus(newPage, 'polygon', 137)
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -60,7 +69,9 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   const newTarget = await browser.waitForTarget(
     (target) => target.url() === `${extensionRootUrl}/action-window.html#/dapp-connect-request`
   )
+
   const actionWindowPage = await newTarget.page()
+  // Set default timeout for the action window page
   actionWindowPage.setDefaultTimeout(120000)
   await actionWindowPage.setViewport({ width: 1000, height: 1000 })
 
@@ -85,18 +96,24 @@ export async function makeSwap(page, extensionRootUrl, browser) {
   })
   await typeText(page, '#swap-currency-output', '0.0001')
   await clickOnElement(page, '[data-testid="swap-button"]:not([disabled])')
-
-  // Click on 'Confirm Swap' button and confirm transaction
-  await confirmTransaction(
+  const newPage = await triggerTransaction(
     page,
-    extensionRootUrl,
     browser,
-    '[data-testid="confirm-swap-button"]:not([disabled]',
+    extensionRootUrl,
+    '[data-testid="confirm-swap-button"]:not([disabled])'
+  )
+
+  await new Promise((r) => setTimeout(r, 2000))
+
+  await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+  // Check if select fee token is visible and select the token
+  await selectFeeToken(
+    newPage,
     '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
   )
-  await new Promise((r) => setTimeout(r, 1000))
   // Sign and confirm the transaction
-  await signAndConfirmTransaction(newPage)
+  await signTransaction(newPage)
+  await confirmTransactionStatus(newPage, 'polygon', 137)
 }
 
 //--------------------------------------------------------------------------------------------------------------

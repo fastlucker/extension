@@ -9,7 +9,10 @@ import {
 } from '../common/transactions.js'
 
 describe('ba_transactions', () => {
-  let browser, page, extensionRootUrl, recorder
+  let browser
+  let page
+  let extensionRootUrl
+  let recorder
 
   beforeEach(async () => {
     ;({ browser, page, recorder, extensionRootUrl } = await bootstrapWithStorage(
