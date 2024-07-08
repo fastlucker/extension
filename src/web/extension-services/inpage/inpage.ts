@@ -27,15 +27,14 @@ let _defaultWallet: DefaultWallet = 'AMBIRE'
 const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
-let isEIP6963: boolean = false
 let shouldReloadOnFocus = false
 
 window.addEventListener('focus', () => {
-  if (!isEIP6963 && shouldReloadOnFocus) window.location.reload()
+  if (shouldReloadOnFocus) window.location.reload()
 })
 
 const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
-  isEIP6963,
+  isEIP6963: false,
   defaultWallet: _defaultWallet
 })
 
@@ -369,7 +368,6 @@ export class EthereumProvider extends EventEmitter {
       defaultWallet = data?.value
       if (data.shouldReload) {
         if (document.hasFocus()) {
-          if (isEIP6963) return
           window.location.reload()
         } else {
           shouldReloadOnFocus = true
@@ -500,7 +498,7 @@ export class EthereumProvider extends EventEmitter {
     return this._dedupePromise.call(data.method, () => this._request(data))
   }
 
-  // shim to matamask legacy api
+  // shim to MetaMask legacy api
   sendAsync = (payload, callback) => {
     if (Array.isArray(payload)) {
       return Promise.all(
@@ -701,7 +699,6 @@ const announceEip6963Provider = (p: EthereumProvider) => {
 }
 
 window.addEventListener<any>('eip6963:requestProvider', () => {
-  isEIP6963 = true
   connectButtonReplacementCtrl.update({ isEIP6963: true })
   announceEip6963Provider(ambireProvider)
 })
