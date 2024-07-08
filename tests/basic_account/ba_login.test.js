@@ -1,5 +1,3 @@
-import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
-
 import {
   bootstrap,
   setAmbKeyStore,
@@ -18,26 +16,19 @@ import {
 describe('ba_login', () => {
   let browser
   let page
-  let extensionRootUrl
-  let extensionId
+  let extensionURL
   let recorder
+  let backgroundPage
 
   beforeEach(async () => {
-    ;({ browser, extensionRootUrl, extensionId, backgroundTarget } = await bootstrap())
-    const backgroundPage = await backgroundTarget.page()
+    ;({ browser, page, recorder, extensionURL, backgroundPage } = await bootstrap('ba_login'))
     // Bypass the invite verification step
     await backgroundPage.evaluate(
-      (invite) => chrome.storage.local.set({ invite }),
+      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
       JSON.stringify(INVITE_STORAGE_ITEM)
     )
 
-    page = await browser.newPage()
-    page.setDefaultTimeout(120000)
-
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
-    await page.goto(`chrome-extension://${extensionId}/tab.html#/get-started`)
-    await page.bringToFront()
+    await page.goto(`${extensionURL}/tab.html#/get-started`)
   })
 
   afterEach(async () => {
@@ -68,7 +59,7 @@ describe('ba_login', () => {
       { timeout: 60000 }
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Wait for account addresses to load
     await new Promise((r) => {
@@ -91,7 +82,7 @@ describe('ba_login', () => {
 
   //------------------------------------------------------------------------------------------------------
   it('create basic account with phrase', async () => {
-    await createAccountWithPhrase(page, extensionRootUrl, process.env.BA_PASSPHRASE)
+    await createAccountWithPhrase(page, extensionURL, process.env.BA_PASSPHRASE)
   })
 
   //------------------------------------------------------------------------------------------------------
@@ -180,7 +171,7 @@ describe('ba_login', () => {
       { timeout: 60000 }
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
@@ -198,6 +189,6 @@ describe('ba_login', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('add view-only basic account', async () => {
-    await addViewOnlyAccount(page, extensionRootUrl, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
+    await addViewOnlyAccount(page, extensionURL, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
   })
 })
