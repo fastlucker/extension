@@ -10,16 +10,13 @@ const findAccountDomainFromPartialDomain = (
   search: string,
   domains: DomainsController['domains']
 ) => {
-  const allDomains = Object.values(domains).map((domain) => domain.ens || domain.ud)
-  const matchingDomains = allDomains.filter((domain) =>
-    domain?.toLowerCase().includes(search.toLowerCase())
-  )
+  const lowercaseSearch = search.toLowerCase()
+  const domainsEntry = domains[address]
 
-  const doesDomainMatch = matchingDomains.some(
-    (domain) => domains[address]?.ens === domain || domains[address]?.ud === domain
+  return (
+    domainsEntry?.ens?.toLowerCase().includes(lowercaseSearch) ||
+    domainsEntry?.ud?.toLowerCase().includes(lowercaseSearch)
   )
-
-  return doesDomainMatch
 }
 
 export { getAddressFromAddressState, findAccountDomainFromPartialDomain }
