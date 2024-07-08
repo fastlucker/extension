@@ -241,7 +241,7 @@ const SignMessageScreen = () => {
     closeHwModal()
   }, [signMessageState.signingKeyType, signMessageState.status, openHwModal, closeHwModal])
 
-  if (!Object.keys(signMessageState).length) {
+  if (!Object.keys(signMessageState).length || !signMessageState.isInitialized) {
     return (
       <View style={[StyleSheet.absoluteFill, flexbox.center]}>
         <Spinner />
