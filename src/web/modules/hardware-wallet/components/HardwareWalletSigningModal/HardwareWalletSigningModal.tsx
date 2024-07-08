@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { View } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { ExternalKey } from '@ambire-common/interfaces/keystore'
 import AmbireDevice from '@common/assets/svg/AmbireDevice'
@@ -19,8 +20,9 @@ import flexbox from '@common/styles/utils/flexbox'
 import { HARDWARE_WALLET_DEVICE_NAMES } from '../../constants/names'
 
 type Props = {
-  modalRef: any
   keyType: ExternalKey['type']
+  shouldOpen: boolean
+  shouldClose: boolean
 }
 
 const iconByKeyType = {
@@ -29,8 +31,17 @@ const iconByKeyType = {
   lattice: LatticeMiniIcon
 }
 
-const HardwareWalletSigningModal = ({ modalRef, keyType }: Props) => {
+const HardwareWalletSigningModal = ({ keyType, shouldOpen, shouldClose }: Props) => {
   const { t } = useTranslation()
+  const { ref, open, close } = useModalize()
+
+  useEffect(() => {
+    if (shouldClose) close()
+  }, [close, shouldClose])
+
+  useEffect(() => {
+    if (shouldOpen) open()
+  }, [open, shouldOpen])
 
   const titleSuffix = useMemo(() => {
     const Icon = keyType && iconByKeyType[keyType as keyof typeof iconByKeyType]
@@ -44,8 +55,9 @@ const HardwareWalletSigningModal = ({ modalRef, keyType }: Props) => {
       id="hardware-wallet-signing-modal"
       backgroundColor="primaryBackground"
       autoWidth
-      sheetRef={modalRef}
+      sheetRef={ref}
       shouldBeClosableOnDrag={false}
+      autoOpen={shouldOpen}
     >
       <ModalHeader
         title={t('Sign with your {{deviceName}} device', {

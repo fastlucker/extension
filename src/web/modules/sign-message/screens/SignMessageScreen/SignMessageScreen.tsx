@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -43,7 +42,6 @@ const SignMessageScreen = () => {
   const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
 
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const [shouldShowFallback, setShouldShowFallback] = useState(false)
@@ -172,19 +170,6 @@ const SignMessageScreen = () => {
     })
   }
 
-  useEffect(() => {
-    if (
-      signMessageState.signingKeyType &&
-      signMessageState.signingKeyType !== 'internal' &&
-      signStatus === 'LOADING'
-    ) {
-      openHwModal()
-      return
-    }
-
-    closeHwModal()
-  }, [signMessageState.signingKeyType, signStatus, openHwModal, closeHwModal])
-
   const handleSign = useCallback(
     (chosenSigningKeyAddr?: Key['addr'], chosenSigningKeyType?: Key['type']) => {
       // Has more than one key, should first choose the key to sign with
@@ -266,10 +251,11 @@ const SignMessageScreen = () => {
               }}
             />
           )}
-          {!!signMessageState.signingKeyType && (
+          {signMessageState.signingKeyType && signMessageState.signingKeyType !== 'internal' && (
             <HardwareWalletSigningModal
-              modalRef={hwModalRef}
               keyType={signMessageState.signingKeyType}
+              shouldOpen={signStatus === 'LOADING'}
+              shouldClose={signStatus !== 'LOADING'}
             />
           )}
         </View>
