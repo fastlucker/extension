@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useDomainsControllerState from '@web/hooks/useDomainsController/useDomainsController'
 
@@ -21,10 +22,7 @@ const useAccounts = () => {
         if (!search) return true
 
         const doesAddressMatch = account.addr.toLowerCase().includes(search.toLowerCase())
-        const allDomains = Object.values(domains).map((domain) => domain.ens || domain.ud)
-        const matchingDomains = allDomains.filter((domain) =>
-          domain?.toLowerCase().includes(search.toLowerCase())
-        )
+        const doesDomainMatch = findAccountDomainFromPartialDomain(account.addr, search, domains)
         const doesLabelMatch = account.preferences.label
           .toLowerCase()
           .includes(search.toLowerCase())
@@ -33,9 +31,6 @@ const useAccounts = () => {
           isSmartAccount && 'smart account'.includes(search.toLowerCase())
         const doesBasicAccountMatch =
           !isSmartAccount && 'basic account'.includes(search.toLowerCase())
-        const doesDomainMatch = matchingDomains.some(
-          (domain) => domains[account.addr]?.ens === domain || domains[account.addr]?.ud === domain
-        )
 
         return (
           doesAddressMatch ||
