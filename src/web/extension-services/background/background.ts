@@ -777,13 +777,18 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
-                return mainCtrl.initSignMessage(params)
+              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
+                if (mainCtrl.signMessage.isInitialized) return
+
+                return mainCtrl.signMessage.init(params)
+              }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
-                return mainCtrl.resetSignMessage()
+                if (!mainCtrl.signMessage.isInitialized) return
+
+                return mainCtrl.signMessage.reset()
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return await mainCtrl.signMessage.sign()
+                return await mainCtrl.signMessageSign()
               }
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
