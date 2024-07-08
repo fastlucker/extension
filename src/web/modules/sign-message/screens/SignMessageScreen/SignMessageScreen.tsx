@@ -10,7 +10,6 @@ import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRe
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
-import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -39,7 +38,7 @@ const SignMessageScreen = () => {
   const signStatus = signMessageState.statuses.sign
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const keystoreState = useKeystoreControllerState()
-  const { accounts, selectedAccount, accountStates } = useAccountsControllerState()
+  const { accounts, selectedAccount } = useAccountsControllerState()
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
 
@@ -134,12 +133,10 @@ const SignMessageScreen = () => {
           content: userRequest.action as PlainTextMessage | TypedMessage,
           fromActionId: signMessageAction.id,
           signature: null
-        },
-        accounts,
-        accountStates
+        }
       }
     })
-  }, [dispatch, networks, userRequest, signMessageAction, selectedAccount, accounts, accountStates])
+  }, [dispatch, userRequest, signMessageAction])
 
   useEffect(() => {
     if (!getUiType().isActionWindow) return

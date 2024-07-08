@@ -165,8 +165,6 @@ type MainControllerSignMessageInitAction = {
       icon: string
     }
     messageToSign: Message
-    accounts: Account[]
-    accountStates: AccountStates
   }
 }
 type MainControllerSignMessageResetAction = {
