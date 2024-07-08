@@ -11,8 +11,8 @@ import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import Avatar from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
+import AccountOption from '@common/components/Option/AccountOption'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
@@ -29,7 +29,6 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import shortenAddress from '@web/utils/shortenAddress'
 
 const ITEMS_PER_PAGE = 10
 
@@ -69,29 +68,7 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const accountsOptions: SelectValue[] = useMemo(() => {
     return accounts.map((acc) => ({
       value: acc.addr,
-      label: (
-        <View>
-          <Text
-            fontSize={14}
-            weight="medium"
-            style={{
-              lineHeight: 20
-            }}
-          >
-            {acc.preferences.label}
-          </Text>
-          <Text
-            fontSize={12}
-            appearance="secondaryText"
-            style={{
-              lineHeight: 12
-            }}
-          >
-            {shortenAddress(acc.addr, 32)}
-          </Text>
-        </View>
-      ),
-      icon: <Avatar pfp={acc.preferences.pfp} size={32} style={spacings.pr0} />
+      label: <AccountOption acc={acc} />
     }))
   }, [accounts])
 
