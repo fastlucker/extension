@@ -33,6 +33,7 @@ const ActionFooter = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
 
+  // Wrapped on purpose, because the `onResolve` should be called without any arguments
   const handleOnResolve = useCallback(() => onResolve(), [onResolve])
 
   return (
