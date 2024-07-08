@@ -1,28 +1,26 @@
-import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { bootstrap, clickOnElement } from './functions.js'
 
 describe('Invite Verification', () => {
   let browser
   let page
-  let extensionId
+  let extensionURL
   let recorder
+  let backgroundPage
 
   // TODO: Same logic as the one found in the ba_login.test.js and
   // sa_login.test.js, consider refactoring (so it's DRY).
   beforeEach(async () => {
-    const context = await bootstrap()
+    const context = await bootstrap('invite')
     browser = context.browser
-    extensionId = context.extensionId
+    page = context.page
+    extensionURL = context.extensionURL
+    backgroundPage = context.backgroundPage
+    recorder = context.recorder
 
-    page = await browser.newPage()
-    page.setDefaultTimeout(120000)
+    await backgroundPage.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
 
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/invite_${Date.now()}.mp4`)
-
-    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
+    const getStartedPage = `${extensionURL}/tab.html#/get-started`
     await page.goto(getStartedPage)
-    await page.bringToFront()
     await page.waitForFunction(() => window.location.href.includes('/invite-verify'))
   })
 
