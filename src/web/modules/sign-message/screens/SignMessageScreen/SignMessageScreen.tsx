@@ -180,7 +180,7 @@ const SignMessageScreen = () => {
       const keyType = chosenSigningKeyType || selectedAccountKeyStoreKeys[0].type
 
       dispatch({
-        type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN',
+        type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE',
         params: { keyAddr, keyType }
       })
     },
