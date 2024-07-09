@@ -20,7 +20,7 @@ let page
 let extensionRootUrl
 let recorder
 
-describe('sa_transactions', () => {
+describe('sa_features', () => {
   beforeEach(async () => {
     const context = await bootstrapWithStorage('sa_transactions', saParams)
 
@@ -56,17 +56,13 @@ describe('sa_transactions', () => {
 
     // Click on "Top Up" button and confirm transaction
 
-    let newPage = await triggerTransaction(
+    const newPage = await triggerTransaction(
       page,
       browser,
       extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
     await new Promise((r) => setTimeout(r, 2000))
-
-    // Check if "sign-message" window is open
-    const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
-    newPage = result.newPage
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
@@ -152,17 +148,13 @@ describe('sa_transactions', () => {
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    let newPage = await triggerTransaction(
+    const newPage = await triggerTransaction(
       page,
       browser,
       extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
     await new Promise((r) => setTimeout(r, 2000))
-
-    // Check if "sign-message" window is open
-    const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
-    newPage = result.newPage
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
@@ -352,7 +344,7 @@ describe('sa_transactions', () => {
     if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    let newPage = await triggerTransaction(
+    const newPage = await triggerTransaction(
       page,
       browser,
       extensionRootUrl,
@@ -360,9 +352,9 @@ describe('sa_transactions', () => {
     )
     await new Promise((r) => setTimeout(r, 2000))
 
-    // Check if "sign-message" window is open
-    const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
-    newPage = result.newPage
+    // // Check if "sign-message" window is open
+    // const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
+    // newPage = result.newPage
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
