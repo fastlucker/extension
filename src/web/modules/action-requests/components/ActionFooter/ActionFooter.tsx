@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -33,6 +33,9 @@ const ActionFooter = ({
   const { t } = useTranslation()
   const { theme } = useTheme()
 
+  // Wrapped on purpose, because the `onResolve` should be called without any arguments
+  const handleOnResolve = useCallback(() => onResolve(), [onResolve])
+
   return (
     <>
       <View style={flexbox.flex1}>
@@ -57,7 +60,7 @@ const ActionFooter = ({
           style={{ ...spacings.phLg, ...flexbox.alignSelfEnd }}
           size="large"
           hasBottomSpacing={false}
-          onPress={onResolve}
+          onPress={handleOnResolve}
           disabled={resolveDisabled}
           text={resolveButtonText}
         />
