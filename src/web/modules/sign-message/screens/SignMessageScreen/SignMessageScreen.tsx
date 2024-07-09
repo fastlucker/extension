@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
@@ -10,6 +10,7 @@ import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRe
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
+import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
@@ -185,6 +186,17 @@ const SignMessageScreen = () => {
     },
     [dispatch, selectedAccountKeyStoreKeys]
   )
+
+  // In the split second when the action window opens, but the state is not yet
+  // initialized, to prevent a flash of the fallback visualization, show a
+  // loading spinner instead (would better be a skeleton, but whatever).
+  if (!signMessageState.isInitialized) {
+    return (
+      <View style={[StyleSheet.absoluteFill, flexbox.center]}>
+        <Spinner />
+      </View>
+    )
+  }
 
   return (
     <TabLayoutContainer

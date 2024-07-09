@@ -2,12 +2,14 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 
 import { PortfolioController } from '@ambire-common/controllers/portfolio/portfolio'
 import { NetworkId } from '@ambire-common/interfaces/network'
+import { UserRequest } from '@ambire-common/interfaces/userRequest'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import {
   CollectionResult as CollectionResultInterface,
   TokenResult as TokenResultInterface
 } from '@ambire-common/libs/portfolio/interfaces'
 import { calculateAccountPortfolio } from '@ambire-common/libs/portfolio/portfolioView'
+import { buildClaimWalletRequest } from '@ambire-common/libs/transfer/userRequest'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
@@ -34,6 +36,7 @@ const PortfolioControllerStateContext = createContext<{
   updateTokenPreferences: (token: CustomToken) => void
   removeTokenPreferences: (token: CustomToken) => void
   checkToken: ({ address, networkId }: { address: String; networkId: NetworkId }) => void
+  claimWalletRewards: (token: TokenResultInterface) => void
   resetAccountPortfolioLocalState: () => void
 }>({
   accountPortfolio: DEFAULT_ACCOUNT_PORTFOLIO,
@@ -43,6 +46,7 @@ const PortfolioControllerStateContext = createContext<{
   updateTokenPreferences: () => {},
   removeTokenPreferences: () => {},
   checkToken: () => {},
+  claimWalletRewards: () => {},
   resetAccountPortfolioLocalState: () => {}
 })
 
@@ -158,6 +162,26 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
     [dispatch]
   )
 
+  const claimWalletRewards = useCallback(
+    (token: TokenResultInterface) => {
+      if (!accountsState.selectedAccount || !account) return
+
+      const claimableRewardsData =
+        state.latest[accountsState.selectedAccount].rewards?.result?.claimableRewardsData
+
+      if (!claimableRewardsData) return
+      const userRequest: UserRequest = buildClaimWalletRequest({
+        selectedAccount: accountsState.selectedAccount,
+        selectedToken: token,
+        claimableRewardsData
+      })
+      dispatch({
+        type: 'MAIN_CONTROLLER_ADD_USER_REQUEST',
+        params: userRequest
+      })
+    },
+    [dispatch, account, accountsState.selectedAccount, state.latest]
+  )
   return (
     <PortfolioControllerStateContext.Provider
       value={useMemo(
@@ -169,6 +193,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens,
+          claimWalletRewards,
           resetAccountPortfolioLocalState
         }),
         [
@@ -179,6 +204,7 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
           removeTokenPreferences,
           checkToken,
           getTemporaryTokens,
+          claimWalletRewards,
           resetAccountPortfolioLocalState
         ]
       )}
