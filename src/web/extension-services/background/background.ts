@@ -33,7 +33,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
-import { sendSigningSuccessBrowserNotification } from '@web/extension-services/background/webapi/notification'
+import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -172,9 +172,15 @@ function stateDebug(event: string, stateToLog: object) {
       }
     },
     onSignSuccess: (type) => {
+      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
+        message: 'Message was successfully signed',
+        'typed-data': 'TypedData was successfully signed',
+        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
+      }
       // Don't await this on purpose (fire and forget), errors get cough in the function
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      sendSigningSuccessBrowserNotification(type)
+      sendBrowserNotification(messages[type])
+
       setAccountStateInterval(backgroundState.accountStateIntervals.pending)
     }
   })
