@@ -33,6 +33,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
+import { sendSigningSuccessBrowserNotification } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -170,8 +171,10 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
-      notifyForSuccessfulBroadcast(type)
+    onSignSuccess: (type) => {
+      // Don't await this on purpose (fire and forget), errors get cough in the function
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendSigningSuccessBrowserNotification(type)
       setAccountStateInterval(backgroundState.accountStateIntervals.pending)
     }
   })
@@ -1137,32 +1140,6 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
-
-// Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
-  let message = ''
-  if (type === 'message') {
-    message = 'Message was successfully signed'
-  }
-  if (type === 'typed-data') {
-    message = 'TypedData was successfully signed'
-  }
-  if (type === 'account-op') {
-    message = 'Your transaction was successfully signed and broadcasted to the network'
-  }
-
-  // service_worker (mv3) - without await the notification doesn't show
-  try {
-    await browser.notifications.create(nanoid(), {
-      type: 'basic',
-      iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
-      title: 'Successfully signed',
-      message
-    })
-  } catch (err) {
-    console.warn(`Failed to register browser notification: ${err}`)
-  }
-}
 
 /*
  * This content script is injected programmatically because
