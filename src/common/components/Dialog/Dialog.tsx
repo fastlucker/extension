@@ -1,79 +1,38 @@
 import React, { FC } from 'react'
-import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
 
 import BottomSheet from '@common/components/BottomSheet'
-import Button, { Props as ButtonProps } from '@common/components/Button'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 
 interface Props {
   id: string
   dialogRef: any
-  handleClose: () => void
-  handleConfirm: () => void
   title: string
   text: string
-  closeButtonText?: string
-  confirmButtonText?: string
-  closeButtonProps?: ButtonProps
-  confirmButtonProps?: ButtonProps
+  closeDialog: () => void
+  children: React.ReactNode | React.ReactNode[]
 }
 
-const Dialog: FC<Props> = ({
-  id,
-  dialogRef,
-  handleClose,
-  handleConfirm,
-  title,
-  text,
-  closeButtonText,
-  confirmButtonText,
-  closeButtonProps = {},
-  confirmButtonProps = {}
-}) => {
-  const { t } = useTranslation()
-
+const Dialog: FC<Props> = ({ id, dialogRef, closeDialog, title, text, children }) => {
   return (
     <BottomSheet
       id={id}
       sheetRef={dialogRef}
-      closeBottomSheet={handleClose}
+      closeBottomSheet={closeDialog}
       type="modal"
       style={{
         overflow: 'hidden',
-        width: 640
+        width: 512
       }}
       backgroundColor="primaryBackground"
     >
-      <Text fontSize={20} weight="medium" style={spacings.mbSm}>
+      <Text fontSize={18} weight="semiBold" style={spacings.mbMi}>
         {title}
       </Text>
-      <Text fontSize={16} style={spacings.mbXl}>
+      <Text fontSize={14} style={spacings.mb}>
         {text}
       </Text>
-      <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifySpaceBetween]}>
-        <Button
-          hasBottomSpacing={false}
-          type="secondary"
-          text={closeButtonText || t('Close')}
-          onPress={handleClose}
-          style={{
-            minWidth: 164
-          }}
-          {...closeButtonProps}
-        />
-        <Button
-          style={{
-            minWidth: 240
-          }}
-          hasBottomSpacing={false}
-          text={confirmButtonText || t('Confirm')}
-          onPress={handleConfirm}
-          {...confirmButtonProps}
-        />
-      </View>
+      {children}
     </BottomSheet>
   )
 }

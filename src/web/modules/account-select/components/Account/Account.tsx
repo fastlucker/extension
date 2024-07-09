@@ -8,6 +8,8 @@ import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
 import Avatar from '@common/components/Avatar'
 import Dialog from '@common/components/Dialog'
+import DialogButton from '@common/components/Dialog/DialogButton'
+import DialogFooter from '@common/components/Dialog/DialogFooter'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -135,19 +137,16 @@ const Account = ({
       </Animated.View>
       <Dialog
         dialogRef={dialogRef}
-        id="delete-account"
-        title={t('Delete Account')}
-        text={t('Are you sure you want to delete this account?')}
-        handleClose={closeDialog}
-        handleConfirm={removeAccount}
-        confirmButtonText={t('Delete')}
-        closeButtonProps={{
-          type: 'primary'
-        }}
-        confirmButtonProps={{
-          type: 'danger'
-        }}
-      />
+        id="remove-account"
+        title={t('Remove Account')}
+        text={t('Are you sure you want to remove this account?')}
+        closeDialog={closeDialog}
+      >
+        <DialogFooter>
+          <DialogButton text={t('Remove')} type="danger" onPress={removeAccount} />
+          <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
+        </DialogFooter>
+      </Dialog>
     </Pressable>
   )
 }
