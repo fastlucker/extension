@@ -59,7 +59,7 @@ const TokenDetails = ({
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTank = token?.flags.onGasTank
+  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
   const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
@@ -73,7 +73,7 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank || isAmountZero,
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5,
         testID: 'token-send'
       },
@@ -108,7 +108,7 @@ const TokenDetails = ({
 
           await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -171,7 +171,7 @@ const TokenDetails = ({
             )
           }
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -209,7 +209,7 @@ const TokenDetails = ({
     ],
     [
       t,
-      isGasTank,
+      isGasTankOrRewardsToken,
       isGasTankFeeToken,
       hasTokenInfo,
       navigate,

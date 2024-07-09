@@ -11,10 +11,10 @@ import {
 describe('sa_transactions', () => {
   let browser
   let page
-  let extensionRootUrl
+  let extensionURL
   let recorder
   beforeEach(async () => {
-    ;({ browser, page, extensionRootUrl, recorder } = await bootstrapWithStorage(
+    ;({ browser, page, extensionURL, recorder } = await bootstrapWithStorage(
       'sa_transactions',
       saParams
     ))
@@ -27,25 +27,25 @@ describe('sa_transactions', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
-    await makeValidTransaction(page, extensionRootUrl, browser)
+    await makeValidTransaction(page, extensionURL, browser)
   })
 
   // skip the test because Uniswap is temp broken on Polygon
   it.skip('Make valid swap ', async () => {
-    await makeSwap(page, extensionRootUrl, browser)
+    await makeSwap(page, extensionURL, browser)
   })
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send MATIC tokens greater than the available balance ', async () => {
-    await sendFundsGreaterThanBalance(page, extensionRootUrl)
+    await sendFundsGreaterThanBalance(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('(-) Send MATIC tokens to smart contract ', async () => {
-    await sendFundsToSmartContract(page, extensionRootUrl)
+    await sendFundsToSmartContract(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Sign message', async () => {
-    await signMessage(page, extensionRootUrl, browser, process.env.SA_SELECTED_ACCOUNT)
+    await signMessage(page, extensionURL, browser, process.env.SA_SELECTED_ACCOUNT)
   })
 })
