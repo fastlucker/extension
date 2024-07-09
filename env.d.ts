@@ -64,4 +64,12 @@ declare module '@env' {
    * Unlimited-use invitation code for the app, for easy access during development
    */
   export const DEFAULT_INVITATION_CODE_DEV: EnvTypes['DEFAULT_INVITATION_CODE_DEV']
+
+  /**
+   * Are we running the E2E tests?
+   * The accepted value is 'true'.
+   * Note that we don't have a dedicated testing environment (APP_ENV).
+   * E2E tests can be run against both DEV and PROD environments.
+   */
+  export const IS_TESTING: string
 }
