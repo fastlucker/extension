@@ -30,6 +30,12 @@ Run `export DISPLAY=:0`.
 2. Replace the placeholder test file with your desired test file.4
 3. Run the command.
 
+## Log and debug controllers' state in CI
+1. Add `E2E_DEBUG='true'` in the `.env` file locally or the CI environment.
+
+### Important:
+Keep in mind that the logs can get quite large, as we log the controllers' state on every single update. Therefore, when debugging, it's recommended to run it for a single test. Most likely, you're debugging one or two failing tests, so this is the best option. If you need it for multiple or all tests, once the GitHub Action completes, it's better to download the raw log files as they are large and the GitHub UI gets really slow.
+
 
 ## Puppeteer gotchas
 Here are some important points to keep in mind when working with Puppeteer:
