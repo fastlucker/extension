@@ -30,8 +30,8 @@ describe('sa_transactions', () => {
     await makeValidTransaction(page, extensionRootUrl, browser)
   })
 
-  // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
-  it('Make valid swap ', async () => {
+  // skip the test because Uniswap is temp broken on Polygon
+  it.skip('Make valid swap ', async () => {
     await makeSwap(page, extensionRootUrl, browser)
   })
   //--------------------------------------------------------------------------------------------------------------

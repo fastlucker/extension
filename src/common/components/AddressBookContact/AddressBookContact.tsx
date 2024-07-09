@@ -3,22 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { View, ViewStyle } from 'react-native'
 import { TooltipRefProps } from 'react-tooltip'
 
-import EnsCircularIcon from '@common/assets/svg/EnsCircularIcon'
-import UnstoppableDomainCircularIcon from '@common/assets/svg/UnstoppableDomainCircularIcon'
-import { Avatar } from '@common/components/Avatar'
+import Avatar from '@common/components/Avatar'
 import Editable from '@common/components/Editable'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
 import useReverseLookup from '@common/hooks/useReverseLookup'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import spacings, { SPACING_MI } from '@common/styles/spacings'
+import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
 
-import Address from './AddressBookContactAddress'
+import AccountAddress from '../AccountAddress'
 import ManageContact from './ManageContact'
 
 interface Props {
@@ -104,25 +102,7 @@ const AddressBookContact: FC<Props> = ({
       testID={testID}
     >
       <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-        <View>
-          {ens || ud ? (
-            <View
-              style={{
-                position: 'absolute',
-                left: -SPACING_MI,
-                top: -SPACING_MI,
-                padding: SPACING_MI / 2,
-                backgroundColor: theme.primaryBackground,
-                zIndex: 2,
-                borderRadius: 50
-              }}
-            >
-              {ens && <EnsCircularIcon />}
-              {ud && !ens && <UnstoppableDomainCircularIcon />}
-            </View>
-          ) : null}
-          <Avatar pfp={address} size={32} />
-        </View>
+        <Avatar ens={ens} ud={ud} pfp={address} size={32} />
         <View>
           {isEditable ? (
             <Editable
@@ -141,29 +121,7 @@ const AddressBookContact: FC<Props> = ({
               {name}
             </Text>
           )}
-          {isLoading ? (
-            <View
-              style={{
-                ...common.borderRadiusPrimary,
-                backgroundColor: theme.secondaryBackground,
-                width: 200,
-                height: 20
-              }}
-            />
-          ) : (
-            <View style={{ height: 20 }}>
-              {ens || ud ? (
-                <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  <Text fontSize={12} weight="semiBold" appearance="primary">
-                    {ens || ud}
-                  </Text>
-                  <Address maxLength={13} address={address} style={spacings.mlMi} />
-                </View>
-              ) : (
-                <Address maxLength={32} address={address} hideParentheses />
-              )}
-            </View>
-          )}
+          <AccountAddress isLoading={isLoading} ens={ens} ud={ud} address={address} />
         </View>
       </View>
       {isManageable ? (

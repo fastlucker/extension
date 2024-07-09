@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React from 'react'
+import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import CopyIcon from '@common/assets/svg/CopyIcon'
@@ -11,17 +11,14 @@ import flexbox from '@common/styles/utils/flexbox'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import shortenAddress from '@web/utils/shortenAddress'
 
-const AddressBookContactAddress = ({
-  maxLength,
-  address,
-  style,
-  hideParentheses
-}: {
+interface Props {
   maxLength: number
   address: string
   style?: any
   hideParentheses?: boolean
-}) => {
+}
+
+const PlainAddress: FC<Props> = ({ maxLength, address, style, hideParentheses }) => {
   const { t } = useTranslation()
   const { addToast } = useToast()
   const { theme } = useTheme()
@@ -54,4 +51,4 @@ const AddressBookContactAddress = ({
   )
 }
 
-export default AddressBookContactAddress
+export default PlainAddress
