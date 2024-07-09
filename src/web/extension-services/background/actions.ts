@@ -462,6 +462,7 @@ export type Action =
   | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
+  | MainControllerBuildClaimWalletUserRequest
   | MainControllerRemoveUserRequestAction
   | MainControllerResolveUserRequestAction
   | MainControllerRejectUserRequestAction
