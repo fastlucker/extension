@@ -780,6 +780,9 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
+                return mainCtrl.removeAccount(params.accountAddr)
+              }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,

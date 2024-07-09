@@ -82,6 +82,12 @@ type MainControllerAddSeedPhraseAccounts = {
     seed: string
   }
 }
+type MainControllerRemoveAccount = {
+  type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
+  params: {
+    accountAddr: Account['addr']
+  }
+}
 type MainControllerAccountAdderResetIfNeeded = {
   type: 'MAIN_CONTROLLER_ACCOUNT_ADDER_RESET_IF_NEEDED'
 }
@@ -453,6 +459,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | MainControllerAddSeedPhraseAccounts
+  | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
