@@ -1,56 +1,32 @@
-import * as Clipboard from 'expo-clipboard'
 import React, { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Animated, Pressable, View } from 'react-native'
 
 import BurgerIcon from '@common/assets/svg/BurgerIcon'
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import MaximizeIcon from '@common/assets/svg/MaximizeIcon'
-import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
-import ViewOnlyIconFilled from '@common/assets/svg/ViewOnlyIconFilled'
-import AccountKeysButton from '@common/components/AccountKeysButton'
-import { Avatar } from '@common/components/Avatar'
-import Text from '@common/components/Text'
 import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
-import useToast from '@common/hooks/useToast'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexboxStyles from '@common/styles/utils/flexbox'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
-import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
-import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useHover from '@web/hooks/useHover'
 import commonWebStyles from '@web/styles/utils/common'
-import shortenAddress from '@web/utils/shortenAddress'
 import { getUiType } from '@web/utils/uiType'
 
-import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
+import AccountButton from './AccountButton'
 import getStyles from './styles'
 
 const { isPopup } = getUiType()
 
 const DashboardHeader = () => {
-  const { t } = useTranslation()
-  const { addToast } = useToast()
   const accountsState = useAccountsControllerState()
-  const keystoreState = useKeystoreControllerState()
 
   const selectedAccountData = useMemo(
     () => accountsState.accounts.find((a) => a.addr === accountsState.selectedAccount),
     [accountsState.accounts, accountsState.selectedAccount]
   )
 
-  const [bindAddressAnim, addressAnimStyle] = useHover({
-    preset: 'opacity'
-  })
-  const [bindAccountBtnAnim, accountBtnAnimStyle, isAccountBtnHovered] = useCustomHover({
-    property: 'left',
-    values: {
-      from: 0,
-      to: 4
-    }
-  })
   const [bindBurgerAnim, burgerAnimStyle] = useHover({
     preset: 'opacity'
   })
@@ -60,22 +36,6 @@ const DashboardHeader = () => {
 
   const { navigate } = useNavigation()
   const { theme, styles } = useTheme(getStyles)
-
-  const isViewOnly = keystoreState.keys.every(
-    (k) => !selectedAccountData?.associatedKeys.includes(k.addr)
-  )
-
-  const handleCopyText = async () => {
-    try {
-      await Clipboard.setStringAsync(accountsState.selectedAccount!)
-      addToast(t('Copied address to clipboard!') as string, { timeout: 2500 })
-    } catch {
-      addToast(t('Failed to copy address to clipboard!') as string, {
-        timeout: 2500,
-        type: 'error'
-      })
-    }
-  }
 
   if (!selectedAccountData) return null
 
@@ -91,80 +51,7 @@ const DashboardHeader = () => {
       <View
         style={[flexboxStyles.directionRow, flexboxStyles.flex1, flexboxStyles.justifySpaceBetween]}
       >
-        <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
-          <AnimatedPressable
-            style={[
-              styles.accountButton,
-              {
-                backgroundColor: isAccountBtnHovered
-                  ? NEUTRAL_BACKGROUND_HOVERED
-                  : NEUTRAL_BACKGROUND_HOVERED
-              }
-            ]}
-            onPress={() => navigate(WEB_ROUTES.accountSelect)}
-            {...bindAccountBtnAnim}
-          >
-            <>
-              <View style={styles.accountButtonInfo}>
-                <View>
-                  <Avatar pfp={selectedAccountData.preferences.pfp} size={32} />
-                  {isViewOnly && (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        right: 2,
-                        top: -2,
-                        backgroundColor: theme.primaryBackground,
-                        padding: 2,
-                        borderRadius: 50
-                      }}
-                    >
-                      <ViewOnlyIconFilled
-                        width={14}
-                        height={14}
-                        strokeWidth={4}
-                        color={theme.infoDecorative}
-                      />
-                    </View>
-                  )}
-                </View>
-                <Text
-                  numberOfLines={1}
-                  weight="semiBold"
-                  style={[spacings.mlTy, spacings.mrLg]}
-                  color={theme.primaryBackground}
-                  fontSize={14}
-                >
-                  {selectedAccountData.preferences.label}
-                </Text>
-                <AccountKeysButton />
-              </View>
-              <Animated.View style={accountBtnAnimStyle}>
-                <RightArrowIcon
-                  style={styles.accountButtonRightIcon}
-                  width={12}
-                  color={theme.primaryBackground}
-                />
-              </Animated.View>
-            </>
-          </AnimatedPressable>
-          <AnimatedPressable
-            style={[flexboxStyles.directionRow, flexboxStyles.alignCenter, addressAnimStyle]}
-            onPress={handleCopyText}
-            {...bindAddressAnim}
-          >
-            <Text
-              color={theme.primaryBackground}
-              style={spacings.mrMi}
-              weight="medium"
-              fontSize={14}
-            >
-              ({shortenAddress(accountsState.selectedAccount!, 13)})
-            </Text>
-            <CopyIcon width={20} height={20} color={theme.primaryBackground} />
-          </AnimatedPressable>
-        </View>
-
+        <AccountButton />
         <View style={styles.maximizeAndMenu}>
           {!!isPopup && (
             <Pressable

@@ -37,7 +37,7 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   const { addToast } = useToast()
   const { accounts } = useAccountsControllerState()
   const settingsState = useSettingsControllerState()
-  const networksState = useNetworksControllerState()
+  const { networks } = useNetworksControllerState()
   const keystoreState = useKeystoreControllerState()
   const { t } = useTranslation()
 
@@ -48,8 +48,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
   )
 
   const network = useMemo(
-    () => networksState.networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
-    [networksState.networks, submittedAccountOp.networkId]
+    () => networks.filter((n) => n.id === submittedAccountOp.networkId)[0],
+    [networks, submittedAccountOp.networkId]
   )
 
   useEffect(() => {
@@ -165,51 +165,70 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           rightIcon={
             index === 0 &&
             (!submittedAccountOp.status ||
-              submittedAccountOp.status !== AccountOpStatus.Rejected) ? (
+              (submittedAccountOp.status !== AccountOpStatus.Rejected &&
+                submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck)) ? (
               <OpenIcon />
             ) : null
           }
           onRightIconPress={handleOpenExplorer}
           isHistory
+          networks={networks}
         />
       ))}
-      {submittedAccountOp.status !== AccountOpStatus.Rejected && (
+      {submittedAccountOp.status !== AccountOpStatus.Rejected &&
+        submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck && (
+          <View style={styles.footer}>
+            {submittedAccountOp.status === AccountOpStatus.Failure && (
+              <View style={styles.footerItem}>
+                <Text fontSize={14} appearance="errorText" weight="semiBold">
+                  {t('Failed')}
+                </Text>
+              </View>
+            )}
+            <View style={styles.footerItem}>
+              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+                {t('Fee')}:{' '}
+              </Text>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+                {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
+              </Text>
+            </View>
+            <View style={styles.footerItem}>
+              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+                {t('Submitted on')}:{' '}
+              </Text>
+              {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
+                <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+                  {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
+                    submittedAccountOp.timestamp
+                  ).toLocaleTimeString()})`}
+                </Text>
+              )}
+            </View>
+            <View style={styles.footerItem}>
+              <Text fontSize={14} appearance="secondaryText" weight="semiBold">
+                {t('Block Explorer')}:{' '}
+              </Text>
+              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
+                {new URL(network.explorerUrl).hostname}
+              </Text>
+            </View>
+          </View>
+        )}
+      {submittedAccountOp.status === AccountOpStatus.Rejected && (
         <View style={styles.footer}>
           <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-              {t('Fee')}:{' '}
-            </Text>
-            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-              {feeFormattedValue || <SkeletonLoader width={80} height={21} />}
-            </Text>
-          </View>
-          <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-              {t('Submitted on')}:{' '}
-            </Text>
-            {new Date(submittedAccountOp.timestamp).toString() !== 'Invalid Date' && (
-              <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-                {`${new Date(submittedAccountOp.timestamp).toLocaleDateString()} (${new Date(
-                  submittedAccountOp.timestamp
-                ).toLocaleTimeString()})`}
-              </Text>
-            )}
-          </View>
-          <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="secondaryText" weight="semiBold">
-              {t('Block Explorer')}:{' '}
-            </Text>
-            <Text fontSize={14} appearance="secondaryText" style={spacings.mrTy}>
-              {new URL(network.explorerUrl).hostname}
+            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+              Failed to send
             </Text>
           </View>
         </View>
       )}
-      {submittedAccountOp.status === AccountOpStatus.Rejected && (
+      {submittedAccountOp.status === AccountOpStatus.BroadcastButStuck && (
         <View style={styles.footer}>
           <View style={styles.footerItem}>
-            <Text fontSize={14} appearance="errorText" style={spacings.mrTy}>
-              Failed to send
+            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+              Dropped or stuck in mempool with fee too low
             </Text>
           </View>
         </View>

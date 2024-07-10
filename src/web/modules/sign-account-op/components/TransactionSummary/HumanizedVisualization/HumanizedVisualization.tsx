@@ -1,19 +1,19 @@
 import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { Linking, Pressable, View } from 'react-native'
 
-import { networks as constantNetworks } from '@ambire-common/consts/networks'
-import { NetworkId } from '@ambire-common/interfaces/network'
+import { Network, NetworkId } from '@ambire-common/interfaces/network'
 import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
+import InfoIcon from '@common/assets/svg/InfoIcon'
 import Address from '@common/components/Address'
 import Collectible from '@common/components/Collectible'
+import NetworkIcon from '@common/components/NetworkIcon'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import spacings, { SPACING_SM, SPACING_TY } from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import DeadlineItem from './DeadlineItem'
 
@@ -24,6 +24,7 @@ interface Props {
   networkId: NetworkId
   isHistory?: boolean
   testID?: string
+  networks: Network[]
 }
 
 const HumanizedVisualization: FC<Props> = ({
@@ -32,12 +33,11 @@ const HumanizedVisualization: FC<Props> = ({
   textSize,
   networkId,
   isHistory,
-  testID
+  testID,
+  networks
 }) => {
   const marginRight = SPACING_TY * sizeMultiplierSize
   const { t } = useTranslation()
-  const { networks: settingsNetworks } = useNetworksControllerState()
-  const networks = settingsNetworks ?? constantNetworks
 
   return (
     <View
@@ -146,6 +146,7 @@ const HumanizedVisualization: FC<Props> = ({
                   address: item.address,
                   networkId
                 }}
+                networks={networks}
               />
             </View>
           )
@@ -164,9 +165,32 @@ const HumanizedVisualization: FC<Props> = ({
           const foundChain = networks.find((n) => n.chainId === item.chainId)
 
           return (
-            <Text weight="semiBold" key={key}>
-              {t(foundChain ? foundChain.name : `Unknown chain with id ${item.chainId}`)}
-            </Text>
+            <View key={key} style={{ ...flexbox.directionRow, ...flexbox.alignCenter }}>
+              {foundChain ? (
+                <>
+                  <NetworkIcon id={foundChain.id} benzinNetwork={foundChain} />
+                  <Text
+                    onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                    weight="semiBold"
+                  >
+                    {foundChain.name}
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+                  weight="semiBold"
+                >
+                  {`Chain with id ${item.chainId}`}
+                </Text>
+              )}
+              <Pressable
+                style={spacings.mlMi}
+                onPress={() => Linking.openURL(`https://chainlist.org/chain/${item.chainId}`)}
+              >
+                <InfoIcon width={14} height={14} />
+              </Pressable>
+            </View>
           )
         }
         if (item.content) {

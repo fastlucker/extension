@@ -1,14 +1,13 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 interface Styles {
-  errorContainer: ViewStyle
+  container: ViewStyle
 }
 
 const getStyles = () =>
   StyleSheet.create<Styles>({
-    errorContainer: {
-      marginTop: 'auto',
-      paddingTop: 10
+    container: {
+      marginTop: 'auto'
     }
   })
 

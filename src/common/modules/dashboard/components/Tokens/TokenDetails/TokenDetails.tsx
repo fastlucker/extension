@@ -59,7 +59,7 @@ const TokenDetails = ({
 
   // if the token is a gas tank token, all actions except
   // top up and maybe token info should be disabled
-  const isGasTank = token?.flags.onGasTank
+  const isGasTankOrRewardsToken = token?.flags.onGasTank || !!token?.flags.rewardsType
   const isAmountZero = token && getTokenAmount(token) === 0n
   const isGasTankFeeToken = token?.flags.canTopUpGasTank
   const selectedAccountData = accounts.find((acc) => acc.addr === selectedAccount)
@@ -73,7 +73,7 @@ const TokenDetails = ({
         icon: SendIcon,
         onPress: ({ networkId, address }: TokenResult) =>
           navigate(`transfer?networkId=${networkId}&address=${address}`),
-        isDisabled: isGasTank || isAmountZero,
+        isDisabled: isGasTankOrRewardsToken || isAmountZero,
         strokeWidth: 1.5
       },
       {
@@ -107,7 +107,7 @@ const TokenDetails = ({
 
           await createTab(`https://app.uniswap.org/swap?inputCurrency=${inputCurrency}`)
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -134,7 +134,11 @@ const TokenDetails = ({
           if (canTopUp) navigate(`transfer?networkId=${networkId}&address=${address}&isTopUp`)
           else addToast('We have disabled top ups with this token.', { type: 'error' })
         },
-        isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        // disable the top up for now as it is not working in a lot of cases:
+        // 1) eoa pays for sa; 2) 4337
+        // once the relayer moves to transfer logs, uncomment the line below
+        // isDisabled: !isGasTankFeeToken || !isSmartAccount,
+        isDisabled: true,
         strokeWidth: 1,
         testID: 'top-up-button'
       },
@@ -166,7 +170,7 @@ const TokenDetails = ({
             )
           }
         },
-        isDisabled: isGasTank,
+        isDisabled: isGasTankOrRewardsToken,
         strokeWidth: 1.5
       },
       {
@@ -204,7 +208,7 @@ const TokenDetails = ({
     ],
     [
       t,
-      isGasTank,
+      isGasTankOrRewardsToken,
       isGasTankFeeToken,
       hasTokenInfo,
       navigate,

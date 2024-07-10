@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Animated, View } from 'react-native'
 
 import DownArrowIcon from '@common/assets/svg/DownArrowIcon'
@@ -24,8 +24,8 @@ import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import formatDecimals from '@common/utils/formatDecimals'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
+import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable } from '@web/hooks/useHover'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 
@@ -48,13 +48,14 @@ const DashboardOverview: FC<Props> = ({
   setDashboardOverviewSize
 }) => {
   const route = useRoute()
+  const { dispatch } = useBackgroundService()
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { navigate } = useNavigation()
   const { networks } = useNetworksControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const banners = useBanners()
-  const { accountPortfolio, startedLoadingAtTimestamp, state, refreshPortfolio } =
+  const { accountPortfolio, startedLoadingAtTimestamp, state, resetAccountPortfolioLocalState } =
     usePortfolioControllerState()
   const [bindNetworkButtonAnim, networkButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -128,6 +129,13 @@ const DashboardOverview: FC<Props> = ({
       clearInterval(interval)
     }
   }, [accountPortfolio?.isAllReady, startedLoadingAtTimestamp])
+
+  const reloadAccount = useCallback(() => {
+    resetAccountPortfolioLocalState()
+    dispatch({
+      type: 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT'
+    })
+  }, [dispatch, resetAccountPortfolioLocalState])
 
   return (
     <View style={[spacings.phSm, spacings.mbMi]}>
@@ -233,7 +241,7 @@ const DashboardOverview: FC<Props> = ({
                       )}
                       <AnimatedPressable
                         style={[spacings.mlTy, refreshButtonAnimStyle]}
-                        onPress={refreshPortfolio}
+                        onPress={reloadAccount}
                         {...bindRefreshButtonAnim}
                       >
                         <RefreshIcon color={theme.primaryBackground} width={16} height={16} />

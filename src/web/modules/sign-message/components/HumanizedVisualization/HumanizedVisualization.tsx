@@ -23,6 +23,7 @@ const visualizeContent = (kind: string, content?: string) => {
   return ` ${getMessageAsText(content).replace('\n', '')} `
 }
 
+// @TODO refactor to use the other component
 const HumanizedVisualization: FC<{
   data: IrMessage['fullVisualization']
   networkId?: NetworkId

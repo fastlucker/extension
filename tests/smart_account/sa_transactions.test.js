@@ -11,7 +11,7 @@ import {
 import {
   makeValidTransaction,
   makeSwap,
-  sendFundsGreaterThatBalance,
+  sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
   signMessage
 } from '../common/transactions.js'
@@ -19,19 +19,13 @@ import {
 const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 
-let browser
-let page
-let extensionRootUrl
-let recorder
-
 describe('sa_transactions', () => {
+  let browser, page, extensionURL, recorder
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('sa_transactions', saParams)
-
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    ;({ browser, page, extensionURL, recorder } = await bootstrapWithStorage(
+      'sa_transactions',
+      saParams
+    ))
   })
 
   afterEach(async () => {
@@ -40,29 +34,30 @@ describe('sa_transactions', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   it('Make valid transaction', async () => {
-    await makeValidTransaction(page, extensionRootUrl, browser)
+    await makeValidTransaction(page, extensionURL, browser)
   })
 
-  // Exclude the SWAP test for now, as it occasionally fails. We'll reintroduce it once we've made improvements.
-  it('Make valid swap ', async () => {
-    await makeSwap(page, extensionRootUrl, browser)
+  // skip the test because Uniswap is temp broken on Polygon
+  it.skip('Make valid swap ', async () => {
+    await makeSwap(page, extensionURL, browser)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send matics greater than the available balance ', async () => {
-    await sendFundsGreaterThatBalance(page, extensionRootUrl)
+  it('(-) Send MATIC tokens greater than the available balance ', async () => {
+    await sendFundsGreaterThanBalance(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it('(-) Send matics to smart contract ', async () => {
-    await sendFundsToSmartContract(page, extensionRootUrl)
+  it('(-) Send MATIC tokens to smart contract ', async () => {
+    await sendFundsToSmartContract(page, extensionURL)
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Sign message', async () => {
-    await signMessage(page, extensionRootUrl, browser, process.env.SA_SELECTED_ACCOUNT)
+    await signMessage(page, extensionURL, browser, process.env.SA_SELECTED_ACCOUNT)
   })
   //--------------------------------------------------------------------------------------------------------------
-  it('Top up gas tank', async () => {
+  // TODO: Topping up the gas tank is temporarily disabled as of v4.26.0.
+  it.skip('Top up gas tank', async () => {
     // Click on Matic (not Gas Tank token)
     await clickOnElement(
       page,
@@ -71,19 +66,14 @@ describe('sa_transactions', () => {
     // Click on "Top Up Gas Tank"
     await clickOnElement(page, '[data-testid="top-up-button"]')
 
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/transfer')
-      },
-      { timeout: 60000 }
-    )
+    await page.waitForFunction(() => window.location.href.includes('/transfer'))
 
     await typeText(page, amountField, '0.0001')
 
     // Click on "Top Up" button and confirm transaction
     await confirmTransaction(
       page,
-      extensionRootUrl,
+      extensionURL,
       browser,
       '[data-testid="transfer-button-send"]',
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
@@ -102,7 +92,7 @@ describe('sa_transactions', () => {
     // Type the amount
     await typeText(page, amountField, '0.0001')
 
-    // Type the adress of the recipient
+    // Type the address of the recipient
     await typeText(page, recipientField, '0xC254b41be9582e45a2aCE62D5adD3F8092D4ea6C')
     await page.waitForXPath(
       '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
@@ -115,10 +105,10 @@ describe('sa_transactions', () => {
 
     // Check the checkbox "Confirm sending to a previously unknown address"
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
-    // Click on "Send" button and cofirm transaction
+    // Click on "Send" button and confirm transaction
     await confirmTransaction(
       page,
-      extensionRootUrl,
+      extensionURL,
       browser,
       '[data-testid="transfer-button-send"]',
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
@@ -141,8 +131,9 @@ describe.skip('sa_transactions_with_new_storage', () => {
 
     browser = context.browser
     page = context.page
+    page.setDefaultTimeout(120000)
     recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    extensionURL = context.extensionURL
   })
 
   afterEach(async () => {
@@ -151,7 +142,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
   })
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with basic account', async () => {
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -177,7 +168,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
     // Click on "Send" button and cofirm transaction
     await confirmTransaction(
       page,
-      extensionRootUrl,
+      extensionURL,
       browser,
       '[data-testid="transfer-button-send"]',
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
@@ -187,7 +178,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
   //--------------------------------------------------------------------------------------------------------------
   it('Make batched transaction', async () => {
     // Click on "Send" button
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -217,7 +208,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
     await new Promise((r) => setTimeout(r, 1000))
 
     const newTarget = await browser.waitForTarget((target) =>
-      target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
+      target.url().startsWith(`${extensionURL}/action-window.html#`)
     )
     let newPage = await newTarget.page()
     await newPage.setViewport({
@@ -228,7 +219,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
     // Click on "Queue And Sign Later" button
     await clickOnElement(newPage, '[data-testid="queue-and-sign-later-button"]')
 
-    await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/dashboard`, { waitUntil: 'load' })
 
     // Verify that  message exist on the dashboard page
     const pendingText = 'Transaction waiting to be signed on Polygon'
@@ -242,7 +233,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
       pendingText
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -253,7 +244,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
 
     const secondRecipient = '0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e'
 
-    // Type the adress of the recipient
+    // Type the address of the recipient
     await typeText(page, recipientField, secondRecipient)
     // await page.waitForXPath(
     //   '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
@@ -273,7 +264,7 @@ describe.skip('sa_transactions_with_new_storage', () => {
     await new Promise((r) => setTimeout(r, 1000))
 
     const newTarget2 = await browser.waitForTarget((target) =>
-      target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
+      target.url().startsWith(`${extensionURL}/action-window.html#`)
     )
     newPage = await newTarget2.page()
     newPage.setViewport({

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ColorValue, Image, View } from 'react-native'
+import { ColorValue, Image, View, ViewStyle } from 'react-native'
 
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import Text from '@common/components/Text'
@@ -27,6 +27,7 @@ interface Props {
   forceBack?: boolean
   onGoBackPress?: () => void
   width?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  style?: ViewStyle
 }
 
 const { isTab, isActionWindow } = getUiType()
@@ -41,7 +42,8 @@ const Header = ({
   forceBack,
   onGoBackPress,
   image,
-  width = 'xl'
+  width = 'xl',
+  style
 }: Props) => {
   const { styles } = useTheme(getStyles)
 
@@ -74,7 +76,12 @@ const Header = ({
 
   return (
     <View
-      style={[styles.container, paddingHorizontalStyle, !!backgroundColor && { backgroundColor }]}
+      style={[
+        styles.container,
+        paddingHorizontalStyle,
+        !!backgroundColor && { backgroundColor },
+        style
+      ]}
     >
       {mode !== 'custom' ? (
         <View style={[styles.widthContainer, { maxWidth: tabLayoutWidths[width] }]}>

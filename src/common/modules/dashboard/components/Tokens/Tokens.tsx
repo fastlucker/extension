@@ -91,7 +91,7 @@ const Tokens = ({
           if (filterByNetworkId === 'rewards') return token.flags.rewardsType
           if (filterByNetworkId === 'gasTank') return token.flags.onGasTank
 
-          return token.networkId === filterByNetworkId
+          return token.networkId === filterByNetworkId && !token.flags.onGasTank
         })
         .filter((token) => {
           if (!searchValue) return true
@@ -123,7 +123,12 @@ const Tokens = ({
               token.address.toLowerCase() === address.toLowerCase() && token.networkId === networkId
           )
 
-          return hasTokenAmount || isInPreferences || (isPinned && userHasNoBalance)
+          return (
+            hasTokenAmount ||
+            isInPreferences ||
+            // Don't display pinned tokens until we are sure the user has no balance
+            (isPinned && userHasNoBalance && accountPortfolio?.isAllReady)
+          )
         })
         .sort((a, b) => {
           // pending tokens go on top
