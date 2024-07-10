@@ -423,6 +423,21 @@ export async function confirmTransaction(
 
   // Click on "Sign" button
   await clickOnElement(actionWindowPage, '[data-testid="transaction-button-sign"]')
+
+  // Important note:
+  // We found that when we run the transaction tests in parallel,
+  // the transactions are dropping/failing because there is a chance two or more transactions will use the same nonce.
+  // If this happens, one of the tests will fail occasionally.
+  // Here are some such cases:
+  // 1. Different PRs are running the E2E tests, or
+  // 2. We run the tests locally and on the CI at the same time
+  // Because of this, as a hotfix, we now just check if the `benzin` page is loaded, without waiting for a
+  // transaction confirmation. Even in this case, we can still catch bugs, as on the SignAccountOp screen we are operating
+  // with Simulations, Fees, and Signing.
+  // We will research how we can rely again on the transaction receipt as a final step of confirming and testing a txn.
+  await actionWindowPage.waitForFunction("window.location.hash.includes('benzin')")
+  return
+
   // Wait for the 'Timestamp' text to appear twice on the page
   await actionWindowPage.waitForFunction(
     () => {
