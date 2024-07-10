@@ -4,8 +4,6 @@ import { StyleSheet, View } from 'react-native'
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import { Call } from '@ambire-common/libs/accountOp/types'
-import { IrCall } from '@ambire-common/libs/humanizer/interfaces'
 import Alert from '@common/components/Alert'
 import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import usePrevious from '@common/hooks/usePrevious'
@@ -158,34 +156,6 @@ const SignAccountOpScreen = () => {
     window.close()
   }, [])
 
-  const callsToVisualize: (IrCall | Call)[] = useMemo(() => {
-    if (!signAccountOpState?.accountOp) return []
-
-    if (signAccountOpState.accountOp?.calls?.length) {
-      // remove duplicate fromUserRequestId from calls.
-      // until recently, we used only eth_sendTxn and having two calls with
-      // the same fromUserRequestId was not possible - it was the humanizer
-      // that instead made one call into many human readable subcalls.
-      // but with wallet_sendCalls now we can have multiple accountOp.calls
-      // from the same fromUserRequestId. That made the humanizer show duplicates
-      // of each call. This fixes it.
-      return [
-        ...new Map(
-          signAccountOpState.accountOp.calls.map((call) => [call.fromUserRequestId, call])
-        ).values()
-      ]
-        .map((opCall) => {
-          const found: IrCall[] = (signAccountOpState.humanReadable || []).filter(
-            (irCall) => irCall.fromUserRequestId === opCall.fromUserRequestId
-          )
-          return found.length ? found : [opCall]
-        })
-        .flat()
-    }
-
-    return []
-  }, [signAccountOpState?.accountOp, signAccountOpState?.humanReadable])
-
   useEffect(() => {
     const destroy = () => {
       dispatch({ type: 'MAIN_CONTROLLER_SIGN_ACCOUNT_OP_DESTROY' })
@@ -274,7 +244,12 @@ const SignAccountOpScreen = () => {
         <View style={styles.container}>
           <View style={styles.leftSideContainer}>
             <Simulation network={network} hasEstimation={!!hasEstimation && !!network} />
-            <PendingTransactions callsToVisualize={callsToVisualize} network={network} />
+            <PendingTransactions
+              callsToVisualize={
+                signAccountOpState?.humanReadable || signAccountOpState?.accountOp?.calls || []
+              }
+              network={network}
+            />
           </View>
           <View style={[styles.separator, maxWidthSize('xl') ? spacings.mh3Xl : spacings.mhXl]} />
           <Estimation
