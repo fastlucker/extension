@@ -115,7 +115,6 @@ const SignAccountOpScreen = () => {
       dispatch({
         type: 'MAIN_CONTROLLER_TRACE_CALL',
         params: {
-          actionId: accountOpAction.id,
           estimation: signAccountOpState.estimation
         }
       })
