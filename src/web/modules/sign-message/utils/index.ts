@@ -7,23 +7,27 @@ const getMessageAsText = (msg: any) => {
     return msg
   }
 }
-
-const normiefyTypedMessage = (key: string, value: any, n = 0): string => {
-  const indentation = '   '
-  const offset = indentation.repeat(n)
+interface TypedMessageVisualization {
+  type: 'key' | 'value'
+  value: any
+  n: number
+}
+const simplifyTypedMessage = (value: any, n = 0): TypedMessageVisualization[] => {
+  const res: TypedMessageVisualization[] = []
   if (Array.isArray(value)) {
-    return `${key} = [\n${value
-      .map((i) => `${`${offset}`}${normiefyTypedMessage('', i, n + 1)}`)
-      .join('\n')}\n]`
+    value.forEach((i) => {
+      res.push(...simplifyTypedMessage(i, n + 1))
+    })
+    return res
   }
   if (typeof value === 'object') {
-    return Object.entries(value)
-      .map(([k, v]: [string, any]) => {
-        return offset + normiefyTypedMessage(k, v, n + 1)
-      })
-      .join('\n')
+    Object.keys(value).forEach((k) => {
+      res.push({ type: 'key', value: k, n })
+      res.push(...simplifyTypedMessage(value[k], n + 1))
+    })
+    return res
   }
-  return key ? `${key} = ${value}` : value
+  return [{ type: 'value', value, n }]
 }
 
-export { getMessageAsText, normiefyTypedMessage }
+export { getMessageAsText, simplifyTypedMessage }

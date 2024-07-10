@@ -7,7 +7,7 @@ import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { getMessageAsText, normiefyTypedMessage } from '@web/modules/sign-message/utils'
+import { getMessageAsText, simplifyTypedMessage } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
 
@@ -40,11 +40,10 @@ const FallbackVisualization: FC<{
         <ErrorOutlineIcon width={24} height={24} />
         <Text style={styles.headerText}>
           <Text fontSize={16} appearance="warningText" weight="semiBold">
-            Warning:{' '}
+            {t('Warning:')}{' '}
           </Text>
           <Text fontSize={16} appearance="warningText">
-            We are not able to decode this message for your convenience, and it&apos;s presented in
-            the original format
+            {t('We are not able to decode this message for your convenience.')}
           </Text>
         </Text>
       </View>
@@ -61,7 +60,7 @@ const FallbackVisualization: FC<{
         scrollEventThrottle={400}
       >
         <Text weight="regular" fontSize={14} appearance="secondaryText" style={spacings.mb}>
-          Raw Message:
+          {t('The entries in the message:')}
         </Text>
         <Text
           selectable
@@ -71,7 +70,18 @@ const FallbackVisualization: FC<{
           style={spacings.mb}
         >
           {content.kind === 'typedMessage'
-            ? normiefyTypedMessage('', content.message)
+            ? simplifyTypedMessage(content.message).map((i) => (
+                <>
+                  <br />
+                  <Text
+                    key={JSON.stringify(i)}
+                    style={i.type === 'key' ? { fontWeight: 'bold' } : {}}
+                  >
+                    {' '.repeat(i.n)}
+                    {i.value}
+                  </Text>
+                </>
+              ))
             : getMessageAsText(content.message) || t('(Empty message)')}
         </Text>
       </ScrollView>
