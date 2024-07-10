@@ -825,7 +825,7 @@ let mainCtrl: MainController
                 return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-                return mainCtrl.reloadSelectedAccount()
+                return await mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
