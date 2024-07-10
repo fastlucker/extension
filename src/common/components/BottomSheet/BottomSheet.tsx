@@ -198,6 +198,7 @@ const BottomSheet: React.FC<Props> = ({
       >
         {!flatListProps && (
           <View
+            testID={isOpen ? 'bottom-sheet' : undefined}
             style={[
               isScrollable ? spacings.prTy : {},
               common.fullWidth,

@@ -82,8 +82,8 @@ export class ConnectButtonReplacementController {
     this.runReplacementScriptOnObserve = this.runReplacementScriptOnObserve.bind(this)
     this.runReplacementScriptOnClick = this.runReplacementScriptOnClick.bind(this)
 
-    window.addEventListener('beforeunload', this.#cleanup)
-    window.addEventListener('unload', this.#cleanup)
+    window.addEventListener('beforeunload', this.#cleanup.bind(this))
+    window.addEventListener('unload', this.#cleanup.bind(this))
   }
 
   public update({ defaultWallet, isEIP6963, observerOptions }: UpdateProps) {
@@ -575,7 +575,7 @@ export class ConnectButtonReplacementController {
   #cleanup() {
     this.#cleanupObserver()
     if (this.#clickListener) {
-      document.removeEventListener('click', this.runReplacementScriptOnClick)
+      document.removeEventListener('click', this.runReplacementScriptOnClick.bind(this))
     }
   }
 }

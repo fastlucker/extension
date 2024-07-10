@@ -67,9 +67,14 @@ if (isExtension) {
   const ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN = ['INIT_CONTROLLER_STATE']
 
   dispatch = (action) => {
-    // Dispatch only if the tab/window is focused/active. Otherwise, an action can be dispatched multiple times
-    // from all opened extension instances, leading to some unpredictable behaviors of the state.
-    if (document.hidden && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
+    // Dispatch the action only when the tab or popup is focused or active.
+    // Otherwise, multiple dispatches could occur if the same screen is open in multiple tabs/popup windows,
+    // causing unpredictable background/controllers state behavior.
+    // dispatches from action-window should not be blocked even when unfocused
+    // because we can have only one instance of action-window and only one instance for the given action screen
+    // (an action screen could not be opened in tab or popup window by design)
+    const shouldBlockDispatch = document.hidden && !isActionWindow
+    if (shouldBlockDispatch && !ACTIONS_TO_DISPATCH_EVEN_WHEN_HIDDEN.includes(action.type)) return
 
     if (!backgroundReady) {
       actionsBeforeBackgroundReady.push(action)

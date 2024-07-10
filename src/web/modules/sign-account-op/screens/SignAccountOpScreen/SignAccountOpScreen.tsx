@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { useModalize } from 'react-native-modalize'
 
 import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
@@ -41,7 +40,6 @@ const SignAccountOpScreen = () => {
   const activityState = useActivityControllerState()
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
-  const { ref: hwModalRef, open: openHwModal, close: closeHwModal } = useModalize()
   const { styles } = useTheme(getStyles)
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
@@ -72,15 +70,6 @@ const SignAccountOpScreen = () => {
     mainState.broadcastStatus === 'LOADING'
 
   useEffect(() => {
-    if (signAccountOpState?.accountOp.signingKeyType !== 'internal' && isSignLoading) {
-      openHwModal()
-      return
-    }
-
-    closeHwModal()
-  }, [closeHwModal, isSignLoading, openHwModal, signAccountOpState?.accountOp.signingKeyType])
-
-  useEffect(() => {
     const timeout = setTimeout(() => {
       if (!hasEstimation) {
         setSlowRequest(true)
@@ -90,6 +79,10 @@ const SignAccountOpScreen = () => {
     if (hasEstimation) {
       clearTimeout(timeout)
       setSlowRequest(false)
+    }
+
+    return () => {
+      clearTimeout(timeout)
     }
   }, [hasEstimation, slowRequest])
 
@@ -263,7 +256,7 @@ const SignAccountOpScreen = () => {
           isSigning={isSignLoading || !signAccountOpState.readyToSign}
           handleClose={() => setIsChooseSignerShown(false)}
           selectedAccountKeyStoreKeys={signAccountOpState.accountKeyStoreKeys}
-          handleChangeSigningKey={handleChangeSigningKey}
+          handleChooseSigningKey={handleChangeSigningKey}
         />
       ) : null}
       <TabLayoutWrapperMainContent scrollEnabled={false}>
@@ -281,12 +274,13 @@ const SignAccountOpScreen = () => {
             isViewOnly={isViewOnly}
           />
 
-          {signAccountOpState && (
-            <HardwareWalletSigningModal
-              modalRef={hwModalRef}
-              keyType={signAccountOpState.accountOp.signingKeyType || ''}
-            />
-          )}
+          {signAccountOpState?.accountOp.signingKeyType &&
+            signAccountOpState?.accountOp.signingKeyType !== 'internal' && (
+              <HardwareWalletSigningModal
+                isVisible={isSignLoading}
+                keyType={signAccountOpState.accountOp.signingKeyType}
+              />
+            )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>

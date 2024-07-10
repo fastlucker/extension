@@ -1,31 +1,27 @@
-import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
 import { bootstrap, clickOnElement } from './functions.js'
 
 describe('Invite Verification', () => {
   let browser
   let page
-  let extensionId
+  let extensionURL
   let recorder
+  let backgroundPage
 
   // TODO: Same logic as the one found in the ba_login.test.js and
   // sa_login.test.js, consider refactoring (so it's DRY).
   beforeEach(async () => {
-    const context = await bootstrap()
+    const context = await bootstrap('invite')
     browser = context.browser
-    extensionId = context.extensionId
+    page = context.page
+    extensionURL = context.extensionURL
+    backgroundPage = context.backgroundPage
+    recorder = context.recorder
 
-    page = await browser.newPage()
+    await backgroundPage.evaluate(() => chrome.storage.local.set({ isE2EStorageSet: true }))
 
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/invite_${Date.now()}.mp4`)
-
-    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
+    const getStartedPage = `${extensionURL}/tab.html#/get-started`
     await page.goto(getStartedPage)
-
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
-    await page.bringToFront()
+    await page.waitForFunction(() => window.location.href.includes('/invite-verify'))
   })
 
   afterEach(async () => {
@@ -34,16 +30,6 @@ describe('Invite Verification', () => {
   })
 
   it('should immediately redirect to the invite verification route', async () => {
-    // In case of multiple redirects,
-    // the navigation will resolve with the response of the last redirect.
-
-    await page.waitForFunction(
-      () => {
-        return window.location.href.includes('/invite-verify')
-      },
-      { timeout: 60000 }
-    )
-
     const href = await page.evaluate(() => window.location.href)
     expect(href).toContain('/invite-verify')
   })
