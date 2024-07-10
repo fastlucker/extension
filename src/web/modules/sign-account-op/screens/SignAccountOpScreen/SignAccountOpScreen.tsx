@@ -67,7 +67,7 @@ const SignAccountOpScreen = () => {
   const isSignLoading =
     signAccountOpState?.status?.type === SigningStatus.InProgress ||
     signAccountOpState?.status?.type === SigningStatus.Done ||
-    mainState.broadcastStatus === 'LOADING'
+    mainState.statuses.broadcastSignedAccountOp === 'LOADING'
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -229,6 +229,23 @@ const SignAccountOpScreen = () => {
     )
   }
 
+  const signingKeyType = signAccountOpState?.accountOp.signingKeyType
+  const feePayerKeyType = mainState.feePayerKey?.type
+  // Component needed only if at least one of the keys involved is external
+  const shouldRenderHardwareWalletSigningModal =
+    (signingKeyType && signingKeyType !== 'internal') ||
+    (feePayerKeyType && feePayerKeyType !== 'internal')
+  // Should be visible only during loading and only if the involved key is external
+  const shouldHardwareWalletSigningModalBeVisible =
+    (mainState.statuses.broadcastSignedAccountOp === 'LOADING' &&
+      !!feePayerKeyType &&
+      feePayerKeyType !== 'internal') ||
+    (signAccountOpState?.status?.type === SigningStatus.InProgress &&
+      !!signingKeyType &&
+      signingKeyType !== 'internal')
+  const keyTypeHardwareWalletSigningModal =
+    signAccountOpState?.status?.type === SigningStatus.InProgress ? signingKeyType : feePayerKeyType
+
   return (
     <TabLayoutContainer
       width="full"
@@ -274,13 +291,12 @@ const SignAccountOpScreen = () => {
             isViewOnly={isViewOnly}
           />
 
-          {signAccountOpState?.accountOp.signingKeyType &&
-            signAccountOpState?.accountOp.signingKeyType !== 'internal' && (
-              <HardwareWalletSigningModal
-                isVisible={isSignLoading}
-                keyType={signAccountOpState.accountOp.signingKeyType}
-              />
-            )}
+          {shouldRenderHardwareWalletSigningModal && keyTypeHardwareWalletSigningModal && (
+            <HardwareWalletSigningModal
+              isVisible={shouldHardwareWalletSigningModalBeVisible}
+              keyType={keyTypeHardwareWalletSigningModal}
+            />
+          )}
         </View>
       </TabLayoutWrapperMainContent>
     </TabLayoutContainer>
