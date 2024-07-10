@@ -5,9 +5,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { SignMessageAction } from '@ambire-common/controllers/actions/actions'
 import { Key } from '@ambire-common/interfaces/keystore'
-import { Network } from '@ambire-common/interfaces/network'
 import { PlainTextMessage, TypedMessage } from '@ambire-common/interfaces/userRequest'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import NoKeysToSignAlert from '@common/components/NoKeysToSignAlert'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Spinner from '@common/components/Spinner'
@@ -60,9 +58,6 @@ const SignMessageScreen = () => {
 
     return signMessageAction.userRequest
   }, [signMessageAction])
-
-  const networkData: Network | null =
-    networks.find(({ id }) => signMessageState.messageToSign?.networkId === id) || null
 
   const selectedAccountFull = useMemo(
     () => accounts.find((acc) => acc.addr === selectedAccount),
@@ -201,12 +196,7 @@ const SignMessageScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={networkData?.name}
-          networkId={networkData?.id as NetworkIconIdType}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <ActionFooter
           onReject={handleReject}
