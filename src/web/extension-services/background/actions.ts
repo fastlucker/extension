@@ -429,6 +429,11 @@ type InviteControllerVerifyAction = {
   params: { code: string }
 }
 
+type MainControllerTraceCallAction = {
+  type: 'MAIN_CONTROLLER_TRACE_CALL'
+  params: { actionId: AccountOpAction['id']; estimation: EstimateResult }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -512,3 +517,4 @@ export type Action =
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
+  | MainControllerTraceCallAction

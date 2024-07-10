@@ -44,11 +44,13 @@ const SignAccountOpScreen = () => {
   const [isChooseSignerShown, setIsChooseSignerShown] = useState(false)
   const prevIsChooseSignerShown = usePrevious(isChooseSignerShown)
   const [slowRequest, setSlowRequest] = useState<boolean>(false)
+  const [didTraceCall, setDidTraceCall] = useState<boolean>(false)
   const { maxWidthSize } = useWindowSize()
   const hasEstimation = useMemo(
     () => signAccountOpState?.isInitialized && !!signAccountOpState?.gasPrices,
     [signAccountOpState?.gasPrices, signAccountOpState?.isInitialized]
   )
+  const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
   useEffect(() => {
     // Ensures user can re-open the modal, if previously being closed, e.g.
@@ -97,6 +99,28 @@ const SignAccountOpScreen = () => {
       })
     }
   }, [accountOpAction?.id, dispatch])
+
+  // trace the call once gas price and estimation is up
+  // we do this only 1 time when there's no estimation error
+  useEffect(() => {
+    if (
+      accountOpAction?.id &&
+      signAccountOpState &&
+      signAccountOpState.estimation &&
+      hasEstimation && // this includes gas prices as well, we need it
+      !estimationFailed &&
+      !didTraceCall
+    ) {
+      setDidTraceCall(true)
+      dispatch({
+        type: 'MAIN_CONTROLLER_TRACE_CALL',
+        params: {
+          actionId: accountOpAction.id,
+          estimation: signAccountOpState.estimation
+        }
+      })
+    }
+  }, [hasEstimation, accountOpAction, signAccountOpState, didTraceCall, estimationFailed, dispatch])
 
   useEffect(() => {
     if (!accountOpAction) return
