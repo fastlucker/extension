@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { FeePaymentOption } from '@ambire-common/libs/estimate/interfaces'
-import { Avatar } from '@common/components/Avatar'
+import Avatar from '@common/components/Avatar'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useWindowSize from '@common/hooks/useWindowSize'

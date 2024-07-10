@@ -71,7 +71,7 @@ const HardwareWalletSelectorScreen = () => {
           <Stepper />
         </Header>
       }
-      footer={<BackButton fallbackBackRoute={ROUTES.getStarted} />}
+      footer={<BackButton fallbackBackRoute={ROUTES.dashboard} />}
     >
       <TabLayoutWrapperMainContent>
         <Panel title={t('Select your hardware wallet device')}>

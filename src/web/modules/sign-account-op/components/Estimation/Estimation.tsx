@@ -209,6 +209,12 @@ const Estimation = ({
     return (
       <EstimationWrapper>
         <EstimationSkeleton />
+        <Warnings
+          hasEstimation={hasEstimation}
+          estimationFailed={estimationFailed}
+          slowRequest={slowRequest}
+          isViewOnly={isViewOnly}
+        />
       </EstimationWrapper>
     )
   }

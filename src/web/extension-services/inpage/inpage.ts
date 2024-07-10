@@ -28,7 +28,11 @@ const ambireId = nanoid()
 const ambireIsOpera = /Opera|OPR\//i.test(navigator.userAgent)
 
 let isEIP6963: boolean = false
-let focusedListener: any = null
+let shouldReloadOnFocus = false
+
+window.addEventListener('focus', () => {
+  if (!isEIP6963 && shouldReloadOnFocus) window.location.reload()
+})
 
 const connectButtonReplacementCtrl = new ConnectButtonReplacementController({
   isEIP6963,
@@ -212,14 +216,14 @@ export const patchProvider = (p: any) => {
 }
 
 const domReadyCall = (callback: any) => {
-  if (document.readyState === 'complete') {
-    callback()
-  } else {
+  if (document.readyState === 'loading') {
     const domContentLoadedHandler = () => {
       callback()
       document.removeEventListener('DOMContentLoaded', domContentLoadedHandler)
     }
     document.addEventListener('DOMContentLoaded', domContentLoadedHandler)
+  } else {
+    callback()
   }
 }
 
@@ -364,19 +368,11 @@ export class EthereumProvider extends EventEmitter {
     if (data?.type === 'setDefaultWallet') {
       defaultWallet = data?.value
       if (data.shouldReload) {
-        const reload = () => {
-          if (focusedListener) {
-            window.removeEventListener('focus', reload)
-            focusedListener = null
-          }
+        if (document.hasFocus()) {
           if (isEIP6963) return
           window.location.reload()
-        }
-
-        if (document.hasFocus()) {
-          reload()
         } else {
-          focusedListener = window.addEventListener('focus', reload)
+          shouldReloadOnFocus = true
         }
       }
       return
