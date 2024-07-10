@@ -22,6 +22,9 @@ import getStyles from './styles'
 interface Props {
   withAmbireLogo?: boolean
 }
+
+// @TODO: Not renamed because this component will no longer exist in the near future
+// @TODO: refactor the header component @petromir.
 const HeaderAccountAndNetworkInfo: FC<Props> = ({ withAmbireLogo = true }) => {
   const { styles: headerStyles } = useTheme(getHeaderStyles)
   const { styles } = useTheme(getStyles)
