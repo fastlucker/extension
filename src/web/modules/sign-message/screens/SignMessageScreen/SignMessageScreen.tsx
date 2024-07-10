@@ -12,6 +12,7 @@ import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import HeaderAccountAndNetworkInfo from '@web/components/HeaderAccountAndNetworkInfo'
 import {
   TabLayoutContainer,
@@ -216,7 +217,7 @@ const SignMessageScreen = () => {
       />
       <TabLayoutWrapperMainContent style={spacings.mbLg} contentContainerStyle={spacings.pvXl}>
         <View style={flexbox.flex1}>
-          <Text weight="medium" fontSize={20} style={spacings.mbLg}>
+          <Text weight="medium" fontSize={20} style={[spacings.mbLg, textStyles.center]}>
             {t('Sign message')}
           </Text>
           <Info
