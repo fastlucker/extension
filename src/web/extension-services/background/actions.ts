@@ -2,7 +2,7 @@ import {
   AccountOpAction,
   Action as ActionFromActionsQueue
 } from '@ambire-common/controllers/actions/actions'
-import { Filters, Pagination, SignedMessage } from '@ambire-common/controllers/activity/activity'
+import { Filters, Pagination } from '@ambire-common/controllers/activity/activity'
 import { Contact } from '@ambire-common/controllers/addressBook/addressBook'
 import { FeeSpeed } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { Account, AccountPreferences, AccountStates } from '@ambire-common/interfaces/account'
@@ -80,6 +80,12 @@ type MainControllerAddSeedPhraseAccounts = {
   type: 'MAIN_CONTROLLER_ADD_SEED_PHRASE_ACCOUNT'
   params: {
     seed: string
+  }
+}
+type MainControllerRemoveAccount = {
+  type: 'MAIN_CONTROLLER_REMOVE_ACCOUNT'
+  params: {
+    accountAddr: Account['addr']
   }
 }
 type MainControllerAccountAdderResetIfNeeded = {
@@ -165,23 +171,14 @@ type MainControllerSignMessageInitAction = {
       icon: string
     }
     messageToSign: Message
-    accounts: Account[]
-    accountStates: AccountStates
   }
 }
 type MainControllerSignMessageResetAction = {
   type: 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET'
 }
-type MainControllerSignMessageSignAction = {
-  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN'
-}
-type MainControllerSignMessageSetSignKeyAction = {
-  type: 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY'
-  params: { key: Key['addr']; type: Key['type'] }
-}
-type MainControllerBroadcastSignedMessageAction = {
-  type: 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE'
-  params: { signedMessage: SignedMessage }
+type MainControllerHandleSignMessage = {
+  type: 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE'
+  params: { keyAddr: Key['addr']; keyType: Key['type'] }
 }
 type MainControllerActivityInitAction = {
   type: 'MAIN_CONTROLLER_ACTIVITY_INIT'
@@ -432,6 +429,11 @@ type InviteControllerVerifyAction = {
   params: { code: string }
 }
 
+type MainControllerTraceCallAction = {
+  type: 'MAIN_CONTROLLER_TRACE_CALL'
+  params: { actionId: AccountOpAction['id']; estimation: EstimateResult }
+}
+
 export type Action =
   | InitControllerStateAction
   | MainControllerAccountAdderInitLatticeAction
@@ -453,6 +455,7 @@ export type Action =
   | MainControllerAccountAdderAddAccounts
   | MainControllerAddAccounts
   | MainControllerAddSeedPhraseAccounts
+  | MainControllerRemoveAccount
   | MainControllerAddUserRequestAction
   | MainControllerBuildTransferUserRequest
   | MainControllerBuildClaimWalletUserRequest
@@ -463,9 +466,7 @@ export type Action =
   | MainControllerRejectAccountOpAction
   | MainControllerSignMessageInitAction
   | MainControllerSignMessageResetAction
-  | MainControllerSignMessageSignAction
-  | MainControllerSignMessageSetSignKeyAction
-  | MainControllerBroadcastSignedMessageAction
+  | MainControllerHandleSignMessage
   | MainControllerActivityInitAction
   | MainControllerActivitySetFiltersAction
   | MainControllerActivitySetAccountOpsPaginationAction
@@ -516,3 +517,4 @@ export type Action =
   | AutoLockControllerSetLastActiveTimeAction
   | AutoLockControllerSetAutoLockTimeAction
   | InviteControllerVerifyAction
+  | MainControllerTraceCallAction
