@@ -88,20 +88,21 @@ let mainCtrl: MainController
   // ensuring that the Controllers are initialized with the storage correctly.
   // Once the storage is configured in Puppeteer, we set the `isE2EStorageSet` flag to true.
   // Here, we are waiting for its value to be set.
-  if (process.env.IS_TESTING === 'true') {
-    const checkE2EStorage = async (): Promise<void> => {
-      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+  // if (process.env.IS_TESTING === 'true') {
+  //   const checkE2EStorage = async (): Promise<void> => {
+  //     const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
 
-      if (isE2EStorageSet) {
-        return
-      }
+  //     if (isE2EStorageSet) {
+  //       return
+  //     }
 
-      await wait(100)
-      await checkE2EStorage()
-    }
+  //     await wait(100)
+  //     await checkE2EStorage()
+  //   }
 
-    await checkE2EStorage()
-  }
+  //   await checkE2EStorage()
+  // }
+  await wait(3000)
 
   if (isManifestV3) {
     saveTimestamp()
@@ -620,7 +621,7 @@ let mainCtrl: MainController
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return mainCtrl.traceCall(params.actionId, params.estimation)
+                return await mainCtrl.traceCall(params.actionId, params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
@@ -795,7 +796,7 @@ let mainCtrl: MainController
                 )
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return mainCtrl.removeAccount(params.accountAddr)
+                return await mainCtrl.removeAccount(params.accountAddr)
               }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
@@ -822,7 +823,7 @@ let mainCtrl: MainController
                 return mainCtrl.signMessage.reset()
               case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return mainCtrl.handleSignMessage()
+                return await mainCtrl.handleSignMessage()
               }
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
@@ -1109,6 +1110,7 @@ const bridgeMessenger = initializeMessenger({ connect: 'inpage' })
 providerRequestTransport.reply(async ({ method, id, params }, meta) => {
   // wait for mainCtrl to be initialized before handling dapp requests
   while (!mainCtrl) {
+    // eslint-disable-next-line no-await-in-loop
     await wait(200)
   }
   const sessionId = meta.sender?.tab?.id
@@ -1152,6 +1154,7 @@ try {
   browser.tabs.onRemoved.addListener(async (tabId: number) => {
     // wait for mainCtrl to be initialized before handling dapp requests
     while (!mainCtrl) {
+      // eslint-disable-next-line no-await-in-loop
       await wait(200)
     }
     const sessionKeys = Array.from(mainCtrl.dapps.dappsSessionMap.keys())
