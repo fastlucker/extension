@@ -6,7 +6,7 @@ import {
 } from '../functions'
 
 //--------------------------------------------------------------------------------------------------------------
-export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
+export async function createAccountWithPhrase(page, extensionURL, phrase) {
   await setAmbKeyStore(page, '[data-testid="button-proceed-seed-phrase"]')
 
   const wordArray = phrase.split(' ')
@@ -27,7 +27,7 @@ export async function createAccountWithPhrase(page, extensionRootUrl, phrase) {
   // Click on "Save and Continue" button
   await clickOnElement(page, '[data-testid="button-save-and-continue"]')
   await page.waitForFunction(() => window.location.href.includes('/onboarding-completed'))
-  await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+  await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Verify that selected accounts exist on the page
   const selectedBasicAccount = await page.$$eval('[data-testid="account"]', (el) => el[0].innerText)
@@ -102,7 +102,7 @@ export async function createAccountWithInvalidPhrase(page) {
 }
 
 //--------------------------------------------------------------------------------------------------------------
-export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress) {
+export async function addViewOnlyAccount(page, extensionURL, viewOnlyAddress) {
   const buttonNext = '[data-testid="stories-button-next"]'
   await page.waitForSelector(buttonNext)
 
@@ -132,14 +132,14 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
   // Click on "Account"
   await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
-  await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+  await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
   // Find the element containing the specified address
   const addressElement = await page.$x(`//*[contains(text(), '${viewOnlyAddress}')]`)
 
   if (addressElement.length > 0) {
     // Get the parent element of the element with the specified address
-    const parentElement = await addressElement[0].$x('..')
+    const parentElement = await addressElement[0].$x('../../..')
 
     if (parentElement.length > 0) {
       // Get the text content of the parent element and all elements within it
@@ -151,10 +151,7 @@ export async function addViewOnlyAccount(page, extensionRootUrl, viewOnlyAddress
       // Verify that somewhere in the content there is the text 'View-only'
       const containsViewOnly = parentTextContent.includes('View-only')
 
-      if (containsViewOnly) {
-      } else {
-        throw new Error('The content does not contain the text "View-only".')
-      }
+      expect(containsViewOnly).toBe(true)
     }
   }
 }
