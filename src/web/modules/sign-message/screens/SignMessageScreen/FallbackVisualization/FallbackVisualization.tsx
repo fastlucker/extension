@@ -7,7 +7,7 @@ import ErrorOutlineIcon from '@common/assets/svg/ErrorOutlineIcon'
 import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
-import { getMessageAsText } from '@web/modules/sign-message/utils'
+import { getMessageAsText, normiefyTypedMessage } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
 
@@ -71,7 +71,7 @@ const FallbackVisualization: FC<{
           style={spacings.mb}
         >
           {content.kind === 'typedMessage'
-            ? JSON.stringify(content.message, null, 4)
+            ? normiefyTypedMessage('', content.message)
             : getMessageAsText(content.message) || t('(Empty message)')}
         </Text>
       </ScrollView>
