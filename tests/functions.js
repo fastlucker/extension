@@ -436,6 +436,7 @@ export async function confirmTransaction(
   // with Simulations, Fees, and Signing.
   // We will research how we can rely again on the transaction receipt as a final step of confirming and testing a txn.
   await actionWindowPage.waitForFunction("window.location.hash.includes('benzin')")
+  await transactionRecorder.stop()
   return
 
   // Wait for the 'Timestamp' text to appear twice on the page
