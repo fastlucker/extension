@@ -5,7 +5,6 @@ import {
   saParams,
   selectMaticToken,
   triggerTransaction,
-  checkForSignMessageWindow,
   signTransaction,
   confirmTransactionStatus,
   selectFeeToken
@@ -17,17 +16,17 @@ const amountField = '[data-testid="amount-field"]'
 let browser
 
 let page
-let extensionRootUrl
+let extensionURL
 let recorder
 
 describe('sa_features', () => {
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('sa_transactions', saParams)
+    const context = await bootstrapWithStorage('sa_features', saParams)
 
     browser = context.browser
     page = context.page
     recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    extensionURL = context.extensionURL
   })
 
   afterEach(async () => {
@@ -58,18 +57,16 @@ describe('sa_features', () => {
 
     const newPage = await triggerTransaction(
       page,
+      extensionURL,
       browser,
-      extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
-    await new Promise((r) => setTimeout(r, 2000))
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
       newPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
-    await new Promise((r) => setTimeout(r, 1000))
 
     // Sign and confirm the transaction
     await signTransaction(newPage)
@@ -103,28 +100,26 @@ describe('sa_features', () => {
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    const newPage = await triggerTransaction(
+    const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
       page,
+      extensionURL,
       browser,
-      extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
-    await new Promise((r) => setTimeout(r, 2000))
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
       newPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000maticgastank"]'
     )
-    await new Promise((r) => setTimeout(r, 1000))
     // Sign and confirm the transaction
-    await signTransaction(newPage)
-    await confirmTransactionStatus(newPage, 'polygon', 137)
+    await signTransaction(newPage, transactionRecorder)
+    await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
   })
 
   //--------------------------------------------------------------------------------------------------------------
   it('Pay transaction fee with basic account', async () => {
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -148,29 +143,27 @@ describe('sa_features', () => {
     await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    const newPage = await triggerTransaction(
+    const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
       page,
+      extensionURL,
       browser,
-      extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
-    await new Promise((r) => setTimeout(r, 2000))
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
       newPage,
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000matic"]'
     )
-    await new Promise((r) => setTimeout(r, 1000))
     // Sign and confirm the transaction
-    await signTransaction(newPage)
-    await confirmTransactionStatus(newPage, 'polygon', 137)
+    await signTransaction(newPage, transactionRecorder)
+    await confirmTransactionStatus(newPage, 'polygon', 137, transactionRecorder)
   })
 
   //--------------------------------------------------------------------------------------------------------------
-  it.skip('Make batched transaction', async () => {
+  it('Make batched transaction', async () => {
     // Click on "Send" button
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -197,12 +190,10 @@ describe('sa_features', () => {
     const elementToClick = await page.waitForSelector('[data-testid="transfer-button-send"]')
     await elementToClick.click()
 
-    await new Promise((r) => setTimeout(r, 1000))
-
     const newTarget = await browser.waitForTarget((target) =>
-      target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
+      target.url().startsWith(`${extensionURL}/action-window.html#`)
     )
-    let newPage = await newTarget.page()
+    const newPage = await newTarget.page()
     await newPage.setViewport({
       width: 1300,
       height: 700
@@ -211,7 +202,7 @@ describe('sa_features', () => {
     // Click on "Queue And Sign Later" button
     await clickOnElement(newPage, '[data-testid="queue-and-sign-later-button"]')
 
-    await page.goto(`${extensionRootUrl}/tab.html#/dashboard`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/dashboard`, { waitUntil: 'load' })
 
     // Verify that  message exist on the dashboard page
     const pendingText = 'Transaction waiting to be signed on Polygon'
@@ -225,7 +216,7 @@ describe('sa_features', () => {
       pendingText
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/transfer`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/transfer`, { waitUntil: 'load' })
 
     await page.waitForSelector(amountField)
 
@@ -234,28 +225,34 @@ describe('sa_features', () => {
     // Type the amount
     await typeText(page, amountField, '0.0001')
 
-    const secondRecipient = '0x630fd7f359e483C28d2b0BabDE1a6F468a1d649e'
+    const secondRecipient = '0xe750Fff1AA867DFb52c9f98596a0faB5e05d30A6'
 
     // Type the adress of the recipient
     await typeText(page, recipientField, secondRecipient)
 
-    const sendButton = await page.waitForSelector('[data-testid="transfer-button-send"]')
-    await sendButton.click()
+    // Type the adress of the recipient
 
-    await new Promise((r) => setTimeout(r, 1000))
-
-    const newTarget2 = await browser.waitForTarget((target) =>
-      target.url().startsWith(`${extensionRootUrl}/action-window.html#`)
+    await page.waitForXPath(
+      '//div[contains(text(), "You\'re trying to send to an unknown address. If you\'re really sure, confirm using the checkbox below.")]'
     )
-    newPage = await newTarget2.page()
-    newPage.setViewport({
-      width: 1300,
-      height: 700
-    })
-    await new Promise((r) => setTimeout(r, 2000))
+    await page.waitForSelector('[data-testid="checkbox"]')
+    await page.waitForSelector('[data-testid="recipient-address-unknown-checkbox"]')
+
+    // Check the checkbox "I confirm this address is not a Binance wallets...."
+    await clickOnElement(page, '[data-testid="checkbox"]')
+
+    // Check the checkbox "Confirm sending to a previously unknown address"
+    await clickOnElement(page, '[data-testid="recipient-address-unknown-checkbox"]')
+
+    const { actionWindowPage, transactionRecorder } = await triggerTransaction(
+      page,
+      extensionURL,
+      browser,
+      '[data-testid="transfer-button-send"]:not([disabled])'
+    )
 
     // Verify that both recipient addresses are visible ot the page
-    await newPage.waitForFunction(
+    await actionWindowPage.waitForFunction(
       (text1, text2) => {
         const element1 = document.querySelector('[data-testid^="recipient-address-0"]')
         const element2 = document.querySelector('[data-testid^="recipient-address-1"]')
@@ -271,15 +268,14 @@ describe('sa_features', () => {
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
-      newPage,
+      actionWindowPage,
       '[data-testid="option-0x6224438b995c2d49f696136b2cb3fcafb21bd1e70x0000000000000000000000000000000000000000matic"]'
     )
-    // Sign and confirm the transaction
-    await signTransaction(newPage)
-    await confirmTransactionStatus(newPage, 'polygon', 137)
+    await signTransaction(actionWindowPage, transactionRecorder)
+    await confirmTransactionStatus(actionWindowPage, 'polygon', 137, transactionRecorder)
 
     // Verify that both recipient addresses are visible
-    await newPage.waitForFunction(
+    await actionWindowPage.waitForFunction(
       (text1, text2) => {
         const body = document.querySelector('body')
         return body.textContent.includes(text1) && body.textContent.includes(text2)
@@ -344,27 +340,20 @@ describe('sa_features', () => {
     if (checkboxExists) await clickOnElement(page, '[data-testid="checkbox"]')
 
     // Click on "Send" button and cofirm transaction
-    const newPage = await triggerTransaction(
+    const { actionWindowPage: newPage, transactionRecorder } = await triggerTransaction(
       page,
+      extensionURL,
       browser,
-      extensionRootUrl,
       '[data-testid="transfer-button-send"]'
     )
-    await new Promise((r) => setTimeout(r, 2000))
-
-    // // Check if "sign-message" window is open
-    // const result = await checkForSignMessageWindow(newPage, extensionRootUrl, browser)
-    // newPage = result.newPage
 
     // Check if select fee token is visible and select the token
     await selectFeeToken(
       newPage,
       '[data-testid="option-0x630fd7f359e483c28d2b0babde1a6f468a1d649e0x0000000000000000000000000000000000000000eth"]'
     )
-    await new Promise((r) => setTimeout(r, 1000))
-
     // Sign and confirm the transaction
-    await signTransaction(newPage)
-    await confirmTransactionStatus(newPage, 'optimism', 10)
+    await signTransaction(newPage, transactionRecorder)
+    await confirmTransactionStatus(newPage, 'optimism', 10, transactionRecorder)
   })
 })

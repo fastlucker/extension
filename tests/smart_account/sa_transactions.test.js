@@ -31,7 +31,7 @@ describe('sa_transactions', () => {
   })
 
   // skip the test because Uniswap is temp broken on Polygon
-  it.skip('Make valid swap ', async () => {
+  it('Make valid swap ', async () => {
     await makeSwap(page, extensionURL, browser)
   })
   //--------------------------------------------------------------------------------------------------------------

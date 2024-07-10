@@ -360,16 +360,7 @@ export async function selectMaticToken(page) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function triggerTransaction(
-  page,
-  browser,
-  extensionRootUrl,
-  triggerTransactionSelector
-  extensionURL,
-  browser,
-  triggerTransactionSelector,
-  feeToken
-) {
+export async function triggerTransaction(page, extensionURL, browser, triggerTransactionSelector) {
   await clickOnElement(page, triggerTransactionSelector)
 
   const newTarget = await browser.waitForTarget((target) =>
@@ -377,15 +368,18 @@ export async function triggerTransaction(
   )
   const actionWindowPage = await newTarget.page()
   actionWindowPage.setDefaultTimeout(120000)
-
   actionWindowPage.setViewport({ width: 1300, height: 700 })
 
-  return actionWindowPage
+  // Start the screen recorder
+  const transactionRecorder = new PuppeteerScreenRecorder(actionWindowPage, { followNewTab: true })
+  await transactionRecorder.start(`./recorder/txn_action_window_${Date.now()}.mp4`)
+
+  return { actionWindowPage, transactionRecorder }
 }
 
 //----------------------------------------------------------------------------------------------
-export async function checkForSignMessageWindow(page, extensionRootUrl, browser) {
-  let actionWindowPage = page // Initialize newPage with the current page
+export async function checkForSignMessageWindow(page, extensionURL, browser) {
+  let actionWindowPage = page // Initialize actionWindowPage with the current page
 
   // Check if "sign-message" action-window is open
   if (actionWindowPage.url().endsWith('/sign-message')) {
@@ -398,7 +392,7 @@ export async function checkForSignMessageWindow(page, extensionRootUrl, browser)
     )
     const newPageTarget = await newPagePromise2
 
-    actionWindowPage = await newPageTarget.page() // Update actionWindowPage to capture the new window
+    actionWindowPage = await newPageTarget.page()
     actionWindowPage.setDefaultTimeout(120000)
   }
 
@@ -415,8 +409,6 @@ export async function selectFeeToken(actionWindowPage, feeToken) {
   if (selectToken) {
     // Click on the tokens select
     await clickOnElement(actionWindowPage, '[data-testid="tokens-select"]')
-    // Wait for some time
-    await new Promise((r) => setTimeout(r, 2000))
 
     // Click on the Gas Tank option
     await clickOnElement(actionWindowPage, feeToken)
@@ -424,7 +416,7 @@ export async function selectFeeToken(actionWindowPage, feeToken) {
 }
 
 //----------------------------------------------------------------------------------------------
-export async function signTransaction(actionWindowPage) {
+export async function signTransaction(actionWindowPage, transactionRecorder) {
   actionWindowPage.setDefaultTimeout(120000)
   // Click on "Ape" button
   await clickOnElement(actionWindowPage, '[data-testid="fee-ape:"]')
@@ -453,11 +445,15 @@ export async function signTransaction(actionWindowPage) {
   }
 
   expect(doesFailedExist).toBe(false) // This will fail the test if 'Failed' exists
-  // return { actionWindowPage }
 }
 
 //----------------------------------------------------------------------------------------------
-export async function confirmTransactionStatus(actionWindowPage, networkName, chainID) {
+export async function confirmTransactionStatus(
+  actionWindowPage,
+  networkName,
+  chainID,
+  transactionRecorder
+) {
   const currentURL = await actionWindowPage.url()
 
   // Split the URL by the '=' character and get the transaction hash
