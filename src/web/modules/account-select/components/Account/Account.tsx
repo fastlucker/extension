@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
@@ -20,6 +20,7 @@ import flexboxStyles from '@common/styles/utils/flexbox'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import { useCustomHover } from '@web/hooks/useHover'
+import useMainControllerState from '@web/hooks/useMainControllerState'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
@@ -43,6 +44,7 @@ const Account = ({
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
+  const mainCtrlState = useMainControllerState()
   const { selectedAccount } = useAccountsControllerState()
   const { dispatch } = useBackgroundService()
   const { ref: dialogRef, open: openDialog, close: closeDialog } = useModalize()
@@ -74,8 +76,7 @@ const Account = ({
         accountAddr: addr
       }
     })
-    addToast(t('Account removed.'))
-  }, [addToast, addr, dispatch, t])
+  }, [addr, dispatch])
 
   const promptRemoveAccount = useCallback(() => {
     openDialog()
@@ -91,6 +92,23 @@ const Account = ({
     },
     [addToast, addr, dispatch, preferences.pfp, t]
   )
+
+  const isRemoveAccountLoading = useMemo(
+    () => mainCtrlState.statuses.removeAccount === 'LOADING',
+    [mainCtrlState.statuses.removeAccount]
+  )
+
+  useEffect(() => {
+    if (mainCtrlState.statuses.removeAccount === 'SUCCESS') {
+      addToast(t('Account removed.'))
+      closeDialog()
+      return
+    }
+
+    if (mainCtrlState.statuses.removeAccount === 'ERROR') {
+      closeDialog()
+    }
+  }, [addToast, closeDialog, mainCtrlState.statuses.removeAccount, t])
 
   return (
     <Pressable onPress={selectAccount} {...bindAnim} testID="account">
@@ -137,13 +155,18 @@ const Account = ({
       </Animated.View>
       <Dialog
         dialogRef={dialogRef}
-        id="remove-account"
+        id={`remove-account-${addr}`}
         title={t('Remove Account')}
         text={t('Are you sure you want to remove this account?')}
         closeDialog={closeDialog}
       >
         <DialogFooter>
-          <DialogButton text={t('Remove')} type="danger" onPress={removeAccount} />
+          <DialogButton
+            disabled={isRemoveAccountLoading}
+            text={t('Remove')}
+            type="danger"
+            onPress={removeAccount}
+          />
           <DialogButton text={t('Close')} type="secondary" onPress={() => closeDialog()} />
         </DialogFooter>
       </Dialog>
