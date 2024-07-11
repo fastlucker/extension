@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
@@ -49,4 +49,4 @@ const NetworkBadge: FC<Props> = ({ networkId, withOnPrefix }) => {
   )
 }
 
-export default NetworkBadge
+export default memo(NetworkBadge)
