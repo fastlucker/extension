@@ -192,7 +192,7 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onSignSuccess: (type) => {
+    onSignSuccess: async (type) => {
       const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
         message: 'Message was successfully signed',
         'typed-data': 'TypedData was successfully signed',
@@ -202,7 +202,7 @@ function stateDebug(event: string, stateToLog: object) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendBrowserNotification(messages[type])
 
-      initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
+      await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.pending)
     }
   })
   const walletStateCtrl = new WalletStateController()
@@ -233,17 +233,16 @@ function stateDebug(event: string, stateToLog: object) {
     )
   }
 
-  function initAccountStateContinuousUpdate(intervalLength: number) {
+  async function initAccountStateContinuousUpdate(intervalLength: number) {
     if (backgroundState.accountStateInterval) clearTimeout(backgroundState.accountStateInterval)
     backgroundState.selectedAccountStateInterval = intervalLength
 
     // If called with a pending request (this happens after broadcast),
-    // update state with the pending block immediately (without await-ing)
+    // update state with the pending block immediately
     if (
       backgroundState.selectedAccountStateInterval === backgroundState.accountStateIntervals.pending
     )
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      mainCtrl.accounts.updateAccountStates('pending')
+      await mainCtrl.accounts.updateAccountStates('pending')
 
     const updateAccountState = async () => {
       // Determine which block to use based on the current interval state:
@@ -263,7 +262,7 @@ function stateDebug(event: string, stateToLog: object) {
           backgroundState.accountStateIntervals.pending &&
         !mainCtrl.activity.broadcastedButNotConfirmed.length
       ) {
-        initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+        await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
       } else {
         // Schedule the next update
         backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
@@ -274,7 +273,7 @@ function stateDebug(event: string, stateToLog: object) {
     backgroundState.accountStateInterval = setTimeout(updateAccountState, intervalLength)
   }
 
-  initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
+  await initAccountStateContinuousUpdate(backgroundState.accountStateIntervals.standBy)
 
   function createGasPriceRecurringTimeout(accountOp: AccountOp) {
     const currentNetwork = mainCtrl.networks.networks.filter((n) => n.id === accountOp.networkId)[0]
