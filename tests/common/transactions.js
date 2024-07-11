@@ -55,7 +55,7 @@ export async function makeValidTransaction(page, extensionURL, browser) {
 
 //--------------------------------------------------------------------------------------------------------------
 export async function makeSwap(page, extensionURL, browser) {
-  await page.goto('https://app.uniswap.org/swap?chain=polygon', { waitUntil: 'load' })
+  await page.goto('https://app.uniswap.org/swap', { waitUntil: 'load' })
 
   // Click on 'connect' button
   await clickOnElement(page, '[data-testid="navbar-connect-wallet"]')
@@ -78,6 +78,13 @@ export async function makeSwap(page, extensionURL, browser) {
   await clickOnElement(actionWindowPage, '[data-testid="dapp-connect-button"]')
 
   await actionWindowDapReqRecorder.stop()
+
+  // Change the network to Polygon
+  await clickOnElement(page, '[data-testid="chain-selector-logo"]')
+  await clickOnElement(page, '[data-testid="Polygon-selector"]')
+
+  // If this web3 status indicator is not disabled, it means that the connection was successful.
+  await page.waitForSelector('[data-testid="web3-status-connected"]:not([disabled])')
 
   // Select USDT and USDC tokens for swap
   await clickOnElement(page, 'xpath///span[contains(text(), "MATIC")]')

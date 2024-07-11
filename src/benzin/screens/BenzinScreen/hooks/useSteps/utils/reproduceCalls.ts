@@ -28,9 +28,21 @@ export const userOpSigHashes = {
 
 const feeCollector = '0x942f9CE5D9a33a82F88D233AEb3292E680230348'
 
-const filterFeeCollectorCalls = (callsLength: number, callArray: any, index: number): boolean => {
+const filterFeeCollectorCalls = (calls: any, callArray: any, index: number): boolean => {
   // if calls are exactly one, it means no fee collector calls
+  const callsLength = calls.length
   if (callsLength === 1) return true
+
+  // this is for the case where we do a native top up but have
+  // transformed the native to wrapped. We shouldn't filter out
+  if (
+    index + 1 === callsLength && // the fee call
+    calls[callsLength - 2][0].toLowerCase() === callArray[0].toLowerCase() && // the same address
+    callArray[2].slice(0, 10) === transferInterface.getFunction('transfer')!.selector &&
+    transferInterface.decodeFunctionData('transfer', callArray[2])[1] === calls[callsLength - 2][1]
+  ) {
+    return true
+  }
 
   // a fee collector call is one that is at the end of the calls array
   if (
@@ -56,14 +68,14 @@ const transformToAccOpCall = (call: any) => {
 const getExecuteCalls = (callData: string) => {
   const data = executeInterface.decodeFunctionData('execute', callData)
   return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0].length, call, index))
+    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
     .map((call: any) => transformToAccOpCall(call))
 }
 
 const getExecuteBySenderCalls = (callData: string) => {
   const data = executeBySenderInterface.decodeFunctionData('executeBySender', callData)
   return data[0]
-    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0].length, call, index))
+    .filter((call: any, index: number) => filterFeeCollectorCalls(data[0], call, index))
     .map((call: any) => transformToAccOpCall(call))
 }
 
@@ -71,7 +83,7 @@ const getExecuteMultipleCalls = (callData: string) => {
   const data = executeMultipleInterface.decodeFunctionData('executeMultiple', callData)
   const calls = data[0].map((executeArgs: any) => executeArgs[0]).flat()
   return calls
-    .filter((call: any, index: number) => filterFeeCollectorCalls(calls.length, call, index))
+    .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
     .map((call: any) => transformToAccOpCall(call))
 }
 
@@ -162,7 +174,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   if (sigHash === deployAndExecuteInterface.getFunction('deployAndExecute')!.selector) {
     const data = deployAndExecuteInterface.decodeFunctionData('deployAndExecute', txn.data)
     return data[2]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[2].length, call, index))
+      .filter((call: any, index: number) => filterFeeCollectorCalls(data[2], call, index))
       .map((call: any) => transformToAccOpCall(call))
   }
 
@@ -175,7 +187,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
     )
     const calls: any = data[2].map((executeArgs: any) => executeArgs[0]).flat()
     return calls
-      .filter((call: any, index: number) => filterFeeCollectorCalls(calls.length, call, index))
+      .filter((call: any, index: number) => filterFeeCollectorCalls(calls, call, index))
       .map((call: any) => transformToAccOpCall(call))
   }
 
@@ -183,7 +195,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   if (sigHash === quickAccManagerSendInterface.getFunction('send')!.selector) {
     const data = quickAccManagerSendInterface.decodeFunctionData('send', txn.data)
     return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3].length, call, index))
+      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
       .map((call: any) => transformToAccOpCall(call))
   }
 
@@ -191,7 +203,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   if (sigHash === quickAccManagerCancelInterface.getFunction('cancel')!.selector) {
     const data = quickAccManagerCancelInterface.decodeFunctionData('cancel', txn.data)
     return data[4]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[4].length, call, index))
+      .filter((call: any, index: number) => filterFeeCollectorCalls(data[4], call, index))
       .map((call: any) => transformToAccOpCall(call))
   }
 
@@ -199,7 +211,7 @@ const reproduceCalls = (txn: TransactionResponse, userOp: UserOperation | null) 
   if (sigHash === quickAccManagerExecScheduledInterface.getFunction('execScheduled')!.selector) {
     const data = quickAccManagerExecScheduledInterface.decodeFunctionData('execScheduled', txn.data)
     return data[3]
-      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3].length, call, index))
+      .filter((call: any, index: number) => filterFeeCollectorCalls(data[3], call, index))
       .map((call: any) => transformToAccOpCall(call))
   }
 
