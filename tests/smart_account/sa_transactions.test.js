@@ -20,7 +20,10 @@ const recipientField = '[data-testid="address-ens-field"]'
 const amountField = '[data-testid="amount-field"]'
 
 describe('sa_transactions', () => {
-  let browser, page, extensionURL, recorder
+  let browser
+  let page
+  let extensionURL
+  let recorder
   beforeEach(async () => {
     ;({ browser, page, extensionURL, recorder } = await bootstrapWithStorage(
       'sa_transactions',
@@ -37,8 +40,7 @@ describe('sa_transactions', () => {
     await makeValidTransaction(page, extensionURL, browser)
   })
 
-  // skip the test because Uniswap is temp broken on Polygon
-  it.skip('Make valid swap ', async () => {
+  it('Make valid swap ', async () => {
     await makeSwap(page, extensionURL, browser)
   })
   //--------------------------------------------------------------------------------------------------------------
@@ -80,8 +82,9 @@ describe('sa_transactions', () => {
     )
   })
 
-  //--------------------------------------------------------------------------------------------------------------
-  it('Pay transaction fee with gas tank', async () => {
+  // TODO: Topping up the gas tank is temporarily disabled as of v4.26.0.
+  //  Because of that - we have insufficient gas amount for paying the fee and we can't make the top-up too.
+  it.skip('Pay transaction fee with gas tank', async () => {
     // Click on "Send" button
     await clickOnElement(page, '[data-testid="dashboard-button-send"]')
 

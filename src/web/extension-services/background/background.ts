@@ -23,6 +23,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -33,6 +34,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
+import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -48,7 +50,6 @@ import TrezorKeyIterator from '@web/modules/hardware-wallet/libs/trezorKeyIterat
 import TrezorSigner from '@web/modules/hardware-wallet/libs/TrezorSigner'
 import getOriginFromUrl from '@web/utils/getOriginFromUrl'
 import { logInfoWithPrefix } from '@web/utils/logger'
-import wait from '@ambire-common/utils/wait'
 
 function saveTimestamp() {
   const timestamp = new Date().toISOString()
@@ -191,8 +192,16 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
-      notifyForSuccessfulBroadcast(type)
+    onSignSuccess: (type) => {
+      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
+        message: 'Message was successfully signed',
+        'typed-data': 'TypedData was successfully signed',
+        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
+      }
+      // Don't await this on purpose (fire and forget), errors get cough in the function
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendBrowserNotification(messages[type])
+
       setAccountStateInterval(backgroundState.accountStateIntervals.pending)
     }
   })
@@ -608,6 +617,9 @@ function stateDebug(event: string, stateToLog: object) {
                   providers: mainCtrl.providers.providers
                 })
               }
+              case 'MAIN_CONTROLLER_TRACE_CALL': {
+                return mainCtrl.traceCall(params.estimation)
+              }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
               }
@@ -780,6 +792,9 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
+                return mainCtrl.removeAccount(params.accountAddr)
+              }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,
@@ -798,17 +813,15 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
+              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
                 return mainCtrl.signMessage.init(params)
+              }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-                return await mainCtrl.signMessage.sign()
+              case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
+                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
+                return mainCtrl.handleSignMessage()
               }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-                return mainCtrl.signMessage.setSigningKey(params.key, params.type)
-              case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
-                return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
@@ -843,7 +856,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.actions.setWindowLoaded()
 
               case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
-                return mainCtrl.reloadSelectedAccount()
+                return await mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
@@ -1153,32 +1166,6 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
-
-// Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
-  let message = ''
-  if (type === 'message') {
-    message = 'Message was successfully signed'
-  }
-  if (type === 'typed-data') {
-    message = 'TypedData was successfully signed'
-  }
-  if (type === 'account-op') {
-    message = 'Your transaction was successfully signed and broadcasted to the network'
-  }
-
-  // service_worker (mv3) - without await the notification doesn't show
-  try {
-    await browser.notifications.create(nanoid(), {
-      type: 'basic',
-      iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
-      title: 'Successfully signed',
-      message
-    })
-  } catch (err) {
-    console.warn(`Failed to register browser notification: ${err}`)
-  }
-}
 
 /*
  * This content script is injected programmatically because

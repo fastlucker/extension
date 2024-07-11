@@ -166,7 +166,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
             index === 0 &&
             (!submittedAccountOp.status ||
               (submittedAccountOp.status !== AccountOpStatus.Rejected &&
-                submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck)) ? (
+                submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck &&
+                submittedAccountOp.status !== AccountOpStatus.UnknownButPastNonce)) ? (
               <OpenIcon />
             ) : null
           }
@@ -176,7 +177,8 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
         />
       ))}
       {submittedAccountOp.status !== AccountOpStatus.Rejected &&
-        submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck && (
+        submittedAccountOp.status !== AccountOpStatus.BroadcastButStuck &&
+        submittedAccountOp.status !== AccountOpStatus.UnknownButPastNonce && (
           <View style={styles.footer}>
             {submittedAccountOp.status === AccountOpStatus.Failure && (
               <View style={styles.footerItem}>
@@ -229,6 +231,15 @@ const SubmittedTransactionSummary = ({ submittedAccountOp, style }: Props) => {
           <View style={styles.footerItem}>
             <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
               Dropped or stuck in mempool with fee too low
+            </Text>
+          </View>
+        </View>
+      )}
+      {submittedAccountOp.status === AccountOpStatus.UnknownButPastNonce && (
+        <View style={styles.footer}>
+          <View style={styles.footerItem}>
+            <Text fontSize={14} appearance="errorText" style={spacings.mrTy} weight="semiBold">
+              Replaced by fee (RBF)
             </Text>
           </View>
         </View>
