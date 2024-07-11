@@ -7,6 +7,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 
 import getStyles from './styles'
+import { SelectValue } from './types'
 
 const Option = React.memo(({ item }: { item: SelectValue }) => {
   const { styles } = useTheme(getStyles)

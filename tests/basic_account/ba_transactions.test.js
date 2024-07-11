@@ -3,7 +3,7 @@ import { bootstrapWithStorage, baParams } from '../functions.js'
 import {
   makeValidTransaction,
   makeSwap,
-  sendFundsGreaterThatBalance,
+  sendFundsGreaterThanBalance,
   sendFundsToSmartContract,
   signMessage
 } from '../common/transactions.js'
@@ -11,15 +11,14 @@ import {
 describe('ba_transactions', () => {
   let browser
   let page
-  let extensionRootUrl
+  let extensionURL
   let recorder
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_transactions', baParams)
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
+      'ba_transactions',
+      baParams
+    ))
   })
 
   afterEach(async () => {
@@ -27,23 +26,23 @@ describe('ba_transactions', () => {
     await browser.close()
   })
 
-  it('(-) Sends MATIC tokens greater than the available balance', async () => {
-    await sendFundsGreaterThatBalance(page, extensionRootUrl)
-  })
-
-  it('(-) Sends MATIC tokens to a smart contract', async () => {
-    await sendFundsToSmartContract(page, extensionRootUrl)
-  })
-
   it('Makes a valid transaction', async () => {
-    await makeValidTransaction(page, extensionRootUrl, browser)
+    await makeValidTransaction(page, extensionURL, browser)
   })
 
   it('Makes a valid swap', async () => {
-    await makeSwap(page, extensionRootUrl, browser)
+    await makeSwap(page, extensionURL, browser)
+  })
+
+  it('(-) Sends MATIC tokens greater than the available balance', async () => {
+    await sendFundsGreaterThanBalance(page, extensionURL)
+  })
+
+  it('(-) Sends MATIC tokens to a smart contract', async () => {
+    await sendFundsToSmartContract(page, extensionURL)
   })
 
   it('Signs a message', async () => {
-    await signMessage(page, extensionRootUrl, browser, process.env.BA_SELECTED_ACCOUNT)
+    await signMessage(page, extensionURL, browser, process.env.BA_SELECTED_ACCOUNT)
   })
 })

@@ -1,5 +1,3 @@
-import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder'
-
 import {
   bootstrap,
   setAmbKeyStore,
@@ -18,34 +16,19 @@ import {
 describe('ba_login', () => {
   let browser
   let page
-  let extensionRootUrl
-  let extensionId
+  let extensionURL
   let recorder
+  let backgroundPage
 
   beforeEach(async () => {
-    const context = await bootstrap()
-    browser = context.browser
-    extensionRootUrl = context.extensionRootUrl
-    extensionId = context.extensionId
-
-    page = await browser.newPage()
-
-    recorder = new PuppeteerScreenRecorder(page)
-    await recorder.start(`./recorder/ba_login_${Date.now()}.mp4`)
-
-    const getStartedPage = `chrome-extension://${extensionId}/tab.html#/get-started`
-    await page.goto(getStartedPage)
-
+    ;({ browser, page, recorder, extensionURL, backgroundPage } = await bootstrap('ba_login'))
     // Bypass the invite verification step
-    await page.evaluate((invite) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      chrome.storage.local.set({ invite })
-    }, JSON.stringify(INVITE_STORAGE_ITEM))
+    await backgroundPage.evaluate(
+      (invite) => chrome.storage.local.set({ invite, isE2EStorageSet: true }),
+      JSON.stringify(INVITE_STORAGE_ITEM)
+    )
 
-    await new Promise((r) => {
-      setTimeout(r, 3000)
-    })
-    await page.bringToFront()
+    await page.goto(`${extensionURL}/tab.html#/get-started`)
   })
 
   afterEach(async () => {
@@ -62,13 +45,12 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
+    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     const { firstSelectedBasicAccount, firstSelectedSmartAccount } =
       await finishStoriesAndSelectAccount(page)
 
     // Click on "Save and Continue" button
-    await new Promise((r) => setTimeout(r, 1000))
-    await clickOnElement(page, '[data-testid="button-save-and-continue"]:not([disabled])')
+    await clickOnElement(page, '[data-testid="button-save-and-continue"]')
 
     await page.waitForFunction(
       () => {
@@ -77,7 +59,12 @@ describe('ba_login', () => {
       { timeout: 60000 }
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
+
+    // Wait for account addresses to load
+    await new Promise((r) => {
+      setTimeout(r, 2000)
+    })
 
     // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
@@ -95,7 +82,7 @@ describe('ba_login', () => {
 
   //------------------------------------------------------------------------------------------------------
   it('create basic account with phrase', async () => {
-    await createAccountWithPhrase(page, extensionRootUrl, process.env.BA_PASSPHRASE)
+    await createAccountWithPhrase(page, extensionURL, process.env.BA_PASSPHRASE)
   })
 
   //------------------------------------------------------------------------------------------------------
@@ -151,7 +138,7 @@ describe('ba_login', () => {
 
     await typeText(page, '[data-testid="enter-seed-phrase-field"]', process.env.BA_PRIVATE_KEY)
 
-    // This function will complete the onboarsding stories and will select and retrieve first basic and first smart account
+    // This function will complete the onboarding stories and will select and retrieve first basic and first smart account
     await finishStoriesAndSelectAccount(page)
 
     const accountName1 = 'Test-Account-1'
@@ -184,7 +171,7 @@ describe('ba_login', () => {
       { timeout: 60000 }
     )
 
-    await page.goto(`${extensionRootUrl}/tab.html#/account-select`, { waitUntil: 'load' })
+    await page.goto(`${extensionURL}/tab.html#/account-select`, { waitUntil: 'load' })
 
     // Verify that selected accounts exist on the page
     const selectedBasicAccount = await page.$$eval(
@@ -202,6 +189,6 @@ describe('ba_login', () => {
 
   //--------------------------------------------------------------------------------------------------------------
   it('add view-only basic account', async () => {
-    await addViewOnlyAccount(page, extensionRootUrl, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
+    await addViewOnlyAccount(page, extensionURL, '0x048d8573402CE085A6c8f34d568eC2Ccc995196e')
   })
 })

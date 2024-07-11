@@ -23,6 +23,7 @@ import { KeyIterator } from '@ambire-common/libs/keyIterator/keyIterator'
 import { KeystoreSigner } from '@ambire-common/libs/keystoreSigner/keystoreSigner'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { parse, stringify } from '@ambire-common/libs/richJson/richJson'
+import wait from '@ambire-common/utils/wait'
 import { createRecurringTimeout } from '@common/utils/timeout'
 import { RELAYER_URL, VELCRO_URL } from '@env'
 import { browser, isManifestV3 } from '@web/constants/browserapi'
@@ -33,6 +34,7 @@ import handleProviderRequests from '@web/extension-services/background/provider/
 import { providerRequestTransport } from '@web/extension-services/background/provider/providerRequestTransport'
 import { controllersNestedInMainMapping } from '@web/extension-services/background/types'
 import { updateHumanizerMetaInStorage } from '@web/extension-services/background/webapi/humanizer'
+import { sendBrowserNotification } from '@web/extension-services/background/webapi/notification'
 import { storage } from '@web/extension-services/background/webapi/storage'
 import windowManager from '@web/extension-services/background/webapi/window'
 import { initializeMessenger, Port, PortMessenger } from '@web/extension-services/messengers'
@@ -56,6 +58,15 @@ function saveTimestamp() {
 }
 
 function stateDebug(event: string, stateToLog: object) {
+  // Send the controller's state from the background to the Puppeteer testing environment for E2E test debugging.
+  // Puppeteer listens for console.log events and will output the message to the CI console.
+  // 💡 We need to send it as a string because Puppeteer can't parse console.log message objects.
+  // 💡 `logInfoWithPrefix` wraps console.log, and we can't add a listener to it from the Puppeteer configuration.
+  // That's why we use the native `console.log` method here to send the state to Puppeteer.
+  if (process.env.E2E_DEBUG === 'true') {
+    console.log(stringify(stateToLog))
+  }
+
   // In production, we avoid logging the complete state because `parse(stringify(stateToLog))` can be CPU-intensive.
   // This is especially true for the main controller, which includes all sub-controller states.
   // For example, the portfolio state for a single account can exceed 2.0MB, and `parse(stringify(portfolio))`
@@ -73,10 +84,21 @@ function stateDebug(event: string, stateToLog: object) {
   // In the testing environment, we need to slow down app initialization.
   // This is necessary to predefine the chrome.storage testing values in our Puppeteer tests,
   // ensuring that the Controllers are initialized with the storage correctly.
+  // Once the storage is configured in Puppeteer, we set the `isE2EStorageSet` flag to true.
+  // Here, we are waiting for its value to be set.
   if (process.env.IS_TESTING === 'true') {
-    await new Promise((r) => {
-      setTimeout(r, 1000)
-    })
+    const checkE2EStorage = async (): Promise<void> => {
+      const isE2EStorageSet = !!(await storage.get('isE2EStorageSet', false))
+
+      if (isE2EStorageSet) {
+        return
+      }
+
+      await wait(100)
+      await checkE2EStorage()
+    }
+
+    await checkE2EStorage()
   }
 
   if (isManifestV3) {
@@ -94,6 +116,8 @@ function stateDebug(event: string, stateToLog: object) {
     accountStateIntervals: {
       pending: number
       standBy: number
+      retriedFastAccountStateReFetchForNetworks: string[]
+      fastAccountStateReFetchTimeout?: ReturnType<typeof setTimeout>
     }
     hasSignAccountOpCtrlInitialized: boolean
     fetchPortfolioIntervalId?: ReturnType<typeof setInterval>
@@ -112,7 +136,8 @@ function stateDebug(event: string, stateToLog: object) {
     ctrlOnUpdateIsDirtyFlags: {},
     accountStateIntervals: {
       pending: 3000,
-      standBy: 300000
+      standBy: 300000,
+      retriedFastAccountStateReFetchForNetworks: []
     },
     hasSignAccountOpCtrlInitialized: false
   }
@@ -167,8 +192,16 @@ function stateDebug(event: string, stateToLog: object) {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       }
     },
-    onBroadcastSuccess: (type: 'message' | 'typed-data' | 'account-op') => {
-      notifyForSuccessfulBroadcast(type)
+    onSignSuccess: (type) => {
+      const messages: { [key in Parameters<MainController['onSignSuccess']>[0]]: string } = {
+        message: 'Message was successfully signed',
+        'typed-data': 'TypedData was successfully signed',
+        'account-op': 'Your transaction was successfully signed and broadcasted to the network'
+      }
+      // Don't await this on purpose (fire and forget), errors get cough in the function
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      sendBrowserNotification(messages[type])
+
       setAccountStateInterval(backgroundState.accountStateIntervals.pending)
     }
   })
@@ -366,6 +399,54 @@ function stateDebug(event: string, stateToLog: object) {
                 delete backgroundState.activityIntervalId
               }
             }
+            if (ctrlName === 'accounts') {
+              const failedNetworkIds = getNetworksWithFailedRPC({
+                providers: mainCtrl.providers.providers
+              })
+
+              const retriedFastAccountStateReFetchForNetworks =
+                backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks
+
+              // Delete the network ids that have been successfully re-fetched so the logic can be re-applied
+              // if the RPC goes down again
+              if (retriedFastAccountStateReFetchForNetworks.length) {
+                retriedFastAccountStateReFetchForNetworks.forEach((networkId, index) => {
+                  if (!failedNetworkIds.includes(networkId)) {
+                    delete retriedFastAccountStateReFetchForNetworks[index]
+                  }
+                })
+              }
+
+              if (failedNetworkIds.length) {
+                // Filter out the network ids that have already been retried (update them with the regular interval)
+                const filteredNetworkIds = failedNetworkIds.filter(
+                  (id) =>
+                    !backgroundState.accountStateIntervals.retriedFastAccountStateReFetchForNetworks.find(
+                      (networkId) => networkId === id
+                    )
+                )
+
+                if (filteredNetworkIds.length) {
+                  if (backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout) {
+                    clearTimeout(
+                      backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout
+                    )
+                  }
+
+                  backgroundState.accountStateIntervals.fastAccountStateReFetchTimeout = setTimeout(
+                    async () => {
+                      await mainCtrl.accounts.updateAccountStates('latest', filteredNetworkIds)
+
+                      // Add the network ids that have been retried to the list
+                      failedNetworkIds.forEach((id) => {
+                        retriedFastAccountStateReFetchForNetworks.push(id)
+                      })
+                    },
+                    8000
+                  )
+                }
+              }
+            }
           }, 'background')
         }
       }
@@ -384,17 +465,6 @@ function stateDebug(event: string, stateToLog: object) {
         }
       }
     })
-
-    if (mainCtrl.isReady) {
-      // if there are failed networks, refresh the account state every 8 seconds
-      // for them until we get a clean state
-      const failedNetworkIds = getNetworksWithFailedRPC({
-        providers: mainCtrl.providers.providers
-      })
-      if (failedNetworkIds.length) {
-        setTimeout(() => mainCtrl.accounts.updateAccountStates('latest', failedNetworkIds), 8000)
-      }
-    }
   }, 'background')
   mainCtrl.onError(() => {
     stateDebug('onError (main ctrl)', mainCtrl)
@@ -547,6 +617,9 @@ function stateDebug(event: string, stateToLog: object) {
                   providers: mainCtrl.providers.providers
                 })
               }
+              case 'MAIN_CONTROLLER_TRACE_CALL': {
+                return mainCtrl.traceCall(params.estimation)
+              }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
               }
@@ -658,12 +731,7 @@ function stateDebug(event: string, stateToLog: object) {
                 // Since these accounts are view-only, directly add them in the
                 // MainController, bypassing the AccountAdder flow.
                 await mainCtrl.accounts.addAccounts(params.accounts)
-
-                // And manually trigger some of the `onAccountAdderSuccess` steps
-                // that are needed for view-only accounts, since the AccountAdder
-                // flow was bypassed and the `onAccountAdderSuccess` subscription
-                // in the MainController won't click.
-                return await mainCtrl.accounts.selectAccount(params.accounts[0].addr)
+                break
               }
               // This flow interacts manually with the AccountAdder controller so that it can
               // auto pick the first smart account and import it, thus skipping the AccountAdder flow.
@@ -724,6 +792,9 @@ function stateDebug(event: string, stateToLog: object) {
                   readyToAddKeyPreferences
                 )
               }
+              case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
+                return mainCtrl.removeAccount(params.accountAddr)
+              }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
                   params.amount,
@@ -742,17 +813,15 @@ function stateDebug(event: string, stateToLog: object) {
                 return await mainCtrl.resolveAccountOpAction(params.data, params.actionId)
               case 'MAIN_CONTROLLER_REJECT_ACCOUNT_OP':
                 return mainCtrl.rejectAccountOpAction(params.err, params.actionId)
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT':
+              case 'MAIN_CONTROLLER_SIGN_MESSAGE_INIT': {
                 return mainCtrl.signMessage.init(params)
+              }
               case 'MAIN_CONTROLLER_SIGN_MESSAGE_RESET':
                 return mainCtrl.signMessage.reset()
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SIGN': {
-                return await mainCtrl.signMessage.sign()
+              case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
+                mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
+                return mainCtrl.handleSignMessage()
               }
-              case 'MAIN_CONTROLLER_SIGN_MESSAGE_SET_SIGN_KEY':
-                return mainCtrl.signMessage.setSigningKey(params.key, params.type)
-              case 'MAIN_CONTROLLER_BROADCAST_SIGNED_MESSAGE':
-                return await mainCtrl.broadcastSignedMessage(params.signedMessage)
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
               case 'MAIN_CONTROLLER_ACTIVITY_SET_FILTERS':
@@ -786,9 +855,8 @@ function stateDebug(event: string, stateToLog: object) {
               case 'ACTIONS_CONTROLLER_SET_WINDOW_LOADED':
                 return mainCtrl.actions.setWindowLoaded()
 
-              case 'MAIN_CONTROLLER_UPDATE_SELECTED_ACCOUNT_PORTFOLIO': {
-                if (!mainCtrl.accounts.selectedAccount) return
-                return await mainCtrl.updateSelectedAccountPortfolio(params?.forceUpdate)
+              case 'MAIN_CONTROLLER_RELOAD_SELECTED_ACCOUNT': {
+                return await mainCtrl.reloadSelectedAccount()
               }
 
               case 'PORTFOLIO_CONTROLLER_GET_TEMPORARY_TOKENS': {
@@ -1098,32 +1166,6 @@ browser.runtime.onInstalled.addListener(({ reason }: any) => {
     }, 500)
   }
 })
-
-// Send a browser notification when the signing process of a message or account op is finalized
-const notifyForSuccessfulBroadcast = async (type: 'message' | 'typed-data' | 'account-op') => {
-  let message = ''
-  if (type === 'message') {
-    message = 'Message was successfully signed'
-  }
-  if (type === 'typed-data') {
-    message = 'TypedData was successfully signed'
-  }
-  if (type === 'account-op') {
-    message = 'Your transaction was successfully signed and broadcasted to the network'
-  }
-
-  // service_worker (mv3) - without await the notification doesn't show
-  try {
-    await browser.notifications.create(nanoid(), {
-      type: 'basic',
-      iconUrl: browser.runtime.getURL('assets/images/xicon@96.png'),
-      title: 'Successfully signed',
-      message
-    })
-  } catch (err) {
-    console.warn(`Failed to register browser notification: ${err}`)
-  }
-}
 
 /*
  * This content script is injected programmatically because

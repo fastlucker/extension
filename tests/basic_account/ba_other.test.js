@@ -2,18 +2,13 @@ import { bootstrapWithStorage, baParams } from '../functions.js'
 import { changePassword, addContactInAddressBook } from '../common/other.js'
 
 describe('ba_other', () => {
-  let browser
-  let page
-  let recorder
-  let extensionRootUrl
+  let browser, page, recorder, extensionURL
 
   beforeEach(async () => {
-    const context = await bootstrapWithStorage('ba_other', baParams)
-
-    browser = context.browser
-    page = context.page
-    recorder = context.recorder
-    extensionRootUrl = context.extensionRootUrl
+    ;({ browser, page, recorder, extensionURL } = await bootstrapWithStorage(
+      'ba_other',
+      baParams
+    ))
   })
 
   afterEach(async () => {
@@ -21,10 +16,10 @@ describe('ba_other', () => {
     await browser.close()
   })
   it('change password', async () => {
-    await changePassword(page, extensionRootUrl)
+    await changePassword(page, extensionURL)
   })
 
   it('add contact in address book', async () => {
-    await addContactInAddressBook(page, extensionRootUrl)
+    await addContactInAddressBook(page, extensionURL)
   })
 })
