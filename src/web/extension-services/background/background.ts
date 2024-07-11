@@ -618,7 +618,7 @@ function stateDebug(event: string, stateToLog: object) {
                 })
               }
               case 'MAIN_CONTROLLER_TRACE_CALL': {
-                return mainCtrl.traceCall(params.estimation)
+                return await mainCtrl.traceCall(params.estimation)
               }
               case 'MAIN_CONTROLLER_ADD_NETWORK': {
                 return await mainCtrl.addNetwork(params)
@@ -793,7 +793,7 @@ function stateDebug(event: string, stateToLog: object) {
                 )
               }
               case 'MAIN_CONTROLLER_REMOVE_ACCOUNT': {
-                return mainCtrl.removeAccount(params.accountAddr)
+                return await mainCtrl.removeAccount(params.accountAddr)
               }
               case 'MAIN_CONTROLLER_BUILD_TRANSFER_USER_REQUEST':
                 return await mainCtrl.buildTransferUserRequest(
@@ -820,7 +820,7 @@ function stateDebug(event: string, stateToLog: object) {
                 return mainCtrl.signMessage.reset()
               case 'MAIN_CONTROLLER_HANDLE_SIGN_MESSAGE': {
                 mainCtrl.signMessage.setSigningKey(params.keyAddr, params.keyType)
-                return mainCtrl.handleSignMessage()
+                return await mainCtrl.handleSignMessage()
               }
               case 'MAIN_CONTROLLER_ACTIVITY_INIT':
                 return mainCtrl.activity.init(params?.filters)
