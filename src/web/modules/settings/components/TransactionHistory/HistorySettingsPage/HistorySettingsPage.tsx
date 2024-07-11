@@ -11,8 +11,8 @@ import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { Network } from '@ambire-common/interfaces/network'
-import Avatar from '@common/components/Avatar'
 import NetworkIcon from '@common/components/NetworkIcon'
+import AccountOption from '@common/components/Option/AccountOption'
 import Pagination from '@common/components/Pagination'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
@@ -29,16 +29,8 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
-import shortenAddress from '@web/utils/shortenAddress'
 
 const ITEMS_PER_PAGE = 10
-
-const formatAddressLabelInSelector = (label: string, isLargeScreen: boolean) => {
-  if (label.length > (isLargeScreen ? 26 : 18))
-    return `${label.slice(0, isLargeScreen ? 24 : 16)}...`
-
-  return label
-}
 
 interface Props {
   HistoryComponent: ComponentType<{
@@ -76,17 +68,9 @@ const HistorySettingsPage: FC<Props> = ({ HistoryComponent, historyType }) => {
   const accountsOptions: SelectValue[] = useMemo(() => {
     return accounts.map((acc) => ({
       value: acc.addr,
-      label: (
-        <Text weight="medium" numberOfLines={1}>
-          {`${formatAddressLabelInSelector(
-            acc.preferences.label,
-            maxWidthSize('xl')
-          )} (${shortenAddress(acc.addr, 10)})`}
-        </Text>
-      ),
-      icon: <Avatar pfp={acc.preferences.pfp} size={30} style={spacings.pr0} />
+      label: <AccountOption acc={acc} />
     }))
-  }, [accounts, maxWidthSize])
+  }, [accounts])
 
   const networksOptions: SelectValue[] = useMemo(
     () =>

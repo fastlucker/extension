@@ -5,7 +5,6 @@ import { AccountOpAction } from '@ambire-common/controllers/actions/actions'
 import { SigningStatus } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import Alert from '@common/components/Alert'
-import { NetworkIconIdType } from '@common/components/NetworkIcon/NetworkIcon'
 import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
@@ -217,12 +216,7 @@ const SignAccountOpScreen = () => {
       />
       <TabLayoutContainer
         width="full"
-        header={
-          <HeaderAccountAndNetworkInfo
-            networkName={network?.name}
-            networkId={network?.id as NetworkIconIdType}
-          />
-        }
+        header={<HeaderAccountAndNetworkInfo />}
         footer={
           <Footer
             onReject={handleRejectAccountOp}

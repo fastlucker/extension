@@ -7,6 +7,7 @@ import { NetworkId } from '@ambire-common/interfaces/network'
 import { getNetworksWithFailedRPC } from '@ambire-common/libs/networks/networks'
 import { CustomToken } from '@ambire-common/libs/portfolio/customToken'
 import Alert from '@common/components/Alert/Alert'
+import NetworkBadge from '@common/components/NetworkBadge'
 import Spinner from '@common/components/Spinner'
 import Text from '@common/components/Text'
 import { useTranslation } from '@common/config/localization'
@@ -233,12 +234,7 @@ const WatchTokenRequestScreen = () => {
   return (
     <TabLayoutContainer
       width="full"
-      header={
-        <HeaderAccountAndNetworkInfo
-          networkName={tokenNetwork?.name}
-          networkId={tokenNetwork?.id}
-        />
-      }
+      header={<HeaderAccountAndNetworkInfo />}
       footer={
         <ActionFooter
           onReject={handleCancel}
@@ -267,9 +263,12 @@ const WatchTokenRequestScreen = () => {
               </Text>
             ) : (
               <>
-                <Text weight="medium" fontSize={20} style={spacings.mbLg}>
-                  {t('Add suggested token')}
-                </Text>
+                <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+                  <Text weight="medium" fontSize={20} style={spacings.mrTy}>
+                    {t('Add suggested token on')}
+                  </Text>
+                  <NetworkBadge networkId={tokenNetwork?.id} />
+                </View>
                 <Text
                   weight="regular"
                   fontSize={16}
