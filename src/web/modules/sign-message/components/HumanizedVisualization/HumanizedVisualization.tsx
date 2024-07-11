@@ -1,16 +1,16 @@
 import { formatUnits, MaxUint256 } from 'ethers'
 import React, { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Linking, View } from 'react-native'
+import { View } from 'react-native'
 
-import { Network, NetworkId } from '@ambire-common/interfaces/network'
+import { NetworkId } from '@ambire-common/interfaces/network'
 import { IrMessage } from '@ambire-common/libs/humanizer/interfaces'
-import OpenIcon from '@common/assets/svg/OpenIcon'
+import Address from '@common/components/Address'
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
 import useTheme from '@common/hooks/useTheme'
+import spacings from '@common/styles/spacings'
 import formatDecimals from '@common/utils/formatDecimals'
-import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import { getMessageAsText } from '@web/modules/sign-message/utils'
 
 import getStyles from './styles'
@@ -27,14 +27,11 @@ const visualizeContent = (kind: string, content?: string) => {
 const HumanizedVisualization: FC<{
   data: IrMessage['fullVisualization']
   networkId?: NetworkId
-  explorerUrl?: Network['explorerUrl']
   kind: string
-}> = ({ kind, data = [], networkId, explorerUrl }) => {
+}> = ({ kind, data = [], networkId }) => {
   const { styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const [bindOpenIconAnim, openIconAnimStyle] = useHover({
-    preset: 'opacityInverted'
-  })
+
   return (
     <View style={styles.headerContent}>
       {data.map((item) => {
@@ -47,7 +44,11 @@ const HumanizedVisualization: FC<{
           return (
             <React.Fragment key={key}>
               {!!item.amount && BigInt(item.amount!) > BigInt(0) ? (
-                <Text fontSize={16} weight="medium">
+                <Text
+                  weight="medium"
+                  appearance="primaryText"
+                  style={{ maxWidth: '100%', ...spacings.mrTy }}
+                >
                   {isUnlimitedByPermit2 || isMaxUint256 ? (
                     <Text appearance="warningText">unlimited </Text>
                   ) : (
@@ -82,26 +83,14 @@ const HumanizedVisualization: FC<{
           )
         }
 
-        if (item.type === 'address')
+        if (item.type === 'address' && item.address)
           return (
-            <React.Fragment key={key}>
-              <Text fontSize={16} weight="medium">
-                {` ${item?.humanizerMeta?.name ? item?.humanizerMeta?.name : item.address} `}
-              </Text>
-              {!!item.address && !!explorerUrl && (
-                <AnimatedPressable
-                  disabled={!explorerUrl}
-                  onPress={() => {
-                    Linking.openURL(`${explorerUrl}/address/${item.address}`)
-                  }}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  style={openIconAnimStyle}
-                  {...bindOpenIconAnim}
-                >
-                  <OpenIcon width={14} height={14} strokeWidth="2" />
-                </AnimatedPressable>
-              )}
-            </React.Fragment>
+            <Address
+              fontSize={16}
+              address={item.address}
+              highestPriorityAlias={item?.humanizerMeta?.name}
+              explorerNetworkId={networkId}
+            />
           )
 
         if (item.content) {
